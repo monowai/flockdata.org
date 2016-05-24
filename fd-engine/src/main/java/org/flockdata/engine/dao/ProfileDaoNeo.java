@@ -23,8 +23,14 @@ package org.flockdata.engine.dao;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.Profile;
+import org.flockdata.profile.ContentProfileResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
 /**
  * User: mike
@@ -36,12 +42,47 @@ public class ProfileDaoNeo {
     @Autowired
     ProfileRepo profileRepo;
 
+    @Autowired
+    Neo4jTemplate template;
+
     public Profile find ( Fortress fortress, DocumentType documentType ){
-        String key = Profile.parseKey (fortress, documentType);
-        return profileRepo.findBySchemaPropertyValue("profileKey", key);
+        return profileRepo.findContentProfile(fortress.getId(), documentType.getId());
     }
 
-    public Profile save(Profile profile) {
-        return profileRepo.save(profile);
+    public Profile save(Profile profileToSave) {
+        Profile profile = profileRepo.save(profileToSave);
+        template.fetch(profile.getDocument());
+        template.fetch(profile.getFortress());
+        return profile;
+    }
+
+    public Collection<ContentProfileResult> find(Long companyId) {
+        Collection<Profile> profiles = profileRepo.findCompanyProfiles(companyId);
+        Collection<ContentProfileResult>results = new ArrayList<>(profiles.size());
+        for (Profile profile : profiles) {
+            template.fetch(profile.getFortress());
+            template.fetch(profile.getDocument());
+            results.add(new ContentProfileResult(profile));
+        }
+        return results;
+    }
+
+    public ContentProfileResult findByKey(Long companyID, String key){
+        Profile profile = profileRepo.findByKey(key);
+        if ( profile == null )
+            return null;
+
+        if (!Objects.equals(profile.getCompany().getId(), companyID))
+            return null; // Somehow you have a key but it ain't for this company
+
+        // Profiles can simply be stored against the company if they just import tags
+        if ( profile.getFortress()!=null )
+            template.fetch(profile.getFortress());
+        if ( profile.getDocument()!=null)
+            template.fetch(profile.getDocument());
+        if ( profile.getCompany()!=null)
+            template.fetch(profile.getCompany());
+
+        return new ContentProfileResult(profile);
     }
 }

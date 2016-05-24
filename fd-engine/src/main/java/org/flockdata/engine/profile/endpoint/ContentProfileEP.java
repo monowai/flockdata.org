@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 /**
  * User: Mike Holdsworth
@@ -58,6 +59,22 @@ public class ContentProfileEP {
     @Autowired
     ConceptService conceptService;
 
+    @RequestMapping(value = "/",
+            produces = "application/json",
+            method = RequestMethod.GET)
+    public Collection<ContentProfileResult> getProfiles (HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return profileService.find(company);
+    }
+
+    @RequestMapping(value = "/{key}",
+            produces = "application/json",
+            method = RequestMethod.GET)
+    public ContentProfileResult getProfileKey(HttpServletRequest request, @PathVariable("key") String key) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return profileService.find(company,key);
+    }
+
     @RequestMapping(value = "/{fortressCode}/{docTypeName}",
             produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
@@ -75,7 +92,7 @@ public class ContentProfileEP {
         if ( documentType == null )
             throw new IllegalArgumentException("Unable to locate the document " + docTypeName);
 
-        return profileService.get(fortress, documentType);
+        return profileService.get(company, fortress, documentType);
 
     }
 
@@ -96,8 +113,7 @@ public class ContentProfileEP {
         DocumentType documentType = conceptService.resolveByDocCode(fortress, docTypeName, Boolean.FALSE);
         if ( documentType == null )
             throw new IllegalArgumentException("Unable to locate the document " + docTypeName);
-
-        return new ContentProfileResult(profileService.save(fortress, documentType, contentProfile));
+        return profileService.saveFortressContentType(company, fortress, documentType, contentProfile);
 
     }
 
@@ -129,8 +145,6 @@ public class ContentProfileEP {
         result.setHeader(true);
         result.setFortress(new FortressInputBean(fortress));
         return result;
-//        return profileService.validate(contentRequest);
-
     }
 
 

@@ -76,6 +76,10 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
         if (!isNull(nodeValue))
             contentProfileImpl.setTagOrEntity(nodeValue.asText().equalsIgnoreCase("entity")? ContentProfile.DataType.ENTITY : ContentProfile.DataType.TAG);
 
+        nodeValue = node.get("name");
+        if (!isNull(nodeValue))
+            contentProfileImpl.setName(nodeValue.asText());
+
         nodeValue = node.get("condition");
         if (!isNull(nodeValue))
             contentProfileImpl.setCondition(nodeValue.asText());

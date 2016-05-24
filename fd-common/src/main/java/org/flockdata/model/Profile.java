@@ -16,6 +16,7 @@
 
 package org.flockdata.model;
 
+import org.flockdata.track.bean.TrackResultBean;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
@@ -34,7 +35,7 @@ public class Profile {
     private Long id;
 
     @Indexed(unique = true)
-    private String profileKey;
+    private String key;
 
     //@Relationship(type = "FORTRESS_PROFILE")
     @RelatedTo(type = "FORTRESS_PROFILE")
@@ -44,35 +45,48 @@ public class Profile {
     @RelatedTo( type = "DOCUMENT_PROFILE")
     private DocumentType document;
 
-    private String content;
+    @RelatedTo(type = "COMPANY_PROFILE")
+    private Company company;
+
+    private String name;
 
     Profile() {}
 
-    public Profile(Fortress fortress, DocumentType documentType) {
+    public Profile(TrackResultBean trackResultBean, Fortress fortress, DocumentType documentType) {
         this();
+        this.company = trackResultBean.getCompany();
         this.fortress = fortress;
         this.document = documentType;
-        this.profileKey = parseKey(fortress, documentType);
+        this.name = trackResultBean.getEntity().getName();
+        this.key = trackResultBean.getKey();
+
     }
 
-    public String getContent() {
-        return content;
+    public Company getCompany() {
+        return company;
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public String getProfileKey() {
-        return profileKey;
-    }
-
-    public static String parseKey(Fortress fortress, DocumentType documentType) {
-        return fortress.getId() +"-"+documentType.getId();
+    public String getKey() {
+        return key;
     }
 
     public Long getId() {
         return id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public Fortress getFortress() {
+        return fortress;
+    }
+
+    public DocumentType getDocument() {
+        return document;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

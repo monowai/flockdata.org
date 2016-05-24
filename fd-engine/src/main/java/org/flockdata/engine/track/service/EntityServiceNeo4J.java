@@ -102,6 +102,9 @@ public class EntityServiceNeo4J implements EntityService {
     TagService tagService;
 
     @Autowired
+    StorageProxy storageProxy;
+
+    @Autowired
     @Qualifier("engineConfig")
     PlatformConfig platformConfig;
 
@@ -118,6 +121,22 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public Collection<EntityKeyBean> getInboundEntities(Entity entity, boolean withEntityTags) {
         return entityDao.getInboundEntities(entity, withEntityTags);
+    }
+
+    @Override
+    public Map<String, Object> getEntityDataLast(Company company, String key) throws FlockException {
+        Entity entity = getEntity(company, key);
+        if (entity != null) {
+
+            EntityLog log = getLastEntityLog(entity.getId());
+            if (log != null) {
+                StoredContent content = storageProxy.read(entity, log.getLog());
+                if (content == null)
+                    throw new FlockException("Unable to locate the content for " + key + ". The log was found - " + log);
+                return content.getData();
+            }
+        }
+        return null;
     }
 
     @Override
@@ -378,7 +397,7 @@ public class EntityServiceNeo4J implements EntityService {
                     StoredContent storedContent = contentReader.read(log.getEntity(), log.getLog());
                     results.add(new EntityLogResult(log, storedContent));
                 } else {
-                    results.add( new EntityLogResult(log));
+                    results.add(new EntityLogResult(log));
                 }
             }
         } else {
@@ -756,7 +775,7 @@ public class EntityServiceNeo4J implements EntityService {
             throw new AmqpRejectAndDontRequeueException("key could not be found for [{" + searchResult.getKey() + "}]");
         }
 
-        if ( platformConfig.isSearchRequiredToConfirm()) { // Search ACK
+        if (platformConfig.isSearchRequiredToConfirm()) { // Search ACK
             entity.setSearchKey(searchResult.getSearchKey());
             entity.bumpSearch();
             entityDao.save(entity, true); // We don't treat this as a "changed" so we do it quietly
@@ -782,7 +801,7 @@ public class EntityServiceNeo4J implements EntityService {
             return;
         }
 
-        // Another thread may have processed this so save an update
+        // Another thread may have processed this so saveFortressContentType an update
         if (!entityLog.isIndexed()) {
             // We need to know that the change we requested to index has been indexed.
             logger.debug("Updating index status for {}", entityLog);

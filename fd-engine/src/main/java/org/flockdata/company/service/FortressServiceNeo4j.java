@@ -384,6 +384,19 @@ public class FortressServiceNeo4j implements FortressService {
         return fortressDao.update(existing);
     }
 
+    @Override
+    public Fortress findInternalFortress(Company company) {
+        String internal = ".fd-internal";
+        Fortress systemFortress = findByName(company, internal);
+        if ( systemFortress== null ){
+            FortressInputBean createMe = new FortressInputBean(internal);
+            createMe.setSystem(true);
+            systemFortress = save(company, createMe);
+
+        }
+        return systemFortress;
+    }
+
     private Map<Long, EntityTagFinder> tagFinders = new HashMap<>();
 
     @Override

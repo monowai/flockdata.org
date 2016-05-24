@@ -12,6 +12,7 @@ import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.service.BatchService;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.ProfileReader;
 import org.joda.time.DateTime;
@@ -129,6 +130,9 @@ public class TestEntityLinks extends EngineBase {
     @Autowired
     ContentProfileService contentProfileService;
 
+    @Autowired
+    BatchService batchService;
+
     @Test
     public void error_whenEntityDoesNotExist() throws Exception {
         cleanUpGraph();
@@ -147,8 +151,8 @@ public class TestEntityLinks extends EngineBase {
         DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
 
         ContentProfileImpl params = ProfileReader.getImportProfile("/profiles/test-entitylinks.json");
-        contentProfileService.save(fortress, timesheet, params );
-        contentProfileService.process(su.getCompany(), fortress, timesheet, "/data/test-entitylinks.csv", false);
+        contentProfileService.saveFortressContentType(su.getCompany(), fortress, timesheet, params );
+        batchService.process(su.getCompany(), fortress, timesheet, "/data/test-entitylinks.csv", false);
         // recorded is the relationship type in the content profile definition
         String rlxName = "recorded";
         Map<String, Collection<Entity>> linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "1", rlxName);
@@ -179,8 +183,8 @@ public class TestEntityLinks extends EngineBase {
         ContentProfileImpl params = ProfileReader.getImportProfile("/profiles/test-entitylinks.json");
         ColumnDefinition colDef = params.getColumnDef("EmployeeNumber");
         colDef.getEntityLinks().iterator().next().get(rlxName);
-        contentProfileService.save(fortress, timesheet, params );
-        contentProfileService.process(su.getCompany(), fortress, timesheet, "/data/test-entitylinks.csv", false);
+        contentProfileService.saveFortressContentType(su.getCompany(), fortress, timesheet, params );
+        batchService.process(su.getCompany(), fortress, timesheet, "/data/test-entitylinks.csv", false);
         // recorded is the relationship type in the content profile definition
         Map<String, Collection<Entity>> linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "1", rlxName);
         assertEquals("This timesheet should have a reference to an existing staff", 1, linkedEntities.get(rlxName).size());

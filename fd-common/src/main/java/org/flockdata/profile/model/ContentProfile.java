@@ -31,6 +31,8 @@ public interface ContentProfile extends ImportFile {
 
     DocumentTypeInputBean getDocumentType();
 
+    String getName();
+
     void setContent(Map<String, ColumnDefinition> columns);
 
     Map<String, ColumnDefinition> getContent();
