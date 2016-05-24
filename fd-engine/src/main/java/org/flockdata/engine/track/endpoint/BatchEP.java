@@ -24,9 +24,8 @@ import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
-import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ContentProfileService;
+import org.flockdata.track.service.BatchService;
 import org.flockdata.track.service.MediationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,6 +50,9 @@ public class BatchEP {
     @Autowired
     ContentProfileService profileService;
 
+    @Autowired
+    BatchService batchService;
+
     @RequestMapping(value = "/{fortress}/{document}/import", consumes = "application/json", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public void track(
@@ -60,32 +62,32 @@ public class BatchEP {
         if (filename == null)
             throw new NotFoundException("No file to process");
 
-        profileService.validateArguments(company, fortressCode, documentName, filename.toString());
+        batchService.validateArguments(company, fortressCode, documentName, filename.toString());
         boolean async = false;
         Object value = file.get("async");
         if ( value != null )
             async = Boolean.parseBoolean(value.toString());
 
         if ( async)
-            profileService.processAsync(company, fortressCode, documentName, filename.toString());
+            batchService.processAsync(company, fortressCode, documentName, filename.toString());
         else
-            profileService.process(company, fortressCode, documentName, filename.toString(), async);
+            batchService.process(company, fortressCode, documentName, filename.toString(), async);
     }
 
-    @RequestMapping(value = "/{fortress}/{document}", consumes = "application/json", method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.OK)
-    public void putDocument(@RequestBody ContentProfileImpl profile,
-                            HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-        Company company = CompanyResolver.resolveCompany(request);
-        profileService.save(company, fortressCode, documentName, profile);
-    }
+//    @RequestMapping(value = "/{fortress}/{document}", consumes = "application/json", method = RequestMethod.POST)
+//    @ResponseStatus(value = HttpStatus.OK)
+//    public void putDocument(@RequestBody ContentProfileImpl profile,
+//                            HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+//        Company company = CompanyResolver.resolveCompany(request);
+//        profileService.saveFortressContentType(company, fortressCode, documentName, profile);
+//    }
+//
 
-
-    @RequestMapping(value = "/{fortress}/{document}", consumes = "application/json", method = RequestMethod.GET)
-    @ResponseStatus(value = HttpStatus.OK)
-    public ContentProfile getDocument(HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-        Company company = CompanyResolver.resolveCompany(request);
-        return profileService.get(company, fortressCode, documentName);
-    }
+//    @RequestMapping(value = "/{fortress}/{document}", consumes = "application/json", method = RequestMethod.GET)
+//    @ResponseStatus(value = HttpStatus.OK)
+//    public ContentProfile getDocument(HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+//        Company company = CompanyResolver.resolveCompany(request);
+//        return profileService.get(company, fortressCode, documentName);
+//    }
 
 }

@@ -55,8 +55,8 @@ public class TestProfiles extends EngineBase {
         ContentProfile profile = ContentProfileDeserializer.getContentProfile("/profiles/test-profile.json");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("create_profile", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "Olympic");
-        profileService.save(fortress, docType, profile);
-        ContentProfile savedProfile = profileService.get(fortress, docType);
+        profileService.saveFortressContentType(su.getCompany(), fortress, docType, profile);
+        ContentProfile savedProfile = profileService.get(su.getCompany(), fortress, docType);
         assertNotNull ( savedProfile);
         assertEquals(profile.getFortressUser(), savedProfile.getFortressUser());
         assertEquals(profile.isEntityOnly(), savedProfile.isEntityOnly());
@@ -67,8 +67,8 @@ public class TestProfiles extends EngineBase {
         assertEquals(true, column.isTag());
         assertNull(savedProfile.getHandler());
         column.setMustExist(false);
-        profileService.save(fortress,docType, savedProfile);
-        savedProfile = profileService.get(fortress, docType);
+        profileService.saveFortressContentType(su.getCompany(), fortress,docType, savedProfile);
+        savedProfile = profileService.get(su.getCompany(), fortress, docType);
         assertNull(savedProfile.getHandler());
         assertFalse("Updating the mustExist attribute did not persist",savedProfile.getContent().get("TagVal").isMustExist());
 

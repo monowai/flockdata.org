@@ -265,21 +265,13 @@ public class EntityEP {
                                        HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
-        Entity entity = entityService.getEntity(company, key);
-        if (entity != null) {
-
-            EntityLog log = entityService.getLastEntityLog(entity.getId());
-            if (log != null) {
-                StoredContent content = storageProxy.read(entity, log.getLog());
-                if (content == null)
-                    throw new FlockException("Unable to locate the content for " + key + ". The log was found - " + log);
-                return content.getData();
-            }
-        }
+        Map<String, Object> content = entityService.getEntityDataLast(company, key);
+        if (content != null) return content;
 
         throw new NotFoundException(String.format("Unable to locate the log for %s / lastLog", key));
 
     }
+
 
     @RequestMapping(value = "/{key}/log/{logId}", produces = "application/json", method = RequestMethod.GET)
     public

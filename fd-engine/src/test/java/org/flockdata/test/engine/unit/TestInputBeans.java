@@ -61,7 +61,7 @@ public class TestInputBeans {
     public void testFortressInputBean() {
 
         FortressInputBean fib = new FortressInputBean("ABC");
-        assertTrue(fib.getSearchEnabled());
+        assertEquals (null, fib.getSearchEnabled());
         assertEquals (null, fib.getStoreEnabled());
 
         fib = new FortressInputBean("ABC", false);

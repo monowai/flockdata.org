@@ -33,7 +33,7 @@ import java.util.TimeZone;
  */
 public class FortressInputBean implements Serializable, MetaFortress {
     private String name;
-    private Boolean searchEnabled = false;
+    private Boolean searchEnabled = null;
     private Boolean storeEnabled = null;
 
     private String message = null;
@@ -63,7 +63,6 @@ public class FortressInputBean implements Serializable, MetaFortress {
 
     public FortressInputBean(String name) {
         this.name = name;
-        searchEnabled = true;
         this.code = name;
     }
 

@@ -21,6 +21,7 @@
 package org.flockdata.test.engine.mvc;
 
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.*;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.FortressInputBean;
@@ -28,6 +29,8 @@ import org.flockdata.registration.FortressResultBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.Collection;
 
 import static junit.framework.TestCase.*;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
@@ -49,6 +52,8 @@ public class TestContentProfile extends  MvcBase{
                     contentProfile,
                     MockMvcResultMatchers.status().isOk());
         assertNotNull ( result);
+        assertNotNull(result.getDocumentType());
+        assertNotNull(result.getFortress());
 
         ContentProfile contentResult = getContentProfile(mike(),
                 fortressResultBean.getCode(),
@@ -90,6 +95,51 @@ public class TestContentProfile extends  MvcBase{
         assertFalse ( result.getResults().isEmpty());
 
     }
+
+    @Test
+    public void find_CompanyProfiles() throws Exception {
+        ContentProfileImpl contentProfile = ContentProfileDeserializer.getContentProfile("/profiles/test-csv-batch.json");
+        contentProfile.setName("SettingTheName");
+        makeDataAccessProfile("find_CompanyProfiles", "mike");
+        FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("find_CompanyProfiles"));
+
+        makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean("ContentStoreFind")  );
+        ContentProfileResult result = makeContentProfile(mike(),
+                fortressResultBean.getCode(),
+                "ContentStoreFind",
+                contentProfile,
+                MockMvcResultMatchers.status().isOk());
+        assertNotNull ( result);
+
+        assertEquals("Mismatch on name", contentProfile.getName(), result.getName());
+
+        Collection<ContentProfileResult> profileResults = findContentProfiles(mike(),MockMvcResultMatchers.status().isOk());
+        assertNotNull(profileResults);
+        assertTrue(profileResults.size()==1);
+        for (ContentProfileResult foundResult : profileResults) {
+            assertNotNull(foundResult.getFortress());
+            assertNotNull(foundResult.getDocumentType());
+        }
+        ContentProfileResult foundResult = findContentProfile(mike(), result.getKey(), MockMvcResultMatchers.status().isOk());
+        assertNotNull(foundResult);
+        assertNotNull(foundResult.getFortress());
+        assertNotNull(foundResult.getDocumentType());
+
+        // Update the name
+        contentProfile.setName("Updated Name");
+        result = makeContentProfile(mike(),
+                fortressResultBean.getCode(),
+                "ContentStoreFind",
+                contentProfile,
+                MockMvcResultMatchers.status().isOk());
+
+        assertEquals("Updated name did not persist", contentProfile.getName(), result.getName());
+
+        exception.expect(NotFoundException.class);
+        findContentProfile(sally(), result.getKey(), MockMvcResultMatchers.status().isNotFound());
+
+    }
+
 
 
 }

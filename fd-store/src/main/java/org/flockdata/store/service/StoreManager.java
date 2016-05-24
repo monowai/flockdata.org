@@ -123,10 +123,17 @@ public class StoreManager implements StoreService {
 
     FdStoreRepo getStore(Store store) {
         if (store == Store.REDIS) {
+            if (redisRepo == null)
+                throw new AmqpRejectAndDontRequeueException("Redis store was requested but not enabled");
             return redisRepo;
         } else if (store == Store.RIAK) {
+            if (riakRepo == null)
+                throw new AmqpRejectAndDontRequeueException("Riak store was requested but not enabled");
             return riakRepo;
         } else if (store == Store.MEMORY) {
+            if (inMemoryRepo == null)
+                throw new AmqpRejectAndDontRequeueException("Non-persistent InMemory store was requested but not enabled");
+
             return inMemoryRepo;
         } else {
             logger.info("The only supported persistent KV Stores supported are redis & riak. Returning a non-persistent memory based map");

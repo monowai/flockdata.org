@@ -16,17 +16,20 @@
 
 package org.flockdata.profile;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.model.Profile;
-
-import java.util.Collection;
+import org.flockdata.profile.model.ContentProfile;
 
 /**
  * Created by mike on 14/04/16.
  */
 public class ContentProfileResult {
-    private Collection<String> serviceMessages = null;
 
-    private String profileKey;
+    private String key;
+    private String name;
+    private String documentType;
+    private String fortress ;
+    private ContentProfile contentProfile;
 
     ContentProfileResult () {
 
@@ -34,14 +37,35 @@ public class ContentProfileResult {
 
     public ContentProfileResult(Profile profile){
         this();
-        this.profileKey = profile.getProfileKey();
+        this.key = profile.getKey();
+        this.name = profile.getName();
+        this.fortress = profile.getFortress().getName();
+        this.documentType = profile.getDocument().getName();
+
     }
 
-    public Collection<String> getServiceMessages() {
-        return serviceMessages;
+    public String getKey() {
+        return key;
     }
 
-    public String getProfileKey() {
-        return profileKey;
+    public String getName() {
+        return name;
+    }
+
+    public String getDocumentType() {
+        return documentType;
+    }
+
+    public String getFortress() {
+        return fortress;
+    }
+
+    public void setContentProfile(ContentProfile contentProfile) {
+        this.contentProfile = contentProfile;
+    }
+
+    @JsonDeserialize(using = ContentProfileDeserializer.class)
+    public ContentProfile getContentProfile() {
+        return contentProfile;
     }
 }
