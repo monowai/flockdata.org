@@ -102,7 +102,10 @@ public class StoreManager implements StoreService {
 
         try {
             logger.debug("Received request to add storeBean {}", storeBean);
-            getStore(Store.valueOf(storeBean.getStore().toUpperCase())).add(storeBean);
+            FdStoreRepo store = getStore(Store.valueOf(storeBean.getStore().toUpperCase()));
+            if ( store == null )
+                throw new AmqpRejectAndDontRequeueException("Configured store manager "+storeBean.getStore().toUpperCase() +" was configured but not available");
+            store.add(storeBean);
 
         } catch (IOException e) {
             String errorMsg = String.format("Error writing to the %s Store.", storeBean.getStore());
