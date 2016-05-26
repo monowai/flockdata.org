@@ -28,7 +28,7 @@ import org.testcontainers.containers.DockerComposeContainer;
  * Created by mike on 6/05/16.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ SanityCheckTesting.class, ReadWriteTesting.class, AdminFunctionTesting.class})
+@Suite.SuiteClasses({ IntSanityCheck.class, IntReadWrite.class, IntAdminFunction.class})
 public class ITSuite {
 
     private static DockerComposeContainer stack = FdDocker.stack;
