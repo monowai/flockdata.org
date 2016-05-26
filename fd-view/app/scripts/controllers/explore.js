@@ -20,8 +20,8 @@
 
 'use strict';
 
-fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile', '$controller', 'configuration', 'cyGraph',
-  function ($scope, $http, QueryService, $compile, $controller, configuration, cyGraph) {
+fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile', '$controller', 'configuration',
+  function ($scope, $http, QueryService, $compile, $controller, configuration) {
     $scope.matrix = QueryService.lastMatrix();
     if(_.isEmpty($scope.matrix)) {
       angular.element('[data-target="#search"]').tab('show');
@@ -124,8 +124,6 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
       }}
     ];
 
-    //$scope.node = {};
-
     $scope.search = function () {
       angular.element('[data-target="#view"]').tab('show');
       if ($scope.sharedRlxChecked) {
@@ -156,33 +154,4 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
         });
 
     };
-
-    // $scope.openView = function () {
-    //   angular.element('[data-target="#view"]').tab('show');
-    // };
-    //
-    // $scope.changeLayout = function () {
-    //   console.log('change');
-    //   if ($scope.layout === {name:'cose'}) $scope.layout={name:'grid'};
-    //   else $scope.layout = {name: 'cose'};
-    // };
-
-    // QueryService.matrixSearch(["medline"],"cervical",1000,
-    //   ["Study"],true,["Person"],["lead","writer"],
-    //   ["lead","writer"],1,true,true)
-    //     .then(function (data) {
-    //       console.log(data);
-    //       $scope.graphData=data;
-    //     });
-    // cyGraph.on('click', function (e) {
-    //   var et = e.cyTarget;
-    //   if(et === cyGraph) console.log('Clicked');
-    // });
-    // $http.post(configuration.engineUrl() + '/api/v1/query/matrix/', req)
-    //   .then(function (response){
-    //     csService(response.data);
-    //   });
-
-
-
   }]);

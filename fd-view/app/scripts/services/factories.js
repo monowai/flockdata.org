@@ -82,34 +82,52 @@ fdView.factory('QueryService', ['$http', 'configuration', function ($http, confi
 )
 .factory('ContentProfile', ['$http', '$q', 'configuration',
   function ($http, $q, configuration) {
+    var cplist = [];
     var cp = {};
     var cpGraph = {};
     var cpFortress, cpType;
     return {
+      getAll: function () {
+        return $http.get(configuration.engineUrl() + '/api/v1/content/')
+          .success(function (data) {
+            angular.copy(data, cplist);
+          });
+      },
+      createEmpty: function (profile) {
+        this.cpFortress = profile.fortress;
+        this.cpType = profile.type;
+        this.cp = profile;
+      },
+      createDefault: function (fortress, doctype) {
+        angular.copy(fortress, cpFortress);
+        angular.copy(doctype, cpType);
+        return $http.post(configuration.engineUrl() + '/api/v1/content/default/');
+      },
       getFortress: function () {
         if (cpFortress) { return cpFortress; }
       },
       getDocType: function () {
         if (cpType) { return cpType; }
       },
-      getProfile: function (fortress, type) {
-        if ((fortress===cpFortress && type===cpType && cp!=={}) || (!fortress && cp.length>0)) {
+      getProfile: function (profile) {
+        if ((profile.fortress===cpFortress && profile.documentType===cpType && cp!=={}) || (!profile.fortress && cp.length>0)) {
           var deferred = $q.defer();
           deferred.resolve(cp);
           return deferred.promise;
         } else {
-          angular.copy(fortress, cpFortress);
-          angular.copy(type, cpType);
-          this.cpFortress = fortress;
-          this.cpType = type;
-          return $http.get(configuration.engineUrl() + '/api/v1/content/' + fortress + '/' + type)
+          if (profile.fortress!==cpFortress) angular.copy(profile.fortress, this.cpFortress);
+          if (profile.documentType!==cpType) angular.copy(profile.documentType, this.cpType);
+          // this.cpFortress = fortress;
+          // this.cpType = type;
+          return $http.get(configuration.engineUrl() + '/api/v1/content/' + profile.key)
             .success(function (data) {
               console.log(data);
-              angular.copy(data, cp);
+              angular.copy(data.contentProfile, cp);
             });
         }
       },
       graphProfile: function () {
+        if (_.isEmpty(cp)) return ;
         if (cpGraph.length>0) {
           return cpGraph;
         }
@@ -206,80 +224,8 @@ fdView.factory('QueryService', ['$http', 'configuration', function ($http, confi
         this.graphProfile();
       },
       saveProfile: function () {
-       return $http.post(configuration.engineUrl() + '/api/v1/content/' + this.cpFortress+'/'+this.cpType, cp);
+        var fcode = this.cpFortress.toLowerCase().replace(/\s/g, '');
+        return $http.post(configuration.engineUrl() + '/api/v1/content/' + fcode +'/'+this.cpType+'/', cp);
       }
   };
-}]);
-
-fdView.factory('cyGraph', ['$q', function($q){
-  var cy;
-  var cyGraph = function(graph) {
-    var deferred = $q.defer();
-
-    $(function(){
-      cy = cytoscape({
-        container: document.getElementById('cy'),
-
-        style: cytoscape.stylesheet()
-          .selector('node')
-          .css({
-            'content': 'data(name)',
-            'font-size': '15pt',
-            'min-zoomed-font-size': '9pt',
-            'text-halign': 'center',
-            'text-valign': 'center',
-            'color': 'white',
-            'text-outline-width': 2,
-            'text-outline-color': '#888',
-            'width': 20,//'mapData(degree,0,5,20,80)',
-            'height': 20//'mapData(degree,0,5,20,80)'
-          })
-          .selector('edge')
-          .css({
-            'width': 3,
-            'target-arrow-color': '#ccc',
-            'target-arrow-shape': 'triangle'
-          })
-          .selector(':selected')
-          .css({
-            'background-color': 'black',
-            'line-color': 'black',
-            'target-arrow-color': 'black',
-            'source-arrow-color': 'black',
-            'text-outline-color': 'black'
-          }),
-
-        layout: {
-          name: 'cose'
-        },
-
-        elements: graph,
-
-        ready: function(){
-          deferred.resolve( this );
-        }
-      });
-    });
-
-    return deferred.promise;
-  };
-
-  cyGraph.listeners = {};
-
-  function fire(e, args) {
-    var listeners = cyGraph.listeners[e];
-
-    for (var i = 0; listeners && i < listeners.length; i++) {
-      var fn = listeners[i];
-
-      fn.apply(fn, args);
-    }
-  }
-
-  function listen(e, fn) {
-    var listeners = cyGraph.listeners[e] = cyGraph.listeners[e] || [];
-
-    listeners.push(fn);
-  }
-  return cyGraph;
 }]);

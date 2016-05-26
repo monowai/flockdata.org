@@ -72,7 +72,6 @@ fdView.factory('DataSharingService', function () {
   }
 );
 
-
 fdView.factory('Session', [
     function () {
       this.create = function (data) {

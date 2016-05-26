@@ -219,8 +219,7 @@ angular.module('fdView.directives', [])
         contextMenuCommands: '='
       },
       link: function(scope, element, attributes, controller) {
-        scope.$watchGroup(['elements', 'styles', 'layout'], function(
-          newValues, oldValues, scope) {
+        scope.$watchGroup(['elements', 'styles', 'layout'], function(newValues, oldValues, scope) {
           var safe = true;
           for ( var i in newValues)
             if (!newValues[i]) safe = false;
@@ -285,32 +284,42 @@ angular.module('fdView.directives', [])
                       .addClass('edge-related');
                   }
                 });
+                cy.on('cxttapstart', 'node', function (event) {
+                  console.log(event);
+                });
+                cy.on('mouseup', function (event) {
+                  console.log(event);
+                });
+                cy.on('drop',function (event) {
+                  console.log(event);
+                });
+
                 // Add elements
                 scope.$on('cytoscapeAddElements', function(event, data) {
-                  // console.log('add');
                   var addElements = data.elements;
                   var addedElements = cy.add(addElements);
                   runLayout(addedElements);
                   scope.onChange(cy, data.forceApply);
                 });
                 // Delete elements
-                scope.$on('cytoscapeDeleteElements',
-                  function(event, data) {
-                    var deleteElements = data.elements;
-                    try {
-                      cy.remove(deleteElements);
-                    } catch (exception) {
-                      for ( var i in deleteElements) {
-                        cy.remove(cy.$('#'
-                          + deleteElements[i].data.id));
-                      }
+                scope.$on('cytoscapeDeleteElements', function(event, data) {
+                  var deleteElements = data.elements;
+                  try {
+                    cy.remove(deleteElements);
+                  } catch (exception) {
+                    for ( var i in deleteElements) {
+                      cy.remove(cy.$('#'
+                        + deleteElements[i].data.id));
                     }
-                    scope.onChange(cy, data.forceApply);
-                  });
-                scope.$on('cytoscapeResize', function (event) {
-                  // console.log(event);
+                  }
+                  scope.onChange(cy, data.forceApply);
+                });
+                scope.$on('cytoscapeReset', function (event) {
+                  console.log(event);
                   cy.resize();
-                  // scope.onChange(cy, data.forceApply);
+                });
+                scope.$on('dropped', function (event, data) {
+                  console.log('dropped', event);
                 });
                 // Filter nodes by name
                 scope.$watch('highlightByName', function(name) {
@@ -331,8 +340,7 @@ angular.module('fdView.directives', [])
                 // Navigator
                 if (scope.navigatorContainerId) {
                   cy.navigator({
-                    container: document
-                      .getElementById(scope.navigatorContainerId)
+                    container: document.getElementById(scope.navigatorContainerId)
                   });
                 }
                 // Context menu
@@ -428,6 +436,53 @@ angular.module('fdView.directives', [])
           el.draggable(options); // make element draggable
       }
     };
-  }]);
+  }])
+  .directive('droppable',['$compile',function($compile){
+    return {
+      restrict: 'AE',
+      replace: true,
+      // scope: {},
+      // templateUrl: function(el,attrs){
+      //   return (angular.isDefined(attrs.template)) ? attrs.template : '/tmpls/droppable-default';
+      // },
+      link: function(scope,el,attrs,ctrlr,transFn){
+        scope.obj = {
+          id: null,
+          dropped: []
+        };
+
+        // save the object's id if there is one
+        if(angular.isDefined(attrs.id))
+          scope.obj.id = attrs.id;
+
+        // setup the options object to pass to jQuery UI's draggable method
+        var opts = (angular.isDefined(attrs.options)) ? scope.$eval(attrs.options) : {};
+
+        var evts = {
+          drop: function(evt,ui){ // apply content
+            console.log('drop', evt, ui);
+            scope.$apply(function(){
+              scope.obj.dropped.push(angular.copy(scope.$parent.obj));
+              scope.$emit('data.clean');
+              scope.$broadcast('dropped',ui);
+            });
+          },
+          dragover: function(e) {
+            console.log('dragover', e);
+            e.preventDefault();
+            e.stopPropagation();
+            element.addClass('is-dragover');
+          },
+          dragleave: function() {
+            element.removeClass('is-dragover');
+          }
+        };
+
+        var options = angular.extend({},opts,evts);
+        el.droppable(options);
+      } // end link
+
+    }; // end return
+  }]); // end directive(droppable)
 
 // Directives

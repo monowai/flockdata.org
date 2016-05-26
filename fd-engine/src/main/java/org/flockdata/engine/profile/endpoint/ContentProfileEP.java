@@ -129,21 +129,17 @@ public class ContentProfileEP {
 
     }
 
-    @RequestMapping(value = "/default/{fortress}/{docType}",
+    @RequestMapping(value = "/default",
             produces = "application/json",
             consumes = "application/json",
             method = RequestMethod.POST)
     public ContentProfile defaultContentProfile(HttpServletRequest request,
-                                                @RequestBody ContentValidationRequest contentRequest,
-                                                @PathVariable("fortress") String fortress,
-                                                @PathVariable("docType") String docType)
+                                                @RequestBody ContentValidationRequest contentRequest)
             throws FlockException {
         CompanyResolver.resolveCompany(request);
         ContentProfile result = profileService.createDefaultContentProfile(contentRequest);
-        result.setDocumentType( new DocumentTypeInputBean(docType));
         result.setContentType(ImportFile.ContentType.CSV);
         result.setHeader(true);
-        result.setFortress(new FortressInputBean(fortress));
         return result;
     }
 

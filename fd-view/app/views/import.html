@@ -35,87 +35,275 @@
 <section class="content">
   <div class="row">
     <div class="col-md-12">
-      <div class="nav-tabs-custom">
-        <ul class="nav nav-tabs">
-          <li ui-sref-active="active"><a ui-sref="import.load"><i class="fa fa-upload"></i> File</a></li>
-          <li ui-sref-active="active"><a ui-sref="import.edit"><i class="fa fa-compass"></i> Profile</a></li>
-          <li ui-sref-active="active"><a ui-sref="import.validate"><i class="fa fa-magic"></i> Resolution</a></li>
-        </ul>
+      <div class="tab-content">
+        <div id="list" class="tab-pane fade in active">
+          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Content Profiles - {{profile.companyName}}</h3>
+              <div class="box-tools">
+                <div class="input-group input-group-sm" style="width: 150px;">
+                  <select class="form-control" id="fortress"  ng-model="fortress" ng-options="f.name as f.name for f in fortresses" ng-change="selectFortress(fortress)">
+                    <option value="" disabled selected>Data Provider</option>
+                  </select>
+                  <div class="input-group-btn">
+                    <button class="btn btn-default" ng-click="createFortress()" uib-tooltip="New Data Provider"><i class="fa fa-lg fa-plus"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body table-responsive no-padding">
+              <table class="table table-hover">
+                <tbody><tr>
+                  <th>Data Type</th>
+                  <th>Description</th>
+                  <th>Action</th>
+                </tr>
+                <tr ng-repeat="cp in cplist">
+                  <td>{{cp.documentType}}</td>
+                  <td>{{cp.name}}</td>
+                  <td>
+                    <div class="tools">
+                      <button type="button" class="btn btn-box-tool" uib-tooltip="Edit" data-target="#editor" data-toggle="tab" ng-click="editProfile(cp)"><i class="fa fa-lg fa-edit"></i></button>
+                      <button type="button" class="btn btn-box-tool" uib-tooltip="View" ng-click=""><i class="fa fa-lg fa-sitemap"></i></button>
+                      <button type="button" class="btn btn-box-tool" uib-tooltip="Delete" ng-click="deleteProfile(f, doc)"><i class="fa fa-lg fa-trash-o"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                </tbody></table>
+            </div>
+            <!-- /.box-body -->
+            <div class="box-footer">
+              <button class="btn btn-sm btn-primary" uib-tooltip="Create Profile" ng-click="createProfile()"><i class="fa fa-plus"></i></button>
+            </div>
+          </div>
+        </div> <!-- /tab-pane-->
 
-        <div class="tab-content">
-           <ui-view></ui-view>
+        <div id="editor" class="tab-pane fade">
+          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Edit Content Profile</h3>
+              <div class="box-tools">
+                <button type="button" class="close" data-target="#list" data-toggle="tab" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <div class="row">
+                <!--<div class="col-md-2"></div>-->
+                <div class="col-md-2">
+                  <div class="form-group" style="width: 180px; margin: 10px">
+                    <label class="col-sm-4 control-label">Layout</label>
+                    <div class="col-sm-8">
+                      <select ng-model="layout" ng-options="l.name for l in layouts"></select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 pull-right">
+                  <ul class="nav nav-pills">
+                    <li class="active"><a data-target="#structure" data-toggle="tab"><i class="fa fa-sitemap"></i>Structure</a></li>
+                    <li><a data-target="#json" data-toggle="tab"><i class="fa fa-edit"></i>Edit JSON</a></li>
+                    <!--<li><a data-target="upload" href="">Analyze CSV</a></li>-->
+                  </ul>
+                </div>
+              </div>
+              <div class="tab-content">
+                <div id="structure" class="tab-pane fade in active">
+                  <div class="col-md-2">
+                    <label class="control-label">Create</label>
+                    <button class="btn btn-sm btn-block btn-primary" draggable options="{opacity: .5,revert: true}">Entity</button>
+                    <button class="btn btn-sm btn-block btn-warning" draggable options="{opacity: .5,revert: true}">Tag</button>
+                    <button class="btn btn-sm btn-block btn-info" draggable options="{opacity: .5,revert: true}">Alias</button>
+                    <label class="control-label">Columns</label>
+                    <div class="btn-toolbar" id="Columns" ng-show="keys.length>0">
+                      <button class="btn btn-xs btn-primary" draggable options="{opacity: .5,revert: true}" style="margin: 2px;" ng-repeat="key in keys">{{key}}</button>
+                    </div>
+                  </div>
+                  <div class="col-md-10">
+                    <cytoscape elements="profileGraph" layout="layout" styles="styles" selected-nodes="nodes" ng-height="200" droppable></cytoscape>
+                  </div>
+                </div>
+                <div id="json" class="tab-pane fade">
+                  <div ng-jsoneditor="onEditorLoad" ng-model="contentProfile" options="editorOptions.tree" ng-height="200"></div>
+                </div>
+                <div id="upload" class="tab-pane fade"></div>
+              </div>
+              <div class="clearfix"></div>
+            </div>
+            <!-- /.box-body -->
+            <div class="box-footer">
+              <button class="btn btn-default"  data-target="#list" data-toggle="tab">Cancel</button>
+              <div class="pull-right">
+              <button class="btn btn-primary" ng-click="editJson()"><i class="fa fa-lg fa-edit"></i>&nbsp; Analyze CSV</button>
+              <button class="btn btn-primary" ng-click="save()"><i class="fa fa-lg fa-save"></i>&nbsp; Save</button>
+              <button class="btn btn-success" ng-click="validate()"><i class="fa fa-lg fa-play-circle"></i>&nbsp; Validate</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <!-- /.tab-content -->
       </div>
+
     </div>
   </div>
 </section>
 
-<script type="text/ng-template" id="load-profile.html">
-  <div class="tab-pane active in">
-  <div class="row">
-    <div class="col-md-6">
-      <form class="form-horizontal">
-        <div class="form-group">
-          <label for="fortress" class="col-sm-6 control-label"> Data Provider</label>
-          <div class="col-sm-6">
+<script type="text/ng-template" id="create-profile.html">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="cancel()">
+      <span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">Create New Content Profile</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <form role="form">
+        <div class="col-md-8">
+          <div class="form-group">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" ng-model="tags"> Tags
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="new-fortress"> Data Provider</label>
             <div class="input-group">
-              <select class="form-control" id="fortress"  ng-model="fortress" ng-options="f.name as f.name for f in fortresses" ng-change="selectFortress(fortress)"></select>
+              <select class="form-control" id="new-fortress"  ng-model="new.fortress" ng-options="f.name as f.name for f in fortresses" ng-change="selectFortress(new.fortress)" ng-disabled="tags"></select>
               <div class="input-group-btn">
                 <button class="btn btn-primary" ng-click="createFortress()"><i class="fa fa-plus"></i></button>
               </div>
             </div>
           </div>
-        </div>
-        <div class="form-group">
-          <label for="type" class="col-sm-6 control-label"> Document Type (optional)</label>
-          <div class="col-sm-6">
-            <div class="input-group">
-              <select class="form-control" id="type" ng-model="type" ng-options="d.name as d.name for d in documents" ng-change="selectProfile(type)"></select>
-              <div class="input-group-btn">
-                <button class="btn btn-primary" ng-click="createType()"><i class="fa fa-plus"></i></button>
+          <div class="form-group">
+            <label for="new-type"> Document Type</label>
+              <div class="input-group">
+                <select class="form-control" id="new-type" ng-model="new.type" ng-options="d.name as d.name for d in documents" ng-disabled="tags"></select>
+                <div class="input-group-btn">
+                  <button class="btn btn-primary" ng-click="createType(new.fortress)"><i class="fa fa-plus"></i></button>
+                </div>
               </div>
-            </div>
           </div>
         </div>
-        <div class="well well-sm">
-          <h4>Delimited properties</h4>
+        <!--<div class="col-md-4"></div>-->
+        <div class="col-md-12">
           <div class="form-group">
-            <div class="col-xs-10">
-              <label for="delimiter" class="col-xs-3 control-label">Delimiter</label>
-              <div class="col-xs-3">
-                <input type="text" class="form-control" id="delimiter" ng-model="delim">
+            <label for="description"> Description</label>
+            <input type="text" id="description" class="form-control" ng-model="new.name" />
+          </div>
+          <div class="clearfix"></div>
+          <div class="well well-sm" ng-hide="true">
+            <h4>Upload</h4>
+            <div class="row">
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <label for="delimiter" class="col-xs-4 control-label">Delimiter</label>
+                  <div class="col-xs-8">
+                    <input type="text" class="form-control" id="delimiter" ng-model="delim">
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" ng-model="ignoreEmpty"> Ignore empty Cols
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" ng-model="hasHeader"> Has Header
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-xs-12">
-              <div class="checkbox col-xs-5">
-                <label>
-                  <input type="checkbox" ng-model="ignoreEmpty">
-                  Ignore empty Cols
-                </label>
-              </div>
-
-              <div class="checkbox col-xs-5">
-                <label>
-                  <input type="checkbox" ng-model="hasHeader">
-                  Has Header
-                </label>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="file-box" file-box="loadFile($fileContent, $fileName)"></div>
               </div>
             </div>
           </div>
         </div>
       </form>
     </div>
-    <div class="col-md-6">
-      <div class="file-box" file-box="loadFile($fileContent, $fileName)"></div>
-    </div>
   </div>
-  <div class="box-footer">
-    <button type="submit" class="btn btn-default" ng-click="reset()">Reset</button>
-    <button type="submit" class="btn btn-info pull-right" ng-click="checkProfile()"><i class="fa fa-check"></i>&nbsp; Check profile</button>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default pull-left" ng-click="cancel()">Cancel</button>
+    <button type="submit" class="btn btn-primary" ng-click="createEmpty(new)"><i class="fa fa-bolt"></i>&nbsp; Create</button>
   </div>
-    </div>
+
 </script>
+
+<!--<script type="text/ng-template" id="load-profile.html">-->
+  <!--<div class="tab-pane active in">-->
+  <!--<div class="row">-->
+    <!--<div class="col-md-6">-->
+      <!--<form class="form-horizontal">-->
+        <!--<div class="form-group">-->
+          <!--<label for="fortress" class="col-sm-6 control-label"> Data Provider</label>-->
+          <!--<div class="col-sm-6">-->
+            <!--<div class="input-group">-->
+              <!--<select class="form-control" id="fortress"  ng-model="fortress" ng-options="f.name as f.name for f in fortresses" ng-change="selectFortress(fortress)"></select>-->
+              <!--<div class="input-group-btn">-->
+                <!--<button class="btn btn-primary" ng-click="createFortress()"><i class="fa fa-plus"></i></button>-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+          <!--<label for="type" class="col-sm-6 control-label"> Document Type (optional)</label>-->
+          <!--<div class="col-sm-6">-->
+            <!--<div class="input-group">-->
+              <!--<select class="form-control" id="type" ng-model="type" ng-options="d.name as d.name for d in documents" ng-change="selectProfile(type)"></select>-->
+              <!--<div class="input-group-btn">-->
+                <!--<button class="btn btn-primary" ng-click="createType()"><i class="fa fa-plus"></i></button>-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+        <!--<div class="well well-sm">-->
+          <!--<h4>Delimited properties</h4>-->
+          <!--<div class="form-group">-->
+            <!--<div class="col-xs-10">-->
+              <!--<label for="delimiter" class="col-xs-3 control-label">Delimiter</label>-->
+              <!--<div class="col-xs-3">-->
+                <!--<input type="text" class="form-control" id="delimiter" ng-model="delim">-->
+              <!--</div>-->
+            <!--</div>-->
+            <!--<div class="col-xs-12">-->
+              <!--<div class="checkbox col-xs-5">-->
+                <!--<label>-->
+                  <!--<input type="checkbox" ng-model="ignoreEmpty">-->
+                  <!--Ignore empty Cols-->
+                <!--</label>-->
+              <!--</div>-->
+
+              <!--<div class="checkbox col-xs-5">-->
+                <!--<label>-->
+                  <!--<input type="checkbox" ng-model="hasHeader">-->
+                  <!--Has Header-->
+                <!--</label>-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</form>-->
+    <!--</div>-->
+    <!--<div class="col-md-6">-->
+      <!--<div class="file-box" file-box="loadFile($fileContent, $fileName)"></div>-->
+    <!--</div>-->
+  <!--</div>-->
+  <!--<div class="box-footer">-->
+    <!--<button type="submit" class="btn btn-default" ng-click="reset()">Reset</button>-->
+    <!--<button type="submit" class="btn btn-info pull-right" ng-click="checkProfile()"><i class="fa fa-check"></i>&nbsp; Check profile</button>-->
+  <!--</div>-->
+    <!--</div>-->
+<!--</script>-->
 
 <script type="text/ng-template" id="show-profile.html">
   <div class="tab-pane active in">
@@ -146,7 +334,6 @@
     </div>
   </div>
 </script>
-
 
 <script type="text/ng-template" id="create-fortress-modal.html">
   <div class="modal-header">

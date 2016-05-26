@@ -96,7 +96,6 @@ var fdView = angular.module('fdView', [
         url: '/import',
         templateUrl: 'views/import.html',
         controller: 'ImportCtrl',
-        // abstract: true,
         data: {
           authorizedRoles: [USER_ROLES.all]
         }

@@ -17,45 +17,43 @@
   ~  You should have received a copy of the GNU General Public License
   ~  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<section class="content">
-  <div class="login-box">
-    <div class="login-logo">
-      <span id="logo"> <img src="/images/site-logo.png" alt="FlockData"> </span>
-      <h4 class="paragraph-header">Collect | Connect | Compare</h4>
-    </div>
-    <!-- /.login-logo -->
-    <div class="login-box-body">
-      <p class="login-box-msg">Sign in to start your session</p>
-
-      <form ng-submit="login()">
-        <div class="form-group has-feedback">
-          <input type="text" class="form-control" ng-model="username" placeholder="Username" autofocus>
-          <span class="glyphicon glyphicon-user form-control-feedback"></span>
-        </div>
-        <div class="form-group has-feedback">
-          <input type="password" class="form-control" ng-model="password" placeholder="Password">
-          <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-        </div>
-        <div class="row">
-          <!-- <div class="col-xs-8">
-            <div class="checkbox">
-              <label>
-                <input type="checkbox"> Remember Me
-              </label>
-            </div>
-          </div> -->
-          <!-- /.col -->
-          <div class="col-xs-4 pull-right">
-            <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
-          </div>
-          <!-- /.col -->
-        </div>
-      </form>
-
-    </div>
-    <!-- /.login-box-body -->
-    <div class="alert alert-warning fade in" ng-show="msg">
-      {{msg}}
-    </div>
+<div class="login-box">
+  <div class="login-logo">
+    <span id="logo"> <img src="/images/site-logo.png" alt="FlockData"> </span>
+    <h4 class="paragraph-header">Collect | Connect | Compare</h4>
   </div>
-</section>
+  <!-- /.login-logo -->
+  <div class="login-box-body">
+    <p class="login-box-msg">Sign in to start your session</p>
+
+    <form ng-submit="login()">
+      <div class="form-group has-feedback">
+        <input type="text" class="form-control" ng-model="username" placeholder="Username" autofocus>
+        <span class="glyphicon glyphicon-user form-control-feedback"></span>
+      </div>
+      <div class="form-group has-feedback">
+        <input type="password" class="form-control" ng-model="password" placeholder="Password">
+        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+      </div>
+      <div class="row">
+        <!-- <div class="col-xs-8">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox"> Remember Me
+            </label>
+          </div>
+        </div> -->
+        <!-- /.col -->
+        <div class="col-xs-4 pull-right">
+          <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+        </div>
+        <!-- /.col -->
+      </div>
+    </form>
+
+  </div>
+  <!-- /.login-box-body -->
+  <div class="alert alert-warning fade in" ng-show="msg">
+    {{msg}}
+  </div>
+</div>

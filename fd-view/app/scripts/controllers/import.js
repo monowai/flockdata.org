@@ -20,9 +20,219 @@
 
 'use strict';
 
-fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', 'ContentProfile', '$state', '$http', '$timeout', '$compile', 'configuration',
-  function ($scope, $uibModal, QueryService, ContentProfile, $state, $http, $timeout, $compile, configuration) {
-    $state.transitionTo('import.load');
+fdView.controller('ImportCtrl', ['$scope', '$rootScope', '$uibModal', 'QueryService', 'ContentProfile', '$state', '$http', '$timeout', '$compile', 'configuration',
+  function ($scope, $rootScope, $uibModal, QueryService, ContentProfile, $state, $http, $timeout, $compile, configuration) {
+    //$state.transitionTo('import.load');
+
+    QueryService.general('fortress').then(function (data) {
+      $scope.fortresses = data;
+    });
+
+    ContentProfile.getAll().then(function (res) {
+      $scope.cplist = res.data;
+      console.log(res.data)
+    });
+
+    $scope.createProfile = function () {
+      $uibModal.open({
+        templateUrl: 'create-profile.html',
+        scope: $scope,
+        controller: function ($uibModalInstance) {
+          $scope.new = {};
+
+          $scope.cancel = $uibModalInstance.dismiss;
+
+          $scope.selectFortress = function(fortress) {
+            console.log(fortress);
+            var query = [fortress];
+            QueryService.query('documents', query).then(function (data) {
+              $scope.documents = data;
+              console.log(data);
+              if(data.length>0) {
+                $scope.new.type = $scope.documents[0].name;
+                // $scope.selectProfile($scope.type);
+              }
+            });
+          };
+
+          $scope.createFortress = function() {
+            $uibModal.open({
+              templateUrl: 'create-fortress-modal.html',
+              resolve: {
+                timezones: function() {
+                  return $http.get(configuration.engineUrl() + '/api/v1/fortress/timezones').then(function (response) {
+                    return response.data;
+                  })
+                }
+              },
+              controller: ['$scope','$uibModalInstance','timezones',function($scope, $uibModalInstance, timezones) {
+                $scope.timezones = timezones;
+                $scope.timezone = $scope.timezones[0];
+                $scope.close = $uibModalInstance.dismiss;
+                $scope.save = function() {
+                  var newFortress = {
+                    name: $scope.name,
+                    searchEnabled: $scope.searchable,
+                    storeEnabled: $scope.versionable,
+                    timeZone: $scope.timezone
+                  };
+                  $http.post(configuration.engineUrl()+'/api/v1/fortress/', newFortress).then(function(response){
+                    $uibModalInstance.close(response.data);
+                  });
+                };
+              }]
+            }).result.then(function(newDP){
+              $scope.fortresses.push(newDP);
+              $scope.new.fortress = newDP.name;
+            });
+          };
+
+          $scope.createType = function(f) {
+            if(!f) {return;}
+            $uibModal.open({
+              templateUrl: 'create-type-modal.html',
+              size: 'sm',
+              resolve: {
+                fortress: function() {
+                  return f.toLowerCase().replace(/\s+/g, '');
+                }
+              },
+              controller: ['$scope','$uibModalInstance','fortress', function($scope, $uibModalInstance, fortress) {
+                $scope.searchable = false;
+                $scope.versionable = false;
+                $scope.close = $uibModalInstance.dismiss;
+                $scope.save = function(name) {
+                  // -- waiting for end point added
+                  // var newType = {
+                  //   name: $scope.name,
+                  //   searchEnabled: $scope.searchable,
+                  //   storeEnabled: $scope.versionable
+                  // };
+                  // $http.post(configuration.engineUrl()+'/api/v1/fortress/'+fortress+'/docs/',newType).then(function(response){
+                  //   $uibModalInstance.close(response.data);
+                  // });
+                  $http({
+                    method: 'PUT',
+                    url: configuration.engineUrl() + '/api/v1/fortress/' +fortress+'/'+name,
+                    dataType: 'raw',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    data: ''
+                  }).then(function(response){
+                    console.log(response);
+                    $uibModalInstance.close(response.data);
+                  });
+                };
+              }]
+            }).result.then(function(newDocType){
+              console.log($scope.documents);
+              $scope.documents.push(newDocType);
+              $scope.new.type = newDocType.name;
+            });
+          };
+
+          $scope.createEmpty = function(profile) {
+            ContentProfile.createEmpty(profile);
+            $uibModalInstance.close(profile);
+          }
+        }
+      }).result.then(function (profile) {
+        angular.element('[data-target="#editor"]').tab('show');
+        $scope.editProfile(profile);
+      });
+    };
+
+    $scope.editProfile = function (profile) {
+      angular.element('[data-target="#structure"]').tab('show');
+      if(profile) {
+        ContentProfile.getProfile(profile).then(function (res) {
+          $scope.contentProfile = res.data.contentProfile;
+          $scope.profileGraph = ContentProfile.graphProfile();
+
+          $scope.$broadcast('cytoscapeReset');
+        });
+      }
+    };
+
+    $scope.editorOptions = { tree: {mode: "tree", modes:["tree","code","form"]}, text: {mode:"text", modes:["text","code"]}};
+    $scope.onEditorLoad = function(instance){
+      $scope.editor = instance;
+    };
+
+    $scope.save = function() {
+      var profile = $scope.editor.get();
+      ContentProfile.updateProfile(profile);
+      ContentProfile.saveProfile().then(function (response) {
+        console.log(response);
+        $scope.cplist.push(response.data);
+        angular.element('[data-target="#list"]').tab('show');
+        return response.statusText;
+      });
+    };
+
+    $scope.styles = [
+      {'selector': 'node',
+        'css': {
+          'content': 'data(id)',
+          'font-size': '14pt',
+          'min-zoomed-font-size': '9pt',
+          'text-halign': 'center',
+          'text-valign': 'center',
+          'color': '#222D32',
+          'background-color': '#499ef5',
+          'width': '120',
+          'height': '55',
+          'shape': 'roundrectangle'
+        }},
+      {'selector': 'node[type="tag"]',
+        'css': {
+          'background-color': '#ff7701',
+          'content': 'data(label)',
+          'shape': 'ellipse',
+          'width': '110',
+          'height': '50'
+        }},
+      {'selector': 'node[type="alias"]',
+        'css': {
+          'background-color': '#f7bf65',
+          'content': 'data(description)',
+          'shape': 'ellipse',
+          'width': '100',
+          'height': '45'
+        }},
+      {'selector':'edge',
+        'css':{
+          'content': 'data(relationship)',
+          'width': 3,
+          'target-arrow-color': '#ccc',
+          'target-arrow-shape': 'triangle'
+        }},
+      {'selector':':selected',
+        'css':{
+          'background-color': 'f2b871',
+          'line-color': 'black',
+          'target-arrow-color': 'black',
+          'source-arrow-color': 'black',
+          'text-outline-width': 2,
+          'text-outline-color': '#888',
+          // 'text-outline-color': 'black'
+        }},
+      {'selector':'.mouseover',
+        'css':{
+          'color':'#398de0'
+        }},
+      {'selector':'.is-dragover',
+        'css':{
+          'background-color':'#398de0'
+        }}
+    ];
+    $scope.layouts = [{name: 'circle'},{name: 'cose'},
+      {name: 'grid'},{name: 'concentric'},
+      {name: 'random'},{name: 'breadthfirst'}];
+    $scope.layout = $scope.layouts[0];
+    $scope.keys = ['City', 'DeliveryPoint', 'Address', 'Suburb', 'PostCode', 'Country'];
+
   }]);
 
 fdView.controller('LoadProfileCtrl', ['$scope', '$uibModal', 'QueryService', 'ContentProfile', '$state', '$http', '$timeout', '$compile', 'configuration',
@@ -68,81 +278,7 @@ fdView.controller('LoadProfileCtrl', ['$scope', '$uibModal', 'QueryService', 'Co
       return ContentProfile.graphProfile();
     };
 
-    $scope.createFortress = function() {
-      $uibModal.open({
-        templateUrl: 'create-fortress-modal.html',
-        resolve: {
-          timezones: function() {
-            return $http.get(configuration.engineUrl() + '/api/v1/fortress/timezones').then(function (response) {
-              return response.data;
-            })
-          }
-        },
-        controller: ['$scope','$uibModalInstance','timezones',function($scope, $uibModalInstance, timezones) {
-          $scope.timezones = timezones;
-          $scope.timezone = $scope.timezones[0];
-          $scope.close = $uibModalInstance.dismiss;
-          $scope.save = function() {
-            var newFortress = {
-              name: $scope.name,
-              searchEnabled: $scope.searchable,
-              storeEnabled: $scope.versionable,
-              timeZone: $scope.timezone
-            };
-            $http.post(configuration.engineUrl()+'/api/v1/fortress/', newFortress).then(function(response){
-              $uibModalInstance.close(response.data);
-            });
-          };
-        }]
-      }).result.then(function(newDP){
-        $scope.fortresses.push(newDP);
-        $scope.fortress = newDP.name;
-      });
-    };
 
-    $scope.createType = function() {
-      if(!$scope.fortress) return;
-      $uibModal.open({
-        templateUrl: 'create-type-modal.html',
-        size: 'sm',
-        resolve: {
-          fortress: function() {
-            return $scope.fortress.toLowerCase().replace(/\s+/g, '');
-          }
-        },
-        controller: ['$scope','$uibModalInstance','fortress', function($scope, $uibModalInstance, fortress) {
-          $scope.searchable = false;
-          $scope.versionable = false;
-          $scope.close = $uibModalInstance.dismiss;
-          $scope.save = function(name) {
-            // -- waiting for end point added
-            // var newType = {
-            //   name: $scope.name,
-            //   searchEnabled: $scope.searchable,
-            //   storeEnabled: $scope.versionable
-            // };
-            // $http.post(configuration.engineUrl()+'/api/v1/fortress/'+fortress+'/docs/',newType).then(function(response){
-            //   $uibModalInstance.close(response.data);
-            // });
-            $http({
-              method: 'PUT',
-              url: configuration.engineUrl() + '/api/v1/fortress/' +fortress+'/'+name,
-              dataType: 'raw',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              data: ''
-            }).then(function(response){
-              $uibModalInstance.close(response.data);
-            });
-          };
-        }]
-      }).result.then(function(newDocType){
-        console.log($scope.documents);
-        $scope.documents.push(newDocType);
-        $scope.type = newDocType.name;
-      });
-    };
 
     $scope.checkProfile = function() {
       if (!$scope.fortress) {

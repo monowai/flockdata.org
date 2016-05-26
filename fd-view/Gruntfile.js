@@ -262,6 +262,7 @@ module.exports = function (grunt) {
     htmlmin: {
       dist: {
         options: {
+          removeComments:true,
           collapseWhitespace: true,
           collapseBooleanAttributes: true,
           removeCommentsFromCDATA: true,
@@ -398,8 +399,8 @@ module.exports = function (grunt) {
     'concat:generated',
     'uglify:generated',
     'cssmin',
-    'usemin',
     'rev',
+    'usemin',
     'htmlmin'
   ]);
 
