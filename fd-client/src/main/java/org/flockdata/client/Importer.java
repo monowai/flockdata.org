@@ -16,7 +16,7 @@
 
 package org.flockdata.client;
 
-import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import org.flockdata.client.commands.Login;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
@@ -28,10 +28,8 @@ import org.flockdata.transform.ProfileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -70,11 +68,11 @@ import java.util.List;
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
-@Profile("!fd-batch")
+@Profile("fd-importer")
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"org.flockdata.authentication", "org.flockdata.shared", "org.flockdata.client"})
-public class Importer extends SpringBootServletInitializer {
+public class Importer  {
 
     private Logger logger = LoggerFactory.getLogger(Importer.class);
 
@@ -87,22 +85,26 @@ public class Importer extends SpringBootServletInitializer {
     @Autowired
     private FileProcessor fileProcessor;
 
-    public static void main(String args[]) throws ArgumentParserException {
-        SpringApplication.run(Importer.class, args);
-        System.exit(0);
-    }
-
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        // Customize the application or call application.sources(...) to add sources
-        // Since our example is itself a @Configuration class we actually don't
-        // need to override this method.
-        application.web(false);
-        return application;
-    }
+    @Value("${auth.user:#{null}}")
+    String authUser;
 
     @PostConstruct
     void importFiles() {
+        logger.info("Looking for Flockdata on {}", clientConfiguration.getServiceUrl());
+        if ( authUser!=null ){
+
+            String[] uArgs = authUser.split(":");
+            clientConfiguration.setHttpUser(uArgs[0]);
+            clientConfiguration.setHttpPass(uArgs[1]);
+            Login login = new Login(clientConfiguration,fdClient);
+            login.exec();
+            if (login.error()!= null){
+                logger.error(login.error());
+                System.exit(-1);
+            }
+            clientConfiguration.setApiKey(login.result().getApiKey());
+
+        }
 
         if (clientConfiguration.getApiKey() == null) {
             logger.error("No API key is set in the config file. Have you run the config process?");

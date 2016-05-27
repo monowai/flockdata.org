@@ -6,7 +6,7 @@ Configuration:
       name: CONSOLE
       target: SYSTEM_OUT
       PatternLayout:
-        Pattern: "%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-25.25c{1.}}{cyan} %clr{:}{faint} %m%n%wEx"
+        Pattern: "%m%n%wEx"
     File:
       - name: FILE
         fileName: log/client.log
@@ -22,19 +22,26 @@ Configuration:
   Loggers:
 
       Root:
-          level: info
+          level: error
           AppenderRef:
             - ref: CONSOLE
             - ref: FILE
       Logger:
-        - name: org.flockdata.
+        - name: org.flockdata.client
           additivity: false
           level: info
           AppenderRef:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: org.flockdata.engine.FdEngine
+        - name: org.flockdata.client.CommandRunner
+          additivity: false
+          level: error
+          AppenderRef:
+            - ref: CONSOLE
+            - ref: FILE
+
+        - name: org.flockdata.shared
           additivity: false
           level: info
           AppenderRef:
@@ -48,13 +55,6 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: configuration
-          additivity: false
-          level: error
-          AppenderRef:
-            - ref: CONSOLE
-            - ref: FILE
-
         - name: com.
           additivity: false
           level: error
@@ -62,7 +62,7 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: org.springframework.*
+        - name: org.spring*
           additivity: false
           level: error
           AppenderRef:

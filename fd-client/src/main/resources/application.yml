@@ -15,11 +15,11 @@ org.fd:
     # curl -u mike http://localhost:8080/api/v1/profiles/me
 
     # Either set in in your config file or pass it as a command line parameter
-    # --org.fd.clinet.apikey=SDKMcCU_TRCh7fL09PoFUg
+    # --org.fd.client.apikey=SDKMcCU_TRCh7fL09PoFUg
     # apikey: SDKMcCU_TRCh7fL09PoFUg
-    batchsize: 10
+    batchsize: 1
     login:
-      user: mike
+      user: demo
     default:
       company: FlockData
   track:

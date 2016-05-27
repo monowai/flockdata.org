@@ -68,27 +68,9 @@ public class FdRestWriter implements FdWriter {
     @Autowired
     private AmqpServices amqpServices;
 
-    private FdRestWriter() {
-    }
-
     public SystemUserResultBean me() {
-//        RestTemplate restTemplate = getRestTemplate();
-//        HttpHeaders httpHeaders = getHeaders(clientConfiguration);// Unauthorized ping is ok
-//        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
-//        try {
-//            ResponseEntity<SystemUserResultBean> response = restTemplate.exchange(ME, HttpMethod.GET, requestEntity, SystemUserResultBean.class);
-//            return response.getBody();
-//        } catch (HttpClientErrorException e) {
-//            if (e.getMessage().startsWith("401"))
-//                return null;
-//            else
-//                return null;
-//        } catch (HttpServerErrorException e) {
-//            return null;
-//        } catch (ResourceAccessException e) {
-//            return null;
-//        }
-        return null;
+        Login login = new Login(clientConfiguration, this);
+        return login.exec().result();
     }
 
     private HttpHeaders getHeaders(ClientConfiguration configuration) {
@@ -140,7 +122,7 @@ public class FdRestWriter implements FdWriter {
         try {
             // DAT-373
             amqpServices.publishTags(tagInputs);
-        } catch (IOException |AlreadyClosedException ioe) {
+        } catch (IOException | AlreadyClosedException ioe) {
             logger.error(ioe.getLocalizedMessage());
             throw new FlockException("IO Exception", ioe.getCause());
         }
@@ -174,7 +156,6 @@ public class FdRestWriter implements FdWriter {
     }
 
 
-
     RestTemplate restTemplate = null;
 
     public RestTemplate getRestTemplate() {
@@ -190,7 +171,7 @@ public class FdRestWriter implements FdWriter {
             return "OK";
 
 //        if (clientConfiguration.isAmqp())
-            return flushTagsAmqp(tagInputs);
+        return flushTagsAmqp(tagInputs);
 
 //        RestTemplate restTemplate = getRestTemplate();
 //
@@ -315,7 +296,7 @@ public class FdRestWriter implements FdWriter {
     public String toString() {
         return "FdRestWriter{" +
                 "userName='" + clientConfiguration.getHttpUser() + '\'' +
-                ", serviceEndpoint='" + clientConfiguration.getServiceUrl()  +
+                ", serviceEndpoint='" + clientConfiguration.getServiceUrl() +
                 '}';
     }
 

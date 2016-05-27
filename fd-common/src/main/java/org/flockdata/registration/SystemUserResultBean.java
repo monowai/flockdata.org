@@ -18,6 +18,8 @@ package org.flockdata.registration;
 
 import org.flockdata.model.SystemUser;
 
+import java.util.Arrays;
+
 /**
  * User: mike
  * Date: 30/04/14
@@ -88,8 +90,12 @@ public class SystemUserResultBean {
 
     @Override
     public String toString() {
-        return "SystemUserResultBean{" +
+        return "SystemUser{" +
                 "login='" + login + '\'' +
+                ", name='" + name + '\'' +
+                ", apiKey='" + apiKey + '\'' +
+                ", status='" + status + '\'' +
+                ", userRoles=" + Arrays.toString(userRoles) +
                 ", companyName='" + companyName + '\'' +
                 '}';
     }
