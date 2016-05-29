@@ -65,7 +65,7 @@ public class IntSanityCheck {
     @Autowired IntegrationHelper integrationHelper;
 
     // Uncomment this ClassRue to run the stack only for this class
-    //  otherwise levae it commented and run the Suite
+    //  otherwise leave it commented and run the Suite
 //    @ClassRule
 //    public static FdDocker stack = new FdDocker();
 
@@ -111,7 +111,7 @@ public class IntSanityCheck {
         Map<String, Object> healthResult = health.result();
         assertTrue("Should be more than 1 entry in the health results", healthResult.size() > 1);
         assertNotNull("Could not find an entry for fd-search", healthResult.get("fd-search"));
-        assertTrue("Failure for fd-engine to connect to fd-search in the container", healthResult.get("fd-search").toString().toLowerCase().startsWith("ok"));
+        assertTrue("Failure for fd-engine to connect to fd-search in the container "+healthResult.get("fd-search"), healthResult.get("fd-search").toString().toLowerCase().startsWith("ok"));
         assertNotNull("Could not find an entry for fd-store", healthResult.get("fd-store"));
         assertTrue("Failure for fd-engine to connect to fd-store in the container", healthResult.get("fd-store").toString().toLowerCase().startsWith("ok"));
 

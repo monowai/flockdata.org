@@ -142,10 +142,10 @@ public abstract class EngineBase {
 
     @Autowired
     @Deprecated // Use companyService instead
-            CompanyEP companyEP;
+    CompanyEP companyEP;
 
     @Autowired
-    SearchServiceFacade searchService = new SearchServiceFacade();
+    SearchServiceFacade searchService ;
 
     @Autowired
     StorageProxy storageService;

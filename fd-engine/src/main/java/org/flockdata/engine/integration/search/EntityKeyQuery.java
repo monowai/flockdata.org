@@ -22,6 +22,7 @@ package org.flockdata.engine.integration.search;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.search.model.EntityKeyResults;
+import org.flockdata.search.model.QueryParams;
 import org.flockdata.shared.MessageSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,6 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
+import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
@@ -96,10 +98,8 @@ public class EntityKeyQuery {
         return handler;
     }
 
-//    // ToDo: Can this be integrated to the handler?
-//    @Transformer(inputChannel="receiveKeyReply", outputChannel="keyResult")
-//    public KeyResults transforMkResponse(Message<String> message) throws IOException {
-//        return JsonUtils.toObject(message.getPayload().getBytes(), KeyResults.class);
-//    }
-
+    public interface EntityKeyGateway {
+        @Gateway(requestChannel = "sendKeyQuery", replyChannel = "keyResult")
+        EntityKeyResults keys(QueryParams queryParams);
+    }
 }

@@ -20,8 +20,8 @@
 
 package org.flockdata.engine.admin.service;
 
-import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
+import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
@@ -77,10 +77,7 @@ public class AdminService implements EngineAdminService {
     FortressService fortressService;
 
     @Autowired
-    PlatformConfig engineConfig;
-
-//    @Autowired
-//    QueryService queryService;
+    EngineConfig engineConfig;
 
     private Logger logger = LoggerFactory.getLogger(AdminService.class);
 

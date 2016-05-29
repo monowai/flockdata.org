@@ -21,8 +21,10 @@
 package org.flockdata.engine.query.service;
 
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.engine.integration.search.SearchGateway;
-import org.flockdata.engine.integration.store.EsStoreRequest;
+import org.flockdata.engine.integration.search.EntityKeyQuery.EntityKeyGateway;
+import org.flockdata.engine.integration.search.FdViewQuery.FdViewQueryGateway;
+import org.flockdata.engine.integration.search.TagCloudRequest.TagCloudGateway;
+import org.flockdata.engine.integration.store.EsStoreRequest.ContentStoreEs;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
@@ -59,11 +61,17 @@ public class QueryService {
     @Autowired
     ConceptService conceptService;
 
-    @Autowired (required = false) // Functional tests don't require gateways
-    SearchGateway searchGateway;
+    @Autowired(required = false) // Functional tests don't require gateways
+    TagCloudGateway tagCloudGateway;
+
+    @Autowired(required = false) // Functional tests don't require gateways
+    EntityKeyGateway searchKeyGateway;
 
     @Autowired (required = false)
-    EsStoreRequest.ContentStoreEs esStore;
+    FdViewQueryGateway fdViewQueryGateway;
+
+    @Autowired(required = false)
+    ContentStoreEs esStore;
 
 
     public EsSearchResult search(Company company, QueryParams queryParams) {
@@ -73,10 +81,10 @@ public class QueryService {
         queryParams.setCompany(company.getName());
         EsSearchResult esSearchResult;
 
-        if ( queryParams.getQuery() !=null ) {
+        if (queryParams.getQuery() != null) {
             esSearchResult = esStore.getData(queryParams);
         } else {
-            esSearchResult = searchGateway.fdSearch(queryParams);
+            esSearchResult = fdViewQueryGateway.fdSearch(queryParams);
         }
 
 
@@ -94,11 +102,11 @@ public class QueryService {
             throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
         tagCloudParams.setFortress(fortress.getCode());
         tagCloudParams.setCompany(company.getCode());
-        return searchGateway.getTagCloud(tagCloudParams);
+        return tagCloudGateway.getTagCloud(tagCloudParams);
     }
 
     public EntityKeyResults getKeys(Company company, QueryParams queryParams) {
         queryParams.setCompany(company.getName());
-        return searchGateway.keys(queryParams);
+        return searchKeyGateway.keys(queryParams);
     }
 }

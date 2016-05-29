@@ -23,6 +23,7 @@ package org.flockdata.engine.integration.search;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.model.EsSearchResult;
+import org.flockdata.search.model.QueryParams;
 import org.flockdata.shared.MessageSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,7 +31,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
+import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -103,5 +106,15 @@ public class FdViewQuery {
     public EsSearchResult fdViewResponse(Message<String> theObject) throws IOException {
         return JsonUtils.toObject(theObject.getPayload().getBytes(), EsSearchResult.class);
     }
+
+    @MessagingGateway
+    @Profile("fd-server")
+    public interface FdViewQueryGateway {
+
+        @Gateway(requestChannel = "sendSearchRequest", replyChannel = "fdViewResult")
+        EsSearchResult fdSearch(QueryParams queryParams);
+
+    }
+
 
 }

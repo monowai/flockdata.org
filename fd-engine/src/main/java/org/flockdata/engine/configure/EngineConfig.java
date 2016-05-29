@@ -22,7 +22,8 @@ package org.flockdata.engine.configure;
 
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.integration.search.SearchGateway;
+import org.flockdata.engine.integration.search.SearchPingRequest;
+import org.flockdata.engine.integration.search.SearchPingRequest.PingGateway;
 import org.flockdata.engine.integration.store.StorePingRequest;
 import org.flockdata.model.Company;
 import org.flockdata.shared.AmqpRabbitConfig;
@@ -77,7 +78,10 @@ public class EngineConfig implements PlatformConfig {
     }
 
     @Autowired (required = false)
-    SearchGateway searchGateway;
+    PingGateway pingSearchGateway;
+
+    @Autowired (required = false)
+    SearchPingRequest searchPingRequest;
 
     @Autowired
     StorePingRequest.StorePingGateway storePingGateway;
@@ -232,10 +236,10 @@ public class EngineConfig implements PlatformConfig {
 
         String esPingResult;
         try {
-            String esPing = "!Unreachable";
-            if ( searchGateway != null )
-                esPing = searchGateway.ping();
-            esPingResult = (esPing == null || !esPing.equals("pong") ? "Problem" : "Ok");
+            String esPing = "Disabled";
+            if ( searchPingRequest != null )
+                esPing = pingSearchGateway.ping();
+            esPingResult = (esPing == null || !esPing.equals("pong") ? esPing : "Ok");
         } catch (Exception ce) {
             esPingResult = "!Unreachable ";
             if (ce.getCause() != null)

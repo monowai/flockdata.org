@@ -23,6 +23,7 @@ package org.flockdata.engine.integration.search;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.model.TagCloud;
+import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.shared.MessageSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,7 +31,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
-import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -46,7 +48,6 @@ import java.io.IOException;
  * Created by mike on 13/02/16.
  */
 @Configuration
-@IntegrationComponentScan
 @Profile({"fd-server"})
 public class TagCloudRequest {
 
@@ -96,5 +97,11 @@ public class TagCloudRequest {
         return JsonUtils.toObject(theObject.getPayload().getBytes(), TagCloud.class);
     }
 
+    @MessagingGateway
+    @Profile({"fd-server"})
+    public interface TagCloudGateway  {
+        @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "tagCloudResult")
+        TagCloud getTagCloud(TagCloudParams tagCloudParams);
+    }
 
 }

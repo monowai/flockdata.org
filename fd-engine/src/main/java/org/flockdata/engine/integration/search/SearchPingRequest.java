@@ -33,21 +33,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
+import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.http.outbound.HttpRequestExecutingMessageHandler;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.handler.annotation.Payload;
 
 /**
  * Created by mike on 3/07/15.
  */
 
 @Configuration
+@Profile("fd-server")
 @IntegrationComponentScan
-@Profile({"fd-server"})
 public class SearchPingRequest {
 
     @Autowired
@@ -74,6 +77,14 @@ public class SearchPingRequest {
         handler.setHttpMethod(HttpMethod.GET);
 
         return handler;
+    }
+
+
+    @MessagingGateway
+    public interface PingGateway {
+        @Payload("new java.util.Date()")
+        @Gateway(requestChannel = "searchPing", requestTimeout = 6000)
+        String ping();
     }
 
 
