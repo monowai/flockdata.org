@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.tag.service;
 
+import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
@@ -62,24 +63,27 @@ public class TagRetryService {
     @Autowired
     IndexRetryService indexRetryService;
 
+    @Autowired (required = false)
+    SearchServiceFacade searchService;
+
     private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
 
-    @Retryable(include = {  FlockException.class,
-                            HeuristicRollbackException.class,
-                            DataIntegrityViolationException.class,
-                            EntityNotFoundException.class,
-                            IllegalStateException.class,
-                            ConcurrencyFailureException.class,
-                            DeadlockDetectedException.class,
-                            ConstraintViolationException.class,
-                            TransactionFailureException.class},
-                          maxAttempts = 15,
-                          backoff = @Backoff( delay = 300,  multiplier = 3, random = true))
+    @Retryable(include = {FlockException.class,
+            HeuristicRollbackException.class,
+            DataIntegrityViolationException.class,
+            EntityNotFoundException.class,
+            IllegalStateException.class,
+            ConcurrencyFailureException.class,
+            DeadlockDetectedException.class,
+            ConstraintViolationException.class,
+            TransactionFailureException.class},
+            maxAttempts = 15,
+            backoff = @Backoff(delay = 300, multiplier = 3, random = true))
 
     @Async("fd-tag")
-    public Future<Collection<TagResultBean>>createTags(Company company, Collection<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
+    public Future<Collection<TagResultBean>> createTags(Company company, Collection<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
-        if ( tagInputBeans == null ||tagInputBeans.isEmpty())
+        if (tagInputBeans == null || tagInputBeans.isEmpty())
             return new AsyncResult<>(new ArrayList<>());
 
         boolean schemaReady;
@@ -90,11 +94,11 @@ public class TagRetryService {
 
         if (tagInputBeans.isEmpty())
             return new AsyncResult<>(new ArrayList<>());
-        try {
-            return new AsyncResult<>(tagService.createTags(company, tagInputBeans));
-        } catch (FlockException e) {
-            throw (e);
+        Collection<TagResultBean> tagResults = tagService.createTags(company, tagInputBeans);
+        if (searchService!=null){
+            searchService.makeTagsSearchable(company, tagResults);
         }
+        return new AsyncResult<>(tagResults);
     }
 
 }

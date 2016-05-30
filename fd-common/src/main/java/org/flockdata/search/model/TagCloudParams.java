@@ -108,6 +108,11 @@ public class TagCloudParams implements QueryInterface {
         return searchText;
     }
 
+    @Override
+    public boolean isSearchTagsOnly() {
+        return false;
+    }
+
     public void setSearchText(String query) {
         this.searchText = query;
     }

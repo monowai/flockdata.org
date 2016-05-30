@@ -28,7 +28,7 @@ import org.testcontainers.containers.DockerComposeContainer;
  * Created by mike on 6/05/16.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ IntSanityCheck.class, IntReadWrite.class, IntAdminFunction.class})
+@Suite.SuiteClasses({ IntSanityCheck.class, IntReadWrite.class, IntAdminFunction.class, IntSearchTags.class})
 public class ITSuite {
 
     private static DockerComposeContainer stack = FdDocker.stack;
@@ -37,12 +37,14 @@ public class ITSuite {
     public static ExternalResource resource= new ExternalResource() {
         @Override
         protected void before() throws Throwable {
-            stack.start();
+            if ( stack!=null)
+                stack.start();
         }
 
         @Override
         protected void after() {
-            stack.stop();
+            if (stack!=null)
+                stack.stop();
         }
     };
 }

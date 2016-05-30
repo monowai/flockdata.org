@@ -57,6 +57,7 @@ import static org.springframework.test.util.AssertionErrors.fail;
         ClientConfiguration.class,
         FdBatcher.class,
         FdRestWriter.class,
+        SearchHelper.class,
         Exchanges.class,
         FileProcessor.class,
         AmqpRabbitConfig.class,
@@ -70,8 +71,11 @@ class IntegrationHelper {
     static final String ADMIN_REGRESSION_PASS = "123";
     private static Logger logger = LoggerFactory.getLogger(IntegrationHelper.class);
 
-    @Value("${org.fd.test.sleep:1000}")
-    private int sleep;
+    @Value("${org.fd.test.sleep.short:1500}")
+    private int shortSleep;
+
+    @Value("${org.fd.test.sleep.long:4000}")
+    private int longSleep;
 
     @Value("${org.fd.test.attempts:100}")
     private int attempts;
@@ -118,7 +122,7 @@ class IntegrationHelper {
                         pb.start();
                     }
 
-                    Thread.sleep(sleep);
+                    Thread.sleep(shortSleep);
                     if ( pb!=null )
                         pb.stepBy(1);
                     count ++;
@@ -168,13 +172,13 @@ class IntegrationHelper {
 
                 if (pingCommand.exec().worked() && pingCommand.result().equals("pong")) {
                     // We can finish early
-                    pb.stepBy((waitCount - run));
+//                    pb.stepBy((waitCount - run));
                     logger.info("finished after {}", run);
                     return;
 
                 }
             } else {
-                Thread.sleep(1000);
+                shortSleep();
             }
 
         } while (run != waitCount);
@@ -348,4 +352,15 @@ class IntegrationHelper {
         return new Login(clientConfiguration, fdRestWriter);
 
     }
+
+
+    void longSleep() throws InterruptedException {
+        Thread.sleep(longSleep);
+    }
+
+    void shortSleep() throws InterruptedException{
+        Thread.sleep(shortSleep);
+    }
+
+
 }

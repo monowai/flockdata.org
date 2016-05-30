@@ -22,9 +22,9 @@ package org.flockdata.engine.track;
 
 import com.google.common.collect.Lists;
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.admin.service.StorageProxy;
+import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.meta.service.DocTypeRetryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
@@ -103,7 +103,7 @@ public class MediationFacadeNeo implements MediationFacade {
     LogService logService;
 
     @Autowired
-    PlatformConfig platformConfig;
+    EngineConfig engineConfig;
 
     @Autowired
     EntityRetryService entityRetry;
@@ -171,11 +171,10 @@ public class MediationFacadeNeo implements MediationFacade {
 
     @Override
     public Collection<TagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
-
-        if (tagInputs.isEmpty())
+        Future<Collection<TagResultBean>> tags = createTagsAsync(company, tagInputs);
+        if ( tags == null )
             return null;
-        indexRetryService.ensureUniqueIndexes(tagInputs);
-        return tagRetryService.createTags(company, tagInputs).get();
+        return tags.get();
     }
 
     private Future<Collection<TagResultBean>> createTagsAsync(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
@@ -497,7 +496,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if ( searchService != null )
             searchService.makeChangesSearchable(fortress, resultBeans);
         // ToDo: how to wait for results when running tests
-        if (platformConfig.isTestMode())
+        if (engineConfig.isTestMode())
             conceptRetryService.trackConcepts(fortress, resultBeans).get();
         else
             conceptRetryService.trackConcepts(fortress, resultBeans);

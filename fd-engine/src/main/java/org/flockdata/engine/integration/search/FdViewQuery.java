@@ -108,7 +108,6 @@ public class FdViewQuery {
     }
 
     @MessagingGateway
-    @Profile("fd-server")
     public interface FdViewQueryGateway {
 
         @Gateway(requestChannel = "sendSearchRequest", replyChannel = "fdViewResult")

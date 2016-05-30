@@ -61,7 +61,7 @@ public class AmqpServices {
 
     //    @PostConstruct
     private void prepare() {
-        if (!prepared) {
+        if (!prepared || channel==null) {
             entityProps = null;
             tagProps = null;
             factory = new ConnectionFactory();

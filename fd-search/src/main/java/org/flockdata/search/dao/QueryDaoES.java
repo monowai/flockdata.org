@@ -399,7 +399,7 @@ public class QueryDaoES implements QueryDao {
     public EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException {
         EsSearchResult result ;
         if (queryParams.getQuery() != null || queryParams.getAggs()!=null) {
-
+            // Raw ES query
             String query = "{\"query\": " + JsonUtils.toJson(queryParams.getQuery()) ;
             if ( queryParams.getFields()!=null){
                 query = query +",\"fields\": "+JsonUtils.toJson(queryParams.getFields());

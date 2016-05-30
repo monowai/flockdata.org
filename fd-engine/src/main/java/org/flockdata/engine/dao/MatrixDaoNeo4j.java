@@ -21,7 +21,7 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.dao.MatrixDao;
-import org.flockdata.engine.integration.search.EntityKeyQuery;
+import org.flockdata.engine.integration.search.EntityKeyQuery.EntityKeyGateway;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -52,7 +52,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
     private Logger logger = LoggerFactory.getLogger(MatrixDaoNeo4j.class);
 
     @Autowired(required = false) // Functional tests don't require gateways
-    EntityKeyQuery.EntityKeyGateway searchKeyGateway;
+    EntityKeyGateway searchKeyGateway;
 
     @Autowired
     FortressService fortressService;
@@ -62,7 +62,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
     @Override
     public MatrixResults buildMatrix(Company company, MatrixInputBean input) throws FlockException {
 
-        if ( company == null )
+        if (company == null)
             throw new FlockException("Authorised company could not be identified");
 
         if (input.getCypher() != null)

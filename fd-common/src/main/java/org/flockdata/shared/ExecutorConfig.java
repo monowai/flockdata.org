@@ -114,7 +114,7 @@ public class ExecutorConfig extends AsyncConfigurerSupport {
 
     @PostConstruct
     void logStatus() {
-        logger.info("**** Executors (ex.shared) have been initialised");
+        logger.info("**** Threadpool executors have been initialised");
     }
 
 }

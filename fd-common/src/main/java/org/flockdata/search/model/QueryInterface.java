@@ -33,4 +33,7 @@ public interface QueryInterface {
     ArrayList<String> getTags();
 
     String getSearchText();
+
+    // This request is only to be made on tags
+    boolean isSearchTagsOnly();
 }

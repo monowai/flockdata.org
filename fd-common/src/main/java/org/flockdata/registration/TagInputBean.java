@@ -423,8 +423,9 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
         return keyPrefix;
     }
 
-    public void setMerge(boolean merge) {
+    public TagInputBean setMerge(boolean merge) {
         this.merge = merge;
+        return this;
     }
 
     /**

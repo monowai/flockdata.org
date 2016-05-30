@@ -21,13 +21,15 @@
 package org.flockdata.engine.query.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
+import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.integration.search.DeleteIndex;
 import org.flockdata.engine.integration.search.EntitySearchWriter;
-import org.flockdata.engine.integration.search.SearchGateway;
+import org.flockdata.engine.integration.search.EntitySearchWriter.EntitySearchWriterGateway;
+import org.flockdata.engine.integration.search.FdViewQuery.FdViewQueryGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.*;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.AdminRequest;
 import org.flockdata.search.model.*;
 import org.flockdata.shared.IndexManager;
@@ -76,10 +78,10 @@ public class SearchServiceFacade {
     StorageProxy storageProxy;
 
     @Autowired(required = false) // Functional tests don't require gateways
-    SearchGateway searchGateway;
+    EntitySearchWriterGateway searchWriter;
 
-    @Autowired(required = false) // Functional tests don't require gateways
-    EntitySearchWriter.EntitySearchWriterGateway searchWriter;
+    @Autowired(required = false)
+    EntitySearchWriter entitySearchWriter;
 
     @Autowired
     DeleteIndex.DeleteIndexGateway deleteIndexGateway;
@@ -100,8 +102,10 @@ public class SearchServiceFacade {
     EntityTagFinder defaultTagFinder;
 
     @Autowired
-    PlatformConfig engineConfig;
+    EngineConfig engineConfig;
 
+    @Autowired (required = false)
+    FdViewQueryGateway fdViewQueryGateway;
 
     public void makeChangeSearchable(SearchChange searchChange) {
         if (searchChange == null)
@@ -120,10 +124,10 @@ public class SearchServiceFacade {
             logger.debug("Sending request to index changes [{}]]", searchDocuments.iterator().next().getId());
         else
             logger.debug("Sending request to index [{}]] logs", searchDocuments.size());
-        if (searchWriter != null)
+        if (entitySearchWriter != null)
             searchWriter.makeSearchChanges(new SearchChanges(searchDocuments));
         else {
-            logger.debug("Search Gateway is diabled");
+            logger.debug("Search Gateway is disabled");
         }
         logger.debug("[{}] log requests sent to search", searchDocuments.size());
         return true;
@@ -288,11 +292,7 @@ public class SearchServiceFacade {
     }
 
     public EsSearchResult search(QueryParams queryParams) {
-        return searchGateway.fdSearch(queryParams);
-    }
-
-    public TagCloud getTagCloud(TagCloudParams tagCloudParams) {
-        return searchGateway.getTagCloud(tagCloudParams);
+        return fdViewQueryGateway.fdSearch(queryParams);
     }
 
     public void purge(Fortress fortress) {
@@ -387,5 +387,21 @@ public class SearchServiceFacade {
         EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
         searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
 
+    }
+
+    public Boolean makeTagsSearchable(Company company, Collection<TagResultBean> tagResults) {
+        Collection<SearchChange>tagSearchChanges = new ArrayList<>();
+        for (TagResultBean tagResult : tagResults) {
+            if ( tagResult.isNewTag()){
+                tagSearchChanges.add(getTagChangeToPublish(company, tagResult));
+            }
+        }
+
+        return makeChangesSearchable(tagSearchChanges);
+    }
+
+    private TagSearchChange getTagChangeToPublish(Company company, TagResultBean tagResult) {
+        String indexName = indexManager.getIndexRoot(company, tagResult.getTag());
+        return new TagSearchChange(indexName, tagResult.getTag());
     }
 }

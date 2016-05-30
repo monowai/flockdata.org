@@ -25,9 +25,15 @@ import org.flockdata.model.Tag;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.search.model.SearchChanges;
 import org.flockdata.search.model.TagSearchChange;
+import org.flockdata.track.bean.SearchChange;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -36,14 +42,25 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestTagChanges {
     @Test
-    public void serialization () throws Exception {
+    public void serializationTagSearchChange () throws Exception {
         TagSearchChange searchChange = getSimpleTagInput("testIndex", "TheCompany", "TheFortress", "TheCode", "TheLabel");
 
         String json = JsonUtils.toJson(searchChange);
         assertNotNull(json);
+        Collection<SearchChange>changes = new ArrayList<>();
         TagSearchChange deserializedChange = JsonUtils.toObject(json.getBytes(), TagSearchChange.class);
         assertEquals (searchChange.getType(), deserializedChange.getType());
         assertEquals(searchChange.getAliases().size(), deserializedChange.getAliases().size());
+
+        changes.add(searchChange);
+        SearchChanges searchChanges = new SearchChanges(changes);
+        json = JsonUtils.toJson(searchChanges);
+
+        SearchChanges deserializedChanges =JsonUtils.toObject(json.getBytes(), SearchChanges.class);
+        assertNotNull( deserializedChanges);
+        assertEquals(1, deserializedChanges.getChanges().size());
+        assertTrue (deserializedChanges.getChanges().iterator().next() instanceof TagSearchChange);
+
 
     }
     public static TagSearchChange getSimpleTagInput (String indexName, String companyName, String fortressName, String code, String label){
@@ -54,6 +71,6 @@ public class TestTagChanges {
         String key = TagHelper.parseKey(code+"Alias");
         Alias alias = new Alias(tagInputBean.getLabel(), new AliasInputBean(code+"Alias", "someAliasDescription"),key, tag);
         tag.addAlias( alias);
-        return new TagSearchChange(indexName, fortress, tag);
+        return new TagSearchChange(indexName, tag);
     }
 }

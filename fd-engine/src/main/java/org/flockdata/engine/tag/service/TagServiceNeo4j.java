@@ -99,7 +99,7 @@ public class TagServiceNeo4j implements TagService {
         Collection<TagResultBean> results = tagDaoNeo4j.save(payload);
 
         for (TagResultBean result : results) {
-            if ( result.isNew() && !result.getTag().isDefault() )
+            if ( result.isNewTag() && !result.getTag().isDefault() )
                 conceptDao.registerTag(company, result.getTag().getLabel());
         }
         return results;

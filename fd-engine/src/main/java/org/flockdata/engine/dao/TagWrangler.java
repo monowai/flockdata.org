@@ -87,6 +87,7 @@ public class TagWrangler {
         boolean isNew = false;
         TagResultBean tagResultBean;
         Tag startTag = findTag(tagSuffix, tagInput.getLabel(), tagInput.getKeyPrefix(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
+        boolean changed = false;
         if (startTag == null) {
             if (tagInput.isMustExist()) {
 
@@ -112,15 +113,23 @@ public class TagWrangler {
                 startTag = createTag(company, tagInput, tagSuffix);
             }
         } else {
-            // Existing Tag
-            if (tagInput.isMerge() && tagInput.hasTagProperties()) {
-                boolean changed = false;
-                for (String key : tagInput.getProperties().keySet()) {
-                    startTag.addProperty(key, tagInput.getProperty(key));
+            // Existing Tag. We only update certain properties. Code is immutable (or near enough to)
+            if (tagInput.isMerge() ) {
+                if ( tagInput.hasTagProperties())
+                    for (String key : tagInput.getProperties().keySet()) {
+                        startTag.addProperty(key, tagInput.getProperty(key));
+                        changed = true;
+                    }
+
+                if ( tagInput.getName()!=null && !tagInput.getName().equals(startTag.getName())) {
+                    startTag.setName(tagInput.getName());
                     changed = true;
                 }
-                if (changed)
-                    startTag = tagManager.save( new TagKey(startTag));
+
+                if (changed) {
+                    startTag = tagManager.save(new TagKey(startTag));
+
+                }
             }
         }
 
@@ -139,7 +148,7 @@ public class TagWrangler {
             }
         }
 
-        return new TagResultBean(tagInput, startTag, isNew);
+        return new TagResultBean(tagInput, startTag, (isNew|changed));
     }
 
     private void handleAliases(TagInputBean tagInput, Tag startTag) {
@@ -163,12 +172,6 @@ public class TagWrangler {
     }
 
     private Tag createTag(Company company, TagInputBean tagInput, String suffix) {
-//        boolean schemaReady;
-//        Collection<TagInputBean>tagInputBeans = new ArrayList<>();
-//        tagInputBeans.add(tagInput);
-//        do {
-//            schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
-//        } while (!schemaReady);
 
         logger.trace("createTag {}", tagInput);
         // ToDo: Should a label be suffixed with company in multi-tenanted? - more time to think!!

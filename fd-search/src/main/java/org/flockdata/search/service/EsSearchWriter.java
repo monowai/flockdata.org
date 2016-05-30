@@ -23,7 +23,7 @@ package org.flockdata.search.service;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.base.TagChangeWriter;
-import org.flockdata.search.integration.WriteEntityChange;
+import org.flockdata.search.integration.WriteSearchChanges;
 import org.flockdata.search.model.*;
 import org.flockdata.track.bean.SearchChange;
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ public class EsSearchWriter implements SearchWriter {
     private TagChangeWriter tagWriter;
 
     @Autowired(required = false)
-    WriteEntityChange.EngineResultGateway engineResultGateway;
+    WriteSearchChanges.EngineResultGateway engineResultGateway;
 
     private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
 

@@ -22,8 +22,10 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchChanges;
+import org.flockdata.search.model.TagSearchChange;
 import org.flockdata.track.bean.SearchChange;
 
 import java.io.IOException;
@@ -50,9 +52,13 @@ public class SearchChangesDeserializer extends JsonDeserializer<SearchChanges> {
                 while (nodes.hasNext()){
                     JsonNode changeNode = nodes.next();
                     if (SearchChange.Type.ENTITY.name().equals(changeNode.findValue("type").asText())) {
-                        EntitySearchChange change = mapper.readValue(changeNode.toString(), EntitySearchChange.class);
+                        EntitySearchChange change = JsonUtils.toObject(changeNode.toString().getBytes(), EntitySearchChange.class);
                         changes.addChange(change);
-                    }
+                    } else if (SearchChange.Type.TAG.name().equals(changeNode.findValue("type").asText())) {
+                        TagSearchChange change = JsonUtils.toObject(changeNode.toString().getBytes(), TagSearchChange.class);
+                        changes.addChange(change);
+                    } else
+                        throw new IOException("Unrecognized search change "+ changeNode.get("type"));
 
                 }
             }

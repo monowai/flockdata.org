@@ -74,7 +74,7 @@ public class TestTags extends EngineBase {
         for (TagResultBean next : tagResults) {
             assertEquals("FLOP", next.getCode());
             //assertEquals("flop", next.getKey());
-            if ( next.isNew()) {
+            if ( next.isNewTag()) {
                 assertNull(oneIsNew); // we only want this set once
                 oneIsNew = Boolean.TRUE;
             }
@@ -95,9 +95,9 @@ public class TestTags extends EngineBase {
         for (TagResultBean next : tagResults) {
             assertNotNull(next);
             if ( next.getCode().equals("FLOP"))
-                assertFalse(next.isNew()); // created in previous run
+                assertFalse(next.isNewTag()); // created in previous run
             else
-                assertTrue(next.isNew());
+                assertTrue(next.isNewTag());
             count++;
         }
         assertEquals(5, count);
@@ -273,13 +273,13 @@ public class TestTags extends EngineBase {
         for (TagResultBean result : results) {
             if ( result.getCode().equals(mustExist.getCode())){
                 assertTrue("The tag should not have been created",result.getTag()== null );
-                assertFalse("The tag should not have been created",result.isNew());
+                assertFalse("The tag should not have been created",result.isNewTag());
                 assertNotNull(result.getMessage());
                 assertEquals(mustExist.getCode(), result.getCode());
             } else if ( result.getCode().equals(tagCreates.getCode())){
                 // The inverse of above
                 assertFalse("The tag should have been created",result.getTag()== null );
-                assertTrue("The tag should have been created", result.isNew());
+                assertTrue("The tag should have been created", result.isNewTag());
                 assertNull(result.getMessage());
                 assertEquals(tagCreates.getCode(), result.getCode());
                 assertEquals(tagCreates.getCode(), result.getTag().getCode());
@@ -519,7 +519,7 @@ public class TestTags extends EngineBase {
         countries.add(tagInputBean);
         Collection<TagResultBean> results = mediationFacade.createTags(su.getCompany(), countries);
         assertEquals(1, results.size());
-        assertTrue(results.iterator().next().isNew());
+        assertTrue(results.iterator().next().isNewTag());
         co = geoService.findCountries(su.getCompany());
 
         assertEquals(existingSize + 1, co.size());

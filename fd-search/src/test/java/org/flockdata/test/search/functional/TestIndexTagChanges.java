@@ -64,7 +64,7 @@ public class TestIndexTagChanges extends ESBase {
         assertTrue(indexName.contains(".tags."));
         assertTrue(indexName.endsWith("."+ indexManager.parseType(tagInputBean.getLabel())));
 
-        TagSearchChange tagSearchChange=  new TagSearchChange(indexName, fortress, tag);
+        TagSearchChange tagSearchChange=  new TagSearchChange(indexName, tag);
 
         indexMappingService.ensureIndexMapping(tagSearchChange);
 

@@ -17,7 +17,6 @@
 package org.flockdata.search.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.flockdata.model.Fortress;
 import org.flockdata.model.Tag;
 import org.flockdata.track.bean.AliasResultBean;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -32,43 +31,44 @@ import java.util.stream.Collectors;
 
 /**
  * Represents data about a tag that requires indexing
- *
+ * <p>
  * Created by mike on 15/05/16.
  */
 public class TagSearchChange implements SearchChange {
 
-    private Map<String, Object> props= new HashMap<>(); // User defined properties
+    private Map<String, Object> props = new HashMap<>(); // User defined properties
     private String code;
     private String name = null;
     private String type = Type.TAG.name();
     private String documentType;
     private String key = null;
-    private String fortressName ;
     private String description;
-    private Long id ;
+    private Long id;
     private Long logId = null;
     private boolean delete = false;
     private String indexName;
-    private boolean forceReindex=false;
-    private boolean replyRequired=false;
+    private boolean forceReindex = false;
+    private boolean replyRequired = false;
+    private String searchKey = null; // how to find this object in an es index
 
-    private Collection<AliasResultBean>aliases = new ArrayList<>();
-    private EntityKeyBean parent= null;
+    private Collection<AliasResultBean> aliases = new ArrayList<>();
+    private EntityKeyBean parent = null;
+    private EntityService.TAG_STRUCTURE tagStructure = null;
 
-    TagSearchChange(){
+    TagSearchChange() {
 
     }
 
-    public TagSearchChange(String indexName, Fortress fortress, Tag tag) {
+    public TagSearchChange(String indexName, Tag tag) {
         this();
         this.id = tag.getId();
         this.code = tag.getCode();
         this.name = tag.getName();
         this.documentType = tag.getLabel();
         this.key = tag.getKey();
-        this.fortressName = fortress.getName();
         this.indexName = indexName;
-        if ( tag.hasProperties())
+        this.searchKey = key;
+        if (tag.hasProperties())
             this.props = tag.getProperties();
         aliases.addAll(tag.getAliases().stream().map(AliasResultBean::new).collect(Collectors.toList()));
     }
@@ -86,7 +86,7 @@ public class TagSearchChange implements SearchChange {
 
     @Override
     public String getSearchKey() {
-        return null;
+        return searchKey;
     }
 
     @Override
@@ -106,7 +106,7 @@ public class TagSearchChange implements SearchChange {
 
     @Override
     public void setSearchKey(String key) {
-
+        this.searchKey = key;
     }
 
     @Override
@@ -120,8 +120,9 @@ public class TagSearchChange implements SearchChange {
     }
 
     @Override
+    @JsonIgnore
     public String getFortressName() {
-        return fortressName;
+        return null;
     }
 
     @Override
@@ -176,8 +177,9 @@ public class TagSearchChange implements SearchChange {
     }
 
     @Override
+    @JsonIgnore
     public EntityService.TAG_STRUCTURE getTagStructure() {
-        return null;
+        return tagStructure;
     }
 
     @Override

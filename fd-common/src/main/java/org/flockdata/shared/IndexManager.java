@@ -63,7 +63,8 @@ public class IndexManager {
 
     @PostConstruct
     void dumpConfig() {
-        logger.info("**** Prefixing FD indexes with [{}] and it is [{}] that we will also suffix with the entity type", prefix, typeSuffix);
+        logger.info("**** Prefixing FD Entity indexes with [{}] and it is [{}] that we will also suffix with the entity type", prefix, typeSuffix);
+        logger.info("**** Prefixing FD Tag indexes with [{}] ", tagPrefix);
     }
 
     public String getPrefix() {
@@ -117,8 +118,16 @@ public class IndexManager {
             return "";
     }
 
-    public String getIndexRoot(Company company, Tag tag){
-        return getTagPrefix() +company.getCode().toLowerCase() +".tags" + getSuffix(tag.getLabel().toLowerCase());
+    public String getIndexRoot(Company company, Tag tag) {
+        return getTagIndexRoot(company) + getSuffix(tag.getLabel().toLowerCase());
+    }
+
+    private String getTagIndexRoot(Company company) {
+        return getTagIndexRoot(company.getCode());
+    }
+
+    private String getTagIndexRoot(String company) {
+        return getTagPrefix() + company.toLowerCase() + ".tags";
     }
 
     public String getIndexRoot(Fortress fortress) {
@@ -131,13 +140,19 @@ public class IndexManager {
         return getPrefix() + company.toLowerCase() + fort;
     }
 
-    @Deprecated // Parse from the Entity
     public String parseIndex(QueryParams queryParams) {
-        String indexRoot = getIndexRoot(queryParams.getCompany(), queryParams.getFortress());
-        if (isDefaultSegment(queryParams.getSegment()))
-            return indexRoot;
-        return String.format("%s.%s", indexRoot, queryParams.getSegment());
-
+        String index;
+        if (queryParams.isSearchTagsOnly()) {
+            index = getTagIndexRoot(queryParams.getCompany());
+        }else {
+            // Entity index root
+            String indexRoot = getIndexRoot(queryParams.getCompany(), queryParams.getFortress());
+            if (isDefaultSegment(queryParams.getSegment()))
+                return indexRoot;
+            index = String.format("%s.%s", indexRoot, queryParams.getSegment());
+        }
+        logger.debug("Resolved {} index to {}", queryParams, index);
+        return index;
     }
 
     /**
@@ -148,6 +163,16 @@ public class IndexManager {
      * @throws FlockException
      */
     public String[] getIndexesToQuery(QueryParams queryParams) throws FlockException {
+        if (queryParams.getIndex() !=null ){
+            if ( queryParams.getTypes() == null )
+                return new String[]{queryParams.getIndex()+".*"};
+            String indexes[] = new String[queryParams.getTypes().length];
+            int i=0;
+            for (String type : queryParams.getTypes()) {
+                indexes[i]= queryParams.getIndex()+"."+parseType(type);
+            }
+            return indexes;
+        }
         return getIndexesToQuery(queryParams.getCompany(), queryParams.getFortress(), queryParams.getSegment(), queryParams.getTypes());
     }
 

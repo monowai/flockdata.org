@@ -20,8 +20,7 @@
 
 package org.flockdata.search.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.AdminRequest;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.model.SearchChanges;
@@ -67,9 +66,9 @@ import java.io.IOException;
 @MessageEndpoint
 @Configurable
 @Profile({"fd-server"})
-public class WriteEntityChange {
+public class WriteSearchChanges {
 
-    private Logger logger = LoggerFactory.getLogger(WriteEntityChange.class);
+    private Logger logger = LoggerFactory.getLogger(WriteSearchChanges.class);
 
     @Autowired
     Exchanges exchanges;
@@ -87,7 +86,7 @@ public class WriteEntityChange {
     @Autowired
     MessageSupport messageSupport;
 
-    private static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
+//    private static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
     @Bean
     MessageChannel writeSearchDoc(){
@@ -129,9 +128,9 @@ public class WriteEntityChange {
             try {
                 Object oType = message.getHeaders().get(ClientConfiguration.KEY_MSG_TYPE);
                 if ( oType == null || oType.toString().equalsIgnoreCase("W"))
-                    searchWriter.createSearchableChange(objectMapper.readValue((byte[])message.getPayload(), SearchChanges.class));
+                    searchWriter.createSearchableChange(JsonUtils.toObject((byte[])message.getPayload(), SearchChanges.class));
                 else if ( oType.toString().equalsIgnoreCase("ADMIN")){
-                    AdminRequest adminRequest =objectMapper.readValue((String)message.getPayload(),AdminRequest.class);
+                    AdminRequest adminRequest =JsonUtils.toObject(((String)message.getPayload()).getBytes(),AdminRequest.class);
                     searchAdmin.deleteIndexes(adminRequest.getIndexesToDelete());
                     logger.info("Got an admin request");
                 }

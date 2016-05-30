@@ -142,13 +142,8 @@ public class TagResultBean {
     }
 
     // Used as a hint to see if we should attempt to create a TagLabel for this tag
-    @JsonIgnore
-    public boolean isNew() {
+    public boolean isNewTag() {
         return newTag;
-    }
-
-    void setNew(){
-        this.newTag = true;
     }
 
     @Override

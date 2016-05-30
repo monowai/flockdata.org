@@ -44,8 +44,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Map;
-
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 import static org.flockdata.test.integration.IntegrationHelper.getEngine;
@@ -94,6 +92,8 @@ public class IntReadWrite {
 
     @Autowired
     private AmqpServices amqpServices;
+
+    private SearchHelper searchHelper = new SearchHelper();
 
     @Before
     public void setupServices(){
@@ -158,7 +158,7 @@ public class IntReadWrite {
         assertEquals("Countries not processed", countryInputs, 249);
         TagsGet countries = new TagsGet(clientConfiguration, fdRestWriter, "Country");
         // Tags are processed over a messageQ so will take a wee bit of time to be processed
-        Thread.sleep(4000);
+        integrationHelper.longSleep();
         countries.exec();
         assertTrue("Error loading countries" + countries.error(), countries.worked());
 
@@ -186,6 +186,16 @@ public class IntReadWrite {
 
         assertEquals("By Code and By Name they are the same country so should equal", countryByIsoShort.result(), countryByName.result());
         assertEquals("By short code and long code they are the same country so should equal", countryByIsoLong.result(), countryByIsoShort.result());
+        integrationHelper.shortSleep();
+        QueryParams qp = searchHelper.getTagQuery("country", "australia");
+        SearchEsPost searchEsPost = new SearchEsPost(clientConfiguration, fdRestWriter, qp);
+        integrationHelper.assertWorked("Located Country by name", searchEsPost);
+        searchHelper.assertHitCount("Should have found just 1 hit for Australia", 1, searchEsPost.result());
+
+        searchEsPost = new SearchEsPost(clientConfiguration, fdRestWriter, searchHelper
+                .getTagMatchQuery("country","aka.bgn_longname", "commonwealth of australia"));
+        searchHelper.assertHitCount("Didn't find Australia by alias", 1, searchEsPost.exec().result());
+
     }
 
     @Test
@@ -246,7 +256,7 @@ public class IntReadWrite {
         assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityResult.getSearch());
         assertEquals("Search Key was not set to the code of the entityInput", entityInputBean.getCode(), entityResult.getSearchKey());
 
-        Thread.sleep(2000); // Give ES write time to complete
+        integrationHelper.shortSleep();
         QueryParams qp = new QueryParams(entityResult.getCode())
                 .setFortress(entityInputBean.getFortress().getName());
 
@@ -326,7 +336,7 @@ public class IntReadWrite {
         integrationHelper.waitForSearch(logger, entityGet, 1);
         assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityGet.result().getSearch());
 
-        Thread.sleep(2000); // Give ES write time to complete
+        integrationHelper.shortSleep();
         QueryParams qp = new QueryParams()
                 .setFortress(entityInputBean.getFortress().getName())
                 .setQuery(JsonUtils.toMap("{\n" +
@@ -342,12 +352,9 @@ public class IntReadWrite {
         SearchEsPost search = new SearchEsPost(clientConfiguration, fdRestWriter, qp);
         integrationHelper.assertWorked("Search Reply ", search);
 
-        Map<String,Object> esResult = search.result();
-        assertFalse ( "errors were found "+esResult.get("errors") ,esResult.containsKey("errors"));
+        assertFalse ( "errors were found "+search.result().get("errors") ,search.result().containsKey("errors"));
 
-        Map hits = (Map) esResult.get("hits");
-        assertNotNull(hits);
-        assertEquals("Expected 1 hit", 1, hits.get("total"));
-        assertTrue("UTF-8 failure. Couldn't find " +entityInputBean.getCode(), JsonUtils.toJson(hits.get("hits")).contains(entityInputBean.getCode()));
+        searchHelper.assertHitCount("Expected 1 hit", 1, search.result());
+        assertTrue("UTF-8 failure. Couldn't find " +entityInputBean.getCode(), searchHelper.getHits(search.result()).contains(entityInputBean.getCode()));
     }
 }

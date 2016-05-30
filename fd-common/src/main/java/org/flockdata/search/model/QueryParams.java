@@ -237,4 +237,19 @@ public class QueryParams implements QueryInterface{
     public String getIndex() {
         return index;
     }
+
+    boolean searchTagsOnly = false;
+    public QueryParams searchTags() {
+        this.searchTagsOnly = true;
+        return this;
+    }
+
+    public boolean isSearchTagsOnly() {
+        return searchTagsOnly;
+    }
+
+    public QueryParams setIndex(String index) {
+        this.index = index;
+        return this;
+    }
 }

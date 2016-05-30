@@ -17,9 +17,13 @@
 package org.flockdata.test.helper;
 
 import junit.framework.TestCase;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.registration.TagResultBean;
+import org.flockdata.search.model.QueryParams;
 import org.flockdata.shared.IndexManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +34,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Created by mike on 29/02/16.
@@ -60,6 +67,27 @@ public class TestIndexManager {
         return propertySourcesPlaceholderConfigurer;
     }
 
+    @Test
+    public void json_QueryParams () throws Exception {
+        QueryParams queryParams = new QueryParams("*");
+        String json = JsonUtils.toJson(queryParams);
+        assertNotNull(json);
 
+        QueryParams qp = JsonUtils.toObject(json.getBytes(), QueryParams.class);
+        assertNotNull (qp);
+        assertEquals(queryParams.getSearchText(), qp.getSearchText());
+    }
+
+    @Test
+    public void json_TagResult () throws Exception {
+        TagInputBean tagInputBean = new TagInputBean("abc","label");
+        TagResultBean tagResult = new TagResultBean( tagInputBean);
+        String json = JsonUtils.toJson(tagResult);
+        assertNotNull(json);
+
+        TagResultBean tr = JsonUtils.toObject(json.getBytes(), TagResultBean.class);
+        assertNotNull (tr);
+        assertEquals(tagResult.getCode(), tr.getCode());
+    }
 
 }

@@ -30,6 +30,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.search.model.*;
+import org.flockdata.shared.IndexManager;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
@@ -67,12 +68,14 @@ public class QueryService {
     @Autowired(required = false) // Functional tests don't require gateways
     EntityKeyGateway searchKeyGateway;
 
-    @Autowired (required = false)
+    @Autowired(required = false)
     FdViewQueryGateway fdViewQueryGateway;
 
     @Autowired(required = false)
     ContentStoreEs esStore;
 
+    @Autowired
+    IndexManager indexManager;
 
     public EsSearchResult search(Company company, QueryParams queryParams) {
 
@@ -80,11 +83,21 @@ public class QueryService {
 //        watch.start("Get ES Query Results");
         queryParams.setCompany(company.getName());
         EsSearchResult esSearchResult;
+        if (queryParams.isSearchTagsOnly()) {
+            // Set the index
+            queryParams.setIndex(indexManager.parseIndex(queryParams));
+
+        }
+
 
         if (queryParams.getQuery() != null) {
             esSearchResult = esStore.getData(queryParams);
         } else {
-            esSearchResult = fdViewQueryGateway.fdSearch(queryParams);
+            if (fdViewQueryGateway == null) {
+                logger.info("fdViewQueryGateway is not availiable");
+                return null;
+            } else
+                esSearchResult = fdViewQueryGateway.fdSearch(queryParams);
         }
 
 
