@@ -40,6 +40,7 @@
   <link rel="stylesheet" href="bower_components/jsoneditor/dist/jsoneditor.min.css" />
   <link rel="stylesheet" href="bower_components/ng-tags-input/ng-tags-input.min.css" />
   <link rel="stylesheet" href="bower_components/ngprogress/ngProgress.css" />
+  <link rel="stylesheet" href="bower_components/angular-toastr/dist/angular-toastr.css" />
   <!-- endbower -->
   <!-- endbuild -->
   <!-- build:css({.tmp,app}) styles/main.css -->
@@ -55,16 +56,16 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body ng-controller="IndexCtrl" class="hold-transition" ng-class="isLogin() ? 'login-page' : 'skin-blue sidebar-mini'"  ng-cloak>
+<body ng-controller="IndexCtrl" class="hold-transition" ng-class="authenticated() ? 'skin-blue sidebar-mini' : 'login-page'">
 <!--[if lt IE 7]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
   your browser</a> to improve your experience.</p>
 <![endif]-->
 <div class="wrapper">
-  <ng-include src=" 'views/partials/navbar.html' " ng-if="!isLogin()"></ng-include>
-  <ng-include src=" 'views/partials/sidebar.html' " ng-if="!isLogin()"></ng-include>
+  <ng-include src=" 'views/partials/navbar.html' " ng-if="authenticated()"></ng-include>
+  <ng-include src=" 'views/partials/sidebar.html' " ng-if="authenticated()"></ng-include>
 
-  <div class="" ng-class="isLogin() ? '' : 'content-wrapper'">
+  <div class="" ng-class="!isLogin() ? 'content-wrapper' : ''">
     <ui-view></ui-view>
   </div>
 
@@ -100,6 +101,7 @@ https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.8/es5-shim.min.js
 <script src="bower_components/ngprogress/build/ngprogress.min.js"></script>
 <script src="bower_components/cytoscape/dist/cytoscape.js"></script>
 <script src="bower_components/ng-jsoneditor/ng-jsoneditor.min.js"></script>
+<script src="bower_components/angular-toastr/dist/angular-toastr.tpls.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 <!-- build:js({.tmp,app}) scripts/scripts.js -->

@@ -26,10 +26,8 @@ fdView.controller('LoginCtrl', ['$scope', '$stateParams', 'AuthenticationSharedS
   function ($scope, $stateParams, AuthenticationSharedService) {
     $scope.login = function () {
       AuthenticationSharedService.login($scope.username, $scope.password)
-        .then(function () {
-          AuthenticationSharedService.getMyProfile().then(function (res) {
-            $scope.setCurrentUser(res);
-          });
+        .then(function (res) {
+          $scope.setCurrentUser(res.data);
         });
     };
 

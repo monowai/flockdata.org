@@ -27,7 +27,7 @@
         <small>Application settings</small>
       </h1>
       <ol class="breadcrumb">
-        <li><a ui-sref="welcome"><i class="fa fa-home"></i> Home</a></li>
+        <li ng-if="authenticated()"><a ui-sref="welcome"><i class="fa fa-home"></i> Home</a></li>
         <li class="active">Settings</li>
       </ol>
     </section>
@@ -61,7 +61,7 @@
                   <input type="url" class="form-control" name="exploreUrl" ng-model="setting.exploreUrl" placeholder="explore URL">
                 </section>
 
-                <section ng-if="authenticated" class="form-group">
+                <section ng-if="authenticated()" class="form-group">
                   <div class="checkbox">
                     <label>
                       <input type="checkbox" ng-model="setting.devMode" ng-checked="setting.devModeChecked">
@@ -78,12 +78,8 @@
         </div>
         <!-- /.box-body -->
         <div class="box-footer">
-          <div class="input-group-btn">
-            <button class="btn btn-default btn-primary" type="button" href="javascript:void(0);" ng-click="apply()">Apply</button>
-            <!--<button class="btn btn-default btn-primary" type="button" href="javascript:void(0);" ng-click="clear()">-->
-                  <!--Clear-->
-                  <!--</button>-->
-          </div>
+          <button class="btn btn-primary" type="submit" ng-click="apply()">Apply</button>
+          <button class="btn btn-success" type="button" ui-sref="login" ng-if="!authenticated()">Login</button>
         </div>
         <!-- /.box-footer-->
       </div>
