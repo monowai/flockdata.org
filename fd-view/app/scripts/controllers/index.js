@@ -23,9 +23,11 @@
 fdView.controller('IndexCtrl', ['$scope', '$rootScope', '$state', 'AuthenticationSharedService', 'USER_ROLES',
   function ($scope, $rootScope, $state, AuthenticationSharedService, USER_ROLES) {
 
-    AuthenticationSharedService.getMyProfile().then(function (res) {
+    AuthenticationSharedService.getMyProfile().success(function (res) {
       $scope.setCurrentUser(res);
     });
+
+    $scope.profile = $rootScope.account;
 
     $scope.userRoles = USER_ROLES;
     $scope.isAuthorized = AuthenticationSharedService.isAuthorized;
@@ -42,4 +44,7 @@ fdView.controller('IndexCtrl', ['$scope', '$rootScope', '$state', 'Authenticatio
       return $state.is('login');
     };
 
+    $scope.authenticated = function() {
+      return $rootScope.authenticated;
+    };
 }]);

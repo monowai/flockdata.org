@@ -129,7 +129,7 @@ fdView.factory('AuthenticationSharedService', ['$rootScope', '$state', '$http', 
               $rootScope.authenticated = true;
             });
           }
-          if (!$rootScope.isAuthorized(authorizedRoles)) {
+          if (Session.login && !$rootScope.isAuthorized(authorizedRoles)) {
             // user is not allowed
             $rootScope.$broadcast('event:auth-notAuthorized');
           }
@@ -156,9 +156,12 @@ fdView.factory('AuthenticationSharedService', ['$rootScope', '$state', '$http', 
           return isAuthorized;
         },
         getMyProfile: function () {
-          return $http.get(configuration.engineUrl() + '/api/account').then(function (response) {
-            return response.data;
-          });
+          return $http.get(configuration.engineUrl() + '/api/account')
+            .success(function (response) {
+              return response.data;
+            }).error(function (response) {
+              $rootScope.$broadcast('event:auth-loginRequired', response);
+            });
         },
         logout: function () {
           $rootScope.authenticationError = false;

@@ -27,6 +27,7 @@ var fdView = angular.module('fdView', [
   'ui.router',
   'ngAnimate',
   'ui.bootstrap',
+  'toastr',
   'ngTagsInput',
   'ngProgress',
   'angularMoment',
@@ -42,7 +43,7 @@ var fdView = angular.module('fdView', [
         url: '/',
         templateUrl: 'views/welcome.html',
         data: {
-          authorizedRoles: [USER_ROLES.all]
+          authorizedRoles: [USER_ROLES.user]
         }
       })
       .state('login', {
@@ -50,7 +51,7 @@ var fdView = angular.module('fdView', [
         templateUrl: 'views/login.html',
         controller: 'LoginCtrl',
         data: {
-          authorizedRoles: [USER_ROLES.FD]
+          authorizedRoles: [USER_ROLES.all]
         }
       })
       .state('search', {
@@ -58,7 +59,7 @@ var fdView = angular.module('fdView', [
         templateUrl: 'views/search.html',
         controller: 'MetaHeaderCtrl',
         data: {
-          authorizedRoles: [USER_ROLES.all]
+          authorizedRoles: [USER_ROLES.user]
         }
       })
       .state('analyze', {
@@ -66,7 +67,7 @@ var fdView = angular.module('fdView', [
         templateUrl: 'views/analyze.html',
         controller: 'AnalyzeCtrl',
         data: {
-          authorizedRoles: [USER_ROLES.all]
+          authorizedRoles: [USER_ROLES.user]
         }
       })
       .state('explore', {
@@ -74,7 +75,7 @@ var fdView = angular.module('fdView', [
         templateUrl: 'views/explore.html',
         controller: 'ExploreCtrl',
         data: {
-          authorizedRoles: [USER_ROLES.all]
+          authorizedRoles: [USER_ROLES.user]
         }
       })
       .state('view', {
@@ -82,14 +83,14 @@ var fdView = angular.module('fdView', [
         templateUrl: 'views/viewentity.html',
         controller: 'ViewEntityCtrl',
         data: {
-          authorizedRoles: [USER_ROLES.all]
+          authorizedRoles: [USER_ROLES.user]
         }
       })
       .state('statistics', {
         url: '/statistics',
         templateUrl: 'views/statistics.html',
         data: {
-          authorizedRoles: [USER_ROLES.all]
+          authorizedRoles: [USER_ROLES.user]
         }
       })
       .state('import', {
@@ -97,7 +98,7 @@ var fdView = angular.module('fdView', [
         templateUrl: 'views/import.html',
         controller: 'ImportCtrl',
         data: {
-          authorizedRoles: [USER_ROLES.all]
+          authorizedRoles: [USER_ROLES.user]
         }
       })
       .state('import.load', {
@@ -121,7 +122,7 @@ var fdView = angular.module('fdView', [
         templateUrl: 'views/admin.html',
         controller: 'AdminCtrl',
         data: {
-          authorizedRoles: [USER_ROLES.all]
+          authorizedRoles: [USER_ROLES.user]
         }
       })
       .state('settings', {
@@ -129,14 +130,22 @@ var fdView = angular.module('fdView', [
         templateUrl: 'views/settings.html',
         controller: 'SettingsCtrl',
         data: {
-          authorizedRoles: [USER_ROLES.all]
+          authorizedRoles: [USER_ROLES.user]
         }
       });
     $urlRouterProvider.otherwise('/welcome');
     // $locationProvider.html5Mode(false);
   }])
-  .run(['$rootScope', '$state', '$http', 'AuthenticationSharedService', 'Session', 'USER_ROLES',
-    function ($rootScope, $state, $http, AuthenticationSharedService, Session, USER_ROLES) {
+  .config(['toastrConfig', function(toastrConfig) {
+    angular.extend(toastrConfig, {
+      newestOnTop: true,
+      positionClass: 'toast-bottom-center',
+      preventDuplicates: true,
+      target: 'body'
+    });
+  }])
+  .run(['$rootScope', '$state', '$http', 'AuthenticationSharedService', 'Session', 'toastr', 'USER_ROLES',
+    function ($rootScope, $state, $http, AuthenticationSharedService, Session, toastr, USER_ROLES) {
       // TODO NEED TO SEE
       $rootScope.msg = '';
       $rootScope.$on("$stateChangeError", console.log.bind(console));
@@ -166,23 +175,46 @@ var fdView = angular.module('fdView', [
             $state.go('login');
           }
           if ($rootScope.msg === null || $rootScope.msg === '') {
-            $rootScope.msg = 'Please login';
+            // $rootScope.msg = 'Please login';
           }
+          toastr.warning('Please login...');
         }
       );
       // Call when the 403 response is returned by the server
-      $rootScope.$on('event:auth-forbidden',
+      $rootScope.$on('event:auth-notAuthorized',
         function () {
           $rootScope.errorMessage = 'errors.403';
-          $rootScope.msg = 'Your user account has no access to business information';
+          // $rootScope.msg = 'Your user account has no access to business information';
+          toastr.error('Your user account has no access to business information', 'Error');
         }
       );
 
+      // Call when the 404 response is returned by the server
+      $rootScope.$on('event:not-found',
+        function () {
+          $rootScope.errorMessage = 'errors.404';
+          // if ($state.is('login')) {
+            toastr.warning('Please, check your <a ui-sref="settings">Settings</a>','Resource not found!',
+              {allowHtml: true});
+          // } else {
+          //   toastr.warning('Resource not found!');
+          // }
+
+        }
+      );
+      // Call when the 500 response is returned by the server
+      $rootScope.$on('event:server-error',
+        function () {
+          $rootScope.errorMessage = 'errors.500';
+          toastr.error('Server error!');
+        }
+      );
       // Call when the user logs out
       $rootScope.$on('event:auth-loginCancelled',
         function () {
-          $rootScope.msg = 'Logged out';
+          // $rootScope.msg = 'Logged out';
           $state.go('login');
+          toastr.success('Successfully logged out...');
         }
       );
 
@@ -209,7 +241,14 @@ fdView.provider('configuration', ['engineUrl','exploreUrl', function (engineUrl,
       _engineUrl = window.location.href.substring(0, window.location.href.indexOf('fd-view')) + 'fd-engine';
 
     } else {
-      _engineUrl = window.location.protocol + '//' + window.location.host;// + '/api';
+      // _engineUrl = window.location.protocol + '//' + window.location.host;// + '/api';
+      var port = window.location.host.indexOf(':');
+      if (port > 0) {
+        _engineUrl = window.location.protocol + '//' + window.location.host.substr(0, port) + ':8080';
+      } else {
+        _engineUrl = window.location.protocol + '//' + window.location.host;
+      }
+
     }
     console.log('Calculated URL is ' + _engineUrl);
 

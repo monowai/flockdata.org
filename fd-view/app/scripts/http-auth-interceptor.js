@@ -83,7 +83,13 @@
                     $rootScope.$broadcast('event:auth-loginRequired', rejection);
                   return deferred.promise;
                 case 403:
-                  $rootScope.$broadcast('event:auth-forbidden', rejection);
+                  $rootScope.$broadcast('event:auth-notAuthorized', rejection);
+                  break;
+                case 404:
+                  $rootScope.$broadcast('event:not-found', rejection);
+                  break;
+                case 500:
+                  $rootScope.$broadcast('event:server-error');
                   break;
               }
             }
