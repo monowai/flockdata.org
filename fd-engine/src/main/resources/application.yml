@@ -46,10 +46,16 @@ application:
 
 org.fd:
   engine:
-    # Defaults on creation of a fortress if not otherwise supplied
+
     fortress:
+      # Defaults on creation of a fortress if not otherwise supplied
       search: true
       store: false
+      #Index prefix for an internal system fortress. Will expand to .fd.{company}.{doctype}
+      index.system.prefix: .fd.
+      #ElasticSarch indexes, for entities will have this prefix - fd.{company}.{doctype}
+      index.entity.prefix: fd.
+
     system:
       # Mount point for the api
       api: /api
@@ -88,10 +94,6 @@ org.fd:
 
   search:
     api: ${org.fd.search.url:http://127.0.0.1:8081}
-    index:
-      #ElasticSarch indexes will start with this prefix
-      entity.prefix: fd.
-      tag.prefix: .fd.
     messaging:
       exchange: fd.search.exchange
       binding: fd.search.binding

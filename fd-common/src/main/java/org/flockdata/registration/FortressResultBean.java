@@ -34,6 +34,7 @@ public class FortressResultBean implements MetaFortress, Serializable{
     private Boolean searchEnabled;
     private Boolean storeEnabled;
     private String companyName;
+    private boolean system;
 
     protected FortressResultBean() {
 
@@ -46,6 +47,7 @@ public class FortressResultBean implements MetaFortress, Serializable{
         this.indexName = fortress.getRootIndex();
         this.timeZone = fortress.getTimeZone();
         this.enabled = fortress.isEnabled();
+        this.system = fortress.isSystem();
         this.searchEnabled = fortress.isSearchEnabled();
         if ( fortress.getCompany()!=null)
             this.companyName = fortress.getCompany().getName();
@@ -92,4 +94,7 @@ public class FortressResultBean implements MetaFortress, Serializable{
         return indexName;
     }
 
+    public boolean isSystem() {
+        return system;
+    }
 }

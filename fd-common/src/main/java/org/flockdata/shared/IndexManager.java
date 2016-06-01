@@ -43,15 +43,15 @@ public class IndexManager {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Value("${org.fd.search.index.entity.prefix:fd.}")
+    @Value("${org.fd.engine.fortress.index.entity.prefix:fd.}")
     private String prefix;
 
-    @Value("${org.fd.search.index.tag.prefix:.fd.}")  // Kind of hidden as this is a system search cache
-    private String tagPrefix;
-
+    @Value("${org.fd.engine.fortress.index.system.prefix:.fd.}") // Kind of hidden as this is a system search cache
+    private String fdSystemIndexPrefix ;
 
     @Value("${org.fd.search.index.typeSuffix:true}")
     private Boolean typeSuffix;   // use docType as an index suffix?
+
 
     IndexManager() {
     }
@@ -64,17 +64,12 @@ public class IndexManager {
     @PostConstruct
     void dumpConfig() {
         logger.info("**** Prefixing FD Entity indexes with [{}] and it is [{}] that we will also suffix with the entity type", prefix, typeSuffix);
-        logger.info("**** Prefixing FD Tag indexes with [{}] ", tagPrefix);
+        logger.info("**** Prefixing FD System indexes with [{}] ", fdSystemIndexPrefix);
     }
 
     public String getPrefix() {
         return prefix;
     }
-
-    public String getTagPrefix() {
-        return tagPrefix;
-    }
-
 
     public Boolean isSuffixed() {
         return typeSuffix;
@@ -127,17 +122,25 @@ public class IndexManager {
     }
 
     private String getTagIndexRoot(String company) {
-        return getTagPrefix() + company.toLowerCase() + ".tags";
+        return fdSystemIndexPrefix + company.toLowerCase() + ".tags";
     }
 
     public String getIndexRoot(Fortress fortress) {
+
+        if ( fortress.isSystem()){
+            return getIndexRoot(fdSystemIndexPrefix,fortress.getCompany().getCode(), fortress.getCode());
+        }
         return getIndexRoot(fortress.getCompany().getCode(), fortress.getCode());
     }
 
+    private String getIndexRoot(String company, String fortress){
+        return getIndexRoot(getPrefix(), company, fortress);
+    }
+
     // Returns the root level of the index with no doctype or consideration of a segment
-    public String getIndexRoot(String company, String fortress) {
+    private String getIndexRoot(String prefix, String company, String fortress) {
         String fort = (fortress == null || fortress.equals("*") ? "" : "." + fortress.toLowerCase());
-        return getPrefix() + company.toLowerCase() + fort;
+        return prefix + company.toLowerCase() + fort;
     }
 
     public String parseIndex(QueryParams queryParams) {

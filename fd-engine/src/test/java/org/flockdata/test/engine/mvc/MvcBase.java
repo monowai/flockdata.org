@@ -188,24 +188,23 @@ public abstract class MvcBase {
 
     }
 
-    FortressResultBean createFortress(RequestPostProcessor user, String fortressName)
+    FortressResultBean makeFortress(RequestPostProcessor user, String fortressName)
             throws Exception {
+        return this.makeFortress(user, new FortressInputBean(fortressName, true));
+    }
 
+    public FortressResultBean makeFortress(RequestPostProcessor user, FortressInputBean fortressInputBean) throws Exception {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
                                 .post(apiPath + "/fortress/")
-                                .contentType(MediaType.APPLICATION_JSON)
                                 .with(user)
-                                .content(
-                                        JsonUtils
-                                                .toJson(new FortressInputBean(
-                                                        fortressName, true))))
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andReturn();
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(JsonUtils.toJson(fortressInputBean))).andReturn();
 
-        return JsonUtils.toObject(response.getResponse()
-                .getContentAsByteArray(), FortressResultBean.class);
+        byte[] json = response.getResponse().getContentAsByteArray();
+        return JsonUtils.toObject(json, FortressResultBean.class);
+
     }
 
     public Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
@@ -393,20 +392,6 @@ public abstract class MvcBase {
                 )
                 .andExpect(expectedResult);
         return result.andReturn().getResponse().getContentAsString();
-
-    }
-
-    public FortressResultBean makeFortress(RequestPostProcessor user, FortressInputBean fortressInputBean) throws Exception {
-        MvcResult response = mvc()
-                .perform(
-                        MockMvcRequestBuilders
-                                .post(apiPath + "/fortress/")
-                                .with(user)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(JsonUtils.toJson(fortressInputBean))).andReturn();
-
-        byte[] json = response.getResponse().getContentAsByteArray();
-        return JsonUtils.toObject(json, FortressResultBean.class);
 
     }
 

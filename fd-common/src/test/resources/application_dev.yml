@@ -40,6 +40,8 @@ org.fd:
     fortress:  # Defaults on creation of a fortress if not otherwise supplied
       search: true
       store: false
+      index.entity.prefix: blah.
+
     system:
       api: /api # Mount point for the api
       constraints: true
@@ -75,8 +77,6 @@ org.fd:
 
   search:
     api: ${org.fd.search.url:http://127.0.0.1:8081}
-    index:
-      entity.prefix: blah.
     messaging:
       exchange: fd.search.exchange
       binding: fd.search.binding

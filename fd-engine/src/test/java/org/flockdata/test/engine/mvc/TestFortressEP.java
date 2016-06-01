@@ -33,6 +33,7 @@ import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * Created by mike on 16/02/15.
@@ -48,7 +49,7 @@ public class TestFortressEP extends MvcBase {
     @Test
     public void get_FortressSegments() throws Exception {
 
-        FortressResultBean fortress = createFortress(mike(), "make_DocTypes");
+        FortressResultBean fortress = makeFortress(mike(), "make_DocTypes");
 
         Collection<FortressSegment> segments = getSegments(mike(), fortress.getName());
         assertEquals(1, segments.size());
@@ -60,7 +61,7 @@ public class TestFortressEP extends MvcBase {
     @Test
     public void update_Fortress() throws Exception {
 
-        FortressResultBean fortress = createFortress(mike(), "update_Fortress");
+        FortressResultBean fortress = makeFortress(mike(), "update_Fortress");
         FortressInputBean update = new FortressInputBean(fortress.getName());
 
         update.setSearchEnabled(true);
@@ -89,7 +90,7 @@ public class TestFortressEP extends MvcBase {
     @Test
     public void cant_updateFortressThatUserDoesntBelongTo() throws Exception {
 
-        FortressResultBean fortress = createFortress(mike(), "cant_updateFortressThatUserDoesntBelongTo");
+        FortressResultBean fortress = makeFortress(mike(), "cant_updateFortressThatUserDoesntBelongTo");
 
         FortressInputBean update = new FortressInputBean(fortress.getName());
 
@@ -108,7 +109,7 @@ public class TestFortressEP extends MvcBase {
     @Test
     public void cant_updateFortressUnlessUserIsAdmin() throws Exception {
 
-        FortressResultBean fortress = createFortress(mike(), "cant_updateFortressUnlessUserIsAdmin");
+        FortressResultBean fortress = makeFortress(mike(), "cant_updateFortressUnlessUserIsAdmin");
 
         FortressInputBean update = new FortressInputBean(fortress.getName());
 
@@ -127,7 +128,7 @@ public class TestFortressEP extends MvcBase {
     @Test
     public void null_FortressCode() throws Exception {
 
-        FortressResultBean fortress = createFortress(mike(), "null_FortressCode");
+        FortressResultBean fortress = makeFortress(mike(), "null_FortressCode");
 
         FortressInputBean update = new FortressInputBean(null);
 
@@ -139,5 +140,24 @@ public class TestFortressEP extends MvcBase {
 
         makeFortress(mike(), update);
 
+    }
+
+    @Test
+    public void system_Fortress() throws Exception {
+        Collection<FortressResultBean> fortresses = getFortresses(mike());
+
+        // In case other tests have left fortresses hanging around, lets get our base count
+        int fortressCount = fortresses.size();
+        logger.debug("existing fortress count {}", fortressCount);
+
+        makeFortress(mike(), new FortressInputBean("Regular",true));
+
+        FortressInputBean systemFortress = new FortressInputBean("TestSystem",true);
+        systemFortress.setSystem(true);
+        FortressResultBean fortress = makeFortress(mike(),systemFortress);
+        assertTrue ( "Was not created as a system fortress", fortress.isSystem());
+        assertTrue ( "system index prefix was not set ["+fortress.getIndexName()+"]", fortress.getIndexName().startsWith(".testfd."));
+        fortresses = getFortresses(mike());
+        assertEquals("System fortress should not have been returned", fortressCount+1, fortresses.size());
     }
 }

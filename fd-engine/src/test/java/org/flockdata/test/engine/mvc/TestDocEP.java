@@ -41,7 +41,7 @@ public class TestDocEP extends MvcBase {
     @Test
     public void flow_docPoints() throws Exception {
 
-        FortressResultBean fortress = createFortress(mike(), "flow_docPoints");
+        FortressResultBean fortress = makeFortress(mike(), "flow_docPoints");
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "flow_docPoints", new DateTime());
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
@@ -87,7 +87,7 @@ public class TestDocEP extends MvcBase {
     @Test
     public void find_tagValues() throws Exception {
 
-        FortressResultBean fortress = createFortress(mike(), "find_tagValues");
+        FortressResultBean fortress = makeFortress(mike(), "find_tagValues");
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "Study", new DateTime(), "StudyA");
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
@@ -113,7 +113,7 @@ public class TestDocEP extends MvcBase {
     @Test
     public void make_DocTypes() throws Exception {
 
-        FortressResultBean fortress = createFortress(mike(), "make_DocTypes");
+        FortressResultBean fortress = makeFortress(mike(), "make_DocTypes");
 
         DocumentTypeInputBean docType = new DocumentTypeInputBean("docName")
                 .setCode("docCode");

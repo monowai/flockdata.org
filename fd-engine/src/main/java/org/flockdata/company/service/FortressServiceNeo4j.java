@@ -200,7 +200,8 @@ public class FortressServiceNeo4j implements FortressService {
         Collection<Fortress> fortresses = fortressDao.findFortresses(company.getId());
         Collection<FortressResultBean> results = new ArrayList<>(fortresses.size());
         for (Fortress fortress : fortresses) {
-            results.add(new FortressResultBean(fortress));
+            if ( !fortress.isSystem())
+                results.add(new FortressResultBean(fortress));
         }
         return results;
 
@@ -253,7 +254,7 @@ public class FortressServiceNeo4j implements FortressService {
             logger.debug("Created fortress {}", fortress);
             fortress.setCompany(company);
 
-            fortress.setRootIndex(indexManager.getIndexRoot(company.getCode(), fortress.getCode()));
+            fortress.setRootIndex(indexManager.getIndexRoot(fortress));
             logger.trace("Returning fortress {}", fortress);
             return fortress;
         }
@@ -386,7 +387,7 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Override
     public Fortress findInternalFortress(Company company) {
-        String internal = ".fd-internal";
+        String internal = "fd-system";
         Fortress systemFortress = findByName(company, internal);
         if ( systemFortress== null ){
             FortressInputBean createMe = new FortressInputBean(internal);

@@ -19,6 +19,8 @@ org.fd:
     fortress:  # Defaults on creation of a fortress if not otherwise supplied
       search: false
       store: false
+      # Overriding the system default
+      index.system.prefix: .testfd.
     system:
       api: api
       storage: MEMORY # Simple in-memory store for testing
