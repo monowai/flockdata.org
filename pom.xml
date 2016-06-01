@@ -34,9 +34,9 @@
         <org.springbatch.version>3.0.7.RELEASE</org.springbatch.version>
         <org.springintegration.version>4.2.5.RELEASE</org.springintegration.version>
         <org.springsecurity.version>4.0.4.RELEASE</org.springsecurity.version>
-        <org.springcloud.release.train>Brixton.RC2</org.springcloud.release.train>
+        <org.springcloud.release.train>Brixton.RELEASE</org.springcloud.release.train>
 
-        <org.springcloud.version>1.1.0.RC2</org.springcloud.version>
+        <org.springcloud.version>1.1.0.RELEASE</org.springcloud.version>
         <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
         <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>
         <neo4j.version>2.3.3</neo4j.version>

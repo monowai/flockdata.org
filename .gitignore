@@ -19,7 +19,6 @@
 *.rar
 *.tar
 *.zip
-*.jar
 *.war
 *.ear
 
@@ -39,6 +38,12 @@ Icon?
 ehthumbs.db
 Thumbs.db
 
+#Maven Build
+mvn-release.txt
+pom.xml.*
+/log
+/*/log/
+
 #IDE Files
 .idea/
 .classpath
@@ -55,9 +60,6 @@ fd-engine/neo4j-home
 /data
 dependency-reduced-pom.xml
 release.properties
-pom.xml.releaseBackup
 fd-search/data/
-fd-search/src/test/data/
 
-atlassian-ide-plugin.xml
 
