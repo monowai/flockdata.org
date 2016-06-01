@@ -73,7 +73,7 @@ public class Neo4jConfig extends Neo4jConfiguration {
                     .loadPropertiesFromFile(configFile)
                     .newGraphDatabase();
             if ( port >0 ) {
-                logger.info ("**** Enabling Neo4j browser at url [{}] port [{}]", address, port );
+                logger.info ("**** Neo4j browser enabled at url [{}] port [{}]", address, port );
                 ServerConfigurator config = new ServerConfigurator(graphdb);
                 config.configuration().setProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, port);
                 if ( !address.equals("disable"))

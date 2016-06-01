@@ -83,7 +83,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ModelAndView handleSecAuthException(final AuthenticationException ex){
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
+        return new JsonMessage("Invalid username or password").asModelAndViewError();
     }
 
     //.class
@@ -102,11 +102,15 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(Exception.class )
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handleInternal( Exception ex) {
-        logger.error("Error 500", ex);
+        String errorMessage;
         if ( ex.getCause() !=null )
-            return new JsonMessage(ex.getCause().getMessage()).asModelAndViewError();
+            errorMessage = ex.getCause().getMessage();
         else
-            return new JsonMessage(ex.getMessage()).asModelAndViewError();
+            errorMessage =ex.getMessage();
+
+        logger.error("Error 500: {}", errorMessage);
+
+        return new JsonMessage(errorMessage).asModelAndViewError();
     }
 
 }
