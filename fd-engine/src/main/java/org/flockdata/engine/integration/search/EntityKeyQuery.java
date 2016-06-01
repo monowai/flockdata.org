@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -98,6 +99,7 @@ public class EntityKeyQuery {
         return handler;
     }
 
+    @MessagingGateway
     public interface EntityKeyGateway {
         @Gateway(requestChannel = "sendKeyQuery", replyChannel = "keyResult")
         EntityKeyResults keys(QueryParams queryParams);

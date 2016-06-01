@@ -52,7 +52,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
     private Logger logger = LoggerFactory.getLogger(MatrixDaoNeo4j.class);
 
     @Autowired(required = false) // Functional tests don't require gateways
-    EntityKeyGateway searchKeyGateway;
+    EntityKeyGateway entityKeyGateway;
 
     @Autowired
     FortressService fortressService;
@@ -71,7 +71,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         return buildMatrixWithSearch(company, input);
     }
 
-    public MatrixResults buildMatrixWithSearch(Company company, MatrixInputBean input) throws FlockException {
+    private MatrixResults buildMatrixWithSearch(Company company, MatrixInputBean input) throws FlockException {
         // DAT-109 enhancements
         EntityKeyResults entityKeyResults = null;
 
@@ -81,7 +81,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         if (input.getSampleSize() > 0) {
             if (input.getSampleSize() > 3000)
                 input.setSampleSize(3000); // Neo4j can't handle any more in it's where clause
-            entityKeyResults = searchKeyGateway.keys(getQueryParams(company, input));
+            entityKeyResults = entityKeyGateway.keys(getQueryParams(company, input));
         }
 
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
