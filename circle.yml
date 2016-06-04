@@ -4,7 +4,9 @@ machine:
 
 dependencies:
   override:
-    - mvn clean verify -P docker,integration
+    - mvn clean install -P integration
+    - cd fd-client
+    - mvn verify -P integration
 
 deployment:
   hub:
