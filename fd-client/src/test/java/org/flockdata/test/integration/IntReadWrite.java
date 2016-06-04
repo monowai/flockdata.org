@@ -219,7 +219,7 @@ public class IntReadWrite {
         assertEquals("Problem creating the Content", trackEntity.result().getLogStatus(), ContentInputBean.LogStatus.OK);
 
         EntityGet foundEntity = new EntityGet(clientConfiguration, fdRestWriter, trackEntity.result().getKey());
-        foundEntity.exec();
+        integrationHelper.waitForEntityKey(logger, foundEntity.exec());
         integrationHelper.assertWorked("Find Entity - ", foundEntity);
         assertNotNull(foundEntity.result().getKey());
 
