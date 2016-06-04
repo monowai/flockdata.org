@@ -23,12 +23,12 @@ import org.junit.runners.Suite;
 import org.testcontainers.containers.DockerComposeContainer;
 
 /**
- * Starts a single DCContainer for all the integration tests to use
+ * Starts a single DcContainer for all the integration tests to use
  *
  * Created by mike on 6/05/16.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ IntSanityCheck.class, IntReadWrite.class, IntAdminFunction.class, IntSearchTags.class})
+@Suite.SuiteClasses({ IntSanityCheck.class, IntAdminFunction.class, IntReadWrite.class, IntSearchTags.class})
 public class ITSuite {
 
     private static DockerComposeContainer stack = FdDocker.stack;

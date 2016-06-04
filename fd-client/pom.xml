@@ -227,6 +227,7 @@
                         <version>2.19.1</version>
                         <configuration>
                             <reportsDirectory>${project.build.directory}/test-results</reportsDirectory>
+                            <argLine>-Xmx256m</argLine>
                         </configuration>
                         <executions>
                             <execution>

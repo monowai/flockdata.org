@@ -249,9 +249,11 @@ class IntegrationHelper {
         Ping searchPing = new Ping(clientConfiguration, fdRestWriter);
         rabbitConfig.setServicePoint(getIpAddress(), getRabbitPort());
 
+        logger.info("org.fd.test.sleep.short {}ms", shortSleep);
+        logger.info("org.fd.test.sleep.long  {}ms", longSleep);
         logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine());
         logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch());
-        logger.info("FDStore - {} - reachable @ {}", SERVICE_STORE, getStore());
+        logger.info("FDStore  - {} - reachable @ {}", SERVICE_STORE, getStore());
         logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, getIpAddress() + ":" + getEngineDebug());
         logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_SEARCH, getIpAddress() + ":" + getSearchDebug());
         logger.info("FDStore-Debug  - {} - reachable @ {}", DEBUG_STORE, getIpAddress() + ":" + getStoreDebug());

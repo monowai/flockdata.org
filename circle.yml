@@ -1,0 +1,24 @@
+machine:
+  services:
+    - docker
+
+test:
+  override:
+    - mvn -q clean test
+  post:
+    - mvn -q package -P docker -DskipTests=true
+    - mvn -f fd-client/pom.xml -q verify -P integration
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - find . -type f -regex ".*/target/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+
+deployment:
+  hub:
+    branch: master
+    commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push flockdata/fd-engine
+      - docker push flockdata/fd-store
+      - docker push flockdata/fd-search
+      - docker push flockdata/fd-client
+
+
