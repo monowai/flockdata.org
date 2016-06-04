@@ -18,7 +18,7 @@ rabbit:
 
 fdengine:
   image: flockdata/fd-engine
-  command: "-ea -Xmx512m "
+  command: "-ea -Xmx384m "
   links:
      - rabbit
      - fdsearch
@@ -56,7 +56,7 @@ fdengine:
 
 fdstore:
   image: flockdata/fd-store
-  command: "-Xmx512m"
+  command: "-Xmx256m"
   links:
      - rabbit
 
@@ -79,7 +79,7 @@ fdstore:
 
 fdsearch:
   image: flockdata/fd-search
-  command: "-Xmx512m"
+  command: "-Xmx256m"
 
 # Uncomment ports for non-proxy debug
 #  ports:
@@ -127,7 +127,7 @@ fdsearch:
 elasticsearch:
   # Regular standalone elasticsearch image
   image: elasticsearch:1.7.5
-  command: elasticsearch -Des.cluster.name=es_int_fd
+  command: elasticsearch -Xmx256m -Des.cluster.name=es_int_fd
 
   expose:
     - 9200
