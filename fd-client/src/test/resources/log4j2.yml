@@ -37,7 +37,7 @@ Configuration:
 
         - name: org.testcontainers
           additivity: false
-          level: info
+          level: debug
           AppenderRef:
             - ref: CONSOLE
 
