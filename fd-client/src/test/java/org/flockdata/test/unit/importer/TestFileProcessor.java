@@ -64,19 +64,19 @@ public class TestFileProcessor {
         assertFalse(files.isEmpty());
         assertEquals(1, files.size());
 
-        files = fileProcessor.resolveFiles("/data/*.json");
+        files = fileProcessor.resolveFiles("./data/*.json");
         assertFalse(files.isEmpty());
         assertEquals(2, files.size());
 
-        files = fileProcessor.resolveFiles("/data/*.json");
+        files = fileProcessor.resolveFiles("./data/*.json");
         assertFalse(files.isEmpty());
         assertEquals(2, files.size());
 
-        files = fileProcessor.resolveFiles("/data/*");
+        files = fileProcessor.resolveFiles("./data/*");
         assertFalse(files.isEmpty());
         assertTrue("Not enough files found", files.size()> 5);
 
-        files = fileProcessor.resolveFiles("/data/");
+        files = fileProcessor.resolveFiles("./data/");
         assertFalse(files.isEmpty());
         assertTrue("Not enough files found", files.size() > 5);
 
