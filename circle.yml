@@ -5,8 +5,7 @@ machine:
 dependencies:
   override:
     - mvn -q clean install -P docker
-    - cd fd-client
-    - mvn -q verify -P integration
+    - mvn -f fd-client/pom.xml -q verify -P integration
 
 deployment:
   hub:
