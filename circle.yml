@@ -15,3 +15,9 @@ deployment:
       - docker push flockdata/fd-store
       - docker push flockdata/fd-search
       - docker push flockdata/fd-client
+
+test:
+  post:
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - find . -type f -regex ".*/target/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+
