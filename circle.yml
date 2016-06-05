@@ -2,12 +2,14 @@ machine:
   services:
     - docker
 
-dependencies:
+test:
   override:
     - mvn -q clean test
   post:
     - mvn -q package -P docker -DskipTests=true
     - mvn -f fd-client/pom.xml -q verify -P integration
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - find . -type f -regex ".*/target/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
 
 deployment:
   hub:
@@ -19,8 +21,4 @@ deployment:
       - docker push flockdata/fd-search
       - docker push flockdata/fd-client
 
-test:
-  post:
-    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
-    - find . -type f -regex ".*/target/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
 
