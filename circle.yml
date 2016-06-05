@@ -7,7 +7,7 @@ dependencies:
     - mvn -q clean test
   post:
     - docker info
-    - mvn -q package -P docker
+    - mvn -q package -P docker -DskipTests=true
     - mvn -f fd-client/pom.xml -q verify -P integration
 
 deployment:
