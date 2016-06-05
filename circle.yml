@@ -4,7 +4,7 @@ machine:
 
 dependencies:
   override:
-    - mvn -q clean install -P docker
+    - mvn -q clean package -P docker -DskipTests=true
     #- mvn -f fd-client/pom.xml  -q verify -P integration
 
 deployment:
