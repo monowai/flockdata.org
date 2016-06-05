@@ -211,7 +211,7 @@ public class IntReadWrite {
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
         TrackEntityPost trackEntity = new TrackEntityPost(clientConfiguration, fdRestWriter, entityInputBean);
 
-        integrationHelper.assertWorked("Track Entity - ", trackEntity);
+        integrationHelper.assertWorked("Track Entity - ", trackEntity.exec());
 
         assertNotNull(trackEntity.result());
         assertNotNull(trackEntity.result().getKey());
