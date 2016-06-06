@@ -33,6 +33,8 @@ ENV FD_BASE="/opt/flockdata"
 RUN ln -s $FD_BASE/bin/fdimport /usr/local/bin/fdimport
 RUN ln -s $FD_BASE/bin/fdcountries /usr/local/bin/fdcountries
 RUN ln -s $FD_BASE/bin/fdregister /usr/local/bin/fdregister
+RUN ln -s $FD_BASE/bin/fdhealth /usr/local/bin/fdhealth
+RUN ln -s $FD_BASE/bin/fdping /usr/local/bin/fdping
 RUN ln -s $FD_BASE/bin/fdutils /usr/local/bin/fdutils
 
 RUN alias ll='ls -la'

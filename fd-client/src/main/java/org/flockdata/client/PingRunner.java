@@ -16,14 +16,13 @@
 
 package org.flockdata.client;
 
-import org.flockdata.client.commands.RegistrationPost;
+import org.flockdata.client.commands.Ping;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -49,26 +48,21 @@ import javax.annotation.PostConstruct;
  * if BatchSize is set to -1, then a simulation only is run; information is not dispatched to the server.
  * This is useful to debug the class implementing Delimited
  *
- * @see org.flockdata.registration.RegistrationBean
+ * @see RegistrationBean
  * @see org.flockdata.registration.SystemUserResultBean
- * @see org.flockdata.shared.ClientConfiguration
+ * @see ClientConfiguration
  * <p>
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
-@Profile("fd-register")
+@Profile("fd-ping")
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"org.flockdata.authentication", "org.flockdata.shared", "org.flockdata.client"})
-public class Register {
+public class PingRunner {
 
-    private Logger logger = LoggerFactory.getLogger(Register.class);
+    private Logger logger = LoggerFactory.getLogger(PingRunner.class);
 
-    @Value("${auth.user:#{null}}")
-    String authUser;
-
-    @Value("${register.login:#{null}}")
-    String login;
 
     @Autowired
     private ClientConfiguration clientConfiguration;
@@ -78,22 +72,10 @@ public class Register {
 
     @PostConstruct
     void register() {
-        if ( login == null ) {
-            logger.error ("To run this command you should supply --register.login=someuser");
-            logger.error ("Where someuser is a user in your authentication realm");
-            System.exit(-1);
-        }
+        Ping pingCmd = new Ping(clientConfiguration, fdClient);
+        pingCmd.exec();
+        logger.info("FlockData endpoint [{}] responded with [{}]", clientConfiguration.getServiceUrl(), pingCmd.error()!=null?pingCmd.error():pingCmd.result());
 
-        CommandRunner.configureAuth(logger, authUser, clientConfiguration, fdClient);
-
-        RegistrationBean regBean = new RegistrationBean(clientConfiguration.getCompany(), login);
-        RegistrationPost register = new RegistrationPost(clientConfiguration, fdClient, regBean);
-        register.exec();
-        if ( register.error()!=null)
-            logger.error(register.error());
-        else {
-            logger.info("Registered {}", register.result());
-        }
     }
 
 

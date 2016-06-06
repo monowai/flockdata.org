@@ -18,6 +18,10 @@ function readArgs() {
         -l=*|--login=*)
         LOGIN="${i#*=}" ;;
 
+# Auth credentials to use -l=user:password
+        -s=*|--service=*)
+        SERVICE="${i#*=}" ;;
+
 # Determine which Jar to execute
         -j=*|--jar=*)
         FD_JAR="${i#*=}" ;;

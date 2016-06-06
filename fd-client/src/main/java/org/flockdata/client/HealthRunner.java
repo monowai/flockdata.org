@@ -16,8 +16,9 @@
 
 package org.flockdata.client;
 
-import org.flockdata.client.commands.RegistrationPost;
+import org.flockdata.client.commands.Health;
 import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.slf4j.Logger;
@@ -49,26 +50,21 @@ import javax.annotation.PostConstruct;
  * if BatchSize is set to -1, then a simulation only is run; information is not dispatched to the server.
  * This is useful to debug the class implementing Delimited
  *
- * @see org.flockdata.registration.RegistrationBean
+ * @see RegistrationBean
  * @see org.flockdata.registration.SystemUserResultBean
- * @see org.flockdata.shared.ClientConfiguration
+ * @see ClientConfiguration
  * <p>
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
-@Profile("fd-register")
+@Profile("fd-health")
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"org.flockdata.authentication", "org.flockdata.shared", "org.flockdata.client"})
-public class Register {
+public class HealthRunner {
 
-    private Logger logger = LoggerFactory.getLogger(Register.class);
+    private Logger logger = LoggerFactory.getLogger(HealthRunner.class);
 
-    @Value("${auth.user:#{null}}")
-    String authUser;
-
-    @Value("${register.login:#{null}}")
-    String login;
 
     @Autowired
     private ClientConfiguration clientConfiguration;
@@ -76,24 +72,18 @@ public class Register {
     @Autowired
     private FdRestWriter fdClient;
 
-    @PostConstruct
-    void register() {
-        if ( login == null ) {
-            logger.error ("To run this command you should supply --register.login=someuser");
-            logger.error ("Where someuser is a user in your authentication realm");
-            System.exit(-1);
-        }
+    @Value("${auth.user:#{null}}")
+    String authUser;
 
+    @PostConstruct
+    void health() {
+        logger.info("Looking for Flockdata on {}", clientConfiguration.getServiceUrl());
         CommandRunner.configureAuth(logger, authUser, clientConfiguration, fdClient);
 
-        RegistrationBean regBean = new RegistrationBean(clientConfiguration.getCompany(), login);
-        RegistrationPost register = new RegistrationPost(clientConfiguration, fdClient, regBean);
-        register.exec();
-        if ( register.error()!=null)
-            logger.error(register.error());
-        else {
-            logger.info("Registered {}", register.result());
-        }
+        Health health = new Health(clientConfiguration, fdClient);
+        health.exec();
+        logger.info(JsonUtils.pretty(health.result()));
+
     }
 
 

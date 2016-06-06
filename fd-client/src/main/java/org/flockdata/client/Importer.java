@@ -16,7 +16,6 @@
 
 package org.flockdata.client;
 
-import org.flockdata.client.commands.Login;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
@@ -91,23 +90,10 @@ public class Importer  {
     @PostConstruct
     void importFiles() {
         logger.info("Looking for Flockdata on {}", clientConfiguration.getServiceUrl());
-        if ( authUser!=null ){
-
-            String[] uArgs = authUser.split(":");
-            clientConfiguration.setHttpUser(uArgs[0]);
-            clientConfiguration.setHttpPass(uArgs[1]);
-            Login login = new Login(clientConfiguration,fdClient);
-            login.exec();
-            if (login.error()!= null){
-                logger.error(login.error());
-                System.exit(-1);
-            }
-            clientConfiguration.setApiKey(login.result().getApiKey());
-
-        }
+        CommandRunner.configureAuth(logger, authUser, clientConfiguration, fdClient);
 
         if (clientConfiguration.getApiKey() == null) {
-            logger.error("No API key is set in the config file. Have you run the config process?");
+            logger.error("No API key is set in the config file. Have you run the fdregister process?");
             System.exit(-1);
         }
 
@@ -175,6 +161,7 @@ public class Importer  {
                 fileProcessor.endProcess(watch, totalRows, 0);
         }
     }
+
 
 
 }
