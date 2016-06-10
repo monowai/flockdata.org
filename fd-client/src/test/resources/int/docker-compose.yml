@@ -101,6 +101,7 @@ fdsearch:
     org.fd.engine.url: 'http://fdengine:8090'
     # Enables integration functionality
     org.fd.engine.api: http://fdengine:8090
+    logging.level.org.flockdata: DEBUG
 
     # Limit looking for ES nodes ouside of the fd-search JVM
     org.fd.search.es.local: "false"

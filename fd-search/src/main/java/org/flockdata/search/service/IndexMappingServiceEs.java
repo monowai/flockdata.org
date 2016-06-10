@@ -36,25 +36,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
- *
  * Maintenance routines for FD
- *
+ * <p>
  * Created by mike on 10/09/15.
  */
 @Service
 @DependsOn("searchConfig")
+@Scope("singleton")
 public class IndexMappingServiceEs implements IndexMappingService {
 
     @Autowired
@@ -64,6 +67,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     IndexManager indexManager;
 
     private Logger logger = LoggerFactory.getLogger(IndexMappingServiceEs.class);
+    Collection<String>knownIndexes = new ArrayList<>();
 
     @Override
     public boolean ensureIndexMapping(SearchChange change) {
@@ -73,12 +77,20 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
         if (hasIndex(change)) {
             // Need to be able to allow for a "per document" mapping
-            putMapping(change);
+            ensureMapping(change);
             return true;
         }
 
+        makeIndex(change, indexName, documentType);
+        return true;
+    }
+
+    private synchronized void makeIndex(SearchChange change, String indexName, String documentType) {
         logger.debug("Ensuring index {}, {}", indexName, documentType);
-        //if (hasIndex(indexName)) return true;
+        String key = change.getIndexName() + "/" + change.getDocumentType();
+        if ( knownIndexes.contains(key))
+            return;
+
         XContentBuilder esMapping = getMapping(change);
         // create Index  and Set Mapping
         if (esMapping != null) {
@@ -109,11 +121,12 @@ public class IndexMappingServiceEs implements IndexMappingService {
                 }
             }
         }
-        return true;
+        knownIndexes.add(key);
+
     }
 
 
-    private void putMapping(SearchChange change) {
+    private void ensureMapping(SearchChange change) {
         // Mappings are on a per Index basis. We need to ensure the mapping exists for the
         //    same index but every document type
         logger.debug("Checking mapping for {}, {}", change.getIndexName(), change.getDocumentType());
@@ -128,19 +141,31 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
         boolean hasIndexMapping = searchConfig.elasticSearchClient().admin()
                 .indices()
-                        //.exists( new IndicesExistsRequest(indexNames))
-                .typesExists(new TypesExistsRequest(indexNames,documentType))
+                //.exists( new IndicesExistsRequest(indexNames))
+                .typesExists(new TypesExistsRequest(indexNames, documentType))
                 .actionGet()
                 .isExists();
+
         if (!hasIndexMapping) {
             XContentBuilder mapping = getMapping(change);
+            makeMapping(documentType, indexNames, mapping);
+            logger.debug("Created default mapping and applied settings for {}, {}", indexNames[0], change.getDocumentType());
+        }
+    }
+
+    private synchronized void makeMapping(String documentType, String[] indexNames, XContentBuilder mapping) {
+        if (!searchConfig.elasticSearchClient().admin()
+                .indices()
+                //.exists( new IndicesExistsRequest(indexNames))
+                .typesExists(new TypesExistsRequest(indexNames, documentType))
+                .actionGet()
+                .isExists())
             searchConfig.elasticSearchClient().admin().indices()
                     .preparePutMapping(indexNames[0])
                     .setType(documentType)
                     .setSource(mapping)
                     .execute().actionGet();
-            logger.debug("Created default mapping and applied settings for {}, {}", indexNames[0], change.getDocumentType());
-        }
+
     }
 
     private boolean hasIndex(SearchChange change) {
@@ -207,10 +232,10 @@ public class IndexMappingServiceEs implements IndexMappingService {
         try {
             Map<String, Object> map = getDefaultMapping(change);
             Map<String, Object> docMap = new HashMap<>();
-            Map<String,Object>theMapping = (Map<String, Object>) map.get("mapping");
-            if ( change.getParent() != null ){
-                HashMap<String,Object>parentMap = new HashMap<> ();
-                parentMap.put ("type", indexManager.parseType(change.getParent().getDocumentType()));
+            Map<String, Object> theMapping = (Map<String, Object>) map.get("mapping");
+            if (change.getParent() != null) {
+                HashMap<String, Object> parentMap = new HashMap<>();
+                parentMap.put("type", indexManager.parseType(change.getParent().getDocumentType()));
                 theMapping.put("_parent", parentMap);
             }
             docMap.put(indexManager.parseType(change.getDocumentType()), theMapping);
@@ -224,7 +249,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     private String getKeyName(SearchChange change) {
         String fileName = change.getIndexName();
-        if ( fileName.startsWith("."))
+        if (fileName.startsWith("."))
             fileName = fileName.substring(1);
         return fileName + "/" + change.getDocumentType() + ".json";
     }
@@ -232,7 +257,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     private Map<String, Object> getDefaultMapping(SearchChange change) throws IOException {
         String esDefault;
 
-        String keyName = getKeyName(change) ;
+        String keyName = getKeyName(change);
         Map<String, Object> found;
 
         // Locate file on disk
@@ -271,8 +296,8 @@ public class IndexMappingServiceEs implements IndexMappingService {
         } finally {
             if (file != null) {
                 file.close();
-            }  else {
-                return getMap( new URL(fileName));
+            } else {
+                return getMap(new URL(fileName));
             }
         }
     }

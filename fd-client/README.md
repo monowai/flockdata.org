@@ -13,23 +13,23 @@ We recommend using the Docker package `flockdata/fd-client`. The commands in thi
 ## fdregister
 FlockData allows you to allow users in your authentication domain to access data. This is happens when you connect a login account with FlockData as a "System User" account. System Users have access to data curated in FlockData. Docker-Compose defines where the `fd-engine` api is located where running with `docker` means you have to tell it where to find `fd-engine` 
 
-To register a data acess account, in the fd-demo stack, run the following:
-`docker-compose run fdregister -u=demo:123 -l=demo`
+To register a data access account, in the fd-demo stack, run the following:
+`docker-compose run fd-client fdregister -u=demo:123 -l=demo`
 
 If you are just running Docker, then you will need to tell it how to find fd-engine:
-`docker run fdregister -u=demo:123 -l=demo --org.fd.engine.url=http://fd-engine:8080`
+`docker run fd-client fdregister -u=demo:123 -l=demo --org.fd.engine.url=http://fd-engine:8080`
 
 These commands do the same thing - register the login account `demo` as a SystemUser so that it can read and write data
 
 ## fdimport
-Invoke the fdimporter to ingest data shaped by the `profile.json` supplied in the arguments
+Invoke the fdimporter to ingest data as modeled by `profile.json` using supplied arguments
  
 `docker-compose run fdimport -u=demo:123 --fd.client.import="path/data.txt, path/profile.json`
 
 ## fdcountries
 See the world! This customized version of `fdimport` loads [countries](http://opengeocode.org/), capital cities, and common aliases along with geo tagged data, into FlockData. States for USA, Canada, and Australia are also added.
 
-`docker-compose run fdcountries -u=demo:123`
+`docker-compose run fd-client fdcountries -u=demo:123`
 
 ### Integration Testing
 

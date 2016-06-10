@@ -1178,7 +1178,7 @@ public class TestEntityTags extends EngineBase {
             searchChange.setSearchKey("SearchKey"); // any value
 
             SearchResults searchResults = getSearchResults(searchChange);
-            searchHandler.handlResults(searchResults);
+            searchHandler.handleResults(searchResults);
 
             assertNotNull(searchChange);
 

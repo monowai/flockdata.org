@@ -60,8 +60,8 @@ public class TestMappings extends ESBase {
     public void defaultTagQueryWorks() throws Exception {
         Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
 
-        String fortress = "fort";
         String company = "test";
+        String fortress = "defaultTagQueryWorks";
         String doc = "doc";
         String user = "mike";
 

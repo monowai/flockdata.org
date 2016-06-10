@@ -93,13 +93,9 @@ public class EsSearchWriter implements SearchWriter {
                 }
                 return results;
             }
-            if (checked.isEmpty() && !checked.containsKey(searchChange.getIndexName() + "/" + searchChange.getDocumentType())) {
-                entityWriter.purgeCache();
-                // Batches must be for the same fortress/doctype combo
-                indexMappingService.ensureIndexMapping(searchChange);
-                String key = searchChange.getIndexName() + "/" + searchChange.getDocumentType();
-                checked.put(key, true);
-            }
+
+            indexMappingService.ensureIndexMapping(searchChange);
+
             SearchResult result;
             if (searchChange.isType(SearchChange.Type.ENTITY))
                 result = new SearchResult(

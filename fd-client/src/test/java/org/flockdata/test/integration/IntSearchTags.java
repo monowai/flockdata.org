@@ -105,7 +105,7 @@ public class IntSearchTags {
 
 
     @Test
-    public void tagsIndex() throws Exception {
+    public void simpleTags() throws Exception {
 
         integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
         clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
@@ -161,4 +161,40 @@ public class IntSearchTags {
         assertTrue ("Didn't find correct search text", json.contains("acode wonder"));
 
     }
+
+    @Test
+    public void bulkTagsDontBlock() throws Exception {
+        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
+        clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
+        Collection<TagInputBean>setA = getRandomTags("codea", "Set");
+        Collection<TagInputBean>setB = getRandomTags("codea", "Set");
+        Collection<TagInputBean>setC = getRandomTags("codea", "Set");
+        Collection<TagInputBean>setD = getRandomTags("codea", "Set");
+        amqpServices.publishTags(setA);
+        amqpServices.publishTags(setB);
+        amqpServices.publishTags(setC);
+        amqpServices.publishTags(setD);
+        integrationHelper.longSleep();
+        QueryParams qp = searchHelper.getTagQuery("Set*", "code*");
+        SearchEsPost search = new SearchEsPost(clientConfiguration, fdRestWriter, qp);
+        search.exec();
+        integrationHelper.assertWorked("Not finding any tags",search);
+
+
+    }
+
+    private Collection<TagInputBean>getRandomTags(String code, String label){
+        int i =0;
+        int max = 20;
+
+        Collection<TagInputBean> tags = new ArrayList<>();
+        while ( i< max){
+            TagInputBean tagInputBean = new TagInputBean(code+i, label+i);
+            tags.add(tagInputBean);
+
+            i++;
+        }
+        return tags;
+    }
+
 }

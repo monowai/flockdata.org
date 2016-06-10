@@ -44,7 +44,7 @@ public class SearchHandler {
     @Autowired
     EntityService entityService;
 
-    public void handlResults(SearchResults searchResults) {
+    public void handleResults(SearchResults searchResults) {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
         int count = 0;
         int size = theResults.size();

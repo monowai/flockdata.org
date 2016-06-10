@@ -119,7 +119,7 @@ public class WriteEntityResult {
      * @param searchResults contains keys to tie the search to the entity
      */
     public void syncSearchResult(SearchResults searchResults) {
-        searchHandler.handlResults(searchResults);
+        searchHandler.handleResults(searchResults);
     }
 
 

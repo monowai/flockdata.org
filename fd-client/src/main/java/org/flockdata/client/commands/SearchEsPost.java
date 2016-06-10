@@ -27,6 +27,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -60,6 +61,13 @@ public class SearchEsPost extends AbstractRestCommand {
             response = restTemplate.exchange(url + "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
 
             result = response.getBody();
+            if ( result().containsKey("errors")){
+                ArrayList<String> errors = (ArrayList<String>) result.get("errors");
+                this.error = errors.get(0);
+            }
+
+
+
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();
         }

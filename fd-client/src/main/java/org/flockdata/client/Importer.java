@@ -147,7 +147,7 @@ public class Importer  {
                     throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
 
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, contentProfileImpl, batchSize, skipCount);
-
+                logger.info("Processing {} against model {}",fileName, profile);
                 // Importer does not know what the company is
                 totalRows = totalRows + fileProcessor.processFile(contentProfileImpl, fileName);
             }
