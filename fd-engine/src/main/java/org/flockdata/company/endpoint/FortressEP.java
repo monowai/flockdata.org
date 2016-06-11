@@ -148,4 +148,9 @@ public class FortressEP {
         return TimeZone.getAvailableIDs();
     }
 
+    @RequestMapping(value = "/defaults", method = RequestMethod.GET)
+    public FortressInputBean getDefaultFib () {
+        return fortressService.createDefaultFortressInput();
+    }
+
 }

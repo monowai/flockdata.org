@@ -91,4 +91,7 @@ public interface FortressService {
     Fortress updateFortress(Company company, Fortress existing, FortressInputBean fortressInputBean);
 
     Fortress findInternalFortress(Company company);
+
+    FortressInputBean createDefaultFortressInput();
+
 }

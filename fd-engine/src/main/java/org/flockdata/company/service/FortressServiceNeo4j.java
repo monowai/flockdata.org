@@ -398,6 +398,16 @@ public class FortressServiceNeo4j implements FortressService {
         return systemFortress;
     }
 
+    @Override
+    public FortressInputBean createDefaultFortressInput() {
+        FortressInputBean fib = new FortressInputBean("");
+        fib.setStoreEnabled(engineConfig.storeEnabled());
+        fib.setSearchEnabled(engineConfig.isSearchEnabled());
+
+        return fib;
+
+    }
+
     private Map<Long, EntityTagFinder> tagFinders = new HashMap<>();
 
     @Override

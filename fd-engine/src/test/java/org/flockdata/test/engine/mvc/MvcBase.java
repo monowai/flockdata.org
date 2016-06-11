@@ -414,6 +414,26 @@ public abstract class MvcBase {
 
     }
 
+    public FortressInputBean getDefaultFortress(RequestPostProcessor user) throws Exception {
+        MvcResult response = mvc()
+                .perform(
+                        MockMvcRequestBuilders
+                                .get(apiPath + "/fortress/defaults")
+                                .with(user)
+                                .contentType(MediaType.APPLICATION_JSON)
+                ).andReturn();
+
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), FortressInputBean.class);
+        }
+        throw response.getResolvedException();
+
+
+    }
+
+
     public Collection<FortressResultBean> getFortresses(RequestPostProcessor user) throws Exception {
         MvcResult response = mvc()
                 .perform(

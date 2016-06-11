@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -159,5 +160,15 @@ public class TestFortressEP extends MvcBase {
         assertTrue ( "system index prefix was not set ["+fortress.getIndexName()+"]", fortress.getIndexName().startsWith(".testfd."));
         fortresses = getFortresses(mike());
         assertEquals("System fortress should not have been returned", fortressCount+1, fortresses.size());
+    }
+
+    @Test
+    public void default_FortressInputWorks() throws Exception {
+        FortressInputBean defaults = getDefaultFortress(mike());
+        assertNotNull(defaults);
+        assertFalse(defaults.getSearchEnabled());
+        assertFalse(defaults.getStoreEnabled());
+        assertNotNull(defaults.getTimeZone());
+
     }
 }
