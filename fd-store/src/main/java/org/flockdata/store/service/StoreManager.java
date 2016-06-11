@@ -21,6 +21,7 @@
 package org.flockdata.store.service;
 
 import org.flockdata.helper.FlockServiceException;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.shared.InMemoryRepo;
@@ -83,7 +84,11 @@ public class StoreManager implements StoreService {
         if ( id == null )
             return null;
         logger.debug("Looking for {} value for {}", store.name(), id);
-        return getStore(store).read(index, type, id);
+        StoredContent content = getStore(store).read(index, type, id);
+        if ( content == null )
+            throw new NotFoundException("Didn't locate the id "+id+" for type" +type);
+        return content;
+//        return getStore(store).read(index, type, id);
     }
 
     /**

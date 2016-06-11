@@ -41,6 +41,7 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.HeuristicRollbackException;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -73,6 +74,12 @@ public class DocTypeRetryService {
      */
     @Retryable(include = {TransactionFailureException.class, HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Future<Collection<DocumentType>> createDocTypes(Fortress fortress, List<EntityInputBean> inputBeans) {
+
+        return new AsyncResult<>(makeInTransaction(fortress, inputBeans));
+    }
+
+    @Transactional
+    Collection<DocumentType> makeInTransaction(Fortress fortress, List<EntityInputBean> inputBeans) {
         Collection<DocumentType> docTypes = new ArrayList<>();
         DocumentType master;
         for (EntityInputBean entityInputBean : inputBeans) {
@@ -106,7 +113,7 @@ public class DocTypeRetryService {
             }
         }
         logger.debug("Finished result = {}" + docTypes.size());
-        return new AsyncResult<>(docTypes);
+        return docTypes;
     }
 
 }

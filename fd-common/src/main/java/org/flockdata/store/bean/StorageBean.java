@@ -42,8 +42,10 @@ public class StorageBean implements StoredContent, Serializable {
     private ContentInputBean content = null;
     private String store;
     private String type ;
+    private boolean noResult;
 
-    StorageBean() {
+    public StorageBean() {
+        noResult = true;
     }
 
     public StorageBean(Object logId, Map<String, Object> oResult) {
@@ -57,14 +59,12 @@ public class StorageBean implements StoredContent, Serializable {
     }
 
     public StorageBean(Object key, ContentInputBean content) {
-        this();
         this.content = content;
         this.id = key;
     }
 
 
     public StorageBean(TrackResultBean trackResultBean) {
-        this();
         this.entity = trackResultBean.getEntity();
         this.type = entity.getType();
         assert entity.getType()!=null;

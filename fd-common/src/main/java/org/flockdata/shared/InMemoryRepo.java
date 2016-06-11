@@ -50,7 +50,11 @@ public class InMemoryRepo extends AbstractStore {
 
     @Override
     public StoredContent read(String index, String type, String id) {
-        return new StorageBean(id, map.get(getKey(type, id)));
+        ContentInputBean value = map.get(getKey(type, id));
+        if ( value == null )
+            return null;   // Emulate a NULL result on not found in other KV stores
+
+        return new StorageBean(id, value);
     }
 
     public String getKey(String type, Object id) {

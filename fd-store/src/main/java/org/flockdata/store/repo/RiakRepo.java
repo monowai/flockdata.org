@@ -104,11 +104,11 @@ public class RiakRepo extends AbstractStore {
     @Override
     public StoredContent read(String index, String type, String id) {
         try {
+            logger.debug("Looking in RIAK for {}", id);
             Namespace ns = new Namespace(bucketType, index);
-            Location location = new Location(ns, id.toString());
+            Location location = new Location(ns, id);
             FetchValue fv = new FetchValue.Builder(location).build();
             FetchValue.Response response = getClient().execute(fv);
-            logger.debug("Looking for RIAK value for {}", id);
             RiakObject result = response.getValue(RiakObject.class);
 
             if (result != null) {
