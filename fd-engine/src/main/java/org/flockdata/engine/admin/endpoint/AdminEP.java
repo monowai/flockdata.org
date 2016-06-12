@@ -21,6 +21,7 @@
 package org.flockdata.engine.admin.endpoint;
 
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.admin.AdminResponse;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.helper.CompanyResolver;
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -95,48 +95,48 @@ public class AdminEP {
 
     @RequestMapping(value = "/{fortressCode}/rebuild", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressCode") String fortressCode,
+    public AdminResponse rebuildSearch(@PathVariable("fortressCode") String fortressCode,
                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         logger.info("Reindex command received for " + fortressCode + " from [" + securityHelper.getLoggedInUser() + "]");
         String message = mediationFacade.reindex(company, fortressCode);
-        return new ResponseEntity<>(message, HttpStatus.ACCEPTED);
+        return new AdminResponse(message);
     }
 
 
     @RequestMapping(value = "/{fortressName}/{docType}/rebuild", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public ResponseEntity<String> rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
-                                                HttpServletRequest request) throws FlockException {
+    public AdminResponse rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
+                                       HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
         String message = mediationFacade.reindexByDocType(company, fortressName, docType);
-        return new ResponseEntity<>(message, HttpStatus.ACCEPTED);
+        return new AdminResponse(message);
     }
 
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public ResponseEntity<String> purgeFortress(@PathVariable("fortressName") String fortressCode,
+    public AdminResponse purgeFortress(@PathVariable("fortressName") String fortressCode,
                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         mediationFacade.purge(company, fortressCode);
-        return new ResponseEntity<>("Purging " + fortressCode + "... This may take a while", HttpStatus.ACCEPTED);
+        return new AdminResponse("Purging " + fortressCode + "... This may take a while");
 
     }
 
 
     @RequestMapping(value = "/{fortressName}/{docType}/validate", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public ResponseEntity<String> validateFromSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
+    public AdminResponse validateFromSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         logger.info("Validate command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
         String message = mediationFacade.validateFromSearch(company, fortressName, docType);
 
-        return new ResponseEntity<>(message, HttpStatus.ACCEPTED);
+        return new AdminResponse(message);
     }
 
 }
