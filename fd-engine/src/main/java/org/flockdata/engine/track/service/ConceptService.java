@@ -25,9 +25,11 @@ import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -62,4 +64,6 @@ public interface ConceptService {
     Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, Collection<String> fortresses) throws FlockException;
 
     Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, String fortress) throws FlockException;
+
+    Collection<DocumentType> makeDocTypes(Fortress fortress, List<EntityInputBean> inputBeans);
 }

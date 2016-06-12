@@ -512,7 +512,7 @@ public class EntityDaoNeo {
 
     public Collection<EntityKeyBean> getInboundEntities(Entity childEntity, boolean withEntityTags) {
         Collection<EntityKeyBean> results = new ArrayList<>();
-        Collection<Entity> entities = entityRepo.findInbountEntities(childEntity.getId());
+        Collection<Entity> entities = entityRepo.findInboundEntities(childEntity.getId());
 
         for (Entity entity : entities) {
             Collection<EntityTag> entityTags;

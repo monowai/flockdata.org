@@ -28,10 +28,7 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.track.bean.ConceptInputBean;
-import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.*;
 import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,6 +223,44 @@ public class ConceptServiceNeo implements ConceptService {
         Collection<String>fortresses = new ArrayList<>();
         fortresses.add(fortress)   ;
         return getDocumentsInUse(fdCompany, fortresses);
+    }
+
+    @Override
+    public Collection<DocumentType> makeDocTypes(Fortress fortress, List<EntityInputBean> inputBeans) {
+            Collection<DocumentType> docTypes = new ArrayList<>();
+            DocumentType master;
+            for (EntityInputBean entityInputBean : inputBeans) {
+                master = new DocumentType(fortress, entityInputBean.getDocumentType());
+                if (!docTypes.contains(master)) {
+                    master = findOrCreate(fortress, master);
+                    docTypes.add(master);
+                    if (!entityInputBean.getEntityLinks().isEmpty()) {
+
+                        // The entity being processed is linked to other entities.
+                        // need to ensure that both the Fortress and DocumentType are also created
+                        for (String relationship : entityInputBean.getEntityLinks().keySet()) {
+                            for (EntityKeyBean entityKeyBean : entityInputBean.getEntityLinks().get(relationship)) {
+                                Fortress subFortress;
+
+                                if (!fortress.getName().equals(entityKeyBean.getFortressName()))
+                                    subFortress = fortressService.registerFortress(fortress.getCompany(), entityKeyBean.getFortressName());
+                                else
+                                    subFortress = fortress;
+
+                                DocumentType linkedDocument = new DocumentType(subFortress, entityKeyBean.getDocumentType());
+                                if (!docTypes.contains(linkedDocument)) {
+                                    linkedDocument = findOrCreate(subFortress, linkedDocument);
+                                    docTypes.add(linkedDocument);
+                                    linkEntities(master, relationship, linkedDocument);
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+            logger.debug("Finished result = {}" + docTypes.size());
+            return docTypes;
     }
 
     public Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, Collection<String> fortresses) throws FlockException {
