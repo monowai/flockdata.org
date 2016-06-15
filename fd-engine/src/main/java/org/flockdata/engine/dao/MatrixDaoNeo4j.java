@@ -79,8 +79,8 @@ public class MatrixDaoNeo4j implements MatrixDao {
             input.setQueryString("*");
 
         if (input.getSampleSize() > 0) {
-            if (input.getSampleSize() > 3000)
-                input.setSampleSize(3000); // Neo4j can't handle any more in it's where clause
+            if (input.getSampleSize() > input.getMaxEdges())
+                input.setSampleSize(input.getMaxEdges()); // Neo4j can't handle any more in it's where clause
             entityKeyResults = entityKeyGateway.keys(getQueryParams(company, input));
         }
 
@@ -136,12 +136,12 @@ public class MatrixDaoNeo4j implements MatrixDao {
                 "collect( links) as occurrenceCount " + sumVal;
 
         Map<String, Object> params = new HashMap<>();
-        if (entityKeyResults != null) {
-            int count = 0;
-            for (String s : entityKeyResults.getResults()) {
-                params.put("key" + count++, s);
-            }
-        }
+//        if (entityKeyResults != null) {
+//            int count = 0;
+//            for (String s : entityKeyResults.getResults()) {
+//                params.put("key" + count++, s);
+//            }
+//        }
 
         Collection<FdNode> labels = new ArrayList<>();
 
@@ -162,6 +162,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
         EdgeResults edgeResults = new EdgeResults();
         Map<String, Object> uniqueKeys = new HashMap<>();
         while (rows.hasNext()) {
+            if (edgeResults.get().size() > input.getMaxEdges())
+                throw new FlockException("Excessive amount of data was requested "+edgeResults.get().size()+" vs. limit of "+input.getMaxEdges()+". Try increasing the minimum occurrences, applying a search filter or reducing the sample size");
+
             Map<String, Object> row = rows.next();
             Collection<Object> tag2 = (Collection<Object>) row.get(conceptToCol);
             Collection<Object> occ;
@@ -212,8 +215,6 @@ public class MatrixDaoNeo4j implements MatrixDao {
         MatrixResults results = new MatrixResults(edgeResults.get());
         if (!labels.isEmpty())
             results.setNodes(labels);
-        if (edgeResults.get().size() > input.getMaxEdges())
-            throw new FlockException("Excessive amount of data was requested. Query cancelled " + edgeResults.get().size());
 
         results.setSampleSize(input.getSampleSize());
         if (entityKeyResults != null)
