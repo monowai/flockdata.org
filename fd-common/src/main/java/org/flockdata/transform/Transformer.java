@@ -145,7 +145,7 @@ public class Transformer {
 
         for (Map<String, Object> row : content) {
             for (String column : row.keySet()) {
-                Object value = row.get(column);
+                Object value = TransformationHelper.transformValue(row.get(column), column,null);
                 String thisDataType = TransformationHelper.getDataType(value, column);
                 if ( value!=null) {
                     ColumnDefinition existingColumn = result.get(column);
@@ -164,6 +164,18 @@ public class Transformer {
         return result;
     }
 
+    public static Map<String, Object> convertToMap(String[] headerRow, String[] line) {
+        if ( headerRow == null || line== null )
+            throw new IllegalArgumentException("Header row or data row was null");
+        Map<String,Object>result = new HashMap<>();
+        int col = 0;
+        for(String column: headerRow)  {
+            Object value = line[col];
+            result.put(column,TransformationHelper.transformValue(value, column, null));
+            col++;
+        }
+        return result;
+    }
     public static Map<String, Object> convertToMap(String[] headerRow, String[] line, ContentProfile profileConfig) {
         int col = 0;
         Map<String, Object> row = new HashMap<>();

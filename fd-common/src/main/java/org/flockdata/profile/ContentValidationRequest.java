@@ -18,6 +18,7 @@ package org.flockdata.profile;
 
 import org.flockdata.profile.model.ContentProfile;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -36,6 +37,12 @@ public class ContentValidationRequest {
     public ContentValidationRequest(ContentProfile profile) {
         this();
         this.contentProfile = (ContentProfileImpl) profile;
+    }
+
+    public ContentValidationRequest(Map<String, Object> dataMap) {
+        Collection<Map<String,Object>>rows = new ArrayList<>();
+        rows.add(dataMap);
+        this.rows = rows;
     }
 
     public ContentProfile getContentProfile() {

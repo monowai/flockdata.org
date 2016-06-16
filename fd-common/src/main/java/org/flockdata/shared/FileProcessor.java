@@ -465,7 +465,7 @@ public class FileProcessor {
         return parser.parseExpression(expression).getValue(context);
     }
 
-    private static Reader getReader(String file) throws NotFoundException {
+    public static Reader getReader(String file) throws NotFoundException {
         InputStream stream = ClassLoader.class.getResourceAsStream(file);
 
         Reader fileObject = null;

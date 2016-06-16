@@ -434,6 +434,26 @@ public abstract class MvcBase {
     }
 
 
+    public ContentProfile getDefaultContentProfile(RequestPostProcessor user, ContentValidationRequest content) throws Exception {
+        MvcResult response = mvc()
+                .perform(
+                        MockMvcRequestBuilders
+                                .post(apiPath + "/content/default")
+                                .content(JsonUtils.toJson(content))
+                                .with(user)
+                                .contentType(MediaType.APPLICATION_JSON)
+                ).andReturn();
+
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), ContentProfileImpl.class);
+        }
+        throw response.getResolvedException();
+
+
+    }
+
     public Collection<FortressResultBean> getFortresses(RequestPostProcessor user) throws Exception {
         MvcResult response = mvc()
                 .perform(

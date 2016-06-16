@@ -206,6 +206,7 @@ public class TestDataTypeConversion  extends AbstractImport {
         firstRow.put("EpocDate", System.currentTimeMillis());
         firstRow.put("LongNotADate", 123445552);
         firstRow.put("StringThatLooksLikeANumber", 123);
+        firstRow.put("NumberThatIsNotADate", 90);
 
 
         Map<String,Object>secondRow = new HashMap<>();
@@ -215,6 +216,7 @@ public class TestDataTypeConversion  extends AbstractImport {
         secondRow.put("EpocDate", System.currentTimeMillis());
         secondRow.put("LongNotADate", 123445550);
         secondRow.put("StringThatLooksLikeANumber", "Turn to a String");
+        secondRow.put("NumberThatIsNotADate", 90);
 
         Collection<Map<String, Object>> rows = new ArrayList<>();
         rows.add(firstRow);
@@ -238,6 +240,9 @@ public class TestDataTypeConversion  extends AbstractImport {
                     break;
                 case "StringThatLooksLikeANumber":
                     assertEquals("DataType should be String as its the lower common denominator","string", colDef.getDataType());
+                    break;
+                case "NumberThatIsNotADate":
+                    assertEquals("DataType should be Number", "number", colDef.getDataType());
                     break;
                 default:
                     fail("unknown column " + colDef);
