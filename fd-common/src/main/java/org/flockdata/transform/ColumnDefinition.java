@@ -41,10 +41,6 @@ public class ColumnDefinition implements GeoDefinition {
     private String dateFormat =null; // Java valid date format
     private String timeZone = null; // To use for dates
 
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
-    }
-
     private String dataType;
 
     private Boolean persistent = true;
@@ -113,6 +109,10 @@ public class ColumnDefinition implements GeoDefinition {
 
     @JsonDeserialize(using = TagProfileDeserializer.class)
     private ArrayList<TagProfile> targets = new ArrayList<>();
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
 
     public boolean isCallerRef() {
         return callerRef;
@@ -366,7 +366,6 @@ public class ColumnDefinition implements GeoDefinition {
         // DAT-523
         return (dataType != null && dataType.equals("date")) || dateFormat!=null;
     }
-
 
     public String getValueOnError() {
         return valueOnError;
