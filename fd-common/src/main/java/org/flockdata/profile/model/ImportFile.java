@@ -21,7 +21,7 @@ package org.flockdata.profile.model;
  */
 public interface ImportFile {
 
-    ContentProfile.ContentType getContentType();
+    ContentModel.ContentType getContentType();
 
     char getDelimiter();
 

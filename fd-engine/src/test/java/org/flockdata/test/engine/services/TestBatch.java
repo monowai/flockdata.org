@@ -24,10 +24,10 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.profile.ContentProfileDeserializer;
-import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.profile.service.ContentProfileService;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.service.BatchService;
@@ -43,7 +43,7 @@ import static org.junit.Assert.*;
  */
 public class TestBatch extends EngineBase {
     @Autowired
-    ContentProfileService contentProfileService;
+    ContentModelService contentModelService;
 
     @Autowired
     BatchService batchService;
@@ -60,9 +60,9 @@ public class TestBatch extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "test-batch");
 
-        ContentProfileImpl contentProfile = ContentProfileDeserializer.getContentProfile("/profiles/test-csv-batch.json");
+        ContentModelImpl contentProfile = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
 
-        contentProfileService.saveFortressContentType(su.getCompany(), fortress, docType, contentProfile );
+        contentModelService.saveEntityModel(su.getCompany(), fortress, docType, contentProfile );
         batchService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);
 
         Entity resultBean = entityService.findByCode(fortress, docType, "1");
@@ -73,7 +73,7 @@ public class TestBatch extends EngineBase {
     @Test
     public void import_ValidateArgs() throws Exception{
         FileProcessor fileProcessor = new FileProcessor();
-        ContentProfile contentProfile = new ContentProfileImpl();
+        ContentModel contentModel = new ContentModelImpl();
         try {
             FileProcessor.validateArgs("/illegalFile");
             fail("Exception not thrown");

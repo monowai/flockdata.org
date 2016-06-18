@@ -16,7 +16,7 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.ContentModelImpl;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ProfileReader;
@@ -35,7 +35,7 @@ public class TestStates extends AbstractImport {
     @Test
     public void validate_States() throws Exception {
         String profile = "/states.json";
-        ContentProfileImpl params = ProfileReader.getImportProfile(profile);
+        ContentModelImpl params = ProfileReader.getContentModel(profile);
         fileProcessor.processFile(params, "/states.csv");
         assertEquals(72, getFdBatcher().getTags().size());
 

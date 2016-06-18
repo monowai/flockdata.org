@@ -8,7 +8,7 @@
       "tag": true,
       "label": "State",
       "code": "code",
-      "keyPrefix": "#row[country]",
+      "keyPrefix": "#data[country]",
       "name": "name",
       "targets": [
         {
@@ -24,7 +24,7 @@
           "description": "USCensus"
         },
         {
-          "code": "#row[name]",
+          "code": "#data[name]",
           "description": "StateName"
         }
 

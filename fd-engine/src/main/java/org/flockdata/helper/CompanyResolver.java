@@ -34,6 +34,8 @@ public class CompanyResolver {
     public static Company resolveCompany(HttpServletRequest request) throws FlockException {
         Company company = (Company) request.getAttribute(ApiKeyInterceptor.COMPANY);
         if (company == null )
+            // If you're seeing this, then check that ApiKeyInterceptor is configured to handle
+            // the endpoint you are requesting
             throw new NotFoundException("Unable to identify any Company that you are authorised to work with");
         return company;
     }

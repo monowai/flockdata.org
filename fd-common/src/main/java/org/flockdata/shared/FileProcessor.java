@@ -28,7 +28,7 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ImportFile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -136,7 +136,7 @@ public class FileProcessor {
         return results;
     }
 
-    public int processFile(ContentProfile importProfile, String source) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
+    public int processFile(ContentModel contentModel, String source) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
         //String source = path;
         logger.info("Start processing of {}", source);
@@ -145,15 +145,15 @@ public class FileProcessor {
         try {
             for (String file : files) {
 
-                if (importProfile.getContentType() == ImportFile.ContentType.CSV)
-                    result = processCSVFile(file, importProfile);
-                else if (importProfile.getContentType() == ImportFile.ContentType.XML)
-                    result = processXMLFile(file, importProfile);
-                else if (importProfile.getContentType() == ImportFile.ContentType.JSON) {
-                    if (importProfile.getDocumentType() == null)
+                if (contentModel.getContentType() == ImportFile.ContentType.CSV)
+                    result = processCSVFile(file, contentModel);
+                else if (contentModel.getContentType() == ImportFile.ContentType.XML)
+                    result = processXMLFile(file, contentModel);
+                else if (contentModel.getContentType() == ImportFile.ContentType.JSON) {
+                    if (contentModel.getDocumentType() == null)
                         result = processJsonTags(file);
                     else
-                        result = processJsonEntities(file, importProfile);
+                        result = processJsonEntities(file, contentModel);
                 }
 
             }
@@ -205,7 +205,7 @@ public class FileProcessor {
         return tags.size();
     }
 
-    private int processJsonEntities(String fileName, ContentProfile importProfile) throws FlockException {
+    private int processJsonEntities(String fileName, ContentModel importProfile) throws FlockException {
         int rows = 0;
 
         File file = new File(fileName);
@@ -274,7 +274,7 @@ public class FileProcessor {
         return endProcess(watch, rows, 0);
     }
 
-    private void processJsonNode(JsonNode node, ContentProfile importProfile, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
+    private void processJsonNode(JsonNode node, ContentModel importProfile, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
         EntityInputBean entityInputBean = Transformer.transformToEntity(node, importProfile);
         if (!entityInputBean.getEntityLinks().isEmpty()) {
             referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
@@ -285,7 +285,7 @@ public class FileProcessor {
 
     }
 
-    private int processXMLFile(String file, ContentProfile importProfile) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    private int processXMLFile(String file, ContentModel importProfile) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         try {
             int rows = 0;
             StopWatch watch = new StopWatch();
@@ -322,7 +322,7 @@ public class FileProcessor {
         }
     }
 
-    private int processCSVFile(String file, ContentProfile importProfile) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
+    private int processCSVFile(String file, ContentModel importProfile) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
 
         StopWatch watch = new StopWatch();
         int ignoreCount = 0;
@@ -441,7 +441,7 @@ public class FileProcessor {
 
     static StandardEvaluationContext context = new StandardEvaluationContext();
 
-    private static String[] preProcess(String[] row, ContentProfile importProfile) {
+    private static String[] preProcess(String[] row, ContentModel importProfile) {
         String[] result = new String[row.length];
         String exp = importProfile.getPreParseRowExp();
         if ((exp == null || exp.equals("")))

@@ -20,7 +20,7 @@ package org.flockdata.transform.xml;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.track.bean.ContentInputBean;
 
@@ -42,7 +42,7 @@ public interface XmlMappable extends Mappable {
     @JsonIgnore
     String getDataType();
 
-    ContentInputBean setXMLData(XMLStreamReader xsr, ContentProfile importProfile) throws JAXBException, JsonProcessingException, FlockException;
+    ContentInputBean setXMLData(XMLStreamReader xsr, ContentModel importProfile) throws JAXBException, JsonProcessingException, FlockException;
 
     /**
      * XML files require skipping.
@@ -53,6 +53,6 @@ public interface XmlMappable extends Mappable {
      */
     void positionReader(XMLStreamReader xsr) throws XMLStreamException;
 
-    XmlMappable newInstance(ContentProfile importProfile);
+    XmlMappable newInstance(ContentModel importProfile);
 }
 

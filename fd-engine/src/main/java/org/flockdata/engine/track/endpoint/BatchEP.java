@@ -24,7 +24,7 @@ import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
-import org.flockdata.profile.service.ContentProfileService;
+import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.track.service.BatchService;
 import org.flockdata.track.service.MediationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,7 @@ public class BatchEP {
     MediationFacade mediationFacade;
 
     @Autowired
-    ContentProfileService profileService;
+    ContentModelService profileService;
 
     @Autowired
     BatchService batchService;

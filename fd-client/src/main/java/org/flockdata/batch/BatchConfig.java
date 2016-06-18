@@ -18,7 +18,7 @@ package org.flockdata.batch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.transform.ProfileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,8 +162,8 @@ public class BatchConfig {
         StepConfig stepConfig;
         stepConfig = readConfig(stepName.trim());
         if (stepConfig.getProfile() != null) {
-            ContentProfile contentProfile = ProfileReader.getImportProfile(stepConfig.getProfile());
-            stepConfig.setContentProfile(contentProfile);
+            ContentModel contentModel = ProfileReader.getContentModel(stepConfig.getProfile());
+            stepConfig.setContentModel(contentModel);
         }
 
         return stepConfig;

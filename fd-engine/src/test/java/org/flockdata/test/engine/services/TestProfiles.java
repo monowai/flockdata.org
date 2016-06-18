@@ -22,9 +22,9 @@ package org.flockdata.test.engine.services;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.profile.ContentProfileDeserializer;
-import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.profile.service.ContentProfileService;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.junit.Test;
@@ -44,30 +44,30 @@ public class TestProfiles extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestProfiles.class);
     @Autowired
-    ContentProfileService profileService;
+    ContentModelService profileService;
 
 
     @Test
     @Transactional
-    public void create_Profile() throws Exception{
+    public void create_ContentModel() throws Exception{
         SystemUser su = registerSystemUser("create_Profile", mike_admin);
 
-        ContentProfile profile = ContentProfileDeserializer.getContentProfile("/profiles/test-profile.json");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-model.json");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("create_profile", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "Olympic");
-        profileService.saveFortressContentType(su.getCompany(), fortress, docType, profile);
-        ContentProfile savedProfile = profileService.get(su.getCompany(), fortress, docType);
+        profileService.saveEntityModel(su.getCompany(), fortress, docType, contentModel);
+        ContentModel savedProfile = profileService.get(su.getCompany(), fortress, docType);
         assertNotNull ( savedProfile);
-        assertEquals(profile.getFortressUser(), savedProfile.getFortressUser());
-        assertEquals(profile.isEntityOnly(), savedProfile.isEntityOnly());
-        assertEquals(profile.getContent().size(), savedProfile.getContent().size());
+        assertEquals(contentModel.getFortressUser(), savedProfile.getFortressUser());
+        assertEquals(contentModel.isEntityOnly(), savedProfile.isEntityOnly());
+        assertEquals(contentModel.getContent().size(), savedProfile.getContent().size());
         ColumnDefinition column = savedProfile.getContent().get("TagVal");
         assertNotNull(column);
         assertEquals(true, column.isMustExist());
         assertEquals(true, column.isTag());
         assertNull(savedProfile.getHandler());
         column.setMustExist(false);
-        profileService.saveFortressContentType(su.getCompany(), fortress,docType, savedProfile);
+        profileService.saveEntityModel(su.getCompany(), fortress,docType, savedProfile);
         savedProfile = profileService.get(su.getCompany(), fortress, docType);
         assertNull(savedProfile.getHandler());
         assertFalse("Updating the mustExist attribute did not persist",savedProfile.getContent().get("TagVal").isMustExist());

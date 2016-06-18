@@ -17,8 +17,8 @@
 package org.flockdata.test.unit.client;
 
 import junit.framework.TestCase;
-import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ImportFile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -43,15 +43,15 @@ public class TestBatchUnqueEntities extends AbstractImport{
     @Test
     public void duplicateKeysInSource_UniqueEntity() throws Exception {
 
-        ContentProfileImpl contentProfile = ProfileReader.getImportProfile( "/profile/duplicate-entities.json");
+        ContentModelImpl contentModel = ProfileReader.getContentModel( "/model/duplicate-entities.json");
 
-        contentProfile.setHeader(true);
-        contentProfile.setDocumentName("Movie"); // ToDo: Deserialize DocumentInputBean
-        contentProfile.setContentType(ImportFile.ContentType.CSV);
-        contentProfile.setTagOrEntity(ContentProfile.DataType.ENTITY);
-        contentProfile.setEntityOnly(true);
+        contentModel.setHeader(true);
+        contentModel.setDocumentName("Movie"); // ToDo: Deserialize DocumentInputBean
+        contentModel.setContentType(ImportFile.ContentType.CSV);
+        contentModel.setTagOrEntity(ContentModel.DataType.ENTITY);
+        contentModel.setEntityOnly(true);
 
-        fileProcessor.processFile(contentProfile, "/data/duplicate-entities.csv");
+        fileProcessor.processFile(contentModel, "/data/duplicate-entities.csv");
         List<EntityInputBean> entities = fdBatcher.getEntities();
         TestCase.assertEquals(1, entities.size());
 

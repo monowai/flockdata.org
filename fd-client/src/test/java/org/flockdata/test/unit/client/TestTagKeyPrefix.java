@@ -35,7 +35,7 @@ public class TestTagKeyPrefix extends AbstractImport {
     private Logger logger = LoggerFactory.getLogger(TestTagKeyPrefix.class);
     @Test
     public void prefix_TagKeyWorks() throws Exception {
-        fileProcessor.processFile(ProfileReader.getImportProfile("/profile/tag-key-prefix.json"),
+        fileProcessor.processFile(ProfileReader.getContentModel("/model/tag-key-prefix.json"),
                 "/data/tag-key-prefix.csv");
 
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();

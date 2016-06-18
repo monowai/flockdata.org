@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.ContentInputBean;
@@ -46,7 +46,7 @@ public class Transformer {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Transformer.class);
 
-    public static Mappable getMappable(ContentProfile profile) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public static Mappable getMappable(ContentModel profile) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         Mappable mappable ;
 
         if (!(profile.getHandler() == null || profile.getHandler().equals("")))
@@ -62,7 +62,7 @@ public class Transformer {
 
     }
 
-    public static EntityInputBean transformToEntity(Map<String, Object> row, ContentProfile importProfile) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public static EntityInputBean transformToEntity(Map<String, Object> row, ContentModel importProfile) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         Mappable mappable = getMappable(importProfile);
         Map<String, Object> jsonData = mappable.setData(row, importProfile);
         if ( jsonData == null )
@@ -86,14 +86,14 @@ public class Transformer {
 
     }
 
-    public static TagInputBean transformToTag(Map<String, Object> row, ContentProfile importProfile) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public static TagInputBean transformToTag(Map<String, Object> row, ContentModel importProfile) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         Mappable mappable = getMappable(importProfile);
         mappable.setData(row, importProfile);
         return (TagInputBean) mappable;
 
     }
 
-    public static EntityInputBean transformToEntity(JsonNode node, ContentProfile importProfile) throws FlockException {
+    public static EntityInputBean transformToEntity(JsonNode node, ContentModel importProfile) throws FlockException {
         JsonEntityMapper entityInputBean = new JsonEntityMapper();
         entityInputBean.setData(node, importProfile);
         if (entityInputBean.getFortress() == null)
@@ -108,7 +108,7 @@ public class Transformer {
 
     }
 
-    public static EntityInputBean transformToEntity(XmlMappable mappable, XMLStreamReader xsr, ContentProfile importProfile) throws FlockException, JAXBException, JsonProcessingException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public static EntityInputBean transformToEntity(XmlMappable mappable, XMLStreamReader xsr, ContentModel importProfile) throws FlockException, JAXBException, JsonProcessingException, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
         XmlMappable row = mappable.newInstance(importProfile);
         ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile);
@@ -176,7 +176,7 @@ public class Transformer {
         }
         return result;
     }
-    public static Map<String, Object> convertToMap(String[] headerRow, String[] line, ContentProfile profileConfig) {
+    public static Map<String, Object> convertToMap(String[] headerRow, String[] line, ContentModel profileConfig) {
         int col = 0;
         Map<String, Object> row = new HashMap<>();
         try {

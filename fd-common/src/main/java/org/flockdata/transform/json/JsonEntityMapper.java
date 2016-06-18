@@ -17,7 +17,7 @@
 package org.flockdata.transform.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -36,7 +36,7 @@ public class JsonEntityMapper extends EntityInputBean  {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(JsonEntityMapper.class);
 
-    public void setData(JsonNode node, ContentProfile profile) {
+    public void setData(JsonNode node, ContentModel profile) {
         for (Map.Entry<String, ColumnDefinition> entry : profile.getContent().entrySet()) {
             JsonNode nodeField = node.get(entry.getKey());
             if ( nodeField!=null )

@@ -78,7 +78,7 @@ public class ExpressionHelper {
     }
 
     /**
-     * Returns a value based on the expression. To evaluate a column, use #row['col'] syntax
+     * Returns a value based on the expression. To evaluate a column, use #data['col'] syntax
      *
      * @param row          Existing transformed data
      * @param expression   to evaluate
@@ -116,7 +116,7 @@ public class ExpressionHelper {
         if (expression == null)
             return null;
 
-        context.setVariable("row", row);
+        context.setVariable("data", row);
         return parser.parseExpression(expression).getValue(context);
     }
 

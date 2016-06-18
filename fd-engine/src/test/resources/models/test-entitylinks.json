@@ -1,0 +1,23 @@
+{
+  "documentName": "Timesheet",
+  "contentType": "csv",
+  "entityOnly": "true",
+  "fortressName": "Staff",
+  "delimiter": ",",
+  "header": true,
+  "content": {
+    "Id":{
+      "callerRef":true
+    },
+    "EmployeeNumber": {
+      "dataType": "string",
+      "entityLinks": [
+        {
+          "fortress": "Staff",
+          "documentName": "Staff",
+          "relationshipName": "recorded"
+        }
+      ]
+    }
+  }
+}

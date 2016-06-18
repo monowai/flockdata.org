@@ -18,7 +18,7 @@ package org.flockdata.test.unit.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.ContentModelImpl;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ProfileReader;
@@ -40,9 +40,9 @@ import static org.junit.Assert.assertNotEquals;
 public class TestEntityProperties extends AbstractImport {
     @Test
     public void process_individualData() throws Exception {
-        String contentProfile = "/profile/entity-properties.json";
+        String contentModelFile = "/model/entity-properties.json";
 
-        ContentProfileImpl params = ProfileReader.getImportProfile(contentProfile);
+        ContentModelImpl params = ProfileReader.getContentModel(contentModelFile);
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         fileProcessor.processFile(params, "/data/entity-properties.txt");

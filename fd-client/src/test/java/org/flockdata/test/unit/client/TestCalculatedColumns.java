@@ -3,7 +3,7 @@ package org.flockdata.test.unit.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.ContentModelImpl;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class TestCalculatedColumns extends AbstractImport {
     public void string_NoHeaderWithDelimiter() throws Exception {
         // DAT-527
 
-        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/calculatedcolumns.json");
+        ContentModelImpl params = ProfileReader.getContentModel("/model/calculatedcolumns.json");
 
         long rows = fileProcessor.processFile(params, "/data/calculatedcolumns.csv");
         int expectedRows = 1;

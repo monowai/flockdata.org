@@ -3,8 +3,8 @@ package org.flockdata.test.engine.services;
 import junit.framework.TestCase;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
-import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.profile.service.ContentProfileService;
+import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.model.EntitySearchChange;
@@ -128,7 +128,7 @@ public class TestEntityLinks extends EngineBase {
     }
 
     @Autowired
-    ContentProfileService contentProfileService;
+    ContentModelService contentModelService;
 
     @Autowired
     BatchService batchService;
@@ -150,8 +150,8 @@ public class TestEntityLinks extends EngineBase {
 
         DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
 
-        ContentProfileImpl params = ProfileReader.getImportProfile("/profiles/test-entitylinks.json");
-        contentProfileService.saveFortressContentType(su.getCompany(), fortress, timesheet, params );
+        ContentModelImpl params = ProfileReader.getContentModel("/models/test-entitylinks.json");
+        contentModelService.saveEntityModel(su.getCompany(), fortress, timesheet, params );
         batchService.process(su.getCompany(), fortress, timesheet, "/data/test-entitylinks.csv", false);
         // recorded is the relationship type in the content profile definition
         String rlxName = "recorded";
@@ -180,10 +180,10 @@ public class TestEntityLinks extends EngineBase {
         DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
         String rlxName = "recorded";
 
-        ContentProfileImpl params = ProfileReader.getImportProfile("/profiles/test-entitylinks.json");
+        ContentModelImpl params = ProfileReader.getContentModel("/models/test-entitylinks.json");
         ColumnDefinition colDef = params.getColumnDef("EmployeeNumber");
         colDef.getEntityLinks().iterator().next().get(rlxName);
-        contentProfileService.saveFortressContentType(su.getCompany(), fortress, timesheet, params );
+        contentModelService.saveEntityModel(su.getCompany(), fortress, timesheet, params );
         batchService.process(su.getCompany(), fortress, timesheet, "/data/test-entitylinks.csv", false);
         // recorded is the relationship type in the content profile definition
         Map<String, Collection<Entity>> linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "1", rlxName);

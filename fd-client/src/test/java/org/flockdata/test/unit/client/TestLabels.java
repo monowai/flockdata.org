@@ -37,7 +37,7 @@ public class TestLabels extends AbstractImport {
     @Test
     public void conflict_LabelDefinition() throws Exception {
 
-        fileProcessor.processFile(ProfileReader.getImportProfile("/profile/tag-labels.json"),
+        fileProcessor.processFile(ProfileReader.getContentModel("/model/tag-labels.json"),
                 "/data/tag-labels.csv");
 
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
@@ -62,7 +62,7 @@ public class TestLabels extends AbstractImport {
 
     @Test
     public void label_expressionsAndConstants() throws Exception {
-        fileProcessor.processFile(ProfileReader.getImportProfile("/profile/tag-label-expressions.json"),
+        fileProcessor.processFile(ProfileReader.getContentModel("/model/tag-label-expressions.json"),
                 "/data/tag-label-expressions.csv");
 
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
@@ -87,7 +87,7 @@ public class TestLabels extends AbstractImport {
     @Test
     public void alias_DescriptionEvaluates() throws Exception {
         fileProcessor.processFile(
-                ProfileReader.getImportProfile("/profile/labels.json"),
+                ProfileReader.getContentModel("/model/labels.json"),
                 "/data/assets.txt");
         List<EntityInputBean>entities = fdBatcher.getEntities();
         List<TagInputBean> tagInputBeans = entities.iterator().next().getTags();

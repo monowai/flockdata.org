@@ -1,0 +1,29 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "tag",
+  "fortress": "GovTrack",
+  "fortressUser": "mike",
+  "header": false,
+  "delimiter": ",",
+  "quoteCharacter": "|",
+  "content": {
+    "Institution": {
+      "tag": true,
+      "name": "#data['2'].replace('|', ' ').trim()",
+      "code": "#data['1'].replace('|', ' ').trim()",
+      "targets": [
+        {
+          "code": "#data['5'].replace('|', ' ').trim()",
+          "label": "OSSector",
+          "mustExist": true,
+          "relationship": "represents"
+        }
+      ]
+    },
+    "0": {
+      "target": "year",
+      "dataType": "string",
+      "persistent": false
+    }
+  }
+}

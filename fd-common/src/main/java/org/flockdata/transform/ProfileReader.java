@@ -18,7 +18,7 @@ package org.flockdata.transform;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.ContentModelImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,25 +33,25 @@ public class ProfileReader {
     /**
      * Reads an ImportProfile JSON file and returns the Pojo
      *
-     * @param profile Fully file name
+     * @param file Fully file name
      * @return initialized ImportProfile
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static ContentProfileImpl getImportProfile(String profile) throws IOException, ClassNotFoundException {
-        ContentProfileImpl contentProfileImpl;
+    public static ContentModelImpl getContentModel(String file) throws IOException, ClassNotFoundException {
+        ContentModelImpl contentProfileImpl;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
-        File fileIO = new File(profile);
+        File fileIO = new File(file);
         if (fileIO.exists()) {
-            contentProfileImpl = om.readValue(fileIO, ContentProfileImpl.class);
+            contentProfileImpl = om.readValue(fileIO, ContentModelImpl.class);
 
         } else {
-            InputStream stream = ClassLoader.class.getResourceAsStream(profile);
+            InputStream stream = ClassLoader.class.getResourceAsStream(file);
             if (stream != null) {
-                contentProfileImpl = om.readValue(stream, ContentProfileImpl.class);
+                contentProfileImpl = om.readValue(stream, ContentModelImpl.class);
             } else {
-                throw new IllegalArgumentException("Unable to locate the profile [" + profile +"] Working directory ["+System.getProperty("user.dir")+"]");
+                throw new IllegalArgumentException("Unable to locate the ContentModel [" + file +"] Working directory ["+System.getProperty("user.dir")+"]");
             }
         }
         return contentProfileImpl;

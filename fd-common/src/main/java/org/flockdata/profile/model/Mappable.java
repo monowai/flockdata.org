@@ -27,5 +27,5 @@ import java.util.Map;
 public interface Mappable {
 
 
-    Map<String,Object> setData(Map<String, Object> map, ContentProfile importProfile) throws FlockException;
+    Map<String,Object> setData(Map<String, Object> map, ContentModel importProfile) throws FlockException;
 }

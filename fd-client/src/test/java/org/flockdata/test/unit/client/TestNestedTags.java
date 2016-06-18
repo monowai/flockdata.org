@@ -32,7 +32,7 @@ public class TestNestedTags extends AbstractImport {
 
     @Test
     public void label_missingColumnDoesNotCreateTargetTag() throws Exception {
-        fileProcessor.processFile(ProfileReader.getImportProfile("/profile/interest-groups.json"),
+        fileProcessor.processFile(ProfileReader.getContentModel("/model/interest-groups.json"),
                 "/data/tags-inputs.csv");
 
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();

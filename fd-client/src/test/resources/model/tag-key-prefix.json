@@ -1,0 +1,23 @@
+{
+  "contentType": "csv",
+  "emptyIgnored": true,
+  "header": true,
+  "content": {
+    "name": {
+      "tag": true,
+      "label": "City",
+      "code": "city",
+      "keyPrefix": "#data['country']",
+      "targets": [
+        {
+          "code": "country",
+          "label": "Country",
+          "keyPrefix": "literal",
+          "mustExist": true,
+          "notFound": "Undefined",
+          "relationship": "region"
+        }
+      ]
+    }
+  }
+}

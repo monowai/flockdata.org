@@ -16,7 +16,7 @@
 
 package org.flockdata.batch;
 
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ContentModel;
 
 /**
  * Created by mike on 25/02/16.
@@ -25,7 +25,7 @@ public class StepConfig {
     String query;
     String step;
     String profile;
-    private ContentProfile contentProfile;
+    private ContentModel contentModel;
 
     StepConfig (){}
 
@@ -48,13 +48,13 @@ public class StepConfig {
         return profile;
     }
 
-    public StepConfig setContentProfile(ContentProfile contentProfile){
-        this.contentProfile = contentProfile;
+    public StepConfig setContentModel(ContentModel contentModel){
+        this.contentModel = contentModel;
         return this;
     }
 
-    public ContentProfile getContentProfile() {
-        return contentProfile;
+    public ContentModel getContentModel() {
+        return contentModel;
     }
 
     @Override

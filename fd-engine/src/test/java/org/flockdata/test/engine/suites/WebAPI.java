@@ -43,7 +43,7 @@ import org.junit.runners.Suite;
         TestProfileRegistration.class,
         TestTagEP.class,
         TestTrackEP.class,
-        TestContentProfile.class,
+        TestContentModel.class,
         TestApiKeyHelper.class,
         TestApiKeyInterceptor.class
 

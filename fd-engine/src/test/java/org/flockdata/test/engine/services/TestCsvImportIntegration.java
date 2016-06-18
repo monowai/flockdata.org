@@ -21,7 +21,7 @@ package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
 import org.flockdata.model.*;
-import org.flockdata.profile.ContentProfileDeserializer;
+import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.store.Store;
@@ -71,7 +71,7 @@ public class TestCsvImportIntegration extends EngineBase {
         DocumentType docType = conceptService.resolveByDocCode(f, "QuestionEvent");
         int i = 1, maxRuns = 4;
         do {
-            fileProcessor.processFile(ContentProfileDeserializer.getContentProfile("/profiles/test-sflow.json"), "/data/test-sflow.csv");
+            fileProcessor.processFile(ContentModelDeserializer.getContentModel("/models/test-sflow.json"), "/data/test-sflow.csv");
             Thread.yield();
             Entity entityA = entityService.findByCode(su.getCompany(), f.getName(), docType.getName(), "563890");
             assertNotNull(entityA);

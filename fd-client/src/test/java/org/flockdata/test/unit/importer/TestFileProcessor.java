@@ -80,7 +80,7 @@ public class TestFileProcessor {
         assertFalse(files.isEmpty());
         assertTrue("Not enough files found", files.size() > 5);
 
-        files = fileProcessor.resolveFiles("/profile/csvtest.json");
+        files = fileProcessor.resolveFiles("/model/csvtest.json");
         assertFalse(files.isEmpty());
         assertEquals(1, files.size());
 

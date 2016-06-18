@@ -50,14 +50,14 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(FlockException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleAppException(FlockException ex){
-        logger.error("Processing Exception- {}", ex.getLocalizedMessage());
+        logger.error("Processing Exception- {}", ex.getLocalizedMessage(),ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView handleNotFound(NotFoundException ex){
-        logger.error("Resource Not Found Exception- {}", ex.getLocalizedMessage());
+        logger.error("Resource Not Found Exception- {}", ex.getLocalizedMessage(), ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
@@ -71,6 +71,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(JsonParseException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleJsonError(final JsonParseException ex) {
+        logger.error("Bad Request - {}", ex.getLocalizedMessage(),ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
@@ -108,7 +109,7 @@ public class GlobalControllerExceptionHandler {
         else
             errorMessage =ex.getMessage();
 
-        logger.error("Error 500: {}", errorMessage);
+        logger.error("Error 500: {}", errorMessage, ex);
 
         return new JsonMessage(errorMessage).asModelAndViewError();
     }

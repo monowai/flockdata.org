@@ -8,11 +8,11 @@ import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
-import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.profile.ContentProfileResult;
+import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ContentModelResult;
 import org.flockdata.profile.ContentValidationRequest;
 import org.flockdata.profile.ContentValidationResults;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.*;
@@ -434,11 +434,11 @@ public abstract class MvcBase {
     }
 
 
-    public ContentProfile getDefaultContentProfile(RequestPostProcessor user, ContentValidationRequest content) throws Exception {
+    public ContentModel getDefaultContentModel(RequestPostProcessor user, ContentValidationRequest content) throws Exception {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
-                                .post(apiPath + "/content/default")
+                                .post(apiPath + "/model/default")
                                 .content(JsonUtils.toJson(content))
                                 .with(user)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -447,7 +447,7 @@ public abstract class MvcBase {
         if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
-            return JsonUtils.toObject(json.getBytes(), ContentProfileImpl.class);
+            return JsonUtils.toObject(json.getBytes(), ContentModelImpl.class);
         }
         throw response.getResolvedException();
 
@@ -650,10 +650,10 @@ public abstract class MvcBase {
 
     }
 
-    public ContentProfileResult makeContentProfile(RequestPostProcessor user, String fortress, String documentType, ContentProfile contentProfile, ResultMatcher status) throws Exception {
+    public ContentModelResult makeTagModel(RequestPostProcessor user, String code, ContentModel contentModel, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.post(apiPath + "/content/{fortress}/{documentType}", fortress, documentType)
-                        .content(JsonUtils.toJson(contentProfile))
+                .perform(MockMvcRequestBuilders.post(apiPath + "/model/tag/{code}", code)
+                        .content(JsonUtils.toJson(contentModel))
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
                 ).andExpect(status).andReturn();
@@ -661,14 +661,15 @@ public abstract class MvcBase {
         if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
-            return JsonUtils.toObject(json.getBytes(), ContentProfileResult.class);
+            return JsonUtils.toObject(json.getBytes(), ContentModelResult.class);
         }
         throw response.getResolvedException();
     }
 
-    public Collection<ContentProfileResult> findContentProfiles(RequestPostProcessor user, ResultMatcher status) throws Exception {
+    public ContentModelResult makeContentModel(RequestPostProcessor user, String fortress, String documentType, ContentModel contentModel, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.get(apiPath + "/content/")
+                .perform(MockMvcRequestBuilders.post(apiPath + "/model/{fortress}/{documentType}", fortress, documentType)
+                        .content(JsonUtils.toJson(contentModel))
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
                 ).andExpect(status).andReturn();
@@ -676,14 +677,14 @@ public abstract class MvcBase {
         if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
-            return JsonUtils.toCollection(json.getBytes(), ContentProfileResult.class);
+            return JsonUtils.toObject(json.getBytes(), ContentModelResult.class);
         }
         throw response.getResolvedException();
     }
 
-    public ContentProfileResult findContentProfile(RequestPostProcessor user, String key, ResultMatcher status) throws Exception{
+    public Collection<ContentModelResult> findContentModels(RequestPostProcessor user, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.get(apiPath + "/content/{key}",key)
+                .perform(MockMvcRequestBuilders.get(apiPath + "/model/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
                 ).andExpect(status).andReturn();
@@ -691,17 +692,14 @@ public abstract class MvcBase {
         if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
-            return JsonUtils.toObject(json.getBytes(), ContentProfileResult.class);
+            return JsonUtils.toCollection(json.getBytes(), ContentModelResult.class);
         }
         throw response.getResolvedException();
-
     }
 
-
-
-    public ContentProfileImpl getContentProfile(RequestPostProcessor user, String fortress, String documentType, ContentProfile contentProfile, ResultMatcher status) throws Exception {
+    public ContentModelResult findContentModelByKey(RequestPostProcessor user, String key, ResultMatcher status) throws Exception{
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.get(apiPath + "/content/{fortress}/{documentType}", fortress, documentType)
+                .perform(MockMvcRequestBuilders.get(apiPath + "/model/{key}",key)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
                 ).andExpect(status).andReturn();
@@ -709,14 +707,45 @@ public abstract class MvcBase {
         if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
-            return JsonUtils.toObject(json.getBytes(), ContentProfileImpl.class);
+            return JsonUtils.toObject(json.getBytes(), ContentModelResult.class);
+        }
+        throw response.getResolvedException();
+
+    }
+
+    public ContentModelImpl getContentModel(RequestPostProcessor user, String fortress, String documentType, ContentModel contentModel, ResultMatcher status) throws Exception {
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.get(apiPath + "/model/{fortress}/{documentType}", fortress, documentType)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(status).andReturn();
+
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), ContentModelImpl.class);
         }
         throw response.getResolvedException();
     }
 
-    ContentValidationResults validateContent(RequestPostProcessor user, ContentValidationRequest contentProfile, ResultMatcher result) throws Exception {
+    public ContentModelImpl getContentModel(RequestPostProcessor user, String code, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.post(apiPath + "/content/validate")
+                .perform(MockMvcRequestBuilders.get(apiPath + "/model/tag/{code}", code)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(status).andReturn();
+
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), ContentModelImpl.class);
+        }
+        throw response.getResolvedException();
+    }
+
+    ContentValidationResults validateContentModel(RequestPostProcessor user, ContentValidationRequest contentProfile, ResultMatcher result) throws Exception {
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.post(apiPath + "/model/validate")
                         .content(JsonUtils.toJson(contentProfile))
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)

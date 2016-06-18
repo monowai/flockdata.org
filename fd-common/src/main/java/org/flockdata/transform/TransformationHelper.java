@@ -20,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Tag;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.tags.TagProfile;
@@ -465,7 +465,7 @@ public class TransformationHelper {
 
     }
 
-    public static String[] defaultHeader(String[] line, ContentProfile profileConfig) {
+    public static String[] defaultHeader(String[] line, ContentModel profileConfig) {
         int col = 0;
         Collection<String> header = new ArrayList<>(line.length);
 
@@ -507,7 +507,7 @@ public class TransformationHelper {
         }
     }
 
-    public static boolean processRow(Map<String, Object> row, ContentProfile importProfile) {
+    public static boolean processRow(Map<String, Object> row, ContentModel importProfile) {
         String condition = importProfile.getCondition();
         if (condition != null) {
             Object evaluate = ExpressionHelper.getValue(row, condition);

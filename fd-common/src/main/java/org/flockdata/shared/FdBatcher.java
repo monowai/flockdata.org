@@ -97,10 +97,10 @@ public class FdBatcher implements PayloadBatcher {
             if (entityInputBean != null) {
 
                 if ( entityInputBean.getFortress() == null )
-                    throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via your import profile with the fortressName attribute.");
+                    throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via a content model with the fortressName attribute.");
 
                 if ( !validDocumentType(entityInputBean)  )
-                    throw new FlockException("Unable to resolve the document type name that defines this entity. Add this via your import profile with the documentName attribute.");
+                    throw new FlockException("Unable to resolve the document type name that defines this entity. Add this via a content model with the documentName attribute.");
 
                 int existingIndex = getExistingIndex(entityInputBean);
 

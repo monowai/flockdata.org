@@ -19,7 +19,7 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.ContentModelImpl;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.Transformer;
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertNotNull;
 public class TestCSVConcepts {
     @org.junit.Test
     public void csvTags() throws Exception{
-        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/csv-tag-import.json");
+        ContentModelImpl params = ProfileReader.getContentModel("/model/csv-tag-import.json");
         TagMapper mappedTag = new TagMapper();
         String[] headers= new String[]{"company_name", "device_name",  "device_code", "type",         "city", "ram", "tags"};
         String[] data = new String[]{  "Samsoon",      "Palaxy",       "PX",          "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};

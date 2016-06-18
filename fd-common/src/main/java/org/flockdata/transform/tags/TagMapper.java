@@ -17,7 +17,7 @@
 package org.flockdata.transform.tags;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ImportFile;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.registration.TagInputBean;
@@ -41,11 +41,11 @@ public class TagMapper extends TagInputBean implements Mappable{
     public TagMapper() {
     }
 
-    public Map<String, Object> setData(Map<String,Object>row, ContentProfile contentProfile) throws FlockException {
-        if ( !TransformationHelper.processRow(row, contentProfile))
+    public Map<String, Object> setData(Map<String,Object>row, ContentModel contentModel) throws FlockException {
+        if ( !TransformationHelper.processRow(row, contentModel))
             return null;
 
-        Map<String, ColumnDefinition> content = contentProfile.getContent();
+        Map<String, ColumnDefinition> content = contentModel.getContent();
 
         for (String column : content.keySet()) {
             ColumnDefinition colDef = content.get(column);
@@ -82,11 +82,11 @@ public class TagMapper extends TagInputBean implements Mappable{
         return row;
     }
 
-    public static Mappable newInstance(ContentProfile contentProfile) {
-        if (contentProfile.getContentType()== ImportFile.ContentType.CSV)
+    public static Mappable newInstance(ContentModel contentModel) {
+        if (contentModel.getContentType()== ImportFile.ContentType.CSV)
             return new TagMapper();
-        if ( contentProfile.getDocumentType() !=null )
-            return new TagMapper(contentProfile.getDocumentType().getName());
+        if ( contentModel.getDocumentType() !=null )
+            return new TagMapper(contentModel.getDocumentType().getName());
         else
             return new TagMapper();
     }

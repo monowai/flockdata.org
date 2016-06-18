@@ -12,9 +12,9 @@ rabbit:
 #    - '5672:5672'
 #    - '15672:15672'
 
-  expose:
-    - 5672
-    - 15672
+#  expose:
+#    - 5672
+#    - 15672
 
 fdengine:
   image: flockdata/fd-engine
@@ -30,9 +30,9 @@ fdengine:
 #    - '61000:61000'
 
 #  To debug the service, you MUST uncomment the debug line in the DockerFile for fd-engine
-  expose:
-    - 8090
-    - 61000
+#  expose:
+#    - 8090
+#    - 61000
 
   environment:
     server.port: 8090
@@ -65,9 +65,9 @@ fdstore:
 #    - '8092:8092'
 #    - '61002:61002'
 
-  expose:
-    - 8092
-    - 61002
+#  expose:
+#    - 8092
+#    - 61002
 
   environment:
     server.port: 8092
@@ -87,9 +87,9 @@ fdsearch:
 #    - '61001:61001'
 #    - '9201:9201'
 
-  expose:
-    - 8091
-    - 61001
+#  expose:
+#    - 8091
+#    - 61001
 #    - 9201
 
   links:
@@ -130,9 +130,9 @@ elasticsearch:
   image: elasticsearch:1.7.5
   command: elasticsearch -Xmx256m -Des.cluster.name=es_int_fd
 
-  expose:
-    - 9200
-    - 9300
+#  expose:
+#    - 9200
+#    - 9300
 
 
 #fdriak:

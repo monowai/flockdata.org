@@ -22,8 +22,8 @@ package org.flockdata.test.unit.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.model.Company;
-import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ImportFile;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
@@ -51,12 +51,12 @@ public class TestJsonEntity extends AbstractImport{
 
     @Test
     public void entity_JsonStructure() throws Exception {
-        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/gov.json");
+        ContentModelImpl params = ProfileReader.getContentModel("/model/gov.json");
         JsonEntityMapper entity = new JsonEntityMapper();
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            InputStream file = TestCsvEntity.class.getResourceAsStream("/profile/object-example.json");
+            InputStream file = TestCsvEntity.class.getResourceAsStream("/model/object-example.json");
             JsonNode theMap = mapper.readTree(file);
             entity.setData(theMap, params);
             assertEquals(11, entity.getTags().size());
@@ -90,27 +90,27 @@ public class TestJsonEntity extends AbstractImport{
 
     @Test
     public void object_ImportJsonEntity() throws Exception{
-        ContentProfileImpl profile = ProfileReader.getImportProfile("/profile/gov.json");
+        ContentModelImpl profile = ProfileReader.getContentModel("/model/gov.json");
         profile.setContentType(ImportFile.ContentType.JSON);
-        profile.setTagOrEntity(ContentProfile.DataType.ENTITY);
+        profile.setTagOrEntity(ContentModel.DataType.ENTITY);
         profile.setFortress(new FortressInputBean("testing"));
 
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
-        long rows = fileProcessor.processFile(profile, "/profile/object-example.json");
+        long rows = fileProcessor.processFile(profile, "/model/object-example.json");
         assertEquals("Should have processed the file as a single JSON object", 1, rows);
     }
 
     @Test
     public void array_ImportJsonEntities() throws Exception{
-        ContentProfileImpl profile = ProfileReader.getImportProfile("/profile/gov.json");
+        ContentModelImpl profile = ProfileReader.getContentModel("/model/gov.json");
         profile.setContentType(ImportFile.ContentType.JSON);
         profile.setFortress(new FortressInputBean("testing"));
-        profile.setTagOrEntity(ContentProfile.DataType.ENTITY);
+        profile.setTagOrEntity(ContentModel.DataType.ENTITY);
 
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
-        long rows = fileProcessor.processFile(profile, "/profile/array-example.json");
+        long rows = fileProcessor.processFile(profile, "/model/array-example.json");
         assertEquals("Should have processed the file as an array of JSON objects", 1, rows);
     }
 

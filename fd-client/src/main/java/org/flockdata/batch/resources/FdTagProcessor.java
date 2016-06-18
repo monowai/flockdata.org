@@ -17,7 +17,7 @@
 package org.flockdata.batch.resources;
 
 import org.flockdata.batch.BatchConfig;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.Transformer;
 import org.springframework.batch.core.StepExecution;
@@ -45,13 +45,13 @@ public class FdTagProcessor implements ItemProcessor<Map<String, Object>, TagInp
     @Override
     public TagInputBean process(Map<String, Object> item) throws Exception {
         // This should be initialised just the once
-        ContentProfile contentProfile = getContentProfile(stepName);
-        return Transformer.transformToTag(item, contentProfile);
+        ContentModel contentModel = getContentModel(stepName);
+        return Transformer.transformToTag(item, contentModel);
 
     }
 
-    private ContentProfile getContentProfile(String name) throws IOException, ClassNotFoundException {
-        ContentProfile result =batchConfig.getStepConfig(name).getContentProfile();
+    private ContentModel getContentModel(String name) throws IOException, ClassNotFoundException {
+        ContentModel result =batchConfig.getStepConfig(name).getContentModel();
         if ( result == null )
             throw new ClassNotFoundException("Unable to resolve the content profile mapping for "+name.toLowerCase());
         return result;

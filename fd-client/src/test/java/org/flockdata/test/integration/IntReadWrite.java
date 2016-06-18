@@ -20,8 +20,8 @@ import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.client.commands.*;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.profile.ContentProfileDeserializer;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
@@ -153,8 +153,8 @@ public class IntReadWrite {
         clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
         clientConfiguration.setBatchSize(5);
 
-        ContentProfile contentProfile = ContentProfileDeserializer.getContentProfile("/countries.json");
-        int countryInputs = fileProcessor.processFile(contentProfile, "/fd-cow.txt");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/countries.json");
+        int countryInputs = fileProcessor.processFile(contentModel, "/fd-cow.txt");
         assertEquals("Countries not processed", countryInputs, 249);
         TagsGet countries = new TagsGet(clientConfiguration, fdRestWriter, "Country");
         // Tags are processed over a messageQ so will take a wee bit of time to be processed

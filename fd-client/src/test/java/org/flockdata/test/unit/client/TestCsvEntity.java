@@ -20,8 +20,8 @@
 package org.flockdata.test.unit.client;
 
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.profile.ContentProfileDeserializer;
-import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ContentModelImpl;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -49,7 +49,7 @@ public class TestCsvEntity {
 
     @Test
     public void entityRow() throws Exception {
-        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/csvtest.json");
+        ContentModelImpl params = ProfileReader.getContentModel("/model/csvtest.json");
         EntityMapper entity = new EntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category", "xRef"};
@@ -140,7 +140,7 @@ public class TestCsvEntity {
     @Test
     public void validate_ColumnHelper() throws Exception {
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals"};
-        ContentProfileImpl params = getImportParams("/profile/csvtest.json");
+        ContentModelImpl params = getContentModel("/model/csvtest.json");
         ColumnDefinition colDef = params.getColumnDef(headers[0]);
 
         assertTrue("CallerRef flag was wrong", colDef.isCallerRef());
@@ -184,7 +184,7 @@ public class TestCsvEntity {
 
     @Test
     public void complexCSVStructure() throws Exception {
-        ContentProfileImpl params = getImportParams("/profile/complex-concept.json");
+        ContentModelImpl params = getContentModel("/model/complex-concept.json");
 
 
         String[] headers = {"Athlete", "Age", "Country", "Year", "Sport", "Gold Medals", "Silver Medals", "Bronze Medals"};
@@ -244,7 +244,7 @@ public class TestCsvEntity {
 
     @Test
     public void nestedTags() throws Exception {
-        ContentProfileImpl params = getImportParams("/profile/nestedTags.json");
+        ContentModelImpl params = getContentModel("/model/nestedTags.json");
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"transaction_id", "zip", "state", "stateName", "city", "country"};
         String[] data = new String[]{"1", "123", "CA", "California", "San Francisco", "United States"};
@@ -284,7 +284,7 @@ public class TestCsvEntity {
         //
         String[] headers = new String[]{"Title", "Tag"};
         String[] data = new String[]{"TitleTests", "TagA,TagB,TagC"};
-        ContentProfileImpl params = getImportParams("/profile/csv-entity-tags.json");
+        ContentModelImpl params = getContentModel("/model/csv-entity-tags.json");
         EntityMapper mapper = new EntityMapper(params);
         mapper.setData(Transformer.convertToMap(headers, data, params), params);
 
@@ -310,13 +310,13 @@ public class TestCsvEntity {
         //
         String[] headers = new String[]{"Title", "TagValueAsNumber", "TagNumberAsString", "StringAsNumber", "created", "updated"};
         String[] data = new String[]{"TitleTests", "123", "123", "123", "1235015570", "1235015805"};
-        ContentProfileImpl contentProfile = getImportParams("/profile/csv-entity-data-types.json");
-        assertTrue(contentProfile.isEntityOnly());
-        EntityMapper mapper = new EntityMapper(contentProfile);
+        ContentModelImpl contentModel = getContentModel("/model/csv-entity-data-types.json");
+        assertTrue(contentModel.isEntityOnly());
+        EntityMapper mapper = new EntityMapper(contentModel);
 
-        Map<String,Object> json = mapper.setData(Transformer.convertToMap(headers, data, contentProfile), contentProfile);
+        Map<String,Object> json = mapper.setData(Transformer.convertToMap(headers, data, contentModel), contentModel);
 
-        ColumnDefinition colDef = contentProfile.getColumnDef(headers[0]);
+        ColumnDefinition colDef = contentModel.getColumnDef(headers[0]);
 
         assertTrue("CallerRef was wrong", colDef.isCallerRef());
         assertTrue("Title was wrong", colDef.isTitle());
@@ -330,18 +330,18 @@ public class TestCsvEntity {
         o = json.get("StringAsNumber");
         Assert.assertTrue("Should not have been converted to a number", o instanceof Number);
 
-        colDef= contentProfile.getColumnDef("created");
+        colDef= contentModel.getColumnDef("created");
         assertTrue ("Created Date Not Found", colDef.isCreateDate());
         assertTrue("Didn't resolve to epoc", colDef.isDateEpoc());
     }
 
-    private static ContentProfileImpl getImportParams(String profile) throws IOException {
-        return ContentProfileDeserializer.getContentProfile(profile);
+    private static ContentModelImpl getContentModel(String profile) throws IOException {
+        return ContentModelDeserializer.getContentModel(profile);
     }
 
     @Test
     public void null_EntityRow() throws Exception {
-        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/csvtest.json");
+        ContentModelImpl params = ProfileReader.getContentModel("/model/csvtest.json");
         EntityMapper mapper = new EntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Field", "Year"};
@@ -360,7 +360,7 @@ public class TestCsvEntity {
 
     @Test
     public void empty_ColumnWithASpace() throws Exception {
-        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/csvtest.json");
+        ContentModelImpl params = ProfileReader.getContentModel("/model/csvtest.json");
         EntityMapper mapper = new EntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Year"};
@@ -378,7 +378,7 @@ public class TestCsvEntity {
     }
     @Test
     public void empty_ColumnWithASpaceIsIgnored() throws Exception {
-        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/csvtest-emptyisignored.json");
+        ContentModelImpl params = ProfileReader.getContentModel("/model/csvtest-emptyisignored.json");
         EntityMapper mapper = new EntityMapper(params);
         assertTrue("isEmptyIgnored is not set", params.isEmptyIgnored());
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag

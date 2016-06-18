@@ -17,7 +17,7 @@
 package org.flockdata.transform.csv;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -45,14 +45,14 @@ public class EntityMapper extends EntityInputBean implements Mappable {
 
     private static final Logger logger = LoggerFactory.getLogger(EntityMapper.class);
 
-    public EntityMapper(ContentProfile contentProfile) {
-        setDocumentType(contentProfile.getDocumentType());
-        setFortress(contentProfile.getFortress());
-        setFortressUser(contentProfile.getFortressUser());
+    public EntityMapper(ContentModel contentModel) {
+        setDocumentType(contentModel.getDocumentType());
+        setFortress(contentModel.getFortress());
+        setFortressUser(contentModel.getFortressUser());
     }
 
     @Override
-    public Map<String, Object> setData(Map<String, Object> row, ContentProfile importProfile) throws FlockException {
+    public Map<String, Object> setData(Map<String, Object> row, ContentModel importProfile) throws FlockException {
         if (!TransformationHelper.processRow(row, importProfile))
             return null;
 
@@ -196,7 +196,7 @@ public class EntityMapper extends EntityInputBean implements Mappable {
         return value;
     }
 
-    public static EntityMapper newInstance(ContentProfile importProfile) {
+    public static EntityMapper newInstance(ContentModel importProfile) {
         return new EntityMapper(importProfile);
     }
 

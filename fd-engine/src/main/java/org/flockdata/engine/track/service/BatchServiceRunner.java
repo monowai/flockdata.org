@@ -25,8 +25,8 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
-import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.profile.service.ContentProfileService;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FileProcessor;
@@ -51,7 +51,7 @@ public class BatchServiceRunner implements BatchService {
     ConceptService conceptService;
 
     @Autowired
-    ContentProfileService profileService;
+    ContentModelService profileService;
 
     @Autowired
     FdServerWriter fdServerWriter;
@@ -79,7 +79,7 @@ public class BatchServiceRunner implements BatchService {
     }
 
     public int process(Company company, Fortress fortress, DocumentType documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
-        ContentProfile profile = profileService.get(company, fortress, documentType);
+        ContentModel profile = profileService.get(company, fortress, documentType);
         // Users PUT params override those of the contentProfile
         if (!profile.getFortress().getName().equalsIgnoreCase(fortress.getName()))
             profile.setFortress(new FortressInputBean(fortress.getName(), !fortress.isSearchEnabled()));
