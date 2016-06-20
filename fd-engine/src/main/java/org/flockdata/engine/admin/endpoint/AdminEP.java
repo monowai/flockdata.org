@@ -126,6 +126,23 @@ public class AdminEP {
 
     }
 
+    @RequestMapping(value = "/{code}/{docType}", method = RequestMethod.DELETE)
+    public AdminResponse deleteDocType(@PathVariable("code") String fortressCode, @PathVariable("docType") String docType, HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        mediationFacade.purge(company, fortressCode, docType);
+        return new AdminResponse("Purging " + fortressCode + "... This may take a while");
+    }
+
+
+    @RequestMapping(value = "/{code}/{docType}/{segment}", method = RequestMethod.DELETE)
+    public AdminResponse deleteDocType(@PathVariable("code") String fortressCode,
+                                       @PathVariable("docType") String docType,
+                                       @PathVariable("segment") String segment, HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        mediationFacade.purge(company, fortressCode, docType, segment);
+        return new AdminResponse("Purging " + fortressCode + "... This may take a while");
+    }
+
 
     @RequestMapping(value = "/{fortressName}/{docType}/validate", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.ACCEPTED)

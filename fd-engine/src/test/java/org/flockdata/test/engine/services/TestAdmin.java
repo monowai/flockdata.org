@@ -23,6 +23,8 @@ import java.util.Collection;
 import static org.junit.Assert.*;
 
 /**
+ * Functional tests for AdminServices
+ *
  * Created by mike on 19/02/16.
  */
 public class TestAdmin extends EngineBase {
@@ -199,7 +201,6 @@ public class TestAdmin extends EngineBase {
 
     }
 
-
     @Test
     public void conceptsDeleteAndRecreate() throws Exception {
         setSecurity();
@@ -240,6 +241,144 @@ public class TestAdmin extends EngineBase {
         assertNodeDoesNotExist("DocumentType should not exist", documentId);
     }
 
+    @Test
+    public void purgeSegmentData () throws Exception {
+        setSecurity();
+        SystemUser su = registerSystemUser("purgeSegmentData", mike_admin);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSegmentData", true));
 
+        EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc2");
+        trackBean.setSegment("SegmentA");
+
+        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        trackBean.setContent(logBean);
+        String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
+
+        assertNotNull(resultA);
+
+        trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc3");
+        trackBean.setSegment("SegmentB");
+        logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        trackBean.setContent(logBean);
+
+        String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
+
+        mediationFacade.purge(su.getCompany(), fortress.getCode(), trackBean.getDocumentType().getCode());
+        EngineBase.waitAWhile("Waiting for Async processing to complete");
+        exception.expect(NotFoundException.class);
+        entityService.getEntity(su.getCompany(), resultA);
+
+        exception.expect(NotFoundException.class);
+        entityService.getEntity(su.getCompany(), resultB);
+
+        assertNotNull("Purging segments should not delete the fortress", fortressService.findByCode(su.getCompany(), fortress.getCode()));
+    }
+
+    @Test
+    public void purgeSingleSegment () throws Exception {
+        setSecurity();
+        SystemUser su = registerSystemUser("purgeSingleSegment", mike_admin);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleSegment", true));
+        Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleSegmentB", true));
+
+        EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc2");
+        trackBean.setSegment("SegmentA");
+
+        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        trackBean.setContent(logBean);
+        String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
+
+        assertNotNull(resultA);
+
+        trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc3");
+        trackBean.setSegment("SegmentB");
+        logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        trackBean.setContent(logBean);
+
+        String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
+
+        // This Entity should not be affected
+        trackBean = new EntityInputBean(fortressB, "olivia@ast.com", "CompanyNode", null, "abc3");
+        trackBean.setSegment("SegmentB");
+        logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        trackBean.setContent(logBean);
+
+        String resultC = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
+
+
+        mediationFacade.purge(su.getCompany(), fortress.getCode(),
+                trackBean.getDocumentType().getCode(),
+                "SegmentA");
+        EngineBase.waitAWhile("Waiting for Async processing to complete");
+        exception.expect(NotFoundException.class);
+        entityService.getEntity(su.getCompany(), resultA);
+
+        assertNotNull(entityService.getEntity(su.getCompany(), resultB));
+
+        assertNotNull("Purging segments should not delete the fortress", fortressService.findByCode(su.getCompany(), fortress.getCode()));
+        assertEquals("Only Default and SegmentB should remain", 2, fortressService.getSegments(fortress).size());
+
+        assertNotNull(entityService.getEntity(su.getCompany(), resultC));
+
+        mediationFacade.purge(su.getCompany(), fortress.getCode());
+        mediationFacade.purge(su.getCompany(), fortressB.getCode());
+        Thread.sleep(400);
+        assertNull(entityService.getEntity(su.getCompany(), resultB));
+    }
+
+    @Test
+    public void purgeSingleDocTypeOnSharedSegment () throws Exception {
+        // Two Fortresses sharing a single segment and DocType. Purging one fortress/type/segment should not affect the other
+        setSecurity();
+        SystemUser su = registerSystemUser("purgeSingleDocTypeOnSharedSegment", mike_admin);
+
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleDocTypeOnSharedSegment", true));
+        Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleDocTypeOnSharedSegmentB", true));
+        String docType =  "CompanyNode";
+        String segment = "SharedSegment";
+
+        EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", docType, null, "abc1");
+        trackBean.setSegment(segment);
+        String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
+        assertNotNull(resultA);
+
+        trackBean = new EntityInputBean(fortress, "olivia@ast.com", "DontDelete", null, "abc99");
+        trackBean.setSegment(segment);
+        String resultD = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
+        assertNotNull(resultD);
+
+
+        trackBean = new EntityInputBean(fortress, "olivia@ast.com", docType, null, "abc2");
+        trackBean.setSegment(segment);
+        String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
+
+        trackBean = new EntityInputBean(fortressB, "olivia@ast.com", docType, null, "abc3");
+        trackBean.setSegment(segment);
+        String resultC = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
+        EngineBase.waitAWhile("Waiting for Async processing to complete");
+
+
+        mediationFacade.purge(su.getCompany(), fortress.getCode(),
+                trackBean.getDocumentType().getCode(),
+                segment);
+
+        EngineBase.waitAWhile("Waiting for Async processing to complete");
+
+        exception.expect(NotFoundException.class);
+        entityService.getEntity(su.getCompany(), resultA);
+
+        exception.expect(NotFoundException.class);
+        entityService.getEntity(su.getCompany(), resultB);
+
+        assertNotNull("Purging segments should not delete the fortress", fortressService.findByCode(su.getCompany(), fortress.getCode()));
+        assertEquals("Segment are not deleted during a purge", 2, fortressService.getSegments(fortress).size());
+
+        assertNotNull("Result C should still exist as it's in a separate fortress", entityService.getEntity(su.getCompany(), resultC));
+
+        assertNotNull("Result D should still exist as it was not a document to delete", entityService.getEntity(su.getCompany(), resultD));
+
+        assertNull("Document Type was not removed", conceptService.findDocumentType(fortress, docType));
+
+    }
 
 }

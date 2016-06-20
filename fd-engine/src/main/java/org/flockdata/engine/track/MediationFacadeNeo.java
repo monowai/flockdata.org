@@ -225,8 +225,6 @@ public class MediationFacadeNeo implements MediationFacade {
         return trackEntity(fortress.getDefaultSegment(), inputBean);
     }
 
-
-
     @Override
     public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
         return trackEntities(fortress.getDefaultSegment(), inputBeans, splitListInTo);
@@ -445,6 +443,29 @@ public class MediationFacadeNeo implements MediationFacade {
         logger.info("Processing request to purge fortress [{}] on behalf of [{}]", fortress, securityHelper.getLoggedInUser());
         adminService.purge(company, fortress);
     }
+
+    @Override
+    @PreAuthorize(FdRoles.EXP_ADMIN)
+    public void purge(Company company, String fortressCode, String docType) {
+        purge(company, fortressCode, docType, null);
+    }
+
+    @Override
+    @PreAuthorize(FdRoles.EXP_ADMIN)
+    public void purge(Company company, String fortressCode, String docType, String segment) {
+        Fortress fortress = fortressService.findByCode(company, fortressCode);
+
+        if (fortress == null)
+            throw new NotFoundException("Not Found " + fortressCode);
+
+        DocumentType documentType = conceptService.findDocumentType(fortress, docType, false);
+        if ( documentType == null )
+            throw new NotFoundException("Not Found " + docType);
+
+        logger.info("Purging fortress {} {}", fortress, documentType);
+        adminService.purge(company, fortress, documentType, segment);
+    }
+
 
     /**
      * Iterates through all search documents and validates that an existing

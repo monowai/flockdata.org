@@ -23,12 +23,10 @@ package org.flockdata.engine.admin.service;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.query.service.SearchServiceFacade;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.Company;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityLog;
-import org.flockdata.model.Fortress;
+import org.flockdata.model.*;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
@@ -47,10 +45,7 @@ import org.springframework.util.StopWatch;
 
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -67,11 +62,14 @@ public class AdminService implements EngineAdminService {
     @Autowired
     EntityService entityService;
 
-    @Autowired (required = false)
+    @Autowired(required = false)
     SearchServiceFacade searchService;
 
     @Autowired
     SchemaService schemaService;
+
+    @Autowired
+    ConceptService conceptService;
 
     @Autowired
     FortressService fortressService;
@@ -80,6 +78,43 @@ public class AdminService implements EngineAdminService {
     EngineConfig engineConfig;
 
     private Logger logger = LoggerFactory.getLogger(AdminService.class);
+
+    @Async("fd-engine")
+    public Future<Boolean> purge(Company company, Fortress fortress, DocumentType documentType, String segmentToDelete) {
+        NumberFormat nf = NumberFormat.getInstance();
+
+        StopWatch watch = new StopWatch("Purge Fortress " + fortress);
+        watch.start();
+        boolean keepRunning;
+
+        Collection<FortressSegment> segments = fortressService.getSegments(fortress);
+
+        if (segmentToDelete != null) {
+            Iterator<FortressSegment> iterator = segments.iterator();
+            while (iterator.hasNext()) {
+                FortressSegment segment = iterator.next();
+                if (!segment.getCode().equalsIgnoreCase(segmentToDelete.toLowerCase()))
+                    iterator.remove();
+            }
+        }
+
+        long total = 0;
+        for (FortressSegment segment : segments) {
+            do {
+                Collection<String> entities = entityService.getEntityBatch(fortress, documentType, segment, 2000);
+                entityService.purge(fortress, entities);
+                keepRunning = entities.size() > 0;
+                total = total + entities.size();
+                if (total % 100000 == 0)
+                    logger.info("Progress update - {} entities purged ... ", nf.format(total));
+
+            } while (keepRunning);
+
+            logger.info ("Purged {}, {}, {}", fortress.getName(), documentType.getName(), segment.getCode());
+        }
+        conceptService.delete(documentType);
+        return new AsyncResult<>(true);
+    }
 
     @Async("fd-engine")
     public Future<Boolean> purge(Company company, Fortress fortress) throws FlockException {
@@ -261,7 +296,7 @@ public class AdminService implements EngineAdminService {
         try {
             doReindex(entity.getFortress(), entity).get(3000l, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | TimeoutException | ExecutionException e) {
-            logger.error ( e.getMessage());
+            logger.error(e.getMessage());
             throw new FlockException(e.getMessage());
         }
     }

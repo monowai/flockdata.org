@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -506,6 +507,25 @@ public class EntityDaoNeo {
         return entityRepo.findEntitiesWithLimit(id, limit);
     }
 
+    public Collection<String> getEntityBatchForSegment(Long id, DocumentType documentType, Long segmentId, int limit) {
+        Collection<String>results = new ArrayList<>();
+        Map<String,Object>params = new HashMap<>();
+        params.put("0", id);
+        params.put("1", segmentId);
+        params.put("2", limit);
+        String query =" match (fortress:Fortress)-[:DEFINES]-(fs:FortressSegment)-[:TRACKS]->(entity:`"+documentType.getName()+"`) " +
+                " where id(fortress)={0} and id(fs)={1}" +
+                " return entity.key " +
+                " limit {2} ";
+        Result<Map<String, Object>> keys = template.query(query, params);
+        for (Map<String, Object> key : keys) {
+            results.add(key.get("entity.key").toString());
+
+        }
+        //return entityRepo.findEntitiesWithLimit(id, segmentId, limit);
+        return results;
+    }
+
     public Entity findParent(Entity childEntity) {
         return entityRepo.findParent(childEntity.getId());
     }
@@ -526,4 +546,5 @@ public class EntityDaoNeo {
         }
         return results;
     }
+
 }

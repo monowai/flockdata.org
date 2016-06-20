@@ -292,7 +292,7 @@ public class FortressServiceNeo4j implements FortressService {
         fortress = findByCode(company, fortressCode);
 
         if (fortress == null)
-            return "Not Found";
+            return "Not Found "+ fortressCode;
 
         return fortressDao.delete(fortress);
     }

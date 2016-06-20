@@ -18,6 +18,7 @@ package org.flockdata.engine.admin;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 
@@ -36,7 +37,18 @@ public interface EngineAdminService {
 
     Future<Boolean> purge(Company company, Fortress fortress) throws FlockException ;
 
+    /**
+     *
+     * @param company       who owns the data
+     * @param fortress      fortress within the company
+     * @param documentType  documents in the fortress
+     * @param segment       Optional segment. if null, all segments are deleted
+     * @return success
+     */
+    Future<Boolean> purge(Company company, Fortress fortress, DocumentType documentType, String segment);
+
     Future<Collection<String>> validateFromSearch(Company company, Fortress fortress, String docType) throws FlockException;
 
     void doReindex(Entity entity) throws FlockException;
+
 }

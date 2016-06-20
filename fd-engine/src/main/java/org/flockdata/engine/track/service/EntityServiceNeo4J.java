@@ -890,4 +890,9 @@ public class EntityServiceNeo4J implements EntityService {
         return entityDao.getEntityBatch(fortress.getId(), limit);
 
     }
+
+    @Override
+    public Collection<String> getEntityBatch(Fortress fortress, DocumentType documentType, FortressSegment fortressSegment, int count) {
+        return entityDao.getEntityBatchForSegment(fortress.getId(), documentType, fortressSegment.getId(), count);
+    }
 }

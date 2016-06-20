@@ -226,4 +226,8 @@ public class ConceptDaoNeo {
         return template.save(documentType);
     }
 
+    public void delete(Long id) {
+        documentTypeRepo.purgeDocumentAssociations(id);
+        documentTypeRepo.delete(id);
+    }
 }

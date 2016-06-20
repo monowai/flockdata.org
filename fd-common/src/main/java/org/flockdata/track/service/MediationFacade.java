@@ -82,4 +82,8 @@ public interface MediationFacade {
     String validateFromSearch(Company company, String fortressName, String docType) throws FlockException;
 
     TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws InterruptedException, FlockException, ExecutionException, IOException;
+
+    void purge(Company company, String fortressCode, String docType);
+
+    void purge(Company company, String code, String code1, String segment);
 }

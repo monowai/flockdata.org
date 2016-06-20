@@ -263,6 +263,11 @@ public class ConceptServiceNeo implements ConceptService {
             return docTypes;
     }
 
+    @Override
+    public void delete(DocumentType documentType) {
+        conceptDao.delete(documentType.getId());
+    }
+
     public Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, Collection<String> fortresses) throws FlockException {
         ArrayList<DocumentResultBean> docs = new ArrayList<>();
 

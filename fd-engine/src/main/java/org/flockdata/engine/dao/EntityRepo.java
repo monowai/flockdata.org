@@ -50,15 +50,17 @@ public interface EntityRepo extends GraphRepository<Entity> {
             " limit {1} ")
     Collection<String> findEntitiesWithLimit(Long id, int limit);
 
+    @Query(  value=" match (fortress:Fortress)-[:DEFINES]-(fs:FortressSegment)-[:TRACKS]->(track:Entity) " +
+            " where id(fortress)={0} and id(fs)={1}" +
+            " return track.key " +
+            " limit {2} ")
+    Collection<String> findEntitiesWithLimit(Long id, Long segmentId, int limit);
+
     @Query( elementClass = Entity.class, value =
             " match (fortress:Fortress)-[:DEFINES]-(segment:FortressSegment)-[:TRACKS]->(entity:Entity) where id(fortress)={0} " +
                     " and entity.code ={1}" +
                     " return entity ")
     Collection<Entity> findByCode(Long fortressId, String code);
-
-//    @Query( elementClass = EntityNode.class, value = "match (c:FDCompany) where id(c)={0} with c match (entities:Entity)-[]-(:Fortress)-[]-(c) " +
-//            " where  entities.key in {1}  " +
-//            "return entities ")
 
     @Query( elementClass = Entity.class, value = "match  (entities:Entity) " +
             " where  entities.key in {1}  " +
@@ -90,4 +92,5 @@ public interface EntityRepo extends GraphRepository<Entity> {
 
     @Query(value = "match (entity:Entity {key:{0}}) return entity")
     Entity findByKey(String key);
+
 }

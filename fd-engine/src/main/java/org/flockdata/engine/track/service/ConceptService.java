@@ -66,4 +66,6 @@ public interface ConceptService {
     Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, String fortress) throws FlockException;
 
     Collection<DocumentType> makeDocTypes(Fortress fortress, List<EntityInputBean> inputBeans);
+
+    void delete(DocumentType documentType);
 }

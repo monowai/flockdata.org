@@ -46,7 +46,7 @@ public interface EntityService {
 
     Map<String,Object> getEntityDataLast(Company company, String key) throws FlockException;
 
-     enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
+    enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 
     StoredContent getContent(Entity entity, Log change);
 
@@ -156,4 +156,7 @@ public interface EntityService {
     Collection<Entity> getEntities(Collection<Long> entities);
 
     Collection<String> getEntityBatch(Fortress fortress, int count);
+
+    Collection<String> getEntityBatch(Fortress fortress, DocumentType documentType, FortressSegment fortressSegment, int count);
+
 }

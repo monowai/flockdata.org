@@ -237,4 +237,8 @@ public class Fortress implements MetaFortress, Serializable {
     public void setSystem(Boolean system) {
         this.system = system;
     }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
 }
