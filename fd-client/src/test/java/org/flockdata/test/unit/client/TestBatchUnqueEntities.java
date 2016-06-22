@@ -17,7 +17,7 @@
 package org.flockdata.test.unit.client;
 
 import junit.framework.TestCase;
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ImportFile;
 import org.flockdata.registration.TagInputBean;
@@ -43,7 +43,7 @@ public class TestBatchUnqueEntities extends AbstractImport{
     @Test
     public void duplicateKeysInSource_UniqueEntity() throws Exception {
 
-        ContentModelImpl contentModel = ProfileReader.getContentModel( "/model/duplicate-entities.json");
+        ImportContentModel contentModel = ProfileReader.getContentModel( "/model/duplicate-entities.json");
 
         contentModel.setHeader(true);
         contentModel.setDocumentName("Movie"); // ToDo: Deserialize DocumentInputBean

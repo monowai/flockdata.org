@@ -19,7 +19,7 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.Transformer;
 import org.flockdata.transform.tags.TagMapper;
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
 public class TestTabTags {
     @Test
     public void string_NestedTags() throws Exception {
-        ContentModelImpl params = ProfileReader.getContentModel("/model/sectors.json");
+        ImportContentModel params = ProfileReader.getContentModel("/model/sectors.json");
         TagMapper mapper = new TagMapper();
         String[] headers = new String[]{"Catcode","Catname","Catorder","Industry","Sector","Sector Long"};
         String[] data = new String[]{"F2600","Private Equity & Investment Firms","F07","Securities & Investment","Finance/Insur/RealEst","Finance","Insurance & Real Estate"};

@@ -22,7 +22,7 @@ package org.flockdata.test.unit.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.model.Company;
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ImportFile;
 import org.flockdata.registration.FortressInputBean;
@@ -51,7 +51,7 @@ public class TestJsonEntity extends AbstractImport{
 
     @Test
     public void entity_JsonStructure() throws Exception {
-        ContentModelImpl params = ProfileReader.getContentModel("/model/gov.json");
+        ImportContentModel params = ProfileReader.getContentModel("/model/gov.json");
         JsonEntityMapper entity = new JsonEntityMapper();
 
         try {
@@ -90,7 +90,7 @@ public class TestJsonEntity extends AbstractImport{
 
     @Test
     public void object_ImportJsonEntity() throws Exception{
-        ContentModelImpl profile = ProfileReader.getContentModel("/model/gov.json");
+        ImportContentModel profile = ProfileReader.getContentModel("/model/gov.json");
         profile.setContentType(ImportFile.ContentType.JSON);
         profile.setTagOrEntity(ContentModel.DataType.ENTITY);
         profile.setFortress(new FortressInputBean("testing"));
@@ -103,14 +103,14 @@ public class TestJsonEntity extends AbstractImport{
 
     @Test
     public void array_ImportJsonEntities() throws Exception{
-        ContentModelImpl profile = ProfileReader.getContentModel("/model/gov.json");
+        ImportContentModel profile = ProfileReader.getContentModel("/model/gov.json");
         profile.setContentType(ImportFile.ContentType.JSON);
         profile.setFortress(new FortressInputBean("testing"));
         profile.setTagOrEntity(ContentModel.DataType.ENTITY);
 
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
-        long rows = fileProcessor.processFile(profile, "/model/array-example.json");
+        long rows = fileProcessor.processFile(profile, "/data/gov-array-example.json");
         assertEquals("Should have processed the file as an array of JSON objects", 1, rows);
     }
 

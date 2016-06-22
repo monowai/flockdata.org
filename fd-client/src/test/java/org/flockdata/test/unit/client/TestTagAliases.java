@@ -16,7 +16,7 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class TestTagAliases extends AbstractImport {
     public void string_csvTagAliases() throws Exception {
         String paramFile = "/model/csv-tag-alias.json";
 
-        ContentModelImpl params = ProfileReader.getContentModel(paramFile);
+        ImportContentModel params = ProfileReader.getContentModel(paramFile);
         fileProcessor.processFile(params, "/data/csv-tag-alias.txt");
 
         Collection<TagInputBean> tagInputBeans = getFdBatcher().getTags();

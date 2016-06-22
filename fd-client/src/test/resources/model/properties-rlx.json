@@ -26,7 +26,7 @@
       "tag": true,
       "label": "InterestGroup",
       "mustExist": true,
-      "rlxExp": "#data['8']=='D' ?'direct':'indirect'",
+      "relationship": "#data['8']=='D' ?'direct':'indirect'",
       "properties": [
         {
           "source": "4",

@@ -29,14 +29,14 @@ import java.util.Map;
  */
 public class ContentValidationRequest {
 
-    ContentModelImpl contentModel;
+    ImportContentModel contentModel;
     Collection<Map<String,Object>> rows;
 
     public ContentValidationRequest(){}
 
     public ContentValidationRequest(ContentModel model) {
         this();
-        this.contentModel = (ContentModelImpl) model;
+        this.contentModel = (ImportContentModel) model;
     }
 
     public ContentValidationRequest(Map<String, Object> dataMap) {

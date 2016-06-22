@@ -24,8 +24,8 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ImportContentModelDeserializer;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
@@ -60,7 +60,7 @@ public class TestBatch extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "test-batch");
 
-        ContentModelImpl contentProfile = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
+        ImportContentModel contentProfile = ImportContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
 
         contentModelService.saveEntityModel(su.getCompany(), fortress, docType, contentProfile );
         batchService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);
@@ -73,7 +73,7 @@ public class TestBatch extends EngineBase {
     @Test
     public void import_ValidateArgs() throws Exception{
         FileProcessor fileProcessor = new FileProcessor();
-        ContentModel contentModel = new ContentModelImpl();
+        ContentModel contentModel = new ImportContentModel();
         try {
             FileProcessor.validateArgs("/illegalFile");
             fail("Exception not thrown");

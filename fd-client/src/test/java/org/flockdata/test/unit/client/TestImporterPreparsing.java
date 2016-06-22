@@ -19,7 +19,7 @@ package org.flockdata.test.unit.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ProfileReader;
@@ -40,7 +40,7 @@ public class TestImporterPreparsing extends AbstractImport {
     @Test
     public void string_PreParseRow() throws Exception {
 
-        ContentModelImpl params = ProfileReader.getContentModel("/model/pre-parse.json");
+        ImportContentModel params = ProfileReader.getContentModel("/model/pre-parse.json");
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/data/properties-rlx.txt");

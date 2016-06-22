@@ -74,7 +74,7 @@ public class ContentModelResult {
         this.contentModel = contentModel;
     }
 
-    @JsonDeserialize(using = ContentModelDeserializer.class)
+    @JsonDeserialize(using = ImportContentModelDeserializer.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public org.flockdata.profile.model.ContentModel getContentModel() {
         return contentModel;

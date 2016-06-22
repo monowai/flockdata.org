@@ -40,13 +40,13 @@ import java.util.Map;
  * Date: 9/05/14
  * Time: 8:45 AM
  */
-public class ContentModelDeserializer extends JsonDeserializer<ContentModelImpl> {
+public class ImportContentModelDeserializer extends JsonDeserializer<ImportContentModel> {
 
     ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
 
     @Override
-    public ContentModelImpl deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        ContentModelImpl contentModel = new ContentModelImpl();
+    public ImportContentModel deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        ImportContentModel contentModel = new ImportContentModel();
         JsonNode node = jp.getCodec().readTree(jp);
         JsonNode nodeValue = node.get("documentName");
 
@@ -173,21 +173,21 @@ public class ContentModelDeserializer extends JsonDeserializer<ContentModelImpl>
         return nodeValue == null || nodeValue.isNull() || nodeValue.asText().equals("null");
     }
 
-    public static ContentModelImpl getContentModel(String profile) throws IOException {
-        ContentModelImpl contentModel;
+    public static ImportContentModel getContentModel(String profile) throws IOException {
+        ImportContentModel contentModel;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
         File fileIO = new File(profile);
         if (fileIO.exists()) {
-            contentModel = om.readValue(fileIO, ContentModelImpl.class);
+            contentModel = om.readValue(fileIO, ImportContentModel.class);
 
         } else {
             InputStream stream = ClassLoader.class.getResourceAsStream(profile);
             if (stream != null) {
-                contentModel = om.readValue(stream, ContentModelImpl.class);
+                contentModel = om.readValue(stream, ImportContentModel.class);
             } else
                 // Defaults??
-                contentModel = new ContentModelImpl();
+                contentModel = new ImportContentModel();
         }
         //importParams.setRestClient(restClient);
         return contentModel;

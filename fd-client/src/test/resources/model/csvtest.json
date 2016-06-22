@@ -32,7 +32,7 @@
         "Gold Medals": {
             "name": "'Gold Medals'",
             "tag": true,
-            "rlxExp": "Year",
+            "relationship": "Year",
             "valueAsProperty": true
         },
         "Category": {

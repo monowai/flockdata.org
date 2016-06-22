@@ -8,10 +8,10 @@ import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
-import org.flockdata.profile.ContentModelImpl;
 import org.flockdata.profile.ContentModelResult;
 import org.flockdata.profile.ContentValidationRequest;
 import org.flockdata.profile.ContentValidationResults;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
@@ -447,7 +447,7 @@ public abstract class MvcBase {
         if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
-            return JsonUtils.toObject(json.getBytes(), ContentModelImpl.class);
+            return JsonUtils.toObject(json.getBytes(), ImportContentModel.class);
         }
         throw response.getResolvedException();
 
@@ -713,7 +713,7 @@ public abstract class MvcBase {
 
     }
 
-    public ContentModelImpl getContentModel(RequestPostProcessor user, String fortress, String documentType, ContentModel contentModel, ResultMatcher status) throws Exception {
+    public ImportContentModel getContentModel(RequestPostProcessor user, String fortress, String documentType, ContentModel contentModel, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
                 .perform(MockMvcRequestBuilders.get(apiPath + "/model/{fortress}/{documentType}", fortress, documentType)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -723,12 +723,12 @@ public abstract class MvcBase {
         if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
-            return JsonUtils.toObject(json.getBytes(), ContentModelImpl.class);
+            return JsonUtils.toObject(json.getBytes(), ImportContentModel.class);
         }
         throw response.getResolvedException();
     }
 
-    public ContentModelImpl getContentModel(RequestPostProcessor user, String code, ResultMatcher status) throws Exception {
+    public ImportContentModel getContentModel(RequestPostProcessor user, String code, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
                 .perform(MockMvcRequestBuilders.get(apiPath + "/model/tag/{code}", code)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -738,7 +738,7 @@ public abstract class MvcBase {
         if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
-            return JsonUtils.toObject(json.getBytes(), ContentModelImpl.class);
+            return JsonUtils.toObject(json.getBytes(), ImportContentModel.class);
         }
         throw response.getResolvedException();
     }

@@ -26,13 +26,15 @@ import org.flockdata.transform.ColumnDefinition;
 import java.util.Map;
 
 /**
- * See also ImportParamsDeserializer for mapping logic
+ *
+ * Contains logic that can be used to parse raw incoming data in to the ContentModel
+ *
  * User: mike
  * Date: 28/04/14
  * Time: 8:47 AM
  */
-@JsonDeserialize(using = ContentModelDeserializer.class)
-public class ContentModelImpl implements ContentModel, ImportFile {
+@JsonDeserialize(using = ImportContentModelDeserializer.class)
+public class ImportContentModel implements ContentModel, ImportFile {
 
     // Default fortress name if not otherwise supplied
     private String fortressName = null;
@@ -63,7 +65,7 @@ public class ContentModelImpl implements ContentModel, ImportFile {
     private String condition; // an expression that determines if the row will be processed
 
 
-    public ContentModelImpl() {
+    public ImportContentModel() {
 
     }
 
@@ -252,12 +254,12 @@ public class ContentModelImpl implements ContentModel, ImportFile {
         return name;
     }
 
-    public ContentModelImpl setName(String name){
+    public ImportContentModel setName(String name){
         this.name = name;
         return this;
     }
 
-    public ContentModelImpl setDocumentType(DocumentTypeInputBean documentType) {
+    public ImportContentModel setDocumentType(DocumentTypeInputBean documentType) {
         this.documentType = documentType;
         return this;
     }
@@ -265,9 +267,9 @@ public class ContentModelImpl implements ContentModel, ImportFile {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ContentModelImpl)) return false;
+        if (!(o instanceof ImportContentModel)) return false;
 
-        ContentModelImpl that = (ContentModelImpl) o;
+        ImportContentModel that = (ImportContentModel) o;
 
         if (archiveTags != that.archiveTags) return false;
         if (content != null ? !content.equals(that.content) : that.content != null) return false;

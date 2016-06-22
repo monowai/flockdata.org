@@ -21,7 +21,7 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.bean.DocumentTypeInputBean;
@@ -45,7 +45,7 @@ public class TestDocTypes extends AbstractImport  {
     @Test
     public void testDocType() throws Exception{
 
-        ContentModelImpl contentModel = ProfileReader.getContentModel("/model/test-document-type.json");
+        ImportContentModel contentModel = ProfileReader.getContentModel("/model/test-document-type.json");
 
         fileProcessor.processFile(contentModel, "/data/pac.txt");
 

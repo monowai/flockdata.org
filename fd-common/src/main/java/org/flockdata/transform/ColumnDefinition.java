@@ -89,7 +89,6 @@ public class ColumnDefinition implements GeoDefinition {
     private ArrayList<AliasInputBean> aliases;
 
     private String relationship; // Explicit relationship name
-    private String rlxExp; // Relationship expression
     private String delimiter;
 
     private boolean updateDate;
@@ -308,7 +307,7 @@ public class ColumnDefinition implements GeoDefinition {
             case KEY_PREFIX:
                 return keyPrefix;
             case RELATIONSHIP:
-                return rlxExp;
+                return relationship;
         }
 
         return null;
@@ -322,13 +321,8 @@ public class ColumnDefinition implements GeoDefinition {
         return this.properties != null && properties.size() > 0;
     }
 
-
     public String getSource() {
         return source;
-    }
-
-    public String getRlxExp() {
-        return rlxExp;
     }
 
     @Override
@@ -459,7 +453,6 @@ public class ColumnDefinition implements GeoDefinition {
         if (entityLinks != null ? !entityLinks.equals(that.entityLinks) : that.entityLinks != null) return false;
         if (aliases != null ? !aliases.equals(that.aliases) : that.aliases != null) return false;
         if (relationship != null ? !relationship.equals(that.relationship) : that.relationship != null) return false;
-        if (rlxExp != null ? !rlxExp.equals(that.rlxExp) : that.rlxExp != null) return false;
         if (delimiter != null ? !delimiter.equals(that.delimiter) : that.delimiter != null) return false;
         return targets != null ? targets.equals(that.targets) : that.targets == null;
 
@@ -504,7 +497,6 @@ public class ColumnDefinition implements GeoDefinition {
         result = 31 * result + (entityLinks != null ? entityLinks.hashCode() : 0);
         result = 31 * result + (aliases != null ? aliases.hashCode() : 0);
         result = 31 * result + (relationship != null ? relationship.hashCode() : 0);
-        result = 31 * result + (rlxExp != null ? rlxExp.hashCode() : 0);
         result = 31 * result + (delimiter != null ? delimiter.hashCode() : 0);
         result = 31 * result + (updateDate ? 1 : 0);
         result = 31 * result + (merge ? 1 : 0);

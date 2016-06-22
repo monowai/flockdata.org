@@ -18,7 +18,7 @@ package org.flockdata.transform;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,18 +38,18 @@ public class ProfileReader {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static ContentModelImpl getContentModel(String file) throws IOException, ClassNotFoundException {
-        ContentModelImpl contentProfileImpl;
+    public static ImportContentModel getContentModel(String file) throws IOException, ClassNotFoundException {
+        ImportContentModel contentProfileImpl;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
         File fileIO = new File(file);
         if (fileIO.exists()) {
-            contentProfileImpl = om.readValue(fileIO, ContentModelImpl.class);
+            contentProfileImpl = om.readValue(fileIO, ImportContentModel.class);
 
         } else {
             InputStream stream = ClassLoader.class.getResourceAsStream(file);
             if (stream != null) {
-                contentProfileImpl = om.readValue(stream, ContentModelImpl.class);
+                contentProfileImpl = om.readValue(stream, ImportContentModel.class);
             } else {
                 throw new IllegalArgumentException("Unable to locate the ContentModel [" + file +"] Working directory ["+System.getProperty("user.dir")+"]");
             }

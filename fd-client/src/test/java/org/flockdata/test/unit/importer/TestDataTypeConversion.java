@@ -17,7 +17,7 @@
 package org.flockdata.test.unit.importer;
 
 import junit.framework.TestCase;
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.test.unit.client.AbstractImport;
 import org.flockdata.track.bean.EntityInputBean;
@@ -44,7 +44,7 @@ public class TestDataTypeConversion  extends AbstractImport {
     public void preserve_NumberValueAsString() throws Exception {
         String fileName = "/model/data-types.json";
         getFdBatcher().flush();
-        ContentModelImpl profile = ProfileReader.getContentModel(fileName);
+        ImportContentModel profile = ProfileReader.getContentModel(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv");
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         assertEquals(2, tagInputBeans.size());
@@ -62,7 +62,7 @@ public class TestDataTypeConversion  extends AbstractImport {
     public void double_EntityProperty() throws Exception {
         // Tests that numeric values are converted to explicit data-type
         String fileName = "/model/entity-data-types.json";
-        ContentModelImpl profile = ProfileReader.getContentModel(fileName);
+        ImportContentModel profile = ProfileReader.getContentModel(fileName);
         fileProcessor.processFile(profile, "/data/entity-data-types.csv");
         List<EntityInputBean> entityInputBeans = getFdBatcher().getEntities();
         assertEquals(2, entityInputBeans.size());
@@ -78,7 +78,7 @@ public class TestDataTypeConversion  extends AbstractImport {
         // it drives a tag code.
         String fileName = "/model/data-types.json";
 
-        ContentModelImpl profile = ProfileReader.getContentModel(fileName);
+        ImportContentModel profile = ProfileReader.getContentModel(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv");
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         assertEquals(2, tagInputBeans.size());
@@ -98,7 +98,7 @@ public class TestDataTypeConversion  extends AbstractImport {
     public void number_Converts() throws Exception {
         // DAT-454
         String fileName = "/model/data-types.json";
-        ContentModelImpl profile = ProfileReader.getContentModel(fileName);
+        ImportContentModel profile = ProfileReader.getContentModel(fileName);
         String header[] = new String[]{"num"};
         String row[] = new String[]{"0045"};
         Map<String, Object> converted = Transformer.convertToMap(header, row, profile);
@@ -115,7 +115,7 @@ public class TestDataTypeConversion  extends AbstractImport {
         // DAT-454
 
         String fileName = "/model/data-types.json";
-        ContentModelImpl profile = ProfileReader.getContentModel(fileName);
+        ImportContentModel profile = ProfileReader.getContentModel(fileName);
         String header[] = new String[]{"num"};
         String row[] = new String[]{"50,000.99"}; // Not internatioalised
         Map<String, Object> converted = Transformer.convertToMap(header, row, profile);
@@ -136,7 +136,7 @@ public class TestDataTypeConversion  extends AbstractImport {
     public void title_Expression() throws Exception {
         // DAT-457
         String fileName = "/model/data-types.json";
-        ContentModelImpl profile = ProfileReader.getContentModel(fileName);
+        ImportContentModel profile = ProfileReader.getContentModel(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv");
         List<EntityInputBean> entities = getFdBatcher().getEntities();
         assertEquals(1, entities.size());
@@ -148,7 +148,7 @@ public class TestDataTypeConversion  extends AbstractImport {
     public void date_CreatedDateSets() throws Exception {
         // DAT-457
         String fileName = "/model/data-types.json";
-        ContentModelImpl profile = ProfileReader.getContentModel(fileName);
+        ImportContentModel profile = ProfileReader.getContentModel(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv");
         List<EntityInputBean> entities = getFdBatcher().getEntities();
         assertEquals(1, entities.size());
@@ -174,7 +174,7 @@ public class TestDataTypeConversion  extends AbstractImport {
     public void date_LastChange() throws Exception {
         // Given 2 dates that could be the last change, check the most recent
         String fileName = "/model/data-types.json";
-        ContentModelImpl profile = ProfileReader.getContentModel(fileName);
+        ImportContentModel profile = ProfileReader.getContentModel(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv");
         List<EntityInputBean> entities = getFdBatcher().getEntities();
         assertEquals(1, entities.size());

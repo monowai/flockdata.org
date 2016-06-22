@@ -18,7 +18,7 @@ package org.flockdata.test.unit.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ProfileReader;
@@ -38,7 +38,7 @@ public class TestEntityRlxProperties extends AbstractImport{
     public void string_NoHeaderWithDelimiter() throws Exception {
         String file = "/model/properties-rlx.json";
 
-        ContentModelImpl params = ProfileReader.getContentModel(file);
+        ImportContentModel params = ProfileReader.getContentModel(file);
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/data/properties-rlx.txt");

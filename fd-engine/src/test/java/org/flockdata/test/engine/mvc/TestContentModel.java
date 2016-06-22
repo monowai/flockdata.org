@@ -48,7 +48,7 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 public class TestContentModel extends MvcBase {
     @Test
     public void testSaveRetrieveModel() throws Exception {
-        ContentModelImpl contentProfile = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
+        ImportContentModel contentProfile = ImportContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
         makeDataAccessProfile("TestContentProfileStorage", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("contentFortress"));
 
@@ -75,7 +75,7 @@ public class TestContentModel extends MvcBase {
 
     @Test
     public void testContentNotFound() throws Exception {
-        ContentModelImpl contentProfile = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
+        ImportContentModel contentProfile = ImportContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
         makeDataAccessProfile("TestContentProfileStorage", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("contentFortress"));
 
@@ -92,7 +92,7 @@ public class TestContentModel extends MvcBase {
     @Test
     public void validate_Profile() throws Exception {
         makeDataAccessProfile("validateContentProfile", "mike");
-        ContentModel profile = ContentModelDeserializer.getContentModel("/models/test-model.json");
+        ContentModel profile = ImportContentModelDeserializer.getContentModel("/models/test-model.json");
         ContentValidationRequest validationRequest = new ContentValidationRequest(profile);
         String json = JsonUtils.toJson(validationRequest);
         assertNotNull(json);
@@ -105,7 +105,7 @@ public class TestContentModel extends MvcBase {
 
     @Test
     public void find_CompanyProfiles() throws Exception {
-        ContentModelImpl contentProfile = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
+        ImportContentModel contentProfile = ImportContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
         contentProfile.setName("SettingTheName");
         makeDataAccessProfile("find_CompanyProfiles", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("find_CompanyProfiles"));
@@ -193,7 +193,7 @@ public class TestContentModel extends MvcBase {
     @Test
     public void create_TagProfile() throws Exception {
         makeDataAccessProfile("create_TagProfile", "mike");
-        ContentModelImpl contentProfile = ContentModelDeserializer.getContentModel("/models/test-tag-model.json");
+        ImportContentModel contentProfile = ImportContentModelDeserializer.getContentModel("/models/test-tag-model.json");
         ContentModelResult result = makeTagModel(mike(),
                 "Countries",
                 contentProfile,

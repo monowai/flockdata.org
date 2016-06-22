@@ -16,7 +16,7 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ProfileReader;
@@ -38,7 +38,7 @@ public class TestCSVColumnParsing extends AbstractImport {
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
 
-        ContentModelImpl params = ProfileReader.getContentModel("/model/column-parsing.json");
+        ImportContentModel params = ProfileReader.getContentModel("/model/column-parsing.json");
         assertEquals(false, params.hasHeader());
 
         long rows = fileProcessor.processFile(params, "/data/pac.txt");
@@ -77,7 +77,7 @@ public class TestCSVColumnParsing extends AbstractImport {
     public void segment_SetInPayloadFromSource() throws Exception {
         File file = new File("/model/column-parsing.json");
 
-        ContentModelImpl params = ProfileReader.getContentModel("/model/column-parsing.json");
+        ImportContentModel params = ProfileReader.getContentModel("/model/column-parsing.json");
         assertEquals(false, params.hasHeader());
 
         long rows = fileProcessor.processFile(params, "/data/pac.txt");

@@ -197,13 +197,13 @@ public class TransformationHelper {
     }
 
     public static String getRelationshipName(Map<String, Object> row, ColumnDefinition colDef) {
-        if (colDef.getRelationship() != null)
-            return colDef.getRelationship();
+//        if (colDef.getRelationship() != null)
+//            return colDef.getRelationship();
+//
+//        if (colDef.getRlxExp() == null)
+//            return null;
 
-        if (colDef.getRlxExp() == null)
-            return null;
-
-        return ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.RELATIONSHIP, colDef, Tag.UNDEFINED);
+        return ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.RELATIONSHIP, colDef, colDef.getRelationship());
     }
 
     private static boolean evaluateTag(TagProfile tagProfile, Map<String, Object> row) {

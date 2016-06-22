@@ -1,7 +1,7 @@
 package org.flockdata.test.unit.client;
 
 import junit.framework.TestCase;
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ public class TestContentModel {
     @Test
     public void valid_DocumentType() throws Exception {
         String fileName = "/model/document-type.json";
-        ContentModelImpl params = ProfileReader.getContentModel(fileName);
+        ImportContentModel params = ProfileReader.getContentModel(fileName);
         assertNotNull(params.getDocumentType());
         TestCase.assertEquals("PAC", params.getDocumentType().getName());
     }

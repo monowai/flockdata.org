@@ -18,7 +18,7 @@ package org.flockdata.client;
 
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
@@ -130,9 +130,9 @@ public class Importer  {
 
                     item++;
                 }
-                ContentModelImpl contentModelImpl;
+                ImportContentModel importContentModel;
                 if (fdClient != null && profile != null) {
-                    contentModelImpl = ProfileReader.getContentModel(profile);
+                    importContentModel = ProfileReader.getContentModel(profile);
                 } else {
                     logger.error("No import parameters to work with");
                     return;
@@ -146,10 +146,10 @@ public class Importer  {
                 } else if (su.getApiKey() == null)
                     throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
 
-                logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, contentModelImpl, batchSize, skipCount);
+                logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, importContentModel, batchSize, skipCount);
                 logger.info("Processing {} against model {}",fileName, profile);
                 // Importer does not know what the company is
-                totalRows = totalRows + fileProcessor.processFile(contentModelImpl, fileName);
+                totalRows = totalRows + fileProcessor.processFile(importContentModel, fileName);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 

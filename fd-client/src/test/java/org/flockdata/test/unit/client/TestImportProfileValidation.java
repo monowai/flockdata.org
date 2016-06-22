@@ -17,7 +17,7 @@
 package org.flockdata.test.unit.client;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ContentModelImpl;
+import org.flockdata.profile.ImportContentModel;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Rule;
@@ -39,7 +39,7 @@ public class TestImportProfileValidation extends AbstractImport {
     @Test
     public void valid_Properties() throws Exception {
 
-        ContentModelImpl profile = ProfileReader.getContentModel("/model/properties-rlx.json");
+        ImportContentModel profile = ProfileReader.getContentModel("/model/properties-rlx.json");
         assertEquals(',', profile.getDelimiter());
         assertEquals(false, profile.hasHeader());
         profile.setFortress(null);

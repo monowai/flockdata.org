@@ -66,11 +66,11 @@ public class TestFileProcessor {
 
         files = fileProcessor.resolveFiles("./data/*.json");
         assertFalse(files.isEmpty());
-        assertEquals(2, files.size());
+        assertEquals(3, files.size());
 
         files = fileProcessor.resolveFiles("./data/*.json");
         assertFalse(files.isEmpty());
-        assertEquals(2, files.size());
+        assertEquals(3, files.size());
 
         files = fileProcessor.resolveFiles("./data/*");
         assertFalse(files.isEmpty());
