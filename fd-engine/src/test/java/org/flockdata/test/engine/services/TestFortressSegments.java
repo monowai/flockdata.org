@@ -1,6 +1,7 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.SystemUser;
@@ -16,6 +17,9 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.*;
 
 /**
+ * Data for a given fortress+docType can be segmented for easier management
+ * This class tests fundamental assertions about the functionality
+ *
  * Created by mike on 13/10/15.
  */
 public class TestFortressSegments extends EngineBase{
@@ -56,6 +60,24 @@ public class TestFortressSegments extends EngineBase{
         TestCase.assertEquals(createdSegment.getId(), duplicateSegment.getId());
 
         TestCase.assertEquals(2, fortressService.getSegments(fortress).size());
+    }
+
+    @Test
+    public void segmentsForDocumentType() throws Exception{
+        SystemUser su = registerSystemUser("segmentsForDocumentType");
+        Fortress fortress = createFortress(su);
+        EntityInputBean inputBeanA = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "111");
+        inputBeanA.setSegment("ABC");
+        EntityInputBean inputBeanB = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "222");
+        inputBeanB.setSegment("CBA");
+        EntityInputBean inputBeanC = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "333");
+        inputBeanC.setSegment("CBA");
+
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBeanA);
+        mediationFacade.trackEntity(su.getCompany(), inputBeanB);
+        mediationFacade.trackEntity(su.getCompany(), inputBeanC);
+        DocumentType resolved = conceptService.findDocumentTypeWithSegments( resultBean.getDocumentType());
+        assertEquals(2, resolved.getSegments().size());
     }
 
     @Test

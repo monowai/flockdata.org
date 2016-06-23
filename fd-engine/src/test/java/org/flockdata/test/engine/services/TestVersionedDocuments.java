@@ -34,7 +34,7 @@ public class TestVersionedDocuments extends EngineBase {
         assertTrue(fortress.isStoreEnabled());
 
         DocumentType documentType = conceptService.findOrCreate(fortress,
-                new DocumentType(fortress,
+                new DocumentType(fortress.getDefaultSegment(),
                         new DocumentTypeInputBean("Default")
                                 .setCode("Default")));
 
@@ -58,7 +58,7 @@ public class TestVersionedDocuments extends EngineBase {
         assertTrue(fortress.isStoreEnabled());
 
         DocumentType memoryType = conceptService.findOrCreate(fortress,
-                new DocumentType(fortress,
+                new DocumentType(fortress.getDefaultSegment(),
                         new DocumentTypeInputBean("Memory")
                                 .setCode("Memory"))
         .setVersionStrategy(DocumentType.VERSION.FORTRESS));
@@ -82,7 +82,7 @@ public class TestVersionedDocuments extends EngineBase {
         TestCase.assertEquals(DocumentType.VERSION.DISABLE, documentTypeInputBean.getVersionStrategy());
 
         DocumentType noneType = conceptService.findOrCreate(fortress,
-                new DocumentType(fortress, documentTypeInputBean));
+                new DocumentType(fortress.getDefaultSegment(), documentTypeInputBean));
 
         TestCase.assertEquals(DocumentType.VERSION.DISABLE, noneType.getVersionStrategy());
 

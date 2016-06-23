@@ -617,8 +617,19 @@ public abstract class MvcBase {
         return JsonUtils.toObject(json, DocumentResultBean.class);
     }
 
-    public Collection<FortressSegment> getSegments(RequestPostProcessor user, String fortressCode) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/fortress/" + fortressCode + "/segments")
+    public Collection<DocumentResultBean> getDocumentWithSegments(RequestPostProcessor user, String fortressCode, String docType) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/fortress/{fortress}/{doc}/segments", fortressCode,docType )
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.toCollection(json.getBytes(), DocumentResultBean.class);
+
+    }
+
+    public Collection<FortressSegment> getDocumentWithSegments(RequestPostProcessor user, String fortressCode) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/fortress/{fortressCode}/segments", fortressCode )
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

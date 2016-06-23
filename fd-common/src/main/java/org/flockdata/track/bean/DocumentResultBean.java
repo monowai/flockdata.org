@@ -19,8 +19,10 @@ package org.flockdata.track.bean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.DocumentType;
+import org.flockdata.model.FortressSegment;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * User: mike
@@ -32,6 +34,7 @@ public class DocumentResultBean {
     private Long id;
     private String name;
     ArrayList<ConceptResultBean> concepts = new ArrayList<>();
+    ArrayList<String>segments = new ArrayList<>();
 
     DocumentResultBean() {
     }
@@ -49,7 +52,7 @@ public class DocumentResultBean {
         this();
         this.name = documentType.getName();
         this.id = documentType.getId();
-
+        this.segments.addAll(documentType.getSegments().stream().map(FortressSegment::getCode).collect(Collectors.toList()));
     }
 
     @JsonIgnore
@@ -65,6 +68,10 @@ public class DocumentResultBean {
         if (concepts == null)
             concepts = new ArrayList<>();
         concepts.add(concept);
+    }
+
+    public ArrayList<String> getSegments() {
+        return segments;
     }
 
     @Override
@@ -92,5 +99,9 @@ public class DocumentResultBean {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
+    }
+
+    public void addSegment(FortressSegment segment) {
+        this.segments.add(segment.getCode());
     }
 }

@@ -231,7 +231,7 @@ public class TestAdmin extends EngineBase {
 
         try {
             entityService.getEntity(su.getCompany(), resultA);
-            fail("Expected not to find the entity after the fortress was pruged");
+            fail("Expected not to find the entity after the fortress was purged");
         } catch (NotFoundException e){
             // good
         }

@@ -47,7 +47,7 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentType> {
 
 
     @Query(elementClass = DocumentType.class,
-            value = "MATCH (fortress:Fortress)<-[:FORTRESS_DOC]-documentTypes " +
+            value = "MATCH (fortress:Fortress)<-[:FORTRESS_DOC]-(documentTypes:DocType) " +
                     "        where id(fortress)={0} " +
                     "       return documentTypes")
     Collection<DocumentType> getFortressDocumentsInUse(Long fortressId);
@@ -57,8 +57,8 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentType> {
                     "where id(company) = {0} return docTypes")
     Collection<DocumentType> getCompanyDocumentsInUse(Long companyId);
 
-    @Query (value = "match (fortress:Fortress)-[fd:FORTRESS_DOC]-(d:DocType)" +
-            "where id(fortress) = {0} delete fd,d")
+    @Query (value = "match (fortress:Fortress)-[r:FORTRESS_DOC]-(d:DocType)" +
+            "where id(fortress) = {0} delete r,d")
     void purgeFortressDocuments(Long fortressId);
 
     @Query(elementClass = DocumentType.class,
@@ -74,6 +74,18 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentType> {
     Set<DocumentType> findAllDocuments(Company company);
 
     @Query (value = "optional match (fortress:Fortress)-[fd:FORTRESS_DOC]-(d:DocType)-[r]-(c:Concept)" +
+            "where id(d) = {0} delete r")
+    void purgeDocumentAssociations(Long documentTypeId);
+
+    @Query (value = "optional match (fortress:Fortress)-[fd:FORTRESS_DOC]-(d:DocType)-[r]-(c:Concept)" +
             "where id(fortress) = {0} delete r")
-    void purgeDocumentAssociations(Long id);
+    void purgeDocumentConceptRelationshipsForFortress(Long fortressId);
+
+    @Query (value = "optional match (d:DocType)-[r:USES_SEGMENT]-(s:FortressSegment)" +
+            "where id(d) = {0} delete r")
+    void purgeDocumentSegments(Long documentTypeId);
+
+    @Query (value = "optional match (fortress:Fortress)-[:DEFINES]-(c:FortressSegment)-[r]-(d:DocType)" +
+            "where id(fortress) = {0} delete r")
+    void purgeFortressSegmentAssociations(Long fortressId);
 }

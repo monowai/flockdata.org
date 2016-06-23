@@ -24,6 +24,9 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
+import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -52,11 +55,84 @@ public class TestFortressEP extends MvcBase {
 
         FortressResultBean fortress = makeFortress(mike(), "make_DocTypes");
 
-        Collection<FortressSegment> segments = getSegments(mike(), fortress.getName());
+        Collection<FortressSegment> segments = getDocumentWithSegments(mike(), fortress.getName());
         assertEquals(1, segments.size());
 
         TestCase.assertTrue("Default segment not found", segments.iterator().next().getCode().equals("Default"));
 
+    }
+
+    @Test
+    public void get_FortressSegmentsForDocumentType() throws Exception {
+
+        FortressResultBean fortress = makeFortress(mike(), "make_DocSegmentDocTypes");
+        EntityInputBean eib = new EntityInputBean(fortress.getName(), "segTestDoc")
+                .setSegment("2014");
+        track(mike(),eib );
+
+        eib.setSegment("2015");
+        track(mike(),eib );
+
+        eib.setSegment("2016");
+        track(mike(),eib );
+
+        // 4 Segments including the default o
+
+        Collection<DocumentResultBean> documentResultBean= getDocumentWithSegments(mike(), fortress.getName(), "segTestDoc");
+        Assert.assertEquals(1, documentResultBean.size());
+        assertEquals(4, documentResultBean.iterator().next().getSegments().size());
+
+        documentResultBean= getDocumentWithSegments(mike(), fortress.getName(), "*");
+        Assert.assertEquals(1, documentResultBean.size());
+        assertEquals(4, documentResultBean.iterator().next().getSegments().size());
+    }
+
+    @Test
+    public void get_MultipleFortressesSameSegmentsAndDocType() throws Exception {
+
+        FortressResultBean fortressA = makeFortress(mike(), "multi_FortA");
+        FortressResultBean fortressB = makeFortress(mike(), "multi_FortB");
+        String docType = "sameDocType";
+        EntityInputBean eib = new EntityInputBean(fortressA.getName(), docType)
+                .setSegment("2014");
+        track(mike(),eib );
+
+        eib.setSegment("2015");
+        track(mike(),eib );
+
+        eib.setSegment("2016");
+        track(mike(),eib );
+
+        eib = new EntityInputBean(fortressB.getName(), docType)
+                .setSegment("2014");
+        track(mike(),eib );
+
+        eib.setSegment("2012");
+        track(mike(),eib );
+
+        eib.setSegment("2015");
+        track(mike(),eib );
+
+        eib.setSegment("2016");
+        track(mike(),eib );
+
+        // 4 Segments including the default o
+
+        Collection<DocumentResultBean> documentResultBean= getDocumentWithSegments(mike(), fortressA.getName(), docType);
+        Assert.assertEquals(1, documentResultBean.size());
+        assertEquals(4, documentResultBean.iterator().next().getSegments().size());
+
+        documentResultBean= getDocumentWithSegments(mike(), fortressA.getName(), "*");
+        Assert.assertEquals(1, documentResultBean.size());
+        assertEquals(4, documentResultBean.iterator().next().getSegments().size());
+
+        documentResultBean= getDocumentWithSegments(mike(), fortressB.getName(), docType);
+        Assert.assertEquals(1, documentResultBean.size());
+        assertEquals("Second fortress has one extra segment", 5, documentResultBean.iterator().next().getSegments().size());
+
+        documentResultBean= getDocumentWithSegments(mike(), fortressB.getName(), "*");
+        Assert.assertEquals(1, documentResultBean.size());
+        assertEquals("Second fortress has one extra segment", 5, documentResultBean.iterator().next().getSegments().size());
     }
 
     @Test

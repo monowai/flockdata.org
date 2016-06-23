@@ -53,3 +53,13 @@ org.fd:
     #group:
     #  admin: https://api.stormpath.com/v1/groups/2Xro288t4Yza6CBuCoFAru
 
+org:
+  neo4j:
+    server:
+      webserver:
+        # Set the port to < 0 to disable the WEBUI for Neo4j
+        port: 7474
+        # 0.0.0.0 sets access from anywhere
+        address: 0.0.0.0
+    # enable/disable neo4j security (omitting defaults to enabled)
+    auth: "false"

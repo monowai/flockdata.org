@@ -40,8 +40,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 /**
  * User: Mike Holdsworth
@@ -106,7 +108,7 @@ public class FortressEP {
         Fortress fortress = fortressService.getFortress(company, fortressName);
         if (fortress == null)
             throw new NotFoundException("Unable to locate the fortress ");
-        return new DocumentResultBean(conceptService.findOrCreate(fortress, new DocumentType(fortress, docType)));
+        return new DocumentResultBean(conceptService.findOrCreate(fortress, new DocumentType(fortress.getDefaultSegment(), docType)));
 
     }
 
@@ -135,12 +137,43 @@ public class FortressEP {
         return fortressService.getFortressDocumentsInUse(company, code);
     }
 
-    @RequestMapping(value = "/{code}/segments", method = RequestMethod.GET)
-    public Collection<FortressSegment> getFortressSegments(@PathVariable("code") String code, HttpServletRequest request) throws FlockException {
+    @RequestMapping(value = "/{fortress}/segments", method = RequestMethod.GET)
+    public Collection<FortressSegment> getFortressSegments(@PathVariable("fortress") String code, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress f = fortressService.findByCode(company, code);
         return fortressService.getSegments(f);
     }
+
+    /**
+     *
+     * @param code   fortress name or code
+     * @param doc    doc type to filter by or * for all
+     * @param request internal use
+     * @return Collection of DocumentResultBeans with Segment data
+     * @throws FlockException
+     */
+    @RequestMapping(value = "/{fortress}/{doc}/segments", method = RequestMethod.GET)
+    public Collection<DocumentResultBean> getFortressDocSegments(
+            @PathVariable("fortress") String code,
+            @PathVariable("doc") String doc,
+            HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        Fortress f = fortressService.findByCode(company, code);
+        Collection<DocumentResultBean>results = new ArrayList<>();
+        if ( doc.equals("*")){
+            // All docs for the fortress
+            Collection<DocumentResultBean> fortressDcouments = fortressService.getFortressDocumentsInUse(company, code);
+            results.addAll(fortressDcouments.stream().map(fortressDoc
+                    -> conceptService.findDocumentTypeWithSegments(f, fortressDoc.getName())
+                ).collect(Collectors.toList()));
+
+        } else {
+            results .add(conceptService.findDocumentTypeWithSegments(f, doc));
+        }
+
+        return results;
+    }
+
 
     @RequestMapping(value = "/timezones", method = RequestMethod.GET)
     public String[] getTimezones(HttpServletRequest request) throws FlockException {

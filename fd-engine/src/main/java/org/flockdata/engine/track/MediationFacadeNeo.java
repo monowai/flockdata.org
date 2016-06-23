@@ -237,7 +237,7 @@ public class MediationFacadeNeo implements MediationFacade {
             throw new FlockException("No fortress supplied. Unable to process work without a valid fortress");
         }
 
-        Future<Collection<DocumentType>> docType = docTypeRetryService.createDocTypes(segment.getFortress(), inputBeans);
+        Future<Collection<DocumentType>> docType = docTypeRetryService.createDocTypes(segment, inputBeans);
         Future<Collection<TagResultBean>> tagResults = createTagsAsync(segment.getCompany(), getTags(inputBeans));
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();

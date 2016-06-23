@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.dao;
 
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.*;
 import org.flockdata.track.bean.ConceptInputBean;
@@ -226,8 +227,28 @@ public class ConceptDaoNeo {
         return template.save(documentType);
     }
 
-    public void delete(Long id) {
-        documentTypeRepo.purgeDocumentAssociations(id);
-        documentTypeRepo.delete(id);
+    public void delete(Long documentTypeId) {
+        documentTypeRepo.purgeDocumentAssociations(documentTypeId);
+        documentTypeRepo.purgeDocumentSegments(documentTypeId);
+        documentTypeRepo.delete(documentTypeId);
+    }
+
+    public DocumentType findDocumentTypeWithSegments(DocumentType documentType) {
+        if ( documentType == null )
+            throw new NotFoundException("Unable to find the requested DocumentType");
+        template.fetch(documentType);
+        template.fetch(documentType.getSegments());
+        return documentType;
+    }
+
+    public DocumentResultBean findDocumentTypeWithSegments(Fortress f, String doc) {
+        DocumentType documentType = findDocumentType(f, doc, false);
+        if ( documentType == null)
+            throw new NotFoundException("Failed to find DocumentType "+doc);
+
+        template.fetch(documentType.getSegments());
+        DocumentResultBean result = new DocumentResultBean(documentType);
+        result.addSegment (f.getDefaultSegment());
+        return result;
     }
 }

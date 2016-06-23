@@ -31,6 +31,14 @@ public interface SchemaService {
 
     Boolean ensureSystemIndexes(Company company);
 
+    /**
+     * Deletes the majority of the structural associations between a fortress and data in FlockData
+     * Does not delete the DocumentType
+     *
+     * You probably want to be calling adminService.purge() which in turn calls this
+     *
+     * @param fortress
+     */
     void purge(Fortress fortress);
 
     Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs);

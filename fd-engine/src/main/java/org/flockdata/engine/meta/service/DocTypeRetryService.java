@@ -22,7 +22,7 @@ package org.flockdata.engine.meta.service;
 
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.EntityInputBean;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.neo4j.kernel.api.exceptions.TransactionFailureException;
@@ -55,15 +55,15 @@ public class DocTypeRetryService {
     /**
      * Creates document types for the input beans if they do not exist
      * Handles linked entities which may be part of the EntityInputBean.
-     * Ensures the fortress also exists for the linked Entities
+     * Ensures the segment also exists for the linked Entities
      *
-     * @param fortress   all InputBeans are deemed to belong to this fortress
+     * @param segment   all InputBeans are deemed to belong to this segment
      * @param inputBeans collection of Entities from which to find DocumentTypes and linked Entities
      * @return Collection of DocumentType objects that were created
      */
     @Retryable(include = {TransactionFailureException.class, HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public Future<Collection<DocumentType>> createDocTypes(Fortress fortress, List<EntityInputBean> inputBeans) {
+    public Future<Collection<DocumentType>> createDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans) {
 
-        return new AsyncResult<>(conceptService.makeDocTypes(fortress, inputBeans));
+        return new AsyncResult<>(conceptService.makeDocTypes(segment, inputBeans));
     }
 }

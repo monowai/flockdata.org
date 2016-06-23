@@ -30,6 +30,7 @@ public class FortressResultBean implements MetaFortress, Serializable{
     private String name;
     private String indexName;
     private String timeZone;
+    private String message;
     private Boolean enabled=Boolean.TRUE;
     private Boolean searchEnabled;
     private Boolean storeEnabled;
@@ -96,5 +97,9 @@ public class FortressResultBean implements MetaFortress, Serializable{
 
     public boolean isSystem() {
         return system;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

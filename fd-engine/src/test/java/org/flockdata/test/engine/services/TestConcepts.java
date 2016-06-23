@@ -69,7 +69,7 @@ public class TestConcepts extends EngineBase {
         documentTypeInputBean = JsonUtils.toObject(json.getBytes(), DocumentTypeInputBean.class);
 
         Fortress fortress = new Fortress(new FortressInputBean("DocTypes"), new Company("Testing"));
-        DocumentType documentType = new DocumentType(fortress, documentTypeInputBean);
+        DocumentType documentType = new DocumentType(fortress.getDefaultSegment(), documentTypeInputBean);
         TestCase.assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, documentType.getTagStructure());
         TestCase.assertEquals(DocumentType.VERSION.DISABLE, documentType.getVersionStrategy());
         TestCase.assertEquals("Testing GeoQuery", documentType.getGeoQuery());
@@ -157,7 +157,8 @@ public class TestConcepts extends EngineBase {
             documents.add("DocB");
             results = conceptService.findConcepts(su.getCompany(), documents, false);
             assertEquals(2, results.size());
-            schemaService.purge(fortressB);
+            adminService.purge(su.getCompany(), fortressB);
+            waitAWhile();// Previous call is Async
             results = conceptService.findConcepts(su.getCompany(), documents, false);
             assertEquals(1, results.size());
             Collection<DocumentResultBean> docsInUse = conceptService.getDocumentsInUse(su.getCompany());
@@ -474,7 +475,6 @@ public class TestConcepts extends EngineBase {
                 Collection<ConceptResultBean> concepts = foundDoc.getConcepts();
                 assertEquals(1, concepts.size());
                 boolean claimFound = false;
-                boolean userFound = false;
                 for (ConceptResultBean concept : concepts) {
                     if (concept.getName().equalsIgnoreCase("Claim")) {
                         claimFound = true;

@@ -63,6 +63,10 @@ public class DocumentType  implements Comparable<DocumentType> {
     @RelatedTo(elementClass = Concept.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
     Set<Concept> concepts;
 
+    @RelatedTo(elementClass = FortressSegment.class,  type = "USES_SEGMENT", direction = Direction.OUTGOING)
+    Set<FortressSegment> segments ;
+
+
     @RelatedTo(elementClass = DocumentType.class,  type = "PARENT", direction = Direction.INCOMING)
     DocumentType parent;
 
@@ -74,9 +78,9 @@ public class DocumentType  implements Comparable<DocumentType> {
      *
      * Set the version strategy on a per DocumentType basis
      *
-     * Enable version control when fortress.storeEnabled== false
-     * Suppress when your fortress.storeEnabled== true and you don't want to version
-     * Fortress (default) means use whatever the fortress default is
+     * Enable version control when segment.storeEnabled== false
+     * Suppress when your segment.storeEnabled== true and you don't want to version
+     * Fortress (default) means use whatever the segment default is
      *
      */
     public enum VERSION {
@@ -89,18 +93,20 @@ public class DocumentType  implements Comparable<DocumentType> {
     protected DocumentType() {
     }
 
-    public DocumentType(Fortress fortress, DocumentTypeInputBean docType) {
-        this(fortress, docType.getName());
+    public DocumentType(FortressSegment segment, DocumentTypeInputBean docType) {
+        this(segment.getFortress(), docType.getName());
         this.name = docType.getName();
+        this.segments = new HashSet<>();
+        this.segments.add(segment);
         // ToDo: Parse for injection vulnerabilities.
         // Only admin users can create these and even then only under direction
         this.geoQuery = docType.getGeoQuery(); // DAT-507
         if ( docType.getTagStructure()!= null)
             this.tagStructure = docType.getTagStructure();
 
-        if ( fortress !=null ){
-            this.companyKey = fortress.getCompany().getId() + "." + code;
-            setFortress(fortress);
+        if ( segment.getFortress() !=null ){
+            this.companyKey = segment.getCompany().getId() + "." + code;
+            setFortress(segment.getFortress());
         }
         if ( docType.getVersionStrategy()!=null )
             setVersionStrategy(docType.getVersionStrategy());
@@ -196,12 +202,12 @@ public class DocumentType  implements Comparable<DocumentType> {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", code='" + code + '\'' +
-                ", fortress=" + fortress +
+                ", segment=" + fortress +
                 '}';
     }
 
     public static String parseCode(Fortress fortress, String documentType) {
-        // Only in testing would the fortress be null
+        // Only in testing would the segment be null
         Long fid ;
         if ( fortress == null || fortress.getId() == null )
             fid = -1L;
@@ -282,5 +288,9 @@ public class DocumentType  implements Comparable<DocumentType> {
     public DocumentType setVersionStrategy(VERSION strategy) {
         this.vstrat = strategy;
         return this;
+    }
+
+    public Set<FortressSegment>getSegments (){
+        return segments;
     }
 }

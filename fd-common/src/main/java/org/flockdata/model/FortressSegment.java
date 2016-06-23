@@ -109,13 +109,14 @@ public class FortressSegment {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (key != null ? key.hashCode() : 0);
-        result = 31 * result + (fortress != null ? fortress.getId().hashCode() : 0);
+        result = 31 * result + (fortress != null ? fortress.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
         return "FortressSegment{" +
+                "code='" + code + '\'' +
                 "key='" + key + '\'' +
                 '}';
     }

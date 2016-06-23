@@ -24,6 +24,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -65,7 +66,11 @@ public interface ConceptService {
 
     Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, String fortress) throws FlockException;
 
-    Collection<DocumentType> makeDocTypes(Fortress fortress, List<EntityInputBean> inputBeans);
+    Collection<DocumentType> makeDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans);
 
     void delete(DocumentType documentType);
+
+    DocumentType findDocumentTypeWithSegments(DocumentType documentType);
+
+    DocumentResultBean findDocumentTypeWithSegments(Fortress f, String doc);
 }

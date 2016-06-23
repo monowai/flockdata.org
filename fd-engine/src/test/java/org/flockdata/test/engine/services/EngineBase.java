@@ -22,6 +22,7 @@ package org.flockdata.test.engine.services;
 import org.flockdata.company.endpoint.CompanyEP;
 import org.flockdata.engine.FdEngine;
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.admin.service.AdminService;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.meta.service.TxService;
@@ -149,6 +150,9 @@ public abstract class EngineBase {
 
     @Autowired
     StorageProxy storageService;
+
+    @Autowired
+    AdminService adminService;
 
     @Autowired
     Neo4jTemplate neo4jTemplate;

@@ -3,6 +3,7 @@ package org.flockdata.test.helper;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
@@ -60,8 +61,8 @@ public class TestEntityInputBean {
     public void docTypeInArray(){
         Map<DocumentType, String> docTypes = new HashMap<>();
         Fortress fortress = new Fortress(new FortressInputBean("Testing"), new Company("Testling"));
-
-        DocumentType documentType = new DocumentType(fortress, new DocumentTypeInputBean("Blah"));
+        FortressSegment segment = new FortressSegment(fortress);
+        DocumentType documentType = new DocumentType(segment, new DocumentTypeInputBean("Blah"));
         docTypes.put(documentType, "OK");
         assertNotNull ( docTypes.get(documentType));
     }

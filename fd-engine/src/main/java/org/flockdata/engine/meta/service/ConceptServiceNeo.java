@@ -26,6 +26,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.*;
@@ -140,11 +141,12 @@ public class ConceptServiceNeo implements ConceptService {
 
     /**
      * Tracks the fact that the sourceType is connected to the targetType with relationship name.
-     *
+     * <p>
      * This represents a fact that there is at least one (e:Entity)-[r:relationship]->(oe:Entity) existing
-     * @param sourceType    node from
-     * @param relationship  name
-     * @param targetType    node to
+     *
+     * @param sourceType   node from
+     * @param relationship name
+     * @param targetType   node to
      */
     @Override
     public void linkEntities(DocumentType sourceType, String relationship, DocumentType targetType) {
@@ -154,10 +156,10 @@ public class ConceptServiceNeo implements ConceptService {
     /**
      * Analyses the TrackResults and builds up a meta analysis of the entities and tags
      * to track the structure of graph data
-     *
+     * <p>
      * Extracts DocTypes, Tags and relationship names. These can be found in the graph with a query
      * such as
-     *
+     * <p>
      * match ( c:DocType)-[r]-(x:Concept) return c,r,x;
      *
      * @param resultBeans payload to analyse
@@ -181,13 +183,13 @@ public class ConceptServiceNeo implements ConceptService {
                 EntityInputBean inputBean = resultBean.getEntityInputBean();
                 if (inputBean != null && inputBean.getTags() != null) {
                     for (TagInputBean inputTag : resultBean.getEntityInputBean().getTags()) {
-                        if (inputTag.getEntityLinks()!=null && !inputTag.getEntityLinks().isEmpty()) {
+                        if (inputTag.getEntityLinks() != null && !inputTag.getEntityLinks().isEmpty()) {
                             ConceptInputBean cib = new ConceptInputBean(inputTag.getLabel());
 
                             if (!conceptInputBeans.contains(cib)) {
                                 cib.setRelationships(inputTag.getEntityLinks().keySet());
                                 conceptInputBeans.add(cib);
-                            }else
+                            } else
                                 conceptInputBeans.get(conceptInputBeans.indexOf(cib)).setRelationships(inputTag.getEntityLinks().keySet());
                         }
                     }
@@ -220,52 +222,67 @@ public class ConceptServiceNeo implements ConceptService {
     }
 
     public Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, String fortress) throws FlockException {
-        Collection<String>fortresses = new ArrayList<>();
-        fortresses.add(fortress)   ;
+        Collection<String> fortresses = new ArrayList<>();
+        fortresses.add(fortress);
         return getDocumentsInUse(fdCompany, fortresses);
     }
 
     @Override
-    public Collection<DocumentType> makeDocTypes(Fortress fortress, List<EntityInputBean> inputBeans) {
-            Collection<DocumentType> docTypes = new ArrayList<>();
-            DocumentType master;
-            for (EntityInputBean entityInputBean : inputBeans) {
-                master = new DocumentType(fortress, entityInputBean.getDocumentType());
-                if (!docTypes.contains(master)) {
-                    master = findOrCreate(fortress, master);
-                    docTypes.add(master);
-                    if (!entityInputBean.getEntityLinks().isEmpty()) {
+    public Collection<DocumentType> makeDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans) {
+        Collection<DocumentType> docTypes = new ArrayList<>();
+        DocumentType master;
+        for (EntityInputBean entityInputBean : inputBeans) {
+            master = new DocumentType(segment, entityInputBean.getDocumentType());
+//                if (!docTypes.contains(master)) {
+            master = findOrCreate(segment.getFortress(), master);
+            master = conceptDao.findDocumentTypeWithSegments(master);
+            if ( !master.getSegments().contains(segment)) {
+                master.getSegments().add(segment);
+                conceptDao.save(master);
+            }
+            docTypes.add(master);
+            if (!entityInputBean.getEntityLinks().isEmpty()) {
 
-                        // The entity being processed is linked to other entities.
-                        // need to ensure that both the Fortress and DocumentType are also created
-                        for (String relationship : entityInputBean.getEntityLinks().keySet()) {
-                            for (EntityKeyBean entityKeyBean : entityInputBean.getEntityLinks().get(relationship)) {
-                                Fortress subFortress;
+                // The entity being processed is linked to other entities.
+                // need to ensure that both the Fortress and DocumentType are also created
+                for (String relationship : entityInputBean.getEntityLinks().keySet()) {
+                    for (EntityKeyBean entityKeyBean : entityInputBean.getEntityLinks().get(relationship)) {
+                        Fortress subFortress;
 
-                                if (!fortress.getName().equals(entityKeyBean.getFortressName()))
-                                    subFortress = fortressService.registerFortress(fortress.getCompany(), entityKeyBean.getFortressName());
-                                else
-                                    subFortress = fortress;
+                        if (!segment.getFortress().getName().equals(entityKeyBean.getFortressName()))
+                            subFortress = fortressService.registerFortress(segment.getCompany(), entityKeyBean.getFortressName());
+                        else
+                            subFortress = segment.getFortress();
 
-                                DocumentType linkedDocument = new DocumentType(subFortress, entityKeyBean.getDocumentType());
-                                if (!docTypes.contains(linkedDocument)) {
-                                    linkedDocument = findOrCreate(subFortress, linkedDocument);
-                                    docTypes.add(linkedDocument);
-                                    linkEntities(master, relationship, linkedDocument);
-                                }
-                            }
+                        DocumentType linkedDocument = new DocumentType(subFortress, entityKeyBean.getDocumentType());
+                        if (!docTypes.contains(linkedDocument)) {
+                            linkedDocument = findOrCreate(subFortress, linkedDocument);
+                            docTypes.add(linkedDocument);
+                            linkEntities(master, relationship, linkedDocument);
                         }
                     }
-
                 }
             }
-            logger.debug("Finished result = {}" + docTypes.size());
-            return docTypes;
+
+//                }
+        }
+        logger.debug("Finished result = {}" + docTypes.size());
+        return docTypes;
     }
 
     @Override
     public void delete(DocumentType documentType) {
         conceptDao.delete(documentType.getId());
+    }
+
+    @Override
+    public DocumentType findDocumentTypeWithSegments(DocumentType documentType) {
+        return conceptDao.findDocumentTypeWithSegments(documentType);
+    }
+
+    @Override
+    public DocumentResultBean findDocumentTypeWithSegments(Fortress f, String doc) {
+        return conceptDao.findDocumentTypeWithSegments(f,doc);
     }
 
     public Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, Collection<String> fortresses) throws FlockException {
@@ -288,7 +305,6 @@ public class ConceptServiceNeo implements ConceptService {
         return docs;
 
     }
-
 
 
 }
