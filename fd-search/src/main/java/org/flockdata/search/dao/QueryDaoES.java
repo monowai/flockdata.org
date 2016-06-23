@@ -52,10 +52,7 @@ import org.springframework.util.StopWatch;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -119,7 +116,7 @@ public class QueryDaoES implements QueryDao {
     }
 
     public String[] getIndexes(TagCloudParams tagCloudParams) {
-        return indexManager.getIndexesToQuery(tagCloudParams.getCompany(), tagCloudParams.getFortress(), null, tagCloudParams.getTypes());
+        return indexManager.getIndexesToQuery(tagCloudParams.getCompany(), tagCloudParams.getFortress(), tagCloudParams.getTypes(), null);
 
     }
 
@@ -288,8 +285,8 @@ public class QueryDaoES implements QueryDao {
         StopWatch watch = new StopWatch();
 
         watch.start(queryParams.toString());
-
-        SearchRequestBuilder query = esClient.elasticSearchClient().prepareSearch(indexManager.getIndexesToQuery(queryParams))
+        String[] indexes = indexManager.getIndexesToQuery(queryParams);
+        SearchRequestBuilder query = esClient.elasticSearchClient().prepareSearch(indexes)
                 .addField(SearchSchema.KEY)
                 .addField(SearchSchema.FORTRESS)
                 .addField(SearchSchema.LAST_EVENT)
@@ -317,10 +314,14 @@ public class QueryDaoES implements QueryDao {
         SearchResponse response;
         try {
             response = future.get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e ){
+            logger.debug(e.getCause().getMessage() +"\n"+queryParams.toString() + " computed indexes"+ Arrays.toString(indexes));
+            return  new EsSearchResult("Error looking for entities "+ e.getCause().getCause().getMessage());
+
+        }catch (InterruptedException  e) {
             logger.error("Search Exception processing query", e);
             // ToDo: No sensible error being returned to the caller
-            return new EsSearchResult();
+            return new EsSearchResult(e.getMessage());
         }
 
         getEntityResults(results, response, queryParams);

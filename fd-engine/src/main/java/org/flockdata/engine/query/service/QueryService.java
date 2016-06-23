@@ -94,7 +94,7 @@ public class QueryService {
             esSearchResult = esStore.getData(queryParams);
         } else {
             if (fdViewQueryGateway == null) {
-                logger.info("fdViewQueryGateway is not availiable");
+                logger.info("fdViewQueryGateway is not available");
                 return null;
             } else
                 esSearchResult = fdViewQueryGateway.fdSearch(queryParams);

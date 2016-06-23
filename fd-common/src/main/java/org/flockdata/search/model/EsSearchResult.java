@@ -32,6 +32,7 @@ public class EsSearchResult {
     private Map<String,Object>what;
     private String index;
     private String entityType;
+    private String fdSearchError;
 
     public EsSearchResult() {
     }
@@ -46,6 +47,10 @@ public class EsSearchResult {
 
     public EsSearchResult(Collection<SearchResult> results) {
         this.results = results;
+    }
+
+    public EsSearchResult(String fdSearchError) {
+        this.fdSearchError = fdSearchError;
     }
 
     public byte[] getJson() {
@@ -124,5 +129,9 @@ public class EsSearchResult {
 
     public String getEntityType() {
         return entityType;
+    }
+
+    public String getFdSearchError() {
+        return fdSearchError;
     }
 }

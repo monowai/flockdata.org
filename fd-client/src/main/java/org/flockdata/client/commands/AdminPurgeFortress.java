@@ -30,12 +30,12 @@ import org.springframework.web.client.ResourceAccessException;
  * Created by mike on 4/04/16.
  */
 
-public class AdminPurge extends AbstractRestCommand {
+public class AdminPurgeFortress extends AbstractRestCommand {
 
     private String result;
     private String fortress;
 
-    public AdminPurge(ClientConfiguration clientConfiguration, FdRestWriter restWriter, String fortress) {
+    public AdminPurgeFortress(ClientConfiguration clientConfiguration, FdRestWriter restWriter, String fortress) {
         super(clientConfiguration, restWriter);
         this.fortress = fortress;
     }
@@ -45,7 +45,7 @@ public class AdminPurge extends AbstractRestCommand {
     }
 
     @Override    // Command
-    public AdminPurge exec() {
+    public AdminPurgeFortress exec() {
         String exec = url + "/api/v1/admin/{fortress}";
         result=null; error =null;
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);

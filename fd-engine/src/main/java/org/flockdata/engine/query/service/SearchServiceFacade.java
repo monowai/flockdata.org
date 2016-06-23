@@ -310,6 +310,17 @@ public class SearchServiceFacade {
         }
     }
 
+    public void purge(String indexName) {
+        if (deleteIndexGateway != null) {
+            AdminRequest deleteIndex = new AdminRequest();
+            deleteIndex.addIndexToDelete(indexName);
+            deleteIndexGateway.deleteIndex(deleteIndex);
+
+        } else {
+            logger.debug("Delete Index Gateway is not enabled");
+        }
+    }
+
     @Async("fd-search")
     @Retryable(include = {NotFoundException.class, InvalidDataAccessResourceUsageException.class, DataIntegrityViolationException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
             maxAttempts = 20,

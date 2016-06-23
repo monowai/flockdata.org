@@ -30,6 +30,7 @@ import org.flockdata.model.*;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
+import org.flockdata.shared.IndexManager;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.FortressService;
@@ -45,7 +46,10 @@ import org.springframework.util.StopWatch;
 
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -77,6 +81,9 @@ public class AdminService implements EngineAdminService {
     @Autowired
     EngineConfig engineConfig;
 
+    @Autowired
+    IndexManager indexManager;
+
     private Logger logger = LoggerFactory.getLogger(AdminService.class);
 
     @Async("fd-engine")
@@ -88,31 +95,48 @@ public class AdminService implements EngineAdminService {
         boolean keepRunning;
 
         Collection<FortressSegment> segments = fortressService.getSegments(fortress);
+        Collection<FortressSegment> segmentsToDelete = new ArrayList<>();
 
-        if (segmentToDelete != null) {
-            Iterator<FortressSegment> iterator = segments.iterator();
-            while (iterator.hasNext()) {
-                FortressSegment segment = iterator.next();
-                if (!segment.getCode().equalsIgnoreCase(segmentToDelete.toLowerCase()))
-                    iterator.remove();
+//        if (segmentToDelete != null) {
+            for (FortressSegment segment : segments) {
+                if (segmentToDelete==null || segment.getCode().equalsIgnoreCase(segmentToDelete.toLowerCase()))
+                    segmentsToDelete.add(segment);
             }
-        }
+//        }
 
         long total = 0;
-        for (FortressSegment segment : segments) {
+        String searchIndexToDelete = null;
+
+        for (FortressSegment segment : segmentsToDelete) {
+
             do {
                 Collection<String> entities = entityService.getEntityBatch(fortress, documentType, segment, 2000);
+
+                if ( searchService !=null && searchIndexToDelete == null && segment.getFortress().isSearchEnabled()){
+                    if ( entities.size()> 0) {
+                        Entity entity = entityService.getEntity(company, entities.iterator().next());
+                        // We need to get an entity to figure out which search index it is in
+                        searchIndexToDelete = indexManager.parseIndex(entity);
+                    }
+                }
                 entityService.purge(fortress, entities);
+
                 keepRunning = entities.size() > 0;
                 total = total + entities.size();
                 if (total % 100000 == 0)
                     logger.info("Progress update - {} entities purged ... ", nf.format(total));
 
             } while (keepRunning);
-
+            if ( searchIndexToDelete !=null ){
+                searchService.purge(searchIndexToDelete);
+            }
             logger.info ("Purged {}, {}, {}", fortress.getName(), documentType.getName(), segment.getCode());
+            searchIndexToDelete = null;
+            conceptService.delete(documentType,segment);
         }
-        conceptService.delete(documentType);
+        if ( segmentToDelete== null )
+            // Removing the DocumentType
+            conceptService.delete(documentType);
         return new AsyncResult<>(true);
     }
 

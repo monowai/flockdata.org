@@ -463,7 +463,7 @@ public class MediationFacadeNeo implements MediationFacade {
             throw new NotFoundException("Not Found " + docType);
 
         logger.info("Purging fortress {} {}", fortress, documentType);
-        adminService.purge(company, fortress, documentType, segment);
+        adminService.purge(company, fortress, conceptService.findDocumentTypeWithSegments(documentType), segment);
     }
 
 

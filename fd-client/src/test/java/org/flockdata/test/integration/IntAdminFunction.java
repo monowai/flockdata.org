@@ -17,7 +17,8 @@
 package org.flockdata.test.integration;
 
 import org.flockdata.client.amqp.AmqpServices;
-import org.flockdata.client.commands.AdminPurge;
+import org.flockdata.client.commands.AdminPurgeFortress;
+import org.flockdata.client.commands.AdminPurgeFortressSegment;
 import org.flockdata.client.commands.EntityGet;
 import org.flockdata.client.commands.SearchFdPost;
 import org.flockdata.client.rest.FdRestWriter;
@@ -41,6 +42,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * Admin functions that rely on integration
@@ -112,14 +114,14 @@ public class IntAdminFunction {
 
         QueryParams qp = new QueryParams("*");
         qp.setFortress("purgeFortressRemovesEsIndex");
-        qp.setTypes("SearchDoc");
+        qp.setTypes("DeleteSearchDoc");
         SearchFdPost search = new SearchFdPost(clientConfiguration, fdRestWriter, qp)
                 .exec();
 
         assertNotNull(search.result());
         assertEquals("expected 1 hit", 1, search.result().getResults().size());
 
-        AdminPurge purge = new AdminPurge(clientConfiguration, fdRestWriter, "purgeFortressRemovesEsIndex" );
+        AdminPurgeFortress purge = new AdminPurgeFortress(clientConfiguration, fdRestWriter, "purgeFortressRemovesEsIndex" );
         purge.exec();
         Thread.sleep (3000); // let things happen
         assertNull("The entity should not exist because the fortress was purged", entityGet.exec().result());
@@ -130,4 +132,80 @@ public class IntAdminFunction {
 
     }
 
+    @Test
+    public void purgeSegmentRemovesOnlyTheSpecifiedOne() throws Exception{
+        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
+        clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
+
+        DocumentTypeInputBean docType = new DocumentTypeInputBean("DeleteSearchDoc");
+
+        EntityInputBean entityInputBean = new EntityInputBean()
+                .setFortress(new FortressInputBean("purgeSegment")
+                        .setSearchEnabled(true))
+                .setCode("MySearchA")
+                .setSegment("2015")
+                .setDocumentType(docType)
+                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
+
+        amqpServices.publish(integrationHelper.toCollection(entityInputBean));
+
+        EntityGet entityGet = new EntityGet(clientConfiguration, fdRestWriter, entityInputBean);
+
+        integrationHelper.waitForEntityKey(logger, entityGet);
+        integrationHelper.waitForSearch(logger, entityGet, 1);
+
+        entityInputBean = new EntityInputBean()
+                .setFortress(new FortressInputBean("purgeSegment")
+                        .setSearchEnabled(true))
+                .setCode("MySearchB")
+                .setSegment("2016")
+                .setDocumentType(docType)
+                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
+
+        amqpServices.publish(integrationHelper.toCollection(entityInputBean));
+        entityGet = new EntityGet(clientConfiguration, fdRestWriter, entityInputBean);
+
+        integrationHelper.waitForEntityKey(logger, entityGet);
+        integrationHelper.waitForSearch(logger, entityGet, 1);
+
+        Thread.sleep(1000); // Give ES time to commit
+
+        QueryParams qp = new QueryParams("*");
+        qp.setFortress("purgeSegment");
+        qp.setTypes(docType.getCode());
+
+        SearchFdPost search = new SearchFdPost(clientConfiguration, fdRestWriter, qp)
+                .exec();
+
+        assertNotNull(search.result());
+        assertEquals("Searching across both segments returns 2", 2, search.result().getResults().size());
+
+        qp.setSegment("2015");
+        search = new SearchFdPost(clientConfiguration, fdRestWriter, qp)
+                .exec();
+
+        assertNotNull(search.result());
+        assertEquals("expected 1 hit on segment 2015", 1, search.result().getResults().size());
+
+        qp.setSegment("2016");
+        search = new SearchFdPost(clientConfiguration, fdRestWriter, qp)
+                .exec();
+
+        assertNotNull(search.result());
+        assertEquals("expected 1 hit on segment 2016", 1, search.result().getResults().size());
+
+        // Now to purge 2015 so we are left only with 2016
+        AdminPurgeFortressSegment delete = new AdminPurgeFortressSegment(clientConfiguration,fdRestWriter, "purgeSegment", docType.getName(), "2015");
+        delete.exec();
+        integrationHelper.longSleep();
+
+        assertNotNull(search.exec().result());
+        assertEquals("expected 1 hit on segment 2016", 1, search.result().getResults().size());
+
+        qp.setSegment("2015");
+        assertNotNull("Command failed to execute",search.exec().result());
+        assertNotNull("Expected an index not found type error",search.result().getFdSearchError());
+        assertTrue ("2015 index should be reported as missing", search.result().getFdSearchError().contains("2015"));
+
+    }
 }

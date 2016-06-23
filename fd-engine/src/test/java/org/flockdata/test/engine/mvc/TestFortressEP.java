@@ -80,11 +80,11 @@ public class TestFortressEP extends MvcBase {
 
         Collection<DocumentResultBean> documentResultBean= getDocumentWithSegments(mike(), fortress.getName(), "segTestDoc");
         Assert.assertEquals(1, documentResultBean.size());
-        assertEquals(4, documentResultBean.iterator().next().getSegments().size());
+        assertEquals("Default fortress is not included", 3, documentResultBean.iterator().next().getSegments().size());
 
         documentResultBean= getDocumentWithSegments(mike(), fortress.getName(), "*");
         Assert.assertEquals(1, documentResultBean.size());
-        assertEquals(4, documentResultBean.iterator().next().getSegments().size());
+        assertEquals("Wild card DocType not working", 3, documentResultBean.iterator().next().getSegments().size());
     }
 
     @Test
@@ -120,19 +120,19 @@ public class TestFortressEP extends MvcBase {
 
         Collection<DocumentResultBean> documentResultBean= getDocumentWithSegments(mike(), fortressA.getName(), docType);
         Assert.assertEquals(1, documentResultBean.size());
-        assertEquals(4, documentResultBean.iterator().next().getSegments().size());
+        assertEquals("Default fortress should not be included",3, documentResultBean.iterator().next().getSegments().size());
 
         documentResultBean= getDocumentWithSegments(mike(), fortressA.getName(), "*");
         Assert.assertEquals(1, documentResultBean.size());
-        assertEquals(4, documentResultBean.iterator().next().getSegments().size());
+        assertEquals("Wildcard fortress not working", 3, documentResultBean.iterator().next().getSegments().size());
 
         documentResultBean= getDocumentWithSegments(mike(), fortressB.getName(), docType);
         Assert.assertEquals(1, documentResultBean.size());
-        assertEquals("Second fortress has one extra segment", 5, documentResultBean.iterator().next().getSegments().size());
+        assertEquals("Second fortress should have one extra segment", 4, documentResultBean.iterator().next().getSegments().size());
 
         documentResultBean= getDocumentWithSegments(mike(), fortressB.getName(), "*");
         Assert.assertEquals(1, documentResultBean.size());
-        assertEquals("Second fortress has one extra segment", 5, documentResultBean.iterator().next().getSegments().size());
+        assertEquals("Wildcard doc type - second fortress should have one extra segment", 4, documentResultBean.iterator().next().getSegments().size());
     }
 
     @Test

@@ -37,6 +37,12 @@ public class SearchFdPost extends AbstractRestCommand {
 
     private EsSearchResult result;
 
+    /**
+     *
+     * @param clientConfiguration where to find the API
+     * @param fdRestWriter  dispatch mechanism
+     * @param queryParams   query params. Company will be added automatically based on login used
+     */
     public SearchFdPost(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, QueryParams queryParams) {
         super(clientConfiguration, fdRestWriter);
         this.queryParams = queryParams;

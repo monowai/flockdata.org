@@ -47,7 +47,7 @@ public class IndexManager {
     private String prefix;
 
     @Value("${org.fd.engine.fortress.index.system.prefix:.fd.}") // Kind of hidden as this is a system search cache
-    private String fdSystemIndexPrefix ;
+    private String fdSystemIndexPrefix;
 
     @Value("${org.fd.search.index.typeSuffix:true}")
     private Boolean typeSuffix;   // use docType as an index suffix?
@@ -127,13 +127,13 @@ public class IndexManager {
 
     public String getIndexRoot(Fortress fortress) {
 
-        if ( fortress.isSystem()){
-            return getIndexRoot(fdSystemIndexPrefix,fortress.getCompany().getCode(), fortress.getCode());
+        if (fortress.isSystem()) {
+            return getIndexRoot(fdSystemIndexPrefix, fortress.getCompany().getCode(), fortress.getCode());
         }
         return getIndexRoot(fortress.getCompany().getCode(), fortress.getCode());
     }
 
-    private String getIndexRoot(String company, String fortress){
+    private String getIndexRoot(String company, String fortress) {
         return getIndexRoot(getPrefix(), company, fortress);
     }
 
@@ -147,7 +147,7 @@ public class IndexManager {
         String index;
         if (queryParams.isSearchTagsOnly()) {
             index = getTagIndexRoot(queryParams.getCompany());
-        }else {
+        } else {
             // Entity index root
             String indexRoot = getIndexRoot(queryParams.getCompany(), queryParams.getFortress());
             if (isDefaultSegment(queryParams.getSegment()))
@@ -166,63 +166,66 @@ public class IndexManager {
      * @throws FlockException
      */
     public String[] getIndexesToQuery(QueryParams queryParams) throws FlockException {
-        if (queryParams.getIndex() !=null ){
-            if ( queryParams.getTypes() == null )
-                return new String[]{queryParams.getIndex()+".*"};
+        if (queryParams.getIndex() != null) {
+            if (queryParams.getTypes() == null)
+                return new String[]{queryParams.getIndex() + ".*"};
             String indexes[] = new String[queryParams.getTypes().length];
-            int i=0;
+            int i = 0;
             for (String type : queryParams.getTypes()) {
-                indexes[i]= queryParams.getIndex()+"."+parseType(type);
+                indexes[i] = queryParams.getIndex() + "." + parseType(type);
             }
             return indexes;
         }
-        return getIndexesToQuery(queryParams.getCompany(), queryParams.getFortress(), queryParams.getSegment(), queryParams.getTypes());
+        return getIndexesToQuery(queryParams.getCompany(), queryParams.getFortress(), queryParams.getTypes(), queryParams.getSegment());
     }
 
     /**
+     * prefix.company.fortress.type.segment
+     *
      * @param company  owns the index
      * @param fortress owns the index data
-     * @param segment  optional segment to restrict by
      * @param types    types to scan
+     * @param segment  optional segment to restrict by
      * @return One index line per Root+Type combination
      */
-    public String[] getIndexesToQuery(String company, String fortress, String segment, String[] types) {
-        int length = 1;
-        if (types != null && types.length > 0)
-            length = 1;
-        String[] results = new String[length];
-        Collection<String> found = new ArrayList<>();
+    public String[] getIndexesToQuery(String company, String fortress, String[] types, String segment) {
 
-        String indexRoot = getPrefix() + (company != null ? company.toLowerCase() : "*");
+        Collection<String> results = new ArrayList<>();
+
+        String indexPath = getPrefix() + (company != null ? company.toLowerCase() : "*");
         String segmentFilter = "";
 
-        if (segment != null) {
-            if (!isDefaultSegment(segment))
-                segmentFilter = "." + segment.toLowerCase();
+        if (segment != null && !isDefaultSegment(segment)) {
+            segmentFilter = "." + segment.toLowerCase();
+        } else {
+            segmentFilter = "*";// all segments
         }
 
         String fortressFilter;
         if (fortress == null || fortress.equals("*"))
             fortressFilter = ".*";
         else
-            fortressFilter = (segmentFilter.equals("") ? "." + fortress.toLowerCase() + "*" : "." + fortress.toLowerCase());
+            fortressFilter = (segmentFilter.equals("") ? "." + fortress.toLowerCase() + ".*" : "." + fortress.toLowerCase());
 
-        indexRoot = indexRoot + fortressFilter + segmentFilter;
+        indexPath = indexPath + fortressFilter;
 
         if (types == null || types.length == 0) {
-            results[0] = indexRoot;
+            results.add(indexPath + segmentFilter);
         } else {
-            int count = 0;
-            for (String type : types) {
-                if (!found.contains(indexRoot)) {
-                    results[count] = indexRoot; //+ "."+type.toLowerCase();
-                    found.add(indexRoot);
-                    count++;
+            for (String type : types) { //ToDo filtering by type not supported
+
+                if (!results.contains(indexPath)) {
+                    String typeFilter;
+                    if (type == null)
+                        typeFilter = "";
+                    else
+                        typeFilter = "." + type.toLowerCase();
+                    results.add(indexPath + typeFilter + segmentFilter);
                 }
             }
         }
 
-        return results;
+        return results.toArray(new String[0]);
     }
 
     public String parseType(Entity entity) {

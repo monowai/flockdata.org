@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 
 /**
  * Functional tests for AdminServices
- *
+ * <p>
  * Created by mike on 19/02/16.
  */
 public class TestAdmin extends EngineBase {
@@ -232,17 +232,17 @@ public class TestAdmin extends EngineBase {
         try {
             entityService.getEntity(su.getCompany(), resultA);
             fail("Expected not to find the entity after the fortress was purged");
-        } catch (NotFoundException e){
+        } catch (NotFoundException e) {
             // good
         }
-        assertNull( fortressService.findByName(fib.getName()));
+        assertNull(fortressService.findByName(fib.getName()));
         assertNodeDoesNotExist("Fortress should not exist", fortressId);
         assertNodeDoesNotExist("Segment should not exist", segmentId);
         assertNodeDoesNotExist("DocumentType should not exist", documentId);
     }
 
     @Test
-    public void purgeSegmentData () throws Exception {
+    public void purgeSegmentData() throws Exception {
         setSecurity();
         SystemUser su = registerSystemUser("purgeSegmentData", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSegmentData", true));
@@ -265,17 +265,25 @@ public class TestAdmin extends EngineBase {
 
         mediationFacade.purge(su.getCompany(), fortress.getCode(), trackBean.getDocumentType().getCode());
         EngineBase.waitAWhile("Waiting for Async processing to complete");
-        exception.expect(NotFoundException.class);
-        entityService.getEntity(su.getCompany(), resultA);
+        try {
+            entityService.getEntity(su.getCompany(), resultA);
+            fail("Entity should have been purged");
+        } catch (NotFoundException e) {
+            // Expected
+        }
+        try {
+            entityService.getEntity(su.getCompany(), resultB);
 
-        exception.expect(NotFoundException.class);
-        entityService.getEntity(su.getCompany(), resultB);
+            fail("Entity should have been purged");
+        } catch (NotFoundException e) {
+            // Expected
+        }
 
         assertNotNull("Purging segments should not delete the fortress", fortressService.findByCode(su.getCompany(), fortress.getCode()));
     }
 
     @Test
-    public void purgeSingleSegment () throws Exception {
+    public void purgeSingleSegment() throws Exception {
         setSecurity();
         SystemUser su = registerSystemUser("purgeSingleSegment", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleSegment", true));
@@ -324,17 +332,18 @@ public class TestAdmin extends EngineBase {
         mediationFacade.purge(su.getCompany(), fortressB.getCode());
         Thread.sleep(400);
         assertNull(entityService.getEntity(su.getCompany(), resultB));
+
     }
 
     @Test
-    public void purgeSingleDocTypeOnSharedSegment () throws Exception {
+    public void purgeSingleDocTypeOnSharedSegment() throws Exception {
         // Two Fortresses sharing a single segment and DocType. Purging one fortress/type/segment should not affect the other
         setSecurity();
         SystemUser su = registerSystemUser("purgeSingleDocTypeOnSharedSegment", mike_admin);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleDocTypeOnSharedSegment", true));
         Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleDocTypeOnSharedSegmentB", true));
-        String docType =  "CompanyNode";
+        String docType = "CompanyNode";
         String segment = "SharedSegment";
 
         EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", docType, null, "abc1");
@@ -364,20 +373,29 @@ public class TestAdmin extends EngineBase {
 
         EngineBase.waitAWhile("Waiting for Async processing to complete");
 
-        exception.expect(NotFoundException.class);
-        entityService.getEntity(su.getCompany(), resultA);
+        try {
+            entityService.getEntity(su.getCompany(), resultA);
+            fail("Expected Not Found");
+        } catch (NotFoundException e) {
+            // expected
+        }
 
-        exception.expect(NotFoundException.class);
-        entityService.getEntity(su.getCompany(), resultB);
+        try {
+            entityService.getEntity(su.getCompany(), resultB);
+            fail("Expected Not Found");
+        } catch (NotFoundException e) {
+            // expected
+        }
+
 
         assertNotNull("Purging segments should not delete the fortress", fortressService.findByCode(su.getCompany(), fortress.getCode()));
-        assertEquals("Segment are not deleted during a purge", 2, fortressService.getSegments(fortress).size());
+        assertEquals("Shared segment should still exist", 2, fortressService.getSegments(fortress).size());
 
-        assertNotNull("Result C should still exist as it's in a separate fortress", entityService.getEntity(su.getCompany(), resultC));
+        assertNotNull("Result C should still exist; in a separate fortress", entityService.getEntity(su.getCompany(), resultC));
 
-        assertNotNull("Result D should still exist as it was not a document to delete", entityService.getEntity(su.getCompany(), resultD));
+        assertNotNull("Result D should still exist; not a document to delete", entityService.getEntity(su.getCompany(), resultD));
 
-        assertNull("Document Type was not removed", conceptService.findDocumentType(fortress, docType));
+        assertNotNull("Document Type was removed", conceptService.findDocumentType(fortress, docType));
 
     }
 

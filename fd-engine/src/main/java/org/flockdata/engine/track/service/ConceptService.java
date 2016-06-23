@@ -73,4 +73,6 @@ public interface ConceptService {
     DocumentType findDocumentTypeWithSegments(DocumentType documentType);
 
     DocumentResultBean findDocumentTypeWithSegments(Fortress f, String doc);
+
+    void delete(DocumentType documentType, FortressSegment segment);
 }

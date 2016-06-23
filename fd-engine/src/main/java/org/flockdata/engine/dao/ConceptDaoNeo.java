@@ -112,7 +112,7 @@ public class ConceptDaoNeo {
      * @param createIfMissing if not found will create
      * @return the node
      */
-    @Cacheable (value = "documentType", unless = "#result==null")
+    @Cacheable(value = "documentType", unless = "#result==null")
     public DocumentType findDocumentType(Fortress fortress, String docType, Boolean createIfMissing) {
         DocumentType docResult = documentExists(fortress, docType);
 
@@ -234,7 +234,7 @@ public class ConceptDaoNeo {
     }
 
     public DocumentType findDocumentTypeWithSegments(DocumentType documentType) {
-        if ( documentType == null )
+        if (documentType == null)
             throw new NotFoundException("Unable to find the requested DocumentType");
         template.fetch(documentType);
         template.fetch(documentType.getSegments());
@@ -243,12 +243,15 @@ public class ConceptDaoNeo {
 
     public DocumentResultBean findDocumentTypeWithSegments(Fortress f, String doc) {
         DocumentType documentType = findDocumentType(f, doc, false);
-        if ( documentType == null)
-            throw new NotFoundException("Failed to find DocumentType "+doc);
+        if (documentType == null)
+            throw new NotFoundException("Failed to find DocumentType " + doc);
 
         template.fetch(documentType.getSegments());
-        DocumentResultBean result = new DocumentResultBean(documentType);
-        result.addSegment (f.getDefaultSegment());
-        return result;
+        return new DocumentResultBean(documentType);
+//        result.addSegment(f.getDefaultSegment());
+    }
+
+    public void delete(DocumentType documentType, FortressSegment segment) {
+        template.deleteRelationshipBetween(documentType,segment, "USES_SEGMENT");
     }
 }

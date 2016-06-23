@@ -22,6 +22,7 @@ import org.flockdata.model.FortressSegment;
 import org.flockdata.query.MatrixInputBean;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -30,7 +31,7 @@ import java.util.Map;
  * Date: 12/04/14
  * Time: 9:44 AM
  */
-public class QueryParams implements QueryInterface{
+public class QueryParams implements QueryInterface {
     private String segment;
     private String index;
 
@@ -57,9 +58,9 @@ public class QueryParams implements QueryInterface{
     private ArrayList<String> relationships = new ArrayList<>();
     private String searchText;
 
-    private Map<String,Object> query; // Raw query to pass through to ES
+    private Map<String, Object> query; // Raw query to pass through to ES
 
-    private Map<String,Object> aggs; // Raw aggs to pass through to ES
+    private Map<String, Object> aggs; // Raw aggs to pass through to ES
 
     private ArrayList<String> fields;
 
@@ -68,13 +69,14 @@ public class QueryParams implements QueryInterface{
     private String fortress;
     private String[] types;
     private String[] data;
-    private Integer size =null;
+    private Integer size = null;
     private Integer from = null;
 
     private boolean entityOnly;
     private String code;
 
-    public QueryParams() {}
+    public QueryParams() {
+    }
 
 
     private QueryParams(Fortress fortress) {
@@ -88,17 +90,17 @@ public class QueryParams implements QueryInterface{
         this.company = company.getName();
         this.size = input.getSampleSize();
         this.tags = input.getConcepts();
-        if ( input.getFromRlxs()!=null && !input.getFromRlxs().isEmpty())
+        if (input.getFromRlxs() != null && !input.getFromRlxs().isEmpty())
             this.relationships.addAll(input.getFromRlxs());
 
-        if ( input.getToRlxs()!=null && !input.getToRlxs().isEmpty())
+        if (input.getToRlxs() != null && !input.getToRlxs().isEmpty())
             this.relationships.addAll(input.getToRlxs());
 
-        if ( input.getDocuments()!=null && !input.getDocuments().isEmpty()) {
+        if (input.getDocuments() != null && !input.getDocuments().isEmpty()) {
             types = new String[input.getDocuments().size()];
             int i = 0;
             for (String s : input.getDocuments()) {
-                this.types[i++]= s.toLowerCase();
+                this.types[i++] = s.toLowerCase();
             }
         }
     }
@@ -134,7 +136,7 @@ public class QueryParams implements QueryInterface{
         return types;
     }
 
-    public String[] getData(){
+    public String[] getData() {
         return data;
     }
 
@@ -165,6 +167,8 @@ public class QueryParams implements QueryInterface{
                 "searchText='" + searchText + '\'' +
                 ", company='" + company + '\'' +
                 ", fortress='" + fortress + '\'' +
+                ", docTypes='" + Arrays.toString(types) + '\'' +
+                ", segment='" + segment + '\'' +
                 '}';
     }
 
@@ -199,10 +203,9 @@ public class QueryParams implements QueryInterface{
     }
 
     /**
-     *
      * @return elasticsearch body to execute against the requested index
      */
-    public Map<String,Object> getQuery() {
+    public Map<String, Object> getQuery() {
         return query;
     }
 
@@ -239,6 +242,7 @@ public class QueryParams implements QueryInterface{
     }
 
     boolean searchTagsOnly = false;
+
     public QueryParams searchTags() {
         this.searchTagsOnly = true;
         return this;

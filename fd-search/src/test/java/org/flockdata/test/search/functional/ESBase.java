@@ -43,6 +43,7 @@ import org.flockdata.search.base.TagChangeWriter;
 import org.flockdata.search.model.SearchSchema;
 import org.flockdata.search.service.IndexMappingService;
 import org.flockdata.search.service.QueryServiceEs;
+import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.shared.IndexManager;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.EntityInputBean;
@@ -87,6 +88,9 @@ public class ESBase {
 
     @Autowired
     IndexMappingService indexMappingService;
+
+    @Autowired
+    SearchAdmin searchAdmin;
 
 
     @Qualifier("esSearchWriter")

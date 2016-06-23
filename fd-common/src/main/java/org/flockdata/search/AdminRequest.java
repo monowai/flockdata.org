@@ -55,4 +55,10 @@ public class AdminRequest {
     public void setIndexesToDelete(Collection<String>delete) {
         this.indexesToDelete = delete;
     }
+
+    public void addIndexToDelete(String searchIndexToDelete) {
+        if ( this.indexesToDelete == null)
+            indexesToDelete = new ArrayList<>();
+        indexesToDelete.add(searchIndexToDelete);
+    }
 }

@@ -276,6 +276,11 @@ public class ConceptServiceNeo implements ConceptService {
     }
 
     @Override
+    public void delete(DocumentType documentType, FortressSegment segment) {
+        conceptDao.delete(documentType, segment);
+    }
+
+    @Override
     public DocumentType findDocumentTypeWithSegments(DocumentType documentType) {
         return conceptDao.findDocumentTypeWithSegments(documentType);
     }
