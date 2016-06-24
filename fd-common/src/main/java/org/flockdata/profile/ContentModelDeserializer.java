@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.ImportFile;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
@@ -36,17 +35,16 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 9/05/14
- * Time: 8:45 AM
+ * JSON deserializer
+ *
+ * Created by mike on 24/06/16.
  */
-public class ImportContentModelDeserializer extends JsonDeserializer<ImportContentModel> {
-
+public class ContentModelDeserializer extends JsonDeserializer<ContentModel> {
     ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
 
     @Override
-    public ImportContentModel deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        ImportContentModel contentModel = new ImportContentModel();
+    public ContentModel deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        ContentModelHandler contentModel = new ContentModelHandler();
         JsonNode node = jp.getCodec().readTree(jp);
         JsonNode nodeValue = node.get("documentName");
 
@@ -59,6 +57,10 @@ public class ImportContentModelDeserializer extends JsonDeserializer<ImportConte
             contentModel.setDocumentType(mapper.readValue(nodeValue.toString(), DocumentTypeInputBean.class));
         }
 
+        nodeValue = node.get("handler");
+        if (!isNull(nodeValue))
+            contentModel.setHandler(nodeValue.asText());
+
         nodeValue = node.get("fortressName");
         if (!isNull(nodeValue))
             contentModel.setFortress(new FortressInputBean(nodeValue.asText()));
@@ -69,13 +71,6 @@ public class ImportContentModelDeserializer extends JsonDeserializer<ImportConte
             contentModel.setFortress(mapper.readValue(nodeValue.toString(), FortressInputBean.class));
         }
 
-        nodeValue = node.get("tagOrEntity");
-        if ( nodeValue == null  )
-            nodeValue = node.get("tagOrTrack");
-
-        if (!isNull(nodeValue))
-            contentModel.setTagOrEntity(nodeValue.asText().equalsIgnoreCase("entity")? ContentModel.DataType.ENTITY : ContentModel.DataType.TAG);
-
         nodeValue = node.get("name");
         if (!isNull(nodeValue))
             contentModel.setName(nodeValue.asText());
@@ -84,9 +79,9 @@ public class ImportContentModelDeserializer extends JsonDeserializer<ImportConte
         if (!isNull(nodeValue))
             contentModel.setCondition(nodeValue.asText());
 
-        nodeValue = node.get("fortressUser");
+        nodeValue = node.get("emptyIgnored");
         if (!isNull(nodeValue))
-            contentModel.setFortressUser(nodeValue.asText());
+            contentModel.setEmptyIgnored(Boolean.parseBoolean(nodeValue.asText()));
 
         nodeValue = node.get("entityOnly");
         if (isNull(nodeValue))
@@ -94,10 +89,6 @@ public class ImportContentModelDeserializer extends JsonDeserializer<ImportConte
 
         if (!isNull(nodeValue))
             contentModel.setEntityOnly(Boolean.parseBoolean(nodeValue.asText()));
-
-        nodeValue = node.get("emptyIgnored");
-        if (!isNull(nodeValue))
-            contentModel.setEmptyIgnored(Boolean.parseBoolean(nodeValue.asText()));
 
         nodeValue = node.get("archiveTags");
         if (!isNull(nodeValue))
@@ -125,69 +116,27 @@ public class ImportContentModelDeserializer extends JsonDeserializer<ImportConte
             contentModel.setContent(content);
         }
 
-        // ********
-        // Batch handling
-        // ********
-        nodeValue = node.get("handler");
-        if (!isNull(nodeValue))
-            contentModel.setHandler(nodeValue.asText());
-
-        nodeValue = node.get("header");
-        if (!isNull(nodeValue))
-            contentModel.setHeader(Boolean.parseBoolean(nodeValue.asText()));
-
-        nodeValue = node.get("preParseRowExp");
-        if (!isNull(nodeValue))
-            contentModel.setPreParseRowExp(nodeValue.asText());
-
-        nodeValue = node.get("delimiter");
-        if (!isNull(nodeValue))
-            contentModel.setDelimiter(nodeValue.asText());
-
-        nodeValue = node.get("quoteCharacter");
-        if (!isNull(nodeValue))
-            contentModel.setQuoteCharacter(nodeValue.asText());
-
-        nodeValue = node.get("contentType");
-        if (!isNull(nodeValue)){
-            switch (nodeValue.textValue().toLowerCase()) {
-                case "csv":
-                    contentModel.setContentType(ImportFile.ContentType.CSV);
-                    break;
-                case "xml":
-                    contentModel.setContentType(ImportFile.ContentType.XML);
-                    break;
-                case "json":
-                    contentModel.setContentType(ImportFile.ContentType.JSON);
-                    break;
-            }
-        }
-        // ********
-        // End Batch handling
-        // ********
-
-        return contentModel;  //To change body of implemented methods use File | Settings | File Templates.
+        return contentModel;
     }
-
     private boolean isNull(JsonNode nodeValue) {
         return nodeValue == null || nodeValue.isNull() || nodeValue.asText().equals("null");
     }
 
-    public static ImportContentModel getContentModel(String profile) throws IOException {
-        ImportContentModel contentModel;
+    public static ContentModel getContentModel(String profile) throws IOException {
+        ContentModel contentModel;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
         File fileIO = new File(profile);
         if (fileIO.exists()) {
-            contentModel = om.readValue(fileIO, ImportContentModel.class);
+            contentModel = om.readValue(fileIO, ContentModelHandler.class);
 
         } else {
             InputStream stream = ClassLoader.class.getResourceAsStream(profile);
             if (stream != null) {
-                contentModel = om.readValue(stream, ImportContentModel.class);
+                contentModel = om.readValue(stream, ContentModelHandler.class);
             } else
                 // Defaults??
-                contentModel = new ImportContentModel();
+                contentModel = new ContentModelHandler();
         }
         //importParams.setRestClient(restClient);
         return contentModel;

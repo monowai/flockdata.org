@@ -18,11 +18,14 @@ package org.flockdata.test.unit.client;
 
 import junit.framework.TestCase;
 import org.flockdata.model.Tag;
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.GeoPayload;
 import org.flockdata.transform.GeoSupport;
-import org.flockdata.transform.ProfileReader;
+import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.Transformer;
 import org.flockdata.transform.tags.TagMapper;
 import org.junit.Test;
@@ -46,7 +49,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_Countries() throws Exception {
-        ImportContentModel params = ProfileReader.getContentModel("/model/test-countries.json");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-countries.json");
         TagMapper tag = new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -55,7 +58,7 @@ public class TestGeography extends AbstractImport{
         // CsvImporter will convert Lon/Lat to doubles - ToDo: write CSV Import tests
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(Transformer.convertToMap(headers, data, params), params);
+        tag.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
         assertNotNull(tag);
 
         assertEquals("NZ", tag.getCode() );
@@ -79,7 +82,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_ConditionalTag() throws Exception {
-        ImportContentModel params = ProfileReader.getContentModel("/model/test-countries.json");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-countries.json");
         TagMapper tag = new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -87,20 +90,20 @@ public class TestGeography extends AbstractImport{
 
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(Transformer.convertToMap(headers, data, params), params);
+        tag.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
 
         data = new String[]{"NZ","New Zealand","-41.27","174.71","0", "Wellington" };
         tag = new TagMapper(); // Clear down the object
-        tag.setData(Transformer.convertToMap(headers, data, params), params);
+        tag.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
         TestCase.assertFalse("Capital city was not suppressed", tag.hasTargets());
     }
 
     @Test
     public void string_ConditionalTagProperties() throws Exception {
-        ImportContentModel params = ProfileReader.getContentModel("/model/test-countries.json");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-countries.json");
         TagMapper tag = new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -108,7 +111,7 @@ public class TestGeography extends AbstractImport{
 
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(Transformer.convertToMap(headers, data, params), params);
+        tag.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
@@ -121,7 +124,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void null_PropertyValuesNotSaved() throws Exception {
-        ImportContentModel params = ProfileReader.getContentModel("/model/test-countries.json");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-countries.json");
         TagMapper tag = new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -129,7 +132,7 @@ public class TestGeography extends AbstractImport{
 
         String[] data = new String[]{"NZ","New Zealand",null,null,"1", "Wellington" };
 
-        tag.setData(Transformer.convertToMap(headers, data, params), params);
+        tag.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
@@ -141,7 +144,7 @@ public class TestGeography extends AbstractImport{
     }
 
     /**
-     * FD uses GeoTools for GIS mapping. Here we are converting an arbitary address in NZ
+     * FD uses GeoTools for GIS mapping. Here we are converting an arbitrary address in NZ
      * from a NZTM format to to the more popular WGS84
      *
      * @throws Exception
@@ -167,12 +170,13 @@ public class TestGeography extends AbstractImport{
         String fileName = "/model/import-geo.json";
 
 
-        ImportContentModel params = ProfileReader.getContentModel(fileName);
-        TestCase.assertEquals('|', params.getDelimiter());
-        TestCase.assertEquals(true, params.hasHeader());
-        TestCase.assertNotNull(params.getCondition());
+        ContentModel contentModel = ContentModelDeserializer.getContentModel(fileName);
+        ExtractProfile extractProfile = new ExtractProfileHandler(contentModel, "|");
+        TestCase.assertEquals('|', extractProfile.getDelimiter());
+        TestCase.assertEquals(Boolean.TRUE, TransformationHelper.evaluate(extractProfile.hasHeader()));
+        TestCase.assertNotNull(contentModel.getCondition());
 
-        fileProcessor.processFile(params, "/data/import-geo.txt");
+        fileProcessor.processFile(extractProfile, "/data/import-geo.txt");
 
         List<TagInputBean> tags = getFdBatcher().getTags();
         assertEquals("Condition expression did not evaluate", 1, tags.size());

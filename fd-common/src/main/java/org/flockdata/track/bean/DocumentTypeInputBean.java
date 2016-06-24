@@ -123,4 +123,34 @@ public class DocumentTypeInputBean {
                 ", versionStrategy=" + versionStrategy +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DocumentTypeInputBean)) return false;
+
+        DocumentTypeInputBean that = (DocumentTypeInputBean) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) return false;
+        if (geoQuery != null ? !geoQuery.equals(that.geoQuery) : that.geoQuery != null) return false;
+        if (versionStrategy != that.versionStrategy) return false;
+        if (tagStructure != that.tagStructure) return false;
+        if (searchEnabled != null ? !searchEnabled.equals(that.searchEnabled) : that.searchEnabled != null)
+            return false;
+        return storeEnabled != null ? storeEnabled.equals(that.storeEnabled) : that.storeEnabled == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (code != null ? code.hashCode() : 0);
+        result = 31 * result + (geoQuery != null ? geoQuery.hashCode() : 0);
+        result = 31 * result + (versionStrategy != null ? versionStrategy.hashCode() : 0);
+        result = 31 * result + (tagStructure != null ? tagStructure.hashCode() : 0);
+        result = 31 * result + (searchEnabled != null ? searchEnabled.hashCode() : 0);
+        result = 31 * result + (storeEnabled != null ? storeEnabled.hashCode() : 0);
+        return result;
+    }
 }

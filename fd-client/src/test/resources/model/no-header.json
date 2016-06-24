@@ -3,9 +3,6 @@
   "tagOrEntity": "tag",
   "fortress": "GovTrack",
   "fortressUser": "mike",
-  "header": false,
-  "delimiter": ",",
-  "quoteCharacter": "|",
   "content": {
     "Institution": {
       "tag": true,

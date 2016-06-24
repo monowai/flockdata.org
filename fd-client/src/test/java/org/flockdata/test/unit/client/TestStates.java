@@ -16,10 +16,11 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
@@ -34,9 +35,9 @@ import static org.junit.Assert.assertNotNull;
 public class TestStates extends AbstractImport {
     @Test
     public void validate_States() throws Exception {
-        String profile = "/states.json";
-        ImportContentModel params = ProfileReader.getContentModel(profile);
-        fileProcessor.processFile(params, "/states.csv");
+        String file = "/states.json";
+        ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
+        fileProcessor.processFile(new ExtractProfileHandler(contentModel), "/states.csv");
         assertEquals(72, getFdBatcher().getTags().size());
 
         for (TagInputBean stateTag : getFdBatcher().getTags()) {

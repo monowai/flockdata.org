@@ -3,7 +3,8 @@ package org.flockdata.test.engine.services;
 import junit.framework.TestCase;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
@@ -14,7 +15,6 @@ import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.BatchService;
 import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.ProfileReader;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -150,7 +150,7 @@ public class TestEntityLinks extends EngineBase {
 
         DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
 
-        ImportContentModel params = ProfileReader.getContentModel("/models/test-entitylinks.json");
+        ContentModel params = ContentModelDeserializer.getContentModel("/models/test-entitylinks.json");
         contentModelService.saveEntityModel(su.getCompany(), fortress, timesheet, params );
         batchService.process(su.getCompany(), fortress, timesheet, "/data/test-entitylinks.csv", false);
         // recorded is the relationship type in the content profile definition
@@ -180,7 +180,7 @@ public class TestEntityLinks extends EngineBase {
         DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
         String rlxName = "recorded";
 
-        ImportContentModel params = ProfileReader.getContentModel("/models/test-entitylinks.json");
+        ContentModel params = ContentModelDeserializer.getContentModel("/models/test-entitylinks.json");
         ColumnDefinition colDef = params.getColumnDef("EmployeeNumber");
         colDef.getEntityLinks().iterator().next().get(rlxName);
         contentModelService.saveEntityModel(su.getCompany(), fortress, timesheet, params );

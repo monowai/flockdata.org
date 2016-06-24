@@ -16,13 +16,15 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.List;
 
 import static junit.framework.TestCase.assertNotNull;
@@ -38,10 +40,12 @@ public class TestCSVColumnParsing extends AbstractImport {
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
 
-        ImportContentModel params = ProfileReader.getContentModel("/model/column-parsing.json");
-        assertEquals(false, params.hasHeader());
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/column-parsing.json");
+        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/csv-header-pipe-quote.json", contentModel);
 
-        long rows = fileProcessor.processFile(params, "/data/pac.txt");
+        assertEquals(false, extractProfile.hasHeader());
+
+        long rows = fileProcessor.processFile(extractProfile, "/data/pac.txt");
         assertEquals(1L, rows);
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         assertNotNull ( tagInputBeans);
@@ -75,12 +79,12 @@ public class TestCSVColumnParsing extends AbstractImport {
 
     @Test
     public void segment_SetInPayloadFromSource() throws Exception {
-        File file = new File("/model/column-parsing.json");
 
-        ImportContentModel params = ProfileReader.getContentModel("/model/column-parsing.json");
-        assertEquals(false, params.hasHeader());
-
-        long rows = fileProcessor.processFile(params, "/data/pac.txt");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/column-parsing.json");
+        ExtractProfile profile = new ExtractProfileHandler(contentModel,false);
+        assertEquals(false, profile.hasHeader());
+        profile.setQuoteCharacter("|");
+        long rows = fileProcessor.processFile(profile, "/data/pac.txt");
         assertEquals(1L, rows);
         for (EntityInputBean entityInputBean : fdBatcher.getEntities()) {
             assertEquals("The segment was not set in to the EntityInput", "2014", entityInputBean.getSegment());

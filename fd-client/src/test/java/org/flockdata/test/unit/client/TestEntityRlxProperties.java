@@ -18,10 +18,12 @@ package org.flockdata.test.unit.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -31,15 +33,18 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.*;
 
 /**
+ * CSV files with no headers
  * Created by mike on 28/01/15.
  */
 public class TestEntityRlxProperties extends AbstractImport{
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
         String file = "/model/properties-rlx.json";
+        ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
+        ExtractProfile params = new ExtractProfileHandler(contentModel);
+        params.setHeader(false);
 
-        ImportContentModel params = ProfileReader.getContentModel(file);
-        assertEquals(',', params.getDelimiter());
+        params.setQuoteCharacter("|");
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/data/properties-rlx.txt");
         assertEquals(4, rows);

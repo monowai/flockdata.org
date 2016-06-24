@@ -79,24 +79,24 @@ public class ContentModelServiceNeo implements ContentModelService {
 
         // Serialized content profile is stored in a log. Here we retrieve the last saved one
         // but we could return the entire history
-        ImportContentModel iProfile = getContentProfile(company, model.getKey());
-        if (iProfile != null) {
-            iProfile.setFortress(new FortressInputBean(fortress.getName()));
-            iProfile.setDocumentName(documentType.getName());
+        ContentModel contentModel = getContentModel(company, model.getKey());
+        if (contentModel != null) {
+            contentModel.setFortress(new FortressInputBean(fortress.getName()));
+            contentModel.setDocumentName(documentType.getName());
         }
-        return iProfile;
+        return contentModel;
     }
 
-    public ImportContentModel getContentProfile(Company company, String profileKey) throws FlockException {
+    public ContentModel getContentModel(Company company, String profileKey) throws FlockException {
         Map<String, Object> data = entityService.getEntityDataLast(company, profileKey);
         String json = JsonUtils.toJson(data);
-        ImportContentModel iProfile ;
+        ContentModel contentModel ;
         try {
-            iProfile = objectMapper.readValue(json, ImportContentModel.class);
+            contentModel = objectMapper.readValue(json, ContentModelHandler.class);
         } catch (IOException e) {
             throw new FlockException(String.format("Unable to obtain content from ImportProfile {%d}", profileKey), e);
         }
-        return iProfile;
+        return contentModel;
     }
 
     @Autowired
@@ -222,11 +222,11 @@ public class ContentModelServiceNeo implements ContentModelService {
             throw new NotFoundException("Unable to locate ContentProfile with key " + key);
         }
 //        Entity entity = entityService.getEntity(company,key);
-        ImportContentModel iProfile = getContentProfile(company, profile.getKey());
-        if (iProfile != null) {
-            iProfile.setDocumentName(profile.getDocumentType());
+        ContentModel contentModel = getContentModel(company, profile.getKey());
+        if (contentModel != null) {
+            contentModel.setDocumentName(profile.getDocumentType());
         }
-        profile.setContentModel(iProfile);
+        profile.setContentModel(contentModel);
         return profile;
     }
 
@@ -239,11 +239,11 @@ public class ContentModelServiceNeo implements ContentModelService {
 
         // Serialized content profile is stored in a log. Here we retrieve the last saved one
         // but we could return the entire history
-        ImportContentModel iProfile = getContentProfile(company, model.getKey());
-        if (iProfile != null) {
-            iProfile.setDocumentName("Tag");
+        ContentModel contentModel = getContentModel(company, model.getKey());
+        if (contentModel != null) {
+            contentModel.setDocumentName("Tag");
         }
-        return iProfile;
+        return contentModel;
 
     }
 
@@ -262,7 +262,7 @@ public class ContentModelServiceNeo implements ContentModelService {
 
     @Override
     public org.flockdata.profile.model.ContentModel createDefaultContentModel(ContentValidationRequest contentRequest) {
-        ImportContentModel result = new ImportContentModel();
+        ContentModelHandler result = new ContentModelHandler();
         result.setContent(Transformer.fromMapToProfile(contentRequest.getRows()));
         return result;
     }

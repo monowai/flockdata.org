@@ -16,8 +16,11 @@
 
 package org.flockdata.test.unit.client;
 
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileDeserializer;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.List;
@@ -26,14 +29,17 @@ import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 
 /**
+ *
  * Created by mike on 1/03/15.
  */
 public class TestNestedTags extends AbstractImport {
 
     @Test
     public void label_missingColumnDoesNotCreateTargetTag() throws Exception {
-        fileProcessor.processFile(ProfileReader.getContentModel("/model/interest-groups.json"),
-                "/data/tags-inputs.csv");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/interest-groups.json");
+        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/csv-header-pipe-quote.json", contentModel);
+
+        fileProcessor.processFile(extractProfile, "/data/tags-inputs.csv");
 
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         // The profile defines a nested tag but the value is missing in the source

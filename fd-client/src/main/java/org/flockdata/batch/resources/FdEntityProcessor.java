@@ -46,6 +46,7 @@ public class FdEntityProcessor implements ItemProcessor<Map<String, Object>, Ent
     public EntityInputBean process(Map<String, Object> item) throws Exception {
         // This should be initialised just the once
         ContentModel contentModel = getContentModel(stepName);
+
         return Transformer.transformToEntity(item, contentModel);
 
     }

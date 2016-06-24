@@ -1,9 +1,7 @@
 {
-  "contentType": "csv",
   "tagOrEntity": "entity",
   "documentName": "test" ,
   "fortressName":"WhoCares",
-  "header": true,
   "content": {
     "Occupancy": {
       "tag": true,

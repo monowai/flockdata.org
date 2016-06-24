@@ -1,7 +1,5 @@
 {
-  "contentType": "csv",
   "tagOrEntity": "tag",
-  "header": true,
   "content": {
     "label": {
       "tag": true,

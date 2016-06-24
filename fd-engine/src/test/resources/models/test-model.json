@@ -1,11 +1,8 @@
 {
     "documentName": "Athlete",
-    "contentType": "csv",
     "entityOnly": true,
     "fortressName": "Olympic",
     "fortressUser": "mike",
-    "batchSize": 1,
-    "header": true,
     "content": {
         "Title": {
             "callerRef": true,

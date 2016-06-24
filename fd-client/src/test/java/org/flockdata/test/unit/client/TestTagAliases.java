@@ -16,9 +16,10 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -29,6 +30,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
+ * Alias tags
+ *
  * Created by mike on 27/01/15.
  */
 public class TestTagAliases extends AbstractImport {
@@ -36,8 +39,8 @@ public class TestTagAliases extends AbstractImport {
     public void string_csvTagAliases() throws Exception {
         String paramFile = "/model/csv-tag-alias.json";
 
-        ImportContentModel params = ProfileReader.getContentModel(paramFile);
-        fileProcessor.processFile(params, "/data/csv-tag-alias.txt");
+        ContentModel params = ContentModelDeserializer.getContentModel(paramFile);
+        fileProcessor.processFile(new ExtractProfileHandler(params), "/data/csv-tag-alias.txt");
 
         Collection<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         assertEquals(3, tagInputBeans.size());

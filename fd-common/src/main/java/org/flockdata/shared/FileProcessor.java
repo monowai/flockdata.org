@@ -29,7 +29,7 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.ImportFile;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityLinkInputBean;
@@ -136,7 +136,7 @@ public class FileProcessor {
         return results;
     }
 
-    public int processFile(ContentModel contentModel, String source) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
+    public int processFile(ExtractProfile importModel, String source) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
         //String source = path;
         logger.info("Start processing of {}", source);
@@ -145,15 +145,15 @@ public class FileProcessor {
         try {
             for (String file : files) {
 
-                if (contentModel.getContentType() == ImportFile.ContentType.CSV)
-                    result = processCSVFile(file, contentModel);
-                else if (contentModel.getContentType() == ImportFile.ContentType.XML)
-                    result = processXMLFile(file, contentModel);
-                else if (contentModel.getContentType() == ImportFile.ContentType.JSON) {
-                    if (contentModel.getDocumentType() == null)
+                if (importModel.getContentType() == ExtractProfile.ContentType.CSV)
+                    result = processCSVFile(file, importModel);
+                else if (importModel.getContentType() == ExtractProfile.ContentType.XML)
+                    result = processXMLFile(file, importModel);
+                else if (importModel.getContentType() == ExtractProfile.ContentType.JSON) {
+                    if (importModel.getContentModel().getDocumentType() == null)
                         result = processJsonTags(file);
                     else
-                        result = processJsonEntities(file, contentModel);
+                        result = processJsonEntities(file, importModel);
                 }
 
             }
@@ -205,7 +205,7 @@ public class FileProcessor {
         return tags.size();
     }
 
-    private int processJsonEntities(String fileName, ContentModel importProfile) throws FlockException {
+    private int processJsonEntities(String fileName, ExtractProfile extractProfile) throws FlockException {
         int rows = 0;
 
         File file = new File(fileName);
@@ -245,7 +245,7 @@ public class FileProcessor {
                         while (currentToken != null && jParser.nextToken() != JsonToken.END_ARRAY) {
                             node = om.readTree(jParser);
                             if (node != null) {
-                                processJsonNode(node, importProfile, referenceInputBeans);
+                                processJsonNode(node, extractProfile.getContentModel(), referenceInputBeans);
                                 if (stopProcessing(rows++, then)) {
                                     break;
                                 }
@@ -259,7 +259,7 @@ public class FileProcessor {
 
                     //om.readTree(jParser);
                     node = om.readTree(jParser);
-                    processJsonNode(node, importProfile, referenceInputBeans);
+                    processJsonNode(node, extractProfile.getContentModel(), referenceInputBeans);
                 }
 
             } catch (IOException e1) {
@@ -285,15 +285,15 @@ public class FileProcessor {
 
     }
 
-    private int processXMLFile(String file, ContentModel importProfile) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    private int processXMLFile(String file, ExtractProfile extractProfile) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         try {
             int rows = 0;
             StopWatch watch = new StopWatch();
             StreamSource source = new StreamSource(file);
             XMLInputFactory xif = XMLInputFactory.newFactory();
             XMLStreamReader xsr = xif.createXMLStreamReader(source);
-            //List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
-            XmlMappable mappable = (XmlMappable) Transformer.getMappable(importProfile);
+
+            XmlMappable mappable = (XmlMappable) Class.forName(extractProfile.getHandler()).newInstance();
             mappable.positionReader(xsr);
 
             String dataType = mappable.getDataType();
@@ -301,7 +301,7 @@ public class FileProcessor {
             try {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(dataType)) {
-                    EntityInputBean entityInputBean = Transformer.transformToEntity(mappable, xsr, importProfile);
+                    EntityInputBean entityInputBean = Transformer.transformToEntity(mappable, xsr, extractProfile.getContentModel());
                     rows++;
                     xsr.nextTag();
                     getPayloadBatcher().batchEntity(entityInputBean);
@@ -322,7 +322,7 @@ public class FileProcessor {
         }
     }
 
-    private int processCSVFile(String file, ContentModel importProfile) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
+    private int processCSVFile(String file, ExtractProfile extractProfile) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
 
         StopWatch watch = new StopWatch();
         int ignoreCount = 0;
@@ -335,14 +335,14 @@ public class FileProcessor {
 
         try {
             CSVReader csvReader;
-            if (importProfile.getQuoteCharacter() != null)
-                csvReader = new CSVReader(br, importProfile.getDelimiter(), importProfile.getQuoteCharacter().charAt(0));
+            if (extractProfile.getQuoteCharacter() != null)
+                csvReader = new CSVReader(br, extractProfile.getDelimiter(), extractProfile.getQuoteCharacter().charAt(0));
             else
-                csvReader = new CSVReader(br, importProfile.getDelimiter());
+                csvReader = new CSVReader(br, extractProfile.getDelimiter());
 
             String[] headerRow = null;
             String[] nextLine;
-            if (importProfile.hasHeader()) {
+            if (extractProfile.hasHeader()) {
                 while ((nextLine = csvReader.readNext()) != null) {
                     if (isHeaderRow(nextLine)) {
                         headerRow = nextLine;
@@ -360,25 +360,25 @@ public class FileProcessor {
             while ((nextLine = csvReader.readNext()) != null) {
                 if (!ignoreRow(nextLine)) {
                     if (headerRow == null) {
-                        headerRow = TransformationHelper.defaultHeader(nextLine, importProfile);
+                        headerRow = TransformationHelper.defaultHeader(nextLine, extractProfile.getContentModel());
                     }
                     currentRow++;
                     if (currentRow >= skipCount) {
                         if (currentRow == skipCount)
                             logger.info("Processing now begins at row {}", skipCount);
 
-                        nextLine = preProcess(nextLine, importProfile);
+                        nextLine = preProcess(nextLine, extractProfile);
 
-                        Map<String, Object> map = Transformer.convertToMap(headerRow, nextLine, importProfile);
+                        Map<String, Object> map = Transformer.convertToMap(headerRow, nextLine, extractProfile);
 
                         if (map != null) {
-                            if (importProfile.getDocumentType() != null) {
-                                EntityInputBean entityInputBean = Transformer.transformToEntity(map, importProfile);
+                            if (extractProfile.getContentModel().getDocumentType() != null) {
+                                EntityInputBean entityInputBean = Transformer.transformToEntity(map, extractProfile.getContentModel());
                                 // Dispatch/load mechanism
                                 if (entityInputBean != null)
                                     getPayloadBatcher().batchEntity(entityInputBean);
                             } else {// Tag
-                                TagInputBean tagInputBean = Transformer.transformToTag(map, importProfile);
+                                TagInputBean tagInputBean = Transformer.transformToTag(map, extractProfile.getContentModel());
                                 if (tagInputBean != null) {
                                     getPayloadBatcher().batchTag(tagInputBean, "TagInputBean");
                                 }
@@ -441,9 +441,9 @@ public class FileProcessor {
 
     static StandardEvaluationContext context = new StandardEvaluationContext();
 
-    private static String[] preProcess(String[] row, ContentModel importProfile) {
+    private static String[] preProcess(String[] row, ExtractProfile extractProfile) {
         String[] result = new String[row.length];
-        String exp = importProfile.getPreParseRowExp();
+        String exp = extractProfile.getPreParseRowExp();
         if ((exp == null || exp.equals("")))
             return row;
         int i = 0;

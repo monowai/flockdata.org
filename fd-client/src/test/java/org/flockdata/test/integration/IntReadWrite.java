@@ -20,8 +20,10 @@ import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.client.commands.*;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.profile.ImportContentModelDeserializer;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileDeserializer;
 import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
@@ -96,7 +98,7 @@ public class IntReadWrite {
     private SearchHelper searchHelper = new SearchHelper();
 
     @Before
-    public void setupServices(){
+    public void setupServices() {
         integrationHelper.waitForServices();
     }
 
@@ -122,7 +124,7 @@ public class IntReadWrite {
     }
 
     @Before
-    public void resetClientConfiguration(){
+    public void resetClientConfiguration() {
         clientConfiguration.setServiceUrl(getEngine());
     }
 
@@ -153,8 +155,11 @@ public class IntReadWrite {
         clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
         clientConfiguration.setBatchSize(5);
 
-        ContentModel contentModel = ImportContentModelDeserializer.getContentModel("/countries.json");
-        int countryInputs = fileProcessor.processFile(contentModel, "/fd-cow.txt");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/countries.json");
+        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/countries.json", contentModel);
+//       ToDo: figure out getting ImportProfiles into the fileProcessor
+        int countryInputs = fileProcessor.processFile(extractProfile, "/fd-cow.txt");
+
         assertEquals("Countries not processed", countryInputs, 249);
         TagsGet countries = new TagsGet(clientConfiguration, fdRestWriter, "Country");
         // Tags are processed over a messageQ so will take a wee bit of time to be processed
@@ -193,7 +198,7 @@ public class IntReadWrite {
         searchHelper.assertHitCount("Should have found just 1 hit for Australia", 1, searchEsPost.result());
 
         searchEsPost = new SearchEsPost(clientConfiguration, fdRestWriter, searchHelper
-                .getTagMatchQuery("country","aka.bgn_longname", "commonwealth of australia"));
+                .getTagMatchQuery("country", "aka.bgn_longname", "commonwealth of australia"));
         searchHelper.assertHitCount("Didn't find Australia by alias", 1, searchEsPost.exec().result());
 
     }
@@ -243,7 +248,7 @@ public class IntReadWrite {
         amqpServices.publish(integrationHelper.toCollection(entityInputBean));
 
         EntityGet entityGet = new EntityGet(clientConfiguration, fdRestWriter, entityInputBean)
-                            .exec();
+                .exec();
 
         integrationHelper.waitForEntityKey(logger, entityGet);
 
@@ -352,9 +357,9 @@ public class IntReadWrite {
         SearchEsPost search = new SearchEsPost(clientConfiguration, fdRestWriter, qp);
         integrationHelper.assertWorked("Search Reply ", search);
 
-        assertFalse ( "errors were found "+search.result().get("errors") ,search.result().containsKey("errors"));
+        assertFalse("errors were found " + search.result().get("errors"), search.result().containsKey("errors"));
 
         searchHelper.assertHitCount("Expected 1 hit", 1, search.result());
-        assertTrue("UTF-8 failure. Couldn't find " +entityInputBean.getCode(), searchHelper.getHits(search.result()).contains(entityInputBean.getCode()));
+        assertTrue("UTF-8 failure. Couldn't find " + entityInputBean.getCode(), searchHelper.getHits(search.result()).contains(entityInputBean.getCode()));
     }
 }

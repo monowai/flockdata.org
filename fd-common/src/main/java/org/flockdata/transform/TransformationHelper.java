@@ -49,15 +49,15 @@ public class TransformationHelper {
         ColumnDefinition colDef = content.get(column);
         Map<String, Object> properties = new HashMap<>();
 
-        if (colDef.isValueAsProperty()) {
+        if (TransformationHelper.evaluate(colDef.isValueAsProperty())) {
             // ToDo: Eliminate this block. Twas only in place to support the way we handled labels which can
             //       now be addressed with expressions
-            tag.setMustExist(colDef.isMustExist()).setLabel(column);
-            tag.setReverse(colDef.getReverse());
+            tag.setMustExist(TransformationHelper.evaluate(colDef.isMustExist())).setLabel(column);
+            tag.setReverse(TransformationHelper.evaluate(colDef.getReverse()));
             tag.setName(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, column));
             tag.setCode(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, column));
             tag.setNotFoundCode(colDef.getNotFound());
-            if (colDef.isMerge())
+            if (TransformationHelper.evaluate(colDef.isMerge(),true))
                 tag.setMerge(true);
 
             if (column != null && value != null) {
@@ -80,11 +80,11 @@ public class TransformationHelper {
             else
                 label = resolveValue(colDef.getLabel(), column, colDef, row);
             //
-            tag.setMustExist(colDef.isMustExist())
+            tag.setMustExist(TransformationHelper.evaluate(colDef.isMustExist()))
                     .setLabel(colDef.isCountry() ? "Country" : label)
                     .setNotFoundCode(colDef.getNotFound());
 
-            if (colDef.isMerge())
+            if (TransformationHelper.evaluate(colDef.isMerge(),true))
                 tag.setMerge(true);
 
             String codeValue = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
@@ -92,7 +92,7 @@ public class TransformationHelper {
 
             tag.setKeyPrefix(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.KEY_PREFIX, colDef, null));
 
-            if (!colDef.isMustExist()) {     // Must exists only resolves the Code, so don't waste time setting the name
+            if (!TransformationHelper.evaluate(colDef.isMustExist())) {     // Must exists only resolves the Code, so don't waste time setting the name
                 String name = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue);
                 if (name != null && !name.equals(codeValue))
                     tag.setName(name);
@@ -117,10 +117,10 @@ public class TransformationHelper {
             }
 
 
-            tag.setReverse(colDef.getReverse());
+            tag.setReverse(TransformationHelper.evaluate(colDef.getReverse()));
             if (colDef.hasProperites()) {
                 for (ColumnDefinition propertyColumn : colDef.getProperties()) {
-                    if (colDef.isPersistent()) {
+                    if (TransformationHelper.evaluate(colDef.isPersistent(),true)) {
                         String sourceCol = propertyColumn.getSource();
 
                         if (sourceCol != null)
@@ -396,7 +396,7 @@ public class TransformationHelper {
         if (colDef != null) {
             dataType = colDef.getDataType();
 
-            if (dataType == null && colDef.isTag()) {
+            if (dataType == null && evaluate(colDef.isTag())) {
                 dataType = "string";
                 tryAsNumber = false;
             }
@@ -507,8 +507,8 @@ public class TransformationHelper {
         }
     }
 
-    public static boolean processRow(Map<String, Object> row, ContentModel importProfile) {
-        String condition = importProfile.getCondition();
+    public static boolean processRow(Map<String, Object> row, ContentModel contentModel) {
+        String condition = contentModel.getCondition();
         if (condition != null) {
             Object evaluate = ExpressionHelper.getValue(row, condition);
             if (evaluate != null)
@@ -519,4 +519,15 @@ public class TransformationHelper {
         return true;
 
     }
+
+    public static Boolean evaluate(Boolean arg) {
+        return evaluate(arg, false);
+    }
+
+    public static Boolean evaluate(Boolean arg, boolean valueIfNull) {
+        if (arg == null)
+            return valueIfNull;
+        return arg;
+    }
+
 }

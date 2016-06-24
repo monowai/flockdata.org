@@ -23,7 +23,10 @@ package org.flockdata.test.engine.mvc;
 import au.com.bytecode.opencsv.CSVReader;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.profile.*;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ContentModelResult;
+import org.flockdata.profile.ContentValidationRequest;
+import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
@@ -48,7 +51,8 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 public class TestContentModel extends MvcBase {
     @Test
     public void testSaveRetrieveModel() throws Exception {
-        ImportContentModel contentProfile = ImportContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
+        contentModel.setDocumentType( new DocumentTypeInputBean("ContentStore"));
         makeDataAccessProfile("TestContentProfileStorage", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("contentFortress"));
 
@@ -56,7 +60,7 @@ public class TestContentModel extends MvcBase {
         ContentModelResult result = makeContentModel(mike(),
                 fortressResultBean.getCode(),
                 "ContentStore",
-                contentProfile,
+                contentModel,
                 MockMvcResultMatchers.status().isOk());
         assertNotNull(result);
         assertNotNull(result.getDocumentType());
@@ -65,17 +69,18 @@ public class TestContentModel extends MvcBase {
         ContentModel contentResult = getContentModel(mike(),
                 fortressResultBean.getCode(),
                 "ContentStore",
-                contentProfile,
+                contentModel,
                 MockMvcResultMatchers.status().isOk());
 
         assertNotNull(contentResult);
-        assertNull(contentResult.getPreParseRowExp());
-        assertEquals("Content Profiles differed", contentProfile, contentResult);
+//        assertNull(contentResult.getPreParseRowExp());
+        assertEquals("Content Profiles differed", contentModel, contentResult);
     }
 
     @Test
     public void testContentNotFound() throws Exception {
-        ImportContentModel contentProfile = ImportContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
+
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
         makeDataAccessProfile("TestContentProfileStorage", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("contentFortress"));
 
@@ -83,7 +88,7 @@ public class TestContentModel extends MvcBase {
         getContentModel(mike(),
                 fortressResultBean.getCode(),
                 "NonExistent",
-                contentProfile,
+                contentModel,
                 MockMvcResultMatchers.status().isBadRequest());
 
 
@@ -92,8 +97,8 @@ public class TestContentModel extends MvcBase {
     @Test
     public void validate_Profile() throws Exception {
         makeDataAccessProfile("validateContentProfile", "mike");
-        ContentModel profile = ImportContentModelDeserializer.getContentModel("/models/test-model.json");
-        ContentValidationRequest validationRequest = new ContentValidationRequest(profile);
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-model.json");
+        ContentValidationRequest validationRequest = new ContentValidationRequest(contentModel);
         String json = JsonUtils.toJson(validationRequest);
         assertNotNull(json);
         assertNotNull(JsonUtils.toObject(json.getBytes(), ContentValidationRequest.class).getContentModel());
@@ -105,8 +110,8 @@ public class TestContentModel extends MvcBase {
 
     @Test
     public void find_CompanyProfiles() throws Exception {
-        ImportContentModel contentProfile = ImportContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
-        contentProfile.setName("SettingTheName");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
+        contentModel.setName("SettingTheName");
         makeDataAccessProfile("find_CompanyProfiles", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("find_CompanyProfiles"));
 
@@ -114,11 +119,11 @@ public class TestContentModel extends MvcBase {
         ContentModelResult result = makeContentModel(mike(),
                 fortressResultBean.getCode(),
                 "ContentStoreFind",
-                contentProfile,
+                contentModel,
                 MockMvcResultMatchers.status().isOk());
         assertNotNull(result);
 
-        assertEquals("Mismatch on name", contentProfile.getName(), result.getName());
+        assertEquals("Mismatch on name", contentModel.getName(), result.getName());
 
         Collection<ContentModelResult> profileResults = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
         assertNotNull(profileResults);
@@ -133,14 +138,14 @@ public class TestContentModel extends MvcBase {
         assertNotNull(foundResult.getDocumentType());
 
         // Update the name
-        contentProfile.setName("Updated Name");
+        contentModel.setName("Updated Name");
         result = makeContentModel(mike(),
                 fortressResultBean.getCode(),
                 "ContentStoreFind",
-                contentProfile,
+                contentModel,
                 MockMvcResultMatchers.status().isOk());
 
-        assertEquals("Updated name did not persist", contentProfile.getName(), result.getName());
+        assertEquals("Updated name did not persist", contentModel.getName(), result.getName());
 
         exception.expect(NotFoundException.class);
         findContentModelByKey(sally(), result.getKey(), MockMvcResultMatchers.status().isNotFound());
@@ -193,10 +198,10 @@ public class TestContentModel extends MvcBase {
     @Test
     public void create_TagProfile() throws Exception {
         makeDataAccessProfile("create_TagProfile", "mike");
-        ImportContentModel contentProfile = ImportContentModelDeserializer.getContentModel("/models/test-tag-model.json");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-tag-model.json");
         ContentModelResult result = makeTagModel(mike(),
                 "Countries",
-                contentProfile,
+                contentModel,
                 MockMvcResultMatchers.status().isOk());
 
         assertNotNull(result);

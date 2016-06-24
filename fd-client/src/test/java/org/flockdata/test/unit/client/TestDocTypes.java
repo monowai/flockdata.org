@@ -21,13 +21,14 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.EntityService;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -45,9 +46,9 @@ public class TestDocTypes extends AbstractImport  {
     @Test
     public void testDocType() throws Exception{
 
-        ImportContentModel contentModel = ProfileReader.getContentModel("/model/test-document-type.json");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-document-type.json");
 
-        fileProcessor.processFile(contentModel, "/data/pac.txt");
+        fileProcessor.processFile(new ExtractProfileHandler(contentModel, false), "/data/pac.txt");
 
         for (EntityInputBean entityInputBean : fdBatcher.getEntities()) {
             DocumentTypeInputBean docType = entityInputBean.getDocumentType();

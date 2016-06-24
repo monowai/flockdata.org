@@ -17,9 +17,11 @@
 package org.flockdata.test.unit.client;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -39,17 +41,19 @@ public class TestImportProfileValidation extends AbstractImport {
     @Test
     public void valid_Properties() throws Exception {
 
-        ImportContentModel profile = ProfileReader.getContentModel("/model/properties-rlx.json");
-        assertEquals(',', profile.getDelimiter());
-        assertEquals(false, profile.hasHeader());
+        ContentModel profile = ContentModelDeserializer.getContentModel("/model/properties-rlx.json");
+        ExtractProfile extractProfile = new ExtractProfileHandler(profile,false);
+        extractProfile.setQuoteCharacter("|");
+        assertEquals(',', extractProfile.getDelimiter());
+        assertEquals(false, extractProfile.hasHeader());
         profile.setFortress(null);
         exception.expect(FlockException.class);
-        fileProcessor.processFile(profile, "/data/properties-rlx.txt");
+        fileProcessor.processFile(extractProfile, "/data/properties-rlx.txt");
 
         // Should also fail with blank
         profile.setFortress(new FortressInputBean(""));
         exception.expect(IllegalArgumentException.class);
-        fileProcessor.processFile(profile, "/data/properties-rlx.txt");
+        fileProcessor.processFile(extractProfile, "/data/properties-rlx.txt");
 
         profile.setFortress(new FortressInputBean("Override The Name"));
         assertTrue("Blank fortressName was not overridden", profile.getFortress().getName().equals("Override The Name"));
@@ -62,7 +66,7 @@ public class TestImportProfileValidation extends AbstractImport {
         exception.expect(IllegalArgumentException.class);
         profile.setDocumentName(null);
         try {
-            fileProcessor.processFile(profile, "/data/properties-rlx.txt");
+            fileProcessor.processFile(extractProfile, "/data/properties-rlx.txt");
             fail("No document name found. We should not have gotten here");
         } catch (FlockException e) {
             assertTrue(e.getMessage().contains("documentName attribute."));
@@ -70,7 +74,7 @@ public class TestImportProfileValidation extends AbstractImport {
 
         profile.setDocumentName("");
         try {
-            fileProcessor.processFile(profile, "/properties-rlx.txt");
+            fileProcessor.processFile(extractProfile, "/properties-rlx.txt");
             fail("No document name found. We should not have gotten here");
         } catch (FlockException e) {
             assertTrue(e.getMessage().contains("documentName attribute."));

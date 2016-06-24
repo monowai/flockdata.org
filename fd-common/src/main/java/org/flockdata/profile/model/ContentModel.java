@@ -16,6 +16,8 @@
 
 package org.flockdata.profile.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
@@ -27,7 +29,9 @@ import java.util.Map;
  * Date: 3/10/14
  * Time: 2:51 PM
  */
-public interface ContentModel extends ImportFile {
+
+@JsonDeserialize(using =ContentModelDeserializer.class)
+public interface ContentModel {
 
     DocumentTypeInputBean getDocumentType();
 
@@ -41,9 +45,9 @@ public interface ContentModel extends ImportFile {
 
     String getFortressUser();
 
-    boolean isEntityOnly();
+    Boolean isEntityOnly();
 
-    boolean isArchiveTags();
+    Boolean isArchiveTags();
 
     String getEvent();
 
@@ -59,7 +63,22 @@ public interface ContentModel extends ImportFile {
 
     ContentModel setDocumentType(DocumentTypeInputBean documentType);
 
-    enum DataType {ENTITY, TAG}
+    Map<String, Object> getProperties();
 
-    void setTagOrEntity(DataType dataType);
+    void setEntityOnly(boolean b);
+
+    ContentModel setName(String name);
+
+    void setArchiveTags(boolean archiveTags);
+
+    void setSegmentExpression(String segmentExpression);
+
+    void setEvent(String event);
+
+    String getHandler();
+
+    String getCondition();
+
+    Boolean isEmptyIgnored();
+
 }

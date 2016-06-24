@@ -1,11 +1,7 @@
 {
   "documentType": {"name": "TestDocType", "versionStrategy": "ENABLE", "tagStructure":"TAXONOMY"},
-  "contentType": "csv",
-  "tagOrEntity": "entity",
   "entityOnly": "true",
   "fortressName": "TestDocType",
-  "delimiter": ",",
-  "header": false,
   "content": {
     "Id":{
       "callerRef":true

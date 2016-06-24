@@ -17,8 +17,8 @@
 package org.flockdata.profile;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.model.Model;
+import org.flockdata.profile.model.ContentModel;
 
 /**
  * Created by mike on 14/04/16.
@@ -30,7 +30,7 @@ public class ContentModelResult {
     private String name;
     private String documentType;
     private String fortress ;
-    private org.flockdata.profile.model.ContentModel contentModel;
+    private ContentModel contentModel;
 
     ContentModelResult() {
 
@@ -70,13 +70,12 @@ public class ContentModelResult {
         return fortress;
     }
 
-    public void setContentModel(org.flockdata.profile.model.ContentModel contentModel) {
+    public void setContentModel(ContentModel contentModel) {
         this.contentModel = contentModel;
     }
 
-    @JsonDeserialize(using = ImportContentModelDeserializer.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public org.flockdata.profile.model.ContentModel getContentModel() {
+    public ContentModel getContentModel() {
         return contentModel;
     }
 }

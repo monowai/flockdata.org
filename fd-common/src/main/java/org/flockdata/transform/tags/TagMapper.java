@@ -18,7 +18,6 @@ package org.flockdata.transform.tags;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.ImportFile;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ColumnDefinition;
@@ -61,12 +60,12 @@ public class TagMapper extends TagInputBean implements Mappable{
                 if (colDef.isTag()) {
                     TransformationHelper.setTagInputBean(this, row, column, content, value);
                 }
-                if (colDef.isTitle()) {
+                if (TransformationHelper.evaluate(colDef.isTitle())) {
                     setName(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
                     if (colDef.getCode() != null)
                         row.get(colDef.getCode());
                 }
-                if (colDef.getTarget() != null && colDef.isPersistent()) {
+                if (colDef.getTarget() != null && TransformationHelper.evaluate(colDef.isPersistent(),true)) {
                     value = ExpressionHelper.getValue(row, colDef.getValue(), colDef, row.get(column));
                     Object oValue = ExpressionHelper.getValue(value, colDef);
                     if (oValue != null)
@@ -83,11 +82,11 @@ public class TagMapper extends TagInputBean implements Mappable{
     }
 
     public static Mappable newInstance(ContentModel contentModel) {
-        if (contentModel.getContentType()== ImportFile.ContentType.CSV)
-            return new TagMapper();
-        if ( contentModel.getDocumentType() !=null )
-            return new TagMapper(contentModel.getDocumentType().getName());
-        else
+//        if (contentModel.getContentType()== ImportProfile.ContentType.CSV)
+//            return new TagMapper();
+//        if ( contentModel.getDocumentType() !=null )
+//            return new TagMapper(contentModel.getDocumentType().getName());
+//        else
             return new TagMapper();
     }
 

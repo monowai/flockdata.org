@@ -16,19 +16,17 @@
 
 package org.flockdata.transform;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.model.ContentModel;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Handles ProfileConfiguration handling
  *
  * Created by mike on 13/01/16.
  */
+@Deprecated
 public class ProfileReader {
     /**
      * Reads an ImportProfile JSON file and returns the Pojo
@@ -38,22 +36,7 @@ public class ProfileReader {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static ImportContentModel getContentModel(String file) throws IOException, ClassNotFoundException {
-        ImportContentModel contentProfileImpl;
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-
-        File fileIO = new File(file);
-        if (fileIO.exists()) {
-            contentProfileImpl = om.readValue(fileIO, ImportContentModel.class);
-
-        } else {
-            InputStream stream = ClassLoader.class.getResourceAsStream(file);
-            if (stream != null) {
-                contentProfileImpl = om.readValue(stream, ImportContentModel.class);
-            } else {
-                throw new IllegalArgumentException("Unable to locate the ContentModel [" + file +"] Working directory ["+System.getProperty("user.dir")+"]");
-            }
-        }
-        return contentProfileImpl;
+    public static ContentModel getContentModel(String file) throws IOException, ClassNotFoundException {
+        return ContentModelDeserializer.getContentModel(file);
     }
 }

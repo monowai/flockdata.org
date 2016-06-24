@@ -1,0 +1,95 @@
+{
+  "documentType": {"name":"Address"},
+  "fortress": {"name":"NZPost", "storeEnabled": false},
+  "emptyIgnored": true,
+  "delimiter": "|",
+  "condition": "#data['ACTION_INDICATOR'] !='D'",
+  "header": true,
+  "content": {
+    "DELIVERY_POINT_ID": {
+      "callerRef": true,
+      "dataType": "string",
+      "label": "DeliveryPoint",
+      "tag": true,
+      "relationship": "geodata",
+      "keyPrefix": "nz",
+      "name": "#data['STREET_NUMBER'].toString()+ (#data['STREET_ALPHA']!=null?#data['STREET_ALPHA']:'')+ ' ' + #data['STREET_NAME'] + ' ' + #data['STREET_TYPE']",
+      "targets": [
+        {
+          "code": "SUBURB_ALIAS_ID",
+          "relationship": "address",
+          "label": "Suburb",
+          "name": "SUBURB_NAME",
+          "keyPrefix": "nz",
+          "targets": [
+            {
+              "code": "POSTCODE",
+              "relationship": "postcode",
+              "label": "PostCode",
+              "keyPrefix": "nz",
+              "targets": [
+                {
+                  "code": "TOWN_CITY_MAILTOWN_ALIAS_ID",
+                  "name": "TOWN_CITY_MAILTOWN",
+                  "label": "City",
+                  "relationship": "towncity",
+                  "keyPrefix": "nz",
+                  "targets": [
+                    {
+                      "code": "'NZ'",
+                      "country": true,
+                      "mustExist": true,
+                      "relationship": "country"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": [
+        {
+          "source": "BUILDING_NAME",
+          "target": "building"
+        },
+        {
+          "value": "#data['UNIT_TYPE']!=null? #data['UNIT_TYPE'].toString()+ ' ' + #data['UNIT_IDENTIFIER'] : null ",
+          "target": "unit"
+        }
+      ]
+    },
+    "UNIT_IDENTIFIER": {
+      "dataType": "string"
+    },
+    "RD_NUMBER": {
+      "dataType": "string"
+    },
+
+    "POSTCODE": {
+      "dataType": "string"
+    },
+    "AddressLine": {
+      "title": true,
+      "description": true,
+      "value": "#data['STREET_NUMBER'].toString()+ (#data['STREET_ALPHA']!=null?#data['STREET_ALPHA']:'')+ ' ' + #data['STREET_NAME'] + ' ' + #data['STREET_TYPE']"
+    },
+    "unit": {
+      "target": "unitName",
+      "properties": [
+        {
+          "storeNull": false,
+          "value": "#data['UNIT_TYPE']!=null? #data['UNIT_TYPE'].toString()+ ' ' + #data['UNIT_IDENTIFIER'] : null "
+        }
+      ]
+    },
+    "BUILDING_NAME": {
+      "properties": [
+        {
+          "target": "building",
+          "dataType": "string"
+        }
+      ]
+    }
+  }
+}

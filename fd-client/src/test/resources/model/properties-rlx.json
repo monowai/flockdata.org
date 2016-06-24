@@ -1,11 +1,7 @@
 {
-  "contentType": "csv",
-  "tagOrEntity": "entity",
   "fortress": {"name": "GovTrack"},
   "documentName": "PAC",
   "fortressUser": "mike",
-  "header": false,
-  "quoteCharacter": "|",
   "content": {
     "1": {
       "callerRef": true

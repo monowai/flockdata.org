@@ -4,8 +4,6 @@
   "fortressName": "GovTrack",
   "documentName": "test",
   "header": false,
-  "delimiter": ",",
-  "quoteCharacter": "|",
   "content": {
     "0": {
       "tag": true,

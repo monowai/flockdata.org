@@ -22,7 +22,7 @@ package org.flockdata.test.engine.services;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.profile.ImportContentModelDeserializer;
+import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
@@ -52,7 +52,7 @@ public class TestProfiles extends EngineBase {
     public void create_ContentModel() throws Exception{
         SystemUser su = registerSystemUser("create_Profile", mike_admin);
 
-        ContentModel contentModel = ImportContentModelDeserializer.getContentModel("/models/test-model.json");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-model.json");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("create_profile", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "Olympic");
         profileService.saveEntityModel(su.getCompany(), fortress, docType, contentModel);

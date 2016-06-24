@@ -18,10 +18,14 @@ package org.flockdata.test.unit.client;
 
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -31,13 +35,16 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Various import profiles
  * Created by mike on 1/03/15.
  */
 public class TestLabels extends AbstractImport {
     @Test
     public void conflict_LabelDefinition() throws Exception {
 
-        fileProcessor.processFile(ProfileReader.getContentModel("/model/tag-labels.json"),
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/tag-labels.json");
+        ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
+        fileProcessor.processFile(extractProfile,
                 "/data/tag-labels.csv");
 
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
@@ -62,7 +69,10 @@ public class TestLabels extends AbstractImport {
 
     @Test
     public void label_expressionsAndConstants() throws Exception {
-        fileProcessor.processFile(ProfileReader.getContentModel("/model/tag-label-expressions.json"),
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/tag-label-expressions.json");
+        ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
+
+        fileProcessor.processFile(extractProfile,
                 "/data/tag-label-expressions.csv");
 
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
@@ -86,8 +96,12 @@ public class TestLabels extends AbstractImport {
 
     @Test
     public void alias_DescriptionEvaluates() throws Exception {
+
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/labels.json");
+        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/empty-ignored.json", contentModel);
+
         fileProcessor.processFile(
-                ProfileReader.getContentModel("/model/labels.json"),
+                extractProfile,
                 "/data/assets.txt");
         List<EntityInputBean>entities = fdBatcher.getEntities();
         List<TagInputBean> tagInputBeans = entities.iterator().next().getTags();

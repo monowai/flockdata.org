@@ -1,7 +1,7 @@
 {
-  "contentType": "csv",
+
   "delimiter": ";",
-  "header": true,
+
   "content": {
     "ISOen_name": {
       "tag": true,

@@ -1,0 +1,6 @@
+{
+  "contentType": "csv",
+  "emptyIgnored": true,
+  "delimiter": "\t",
+  "header": true
+}

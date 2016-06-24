@@ -18,12 +18,14 @@ package org.flockdata.client;
 
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileDeserializer;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FileProcessor;
-import org.flockdata.transform.ProfileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,19 +122,19 @@ public class Importer  {
 
                 int item = 0;
                 String fileName = null;
-                String profile = null;
+                String fileModel = null;
                 for (String itemArg : items) {
                     if (item == 0) {
                         fileName = itemArg;
                     } else if (item == 1) {
-                        profile = itemArg;
+                        fileModel = itemArg;
                     }
 
                     item++;
                 }
-                ImportContentModel importContentModel;
-                if (fdClient != null && profile != null) {
-                    importContentModel = ProfileReader.getContentModel(profile);
+                ContentModel contentModel;
+                if (fdClient != null && fileModel != null) {
+                    contentModel = ContentModelDeserializer.getContentModel(fileModel);
                 } else {
                     logger.error("No import parameters to work with");
                     return;
@@ -146,10 +148,12 @@ public class Importer  {
                 } else if (su.getApiKey() == null)
                     throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
 
-                logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, importContentModel, batchSize, skipCount);
-                logger.info("Processing {} against model {}",fileName, profile);
-                // Importer does not know what the company is
-                totalRows = totalRows + fileProcessor.processFile(importContentModel, fileName);
+                logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, contentModel, batchSize, skipCount);
+                logger.info("Processing {} against model {}",fileName, fileModel);
+
+                // ToDo: Figure out importProfile properties. We are currently reading them out of the content model
+                ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile(fileModel, contentModel);
+                totalRows = totalRows + fileProcessor.processFile(extractProfile, fileName);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 

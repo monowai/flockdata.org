@@ -25,6 +25,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
+import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
@@ -88,7 +89,7 @@ public class BatchServiceRunner implements BatchService {
         FileProcessor.validateArgs(file);
         ClientConfiguration defaults = new ClientConfiguration();
         defaults.setBatchSize(1);
-        return fileProcessor.processFile(profile, file);
+        return fileProcessor.processFile(new ExtractProfileHandler(profile), file);
     }
 
     @Override

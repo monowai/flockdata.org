@@ -18,10 +18,12 @@ package org.flockdata.test.unit.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.List;
@@ -35,6 +37,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
 /**
+ * nested tags
  * Created by mike on 6/05/15.
  */
 public class TestEntityProperties extends AbstractImport {
@@ -42,17 +45,19 @@ public class TestEntityProperties extends AbstractImport {
     public void process_individualData() throws Exception {
         String contentModelFile = "/model/entity-properties.json";
 
-        ImportContentModel params = ProfileReader.getContentModel(contentModelFile);
-        assertEquals(',', params.getDelimiter());
-        assertEquals(false, params.hasHeader());
-        fileProcessor.processFile(params, "/data/entity-properties.txt");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel(contentModelFile);
+        ExtractProfile extractProfile = new ExtractProfileHandler(contentModel, false);
+        assertEquals(Boolean.FALSE, extractProfile.hasHeader());
+        extractProfile.setQuoteCharacter("|");
+
+        fileProcessor.processFile(extractProfile, "/data/entity-properties.txt");
         List<EntityInputBean> entities = fdBatcher.getEntities();
 
         for (EntityInputBean entity : entities) {
             assertNotEquals("One org and one candidate", 0, entity.getTags().size());
             assertNotNull(entity.getWhen());
             for (TagInputBean tagInputBean : entity.getTags()) {
-                switch ( tagInputBean.getLabel()) {
+                switch (tagInputBean.getLabel()) {
                     case "Year":
                         assertEquals("2014", tagInputBean.getCode());
                         break;
@@ -60,7 +65,7 @@ public class TestEntityProperties extends AbstractImport {
                         assertEquals("j10013521891", tagInputBean.getCode());
                         assertNotNull(tagInputBean.getName());
                         assertNotSame(tagInputBean.getName(), tagInputBean.getCode());
-                        Map<String,Map<String,Object>> igRlx = tagInputBean.getEntityLinks();
+                        Map<String, Map<String, Object>> igRlx = tagInputBean.getEntityLinks();
                         assertFalse(igRlx.isEmpty());
                         Map valueMap = (Map) igRlx.get("contributed");
                         assertTrue(valueMap.containsKey("value"));
@@ -71,7 +76,7 @@ public class TestEntityProperties extends AbstractImport {
                         assertEquals("G6400", tagInputBean.getCode());
                         break;
                     case "Politician":
-                        Map<String,Map<String,Object>> rlx = tagInputBean.getEntityLinks();
+                        Map<String, Map<String, Object>> rlx = tagInputBean.getEntityLinks();
                         assertFalse(rlx.isEmpty());
                         Map valMap = (Map) rlx.get("received");
                         assertTrue(valMap.containsKey("value"));
@@ -82,35 +87,35 @@ public class TestEntityProperties extends AbstractImport {
 
                         assertNotNull(tagInputBean.getTargets().get("located"));
                         TagInputBean city = tagInputBean.getTargets().get("located").iterator().next();
-                        assertNotNull ( city);
+                        assertNotNull(city);
                         assertNotNull(city.getTargets().get("city"));
                         TagInputBean state = city.getTargets().get("city").iterator().next();
                         assertEquals("US-NJ", state.getCode());
                         break;
                     default:
-                        throw new Exception("Unexpected tag "+tagInputBean);
+                        throw new Exception("Unexpected tag " + tagInputBean);
 
                 }
             }
 //            TagInputBean contributor = entity.getTags().get("contributed");
             assertNotNull(entity.getProperties());
-            assertTrue (entity.getProperties().get("value")!=null );
+            assertTrue(entity.getProperties().get("value") != null);
 
             // Neo4j will not store NULL values
-            assertFalse ("Building had a null value so should not have been set", entity.getProperties().containsKey("building"));
+            assertFalse("Building had a null value so should not have been set", entity.getProperties().containsKey("building"));
             Object value = entity.getProperties().get("value");
             assertTrue(value instanceof Number);
             assertEquals(500, Integer.parseInt(value.toString()));
 
             // Assert that we get the user defined value to compute
-            assertTrue (entity.getProperties().get("valueDefault")!=null );
+            assertTrue(entity.getProperties().get("valueDefault") != null);
             value = entity.getProperties().get("valueDefault");
             assertEquals("Userdefined value of 0 was not set", 0, Integer.parseInt(value.toString()));
 
             // Neo4j complains if you persist a null property value
-            assertFalse("Should not be setting null property values", entity.getProperties().containsKey("valueNull")) ;
+            assertFalse("Should not be setting null property values", entity.getProperties().containsKey("valueNull"));
 
-            assertTrue (entity.getProperties().get("valueCalc")!=null );
+            assertTrue(entity.getProperties().get("valueCalc") != null);
             value = entity.getProperties().get("valueCalc");
             assertEquals("Column lookup expression did not evaluate", 2014, Integer.parseInt(value.toString()));
 

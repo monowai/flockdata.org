@@ -29,9 +29,7 @@ import org.flockdata.model.Fortress;
 import org.flockdata.profile.ContentModelResult;
 import org.flockdata.profile.ContentValidationRequest;
 import org.flockdata.profile.ContentValidationResults;
-import org.flockdata.profile.ImportContentModel;
 import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.ImportFile;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.track.service.FortressService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,7 +112,7 @@ public class ContentModelEP {
     public ContentModelResult storeContentModel(HttpServletRequest request,
                                                 @PathVariable("fortressCode") String fortressCode,
                                                 @PathVariable("docTypeName") String docTypeName,
-                                                @RequestBody ImportContentModel contentProfile) throws FlockException {
+                                                @RequestBody ContentModel contentProfile) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         Fortress fortress = fortressService.getFortress(company, fortressCode);
@@ -134,7 +132,7 @@ public class ContentModelEP {
             method = RequestMethod.POST)
     public ContentModelResult storeContentModel(HttpServletRequest request,
                                                 @PathVariable("code") String code,
-                                                @RequestBody ImportContentModel contentProfile) throws FlockException {
+                                                @RequestBody ContentModel contentProfile) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         if (code== null || code.equals(""))
@@ -166,10 +164,7 @@ public class ContentModelEP {
                                             @RequestBody ContentValidationRequest contentRequest)
             throws FlockException {
         CompanyResolver.resolveCompany(request);
-        ContentModel result = profileService.createDefaultContentModel(contentRequest);
-        result.setContentType(ImportFile.ContentType.CSV);
-        result.setHeader(true);
-        return result;
+        return  profileService.createDefaultContentModel(contentRequest);
     }
 
 

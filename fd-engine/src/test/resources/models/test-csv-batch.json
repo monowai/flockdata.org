@@ -1,12 +1,6 @@
 {
-    "documentName": "Test",
-    "contentType": "csv",
-    "tagOrEntity": "entity",
     "entityOnly": false,
     "fortress": {"name":"Sales","searchEnabled":false},
-    "fortressUser": "batch",
-    "delimiter": ",",
-    "header": true,
     "content": {
         "id": {
             "callerRef": true

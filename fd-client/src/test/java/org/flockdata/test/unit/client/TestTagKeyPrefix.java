@@ -16,8 +16,11 @@
 
 package org.flockdata.test.unit.client;
 
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileDeserializer;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,14 +32,18 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.TestCase.assertEquals;
 
 /**
+ *
  * Created by mike on 22/07/15.
  */
 public class TestTagKeyPrefix extends AbstractImport {
     private Logger logger = LoggerFactory.getLogger(TestTagKeyPrefix.class);
     @Test
     public void prefix_TagKeyWorks() throws Exception {
-        fileProcessor.processFile(ProfileReader.getContentModel("/model/tag-key-prefix.json"),
-                "/data/tag-key-prefix.csv");
+
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/tag-key-prefix.json");
+        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/header-ignore-empty.json", contentModel);
+
+        fileProcessor.processFile(extractProfile, "/data/tag-key-prefix.csv");
 
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         // The profile defines a nested tag but the value is missing in the source

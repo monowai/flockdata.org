@@ -1,10 +1,8 @@
 {
-  "contentType": "csv",
   "tagOrEntity": "entity",
   "fortressName": "GovTrack",
   "documentName": "Contribution",
-  "quoteCharacter": "|",
-  "header": false,
+  "contentType": "csv",
   "content": {
     "0": {
       "tag": true,

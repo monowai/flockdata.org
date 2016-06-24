@@ -173,4 +173,29 @@ public class FortressInputBean implements Serializable, MetaFortress {
         return this;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FortressInputBean)) return false;
+
+        FortressInputBean that = (FortressInputBean) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (searchEnabled != null ? !searchEnabled.equals(that.searchEnabled) : that.searchEnabled != null)
+            return false;
+        if (storeEnabled != null ? !storeEnabled.equals(that.storeEnabled) : that.storeEnabled != null) return false;
+        if (fortressKey != null ? !fortressKey.equals(that.fortressKey) : that.fortressKey != null) return false;
+        return code != null ? code.equals(that.code) : that.code == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (searchEnabled != null ? searchEnabled.hashCode() : 0);
+        result = 31 * result + (storeEnabled != null ? storeEnabled.hashCode() : 0);
+        result = 31 * result + (fortressKey != null ? fortressKey.hashCode() : 0);
+        result = 31 * result + (code != null ? code.hashCode() : 0);
+        return result;
+    }
 }

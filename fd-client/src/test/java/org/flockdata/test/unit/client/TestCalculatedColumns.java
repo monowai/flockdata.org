@@ -3,9 +3,10 @@ package org.flockdata.test.unit.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.List;
@@ -17,12 +18,12 @@ import static org.junit.Assert.assertEquals;
  */
 public class TestCalculatedColumns extends AbstractImport {
     @Test
-    public void string_NoHeaderWithDelimiter() throws Exception {
+    public void string_headerWithDelimiter() throws Exception {
         // DAT-527
 
-        ImportContentModel params = ProfileReader.getContentModel("/model/calculatedcolumns.json");
+        ContentModel params = ContentModelDeserializer.getContentModel("/model/calculatedcolumns.json");
 
-        long rows = fileProcessor.processFile(params, "/data/calculatedcolumns.csv");
+        long rows = fileProcessor.processFile(new ExtractProfileHandler(params), "/data/calculatedcolumns.csv");
         int expectedRows = 1;
         assertEquals(expectedRows, rows);
         List<EntityInputBean> entityInputBeans = fdBatcher.getEntities();

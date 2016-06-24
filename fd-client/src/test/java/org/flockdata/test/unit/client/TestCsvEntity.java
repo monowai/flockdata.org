@@ -19,25 +19,28 @@
 
 package org.flockdata.test.unit.client;
 
+import junit.framework.TestCase;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.profile.ImportContentModel;
-import org.flockdata.profile.ImportContentModelDeserializer;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.ProfileReader;
+import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.Transformer;
 import org.flockdata.transform.csv.EntityMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 /**
@@ -45,17 +48,17 @@ import static org.junit.Assert.*;
  * Date: 8/05/14
  * Time: 11:29 AM
  */
-public class TestCsvEntity {
+public class TestCsvEntity extends AbstractImport{
 
     @Test
     public void entityRow() throws Exception {
-        ImportContentModel params = ProfileReader.getContentModel("/model/csvtest.json");
+        ContentModel params = ContentModelDeserializer.getContentModel("/model/csvtest.json");
         EntityMapper entity = new EntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category", "xRef"};
         // Category column is intentionally null
         String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12", null, "qwerty" };
-        Map<String, Object> json = entity.setData(Transformer.convertToMap(headers, data, params), params);
+        Map<String, Object> json = entity.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
         assertNotNull(json);
 
         assertTrue("Title Missing", json.containsKey("Title"));
@@ -140,7 +143,7 @@ public class TestCsvEntity {
     @Test
     public void validate_ColumnHelper() throws Exception {
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals"};
-        ImportContentModel params = getContentModel("/model/csvtest.json");
+        ContentModel params = getContentModel("/model/csvtest.json");
         ColumnDefinition colDef = params.getColumnDef(headers[0]);
 
         assertTrue("CallerRef flag was wrong", colDef.isCallerRef());
@@ -150,22 +153,22 @@ public class TestCsvEntity {
 
         colDef = params.getColumnDef(headers[1]);
         assertTrue("Should be a tag", colDef.isTag());
-        assertFalse("Shouldn't be a title", colDef.isTitle());
-        assertFalse("Shouldn't be a callerRef", colDef.isCallerRef());
+        assertFalse("Shouldn't be a title", TransformationHelper.evaluate(colDef.isTitle()));
+        assertFalse("Shouldn't be a callerRef", TransformationHelper.evaluate(colDef.isCallerRef()));
 
         colDef = params.getColumnDef(headers[2]);
         assertTrue("Should be a tag", colDef.isTag());
 
-        assertFalse("Shouldn't be a title", colDef.isTitle());
-        assertFalse("Shouldn't be a callerRef", colDef.isCallerRef());
-        assertTrue("Should exist", colDef.isMustExist());
+        assertFalse("Shouldn't be a title", TransformationHelper.evaluate(colDef.isTitle()));
+        assertFalse("Shouldn't be a callerRef", TransformationHelper.evaluate(colDef.isCallerRef()));
+        assertTrue("Should exist", TransformationHelper.evaluate(colDef.isMustExist()));
 
         colDef = params.getColumnDef(headers[3]);
         assertTrue("Should be a tag", colDef.isTag());
         assertTrue("Tag to value", colDef.isValueAsProperty());
-        assertFalse("Shouldn't be a title", colDef.isTitle());
-        assertFalse("Shouldn't be a callerRef", colDef.isCallerRef());
-        assertFalse("Doesn't have to exist", colDef.isMustExist());
+        assertFalse("Shouldn't be a title", TransformationHelper.evaluate(colDef.isTitle()));
+        assertFalse("Shouldn't be a callerRef", TransformationHelper.evaluate(colDef.isCallerRef()));
+        assertFalse("Doesn't have to exist", TransformationHelper.evaluate(colDef.isMustExist()));
 
         colDef = params.getColumnDef(headers[4]);
         assertTrue("Should be a tag", colDef.isTag());
@@ -176,20 +179,20 @@ public class TestCsvEntity {
         assertTrue("Should be a tag", colDef.isTag());
         assertEquals("'Gold Medals'", colDef.getName()); // This has not been parsed by SPEL so it literal
         assertTrue("Tag to value", colDef.isValueAsProperty());
-        assertFalse("Shouldn't be a title", colDef.isTitle());
-        assertFalse("Shouldn't be a callerRef", colDef.isCallerRef());
-        assertFalse("Doesn't have to exist", colDef.isMustExist());
+        assertFalse("Shouldn't be a title", TransformationHelper.evaluate(colDef.isTitle()));
+        assertFalse("Shouldn't be a callerRef", TransformationHelper.evaluate(colDef.isCallerRef()));
+        assertFalse("Doesn't have to exist", TransformationHelper.evaluate(colDef.isMustExist()));
 
     }
 
     @Test
     public void complexCSVStructure() throws Exception {
-        ImportContentModel params = getContentModel("/model/complex-concept.json");
+        ContentModel contentModel = getContentModel("/model/complex-concept.json");
 
 
         String[] headers = {"Athlete", "Age", "Country", "Year", "Sport", "Gold Medals", "Silver Medals", "Bronze Medals"};
         String[] values = {"Michael Phelps", "23", "United States", "2008", "Swimming", "8", "0", "0", "8"};
-        EntityInputBean header = Transformer.transformToEntity(Transformer.convertToMap(headers, values, params), params);
+        EntityInputBean header = Transformer.transformToEntity(Transformer.convertToMap(headers, values, new ExtractProfileHandler(contentModel)), contentModel);
 
         assertEquals(values[0] + "." + values[3], header.getCode());
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
@@ -244,12 +247,13 @@ public class TestCsvEntity {
 
     @Test
     public void nestedTags() throws Exception {
-        ImportContentModel params = getContentModel("/model/nestedTags.json");
+        ContentModel con = getContentModel("/model/nestedTags.json");
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"transaction_id", "zip", "state", "stateName", "city", "country"};
         String[] data = new String[]{"1", "123", "CA", "California", "San Francisco", "United States"};
-        EntityInputBean entity = Transformer.transformToEntity(Transformer.convertToMap(headers, data, params), params);
+        EntityInputBean entity = Transformer.transformToEntity(Transformer.convertToMap(headers, data, new ExtractProfileHandler(con)), con);
 
+        assertNotNull(entity);
         List<TagInputBean> tags = entity.getTags();
         assertEquals(1, tags.size());
 
@@ -284,9 +288,9 @@ public class TestCsvEntity {
         //
         String[] headers = new String[]{"Title", "Tag"};
         String[] data = new String[]{"TitleTests", "TagA,TagB,TagC"};
-        ImportContentModel params = getContentModel("/model/csv-entity-tags.json");
+        ContentModel params = getContentModel("/model/csv-entity-tags.json");
         EntityMapper mapper = new EntityMapper(params);
-        mapper.setData(Transformer.convertToMap(headers, data, params), params);
+        mapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
 
         ColumnDefinition colDef = params.getColumnDef(headers[0]);
 
@@ -310,11 +314,11 @@ public class TestCsvEntity {
         //
         String[] headers = new String[]{"Title", "TagValueAsNumber", "TagNumberAsString", "StringAsNumber", "created", "updated"};
         String[] data = new String[]{"TitleTests", "123", "123", "123", "1235015570", "1235015805"};
-        ImportContentModel contentModel = getContentModel("/model/csv-entity-data-types.json");
+        ContentModel contentModel = getContentModel("/model/csv-entity-data-types.json");
         assertTrue(contentModel.isEntityOnly());
         EntityMapper mapper = new EntityMapper(contentModel);
 
-        Map<String,Object> json = mapper.setData(Transformer.convertToMap(headers, data, contentModel), contentModel);
+        Map<String,Object> json = mapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
 
         ColumnDefinition colDef = contentModel.getColumnDef(headers[0]);
 
@@ -335,18 +339,18 @@ public class TestCsvEntity {
         assertTrue("Didn't resolve to epoc", colDef.isDateEpoc());
     }
 
-    private static ImportContentModel getContentModel(String profile) throws IOException {
-        return ImportContentModelDeserializer.getContentModel(profile);
+    private static ContentModel getContentModel(String profile) throws IOException {
+        return ContentModelDeserializer.getContentModel(profile);
     }
 
     @Test
     public void null_EntityRow() throws Exception {
-        ImportContentModel params = ProfileReader.getContentModel("/model/csvtest.json");
+        ContentModel params = ContentModelDeserializer.getContentModel("/model/csvtest.json");
         EntityMapper mapper = new EntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Field", "Year"};
         String[] data = new String[]{"TitleTests", null, "2009" };
-        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, params), params);
+        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
         assertNotNull(jsonMap);
 
         assertEquals(null, jsonMap.get("Field"));
@@ -360,12 +364,12 @@ public class TestCsvEntity {
 
     @Test
     public void empty_ColumnWithASpace() throws Exception {
-        ImportContentModel params = ProfileReader.getContentModel("/model/csvtest.json");
+        ContentModel params = ContentModelDeserializer.getContentModel("/model/csvtest.json");
         EntityMapper mapper = new EntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Year"};
         String[] data = new String[]{" ",  "2009" };
-        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, params), params);
+        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
         assertNotNull(jsonMap);
 
         assertEquals("", jsonMap.get("Title"));
@@ -378,13 +382,15 @@ public class TestCsvEntity {
     }
     @Test
     public void empty_ColumnWithASpaceIsIgnored() throws Exception {
-        ImportContentModel params = ProfileReader.getContentModel("/model/csvtest-emptyisignored.json");
-        EntityMapper mapper = new EntityMapper(params);
-        assertTrue("isEmptyIgnored is not set", params.isEmptyIgnored());
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/csvtest-emptyisignored.json");
+        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/header-ignore-empty.json",contentModel);
+        assertTrue("isEmptyIgnored is not set", contentModel.isEmptyIgnored());
+
+        EntityMapper mapper = new EntityMapper(contentModel);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Year"};
         String[] data = new String[]{" ",  "2009" };
-        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, params), params);
+        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, extractProfile), contentModel);
         assertNotNull(jsonMap);
 
         assertNull(jsonMap.get("Title"));
@@ -394,6 +400,88 @@ public class TestCsvEntity {
         assertFalse (jsonMap.isEmpty());
         assertNull(jsonMap.get("Title"));
 
+    }
+
+    @Test
+    public void test_ignoredEntityRow() throws Exception {
+        String fileName = "/model/entity-ignore-row.json";
+
+        ContentModel contentModel = ContentModelDeserializer.getContentModel(fileName);
+
+        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile(fileName, contentModel);
+
+        assertEquals('|', extractProfile.getDelimiter());
+        assertEquals(Boolean.TRUE, extractProfile.hasHeader());
+        assertNotNull( contentModel.getCondition());
+
+        fileProcessor.processFile(extractProfile, "/data/geo-address.txt");
+
+        Collection<String>ids = new ArrayList<>();
+        ids.add("56");
+        ids.add("379232");
+        ids.add("520");
+        ids.add("724");
+
+        List<EntityInputBean> entities = getFdBatcher().getEntities();
+        TestCase.assertEquals(ids.size(), entities.size());
+        for (EntityInputBean entity : entities) {
+            switch (entity.getCode()){
+                case "56":
+                    assertNotNull(entity.getName());
+                    TestCase.assertEquals("SUITE 5", entity.getProperties().get("unitName"));
+                    assertNotNull(entity.getTags().iterator().next());
+                    TagInputBean address = entity.getTags().iterator().next();
+                    assertEquals("1 RHONE AVENUE", address.getName());
+                    assertEquals(1, address.getTargets().size());
+                    TestCase.assertEquals(1, address.getProperties().size());
+                    TestCase.assertEquals("SUITE 5", address.getProperties().get("unit"));
+                    TagInputBean suburb = address.getTargets().get("address").iterator().next();
+                    assertEquals("nz", suburb.getKeyPrefix());
+                    assertEquals("Suburb name not set","TE ATATU PENINSULA", suburb.getName());
+
+                    TagInputBean postCode = suburb.getTargets().get("postcode").iterator().next();
+                    assertEquals("0610", postCode.getCode());
+                    assertEquals("nz", postCode.getKeyPrefix());
+                    TagInputBean city = postCode.getTargets().get("towncity").iterator().next();
+                    assertEquals("100004U", city.getCode());
+                    assertEquals("AUCKLAND", city.getName());
+                    assertEquals("nz", city.getKeyPrefix());
+                    TagInputBean country = city.getTargets().get("country").iterator().next();
+                    TestCase.assertEquals("NZ", country.getCode());
+                    TestCase.assertEquals("Country", country.getLabel());
+                    //assertTrue(entity.getProperties().size() == 0);
+                    break;
+                case "379232":
+                    assertNotNull(entity.getName());
+                    assertNotNull(entity.getTags().iterator().next());
+                    address = entity.getTags().iterator().next();
+                    assertEquals("15 HUIA ROAD", address.getName());
+                    assertTrue(entity.getProperties().size() > 0);
+                    TestCase.assertEquals("FLAT 3", entity.getProperties().get("unitName"));
+                    break;
+                case "520":
+                    assertNotNull(entity.getName());
+                    TestCase.assertEquals("Null property should not be stored", 1, entity.getProperties().size());
+                    TestCase.assertEquals("RANUI PRIMARY SCHOOL", entity.getProperties().get("building"));
+                    assertNotNull(entity.getTags().iterator().next());
+                    address = entity.getTags().iterator().next();
+                    TestCase.assertEquals("16A RANUI STATION ROAD", address.getName());
+
+                    break;
+                case "724":
+                    assertNotNull(entity.getName());
+                    TestCase.assertEquals(2, entity.getProperties().size());
+                    address = entity.getTags().iterator().next();
+                    TestCase.assertEquals(2, address.getProperties().size());
+                    TestCase.assertEquals("SHOP 10A", address.getProperties().get("unit"));
+                    TestCase.assertEquals("MERIDIAN MALL", address.getProperties().get("building"));
+                    break;
+                default:
+                    throw new RuntimeException("Unexpected entity " + entity);
+
+            }
+
+        }
     }
 
 }

@@ -19,10 +19,12 @@ package org.flockdata.test.unit.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -42,8 +44,9 @@ public class TestCSVEntitiesWithDelimiter extends AbstractImport {
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
 
-        ImportContentModel params = ProfileReader.getContentModel("/model/no-header-entities.json");
-        //assertEquals('|', params.getDelimiter());
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/no-header-entities.json");
+        ExtractProfile params = new ExtractProfileHandler(contentModel, false);
+        params.setQuoteCharacter("|");
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/data/no-header.txt");
         int expectedRows = 6;

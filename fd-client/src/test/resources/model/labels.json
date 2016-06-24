@@ -1,12 +1,8 @@
 {
   "documentName": "AssetDetails",
-  "contentType": "csv",
   "tagOrEntity": "entity",
   "fortressName": "Wrapport",
   // Don't write empty source column values in to the "what" map
-  "emptyIgnored": true,
-  "delimiter": "\t",
-  "header": true,
   "content": {
     "assetID": {
       "callerRef": true

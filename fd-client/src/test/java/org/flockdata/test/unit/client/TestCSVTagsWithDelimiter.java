@@ -19,9 +19,11 @@ package org.flockdata.test.unit.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportContentModel;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ExtractProfileDeserializer;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -32,6 +34,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
+ * tags from files with no headers
  * Created by mike on 27/01/15.
  */
 public class TestCSVTagsWithDelimiter extends AbstractImport {
@@ -40,10 +43,11 @@ public class TestCSVTagsWithDelimiter extends AbstractImport {
     public void string_NoHeaderWithDelimiter() throws Exception {
         String file = "/model/no-header.json";
 
-        ImportContentModel params = ProfileReader.getContentModel(file);
+        ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
+        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/csv-tags-with-delimiter.json",contentModel);
         //assertEquals('|', params.getDelimiter());
-        assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/data/no-header.txt");
+        assertEquals(false, extractProfile.hasHeader());
+        long rows = fileProcessor.processFile(extractProfile, "/data/no-header.txt");
         int expectedRows = 6;
         assertEquals(expectedRows, rows);
         List<TagInputBean> tagInputBeans = getFdBatcher().getTags();

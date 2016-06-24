@@ -16,31 +16,38 @@
 
 package org.flockdata.profile.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.flockdata.profile.ExtractProfileDeserializer;
+
 /**
  * Created by mike on 28/01/16.
  */
-public interface ImportFile {
+@JsonDeserialize(using = ExtractProfileDeserializer.class)
+public interface ExtractProfile {
 
-    ContentModel.ContentType getContentType();
+    ContentType getContentType();
 
     char getDelimiter();
 
-    boolean hasHeader();
+    Boolean hasHeader();
+
+    String getHandler();
 
     String getPreParseRowExp();
 
     String getQuoteCharacter();
 
-    String getHandler();
+    ExtractProfile setHeader(boolean header);
 
-    void setHeader(boolean header);
+    ExtractProfile setContentType(ContentType contentType);
 
-    void setContentType(ContentType contentType);
+    void setPreParseRowExp(String expression);
 
-    boolean isEmptyIgnored();
+    ExtractProfile setDelimiter(String delimiter);
 
-    String getCondition();
+    ExtractProfile setQuoteCharacter(String quoteCharacter);
 
+    ContentModel getContentModel();
 
     enum ContentType {CSV, JSON, XML}
 }

@@ -50,18 +50,20 @@ public class ColumnDefinition implements GeoDefinition {
     public enum ExpressionType {CODE, NAME, RELATIONSHIP, KEY_PREFIX, PROP_EXP, LABEL, CALLER_REF}
 
     // Flags that profile the properties of a column
-    private boolean callerRef;
-    private boolean title;
-    private boolean description;
-    private boolean valueAsProperty;
-    private boolean country;
-    private boolean createDate;
-    private boolean document;
-    private boolean tag;
-    private boolean mustExist;
-    private boolean createUser;
-    private boolean updateUser;
-    private boolean reverse = false;
+    private Boolean callerRef=null;
+    private Boolean title=null;
+    private Boolean description=null;
+    private Boolean valueAsProperty=null;
+    private Boolean country=null;
+    private Boolean createDate=null;
+    private Boolean document=null;
+    private Boolean tag=null;
+    private Boolean mustExist=null;
+    private Boolean createUser=null;
+    private Boolean updateUser=null;
+    private Boolean reverse = false;
+    private Boolean updateDate=null;
+    private Boolean merge=null;
 
     private String strategy = null;
     private String fortress = null;
@@ -82,7 +84,6 @@ public class ColumnDefinition implements GeoDefinition {
     @JsonDeserialize(using = GeoDeserializer.class)
     private GeoPayload geoData;
 
-
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> properties; // Properties to add to an object
     private ArrayList<Map<String, String>> entityLinks = new ArrayList<>();
@@ -90,10 +91,6 @@ public class ColumnDefinition implements GeoDefinition {
 
     private String relationship; // Explicit relationship name
     private String delimiter;
-
-    private boolean updateDate;
-
-    private boolean merge;
 
     public String getLabel() {
         return label;
@@ -113,11 +110,11 @@ public class ColumnDefinition implements GeoDefinition {
         this.dataType = dataType;
     }
 
-    public boolean isCallerRef() {
+    public Boolean isCallerRef() {
         return callerRef;
     }
 
-    public boolean isTitle() {
+    public Boolean isTitle() {
         return title;
     }
 
@@ -125,8 +122,8 @@ public class ColumnDefinition implements GeoDefinition {
      * Flags a tag block. Tags are not automatically assigned to the entity, but can be created
      *       while tracking an entity
      */
-    public boolean isTag() {
-        return tag || isCountry();
+    public Boolean isTag() {
+        return (tag !=null && tag) || isCountry();
     }
 
     /**
@@ -134,22 +131,23 @@ public class ColumnDefinition implements GeoDefinition {
      *
      * @return
      */
-    public boolean isMustExist() {
+    public Boolean isMustExist() {
         return mustExist;
     }
 
-    public boolean isValueAsProperty() {
+    public Boolean isValueAsProperty() {
         return valueAsProperty;
     }
 
-    public boolean isCountry() {
-        return country;
+    public Boolean isCountry() {
+        return (country==null?false:country);
     }
 
     public String getName() {
         return name;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public ArrayList<TagProfile> getTargets() {
         return targets;
     }
@@ -159,15 +157,17 @@ public class ColumnDefinition implements GeoDefinition {
         return strategy;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getFortress() {
         return fortress;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getDocumentType() {
         return documentType;
     }
 
-    public boolean isDescription() {
+    public Boolean isDescription() {
         return description;
     }
 
@@ -175,6 +175,7 @@ public class ColumnDefinition implements GeoDefinition {
         return code;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getKeyPrefix() {
         return keyPrefix;
     }
@@ -187,6 +188,7 @@ public class ColumnDefinition implements GeoDefinition {
             return target;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getRelationship() {
         return relationship;
 
@@ -202,10 +204,12 @@ public class ColumnDefinition implements GeoDefinition {
      *
      * @return default is a ,
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getDelimiter() {
         return delimiter;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getType() {
         return type;
     }
@@ -213,14 +217,14 @@ public class ColumnDefinition implements GeoDefinition {
     /**
      * @return is this column carrying the value for the Creating user
      */
-    public boolean isCreateUser() {
+    public Boolean isCreateUser() {
         return createUser;
     }
 
     /**
      * @return is this column carrying the value for the Last Update user
      */
-    public boolean isUpdateUser() {
+    public Boolean isUpdateUser() {
         return updateUser;
     }
 
@@ -234,7 +238,7 @@ public class ColumnDefinition implements GeoDefinition {
     /**
      * @return is this column carrying the value for the Created Date
      */
-    public boolean isCreateDate() {
+    public Boolean isCreateDate() {
         return createDate;
     }
 
@@ -248,11 +252,12 @@ public class ColumnDefinition implements GeoDefinition {
         return nullOrEmpty;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public ArrayList<Map<String, String>> getEntityLinks() {
         return entityLinks;
     }
 
-    public boolean isUpdateDate() {
+    public Boolean isUpdateDate() {
         return updateDate;
     }
 
@@ -261,14 +266,16 @@ public class ColumnDefinition implements GeoDefinition {
         return dateFormat != null && dateFormat.equalsIgnoreCase("epoc");
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public ArrayList<ColumnDefinition> getRlxProperties() {
         return rlxProperties;
     }
 
-    public boolean isDocument() {
+    public Boolean isDocument() {
         return document;
     }
 
+    @JsonIgnore
     public boolean hasRelationshipProps() {
         return rlxProperties != null;
     }
@@ -313,10 +320,12 @@ public class ColumnDefinition implements GeoDefinition {
         return null;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public ArrayList<ColumnDefinition> getProperties() {
         return properties;
     }
 
+    @JsonIgnore
     public boolean hasProperites() {
         return this.properties != null && properties.size() > 0;
     }
@@ -367,7 +376,7 @@ public class ColumnDefinition implements GeoDefinition {
 
     @JsonIgnore
     public boolean hasEntityProperties() {
-        return !tag && properties!=null && !properties.isEmpty();
+        return !(tag!=null && tag ) && properties!=null && !properties.isEmpty();
     }
 
     public String getNotFound() {
@@ -375,8 +384,6 @@ public class ColumnDefinition implements GeoDefinition {
     }
 
     public String getDateFormat() {
-//        if ( dateFormat == null )
-//            return ((SimpleDateFormat)DateFormat.getDateInstance(DateFormat.SHORT)).toPattern();
         return dateFormat;
     }
 
@@ -385,7 +392,7 @@ public class ColumnDefinition implements GeoDefinition {
 
     }
 
-    public boolean isPersistent() {
+    public Boolean isPersistent() {
         return persistent;
     }
 
@@ -398,11 +405,12 @@ public class ColumnDefinition implements GeoDefinition {
      *
      * @return should properties in this payload be merged if the tag is existing?
      */
-    public boolean isMerge() {
+    public Boolean isMerge() {
         return merge;
     }
 
-    public boolean getStoreNull() {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Boolean getStoreNull() {
         return storeNull;
     }
 
@@ -503,4 +511,6 @@ public class ColumnDefinition implements GeoDefinition {
         result = 31 * result + (targets != null ? targets.hashCode() : 0);
         return result;
     }
+
+
 }

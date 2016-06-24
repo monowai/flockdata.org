@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.ContentInputBean;
@@ -46,49 +47,34 @@ public class Transformer {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Transformer.class);
 
-    public static Mappable getMappable(ContentModel profile) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Mappable mappable ;
 
-        if (!(profile.getHandler() == null || profile.getHandler().equals("")))
-            mappable = (Mappable) Class.forName(profile.getHandler()).newInstance();
-        else if (profile.getDocumentType() != null ) {
-            mappable = EntityMapper.newInstance(profile);
-        } else {
-            mappable = TagMapper.newInstance(profile);
-        }
-
-
-        return mappable;
-
-    }
-
-    public static EntityInputBean transformToEntity(Map<String, Object> row, ContentModel importProfile) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
-        Mappable mappable = getMappable(importProfile);
-        Map<String, Object> jsonData = mappable.setData(row, importProfile);
+    public static EntityInputBean transformToEntity( Map<String, Object> row, ContentModel contentModel) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+        Mappable mappable = EntityMapper.newInstance(contentModel);
+        Map<String, Object> jsonData = mappable.setData(row, contentModel);
         if ( jsonData == null )
             return null;// No entity did not get created
 
         EntityInputBean entityInputBean = (EntityInputBean) mappable;
 
-        if (importProfile.isEntityOnly() || jsonData.isEmpty()) {
+        if (TransformationHelper.evaluate(contentModel.isEntityOnly()) || jsonData.isEmpty()) {
             entityInputBean.setEntityOnly(true);
             // It's all Meta baby - no log information
         } else {
             String updatingUser = entityInputBean.getUpdateUser();
             if (updatingUser == null)
-                updatingUser = (entityInputBean.getFortressUser() == null ? importProfile.getFortressUser() : entityInputBean.getFortressUser());
+                updatingUser = (entityInputBean.getFortressUser() == null ? contentModel.getFortressUser() : entityInputBean.getFortressUser());
 
             ContentInputBean contentInputBean = new ContentInputBean(updatingUser, (entityInputBean.getWhen() != null ? new DateTime(entityInputBean.getWhen()) : null), jsonData);
-            contentInputBean.setEvent(importProfile.getEvent());
+            contentInputBean.setEvent(contentModel.getEvent());
             entityInputBean.setContent(contentInputBean);
         }
         return entityInputBean;
 
     }
 
-    public static TagInputBean transformToTag(Map<String, Object> row, ContentModel importProfile) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
-        Mappable mappable = getMappable(importProfile);
-        mappable.setData(row, importProfile);
+    public static TagInputBean transformToTag(Map<String, Object> row, ContentModel contentModel) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+        Mappable mappable = TagMapper.newInstance(contentModel);
+        mappable.setData(row, contentModel);
         return (TagInputBean) mappable;
 
     }
@@ -176,22 +162,23 @@ public class Transformer {
         }
         return result;
     }
-    public static Map<String, Object> convertToMap(String[] headerRow, String[] line, ContentModel profileConfig) {
+    public static Map<String, Object> convertToMap(String[] headerRow, String[] line, ExtractProfile extractProfile) {
         int col = 0;
         Map<String, Object> row = new HashMap<>();
+        ContentModel contentModel = extractProfile.getContentModel();
         try {
             for (String column : headerRow) {
                 column = column.trim();
                 // Find first by the name (if we're using a raw header
-                ColumnDefinition colDef = profileConfig.getColumnDef(column);
+                ColumnDefinition colDef = contentModel.getColumnDef(column);
                 if (colDef == null)
                     // Might be indexed by column number if there was no csv
-                    colDef = profileConfig.getColumnDef(Integer.toString(col));
+                    colDef = contentModel.getColumnDef(Integer.toString(col));
 
                 Object value = line[col];
                 value = TransformationHelper.transformValue(value, column, colDef);
                 boolean addValue = true;
-                if (profileConfig.isEmptyIgnored()) {
+                if (TransformationHelper.evaluate(contentModel.isEmptyIgnored())) {
                     if (value == null || value.toString().trim().equals(""))
                         addValue = false;
                 }

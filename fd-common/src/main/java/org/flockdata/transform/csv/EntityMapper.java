@@ -52,12 +52,12 @@ public class EntityMapper extends EntityInputBean implements Mappable {
     }
 
     @Override
-    public Map<String, Object> setData(Map<String, Object> row, ContentModel importProfile) throws FlockException {
-        if (!TransformationHelper.processRow(row, importProfile))
+    public Map<String, Object> setData(Map<String, Object> row, ContentModel contentModel) throws FlockException {
+        if ( !TransformationHelper.processRow(row, contentModel))
             return null;
 
-        setArchiveTags(importProfile.isArchiveTags());
-        Map<String, ColumnDefinition> content = importProfile.getContent();
+        setArchiveTags(contentModel.isArchiveTags());
+        Map<String, ColumnDefinition> content = contentModel.getContent();
         boolean firstColumn = true;
 
         for (String sourceColumn : content.keySet()) {
@@ -71,12 +71,12 @@ public class EntityMapper extends EntityInputBean implements Mappable {
             if (firstColumn) {
                 // While the definition is in the profile, the value is in the data.
                 // Only do this once.
-                if (importProfile.getSegmentExpression() != null && getSegment() == null) {
-                    if (row.containsKey(importProfile.getSegmentExpression()))
-                        setSegment(getString(row, importProfile.getSegmentExpression()));
+                if (contentModel.getSegmentExpression() != null && getSegment() == null) {
+                    if (row.containsKey(contentModel.getSegmentExpression()))
+                        setSegment(getString(row, contentModel.getSegmentExpression()));
                     else {
                         try {
-                            setSegment(ExpressionHelper.getValue(row, importProfile.getSegmentExpression(), colDef, null));
+                            setSegment(ExpressionHelper.getValue(row, contentModel.getSegmentExpression(), colDef, null));
                         } catch (SpelEvaluationException e) {
 
                             throw new FlockException("Unable to evaluate the segment expression for " + Arrays.toString(row.values().toArray()) + ".\r\n " + e.getMessage());
@@ -87,21 +87,21 @@ public class EntityMapper extends EntityInputBean implements Mappable {
             }
             // Process the column definition by evaluating expression and handling
             //  the boolean functional flags in the Contents ColumnDefinition
-            if (colDef.isDescription()) {
+            if (TransformationHelper.evaluate(colDef.isDescription())) {
 
                 setDescription(ExpressionHelper.getValue(row, colDef.getValue(), colDef, value));
             }
-            if (colDef.isTitle()) {
+            if (TransformationHelper.evaluate(colDef.isTitle())) {
                 String title = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
                 setName(title);
             }
-            if (colDef.isCreateUser()) { // The user in the calling system
+            if (TransformationHelper.evaluate(colDef.isCreateUser())) { // The user in the calling system
                 setFortressUser(value);
             }
-            if (colDef.isUpdateUser()) {
+            if (TransformationHelper.evaluate(colDef.isUpdateUser())) {
                 setUpdateUser(value);
             }
-            if (colDef.isDate()) {
+            if (TransformationHelper.evaluate(colDef.isDate())) {
                 // DAT-523
                 if (value == null || value.equals("")) {
                     row.put(sourceColumn, null);
@@ -109,10 +109,10 @@ public class EntityMapper extends EntityInputBean implements Mappable {
                     Long dValue = ExpressionHelper.parseDate(colDef, value);
                     row.put(sourceColumn, new DateTime(dValue).toString());
 
-                    if (colDef.isCreateDate()) {
+                    if (TransformationHelper.evaluate(colDef.isCreateDate())) {
                         setWhen(new Date(dValue));
                     }
-                    if (colDef.isUpdateDate()) {
+                    if (TransformationHelper.evaluate(colDef.isUpdateDate())) {
                         if (getLastChange() == null || dValue > getLastChange().getTime())
                             setLastChange(new Date(dValue));
                     }
@@ -120,7 +120,7 @@ public class EntityMapper extends EntityInputBean implements Mappable {
             }
 
 
-            if (colDef.isCallerRef()) {
+            if (TransformationHelper.evaluate(colDef.isCallerRef())) {
                 String callerRef = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
                 setCode(callerRef);
             }
@@ -131,8 +131,8 @@ public class EntityMapper extends EntityInputBean implements Mappable {
                 if (value != null && !value.equals("")) {
                     TagProfile tagProfile = new TagProfile();
                     tagProfile.setLabel(colDef.getLabel());
-                    tagProfile.setReverse(colDef.getReverse());
-                    tagProfile.setMustExist(colDef.isMustExist());
+                    tagProfile.setReverse(TransformationHelper.evaluate(colDef.getReverse()));
+                    tagProfile.setMustExist(TransformationHelper.evaluate(colDef.isMustExist()));
                     tagProfile.setCode(sourceColumn);
                     tagProfile.setDelimiter(colDef.getDelimiter());
                     String relationship = TransformationHelper.getRelationshipName(row, colDef);
@@ -142,10 +142,10 @@ public class EntityMapper extends EntityInputBean implements Mappable {
                     }
 
                 }
-            } else if (colDef.isTag()) {
+            } else if (TransformationHelper.evaluate(colDef.isTag())) {
                 TagInputBean tag = new TagInputBean();
 
-                if (TransformationHelper.setTagInputBean(tag, row, sourceColumn, importProfile.getContent(), value)) {
+                if (TransformationHelper.setTagInputBean(tag, row, sourceColumn, contentModel.getContent(), value)) {
                     addTag(tag);
                 }
             }
@@ -166,7 +166,7 @@ public class EntityMapper extends EntityInputBean implements Mappable {
                 if (oValue != null)
                     row.put(colDef.getTarget(), oValue);
             }
-            if (!colDef.isPersistent()) {
+            if (!TransformationHelper.evaluate(colDef.isPersistent(),true)) {
                 // DAT-528
                 row.remove(sourceColumn);
             } else if (colDef.hasEntityProperties()) {

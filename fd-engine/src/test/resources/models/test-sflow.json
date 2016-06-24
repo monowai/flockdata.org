@@ -1,7 +1,6 @@
 {
   "contentType": "csv",
   "documentName": "QuestionEvent",
-  "header": true,
   "archiveTags": false,
   "event": "Answer",
   "segment": "qid",

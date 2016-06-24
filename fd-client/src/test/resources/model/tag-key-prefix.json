@@ -1,7 +1,4 @@
 {
-  "contentType": "csv",
-  "emptyIgnored": true,
-  "header": true,
   "content": {
     "name": {
       "tag": true,

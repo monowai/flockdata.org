@@ -97,6 +97,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(HttpMessageConversionException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleConversionProblem( final HttpMessageConversionException ex){
+        logger.error(ex.getMessage(), ex.getCause());
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
