@@ -76,7 +76,7 @@ public class EntityMapper extends EntityInputBean implements Mappable {
                         setSegment(getString(row, contentModel.getSegmentExpression()));
                     else {
                         try {
-                            setSegment(ExpressionHelper.getValue(row, contentModel.getSegmentExpression(), colDef, null));
+                            setSegment(ExpressionHelper.getValue(row, contentModel.getSegmentExpression(), colDef, null, contentModel));
                         } catch (SpelEvaluationException e) {
 
                             throw new FlockException("Unable to evaluate the segment expression for " + Arrays.toString(row.values().toArray()) + ".\r\n " + e.getMessage());

@@ -123,16 +123,10 @@ public class TransformationHelper {
                     if (TransformationHelper.evaluate(colDef.isPersistent(),true)) {
                         String sourceCol = propertyColumn.getSource();
 
-                        if (sourceCol != null)
-                            value = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, propertyColumn, row.get(sourceCol));
-                        else {
-                            Object val = ExpressionHelper.getValue(row, propertyColumn.getValue());
-                            if (val != null)
-                                value = val.toString();
-                        }
+                        Object result  = getObject(row, value, propertyColumn, sourceCol);
 
-                        if (value != null)
-                            tag.setProperty(propertyColumn.getTarget() == null ? sourceCol : propertyColumn.getTarget(), ExpressionHelper.getValue(value, propertyColumn));
+                        if (result != null)
+                            tag.setProperty(propertyColumn.getTarget() == null ? sourceCol : propertyColumn.getTarget(), ExpressionHelper.getValue(result, propertyColumn));
                     }
                 }
             }
@@ -279,13 +273,7 @@ public class TransformationHelper {
                             // Code Smell - this code is duplicated from getTagInputBean
 
                             String sourceCol = propertyColumn.getSource();
-                            if (sourceCol != null)
-                                value = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, propertyColumn, row.get(sourceCol));
-                            else {
-                                Object val = ExpressionHelper.getValue(row, propertyColumn.getValue());
-                                if (val != null)
-                                    value = val.toString();
-                            }
+                            value = getObject(row, value, propertyColumn, sourceCol);
 
                             Object oValue = ExpressionHelper.getValue(value, propertyColumn);
                             if (newTag != null && oValue != null)
@@ -307,6 +295,17 @@ public class TransformationHelper {
 
         }
         return newTag;
+    }
+
+    public static Object getObject(Map<String, Object> row, Object value, ColumnDefinition propertyColumn, String sourceCol) {
+        if (sourceCol != null)
+            value = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, propertyColumn, row.get(sourceCol));
+        else {
+            Object val = ExpressionHelper.getValue(row, propertyColumn.getValue());
+            if (val != null)
+                value = val.toString();
+        }
+        return value;
     }
 
     public static Collection<TagInputBean> getTagsFromList(TagProfile tagProfile, Map<String, Object> row, String entityRelationship) {

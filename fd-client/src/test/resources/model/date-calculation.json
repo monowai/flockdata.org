@@ -1,0 +1,20 @@
+{
+  "documentType": {
+    "name": "PortfolioMV"
+  },
+  "fortress": {
+    "name": "Wrapport",
+    "searchEnabled": true
+  },
+  "segment": "T(org.flockdata.transform.Dates).get('asAtDate', 'year-month-dom-dow', #model, #data)",
+  "content": {
+    "id": {
+      "callerRef": true
+    },
+    "asAtDate": {
+      "dataType": "date",
+      "updateDate": true,
+      "dateFormat": "timestamp"
+    }
+  }
+}

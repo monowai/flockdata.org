@@ -1,0 +1,2 @@
+DTYPE	id	asAtDate
+PortfolioMarketValueData	2309903	2015-04-28 00:02:00.0

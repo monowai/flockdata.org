@@ -17,6 +17,7 @@
 package org.flockdata.transform;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.flockdata.profile.model.ContentModel;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -49,6 +50,8 @@ public class ExpressionHelper {
     static StandardEvaluationContext context = new StandardEvaluationContext();
 
     public static Object getValue(Object value, ColumnDefinition colDef) {
+
+//        context.setVariable("colDef",colDef);
         if (value == null || value.equals("null"))
             return null;
         else if (NumberUtils.isNumber(value.toString())) {
@@ -77,6 +80,10 @@ public class ExpressionHelper {
 
     }
 
+    public static String getValue(Map<String, Object> row, String expression, ColumnDefinition colDef, Object defaultValue) {
+        return getValue(row, expression, colDef, defaultValue, null);
+    }
+
     /**
      * Returns a value based on the expression. To evaluate a column, use #data['col'] syntax
      *
@@ -86,10 +93,12 @@ public class ExpressionHelper {
      * @param defaultValue what to return if expression results in null
      * @return calculated value or defaultValue
      */
-    public static String getValue(Map<String, Object> row, String expression, ColumnDefinition colDef, Object defaultValue) {
+    public static String getValue(Map<String, Object> row, String expression, ColumnDefinition colDef, Object defaultValue, ContentModel contentModel) {
         if (colDef == null)
             return getNullSafeDefault(defaultValue, null);
 
+        if( contentModel !=null )
+            context.setVariable("model",contentModel);
         Object result = evaluateExpression(row, expression);
         if (result == null)
             return getNullSafeDefault(defaultValue, colDef);
@@ -116,6 +125,7 @@ public class ExpressionHelper {
         if (expression == null)
             return null;
 
+        // set the #Data variable
         context.setVariable("data", row);
         return parser.parseExpression(expression).getValue(context);
     }
