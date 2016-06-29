@@ -36,7 +36,7 @@ public interface ContentModelService {
 
     ContentModel get(Company company, Fortress fortress, DocumentType documentType) throws FlockException ;
 
-    ContentModelResult saveEntityModel(Company company, Fortress fortress, DocumentType documentType, ContentModel profileConfig) throws FlockException;
+    ContentModelResult saveEntityModel(Company company, Fortress fortress, DocumentType documentType, ContentModel contentModel) throws FlockException;
 
     ContentModelResult saveTagModel(Company company, String code, ContentModel profileConfig) throws FlockException;
 

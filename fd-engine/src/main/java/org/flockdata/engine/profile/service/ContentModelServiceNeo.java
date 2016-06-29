@@ -109,7 +109,7 @@ public class ContentModelServiceNeo implements ContentModelService {
     EntityService entityService;
 
     @Transactional
-    public ContentModelResult saveTagModel(Company company, String code, org.flockdata.profile.model.ContentModel contentModelConfig) throws FlockException {
+    public ContentModelResult saveTagModel(Company company, String code, org.flockdata.profile.model.ContentModel contentModel) throws FlockException {
         Fortress internalFortress = fortressService.findInternalFortress(company);
 
         assert internalFortress != null;
@@ -120,9 +120,9 @@ public class ContentModelServiceNeo implements ContentModelService {
         try {
             if (existingModel == null) {
                 EntityInputBean entityInputBean = new EntityInputBean(internalFortress, "FdTagProfile");
-                entityInputBean.setName(contentModelConfig.getName());
+                entityInputBean.setName(contentModel.getName());
                 ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
-                Map<String, Object> map = JsonUtils.convertToMap(contentModelConfig);
+                Map<String, Object> map = JsonUtils.convertToMap(contentModel);
 
                 contentInputBean.setData(map);
                 entityInputBean.setContent(contentInputBean);
@@ -131,7 +131,7 @@ public class ContentModelServiceNeo implements ContentModelService {
                 existingModel = new Model(trackResult, profileCode);
                 contentModelDao.save(existingModel);
             } else {
-                updateProfile(company, contentModelConfig, existingModel);
+                updateProfile(company, contentModel, existingModel);
             }
         } catch (ExecutionException | InterruptedException | IOException e) {
             throw new FlockException(e.getMessage());
@@ -159,7 +159,7 @@ public class ContentModelServiceNeo implements ContentModelService {
      * @param company
      * @param fortress
      * @param documentType
-     * @param contentModelConfig
+     * @param contentModel
      * @return
      * @throws FlockException
      * @throws InterruptedException
@@ -167,7 +167,7 @@ public class ContentModelServiceNeo implements ContentModelService {
      * @throws IOException
      */
     @Transactional
-    public ContentModelResult saveEntityModel(Company company, Fortress fortress, DocumentType documentType, org.flockdata.profile.model.ContentModel contentModelConfig) throws FlockException {
+    public ContentModelResult saveEntityModel(Company company, Fortress fortress, DocumentType documentType, ContentModel contentModel) throws FlockException {
         // Used for storing internal versionable data
         Fortress internalFortress = fortressService.findInternalFortress(company);
         assert internalFortress != null;
@@ -175,10 +175,10 @@ public class ContentModelServiceNeo implements ContentModelService {
         Model model = contentModelDao.find(fortress, documentType);
         try {
             if (model == null) {
-                EntityInputBean entityInputBean = new EntityInputBean(internalFortress, "FdContentProfile");
-                entityInputBean.setName(contentModelConfig.getName());
+                EntityInputBean entityInputBean = new EntityInputBean(internalFortress, "FdContentModel");
+                entityInputBean.setName(contentModel.getName());
                 ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
-                Map<String, Object> map = JsonUtils.convertToMap(contentModelConfig);
+                Map<String, Object> map = JsonUtils.convertToMap(contentModel);
 
                 contentInputBean.setData(map);
                 entityInputBean.setContent(contentInputBean);
@@ -186,7 +186,7 @@ public class ContentModelServiceNeo implements ContentModelService {
                 model = new Model(trackResult, fortress, documentType);
                 contentModelDao.save(model);
             } else {
-                updateProfile(company, contentModelConfig, model);
+                updateProfile(company, contentModel, model);
             }
         } catch (ExecutionException | InterruptedException | IOException e) {
             throw new FlockException(e.getMessage());

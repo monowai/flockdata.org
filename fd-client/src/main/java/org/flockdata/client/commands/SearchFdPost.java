@@ -38,10 +38,9 @@ public class SearchFdPost extends AbstractRestCommand {
     private EsSearchResult result;
 
     /**
-     *
      * @param clientConfiguration where to find the API
-     * @param fdRestWriter  dispatch mechanism
-     * @param queryParams   query params. Company will be added automatically based on login used
+     * @param fdRestWriter        dispatch mechanism
+     * @param queryParams         query params. Company will be added automatically based on login used
      */
     public SearchFdPost(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, QueryParams queryParams) {
         super(clientConfiguration, fdRestWriter);
@@ -55,8 +54,9 @@ public class SearchFdPost extends AbstractRestCommand {
 
     @Override
     public SearchFdPost exec() {
-        result =null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(queryParams,httpHeaders);
+        result = null;
+        error = null;
+        HttpEntity requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
 
@@ -64,8 +64,9 @@ public class SearchFdPost extends AbstractRestCommand {
             response = restTemplate.exchange(url + "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
 
             result = response.getBody();
+            error = result.getFdSearchError();
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error= e.getMessage();
+            error = e.getMessage();
         }
         return this;// Everything worked
     }

@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.endpoint.InfoEndpoint;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.annotation.Secured;
@@ -280,13 +279,6 @@ public class EngineConfig implements PlatformConfig {
         this.multiTenanted = multiTenanted;
     }
 
-    @CacheEvict(value = {"fortress", "company", "companyTag", "geoData", "fortressDocType", "fortressUser",
-            "companyEvent", "labels"}, allEntries = true)
-    @Override
-    @PreAuthorize(FdRoles.EXP_ADMIN)
-    public void resetCache() {
-        logger.debug("Cache Reset");
-    }
 
     @Override
     public boolean isConceptsEnabled() {

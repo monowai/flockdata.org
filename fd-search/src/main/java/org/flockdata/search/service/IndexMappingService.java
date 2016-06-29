@@ -22,6 +22,8 @@ package org.flockdata.search.service;
 
 import org.flockdata.track.bean.SearchChange;
 
+import java.util.Collection;
+
 /**
  * Deals with Mapping and Settings for indexes
  *
@@ -30,4 +32,6 @@ import org.flockdata.track.bean.SearchChange;
 public interface IndexMappingService {
 
     boolean ensureIndexMapping(SearchChange change);
+
+    void deleteIndexes(Collection<String> delete);
 }

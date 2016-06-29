@@ -51,6 +51,8 @@ public interface EntityChangeWriter {
 
     void purgeCache() ;
 
+    boolean delete(EntitySearchChange searchChange);
+
     /**
      * Locates a specific key monitored by the entity.
      * <p/>
@@ -61,15 +63,6 @@ public interface EntityChangeWriter {
      */
     Map<String, Object> findOne(Entity entity, String id);
 
-    /**
-     * Removes a search document. Most of the time, the searchKey in the entity
-     * is sufficient. However if you are tracking EVERY change in the search engine, then you
-     * can delete a specific instance
-     *
-     */
-    boolean delete(EntitySearchChange searchChange);
-
     Map<String, Object> ping();
 
-    void deleteIndex(String index);
 }

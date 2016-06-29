@@ -24,10 +24,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
+import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.shared.IndexManager;
@@ -47,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -66,6 +69,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     @Autowired
     IndexManager indexManager;
 
+
     private Logger logger = LoggerFactory.getLogger(IndexMappingServiceEs.class);
     Collection<String>knownIndexes = new ArrayList<>();
 
@@ -84,6 +88,26 @@ public class IndexMappingServiceEs implements IndexMappingService {
         makeIndex(change, indexName, documentType);
         return true;
     }
+
+    @Override
+    public void deleteIndexes(Collection<String> indexesToDelete) {
+        knownIndexes.clear();
+        indexesToDelete.forEach(this::deleteIndex);
+
+    }
+
+    private void deleteIndex(String index) {
+        try {
+            searchConfig.elasticSearchClient().admin().indices().delete(new DeleteIndexRequest(index)).get();
+            logger.info("deleted [{}]", index);
+        } catch (IndexMissingException e){
+            logger.info("Index [{}] did not exist", index);
+        }catch (ExecutionException |InterruptedException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+
 
     private synchronized void makeIndex(SearchChange change, String indexName, String documentType) {
         logger.debug("Ensuring index {}, {}", indexName, documentType);

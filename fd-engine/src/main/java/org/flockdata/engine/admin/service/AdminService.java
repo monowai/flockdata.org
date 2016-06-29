@@ -21,6 +21,7 @@
 package org.flockdata.engine.admin.service;
 
 import org.flockdata.engine.admin.EngineAdminService;
+import org.flockdata.engine.configure.CacheConfiguration;
 import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.track.service.ConceptService;
@@ -81,6 +82,9 @@ public class AdminService implements EngineAdminService {
     @Autowired
     EngineConfig engineConfig;
 
+    @Autowired (required =  false) // Functional tests don't require it
+    CacheConfiguration cacheConfiguration;
+
     @Autowired
     IndexManager indexManager;
 
@@ -106,6 +110,9 @@ public class AdminService implements EngineAdminService {
 
         long total = 0;
         String searchIndexToDelete = null;
+
+        if ( cacheConfiguration!=null)
+            cacheConfiguration.resetCache();
 
         for (FortressSegment segment : segmentsToDelete) {
 
@@ -137,6 +144,10 @@ public class AdminService implements EngineAdminService {
         if ( segmentToDelete== null )
             // Removing the DocumentType
             conceptService.delete(documentType);
+
+        if ( cacheConfiguration!=null)
+            cacheConfiguration.resetCache();
+
         return new AsyncResult<>(true);
     }
 
@@ -165,7 +176,8 @@ public class AdminService implements EngineAdminService {
         entityService.purgeFortressDocs(fortress);
         searchService.purge(fortress);
         fortressService.purge(fortress);
-        engineConfig.resetCache();
+        if ( cacheConfiguration!=null)
+            cacheConfiguration.resetCache();
         watch.stop();
         logger.info("Completed purge. Removed " + nf.format(total) + " entities for fortress " + fortress);
 

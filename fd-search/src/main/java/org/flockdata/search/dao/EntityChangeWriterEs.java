@@ -26,14 +26,12 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.NoShardAvailableActionException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.index.mapper.MapperParsingException;
-import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.search.base.EntityChangeWriter;
@@ -51,7 +49,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 /**
  * User: Mike Holdsworth
@@ -262,18 +259,6 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         results.put("nodeName", searchConfig.elasticSearchClient().settings().get("name"));
 
         return results;
-    }
-
-    @Override
-    public void deleteIndex(String index) {
-        try {
-            searchConfig.elasticSearchClient().admin().indices().delete(new DeleteIndexRequest(index)).get();
-            logger.info("deleted [{}]", index);
-        } catch (IndexMissingException e){
-            logger.info("Index [{}] did not exist", index);
-        }catch (ExecutionException|InterruptedException e) {
-            logger.error(e.getMessage());
-        }
     }
 
     private String getJsonToIndex(EntitySearchChange searchChange) {

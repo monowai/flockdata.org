@@ -24,6 +24,7 @@ import com.google.common.cache.CacheBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.guava.GuavaCache;
 import org.springframework.cache.support.SimpleCacheManager;
@@ -43,6 +44,13 @@ import java.util.concurrent.TimeUnit;
 @Profile("fd-server")
 public class CacheConfiguration {
     private Logger logger = LoggerFactory.getLogger("configuration");
+
+    @CacheEvict(value = {"tag", "geoQuery", "geoData", "fortressUser", "sysUserApiKey", "company", "documentType", "labels", "entityByCode", "fortressSegment"
+            }, allEntries = true)
+    public void resetCache() {
+        logger.debug("Cache Reset");
+    }
+
 
     @Bean
     public CacheManager cacheManager() {

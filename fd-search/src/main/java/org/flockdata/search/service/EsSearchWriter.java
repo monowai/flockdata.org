@@ -34,8 +34,6 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Service endpoint to write incoming search requests via an ElasticSaerch implementation
@@ -73,7 +71,7 @@ public class EsSearchWriter implements SearchWriter {
     public SearchResults createSearchableChange(SearchChanges changes) throws IOException {
         Iterable<SearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
-        Map<String, Boolean> checked = new HashMap<>();
+
         SearchResults results = new SearchResults();
 
         for (SearchChange searchChange : thisChange) {

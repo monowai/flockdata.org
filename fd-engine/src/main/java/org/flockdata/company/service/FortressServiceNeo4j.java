@@ -352,7 +352,7 @@ public class FortressServiceNeo4j implements FortressService {
     }
 
     @Override
-    @Cacheable (value = "fortressSegment", unless = "#result==null")
+//    @Cacheable (value = "fortressSegment", unless = "#result==null")
     public FortressSegment resolveSegment(Company company, FortressInputBean fortressInput, String segmentName, String timeZone) throws NotFoundException {
 
         Fortress fortress;

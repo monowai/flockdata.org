@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public interface PlatformConfig {
 
-    public String apiBase();
+    String apiBase();
 
     String getTagSuffix(Company company);
 
@@ -40,8 +40,6 @@ public interface PlatformConfig {
     boolean isMultiTenanted();
 
     void setMultiTenanted(boolean multiTenanted);
-
-    void resetCache();
 
     @Value("${org.fd.engine.system.constraints:@null}")
     void setSystemConstraints(String constraints);

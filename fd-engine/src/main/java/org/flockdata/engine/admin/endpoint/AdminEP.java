@@ -61,13 +61,6 @@ public class AdminEP {
 
     private static Logger logger = LoggerFactory.getLogger(AdminEP.class);
 
-    @RequestMapping(value = "/cache", method = RequestMethod.DELETE)
-    public void resetCache() {
-        platformConfig.resetCache();
-
-    }
-
-
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     public String getPing() {
         // curl -X GET http://localhost:8081/api/v1/track/ping

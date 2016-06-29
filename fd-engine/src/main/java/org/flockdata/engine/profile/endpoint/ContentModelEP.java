@@ -47,7 +47,7 @@ import java.util.Collection;
 public class ContentModelEP {
 
     @Autowired
-    ContentModelService profileService;
+    ContentModelService contentModelService;
 
     @Autowired
     FortressService fortressService;
@@ -60,7 +60,7 @@ public class ContentModelEP {
             method = RequestMethod.GET)
     public Collection<ContentModelResult> getModels(HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return profileService.find(company);
+        return contentModelService.find(company);
     }
 
     @RequestMapping(value = "/{key}",
@@ -68,7 +68,7 @@ public class ContentModelEP {
             method = RequestMethod.GET)
     public ContentModelResult getModelKey(HttpServletRequest request, @PathVariable("key") String key) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return profileService.find(company,key);
+        return contentModelService.find(company,key);
     }
 
     @RequestMapping(value = "/{fortressCode}/{docTypeName}",
@@ -88,7 +88,7 @@ public class ContentModelEP {
         if ( documentType == null )
             throw new IllegalArgumentException("Unable to locate the document " + docTypeName);
 
-        return profileService.get(company, fortress, documentType);
+        return contentModelService.get(company, fortress, documentType);
 
     }
 
@@ -101,7 +101,7 @@ public class ContentModelEP {
         Company company = CompanyResolver.resolveCompany(request);
 
 
-        return profileService.getTagModel(company, code);
+        return contentModelService.getTagModel(company, code);
 
     }
 
@@ -112,7 +112,7 @@ public class ContentModelEP {
     public ContentModelResult storeContentModel(HttpServletRequest request,
                                                 @PathVariable("fortressCode") String fortressCode,
                                                 @PathVariable("docTypeName") String docTypeName,
-                                                @RequestBody ContentModel contentProfile) throws FlockException {
+                                                @RequestBody ContentModel contentModel) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         Fortress fortress = fortressService.getFortress(company, fortressCode);
@@ -122,7 +122,7 @@ public class ContentModelEP {
         DocumentType documentType = conceptService.resolveByDocCode(fortress, docTypeName, Boolean.FALSE);
         if ( documentType == null )
             throw new IllegalArgumentException("Unable to locate the document " + docTypeName);
-        return profileService.saveEntityModel(company, fortress, documentType, contentProfile);
+        return contentModelService.saveEntityModel(company, fortress, documentType, contentModel);
 
     }
 
@@ -132,14 +132,14 @@ public class ContentModelEP {
             method = RequestMethod.POST)
     public ContentModelResult storeContentModel(HttpServletRequest request,
                                                 @PathVariable("code") String code,
-                                                @RequestBody ContentModel contentProfile) throws FlockException {
+                                                @RequestBody ContentModel contentModel) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         if (code== null || code.equals(""))
-            throw new IllegalArgumentException("No key code was provided for the profile");
+            throw new IllegalArgumentException("No key code was provided for the model");
 
 
-        return profileService.saveTagModel(company, code, contentProfile);
+        return contentModelService.saveTagModel(company, code, contentModel);
 
     }
 
@@ -152,7 +152,7 @@ public class ContentModelEP {
                                                      @RequestBody ContentValidationRequest contentRequest) throws FlockException {
         CompanyResolver.resolveCompany(request);
 
-        return profileService.validate(contentRequest);
+        return contentModelService.validate(contentRequest);
 
     }
 
@@ -164,7 +164,7 @@ public class ContentModelEP {
                                             @RequestBody ContentValidationRequest contentRequest)
             throws FlockException {
         CompanyResolver.resolveCompany(request);
-        return  profileService.createDefaultContentModel(contentRequest);
+        return  contentModelService.createDefaultContentModel(contentRequest);
     }
 
 

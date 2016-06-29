@@ -38,7 +38,7 @@ import javax.annotation.PostConstruct;
 @SpringBootApplication(
         scanBasePackages = {"org.flockdata.company",
                 "org.flockdata.engine", "org.flockdata.geography",
-                "org.flockdata.authentication", "org.flockdata.shared"})
+                "org.flockdata.authentication", "org.flockdata.engine.configure", "org.flockdata.shared"})
 
 public class FdEngine {
     public static void main(String[] args) {

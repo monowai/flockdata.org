@@ -51,6 +51,9 @@ public class SearchAdmin {
     EntityChangeWriter engineDao;
 
     @Autowired
+    IndexMappingService indexMappingService;
+
+    @Autowired
     SearchConfig searchConfig;
 
     private Logger logger = LoggerFactory.getLogger("configuration");
@@ -86,10 +89,7 @@ public class SearchAdmin {
     }
 
     public void deleteIndexes (Collection<String>indexesToDelete){
-        for (String index : indexesToDelete) {
-            engineDao.deleteIndex(index);
-        }
-
+        indexMappingService.deleteIndexes(indexesToDelete);
     }
 
     @PostConstruct
