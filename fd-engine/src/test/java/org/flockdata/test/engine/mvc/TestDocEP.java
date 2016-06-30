@@ -30,8 +30,7 @@ import org.junit.Test;
 import java.util.Collection;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.*;
 
 /**
  * Created by mike on 16/02/15.
@@ -126,8 +125,11 @@ public class TestDocEP extends MvcBase {
 
         assertEquals(docType.getName(), result.getName());
         assertEquals(1, getDocuments(mike(), fortress.getName()).size());
+        assertNull(result.getSegments());
 
     }
+
+
 
 
 }

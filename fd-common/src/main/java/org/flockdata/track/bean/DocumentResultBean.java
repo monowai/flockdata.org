@@ -22,6 +22,7 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.FortressSegment;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 /**
@@ -34,9 +35,23 @@ public class DocumentResultBean {
     private Long id;
     private String name;
     ArrayList<ConceptResultBean> concepts = new ArrayList<>();
-    ArrayList<String>segments = new ArrayList<>();
+    ArrayList<String> segments = null;
 
     DocumentResultBean() {
+    }
+
+    public DocumentResultBean(DocumentType documentType) {
+        this();
+        this.name = documentType.getName();
+        this.id = documentType.getId();
+    }
+
+    public DocumentResultBean(DocumentType documentType, Collection<FortressSegment> segments) {
+        this(documentType);
+        if (segments!=null) {
+            this.segments = new ArrayList<>(segments.size());
+            this.segments.addAll(segments.stream().map(FortressSegment::getCode).collect(Collectors.toList()));
+        }
     }
 
     public String getName() {
@@ -46,13 +61,6 @@ public class DocumentResultBean {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public ArrayList<ConceptResultBean> getConcepts() {
         return concepts;
-    }
-
-    public DocumentResultBean(DocumentType documentType) {
-        this();
-        this.name = documentType.getName();
-        this.id = documentType.getId();
-        this.segments.addAll(documentType.getSegments().stream().map(FortressSegment::getCode).collect(Collectors.toList()));
     }
 
     @JsonIgnore
@@ -70,6 +78,7 @@ public class DocumentResultBean {
         concepts.add(concept);
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public ArrayList<String> getSegments() {
         return segments;
     }
@@ -102,6 +111,8 @@ public class DocumentResultBean {
     }
 
     public void addSegment(FortressSegment segment) {
+        if (this.segments == null)
+            segments = new ArrayList<>();
         this.segments.add(segment.getCode());
     }
 }

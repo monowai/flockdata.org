@@ -247,7 +247,7 @@ public class ConceptDaoNeo {
             throw new NotFoundException("Failed to find DocumentType " + doc);
 
         template.fetch(documentType.getSegments());
-        return new DocumentResultBean(documentType);
+        return new DocumentResultBean(documentType, documentType.getSegments());
 //        result.addSegment(f.getDefaultSegment());
     }
 
