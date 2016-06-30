@@ -171,8 +171,10 @@ public class EntityMapper extends EntityInputBean implements Mappable {
                 row.remove(sourceColumn);
             } else if (colDef.hasEntityProperties()) {
                 for (ColumnDefinition columnDefinition : colDef.getProperties()) {
+                    // Expression can be set on a by property value otherwise default to that of the parent
+                    String expression = (columnDefinition.getValue()!=null ? columnDefinition.getValue(): colDef.getValue());
 
-                    value = ExpressionHelper.getValue(row, columnDefinition.getValue(), columnDefinition, row.get(valueColumn));
+                    value = ExpressionHelper.getValue(row, expression, columnDefinition, value);
                     Object oValue = TransformationHelper.transformValue(value, sourceColumn, colDef);
                     if (columnDefinition.getTarget() != null)
                         valueColumn = columnDefinition.getTarget();

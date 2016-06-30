@@ -1,5 +1,4 @@
 {
-  "tagOrEntity": "entity",
   "fortressName": "GovTrack",
   "documentName": "Contribution",
   "contentType": "csv",
@@ -101,19 +100,19 @@
       ]
     },
     "99": {
-      "target": "valueDefault",
+      "dataType": "long",
       "properties": [
         {
-          "dataType": "long",
+          "target": "valueDefault",
           "value": "0"
         }
       ]
     },
     "99Calc": {
-      "target": "valueCalc",
+      "value": "#data['0']",
       "properties": [
         {
-          "value": "#data['0']"
+          "target": "valueCalc"
         }
       ]
     },
