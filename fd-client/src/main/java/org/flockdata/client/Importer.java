@@ -19,7 +19,9 @@ package org.flockdata.client;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ContentModelHandler;
 import org.flockdata.profile.ExtractProfileDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.SystemUserResultBean;
@@ -37,6 +39,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,22 +47,20 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * General importer with support for CSV and XML parsing. Interacts with AbRestClient to send
- * information via a RESTful interface
+ * General importer with support for Delimited and XML parsing.
  * <p>
- * Will send information to FlockData as either tags or track information.
+ * Will send information to FlockData as either tags or track information over AMQP
  * <p>
- * You should extend EntityInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
+ * For XML you should extend EntityInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
  * to massage your data prior to dispatch to FD.
  * <p>
  * Parameters:
- * -s=http://localhost:8080
+ * example command - assumes the server has a Tag model called Countries
+ * import --auth.user=demo:123 --fd.client.delimiter=";" --fd.client.import="/fd-cow.txt" --fd.content.model="tag:countries"
+ *
+ * -or- to parse the file using the local copy of the Content Model,
+ * import --auth.user=demo:123 --fd.client.delimiter=";" --fd.client.import="/fd-cow.txt,/countries.json"
  * <p>
- * quoted string containing "file,DelimitedClass,BatchSize"
- * "./path/to/file/cow.csv,org.flockdata.health.Countries,200"
- * <p>
- * if BatchSize is set to -1, then a simulation only is run; information is not dispatched to the server.
- * This is useful to debug the class implementing Delimited
  *
  * @see org.flockdata.client.rest.FdRestWriter
  * @see org.flockdata.profile.model.Mappable
@@ -88,6 +89,12 @@ public class Importer  {
 
     @Value("${auth.user:#{null}}")
     String authUser;
+
+    @Value("${fd.client.delimiter}")
+    String delimiter;
+
+    @Value("${fd.content.model:#{null}}")
+    String serverSideContentModel; // tag:{typeCode} or {fortress}:{doctype}
 
     @PostConstruct
     void importFiles() {
@@ -133,8 +140,15 @@ public class Importer  {
                     item++;
                 }
                 ContentModel contentModel;
-                if (fdClient != null && fileModel != null) {
-                    contentModel = ContentModelDeserializer.getContentModel(fileModel);
+                ExtractProfile extractProfile = null;
+                if ( fileModel != null) {
+                    // Reading model from file
+                    contentModel = resolveContentModel(fileModel);
+
+                } else if (serverSideContentModel!=null ){
+                    contentModel = resolveContentModel(serverSideContentModel);
+                    extractProfile = new ExtractProfileHandler(contentModel, delimiter);
+
                 } else {
                     logger.error("No import parameters to work with");
                     return;
@@ -152,7 +166,9 @@ public class Importer  {
                 logger.info("Processing {} against model {}",fileName, fileModel);
 
                 // ToDo: Figure out importProfile properties. We are currently reading them out of the content model
-                ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile(fileModel, contentModel);
+                if (extractProfile== null)
+                    ExtractProfileDeserializer.getImportProfile(fileModel, contentModel);
+
                 totalRows = totalRows + fileProcessor.processFile(extractProfile, fileName);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
@@ -165,7 +181,23 @@ public class Importer  {
                 fileProcessor.endProcess(watch, totalRows, 0);
         }
     }
+    // import --auth.user=mike:123 --fd.client.import="/fd-cow.txt" --fd.content.model=tag:countries
+    public ContentModel resolveContentModel(String fileModel) throws IOException {
+        ContentModel contentModel ;
+        contentModel = ContentModelDeserializer.getContentModel(fileModel);
+        if ( contentModel == null ){
+            // See if it can be found on the server
+            // format is {fortress}.{docType}, or tag.doctype
+            String[] args = fileModel.split(":");
+            if ( args.length == 2){
+                contentModel = fdClient.getContentModel(clientConfiguration, args[0], args[1]);
+            }
+            if (contentModel ==null )
+                contentModel = new ContentModelHandler();// Default??
 
+        }
+        return contentModel;
+    }
 
 
 }

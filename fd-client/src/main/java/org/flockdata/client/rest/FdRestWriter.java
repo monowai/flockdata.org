@@ -16,19 +16,19 @@
 
 package org.flockdata.client.rest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.AlreadyClosedException;
 import org.apache.commons.codec.binary.Base64;
 import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.client.commands.Login;
+import org.flockdata.client.commands.ModelGet;
 import org.flockdata.client.commands.Ping;
 import org.flockdata.client.commands.RegistrationPost;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.model.Company;
-import org.flockdata.registration.FortressInputBean;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
@@ -37,10 +37,11 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdWriter;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -170,30 +171,8 @@ public class FdRestWriter implements FdWriter {
         if (tagInputs.isEmpty())
             return "OK";
 
-//        if (clientConfiguration.isAmqp())
         return flushTagsAmqp(tagInputs);
 
-//        RestTemplate restTemplate = getRestTemplate();
-//
-//        HttpHeaders httpHeaders = getHeaders(clientConfiguration);
-//        HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputs, httpHeaders);
-//
-//        try {
-//            // ToDo logServerMessage - error state will be returned in arraylist
-//            ResponseEntity<ArrayList> response = restTemplate.exchange(NEW_TAG, HttpMethod.PUT, requestEntity, ArrayList.class);
-//            logServerMessages(response);
-//            return "OK";
-//        } catch (HttpClientErrorException e) {
-//            // to test, try to log against no existing fortress.
-//            logger.error("FlockData client error processing Tags {}", getErrorMessage(e));
-//            return null;
-//        } catch (HttpServerErrorException e) {
-//            logger.error("FlockData server error processing Tags {}", getErrorMessage(e));
-//            return null;
-//        } catch (ResourceAccessException e) {
-//            logger.error("Unable to talk to FD over the REST interface. Can't process this tag request. " + (clientConfiguration != null && clientConfiguration.isAmqp() ? "This does not affect sending payloads over AMQP" : ""));
-//            return null;
-//        }
     }
 
     private void logServerMessages(ResponseEntity<ArrayList> response) {
@@ -207,52 +186,6 @@ public class FdRestWriter implements FdWriter {
                         logger.error("Service returned [{}]", serviceMessage.toString());
                 }
             }
-    }
-
-    public void ensureFortress(String fortressName) throws FlockException {
-        if (fortressName == null)
-            return;
-
-        RestTemplate restTemplate = getRestTemplate();
-
-        HttpHeaders httpHeaders = getHeaders(clientConfiguration);
-        HttpEntity<FortressInputBean> request = new HttpEntity<>(new FortressInputBean(fortressName), httpHeaders);
-//        try {
-//            restTemplate.exchange(FORTRESS, HttpMethod.POST, request, FortressResultBean.class);
-//            if (defaultFortress != null && !defaultFortress.equals(fortressName)) {
-//                request = new HttpEntity<>(new FortressInputBean(defaultFortress, false), httpHeaders);
-//                restTemplate.exchange(FORTRESS, HttpMethod.POST, request, FortressResultBean.class);
-//            }
-//        } catch (HttpClientErrorException | HttpServerErrorException e) {
-//            // ToDo: Rest error handling pretty useless. need to know why it's failing
-//            logger.error("Service Tracking error {}", getErrorMessage(e));
-//        }
-    }
-
-    public String getErrorMessage(HttpStatusCodeException e) throws FlockException {
-
-        if (e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR || e.getStatusCode() == HttpStatus.BAD_REQUEST || e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-            logger.error(e.getResponseBodyAsString());
-            String error = e.getResponseBodyAsString();
-            if (error.contains("Invalid API"))
-                logger.info("Your API key appears to be invalid. Have you run the configure process?");
-            throw new FlockException(error);
-        }
-
-        JsonNode n = null;
-        try {
-            n = mapper.readTree(e.getResponseBodyAsByteArray());
-        } catch (IOException e1) {
-
-            logger.error(String.valueOf(e1));
-        }
-        String message;
-        if (n != null) {
-            message = String.valueOf(n.get("message"));
-        } else
-            message = e.getMessage();
-
-        return message;
     }
 
     private HttpHeaders httpHeaders = null;
@@ -308,5 +241,14 @@ public class FdRestWriter implements FdWriter {
 
         return login.result();
 
+    }
+
+    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String type, String clazz){
+        ModelGet modelGet = new ModelGet(clientConfiguration, this, type, clazz);
+        modelGet.exec();
+        String result = modelGet.exec().error();
+        if (result != null)
+            logger.error("Get Model resulted in {} for {} {}", result,type,clazz);
+        return modelGet.result();
     }
 }

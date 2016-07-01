@@ -115,6 +115,7 @@ public class ContentModelServiceNeo implements ContentModelService {
         assert internalFortress != null;
 
         String profileCode = TagHelper.parseKey(code);
+        contentModel.setTagModel(true);
 
         Model existingModel = contentModelDao.findTagProfile(company, profileCode);
         try {
@@ -132,7 +133,7 @@ public class ContentModelServiceNeo implements ContentModelService {
                 existingModel = new Model(trackResult, profileCode);
                 contentModelDao.save(existingModel);
             } else {
-                updateProfile(company, contentModel, existingModel);
+                updateProfile(company, contentModel.setTagModel(true), existingModel);
             }
         } catch (ExecutionException | InterruptedException | IOException e) {
             throw new FlockException(e.getMessage());

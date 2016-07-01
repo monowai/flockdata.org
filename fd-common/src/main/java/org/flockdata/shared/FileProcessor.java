@@ -136,7 +136,7 @@ public class FileProcessor {
         return results;
     }
 
-    public int processFile(ExtractProfile importModel, String source) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
+    public int processFile(ExtractProfile extractProfile, String source) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
         //String source = path;
         logger.info("Start processing of {}", source);
@@ -145,15 +145,15 @@ public class FileProcessor {
         try {
             for (String file : files) {
 
-                if (importModel.getContentType() == ExtractProfile.ContentType.CSV)
-                    result = processCSVFile(file, importModel);
-                else if (importModel.getContentType() == ExtractProfile.ContentType.XML)
-                    result = processXMLFile(file, importModel);
-                else if (importModel.getContentType() == ExtractProfile.ContentType.JSON) {
-                    if (importModel.getContentModel().getDocumentType() == null)
+                if (extractProfile.getContentType() == ExtractProfile.ContentType.CSV)
+                    result = processCSVFile(file, extractProfile);
+                else if (extractProfile.getContentType() == ExtractProfile.ContentType.XML)
+                    result = processXMLFile(file, extractProfile);
+                else if (extractProfile.getContentType() == ExtractProfile.ContentType.JSON) {
+                    if (extractProfile.getContentModel().getDocumentType() == null)
                         result = processJsonTags(file);
                     else
-                        result = processJsonEntities(file, importModel);
+                        result = processJsonEntities(file, extractProfile);
                 }
 
             }
@@ -372,16 +372,16 @@ public class FileProcessor {
                         Map<String, Object> map = Transformer.convertToMap(headerRow, nextLine, extractProfile);
 
                         if (map != null) {
-                            if (extractProfile.getContentModel().getDocumentType() != null) {
-                                EntityInputBean entityInputBean = Transformer.transformToEntity(map, extractProfile.getContentModel());
-                                // Dispatch/load mechanism
-                                if (entityInputBean != null)
-                                    getPayloadBatcher().batchEntity(entityInputBean);
-                            } else {// Tag
+                            if (extractProfile.getContentModel().isTagModel() ) {
                                 TagInputBean tagInputBean = Transformer.transformToTag(map, extractProfile.getContentModel());
                                 if (tagInputBean != null) {
                                     getPayloadBatcher().batchTag(tagInputBean, "TagInputBean");
                                 }
+                            } else {
+                                EntityInputBean entityInputBean = Transformer.transformToEntity(map, extractProfile.getContentModel());
+                                // Dispatch/load mechanism
+                                if (entityInputBean != null)
+                                    getPayloadBatcher().batchEntity(entityInputBean);
                             }
                             if (stopProcessing(currentRow, then)) {
                                 break;

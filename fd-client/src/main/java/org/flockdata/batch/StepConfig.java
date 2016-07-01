@@ -29,11 +29,11 @@ public class StepConfig {
 
     StepConfig (){}
 
-    StepConfig (String step, String profile, String query){
+    StepConfig (String step, String model, String query){
         this();
         this.query = query;
         this.step = step;
-        this.profile = profile;
+        this.profile = model;
     }
 
     public String getQuery() {

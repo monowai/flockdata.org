@@ -1,10 +1,7 @@
 {
   "documentName": "Athlete",
-  "contentType": "csv",
-  "tagOrEntity": "entity",
   "entityOnly": false,
   "fortressName": "Olympic",
-  "header": true,
   "content": {
     "ID":{
       "callerRef": true,

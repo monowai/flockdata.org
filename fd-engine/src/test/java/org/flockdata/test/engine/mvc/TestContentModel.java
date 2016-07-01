@@ -75,6 +75,7 @@ public class TestContentModel extends MvcBase {
         assertNotNull(contentResult);
 //        assertNull(contentResult.getPreParseRowExp());
         assertEquals("Content Profiles differed", contentModel, contentResult);
+        assertFalse("Should have been an Entity ContentModel ", contentResult.isTagModel());
     }
 
     @Test
@@ -215,6 +216,7 @@ public class TestContentModel extends MvcBase {
                 MockMvcResultMatchers.status().isOk());
 
         assertNotNull(contentResult);
+        assertTrue(contentResult.isTagModel());
 //        assertEquals(keyResult.getKey());
     }
 }

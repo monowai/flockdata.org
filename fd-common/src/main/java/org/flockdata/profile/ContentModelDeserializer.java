@@ -83,6 +83,10 @@ public class ContentModelDeserializer extends JsonDeserializer<ContentModel> {
         if (!isNull(nodeValue))
             contentModel.setEmptyIgnored(Boolean.parseBoolean(nodeValue.asText()));
 
+        nodeValue = node.get("tagModel");
+        if (!isNull(nodeValue))
+            contentModel.setTagModel(Boolean.parseBoolean(nodeValue.asText()));
+
         nodeValue = node.get("entityOnly");
         if (isNull(nodeValue))
             nodeValue = node.get("metaOnly"); // legacy value
@@ -122,23 +126,28 @@ public class ContentModelDeserializer extends JsonDeserializer<ContentModel> {
         return nodeValue == null || nodeValue.isNull() || nodeValue.asText().equals("null");
     }
 
-    public static ContentModel getContentModel(String profile) throws IOException {
-        ContentModel contentModel;
+    /**
+     * Resolves a content model from disk
+     * @param fileName file
+     * @return null if not found otherwise the model content
+     * @throws IOException
+     */
+    public static ContentModel getContentModel(String fileName) throws IOException {
+        ContentModel contentModel = null;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
-        File fileIO = new File(profile);
+        File fileIO = new File(fileName);
         if (fileIO.exists()) {
             contentModel = om.readValue(fileIO, ContentModelHandler.class);
 
         } else {
-            InputStream stream = ClassLoader.class.getResourceAsStream(profile);
+            InputStream stream = ClassLoader.class.getResourceAsStream(fileName);
             if (stream != null) {
                 contentModel = om.readValue(stream, ContentModelHandler.class);
-            } else
-                // Defaults??
-                contentModel = new ContentModelHandler();
+
+            }
+
         }
-        //importParams.setRestClient(restClient);
         return contentModel;
     }
 

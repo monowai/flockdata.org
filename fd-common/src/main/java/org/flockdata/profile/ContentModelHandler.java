@@ -38,6 +38,7 @@ public class ContentModelHandler implements ContentModel {
 
     private String fortressName = null;
     private String name = null; // User supplied description of this profile
+    private String code = null; // Mandatory for tags and null for entity
     private FortressInputBean fortress = null;
     private Boolean entityOnly =null;
     private Boolean archiveTags = true;
@@ -48,6 +49,7 @@ public class ContentModelHandler implements ContentModel {
     private String fortressUser;
     private String handler;
     private String condition;
+    private Boolean tagModel;
 
     private Map<String, ColumnDefinition> content;
 
@@ -100,6 +102,10 @@ public class ContentModelHandler implements ContentModel {
     public ContentModel setName(String name){
         this.name = name;
         return this;
+    }
+
+    public String getCode() {
+        return code;
     }
 
     @Override
@@ -184,6 +190,18 @@ public class ContentModelHandler implements ContentModel {
         return emptyIgnored;
     }
 
+    @Override
+    public ContentModel setTagModel(boolean tagModel) {
+        this.tagModel = tagModel;
+        return this;
+    }
+
+    @Override
+    public Boolean isTagModel() {
+        if ( tagModel == null)
+            return documentType == null || documentType.getCode().equalsIgnoreCase("tag");
+        return tagModel; // Ony TagProfiles have a code value
+    }
 
     public ContentModel setEmptyIgnored(boolean emptyIgnored) {
         this.emptyIgnored = emptyIgnored;
