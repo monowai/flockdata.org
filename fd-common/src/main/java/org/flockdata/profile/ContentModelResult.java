@@ -41,9 +41,12 @@ public class ContentModelResult {
         this.key = model.getKey();
         this.name = model.getName();
         this.code = model.getCode();
-        if ( model.getFortress()!=null)
+        if ( model.getFortress()!=null) {
             this.fortress = model.getFortress().getName();
-        this.documentType = model.getDocument().getName();
+            this.documentType = model.getDocument().getName();
+        } else {
+            this.documentType = code;
+        }
 
     }
 

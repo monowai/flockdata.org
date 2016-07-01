@@ -109,7 +109,7 @@ public class ContentModelServiceNeo implements ContentModelService {
     EntityService entityService;
 
     @Transactional
-    public ContentModelResult saveTagModel(Company company, String code, org.flockdata.profile.model.ContentModel contentModel) throws FlockException {
+    public ContentModelResult saveTagModel(Company company, String code, ContentModel contentModel) throws FlockException {
         Fortress internalFortress = fortressService.findInternalFortress(company);
 
         assert internalFortress != null;
@@ -119,7 +119,8 @@ public class ContentModelServiceNeo implements ContentModelService {
         Model existingModel = contentModelDao.findTagProfile(company, profileCode);
         try {
             if (existingModel == null) {
-                EntityInputBean entityInputBean = new EntityInputBean(internalFortress, "FdTagProfile");
+                EntityInputBean entityInputBean = new EntityInputBean(internalFortress, "TagModel");
+                entityInputBean.setCode(code);
                 entityInputBean.setName(contentModel.getName());
                 ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
                 Map<String, Object> map = JsonUtils.convertToMap(contentModel);
