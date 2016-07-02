@@ -81,7 +81,7 @@ public interface ContentModel {
 
     Boolean isEmptyIgnored();
 
-    Boolean isTagModel();
+    boolean isTagModel();
 
     ContentModel setTagModel(boolean tagModel);
 }

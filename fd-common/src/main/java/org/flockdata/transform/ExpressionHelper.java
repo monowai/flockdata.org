@@ -28,8 +28,9 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
@@ -155,7 +156,7 @@ public class ExpressionHelper {
         if (NumberUtils.isDigits(value))  // plain old java millis
             return Long.parseLong(value);
 
-        // Date formats
+        // Custom Date formats
         DateTimeFormatter pattern = DateTimeFormatter.ofPattern(colDef.getDateFormat(), Locale.ENGLISH);
         String tz = colDef.getTimeZone();
         if ( tz == null )
@@ -164,9 +165,8 @@ public class ExpressionHelper {
         try {
 
             // Try first as DateTime
-            LocalDateTime date = LocalDateTime.parse(value, pattern);
-            return new DateTime(date.toString(), DateTimeZone.forID(tz)).getMillis();
-        } catch (DateTimeParseException e) {
+            return new SimpleDateFormat(colDef.getDateFormat()).parse(value).getTime();
+        } catch (DateTimeParseException | ParseException e) {
             // Just a plain date
             LocalDate date = LocalDate.parse(value, pattern);
             return new DateTime(date.toString(), DateTimeZone.forID(tz)).getMillis();

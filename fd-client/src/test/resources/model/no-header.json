@@ -1,6 +1,6 @@
 {
   "contentType": "csv",
-  "tagOrEntity": "tag",
+  "tagModel": true,
   "fortress": "GovTrack",
   "fortressUser": "mike",
   "content": {

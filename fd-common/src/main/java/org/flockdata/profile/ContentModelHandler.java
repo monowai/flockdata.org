@@ -49,7 +49,7 @@ public class ContentModelHandler implements ContentModel {
     private String fortressUser;
     private String handler;
     private String condition;
-    private Boolean tagModel;
+    private boolean tagModel;
 
     private Map<String, ColumnDefinition> content;
 
@@ -197,10 +197,8 @@ public class ContentModelHandler implements ContentModel {
     }
 
     @Override
-    public Boolean isTagModel() {
-        if ( tagModel == null)
-            return documentType == null || documentType.getCode().equalsIgnoreCase("tag");
-        return tagModel; // Ony TagProfiles have a code value
+    public boolean isTagModel() {
+        return documentType == null && fortress == null || tagModel;
     }
 
     public ContentModel setEmptyIgnored(boolean emptyIgnored) {

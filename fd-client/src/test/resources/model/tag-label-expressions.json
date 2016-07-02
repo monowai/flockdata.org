@@ -1,5 +1,5 @@
 {
-  "tagOrEntity": "tag",
+  "tagModel": true,
   "content": {
     "label": {
       "tag": true,

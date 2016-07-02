@@ -139,9 +139,10 @@ public class AdminService implements EngineAdminService {
             }
             logger.info ("Purged {}, {}, {}", fortress.getName(), documentType.getName(), segment.getCode());
             searchIndexToDelete = null;
-            conceptService.delete(documentType,segment);
+            if ( !segment.isDefault())
+                conceptService.delete(documentType,segment);
         }
-        if ( segmentToDelete== null )
+        if ( segmentToDelete== null  )
             // Removing the DocumentType
             conceptService.delete(documentType);
 

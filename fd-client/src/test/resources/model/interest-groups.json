@@ -2,6 +2,7 @@
   "fortress": "GovTrack",
   "fortressUser": "mike",
   "header": false,
+  "tagModel": true,
   "delimiter": ",",
   "quoteCharacter": "|",
   "content": {

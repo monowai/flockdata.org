@@ -43,7 +43,8 @@ public class ContentModelResult {
         this.code = model.getCode();
         if ( model.getFortress()!=null) {
             this.fortress = model.getFortress().getName();
-            this.documentType = model.getDocument().getName();
+            if ( model.getDocument()!=null)
+                this.documentType = model.getDocument().getName();
         } else {
             this.documentType = code;
         }

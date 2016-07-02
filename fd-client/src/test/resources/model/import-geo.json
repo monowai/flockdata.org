@@ -1,6 +1,6 @@
 {
   "contentType": "csv",
-  "tagOrEntity": "tag",
+  "tagModel": true,
   "header": true,
   "delimiter": "|",
   "condition": "#data['ACTION_INDICATOR'] !='D'",
