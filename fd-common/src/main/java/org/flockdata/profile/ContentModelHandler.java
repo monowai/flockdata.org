@@ -115,7 +115,13 @@ public class ContentModelHandler implements ContentModel {
 
     @Override
     public void setContent(Map<String, ColumnDefinition> columns) {
-        this.content = columns;
+        if ( content == null )
+            content = columns;
+        else
+            for (String column : columns.keySet()) {
+                if ( !content.containsKey(column)) // Adding in only the new ColumnDefinition
+                    content.put(column, columns.get(column));
+            }
     }
 
     public void setSegmentExpression(String segmentExpression) {

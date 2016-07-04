@@ -264,7 +264,10 @@ public class ContentModelServiceNeo implements ContentModelService {
 
     @Override
     public org.flockdata.profile.model.ContentModel createDefaultContentModel(ContentValidationRequest contentRequest) {
-        ContentModelHandler result = new ContentModelHandler();
+        ContentModel result = contentRequest.getContentModel();
+        if (result == null )
+            result = new ContentModelHandler();
+
         result.setContent(Transformer.fromMapToProfile(contentRequest.getRows()));
         return result;
     }
