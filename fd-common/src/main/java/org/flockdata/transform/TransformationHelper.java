@@ -132,7 +132,7 @@ public class TransformationHelper {
             }
         }
 
-        if (tag.getCode() == null)
+        if (tag.getCode() == null || tag.getCode().trim().equals(""))
             return false;
 
         setNestedTags(tag, colDef.getTargets(), row);

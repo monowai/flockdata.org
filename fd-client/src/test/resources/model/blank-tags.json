@@ -1,0 +1,90 @@
+{
+  "documentType": {
+    "name": "Officers",
+    "code": "Officers",
+    "geoQuery": null,
+    "versionStrategy": "FORTRESS",
+    "tagStructure": "DEFAULT",
+    "searchEnabled": null,
+    "storeEnabled": null
+  },
+  "name": "Officers of Legal Entities",
+  "fortress": {
+    "name": "icij.org",
+    "searchEnabled": null,
+    "storeEnabled": null,
+    "timeZone": "Pacific/Auckland",
+    "languageTag": null,
+    "enabled": true,
+    "system": false,
+    "code": "icij.org"
+  },
+  "archiveTags": true,
+  "tagModel": false,
+  "content": {
+    "sourceID": {
+      "dataType": "string",
+      "persistent": false,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "valid_until": {
+      "dataType": "string",
+      "persistent": false,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "icij_id": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "title": true,
+      "description": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "country_codes": {
+      "code": "country_codes",
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": true,
+      "mustExist": true,
+      "reverse": false,
+      "label": "Country",
+      "relationship": "resident",
+      "delimiter": ";"
+    },
+    "countries": {
+      "dataType": "string",
+      "persistent": false,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "node_id": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "callerRef": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    }
+  }
+}

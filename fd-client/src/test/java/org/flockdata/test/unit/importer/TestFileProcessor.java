@@ -57,7 +57,6 @@ public class TestFileProcessor {
 
     @Test
     public void collection_FilesInDirectory() throws Exception {
-        String dir = "*.json";
 
         FileProcessor fileProcessor = new FileProcessor();
         Collection<String> files = fileProcessor.resolveFiles("/data/dummy1.json");
@@ -66,11 +65,11 @@ public class TestFileProcessor {
 
         files = fileProcessor.resolveFiles("./data/*.json");
         assertFalse(files.isEmpty());
-        assertEquals(3, files.size());
+        assertEquals(2, files.size());
 
         files = fileProcessor.resolveFiles("./data/*.json");
         assertFalse(files.isEmpty());
-        assertEquals(3, files.size());
+        assertEquals(2, files.size());
 
         files = fileProcessor.resolveFiles("./data/*");
         assertFalse(files.isEmpty());

@@ -1,0 +1,4 @@
+name,icij_id,valid_until,country_codes,countries,node_id,sourceID
+BOSHEN LTD./135-77,5F64E7218A4743275D1098ED6F7C8221,The Panama Papers data is current through 2015,,,12000012,Panama Papers
+HO THUY NGA,06A0FC92656D09F63D966FE7BD076A45,The Panama Papers data is current through 2015,VNM,Viet Nam,12000005,Panama Papers
+YEOMUN LTD,,The Offshore Leaks data is current through 2010,CHN;IDN;VGB;MYS;SGP;RUS;AUS,"China;Indonesia;Virgin Islands, British;Malaysia;Singapore;Russian Federation;Australia",92837,Offshore Leaks
