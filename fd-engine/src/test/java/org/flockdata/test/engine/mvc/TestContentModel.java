@@ -208,7 +208,7 @@ public class TestContentModel extends MvcBase {
         assertNotNull(result);
 
         ContentModelResult keyResult = findContentModelByKey(mike(), result.getKey(),  MockMvcResultMatchers.status().isOk());
-        assertNull("Tag profiles are not connected to fortresses", keyResult.getFortress());
+        assertEquals("Tag profiles are connected to a pseudo fortress - Tag", "Tag", keyResult.getFortress());
         assertNotNull (keyResult);
 
         ContentModel contentResult = getContentModel(mike(),

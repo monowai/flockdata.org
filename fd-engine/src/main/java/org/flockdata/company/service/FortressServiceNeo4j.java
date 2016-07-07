@@ -29,6 +29,7 @@ import org.flockdata.engine.dao.ConceptDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
+import org.flockdata.query.EdgeResults;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.service.SystemUserService;
@@ -438,5 +439,9 @@ public class FortressServiceNeo4j implements FortressService {
         String docType = entity.getType();
         return conceptDao.findDocumentType(f, docType, false);
 
+    }
+
+    public EdgeResults getContentStructure(Fortress fortress){
+        return conceptDao.getStructure(fortress);
     }
 }

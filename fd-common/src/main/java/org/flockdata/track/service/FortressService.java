@@ -19,6 +19,7 @@ package org.flockdata.track.service;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
+import org.flockdata.query.EdgeResults;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.track.bean.ContentInputBean;
@@ -79,6 +80,8 @@ public interface FortressService {
     String getGeoQuery(Entity entity);
 
     EntityService.TAG_STRUCTURE getTagStructureFinder(Entity entity);
+
+    EdgeResults getContentStructure(Fortress fortress);
 
     FortressSegment getDefaultSegment (Fortress fortress);
 

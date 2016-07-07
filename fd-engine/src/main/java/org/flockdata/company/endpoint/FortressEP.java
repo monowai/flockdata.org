@@ -29,6 +29,7 @@ import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
+import org.flockdata.query.EdgeResults;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.service.CompanyService;
@@ -142,6 +143,14 @@ public class FortressEP {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress f = fortressService.findByCode(company, code);
         return fortressService.getSegments(f);
+    }
+
+    @RequestMapping(value = "/{fortress}/structure", method = RequestMethod.GET)
+    public EdgeResults getContentStructure
+            (@PathVariable("fortress") String code, HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        Fortress f = fortressService.findByCode(company, code);
+        return fortressService.getContentStructure(f);
     }
 
     /**

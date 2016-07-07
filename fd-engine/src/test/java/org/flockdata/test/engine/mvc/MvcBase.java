@@ -770,5 +770,20 @@ public abstract class MvcBase {
         throw response.getResolvedException();
     }
 
+    public MatrixResults getContentStructure(RequestPostProcessor user, String fortressCode, ResultMatcher status) throws Exception {
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.get(apiPath + "/fortress/{code}/structure", fortressCode)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(status).andReturn();
+
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), MatrixResults.class);
+        }
+        throw response.getResolvedException();
+    }
+
 
 }

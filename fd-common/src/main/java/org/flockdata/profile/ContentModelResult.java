@@ -46,6 +46,7 @@ public class ContentModelResult {
             if ( model.getDocument()!=null)
                 this.documentType = model.getDocument().getName();
         } else {
+            this.fortress = "Tag";
             this.documentType = code;
         }
 
@@ -81,5 +82,16 @@ public class ContentModelResult {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public ContentModel getContentModel() {
         return contentModel;
+    }
+
+    @Override
+    public String toString() {
+        return "ContentModelResult{" +
+                "code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                ", documentType='" + documentType + '\'' +
+                ", fortress='" + fortress + '\'' +
+                ", key='" + key + '\'' +
+                '}';
     }
 }

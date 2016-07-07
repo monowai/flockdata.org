@@ -33,9 +33,9 @@ import java.util.Collection;
  */
 public interface ContentModelRepo extends GraphRepository<Model> {
 
-    @Query( elementClass = Model.class, value=" match (c:FDCompany)<-[*1..2]-(model:Model)" +
+    @Query( elementClass = Model.class, value=" optional match (c:FDCompany)<-[*1..2]-(model:Model)-[]-(d:DocType)-[]-(f:Fortress) " +
             " where id(c)={0} " +
-            " return model " +
+            " return model order by lower(f.name), lower(d.name) " +
             " limit 100 ")
     Collection<Model> findCompanyModels(Long companyId);
 

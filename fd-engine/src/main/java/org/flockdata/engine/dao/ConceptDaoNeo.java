@@ -23,6 +23,7 @@ package org.flockdata.engine.dao;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.*;
+import org.flockdata.query.EdgeResults;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
@@ -196,7 +197,7 @@ public class ConceptDaoNeo {
         return documentTypeRepo.findAllDocuments(company);
     }
 
-    public boolean schemaTagDefExists(Company company, String labelName) {
+    private boolean schemaTagDefExists(Company company, String labelName) {
         return documentTypeRepo.schemaTagDefExists(company.getId(), TagLabel.parseTagLabel(company, labelName)) != null;
     }
 
@@ -253,5 +254,25 @@ public class ConceptDaoNeo {
 
     public void delete(DocumentType documentType, FortressSegment segment) {
         template.deleteRelationshipBetween(documentType,segment, "USES_SEGMENT");
+    }
+
+    public EdgeResults getStructure(Fortress fortress){
+        String query = "match (f:Fortress{code:{0})-[]-(d:DocType)-[]-(c:Concept) return c,d";
+        Map<String,Object>params = new HashMap<>();
+        params.put("fortress", fortress.getId());
+
+        Result<Map<String, Object>> results = template.query(query, params);
+
+        Iterator<Map<String, Object>> rows = results.iterator();
+
+        EdgeResults edgeResults = new EdgeResults();
+
+        while (rows.hasNext()) {
+            Map<String, Object> row = rows.next();
+            row.get("c");
+        }
+
+        return edgeResults;
+
     }
 }
