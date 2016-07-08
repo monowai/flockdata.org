@@ -188,6 +188,28 @@ public abstract class MvcBase {
 
     }
 
+    FortressResultBean updateFortress(RequestPostProcessor user, String code, FortressInputBean update) throws Exception {
+        MvcResult response = mvc()
+                .perform(
+                        MockMvcRequestBuilders
+                                .post(apiPath + "/fortress/{code}", code)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .with(user)
+                                .content(
+                                        JsonUtils
+                                                .toJson(update)))
+                .andReturn();
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), FortressResultBean.class);
+        }
+
+        throw response.getResolvedException();
+
+    }
+
+
     FortressResultBean makeFortress(RequestPostProcessor user, String fortressName)
             throws Exception {
         return this.makeFortress(user, new FortressInputBean(fortressName, true));

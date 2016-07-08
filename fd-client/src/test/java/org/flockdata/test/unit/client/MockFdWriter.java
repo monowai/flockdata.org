@@ -18,6 +18,8 @@ package org.flockdata.test.unit.client;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
@@ -27,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -67,6 +70,11 @@ public class MockFdWriter implements FdWriter {
     public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
         this.entities = entityBatch;
         return null;
+    }
+
+    @Override
+    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String fileModel) throws IOException {
+        return ContentModelDeserializer.getContentModel(fileModel);
     }
 
 }

@@ -18,11 +18,13 @@ package org.flockdata.transform;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -40,5 +42,7 @@ public interface FdWriter {
     String flushTags(List<TagInputBean> tagInputBeans) throws FlockException;
 
     String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException;
+
+    ContentModel getContentModel(ClientConfiguration clientConfiguration, String fileModel) throws IOException;
 
 }

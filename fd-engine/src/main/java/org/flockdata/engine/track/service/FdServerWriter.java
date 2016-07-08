@@ -24,10 +24,15 @@ import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
+import org.flockdata.model.DocumentType;
+import org.flockdata.model.Fortress;
+import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.FdWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +54,19 @@ public class FdServerWriter implements FdWriter {
     GeographyService geoService;
 
     @Autowired
+    FortressService fortressService;
+
+    @Autowired
+    ConceptService conceptService;
+
+    @Autowired
     MediationFacade mediationFacade;
 
     @Autowired
     SecurityHelper securityHelper;
+
+    @Autowired
+    ContentModelService contentModelService;
 
     @Override
     public SystemUserResultBean me() {
@@ -80,6 +94,24 @@ public class FdServerWriter implements FdWriter {
         } catch (IOException e) {
             throw new FlockException("IO Exception", e);
         }
+    }
+
+    @Override
+    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String fileModel) throws IOException {
+        String[] args = fileModel.split(":");
+        // ToDo: this is not yet properly supported - needs to be tested with Tag fortress - which is logical
+        if ( args.length == 2){
+            Company company = securityHelper.getCompany();
+            Fortress fortress = fortressService.getFortress(company, args[0]);
+            DocumentType docType = conceptService.findDocumentType(fortress, args[1]);
+            try {
+                return contentModelService.get(company, fortress, docType);
+            } catch (FlockException e) {
+                throw new IOException("Problem locating content model ["+fileModel+"]");
+            }
+
+        }
+        return null;
     }
 
 }

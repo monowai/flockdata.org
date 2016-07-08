@@ -28,6 +28,8 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.model.Company;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ContentModelHandler;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
@@ -243,6 +245,22 @@ public class FdRestWriter implements FdWriter {
 
     }
 
+    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String fileModel) throws IOException {
+        ContentModel contentModel ;
+        contentModel = ContentModelDeserializer.getContentModel(fileModel);
+        if ( contentModel == null ){
+            // See if it can be found on the server
+            // format is {fortress}.{docType}, or tag.doctype
+            String[] args = fileModel.split(":");
+            if ( args.length == 2){
+                contentModel = getContentModel(clientConfiguration, args[0], args[1]);
+            }
+            if (contentModel ==null )
+                contentModel = new ContentModelHandler();// Default??
+
+        }
+        return contentModel;
+    }
     public ContentModel getContentModel(ClientConfiguration clientConfiguration, String type, String clazz){
         ModelGet modelGet = new ModelGet(clientConfiguration, this, type, clazz);
         modelGet.exec();

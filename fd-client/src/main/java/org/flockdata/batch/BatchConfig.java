@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.model.ContentModel;
+import org.flockdata.transform.PayloadBatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +83,9 @@ public class BatchConfig {
     private String batchPassword;
     @Value("${batch.datasource.driver:org.hsqldb.jdbc.JDBCDriver}")
     private String batchDriver;
+
+    @Autowired
+    PayloadBatcher payloadBatcher;
 
 
     public String getUrl() {
@@ -164,6 +168,8 @@ public class BatchConfig {
         if (stepConfig.getProfile() != null) {
             ContentModel contentModel = ContentModelDeserializer.getContentModel(stepConfig.getProfile());
             stepConfig.setContentModel(contentModel);
+        } else if ( stepConfig.getModel()!=null){
+            payloadBatcher.getContentModel(stepConfig.getModel());
         }
 
         return stepConfig;

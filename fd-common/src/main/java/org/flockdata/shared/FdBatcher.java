@@ -18,6 +18,7 @@ package org.flockdata.shared;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdWriter;
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -227,5 +229,15 @@ public class FdBatcher implements PayloadBatcher {
     @Override
     public List<TagInputBean> getTags() {
         return new ArrayList<>(tagBatch.values());
+    }
+
+    @Override
+    public ContentModel getContentModel(String model) {
+        try {
+            return fdWriter.getContentModel(clientConfiguration, model);
+        } catch (IOException e) {
+            logger.error("Failed to get the ContentModel ["+model+"]. ", e);
+        }
+        return null;
     }
 }

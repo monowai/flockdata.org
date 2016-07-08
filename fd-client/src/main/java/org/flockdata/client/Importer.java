@@ -18,8 +18,6 @@ package org.flockdata.client;
 
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ContentModelHandler;
 import org.flockdata.profile.ExtractProfileDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
@@ -183,20 +181,7 @@ public class Importer  {
     }
     // import --auth.user=mike:123 --fd.client.import="/fd-cow.txt" --fd.content.model=tag:countries
     public ContentModel resolveContentModel(String fileModel) throws IOException {
-        ContentModel contentModel ;
-        contentModel = ContentModelDeserializer.getContentModel(fileModel);
-        if ( contentModel == null ){
-            // See if it can be found on the server
-            // format is {fortress}.{docType}, or tag.doctype
-            String[] args = fileModel.split(":");
-            if ( args.length == 2){
-                contentModel = fdClient.getContentModel(clientConfiguration, args[0], args[1]);
-            }
-            if (contentModel ==null )
-                contentModel = new ContentModelHandler();// Default??
-
-        }
-        return contentModel;
+      return fdClient.getContentModel(clientConfiguration, fileModel);
     }
 
 

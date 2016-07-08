@@ -147,7 +147,7 @@ public class TagServiceNeo4j implements TagService {
         Tag tag = tagDaoNeo4j.findTagNode(suffix, label, keyPrefix, tagCode, inflate);
 
         if (tag == null) {
-            throw new NotFoundException("Tag "+label +"/"+tagCode +" not found");
+            throw new NotFoundException("Tag ["+label +"]/["+tagCode +"] not found");
 
         }
         return tag;

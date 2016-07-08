@@ -17,6 +17,7 @@
 package org.flockdata.transform;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 
@@ -39,4 +40,6 @@ public interface PayloadBatcher {
     List<EntityInputBean> getEntities();
 
     List<TagInputBean> getTags();
+
+    ContentModel getContentModel(String model);
 }

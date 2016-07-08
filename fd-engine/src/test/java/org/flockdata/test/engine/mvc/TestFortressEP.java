@@ -36,6 +36,7 @@ import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -154,12 +155,27 @@ public class TestFortressEP extends MvcBase {
         assertEquals(update.getName(), updated.getName());
 
 
-        exception.expect(NotFoundException.class);
-        updateFortress(mike(), "doesNotExist", update, MockMvcResultMatchers.status().isNotFound());
+        try {
+            updateFortress(mike(), "doesNotExist", update);
+            fail("Didn't get a not found exception");
+        } catch (NotFoundException e){
+            logger.info("Correct exception thrown");
+        }
 
-        updateFortress(sally(), fortress.getCode(), update, MockMvcResultMatchers.status().isNotFound());
-        // Harry is not authorised
-        updateFortress(harry(), fortress.getCode(), update, MockMvcResultMatchers.status().isOk());
+        try {
+            updateFortress(sally(), fortress.getCode(), update);
+            fail("Didn't get a not found exception");
+        } catch (NotFoundException e){
+            logger.info("Correct exception thrown");
+        }
+
+        try {
+            updateFortress(harry(), fortress.getCode(), update);
+            fail("Didn't get a not found exception");
+        } catch (NotFoundException e){
+            logger.info("Correct exception thrown");
+        }
+
 
 
     }

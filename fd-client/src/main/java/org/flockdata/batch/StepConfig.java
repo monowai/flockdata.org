@@ -25,6 +25,8 @@ public class StepConfig {
     String query;
     String step;
     String profile;
+    String model;
+
     private ContentModel contentModel;
 
     StepConfig (){}
@@ -46,6 +48,14 @@ public class StepConfig {
 
     public String getProfile() {
         return profile;
+    }
+
+    /**
+     *
+     * @return endpoint to look for serverside content model
+     */
+    public String getModel() {
+        return model;
     }
 
     public StepConfig setContentModel(ContentModel contentModel){
