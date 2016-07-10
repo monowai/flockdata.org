@@ -147,9 +147,9 @@ public class TestInputBeans {
     @Test
     public void metaLinksFromInput(){
         TagInputBean tag = new TagInputBean("SimpleName");
-        tag.addEntityLink("myrlx");
-        assertFalse ( tag.getEntityLinks().isEmpty());
-        assertTrue(tag.getEntityLinks().containsKey("myrlx"));
+        tag.addEntityTagLink("myrlx");
+        assertFalse ( tag.getEntityTagLinks().isEmpty());
+        assertTrue(tag.getEntityTagLinks().containsKey("myrlx"));
     }
 
 

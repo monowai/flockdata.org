@@ -117,7 +117,7 @@ public class ConceptDaoNeo {
     public DocumentType findDocumentType(Fortress fortress, String docType, Boolean createIfMissing) {
         DocumentType docResult = documentExists(fortress, docType);
 
-        if (docResult == null && createIfMissing) {
+        if ( (docResult == null && createIfMissing) && (!docType.equalsIgnoreCase("entity"))) {
             docResult = documentTypeRepo.save(new DocumentType(fortress, docType));
         }
 

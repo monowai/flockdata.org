@@ -27,12 +27,13 @@ import org.flockdata.model.Tag;
  * Date: 28/06/13
  * Time: 9:58 PM
  */
-public class EntityTagInputBean {
+public class EntityTagInputBean{
     private String tagCode;
     private String key;
     private String type;
     private String index;
     private boolean since;
+    private Boolean geoRlx;
     private String tagKeyPrefix;
 
     private EntityTagInputBean() {
@@ -103,5 +104,9 @@ public class EntityTagInputBean {
 
     public void setTagKeyPrefix(String tagKeyPrefix) {
         this.tagKeyPrefix = tagKeyPrefix;
+    }
+
+    public Boolean isGeoRlx() {
+        return geoRlx;
     }
 }

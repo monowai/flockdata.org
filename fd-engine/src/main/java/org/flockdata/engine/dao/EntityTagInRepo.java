@@ -20,11 +20,19 @@
 
 package org.flockdata.engine.dao;
 
+import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagIn;
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
+
+import java.util.Collection;
 
 /**
  * Created by mike on 6/04/15.
  */
 public interface EntityTagInRepo extends GraphRepository<EntityTagIn> {
+
+    @Query(elementClass = EntityTagIn.class, value = "match (e:Entity)<-[r]-(:Tag) where id(e) = {0} return r")
+    Collection<EntityTag> getEntityTags(Long entityId);
+
 }

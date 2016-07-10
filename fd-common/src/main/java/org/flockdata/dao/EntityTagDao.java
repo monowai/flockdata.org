@@ -33,11 +33,11 @@ public interface EntityTagDao {
     // Property that refers to when this relationship was introduced to FD
     String FD_WHEN = "fdWhen";
 
-    EntityTag save(Entity entity, Tag tag, String relationshipName);
+    AbstractEntityTag save(Entity entity, Tag tag, String relationshipName);
 
-    EntityTag save(Entity ah, Tag tag, String metaLink, boolean reverse);
+    AbstractEntityTag save(Entity ah, Tag tag, String metaLink, boolean reverse);
 
-    EntityTag save(Entity ah, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap);
+    AbstractEntityTag save(Entity ah, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap);
 
     Boolean relationshipExists(Entity entity, Tag tag, String relationshipName);
 
@@ -48,21 +48,21 @@ public interface EntityTagDao {
      * @param entity    entity the caller is authorised to work with
      * @return           all EntityTags for the company in both directions
      */
-    Set<EntityTag> getEntityTags(Company company, Entity entity);
+    Set<AbstractEntityTag> getEntityTags(Company company, Entity entity);
 
-    Set<EntityTag> getDirectedEntityTags(Company company, Entity entity, boolean outbound);
+    Set<AbstractEntityTag> getDirectedEntityTags(Company company, Entity entity, boolean outbound);
 
-    Set<EntityTag> findLogTags(Company company, Log log) ;
+    Set<AbstractEntityTag> findLogTags(Company company, Log log) ;
 
-    void changeType(Entity entity, EntityTag existingTag, String newType);
+    void changeType(Entity entity, AbstractEntityTag existingTag, String newType);
 
     Set<Entity> findEntitiesByTag(Tag tag);
 
-    void moveTags(Entity entity, Log log, Collection<EntityTag> entityTag);
+    void moveTags(Entity entity, Log log, Collection<AbstractEntityTag> entityTag);
 
-    void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
+    void deleteEntityTags(Entity entity, Collection<AbstractEntityTag> entityTags) throws FlockException;
 
     void moveTags(Company company, Log logToMoveFrom, Entity entity);
 
-    Collection<EntityTag> findEntityTagsByRelationship(Entity entity, String relationship) ;
+    Collection<AbstractEntityTag> findEntityTagsByRelationship(Entity entity, String relationship) ;
 }

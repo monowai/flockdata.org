@@ -16,6 +16,7 @@
 
 package org.flockdata.registration;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.MetaFortress;
 
 import java.io.Serializable;
@@ -82,6 +83,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
         return this;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Boolean getSearchEnabled() {
         return searchEnabled;
     }
@@ -101,6 +103,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
         return this;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getTimeZone() {
         return timeZone;
     }
@@ -125,6 +128,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
      *
      * @return Language tag to be used for Locale conversions
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getLanguageTag() {
         return languageTag;
     }
@@ -146,6 +150,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
                 '}';
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Boolean getEnabled() {
         return enabled;
     }
@@ -155,6 +160,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
         return this;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Boolean getSystem() {
         return system;
     }
@@ -164,6 +170,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
         return this;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Boolean getStoreEnabled() {
         return storeEnabled;
     }

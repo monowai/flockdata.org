@@ -21,18 +21,18 @@
       "tag": true,
       "delimiter": " / ",
       "label": "Genre",
-      "relationship": "OF_TYPE"
+      "entityTagLinks": [{"relationshipName": "OF_TYPE"}]
     },
     "director": {
       "tag": true,
       "delimiter": " / ",
       "label": "Person",
-      "relationship": "directed"
+      "entityTagLinks": [{"relationshipName": "directed"}]
     },
     "actor": {
       "tag": true,
       "label": "Person",
-      "relationship": "acted"
+      "entityTagLinks": [{"relationshipName": "acted"}]
     },
     "rating": {
       // Properties to set against the entity

@@ -57,9 +57,11 @@ public interface EntityRepo extends GraphRepository<Entity> {
     Collection<String> findEntitiesWithLimit(Long id, Long segmentId, int limit);
 
     @Query( elementClass = Entity.class, value =
-            " match (fortress:Fortress)-[:DEFINES]-(segment:FortressSegment)-[:TRACKS]->(entity:Entity) where id(fortress)={0} " +
-                    " and entity.code ={1}" +
-                    " return entity ")
+            " match (fortress:Fortress) where id(fortress) = {0} " +
+                    "match (entity:Entity) where entity.code ={1} " +
+                    "with fortress,entity " +
+                    "match p=shortestpath ((entity)<-[*1..2]-(fortress)) " +
+                    "return entity")
     Collection<Entity> findByCode(Long fortressId, String code);
 
     @Query( elementClass = Entity.class, value = "match  (entities:Entity) " +

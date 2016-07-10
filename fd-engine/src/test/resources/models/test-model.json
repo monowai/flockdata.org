@@ -22,13 +22,11 @@
             "mustExist": true
         },
         "ValTag": {
-            "tag": true,
-            "valueAsProperty": true
+            "tag": true
         },
         "Gold Medals": {
             "name": "Year",
-            "tag": true,
-            "valueAsProperty": true
+            "tag": true
         }
     }
 }

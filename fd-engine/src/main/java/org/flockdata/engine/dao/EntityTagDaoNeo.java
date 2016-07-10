@@ -64,10 +64,10 @@ public class EntityTagDaoNeo {
     FortressService fortressService;
 
     @Autowired
-    EntityTagRepo eout;
+    EntityTagOutRepo etOut;
 
     @Autowired
-    EntityTagInRepo ein;
+    EntityTagInRepo etIn;
 
     @Autowired
     PlatformConfig engineConfig;
@@ -156,7 +156,7 @@ public class EntityTagDaoNeo {
 
             boolean isReversed = logTag.isReversed();
 
-            EntityTag entityTag;
+            AbstractEntityTag entityTag;
             if (isReversed)
                 entityTag = new EntityTagIn(entity, logTag);
             else
@@ -207,13 +207,11 @@ public class EntityTagDaoNeo {
     public Iterable<EntityTag> getEntityTagsWithGeo(Entity entity) {
         Collection<EntityTag> entityTags = getEntityTags(entity);
         for (EntityTag entityTag : entityTags) {
-            boolean locatedOnEntity = entityTag.getRelationship().equals("geodata");
-            if (entityTag.getTag().getLocated() != null || locatedOnEntity ) {
+            if (entityTag.isGeoRelationship()) {
                 template.fetch(entityTag.getTag());
-                String query = getQuery(locatedOnEntity, entity);
-
+                String query = getQuery(entity);
                 entityTag.setGeoData(
-                        geoSupport.getGeoData( query, (locatedOnEntity ?entityTag.getTag(): entityTag.getTag().getLocated()))
+                        geoSupport.getGeoData(query, (entityTag.getTag() ))
                 );
             }
         }
@@ -223,26 +221,22 @@ public class EntityTagDaoNeo {
 
     /**
      * Enables the overloading of the cypher query used to identify the geo path from the entity.
-     *
+     * <p>
      * By default it will connect the shortestPath to a Country with up to 4 hops from the starting node.
      * Locates a path to the country via an optional query that can be associated with the entities DocType
      * Query MUST return a nodes(path)
      *
-     * @param locatedOnEntity   Reading from a tag not directly connected to the entity
-     * @param entity the entity
+     * @param entity          the entity
      * @return cypher query to execute
      */
-    private String getQuery(boolean locatedOnEntity, Entity entity){
+    private String getQuery(Entity entity) {
         // DAT-495
 
-        String geoQuery= null;
+        String geoQuery = fortressService.getGeoQuery(entity);
 
-        if ( locatedOnEntity)
-            geoQuery=fortressService.getGeoQuery(entity) ;
-
-        if ( geoQuery == null )
+        if (geoQuery == null)
             // This is the default way we use if not otherwise defined against the doctype
-            geoQuery = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..4]->(c:Country)) where id(located)={locNode} return nodes(p) as nodes";
+            geoQuery = "match (located:Tag)  , p= shortestPath((located:Tag)-[*0..4]->(c:Country)) where id(located)={locNode} return nodes(p) as nodes";
         //String query = "match p=(located:Tag)-[r:state|address]->(o)-[*1..3]->(x:Country)  where id(located)={locNode} return nodes(p) as nodes" ;
         return geoQuery;
     }
@@ -261,8 +255,8 @@ public class EntityTagDaoNeo {
      * The results are populated by reference
      */
     private void getEntityTagsDefault(Entity entity, Collection<EntityTag> results) {
-        results.addAll(eout.getEntityTagsOut(entity.getId()));
-        results.addAll(eout.getEntityTagsIn(entity.getId()));
+        results.addAll(etOut.getEntityTags(entity.getId()));
+        results.addAll(etIn.getEntityTags(entity.getId()));
 
         for (EntityTag entityTag : results) {
             entityTag.setRelationship(template.getRelationship(entityTag.getId()).getType().name());
@@ -296,7 +290,7 @@ public class EntityTagDaoNeo {
                     results.add(endNode.getId());
             } else {
                 template.createRelationshipBetween(endNode, toNode, rType.name(), properties);
-                if (CypherHelper.isEntity(toNode))
+                if (CypherHelper.isEntity(startNode)) // ToDo: This is not being tested !!
                     results.add(toNode.getId());
             }
         }

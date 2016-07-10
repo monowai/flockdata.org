@@ -48,7 +48,7 @@ public class EntityInputBean implements Serializable, UserProperties {
 
     // String is the relationship name
     private transient Map<String, List<EntityKeyBean>> entityLinks = new HashMap<>();
-    Map<String, Object> properties = new HashMap<>();
+    Map<String, Object> properties = new HashMap<>();  // Set into the Entity
 
     private String event = null;
     private String description;
@@ -231,13 +231,14 @@ public class EntityInputBean implements Serializable, UserProperties {
         return properties;
     }
 
-    public void setProperty(String key, Object value) {
+    public EntityInputBean setProperty(String key, Object value) {
         if ( value == null || key == null ) // DAT-568
-            return; // We don't accept NULL values for a map
+            return this; // We don't accept NULL values for a map
 
         if (properties == null)
             properties = new HashMap<>();
         properties.put(key, value);
+        return this;
     }
 
     public String getEvent() {
@@ -538,11 +539,9 @@ public class EntityInputBean implements Serializable, UserProperties {
                 if (index != -1) {
                     // Tag exists, but do the relationships?
                     TagInputBean existingTag = tags.get(index);
-                    for (String key : tagInputBean.getEntityLinks().keySet()) {
-                        if (!existingTag.hasRelationship(key)) {
-                            existingTag.addEntityLink(key, tagInputBean.getEntityLinks().get(key));
-                        }
-                    }
+                    tagInputBean.getEntityTagLinks().keySet().stream().filter(key -> !existingTag.hasEntityRelationship(key)).forEach(key -> {
+                        existingTag.addEntityTagLink(key, tagInputBean.getEntityTagLinks().get(key));
+                    });
                 } else {
                     addTag(tagInputBean);
                 }

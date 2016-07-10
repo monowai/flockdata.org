@@ -19,6 +19,7 @@ package org.flockdata.transform;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.EntityTagRelationshipInput;
 import org.flockdata.model.Tag;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.AliasInputBean;
@@ -46,88 +47,48 @@ public class TransformationHelper {
                                           String column,
                                           Map<String, ColumnDefinition> content,
                                           String value) throws FlockException {
+
         ColumnDefinition colDef = content.get(column);
-        Map<String, Object> properties = new HashMap<>();
 
-        if (TransformationHelper.evaluate(colDef.isValueAsProperty())) {
-            // ToDo: Eliminate this block. Twas only in place to support the way we handled labels which can
-            //       now be addressed with expressions
-            tag.setMustExist(TransformationHelper.evaluate(colDef.isMustExist())).setLabel(column);
-            tag.setReverse(TransformationHelper.evaluate(colDef.getReverse()));
-            tag.setName(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, column));
-            tag.setCode(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, column));
-            tag.setNotFoundCode(colDef.getNotFound());
-            if (TransformationHelper.evaluate(colDef.isMerge(),true))
-                tag.setMerge(true);
+        String label;
+        if (colDef.getLabel() != null && colDef.getLabel().equals(colDef.getTarget() != null ? colDef.getTarget() : column))
+            label = colDef.getLabel();
+        else
+            label = resolveValue(colDef.getLabel(), column, colDef, row);
 
-            if (column != null && value != null) {
-                String relationship = getRelationshipName(row, colDef);
+        tag.setMustExist(TransformationHelper.evaluate(colDef.isMustExist()))
+                .setLabel(colDef.isCountry() ? "Country" : label)
+                .setNotFoundCode(colDef.getNotFound());
 
-                if (Integer.decode(value) != 0) {  // ToDo? Why is this decoding a 0 from a value??
-                    properties.put("value", Integer.decode(value));
-                    if (relationship != null) {
-                        tag.addEntityLink(relationship, properties);
-                    } else
-                        tag.addEntityLink("undefined", properties);
-                } else {
-                    return false;
-                }
-            }
-        } else {
-            String label;
-            if (colDef.getLabel() != null && colDef.getLabel().equals(colDef.getTarget() != null ? colDef.getTarget() : column))
-                label = colDef.getLabel();
-            else
-                label = resolveValue(colDef.getLabel(), column, colDef, row);
-            //
-            tag.setMustExist(TransformationHelper.evaluate(colDef.isMustExist()))
-                    .setLabel(colDef.isCountry() ? "Country" : label)
-                    .setNotFoundCode(colDef.getNotFound());
+        if (TransformationHelper.evaluate(colDef.isMerge(), true))
+            tag.setMerge(true);
 
-            if (TransformationHelper.evaluate(colDef.isMerge(),true))
-                tag.setMerge(true);
+        String codeValue = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
+        tag.setCode(codeValue);
 
-            String codeValue = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
-            tag.setCode(codeValue);
+        tag.setKeyPrefix(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.KEY_PREFIX, colDef, null));
 
-            tag.setKeyPrefix(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.KEY_PREFIX, colDef, null));
+        if (!TransformationHelper.evaluate(colDef.isMustExist())) {     // Must exists only resolves the Code, so don't waste time setting the name
+            String name = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue);
+            if (name != null && !name.equals(codeValue))
+                tag.setName(name);
+        }
 
-            if (!TransformationHelper.evaluate(colDef.isMustExist())) {     // Must exists only resolves the Code, so don't waste time setting the name
-                String name = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue);
-                if (name != null && !name.equals(codeValue))
-                    tag.setName(name);
-            }
-
-            setAliases(tag, colDef, row);
-
-            String relationship = getRelationshipName(row, colDef);
-
-            if (relationship != null) {
-                Map<String, Object> rlxProperties = new HashMap<>();
-                if (colDef.getRlxProperties() != null) {
-                    for (ColumnDefinition columnDefinition : colDef.getRlxProperties()) {
-                        Object propValue = ExpressionHelper.getValue(row.get(columnDefinition.getSource()), columnDefinition);
-                        if (propValue != null)
-                            rlxProperties.put(columnDefinition.getTarget(),
-                                    propValue);
-                    }
-                }
-
-                tag.addEntityLink(relationship, rlxProperties);
-            }
+        setAliases(tag, colDef, row);
+        EntityTagRelationshipInput relationship = getRelationship(row, colDef);
+        tag.addEntityTagLink(relationship);
 
 
-            tag.setReverse(TransformationHelper.evaluate(colDef.getReverse()));
-            if (colDef.hasProperites()) {
-                for (ColumnDefinition propertyColumn : colDef.getProperties()) {
-                    if (TransformationHelper.evaluate(colDef.isPersistent(),true)) {
-                        String sourceCol = propertyColumn.getSource();
+        tag.setReverse(TransformationHelper.evaluate(colDef.getReverse()));
+        if (colDef.hasProperites()) { // Properties for the tag
+            for (ColumnDefinition propertyColumn : colDef.getProperties()) {
+                if (TransformationHelper.evaluate(colDef.isPersistent(), true)) {
+                    String sourceCol = propertyColumn.getSource();
 
-                        Object result  = getObject(row, value, propertyColumn, sourceCol);
+                    Object result = getObject(row, value, propertyColumn, sourceCol);
 
-                        if (result != null)
-                            tag.setProperty(propertyColumn.getTarget() == null ? sourceCol : propertyColumn.getTarget(), ExpressionHelper.getValue(result, propertyColumn));
-                    }
+                    if (result != null)
+                        tag.setProperty(propertyColumn.getTarget() == null ? sourceCol : propertyColumn.getTarget(), ExpressionHelper.getValue(result, propertyColumn));
                 }
             }
         }
@@ -190,14 +151,33 @@ public class TransformationHelper {
 
     }
 
-    public static String getRelationshipName(Map<String, Object> row, ColumnDefinition colDef) {
-//        if (colDef.getRelationship() != null)
-//            return colDef.getRelationship();
-//
-//        if (colDef.getRlxExp() == null)
-//            return null;
+    public static EntityTagRelationshipInput getRelationship(Map<String, Object> row, ColumnDefinition colDef) {
 
-        return ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.RELATIONSHIP, colDef, colDef.getRelationship());
+        if (colDef.getEntityTagLinks() != null) {
+            EntityTagRelationshipInput etr = colDef.getEntityTagLinks().iterator().next();
+            Object resolvedName = ExpressionHelper.getValue(row, etr.getRelationshipName());
+            if (resolvedName == null)
+                resolvedName = etr.getRelationshipName();
+            etr.setRelationshipName(resolvedName.toString());
+            return resolveEtrProperties(row, etr);
+
+        }
+        return null;
+        //return ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.RELATIONSHIP, colDef, colDef.getRelationship());
+    }
+
+    private static EntityTagRelationshipInput resolveEtrProperties(Map<String, Object> row, EntityTagRelationshipInput etr) {
+        if (etr.getProperties() == null)
+            return etr;
+        for (String key : etr.getProperties().keySet()) {
+            Object expression = etr.getProperties().get(key);
+            if (expression != null) {
+                Object value = ExpressionHelper.getValue(row, expression.toString());
+                if (value != null)
+                    etr.getProperties().put(key, transformValue(value, null, null));
+            }
+        }
+        return etr;
     }
 
     private static boolean evaluateTag(TagProfile tagProfile, Map<String, Object> row) {
@@ -208,7 +188,7 @@ public class TransformationHelper {
         return Boolean.parseBoolean(result.toString());
     }
 
-    public static TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<TagProfile> tagsToAnalyse, Map<String, Object> row) throws FlockException {
+    private static TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<TagProfile> tagsToAnalyse, Map<String, Object> row) throws FlockException {
 
         if (tagsToAnalyse == null)
             return null;
@@ -241,6 +221,7 @@ public class TransformationHelper {
                     newTag = new TagInputBean(iso)
                             .setLabel("Country")
                             .setNotFoundCode(tagProfile.getNotFound());
+
                     setInTo.setTargets(tagProfile.getRelationship(), newTag);
 
                 } else {
@@ -308,12 +289,13 @@ public class TransformationHelper {
         return value;
     }
 
-    public static Collection<TagInputBean> getTagsFromList(TagProfile tagProfile, Map<String, Object> row, String entityRelationship) {
+    public static Collection<TagInputBean> getTagsFromList(TagProfile tagProfile, Map<String, Object> row, EntityTagRelationshipInput entityRelationship) {
         List<String> tags = Arrays.asList(row.get(tagProfile.getCode()).toString().split(tagProfile.getDelimiter()));
         Collection<TagInputBean> results = new ArrayList<>();
 
         tags.stream().filter(tag -> tag != null).forEach(tag -> {
-            TagInputBean newTag = new TagInputBean(tag, tagProfile.getLabel(), entityRelationship);
+            TagInputBean newTag = new TagInputBean(tag, tagProfile.getLabel());
+            newTag.addEntityTagLink(entityRelationship);
             newTag.setReverse(tagProfile.getReverse());
             newTag.setMustExist(tagProfile.isMustExist());
             newTag.setLabel(tagProfile.getLabel());
@@ -331,7 +313,7 @@ public class TransformationHelper {
         String dataType = null;
 
         // Code values are always strings
-        if (column.equals("code") || column.equals("name")) {
+        if (column != null && (column.equals("code") || column.equals("name"))) {
             dataType = "string";
             tryAsNumber = false;
             tryAsDate = false;
@@ -363,6 +345,7 @@ public class TransformationHelper {
 
     /**
      * Guess if the supplied value might be a Date
+     *
      * @param value to analyse
      * @return yes/bo
      */
@@ -372,12 +355,13 @@ public class TransformationHelper {
             return false;
 
         try {
-            if (value instanceof String ) {
-                DateTime.parse(value.toString());
-                return true;
+            if (value instanceof String && value.toString().length() > 6) {
+                DateTime dateVal = DateTime.parse(value.toString());
+                if (dateVal.toDate().getTime() > 0)
+                    return true;
             }
             // Epoc dates? We're just guessing
-            else if ( value instanceof Long){
+            else if (value instanceof Long) {
                 new Date((Long) value);
                 return true;
             }
@@ -403,7 +387,7 @@ public class TransformationHelper {
         }
 
         // Code values are always strings
-        if (column.equals("code") || column.equals("name")) {
+        if (column != null && (column.equals("code") || column.equals("name"))) {
             dataType = "string";
             tryAsNumber = false;
         }

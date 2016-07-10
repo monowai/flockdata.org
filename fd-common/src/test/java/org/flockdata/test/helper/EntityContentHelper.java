@@ -543,7 +543,9 @@ public class EntityContentHelper {
 
     public static EntityTag getEntityTag(Entity entity, TagInputBean tagInput, String rlxname) {
         Tag tag = new Tag(tagInput);
-        return new EntityTagOut(entity, tag, rlxname, null);
+        EntityTag entityTag = new EntityTagOut(entity, tag, rlxname, null);
+//        entityTag.setGeo(tagInput.isGeo());
+        return entityTag  ;
     }
 
 }

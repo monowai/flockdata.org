@@ -32,7 +32,7 @@ import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntityLinkInputBean;
+import org.flockdata.track.bean.EntityToEntityLinkInput;
 import org.flockdata.transform.PayloadBatcher;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.Transformer;
@@ -221,7 +221,7 @@ public class FileProcessor {
 
         JsonFactory jfactory = new JsonFactory();
         JsonParser jParser;
-        List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
+        List<EntityToEntityLinkInput> referenceInputBeans = new ArrayList<>();
 
         try {
 
@@ -274,10 +274,10 @@ public class FileProcessor {
         return endProcess(watch, rows, 0);
     }
 
-    private void processJsonNode(JsonNode node, ContentModel importProfile, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
+    private void processJsonNode(JsonNode node, ContentModel importProfile, List<EntityToEntityLinkInput> referenceInputBeans) throws FlockException {
         EntityInputBean entityInputBean = Transformer.transformToEntity(node, importProfile);
         if (!entityInputBean.getEntityLinks().isEmpty()) {
-            referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
+            referenceInputBeans.add(new EntityToEntityLinkInput(entityInputBean));
             entityInputBean.getEntityLinks().size();
         }
 

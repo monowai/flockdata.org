@@ -29,7 +29,7 @@ public interface UserProperties {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     Map<String, Object> getProperties();
 
-    void setProperty(String key, Object value);
+    UserProperties setProperty(String key, Object value);
 
     Object getProperty(String key);
 }

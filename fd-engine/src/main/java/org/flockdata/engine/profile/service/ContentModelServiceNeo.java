@@ -87,14 +87,14 @@ public class ContentModelServiceNeo implements ContentModelService {
         return contentModel;
     }
 
-    public ContentModel getContentModel(Company company, String profileKey) throws FlockException {
+    private ContentModel getContentModel(Company company, String profileKey) throws FlockException {
         Map<String, Object> data = entityService.getEntityDataLast(company, profileKey);
         String json = JsonUtils.toJson(data);
         ContentModel contentModel ;
         try {
             contentModel = objectMapper.readValue(json, ContentModelHandler.class);
         } catch (IOException e) {
-            throw new FlockException(String.format("Unable to obtain content from ImportProfile {%d}", profileKey), e);
+            throw new FlockException(String.format("Unable to obtain content from ImportProfile {%s}", profileKey), e);
         }
         return contentModel;
     }
@@ -219,21 +219,20 @@ public class ContentModelServiceNeo implements ContentModelService {
     @Override
     @Transactional
     public ContentModelResult find(Company company, String key) throws FlockException {
-        ContentModelResult profile = contentModelDao.findByKey(company.getId(), key);
-        if (profile == null) {
-            throw new NotFoundException("Unable to locate ContentProfile with key " + key);
+        ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
+        if (model == null) {
+            throw new NotFoundException("Unable to locate Content Model from key " + key);
         }
-//        Entity entity = entityService.getEntity(company,key);
-        ContentModel contentModel = getContentModel(company, profile.getKey());
+        ContentModel contentModel = getContentModel(company, model.getKey());
         if (contentModel != null) {
-            contentModel.setDocumentName(profile.getDocumentType());
+            contentModel.setDocumentName(model.getDocumentType());
         }
-        profile.setContentModel(contentModel);
-        return profile;
+        model.setContentModel(contentModel);
+        return model;
     }
 
     @Override
-    public org.flockdata.profile.model.ContentModel getTagModel(Company company, String code) throws FlockException {
+    public ContentModel getTagModel(Company company, String code) throws FlockException {
         Model model = contentModelDao.findTagProfile(company, TagHelper.parseKey(code));
 
         if (model == null)
@@ -263,7 +262,7 @@ public class ContentModelServiceNeo implements ContentModelService {
     }
 
     @Override
-    public org.flockdata.profile.model.ContentModel createDefaultContentModel(ContentValidationRequest contentRequest) {
+    public ContentModel createDefaultContentModel(ContentValidationRequest contentRequest) {
         ContentModel result = contentRequest.getContentModel();
         if (result == null )
             result = new ContentModelHandler();

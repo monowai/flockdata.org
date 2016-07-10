@@ -18,6 +18,7 @@ package org.flockdata.test.unit.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.EntityTagRelationshipInput;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
@@ -65,22 +66,22 @@ public class TestEntityProperties extends AbstractImport {
                         assertEquals("j10013521891", tagInputBean.getCode());
                         assertNotNull(tagInputBean.getName());
                         assertNotSame(tagInputBean.getName(), tagInputBean.getCode());
-                        Map<String, Map<String, Object>> igRlx = tagInputBean.getEntityLinks();
+                        Map<String, EntityTagRelationshipInput> igRlx = tagInputBean.getEntityTagLinks();
                         assertFalse(igRlx.isEmpty());
-                        Map valueMap = (Map) igRlx.get("contributed");
-                        assertTrue(valueMap.containsKey("value"));
-                        assertTrue(Double.parseDouble(valueMap.get("value").toString()) != 0);
+                        EntityTagRelationshipInput valueMap = igRlx.get("contributed");
+                        assertTrue(valueMap.getProperties().containsKey("value"));
+                        assertTrue(Double.parseDouble(valueMap.getProperties().get("value").toString()) != 0);
 
                         break;
                     case "OSCategory":
                         assertEquals("G6400", tagInputBean.getCode());
                         break;
                     case "Politician":
-                        Map<String, Map<String, Object>> rlx = tagInputBean.getEntityLinks();
+                        Map<String, EntityTagRelationshipInput> rlx = tagInputBean.getEntityTagLinks();
                         assertFalse(rlx.isEmpty());
-                        Map valMap = (Map) rlx.get("received");
-                        assertTrue(valMap.containsKey("value"));
-                        assertTrue(Double.parseDouble(valMap.get("value").toString()) != 0);
+                        EntityTagRelationshipInput valMap = rlx.get("received");
+                        assertTrue(valMap.getProperties().containsKey("value"));
+                        assertTrue(Double.parseDouble(valMap.getProperties().get("value").toString()) != 0);
                         break;
                     case "ZipCode":
                         assertEquals("Zip code should not be turned to a number. Should be preserved as a string", "07450", tagInputBean.getCode());

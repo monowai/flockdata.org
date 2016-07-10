@@ -14,11 +14,12 @@
       "tag": true,
       "label": "Politician",
       "mustExist": true,
-      "relationship": "receives",
-      "rlxProperties": [
+      "entityTagLinks": [
         {
-          "source": "4",
-          "target": "amount"
+          "relationshipName": "receives",
+          "properties": {
+            "amount": "#data['4']"
+          }
         }
       ]
     },
@@ -26,24 +27,21 @@
       "tag": true,
       "label": "InterestGroup",
       "mustExist": true,
-      "relationship": "#data['8']=='D' ?'direct':'indirect'",
-      "properties": [
+      "entityTagLinks": [
         {
-          "source": "4",
-          "target": "amount"
-        },
-        {
-          "value": "'ABC'+'123'",
-          "target": "calculatedColumn"
+          "relationshipName": "#data['8']=='D' ?'direct':'indirect'",
+          "properties": {
+            "amount": "#data['4']",
+            "calculatedColumn": "'ABC'+'123'"
+          }
         }
-
       ]
     },
     "6": {
       "tag": true,
       "label": "OSCategory",
       "mustExist": true,
-      "relationship": "category"
+      "entityTagLinks": [{"relationshipName": "category"}]
     }
   }
 }

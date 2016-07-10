@@ -1,0 +1,249 @@
+{
+  "documentType": {
+    "name": "LegalEntity",
+    "code": "LegalEntity",
+    "versionStrategy": "FORTRESS",
+    "tagStructure": "DEFAULT"
+  },
+  "name": "Offshore Entities",
+  "fortress": {
+    "name": "icij.org",
+    "timeZone": "Pacific/Auckland",
+    "enabled": true,
+    "system": false,
+    "code": "icij.org"
+  },
+  "entityOnly": false,
+  "archiveTags": false,
+  "emptyIgnored": true,
+  "tagModel": false,
+  "content": {
+    "sourceID": {
+      "dataType": "string",
+      "persistent": false,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "company_type": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "note": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true
+    },
+    "address": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "internal_id": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "former_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "jurisdiction": {
+      "code": "jurisdiction",
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": true,
+      "label": "Jurisdiction",
+      "name": "jurisdiction_description",
+      "entityTagLinks": [
+        {
+          "geo": true,
+          "reverse": false,
+          "relationshipName": "'jurisdiction'",
+          "properties": null
+        }
+      ],
+      "delimiter": ";"
+    },
+    "dorm_date": {
+      "dateFormat": "dd-MMM-yyyy",
+      "dataType": "date",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "struck_off_date": {
+      "dateFormat": "dd-MMM-yyyy",
+      "dataType": "date",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "createDate": true,
+      "tag": false,
+      "reverse": false
+    },
+    "service_provider": {
+      "code": "service_provider",
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": true,
+      "reverse": true,
+      "label": "ServiceProvider",
+      "entityTagLinks": [
+        {
+          "geo": null,
+          "reverse": false,
+          "relationshipName": "manages",
+          "properties": null
+        }
+      ]
+    },
+    "countries": {
+      "dataType": "string",
+      "persistent": false,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "jurisdiction_description": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "mustExist": false,
+      "reverse": true,
+      "label": "Jurisdiction"
+    },
+    "valid_until": {
+      "dataType": "string",
+      "persistent": false,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "ibcRUC": {
+      "code": "ibcRUC",
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": true,
+      "reverse": false,
+      "label": "RUC",
+      "entityTagLinks": [
+        {
+          "geo": null,
+          "reverse": false,
+          "relationshipName": "ibc",
+          "properties": null
+        }
+      ]
+    },
+    "original_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "title": true,
+      "description": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "country_codes": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": true,
+      "reverse": false,
+      "label": "Country",
+      "entityTagLinks": [
+        {
+          "geo": true,
+          "reverse": false,
+          "relationshipName": "located",
+          "properties": null
+        }
+      ],
+      "delimiter": ";"
+    },
+    "inactivation_date": {
+      "dateFormat": "dd-MMM-yyyy",
+      "dataType": "date",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false,
+      "updateDate": true
+    },
+    "incorporation_date": {
+      "dateFormat": "dd-MMM-yyyy",
+      "dataType": "date",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "createDate": true,
+      "tag": false,
+      "reverse": false
+    },
+    "node_id": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "callerRef": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    },
+    "status": {
+      "target": "",
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false,
+      "label": "EntityStatus",
+      "properties": [
+        {
+          "target": "status",
+          "dataType": "string",
+          "persistent": true,
+          "storeNull": true,
+          "country": false,
+          "tag": false,
+          "reverse": false
+        }
+      ]
+    }
+  }
+}

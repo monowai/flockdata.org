@@ -16,6 +16,7 @@
 
 package org.flockdata.track.bean;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.DocumentType;
 import org.flockdata.track.service.EntityService;
 
@@ -63,6 +64,7 @@ public class DocumentTypeInputBean {
     }
 
     // MKH - Overrides the default geo query path for this DocumentType. VULNERABLE!
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getGeoQuery() {
         // DAT-507
         return geoQuery;
@@ -91,20 +93,23 @@ public class DocumentTypeInputBean {
         return this;
     }
 
-    public DocumentTypeInputBean getGeoQuery(final String geoQuery) {
+    public DocumentTypeInputBean setGeoQuery(final String geoQuery) {
         this.geoQuery = geoQuery;
         return this;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public DocumentTypeInputBean getVersionStrategy(final DocumentType.VERSION versionStrategy) {
         this.versionStrategy = versionStrategy;
         return this;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Boolean isSearchEnabled() {
         return searchEnabled;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Boolean isStoreEnabled() {
         return storeEnabled;
     }

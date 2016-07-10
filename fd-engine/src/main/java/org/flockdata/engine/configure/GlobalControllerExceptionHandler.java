@@ -50,14 +50,14 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(FlockException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleAppException(FlockException ex){
-        logger.error("Processing Exception- {}", ex.getLocalizedMessage(),ex);
+        logger.debug("Processing Exception- {}", ex.getLocalizedMessage(),ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView handleNotFound(NotFoundException ex){
-        logger.error("Resource Not Found Exception- {}", ex.getLocalizedMessage(), ex);
+        logger.debug("Resource Not Found Exception- {}", ex.getLocalizedMessage(), ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
@@ -71,7 +71,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(JsonParseException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleJsonError(final JsonParseException ex) {
-        logger.error("Bad Request - {}", ex.getLocalizedMessage(),ex);
+        logger.debug("Bad Request - {}", ex.getLocalizedMessage(),ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
@@ -97,7 +97,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(HttpMessageConversionException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleConversionProblem( final HttpMessageConversionException ex){
-        logger.error(ex.getMessage(), ex.getCause());
+        logger.debug(ex.getMessage(), ex.getCause());
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
@@ -110,7 +110,7 @@ public class GlobalControllerExceptionHandler {
         else
             errorMessage =ex.getMessage();
 
-        logger.error("Error 500: {}", errorMessage, ex);
+        logger.debug("Error 500: {}", errorMessage, ex);
 
         return new JsonMessage(errorMessage).asModelAndViewError();
     }

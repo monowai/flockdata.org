@@ -16,12 +16,7 @@
       "label": "Contributor",
       "name": "3",
       "mustExist": false,
-      "relationship": "contributed",
-      "rlxProperties": [
-        {
-          "source": "value"
-        }
-      ]
+      "entityTagLinks": [{"relationshipName": "contributed", "properties": {"value": "value"}}]
     },
     "3": {
       "title":true
@@ -30,23 +25,13 @@
       "tag": true,
       "label": "Politician",
       "mustExist": false,
-      "relationship": "received",
-      "rlxProperties": [
-        {
-          "source": "value"
-        }
-      ]
+      "entityTagLinks": [{"relationshipName": "received", "properties": {"value": "value"}}]
     },
     "6": {
       "tag": true,
       "label": "Organization",
       "name": "5",
-      "relationship": "contributed",
-      "rlxProperties": [
-        {
-          "source": "value"
-        }
-      ]
+      "entityTagLinks": [{"relationshipName": "contributed", "properties": {"source": "value"}}]
     },
     "8": {
       "target": "contributionDate",
@@ -56,7 +41,7 @@
 
     "13": {
       "tag": true,
-      "relationship": "lives",
+      "entityTagLinks": [{"relationshipName": "lives"}],
       "dataType": "string",
       "label": "ZipCode",
       "targets": [
@@ -79,7 +64,7 @@
       "tag": true,
       "label": "OSCategory",
       "mustExist": true,
-      "relationship": "industry"
+      "entityTagLinks": [{"relationshipName": "industry"}]
     },
     "9": {
       "target": "value",

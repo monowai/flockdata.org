@@ -18,6 +18,7 @@ package org.flockdata.registration.dao;
 
 
 import org.flockdata.model.Company;
+import org.flockdata.model.SystemUser;
 
 /**
  * User: Mike Holdsworth
@@ -25,10 +26,10 @@ import org.flockdata.model.Company;
  * Time: 6:31 PM
  */
 public interface RegistrationDao {
-    org.flockdata.model.SystemUser findSysUserByName(String name);
+    SystemUser findSysUserByName(String name);
 
-    org.flockdata.model.SystemUser findByApiKey(String apiKey);
+    SystemUser findByApiKey(String apiKey);
 
-    org.flockdata.model.SystemUser save(Company company, String userName, String password);
+    SystemUser save(Company company, String userName, String password);
 
 }

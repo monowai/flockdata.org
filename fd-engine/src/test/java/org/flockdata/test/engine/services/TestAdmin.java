@@ -1,6 +1,7 @@
 package org.flockdata.test.engine.services;
 
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.model.EntityTagRelationshipInput;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.FortressInputBean;
@@ -36,7 +37,7 @@ public class TestAdmin extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
 
-        TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
+        TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", new EntityTagRelationshipInput("deltest"));
         inputBean.addTag(tagInputBean);
 
         assertNotNull("Why is this null ??", mediationFacade);
@@ -166,7 +167,7 @@ public class TestAdmin extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeFortressClearsDown", true));
 
         EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc2");
-        trackBean.addTag(new TagInputBean("anyName", "TestTag", "rlx"));
+        trackBean.addTag(new TagInputBean("anyName", "TestTag", new EntityTagRelationshipInput("rlx")));
         trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
         ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
         trackBean.setContent(logBean);

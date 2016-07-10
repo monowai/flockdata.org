@@ -28,8 +28,12 @@ public class SystemUser  {
 
     private String name = null;
 
-    //@Indexed(unique = true)
+    //@Indexed
+    @Indexed(unique = true)
     private String login;
+
+//    @Indexed(unique = true)
+//    private String companyLogin;
 
     @Indexed
     private String apiKey;
@@ -42,7 +46,7 @@ public class SystemUser  {
     protected SystemUser() {
     }
 
-    public SystemUser(String name, String login, org.flockdata.model.Company company, boolean admin) {
+    public SystemUser(String name, String login, Company company, boolean admin) {
         setName(name);
         if ( login == null )
             login = name;
@@ -50,6 +54,8 @@ public class SystemUser  {
 
         if (admin)
             setAdministers(company);
+//        if ( company != null) // GUEST user does not belong to any company
+//            companyLogin = company.getId()+"."+login;
     }
 
     public String getName() {
@@ -95,9 +101,9 @@ public class SystemUser  {
 
     @Override
     public String toString() {
-        return "SystemUserNode{" +
+        return "SystemUser{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", login='" + login + '\'' +
                 ", company=" + company +
                 '}';
     }

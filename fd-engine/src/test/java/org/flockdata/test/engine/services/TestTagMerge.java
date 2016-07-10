@@ -44,12 +44,13 @@ public class TestTagMerge extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("merge_Simple", true));
 
-        TagInputBean tagInputA = new TagInputBean("TagA", "MoveTag", "rlxA");
-        TagInputBean tagInputB = new TagInputBean("TagB", "MoveTag", "rlxB");
+        TagInputBean tagInputA = new TagInputBean("TagA", "MoveTag", new EntityTagRelationshipInput("rlxA").setReverse(true));
+        TagInputBean tagInputB = new TagInputBean("TagB", "MoveTag", new EntityTagRelationshipInput("rlxB").setReverse(true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
         inputBean.addTag(tagInputA);
         Entity entityA =  mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
+
         inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
         inputBean.addTag(tagInputB);
         Entity entityB =  mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();

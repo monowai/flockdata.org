@@ -142,7 +142,7 @@ public class AdminService implements EngineAdminService {
             if ( !segment.isDefault())
                 conceptService.delete(documentType,segment);
         }
-        if ( segmentToDelete== null  )
+        if ( segmentToDelete== null && total ==0 ) // First purge is data only. Delete again to remove the docType
             // Removing the DocumentType
             conceptService.delete(documentType);
 

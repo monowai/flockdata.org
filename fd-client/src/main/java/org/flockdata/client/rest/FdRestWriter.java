@@ -30,7 +30,10 @@ import org.flockdata.helper.ObjectHelper;
 import org.flockdata.model.Company;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ContentModelHandler;
+import org.flockdata.profile.ExtractProfileDeserializer;
+import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
+import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
@@ -268,5 +271,19 @@ public class FdRestWriter implements FdWriter {
         if (result != null)
             logger.error("Get Model resulted in {} for {} {}", result,type,clazz);
         return modelGet.result();
+    }
+
+    public ExtractProfile getExtractProfile(String fileModel, ContentModel contentModel) {
+        ExtractProfile extractProfile = null;
+
+        try {
+            extractProfile = ExtractProfileDeserializer.getImportProfile(fileModel,contentModel );
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+
+        }
+        if ( extractProfile == null )
+            extractProfile = new ExtractProfileHandler(contentModel);
+        return extractProfile;
     }
 }

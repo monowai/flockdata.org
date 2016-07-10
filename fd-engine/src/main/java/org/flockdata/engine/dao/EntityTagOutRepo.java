@@ -21,7 +21,6 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.model.EntityTag;
-import org.flockdata.model.EntityTagIn;
 import org.flockdata.model.EntityTagOut;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
@@ -34,11 +33,9 @@ import java.util.Collection;
  *
  * Created by mike on 6/04/15.
  */
-public interface EntityTagRepo extends GraphRepository<EntityTagOut> {
+public interface EntityTagOutRepo extends GraphRepository<EntityTagOut> {
     @Query (elementClass = EntityTagOut.class, value = "match (e:Entity)-[r]->(:Tag) where id(e) = {0} return r")
-    Collection<EntityTag> getEntityTagsOut(Long entityId);
+    Collection<EntityTag> getEntityTags(Long entityId);
 
-    @Query (elementClass = EntityTagIn.class, value = "match (e:Entity)<-[r]-(:Tag) where id(e) = {0} return r")
-    Collection<EntityTag> getEntityTagsIn(Long entityId);
 
 }

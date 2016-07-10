@@ -18,93 +18,42 @@ package org.flockdata.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.track.bean.GeoDataBeans;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
-import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
 import java.util.Map;
 
 /**
- * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 12:52 PM
+ * Created by mike on 13/07/16.
  */
-public abstract class EntityTag implements  Comparable<EntityTag>{
+public interface EntityTag {
     // Key value indicating when, in the fortress, this relationship was established
-    public static final String SINCE = "since";
+    String SINCE = "since";
 
-    protected DynamicProperties properties = new DynamicPropertiesContainer();
+    Boolean isGeoRelationship();
 
-    @Transient
-    protected GeoDataBeans geo;
+    Long getId() ;
 
-    public abstract Long getId() ;
+    Entity getEntity() ;
 
-    public abstract Entity getEntity() ;
+    Tag getTag() ;
 
-    public abstract Tag getTag() ;
+    String getRelationship() ;
 
-    public abstract String getRelationship() ;
+    boolean isGeo();
 
-    public abstract Map<String, Object> getTagProperties() ;
+    Map<String, Object> getTagProperties() ;
 
-    public Integer getWeight() {
-        return (Integer)getProperty("weight");
-    }
+    Integer getWeight();
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public GeoDataBeans  getGeoData() {
-        return geo;
-    }
+    GeoDataBeans getGeoData();
 
-    public abstract Boolean isReversed();
+    Boolean isReversed();
 
-    private Object getProperty(String key){
-        if (properties == null)
-            return null;
-        return properties.getProperty(key);
-    }
+    AbstractEntityTag setGeoData(GeoDataBeans geoBeans);
 
-    public EntityTag setGeoData(GeoDataBeans geoBeans ) {
-        this.geo= geoBeans;
-        return this;
-    }
+    Map<String, Object> getProperties();
 
+    void setRelationship(String name);
 
-    public Map<String, Object> getProperties() {
-        return properties.asMap();
-    }
-
-    public int compareTo(EntityTag o) {
-        int val = getRelationship().compareTo(o.getRelationship());
-        if ( val == 0 )
-            return getTag().getCode().compareTo(o.getTag().getCode());
-        return val;
-
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EntityTag)) return false;
-
-        EntityTag that = (EntityTag) o;
-
-        if (getEntity() != null ? !getEntity().equals(that.getEntity()) : that.getEntity() != null) return false;
-        if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
-        if (getRelationship() != null ? !getRelationship().equals(that.getRelationship()) : that.getRelationship()!= null) return false;
-        return !(getTag() != null ? !getTag().getId().equals(that.getTag().getId()) : that.getTag() != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + (getEntity() != null ? getEntity().hashCode() : 0);
-        result = 31 * result + (getTag() != null ? getTag().getId().hashCode() : 0);
-        result = 31 * result + (getRelationship() != null ? getRelationship().hashCode() : 0);
-        return result;
-    }
-
-    public abstract void setRelationship(String name);
+    void setGeo(Boolean geo);
 }

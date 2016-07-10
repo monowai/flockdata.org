@@ -63,7 +63,7 @@ public class TestConcepts extends EngineBase {
         DocumentTypeInputBean documentTypeInputBean = new DocumentTypeInputBean("DTIB")
                 .getVersionStrategy(DocumentType.VERSION.DISABLE)
                 .setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY)
-                .getGeoQuery("Testing GeoQuery");
+                .setGeoQuery("Testing GeoQuery");
 
         String json = JsonUtils.toJson(documentTypeInputBean);
         documentTypeInputBean = JsonUtils.toObject(json.getBytes(), DocumentTypeInputBean.class);

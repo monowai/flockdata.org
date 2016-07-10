@@ -211,7 +211,7 @@ public class IntReadWrite {
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("TrackEntity", false))
-                .setDocumentType(new DocumentTypeInputBean("entity"))
+                .setDocumentType(new DocumentTypeInputBean("someThing"))
                 .setContent(new ContentInputBean(Helper.getRandomMap()))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
         TrackEntityPost trackEntity = new TrackEntityPost(clientConfiguration, fdRestWriter, entityInputBean);

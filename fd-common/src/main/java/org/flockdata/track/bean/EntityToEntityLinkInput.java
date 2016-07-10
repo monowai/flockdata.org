@@ -29,7 +29,7 @@ import java.util.Map;
  * Date: 2/04/14
  * Time: 12:24 PM
  */
-public class EntityLinkInputBean {
+public class EntityToEntityLinkInput {
     Map<String,List<EntityKeyBean>>references;
     private String fortress;
     private String documentType;
@@ -37,9 +37,9 @@ public class EntityLinkInputBean {
     private String serviceMessage;
     private Map<String,Collection<EntityKeyBean>>ignored;
 
-    protected EntityLinkInputBean(){}
+    protected EntityToEntityLinkInput(){}
 
-    public EntityLinkInputBean(EntityInputBean entityInputBean) {
+    public EntityToEntityLinkInput(EntityInputBean entityInputBean) {
         this(entityInputBean.getFortress(), entityInputBean.getDocumentType(), entityInputBean.getCode());
         this.references = entityInputBean.getEntityLinks();
     }
@@ -49,7 +49,7 @@ public class EntityLinkInputBean {
      * @param documentName      Parent docType
      * @param code              Parent code reference
      */
-    public EntityLinkInputBean(FortressInputBean fortress, DocumentTypeInputBean documentName, String code) {
+    public EntityToEntityLinkInput(FortressInputBean fortress, DocumentTypeInputBean documentName, String code) {
         this.code = code;
         this.fortress = fortress.getName();
         this.documentType = documentName.getName();
@@ -70,9 +70,9 @@ public class EntityLinkInputBean {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof EntityLinkInputBean)) return false;
+        if (!(o instanceof EntityToEntityLinkInput)) return false;
 
-        EntityLinkInputBean that = (EntityLinkInputBean) o;
+        EntityToEntityLinkInput that = (EntityToEntityLinkInput) o;
 
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;

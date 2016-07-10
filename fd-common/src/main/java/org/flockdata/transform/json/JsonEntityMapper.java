@@ -22,6 +22,7 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ColumnDefinition;
+import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.tags.TagProfile;
 import org.slf4j.LoggerFactory;
 
@@ -45,15 +46,15 @@ public class JsonEntityMapper extends EntityInputBean  {
                 else {
                     ColumnDefinition colDef = profile.getColumnDef(entry.getKey());
                     if ( colDef != null ) {
-                        if ( colDef.isCallerRef())
+                        if (TransformationHelper.evaluate(colDef.isCallerRef(), false))
                             setCode(nodeField.asText());
-                        if ( colDef.isTitle())
+                        if (TransformationHelper.evaluate(colDef.isTitle(), false))
                             setName(nodeField.asText());
-                        if ( colDef.isDescription())
+                        if (TransformationHelper.evaluate(colDef.isDescription(), false))
                             setDescription(nodeField.asText());
-                        if ( colDef.isDocument())
+                        if (TransformationHelper.evaluate(colDef.isDocument(), false))
                             setDocumentType(new DocumentTypeInputBean(nodeField.asText()));
-                        if ( colDef.isTag())
+                        if (TransformationHelper.evaluate(colDef.isTag(), false))
                             addTag(getTagFromNode(nodeField, colDef));
 
                     }
@@ -106,7 +107,7 @@ public class JsonEntityMapper extends EntityInputBean  {
         if ( rlx==null )
             rlx = "undefined";
 
-        tag.addEntityLink(rlx, rlxProperties);
+        tag.addEntityTagLink(rlx, rlxProperties);
         return tag;
     }
 

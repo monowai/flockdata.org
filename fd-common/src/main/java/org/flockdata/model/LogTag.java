@@ -26,7 +26,7 @@ import java.util.Map;
  * Created by mike on 4/04/15.
  */
 @RelationshipEntity(type = "ARCHIVED_RLX")
-public class LogTag extends EntityTag {
+public class LogTag extends AbstractEntityTag {
     @GraphId
     private Long id = null;
 
@@ -42,6 +42,8 @@ public class LogTag extends EntityTag {
 
     private Boolean reversed;
 
+    private Boolean geoRelationship;
+
     //DynamicProperties properties = new DynamicPropertiesContainer();
 
     LogTag(){}
@@ -53,6 +55,7 @@ public class LogTag extends EntityTag {
         this.reversed = entityTag.isReversed();
         this.tag = entityTag.getTag();
         this.log = log;
+        this.geoRelationship=entityTag.isGeoRelationship();
 
     }
 
@@ -95,6 +98,8 @@ public class LogTag extends EntityTag {
         this.relationship = relationship;
     }
 
-
-
+    @Override
+    public boolean isGeo() {
+        return geoRelationship;
+    }
 }

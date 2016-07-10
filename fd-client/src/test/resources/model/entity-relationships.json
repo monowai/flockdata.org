@@ -1,0 +1,43 @@
+{
+  "name": "Edges",
+  "fortress": {
+    "name": "testing"
+  },
+  "documentType": {
+    "name": "Entity"
+  },
+  "content": {
+    "node_1": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false,
+      "callerRef": true
+    },
+    "node_2": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false,
+      "entityLinks": [
+        {
+          "fortress": "testing",
+          "documentName": "Entity",
+          "relationshipName": "#data['rel_type']"
+        }
+      ]
+    },
+    "rel_type": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "country": false,
+      "tag": false,
+      "reverse": false
+    }
+  }
+}

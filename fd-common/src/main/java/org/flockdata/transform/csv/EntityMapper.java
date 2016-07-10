@@ -17,6 +17,7 @@
 package org.flockdata.transform.csv;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.EntityTagRelationshipInput;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.registration.TagInputBean;
@@ -135,7 +136,7 @@ public class EntityMapper extends EntityInputBean implements Mappable {
                     tagProfile.setMustExist(TransformationHelper.evaluate(colDef.isMustExist()));
                     tagProfile.setCode(sourceColumn);
                     tagProfile.setDelimiter(colDef.getDelimiter());
-                    String relationship = TransformationHelper.getRelationshipName(row, colDef);
+                    EntityTagRelationshipInput relationship = TransformationHelper.getRelationship(row, colDef);
                     Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, relationship);
                     for (TagInputBean tag : tags) {
                         addTag(tag);
@@ -151,7 +152,15 @@ public class EntityMapper extends EntityInputBean implements Mappable {
             }
             if (!colDef.getEntityLinks().isEmpty()) {
                 for (Map<String, String> key : colDef.getEntityLinks()) {
-                    addEntityLink(key.get("relationshipName"), new EntityKeyBean(key.get("documentName"), key.get("fortress"), value));
+                    //
+
+                    Object relationship = ExpressionHelper.getValue(row, key.get("relationshipName"));
+
+                    if ( relationship==null)
+                        relationship =  key.get("relationshipName");
+
+                    if (relationship !=null )
+                        addEntityLink(relationship.toString(), new EntityKeyBean(key.get("documentName"), key.get("fortress"), value));
                 }
             }
 

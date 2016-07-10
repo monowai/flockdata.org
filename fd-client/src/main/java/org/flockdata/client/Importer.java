@@ -142,7 +142,7 @@ public class Importer  {
                 if ( fileModel != null) {
                     // Reading model from file
                     contentModel = resolveContentModel(fileModel);
-
+                    extractProfile = resolveExtractProfile(fileModel,contentModel);
                 } else if (serverSideContentModel!=null ){
                     contentModel = resolveContentModel(serverSideContentModel);
                     extractProfile = new ExtractProfileHandler(contentModel, delimiter);
@@ -179,6 +179,11 @@ public class Importer  {
                 fileProcessor.endProcess(watch, totalRows, 0);
         }
     }
+
+    private ExtractProfile resolveExtractProfile(String fileModel, ContentModel contentModel) {
+        return fdClient.getExtractProfile(fileModel, contentModel);
+    }
+
     // import --auth.user=mike:123 --fd.client.import="/fd-cow.txt" --fd.content.model=tag:countries
     public ContentModel resolveContentModel(String fileModel) throws IOException {
       return fdClient.getContentModel(clientConfiguration, fileModel);

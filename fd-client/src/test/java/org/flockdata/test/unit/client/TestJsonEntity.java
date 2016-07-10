@@ -64,7 +64,7 @@ public class TestJsonEntity extends AbstractImport{
             assertEquals("hr", entity.getDocumentType().getName());
             assertNotNull(entity.getName());
             for (TagInputBean tagInputBean : entity.getTags()) {
-                if ( tagInputBean.getEntityLinks().get("sponsors")!=null ) {
+                if ( tagInputBean.getEntityTagLinks().get("sponsors")!=null ) {
                     assertNotNull(tagInputBean.getTargets().get("located"));
                     Collection<TagInputBean> states = tagInputBean.getTargets().get("located");
                     for (TagInputBean state : states) {
@@ -73,7 +73,7 @@ public class TestJsonEntity extends AbstractImport{
                     }
                 }
 
-                else if ( tagInputBean.getEntityLinks().get("cosponsors")!=null )
+                else if ( tagInputBean.getEntityTagLinks().get("cosponsors")!=null )
                     //assertEquals(5,  );
                     logger.info("Validate CoSponsor {}", tagInputBean.toString());
 

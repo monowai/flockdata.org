@@ -26,6 +26,7 @@ import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -56,7 +57,7 @@ public class TestEntityLinks extends EngineBase {
         Fortress timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
 
         EntityInputBean staff = new EntityInputBean(timesheetFortress, "wally", "Staff", new DateTime(), "ABC123");
-        staff.addTag( new TagInputBean("Cleaner", "Position", "role"));
+        staff.addTag( new TagInputBean("Cleaner", "Position", new EntityTagRelationshipInput("role")));
         mediationFacade.trackEntity(su.getCompany(), staff);
 
         DocumentType docTypeWork = new DocumentType(timesheetFortress, "Work");
@@ -112,7 +113,7 @@ public class TestEntityLinks extends EngineBase {
         Fortress timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
 
         EntityInputBean staff = new EntityInputBean(timesheetFortress, "wally", "Staff", new DateTime(), "ABC123");
-        staff.addTag(new TagInputBean("Cleaner", "Position", "role"));
+        staff.addTag(new TagInputBean("Cleaner", "Position", new EntityTagRelationshipInput("role")));
 
         mediationFacade.trackEntity(su.getCompany(), staff);
 
@@ -145,7 +146,7 @@ public class TestEntityLinks extends EngineBase {
 
         // One timesheet entry will be assigned to this staff member
         EntityInputBean eStaff = new EntityInputBean(fortress, "wally", "Staff", new DateTime(), "30250");
-        eStaff.addTag( new TagInputBean("Cleaner", "Position", "role"));
+        eStaff.addTag( new TagInputBean("Cleaner", "Position", new EntityTagRelationshipInput("role")));
         mediationFacade.trackEntity(su.getCompany(), eStaff);
 
         DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
@@ -162,6 +163,7 @@ public class TestEntityLinks extends EngineBase {
         TestCase.assertEquals("This timesheet should not have an associated staff member as it did not exist", 0, linkedEntities.get(rlxName).size()); ;
 
     }
+
     @Test
     public void work_whenEntityDoesNotExist() throws Exception {
         cleanUpGraph();
@@ -174,7 +176,7 @@ public class TestEntityLinks extends EngineBase {
 
         // One timesheet entry will be assigned to this staff member
         EntityInputBean eStaff = new EntityInputBean(fortress, "wally", "Staff", new DateTime(), "30250");
-        eStaff.addTag( new TagInputBean("Cleaner", "Position", "role"));
+        eStaff.addTag( new TagInputBean("Cleaner", "Position", new EntityTagRelationshipInput("role")));
         mediationFacade.trackEntity(su.getCompany(), eStaff);
 
         DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
@@ -191,6 +193,38 @@ public class TestEntityLinks extends EngineBase {
         linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "2", rlxName);
         // Default behaviour is to ignore
         TestCase.assertEquals("This timesheet should not have an associated staff member as it did not exist", 0, linkedEntities.get(rlxName).size()); ;
+
+    }
+
+    @Test
+    public void entityRelationshipsOnly () throws Exception {
+        SystemUser su = registerSystemUser("entityRelationshipsOnly", mike_admin);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entityRelationshipsOnly", true));
+
+
+        EntityInputBean eStaff = new EntityInputBean(fortress, "wally", "Staff", new DateTime(), "30250");
+        mediationFacade.trackEntity(su.getCompany(), eStaff);
+
+        eStaff = new EntityInputBean(fortress, "mary", "Staff", new DateTime(), "30251");
+        mediationFacade.trackEntity(su.getCompany(), eStaff);
+
+        // Cross reference two entities in the same fortress irrespective of the Document type
+        EntityInputBean xRef = new EntityInputBean(fortress, "Entity");
+        xRef.setCode("30250");
+
+        xRef.addEntityLink("manages", new EntityKeyBean("30251", "Entity"));
+
+        // Specifying the DocumentType as "Entity" instructs FD to treat the payload only as
+        // creating relationships. Entity is a reserved docType. This is a useful mechanism
+        // if you are processing a file that contains only relationship data for a range of entities that
+        // exist as different DocTypes. fortress is mandatory.
+        mediationFacade.trackEntity(su.getCompany(), xRef); // Should create only the relationship
+        assertNull ("Entity document type should not exist", conceptService.findDocumentType(fortress, "Entity"));
+        Map<String, Collection<Entity>> crossRefResults = entityService.getCrossReference(su.getCompany(), fortress.getName(), "30251", "manages");
+        assertEquals("Should have found 1 relationship", 1, crossRefResults.size());
+        Entity foundEntity = crossRefResults.get("manages").iterator().next();
+        assertEquals ("30250", foundEntity.getCode());
+
 
     }
 

@@ -24,7 +24,8 @@ import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.dao.EntityRepo;
 import org.flockdata.engine.dao.EntityTagDaoNeo;
-import org.flockdata.engine.dao.EntityTagRepo;
+import org.flockdata.engine.dao.EntityTagInRepo;
+import org.flockdata.engine.dao.EntityTagOutRepo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
 import org.flockdata.registration.TagInputBean;
@@ -63,6 +64,13 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     EntityRepo entityRepo;
 
     @Autowired
+    EntityTagOutRepo entityTagOutRepo;
+
+    @Autowired
+    EntityTagInRepo entityTagInRepo;
+
+
+    @Autowired
     Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(EntityTagServiceNeo4j.class);
@@ -78,9 +86,9 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             // We already have this tagged so get out of here
             return;
         Tag tag = tagService.findTag(entity.getFortress().getCompany(), entityTagInput.getIndex(), entityTagInput.getTagKeyPrefix(), entityTagInput.getTagCode());
-        template.save(
-                getRelationship(entity, tag, relationshipName, false, new HashMap<>(), entityTagInput.isSince())
-        );
+        EntityTag relationship = getRelationship(entity, tag, relationshipName, false, new HashMap<>(), entityTagInput.isSince());
+        relationship.setGeo(entityTagInput.isGeoRlx());
+        template.save( relationship);
     }
 
     @Override
@@ -107,25 +115,23 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * Only returns the tag - ignores the relationship
      *
      * @param entityTags
-     * @param tagInputBean
      * @return
      */
-    private Tag getTag(Iterable<EntityTag> entityTags, TagInputBean tagInputBean) {
+    private Tag getTag(Iterable<EntityTag> entityTags, String code, String label) {
         for (EntityTag existingTag : entityTags) {
-            if (existingTag.getTag().getCode().equalsIgnoreCase(tagInputBean.getCode())
-                    && existingTag.getTag().getLabel().equalsIgnoreCase(tagInputBean.getLabel())
-                    )
+            if (existingTag.getTag().getCode().equalsIgnoreCase(code)
+                    && existingTag.getTag().getLabel().equalsIgnoreCase(label))
 
                 return existingTag.getTag();
         }
         return null;
     }
 
-    private EntityTag getEntityTag(Iterable<EntityTag> existingTags, TagInputBean tagInputBean) {
+    private EntityTag getEntityTag(Iterable<EntityTag> existingTags, Map relationships, String code, String label) {
         for (EntityTag existingTag : existingTags) {
-            if (existingTag.getTag().getCode().equalsIgnoreCase(tagInputBean.getCode())
-                    && existingTag.getTag().getLabel().equalsIgnoreCase(tagInputBean.getLabel())) {
-                if (tagInputBean.hasRelationship(existingTag.getRelationship()))
+            if (existingTag.getTag().getCode().equalsIgnoreCase(code)
+                    && existingTag.getTag().getLabel().equalsIgnoreCase(label)) {
+                if (relationships.containsKey(existingTag.getRelationship()))
                     return existingTag;
             }
         }
@@ -160,17 +166,21 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         Collection<EntityTag> existingTags = (entity.isNewEntity() ? new ArrayList<>() : getEntityTags(entity));
         for (TagInputBean tagInputBean : entityInputBean.getTags()) {
 
-            Tag existingTag = getTag(existingTags, tagInputBean);
+            Tag existingTag = getTag(existingTags, tagInputBean.getCode(), tagInputBean.getLabel());
             Tag tag;
             if (existingTag == null) {
                 tag = tagService.createTag(company, tagInputBean);
+                // Might exist as an alia
+                existingTag = getTag(existingTags, tag.getCode(), tag.getLabel());
+                if ( existingTag !=null )
+                    tag = existingTag;
             } else
                 tag = existingTag;
 
             if (existingTag == null) {
                 newEntityTags.addAll(setRelationships(entity, tag, tagInputBean));
             } else {
-                EntityTag entityTag = getEntityTag(existingTags, tagInputBean);
+                EntityTag entityTag = getEntityTag(existingTags, tagInputBean.getEntityTagLinks(), tag.getCode(), tag.getLabel());
                 if (entityTag != null)
                     newEntityTags.add(entityTag);
             }
@@ -210,9 +220,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     }
 
     /**
-     * Creates and sets the relationship objects to in to the entity
-     * <p/>
-     * Does not saveFortressContentType the entity
+     * Creates and sets the relationship objects connected to the entity
      *
      * @param entity       Object to affect
      * @param tag          Tag to associated
@@ -220,18 +228,19 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * @return EntityTags that were added to the entity.
      */
     private Collection<EntityTag> setRelationships(Entity entity, Tag tag, TagInputBean tagInputBean) {
-        Map<String, Map<String, Object>> entityLinks = tagInputBean.getEntityLinks();
+        Map<String, EntityTagRelationshipInput> entityTagLinks = tagInputBean.getEntityTagLinks();
 
         Collection<EntityTag> entityTags = new ArrayList<>();
         long when = (entity.getFortressUpdatedTz() == null ? 0 : entity.getFortressUpdatedTz().getMillis());
         if (when == 0)
             when = entity.getDateCreated();
 
-        if (entityLinks == null) {
+        if (entityTagLinks == null) {
             return new ArrayList<>();
         }
-        for (String key : entityLinks.keySet()) {
-            Map<String, Object> properties = entityLinks.get(key);
+        for (String key : entityTagLinks.keySet()) {
+            EntityTagRelationshipInput entityTagRelationship = entityTagLinks.get(key);
+            Map<String, Object> properties = entityTagRelationship.getProperties();
             Map<String, Object> propMap;
             if (properties != null) {
                 propMap = properties;
@@ -240,9 +249,10 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             }
 
             propMap.put(EntityTagDao.FD_WHEN, when);
-            EntityTag entityTagRelationship = getRelationship(entity, tag, key, tagInputBean.isReverse(), propMap, tagInputBean.isSince());
-            if (entityTagRelationship != null) {
-                entityTags.add(entityTagRelationship);
+            EntityTag entityTag = getRelationship(entity, tag, key, entityTagRelationship.getReverse(), propMap, tagInputBean.isSince());
+            if (entityTag != null) {
+                entityTag.setGeo(entityTagRelationship.isGeo());
+                entityTags.add(entityTag);
             }
 
         }
@@ -261,18 +271,21 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * @param propMap          properties to associate with the relationship
      * @return Null or the EntityTag that was created
      */
-    EntityTag getRelationship(Entity entity, Tag tag, String relationshipName, Boolean
-            isReversed, Map<String, Object> propMap, boolean isSinceRequired) {
+    EntityTag getRelationship(Entity entity, Tag tag, String relationshipName,
+                              Boolean isReversed,
+                              Map<String, Object> propMap,
+                              boolean isSinceRequired) {
 
         if (isSinceRequired) {
             long lastUpdate = (entity.getFortressUpdatedTz() == null ? 0 : entity.getFortressUpdatedTz().getMillis());
-            propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressCreatedTz().getMillis() : lastUpdate));
+            propMap.put(AbstractEntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressCreatedTz().getMillis() : lastUpdate));
         }
-        EntityTag rel;
+        AbstractEntityTag rel;
         if (isReversed)
-            rel = new EntityTagOut(entity, tag, relationshipName, propMap);
-        else
             rel = new EntityTagIn(entity, tag, relationshipName, propMap);
+        else
+            rel = new EntityTagOut(entity, tag, relationshipName, propMap);
+
 
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
         return rel;
@@ -300,17 +313,14 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         return findOutboundTags(company, entity);
     }
 
-    @Autowired
-    EntityTagRepo entityTagRepo;
-
     @Override
     public Collection<EntityTag> findOutboundTags(Company company, Entity entity) {
-        return entityTagRepo.getEntityTagsOut(entity.getId());
+        return entityTagOutRepo.getEntityTags(entity.getId());
     }
 
     @Override
     public Collection<EntityTag> findInboundTags(Company company, Entity entity) {
-        return entityTagRepo.getEntityTagsIn(entity.getId());
+        return entityTagInRepo.getEntityTags(entity.getId());
     }
 
     @Override

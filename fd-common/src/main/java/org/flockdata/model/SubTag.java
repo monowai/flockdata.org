@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Created by mike on 22/08/15.
  */
-public class SubTag extends EntityTag {
+public class SubTag extends AbstractEntityTag {
     Long id ;
     Tag tag;
     String relationship;
@@ -51,6 +51,11 @@ public class SubTag extends EntityTag {
     @Override
     public String getRelationship() {
         return relationship;
+    }
+
+    @Override
+    public boolean isGeo() {
+        return false;
     }
 
     @Override

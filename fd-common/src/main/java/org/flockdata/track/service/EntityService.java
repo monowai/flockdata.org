@@ -149,7 +149,7 @@ public interface EntityService {
      */
     Collection<EntityTag> getLogTags(Company company, EntityLog entityLog);
 
-    Collection<EntityLinkInputBean> linkEntities(Company company, Collection<EntityLinkInputBean> entityLinks);
+    Collection<EntityToEntityLinkInput> linkEntities(Company company, Collection<EntityToEntityLinkInput> entityLinks);
 
     Entity save(Entity entity);
 

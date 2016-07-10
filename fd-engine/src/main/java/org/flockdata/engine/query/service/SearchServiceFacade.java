@@ -78,7 +78,7 @@ public class SearchServiceFacade {
     StorageProxy storageProxy;
 
     @Autowired(required = false) // Functional tests don't require gateways
-    EntitySearchWriterGateway searchWriter;
+            EntitySearchWriterGateway searchWriter;
 
     @Autowired(required = false)
     EntitySearchWriter entitySearchWriter;
@@ -104,7 +104,7 @@ public class SearchServiceFacade {
     @Autowired
     EngineConfig engineConfig;
 
-    @Autowired (required = false)
+    @Autowired(required = false)
     FdViewQueryGateway fdViewQueryGateway;
 
     public void makeChangeSearchable(SearchChange searchChange) {
@@ -302,8 +302,8 @@ public class SearchServiceFacade {
 
                 logger.info("Deleting the search indexes {}", adminRequest.getIndexesToDelete().toArray());
                 deleteIndexGateway.deleteIndex(adminRequest);
-            }else {
-                logger.info("Ignoring fortress [{}] - index {} searchEnabled {}", fortress.getName(),fortress.getRootIndex(), fortress.isSearchEnabled());
+            } else {
+                logger.info("Ignoring fortress [{}] - index {} searchEnabled {}", fortress.getName(), fortress.getRootIndex(), fortress.isSearchEnabled());
             }
         } else {
             logger.debug("Delete Index Gateway is not enabled");
@@ -355,6 +355,10 @@ public class SearchServiceFacade {
         if (trackResultBean == null)
             return null;
 
+        // DocumentType can override the fortress
+        if (isSearchSuppressed(trackResultBean.getDocumentType()))
+            return null;
+
         if (trackResultBean.getEntity() == null || !fortress.isSearchEnabled())
             return null;
 
@@ -367,6 +371,14 @@ public class SearchServiceFacade {
 
         return null;
 
+    }
+
+    private boolean isSearchSuppressed(DocumentType documentType) {
+        if (documentType == null)
+            return true; // Can't index a doc with no doc type
+        if (documentType.getSearchEnabled() != null) // no-null doc type may want to suppress search
+            return documentType.getSearchEnabled();
+        return false;
     }
 
     private EntityLog getLog(TrackResultBean trackResultBean) {
@@ -401,9 +413,9 @@ public class SearchServiceFacade {
     }
 
     public Boolean makeTagsSearchable(Company company, Collection<TagResultBean> tagResults) {
-        Collection<SearchChange>tagSearchChanges = new ArrayList<>();
+        Collection<SearchChange> tagSearchChanges = new ArrayList<>();
         for (TagResultBean tagResult : tagResults) {
-            if ( tagResult.isNewTag()){
+            if (tagResult.isNewTag()) {
                 tagSearchChanges.add(getTagChangeToPublish(company, tagResult));
             }
         }

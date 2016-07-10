@@ -25,21 +25,22 @@ import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 import java.util.Map;
 
 /**
+ * "Normal" non-reversed relationship entity->tag
+ *
  * User: Mike Holdsworth
  * Date: 29/06/13
  * Time: 12:59 PM
  */
 @RelationshipEntity  (type = "ENTITY-TAG-OUT")
-public class EntityTagOut extends EntityTag {
+public class EntityTagOut extends AbstractEntityTag {
 
     @GraphId
     Long id;
 
-    @StartNode Entity entity;
+    @StartNode protected Entity entity;
 
     @EndNode
-    @Fetch
-    protected Tag tag;
+    @Fetch protected Tag tag;
 
     @RelationshipType
     @Fetch
@@ -113,6 +114,11 @@ public class EntityTagOut extends EntityTag {
     }
 
     @Override
+    public boolean isGeo() {
+        return geoRelationship;
+    }
+
+    @Override
     public Boolean isReversed() {
         return true;
     }
@@ -126,7 +132,7 @@ public class EntityTagOut extends EntityTag {
                 '}';
     }
 
-    public int compareTo(EntityTag o) {
+    public int compareTo(AbstractEntityTag o) {
         int val = getRelationship().compareTo(o.getRelationship());
         if (val == 0)
             return getTag().getCode().compareTo(o.getTag().getCode());

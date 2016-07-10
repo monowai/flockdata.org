@@ -55,6 +55,10 @@ public class DocumentType  implements Comparable<DocumentType> {
     @Indexed(unique = true)
     private String companyKey;
 
+    private Boolean searchEnabled;
+
+    private Boolean storeEnabled;
+
     //@Relationship( type = "FORTRESS_DOC", direction = Relationship.OUTGOING)
     @RelatedTo( type = "FORTRESS_DOC", direction = Direction.OUTGOING)
     private Fortress fortress;
@@ -101,6 +105,9 @@ public class DocumentType  implements Comparable<DocumentType> {
         // ToDo: Parse for injection vulnerabilities.
         // Only admin users can create these and even then only under direction
         this.geoQuery = docType.getGeoQuery(); // DAT-507
+        this.searchEnabled = docType.isSearchEnabled();
+        this.storeEnabled = docType.isStoreEnabled();
+
         if ( docType.getTagStructure()!= null)
             this.tagStructure = docType.getTagStructure();
 
@@ -110,26 +117,11 @@ public class DocumentType  implements Comparable<DocumentType> {
         }
         if ( docType.getVersionStrategy()!=null )
             setVersionStrategy(docType.getVersionStrategy());
+
     }
 
     public DocumentType(String documentName) {
         this(null, documentName);
-    }
-
-    /**
-     *
-     * @param fortress      System that owns the documentType
-     * @param documentType  The input that will create a real DocumentType
-     */
-    public DocumentType(Fortress fortress, DocumentType documentType) {
-        this.name = documentType.getName();
-        this.code = parseCode(fortress, documentType.getName());
-        this.tagStructure = documentType.getTagStructure();
-        if ( fortress !=null ){
-            this.companyKey = fortress.getCompany().getId() + "." + code;
-            setFortress(fortress);
-        }
-
     }
 
     /**
@@ -147,11 +139,6 @@ public class DocumentType  implements Comparable<DocumentType> {
             setFortress(fortress);
         }
 
-    }
-
-    public DocumentType(DocumentType document) {
-        this(document.getFortress(), document.getName());
-        this.id = document.getId();
     }
 
     public DocumentType(Fortress fortress, String name, EntityService.TAG_STRUCTURE tagStructure) {
@@ -292,5 +279,13 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     public Set<FortressSegment>getSegments (){
         return segments;
+    }
+
+    public Boolean getSearchEnabled() {
+        return searchEnabled;
+    }
+
+    public Boolean getStoreEnabled() {
+        return storeEnabled;
     }
 }

@@ -18,6 +18,7 @@ package org.flockdata.registration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.model.EntityTagRelationshipInput;
 import org.flockdata.model.Tag;
 
 import java.util.ArrayList;
@@ -40,20 +41,19 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     private boolean reverse = false;
 
-    private Map<String, Collection<TagInputBean>> targets ;
+    private Map<String, Collection<TagInputBean>> targets;
 
-    Map<String, Object> properties ;
+    Map<String, Object> properties; // stored on the tag
     private String label = Tag.DEFAULT_TAG;
 
-    Map<String, Map<String,Object>> entityLinks ;
+    Map<String, EntityTagRelationshipInput> entityTagLinks; // between entity and this tag
 
-    private String entityLink = null;
     private boolean mustExist = false;
-    private String serviceMessage;
+    private String serviceMessage; // A message to return to the caller
     private Collection<AliasInputBean> aliases;
     private String notFoundCode;
     private boolean since;
-    private String keyPrefix=null;
+    private String keyPrefix = null;
     private boolean merge = false;
 
 
@@ -64,21 +64,24 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      * associates a tag to the Entity
      *
      * @param tagCode  Unique name for a tag (if exists will be reused)
-     * @param tagLabel     The "type" of tag
+     * @param tagLabel The "type" of tag
      */
     public TagInputBean(String tagCode, String tagLabel) {
-        this(tagCode, tagLabel, null);
+        this(tagCode);
+        setLabel(tagLabel);
+
     }
 
     /**
      * associates a tag to the entity giving it an optional tagLabel tagLabel to categorize it by
      *
-     * @param tagCode                Unique name for a tag (if exists will be reused)
-     * @param tagLabel               optional tagLabel tagLabel to give the Tag.
-     * @param entityRelationshipName name of relationship to the Entity
+     * @param tagCode  Unique name for a tag (if exists will be reused)
+     * @param tagLabel optional tagLabel tagLabel to give the Tag.
+     * @param etri     name of relationship to the Entity
      */
-    public TagInputBean(String tagCode, String tagLabel, String entityRelationshipName) {
-        this(tagCode, tagLabel, entityRelationshipName, null);
+    public TagInputBean(String tagCode, String tagLabel, EntityTagRelationshipInput etri) {
+        this(tagCode, tagLabel);
+        addEntityTagLink(etri);
 
 
     }
@@ -97,28 +100,15 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      */
     public TagInputBean(String tagCode) {
         this();
-        if ( tagCode == null )
+        if (tagCode == null)
             throw new IllegalArgumentException("The code of a tag cannot be null");
-        this.code= tagCode.trim();
+        this.code = tagCode.trim();
 
         //this.code = this.name;
     }
 
-    public TagInputBean(String tagCode, String tagLabel, String entityRelationshipName, Map<String, Object> relationshipProperties) {
-        this(tagCode);
-        setLabel(tagLabel);
-        if (entityRelationshipName != null) {
-            entityRelationshipName = entityRelationshipName.trim();
-            if (entityRelationshipName.contains(" ")) {
-                if (!entityRelationshipName.startsWith("'"))
-                    entityRelationshipName = "'" + entityRelationshipName + "'";
-                //   throw new RuntimeException("Tag Type cannot contain whitespace [" + tagLabel + "]");
-            }
-            addEntityLink(entityRelationshipName, relationshipProperties);
-        }
-
-
-
+    public TagInputBean(String tagCode, String tagLabel, String relationshipName) {
+        this (tagCode, tagLabel, new EntityTagRelationshipInput((relationshipName==null ?Tag.UNDEFINED:relationshipName)));
     }
 
     public void setServiceMessage(String getServiceMessage) {
@@ -149,7 +139,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     public TagInputBean setTargets(String tagRelationship, TagInputBean tagInputBean) {
-        ArrayList<TagInputBean> val = new ArrayList<>() ;
+        ArrayList<TagInputBean> val = new ArrayList<>();
         val.add(tagInputBean);
         setTargets(tagRelationship, val);
         return this;
@@ -157,14 +147,14 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     public TagInputBean setTargets(String relationshipName, Collection<TagInputBean> fromThoseTags) {
-        if ( targets == null )
+        if (targets == null)
             targets = new HashMap<>();
         Collection<TagInputBean> theseTags = targets.get(relationshipName);
-        if ( theseTags == null )
+        if (theseTags == null)
             targets.put(relationshipName, fromThoseTags);
         else {
             for (TagInputBean tagToAdd : fromThoseTags) {
-                if ( !theseTags.contains(tagToAdd))
+                if (!theseTags.contains(tagToAdd))
                     theseTags.add(tagToAdd);
             }
         }
@@ -172,8 +162,8 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     }
 
-    public TagInputBean mergeTags (TagInputBean mergeFrom){
-        if ( mergeFrom.hasTargets()) {
+    public TagInputBean mergeTags(TagInputBean mergeFrom) {
+        if (mergeFrom.hasTargets()) {
             for (String next : mergeFrom.getTargets().keySet()) {
                 setTargets(next, mergeFrom.getTargets().get(next));
             }
@@ -192,16 +182,17 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     @Override
-    public void setProperty(String key, Object value) {
-        if ( properties == null )
+    public TagInputBean setProperty(String key, Object value) {
+        if (properties == null)
             properties = new HashMap<>();
-        if ( key !=null && value != null )
+        if (key != null && value != null)
             properties.put(key, value);
+        return this;
     }
 
     @Override
-    public Object getProperty(String key){
-        if (properties == null )
+    public Object getProperty(String key) {
+        if (properties == null)
             return null;
         return properties.get(key);
     }
@@ -237,30 +228,57 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     }
 
+    public TagInputBean addEntityTagLink(EntityTagRelationshipInput entityTagRelationshipInput) {
+        if (entityTagRelationshipInput != null)
+            return this.addEntityTagLink(entityTagRelationshipInput.getRelationshipName(), entityTagRelationshipInput);
+        return this;
+    }
+
     /**
      * Associates this tag with the Entity
      *
      * @param relationshipName name of the relationship to the Entity
-     * @param properties        properties to store against the relationship
+     * @param properties       properties to store against the relationship
      */
-    public TagInputBean addEntityLink(String relationshipName, Map<String, Object> properties) {
-        if ( entityLinks == null )
-            entityLinks = new HashMap<>();
-        if ( entityLinks.get(relationshipName) == null )
-            this.entityLinks.put(relationshipName, properties);
+    public TagInputBean addEntityTagLink(String relationshipName, Map<String, Object> properties) {
+        return addEntityTagLink(relationshipName, new EntityTagRelationshipInput(relationshipName, properties));
+    }
+
+    /**
+     * Prirmary function for carrying the relationship data describing the connection between
+     * this Tag and the Entity it is being connected to
+     * <p>
+     * You can't have multiple relationships with the same name. Names are usually verbs
+     *
+     * @param relationshipName           name
+     * @param entityTagRelationshipInput FD specific processing instructions and user defined properties
+     * @return this
+     */
+    public TagInputBean addEntityTagLink(String relationshipName, EntityTagRelationshipInput entityTagRelationshipInput) {
+        if (entityTagLinks == null)
+            entityTagLinks = new HashMap<>();
+//        if ( entityTagLinks.get(relationshipName) == null )
+
+        this.entityTagLinks.put(relationshipName, entityTagRelationshipInput);
         return this;
     }
 
-    public TagInputBean addEntityLink(String relationshipName) {
+
+    /**
+     * Defines the named relationship to be created between this tag and the EntityInput payload
+     * it is being carried in.
+     *
+     * @param relationshipName simple name with no properties
+     * @return this
+     */
+    public TagInputBean addEntityTagLink(String relationshipName) {
         if (relationshipName.equals("located"))
             setReverse(true);
-        return addEntityLink(relationshipName, null);
+        return addEntityTagLink(relationshipName, new EntityTagRelationshipInput(relationshipName));
     }
 
-    public Map<String, Map<String,Object>> getEntityLinks() {
-        if ( (entityLinks== null ||entityLinks.isEmpty()) && entityLink !=null )
-            addEntityLink(entityLink);
-        return entityLinks;
+    public Map<String, EntityTagRelationshipInput> getEntityTagLinks() {
+        return entityTagLinks;
     }
 
     @Override
@@ -269,7 +287,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
                 "label='" + label + '\'' +
                 ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
-                ", keyPrefix='" + keyPrefix+ '\'' +
+                ", keyPrefix='" + keyPrefix + '\'' +
                 '}';
     }
 
@@ -313,12 +331,10 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     /**
-     *
-     *
      * @return Default tag tagLabel or the name to assign
      */
     private String getLabelValue() {
-        if ( "".equals(label) )
+        if ("".equals(label))
             return "_Tag";
         else
             return label;
@@ -326,13 +342,13 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     public String getLabel() {
         String thisLabel = getLabelValue();
-        if ( thisLabel.startsWith(":"))
-            thisLabel= thisLabel.substring(1, thisLabel.length());
+        if (thisLabel.startsWith(":"))
+            thisLabel = thisLabel.substring(1, thisLabel.length());
         return thisLabel;
     }
 
     public boolean hasAliases() {
-        return ( aliases!=null && !aliases.isEmpty());
+        return (aliases != null && !aliases.isEmpty());
     }
 
     public Collection<AliasInputBean> getAliases() {
@@ -347,12 +363,11 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     /**
      * determines if this payload has the requested relationship. Does not walk the tree!!
      */
-    public boolean hasRelationship(String relationship) {
-        return (entityLink!=null && entityLink.equals(relationship)) || entityLinks.containsKey(relationship);
+    public boolean hasEntityRelationship(String relationship) {
+        return (entityTagLinks.containsKey(relationship));
     }
 
     /**
-     *
      * @param mustExist don't "just create" this tag
      * @param notFound  create and link to this tag if notfound
      * @return this
@@ -371,15 +386,9 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
         return notFoundCode;
     }
 
-    public String getEntityLink() {
-        return entityLink;
+    public void setEntityTagLinks(Map<String, EntityTagRelationshipInput> entityLinks) {
+        this.entityTagLinks = entityLinks;
     }
-
-    public TagInputBean setEntityLink(String entityLink) {
-        this.entityLink = entityLink;
-        return this;
-    }
-
 
     public TagInputBean setSince(boolean since) {
         this.since = since;
@@ -391,7 +400,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     public void addAlias(AliasInputBean alias) {
-        if ( aliases == null )
+        if (aliases == null)
             aliases = new ArrayList<>();
         aliases.add(alias);
     }
@@ -399,20 +408,20 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     @JsonIgnore
     // Determines if a valid NotFoundCode is set
     public boolean hasNotFoundCode() {
-        return !(notFoundCode == null  || notFoundCode.equals(""));
+        return !(notFoundCode == null || notFoundCode.equals(""));
     }
 
     /**
      * Codes can have duplicate values in a Label but the key must be unique.
      * When being created, the code is used as part of the key. Setting this property
      * will prefix the key with this value.
-     *
+     * <p>
      * Useful in geo type scenarios. Take Cambridge - a city in England and in New Zealand
-     *
+     * <p>
      * With a tagPrefix we have uk.cambridge and nz.cambridge both with a code of Cambridge. Each
      * tag is distinct but they share human readable properties
      *
-     * @param keyPrefix  default is not set.
+     * @param keyPrefix default is not set.
      */
     public TagInputBean setKeyPrefix(String keyPrefix) {
         this.keyPrefix = keyPrefix;
@@ -431,6 +440,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     /**
      * Default == false
      * if true, then properties in this payload will be added to an existing tag
+     *
      * @return caller wants to merge properties
      */
     public boolean isMerge() {
@@ -438,33 +448,33 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     public boolean contains(String code, String label, String keyPrefix) {
-       return findTargetTag(code, label, keyPrefix) !=null;
+        return findTargetTag(code, label, keyPrefix) != null;
     }
 
     /**
      * determines if the targets Map contains a TagInputBean with requested properties
      * Tags are uniquely identified by either Code or keyPrefix+"-"+code within a Label
      *
-     * @since DAT-491
      * @param code      case-insensitive - mandatory
      * @param label     case-sensitive - mandatory
      * @param keyPrefix case-insensitive - optional
      * @return
+     * @since DAT-491
      */
     public TagInputBean findTargetTag(String code, String label, String keyPrefix) {
-        if ( !hasTargets())
+        if (!hasTargets())
             return null;
 
         for (String key : targets.keySet()) {
             for (TagInputBean tagInputBean : targets.get(key)) {
-                if ( tagInputBean.getCode().equalsIgnoreCase(code) && tagInputBean.getLabel().equals(label)) {
-                    if ( keyPrefix == null || keyPrefix.length() ==0 )
+                if (tagInputBean.getCode().equalsIgnoreCase(code) && tagInputBean.getLabel().equals(label)) {
+                    if (keyPrefix == null || keyPrefix.length() == 0)
                         return tagInputBean;// Ignoring the keyPrefix
-                    if ( tagInputBean.getKeyPrefix().equalsIgnoreCase(keyPrefix))
+                    if (tagInputBean.getKeyPrefix().equalsIgnoreCase(keyPrefix))
                         return tagInputBean;
                 }
                 TagInputBean found = tagInputBean.findTargetTag(code, label, keyPrefix);
-                if ( found!=null )
+                if (found != null)
                     return found;
             }
         }
@@ -476,13 +486,12 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     public boolean hasTargets() {
-        return this.targets!=null && !targets.isEmpty();
+        return this.targets != null && !targets.isEmpty();
     }
 
     public boolean hasTagProperties() {
-        return this.properties!=null && !properties.isEmpty();
+        return this.properties != null && !properties.isEmpty();
     }
-
 
 
 }

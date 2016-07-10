@@ -9,15 +9,16 @@
   "content": {
     "Athlete": {
       "tag": true,
-      "relationship": "won"
+      "entityTagLinks": [{"relationshipName": "won"}]
     },
     "Country": {
-      "relationship":"from",
-      "country": true
+      "entityTagLinks": [{"relationshipName": "from"}],
+      "tag": true,
+      "label": "Country"
     },
     "Sport": {
       "tag": true,
-      "relationship": "blah",
+      "entityTagLinks": [{"relationshipName": "balh"}],
       "mustExist": false,
       "targets": [
         {
@@ -43,18 +44,21 @@
     },
     "Gold Medals": {
       "tag": true,
-      "valueAsProperty": true,
-      "relationship": "competed"
+      "code": "'Gold'",
+      "name": "'Gold Medals'",
+      "entityTagLinks": [{"relationshipName": "competed", "properties": {"value": "#data['Gold Medals']"}}]
     },
     "Silver Medals": {
       "tag": true,
-      "valueAsProperty": true,
-      "relationship": "competed"
+      "code": "'Silver'",
+      "name": "'Silver Medals'",
+      "entityTagLinks": [{"relationshipName": "competed", "properties": {"value": "#data['Silver Medals']"}}]
     },
     "Bronze Medals": {
       "tag": true,
-      "valueAsProperty": true,
-      "relationship": "competed"
+      "code": "'Bronze'",
+      "name": "'Bronze Medals'",
+      "entityTagLinks": [{"relationshipName": "competed", "properties": {"value": "#data['Bronze Medals']"}}]
     }
   }
 }

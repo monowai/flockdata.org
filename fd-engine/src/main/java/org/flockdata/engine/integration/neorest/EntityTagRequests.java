@@ -20,7 +20,7 @@
 
 package org.flockdata.engine.integration.neorest;
 
-import org.flockdata.model.EntityTag;
+import org.flockdata.model.AbstractEntityTag;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -76,7 +76,7 @@ public class EntityTagRequests extends NeoRequestBase {
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(getEntityTag());
 
-        handler.setExpectedResponseType(EntityTag.class);
+        handler.setExpectedResponseType(AbstractEntityTag.class);
         Map<String, Expression> vars = new HashMap<>();
         vars.put("entityId", expressionParser.parseExpression("payload[0]"));
         vars.put("tagType", expressionParser.parseExpression("payload[1]"));

@@ -43,6 +43,9 @@ public enum Store {
     }
 
     public static Store resolveStore(TrackResultBean trackResult, Store defaultStore) {
+        if ( trackResult.getDocumentType()== null)
+            return Store.NONE;
+
         if (trackResult.getDocumentType().getVersionStrategy() == DocumentType.VERSION.ENABLE)
             return defaultStore;
 

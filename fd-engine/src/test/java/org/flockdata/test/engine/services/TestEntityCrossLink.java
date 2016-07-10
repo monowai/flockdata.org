@@ -164,7 +164,7 @@ public class TestEntityCrossLink extends EngineBase {
                 new EntityKeyBean(trackResultBean.getDocumentType().getName(), fib, "ABC321")
                         .setMissingAction(EntityKeyBean.ACTION.CREATE));
 
-        EntityKeyBean sourceKey = new EntityKeyBean(new EntityLinkInputBean(inputBean));
+        EntityKeyBean sourceKey = new EntityKeyBean(new EntityToEntityLinkInput(inputBean));
 
         Collection<EntityKeyBean> results = entityService.linkEntities(su.getCompany(), sourceKey, callerRefs, "anyrlx");
         TestCase.assertTrue("",results.isEmpty());
@@ -282,13 +282,13 @@ public class TestEntityCrossLink extends EngineBase {
 
         refs.put("cites", callerRefs);
         inputBean.setEntityLinks(refs);
-        EntityLinkInputBean bean = new EntityLinkInputBean(inputBean);
-        List<EntityLinkInputBean> entities = new ArrayList<>();
+        EntityToEntityLinkInput bean = new EntityToEntityLinkInput(inputBean);
+        List<EntityToEntityLinkInput> entities = new ArrayList<>();
         entities.add(bean);
 
-        Collection<EntityLinkInputBean> notFound = entityService.linkEntities(su.getCompany(), entities);
+        Collection<EntityToEntityLinkInput> notFound = entityService.linkEntities(su.getCompany(), entities);
         assertEquals(1, notFound.size());
-        for (EntityLinkInputBean crossReferenceInputBean : notFound) {
+        for (EntityToEntityLinkInput crossReferenceInputBean : notFound) {
             assertTrue(crossReferenceInputBean.getIgnored().get("cites").isEmpty());
         }
 
@@ -316,11 +316,11 @@ public class TestEntityCrossLink extends EngineBase {
         refs.put("cites", entityKeys);
         inputBean.setEntityLinks(refs);
 
-        EntityLinkInputBean bean = new EntityLinkInputBean(inputBean);
-        List<EntityLinkInputBean> inputs = new ArrayList<>();
+        EntityToEntityLinkInput bean = new EntityToEntityLinkInput(inputBean);
+        List<EntityToEntityLinkInput> inputs = new ArrayList<>();
         inputs.add(bean);
 
-        Collection<EntityLinkInputBean> notFound = entityService.linkEntities(su.getCompany(), inputs);
+        Collection<EntityToEntityLinkInput> notFound = entityService.linkEntities(su.getCompany(), inputs);
         assertEquals(2, notFound.iterator().next().getIgnored().get("cites").size());
 
         // These are the two records that will cite the previously created entity

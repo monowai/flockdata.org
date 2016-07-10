@@ -10,25 +10,13 @@
       "tag": true,
       "label": "Politician",
       "mustExist": true,
-      "relationship": "receives",
-      "rlxProperties": [
-        {
-          "source": "4",
-          "target": "amount"
-        }
-      ]
+      "entityTagLinks": [{"relationshipName": "receives", "properties": {"amount": "#data['4']"}}]
     },
     "2": {
       "tag": true,
       "label": "InterestGroup",
       "mustExist": true,
-      "relationship": "#data['8']=='D' ?'direct':'indirect'",
-      "properties": [
-        {
-          "source": "4",
-          "target": "amount"
-        }
-      ]
+      "entityTagLinks": [{"relationshipName": "#data['8']=='D' ?'direct':'indirect'", "properties": {"amount": "#data['4']"}}]
     },
     "6": {
       "tag": true,

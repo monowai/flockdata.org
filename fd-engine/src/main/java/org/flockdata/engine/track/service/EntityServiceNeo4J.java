@@ -608,11 +608,9 @@ public class EntityServiceNeo4J implements EntityService {
     public Collection<TrackResultBean> trackEntities(DocumentType documentType, FortressSegment segment, Collection<EntityInputBean> entityInputs, Future<Collection<TagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException, IOException {
         Collection<TrackResultBean> arb = new ArrayList<>();
         for (EntityInputBean inputBean : entityInputs) {
-            if (documentType == null || documentType.getCode() == null || documentType.getId() == null)
-                documentType = conceptService.resolveByDocCode(segment.getFortress(), inputBean.getDocumentType().getName());
+//            if ( documentType == null || documentType.getCode() == null || documentType.getId() == null )
+//                documentType = conceptService.resolveByDocCode(segment.getFortress(), inputBean.getDocumentType().getName());
 
-            assert (documentType != null);
-            assert (documentType.getCode() != null);
             TrackResultBean result = createEntity(documentType, segment, inputBean, tags);
             if (result.getEntity() != null)
                 logger.trace("Batch Processed {}, code=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentType().getName());
@@ -698,7 +696,7 @@ public class EntityServiceNeo4J implements EntityService {
             int count = 1;
 
             Collection<Entity> entities = new ArrayList<>();
-            if (targetKey.getDocumentType().equals("*"))
+            if (targetKey.getDocumentType().equals("*") || targetKey.getDocumentType().equalsIgnoreCase("entity"))
                 entities = findByCode(fortress, targetKey.getCode());
             else {
                 Entity entity = findByCode(fortressService.findByCode(company, targetKey.getFortressName()), targetKey.getDocumentType(), targetKey.getCode());
@@ -855,9 +853,9 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Collection<EntityLinkInputBean> linkEntities(Company
-                                                                company, Collection<EntityLinkInputBean> entityLinks) {
-        for (EntityLinkInputBean entityLink : entityLinks) {
+    public Collection<EntityToEntityLinkInput> linkEntities(Company
+                                                                company, Collection<EntityToEntityLinkInput> entityLinks) {
+        for (EntityToEntityLinkInput entityLink : entityLinks) {
             Map<String, List<EntityKeyBean>> references = entityLink.getReferences();
             for (String xRefName : references.keySet()) {
                 try {

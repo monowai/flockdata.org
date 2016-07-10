@@ -25,12 +25,14 @@ import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 import java.util.Map;
 
 /**
+ * "Reversed" relationship
+ *
  * User: Mike Holdsworth
  * Date: 29/06/13
  * Time: 12:59 PM
  */
 @RelationshipEntity (type = "ENTITY-TAG-IN")
-public class EntityTagIn extends EntityTag {
+public class EntityTagIn extends AbstractEntityTag {
 
     @GraphId
     Long id =null;
@@ -104,6 +106,11 @@ public class EntityTagIn extends EntityTag {
         if ( relationship != null)
             return relationship.name();
         return "ENTITY-TAG-IN";
+    }
+
+    @Override
+    public boolean isGeo() {
+        return geoRelationship;
     }
 
     public void setRelationship(String relationship){

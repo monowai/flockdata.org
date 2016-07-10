@@ -21,6 +21,7 @@ package org.flockdata.test.unit.client;
 
 import junit.framework.TestCase;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.model.EntityTagRelationshipInput;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ExtractProfileDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
@@ -28,7 +29,6 @@ import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.Transformer;
@@ -37,108 +37,22 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 /**
  * User: mike
  * Date: 8/05/14
  * Time: 11:29 AM
  */
 public class TestCsvEntity extends AbstractImport{
-
-    @Test
-    public void entityRow() throws Exception {
-        ContentModel params = ContentModelDeserializer.getContentModel("/model/csvtest.json");
-        EntityMapper entity = new EntityMapper(params);
-        // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
-        String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category", "xRef"};
-        // Category column is intentionally null
-        String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12", null, "qwerty" };
-        Map<String, Object> json = entity.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
-        assertNotNull(json);
-
-        assertTrue("Title Missing", json.containsKey("Title"));
-        assertTrue("Tag Missing", json.containsKey("Tag"));
-        assertTrue("Tag Value Missing", json.containsKey("TagVal"));
-        assertTrue("Tag Value Missing", json.containsKey("ValTag"));
-        Map<String, List<EntityKeyBean>> xRefs = entity.getEntityLinks();
-
-        assertFalse(xRefs.isEmpty());
-        assertEquals(2, xRefs.size());
-        boolean foundExposed=false, foundBlah=false;
-        for (String s : xRefs.keySet()) {
-            if ( s.equals("exposed")){
-                // Check for 2 values
-                assertEquals(2, xRefs.get("exposed").size());
-                foundExposed = true;
-            } else if ( s.equals("blah")){
-                assertEquals(1, xRefs.get("blah").size());
-                for (String s1 : xRefs.keySet()) {
-                    EntityKeyBean ek = xRefs.get("blah").iterator().next();
-                    assertEquals("Olympic", ek.getFortressName());
-                    assertEquals("Other", ek.getDocumentType());
-                    assertEquals("qwerty", ek.getCode());
-                }
-                foundBlah = true;
-            }
-        }
-        assertEquals(true, foundBlah & foundExposed);
-        Assert.assertEquals(data[0], entity.getCode());
-        List<TagInputBean> tags = entity.getTags();
-        int tagsFound = 0;
-        boolean callerRefFoundAsATag = false;
-        boolean nullCategoryFound = false;
-        for (TagInputBean tag : tags) {
-
-            switch (tag.getCode()) {
-                case "Gold Medals":
-                    Object o = tag.getEntityLinks().get("2008");
-                    assertNotNull(o);
-                    assertEquals(12, ((Map) o).get("value"));
-                    tagsFound ++;
-                    break;
-                case "TagName":
-                    assertEquals("TagName", tag.getCode());
-                    tagsFound ++;
-                    break;
-                case "Gold":
-                    assertEquals(true, tag.isMustExist());
-                    tagsFound ++;
-                    break;
-                case "ValTag":
-                    assertNotNull(tag.getEntityLinks().get("undefined"));
-                    assertEquals(1, tag.getEntityLinks().size());
-                    assertEquals("ValTag", tag.getName());
-                    assertEquals("ValTag", tag.getLabel());
-                    assertEquals(8, ((Map) tag.getEntityLinks().get("undefined")).get("value"));
-                    tagsFound ++;
-                    break;
-                case "New Zealand":
-                    assertEquals("Country", tag.getLabel());
-                    tagsFound ++;
-                    break;
-                case "TitleTests":
-                    callerRefFoundAsATag = true;
-                    assertNull("Name should be null as it is the same as the code", tag.getName());
-                    tagsFound ++;
-                    break;
-                case "Undefined":
-                    nullCategoryFound = true;
-                    assertEquals("Undefined", tag.getCode());
-                    assertEquals("Category", tag.getLabel());
-                    tagsFound++;
-                    break;
-
-            }
-        }
-        assertTrue("The callerRef was flagged as a tag but not found", callerRefFoundAsATag);
-        assertTrue("The undefined category column was not found ", nullCategoryFound);
-        assertSame(tags.size(), tagsFound);
-    }
 
     @Test
     public void validate_ColumnHelper() throws Exception {
@@ -165,20 +79,17 @@ public class TestCsvEntity extends AbstractImport{
 
         colDef = params.getColumnDef(headers[3]);
         assertTrue("Should be a tag", colDef.isTag());
-        assertTrue("Tag to value", colDef.isValueAsProperty());
         assertFalse("Shouldn't be a title", TransformationHelper.evaluate(colDef.isTitle()));
         assertFalse("Shouldn't be a callerRef", TransformationHelper.evaluate(colDef.isCallerRef()));
-        assertFalse("Doesn't have to exist", TransformationHelper.evaluate(colDef.isMustExist()));
 
         colDef = params.getColumnDef(headers[4]);
         assertTrue("Should be a tag", colDef.isTag());
-        assertTrue("Should be a country", colDef.isCountry());
+        assertTrue("Should be a country", colDef.getLabel().equals("Country"));
         assertTrue("must exist", colDef.isMustExist());
 
         colDef = params.getColumnDef(headers[6]);
         assertTrue("Should be a tag", colDef.isTag());
         assertEquals("'Gold Medals'", colDef.getName()); // This has not been parsed by SPEL so it literal
-        assertTrue("Tag to value", colDef.isValueAsProperty());
         assertFalse("Shouldn't be a title", TransformationHelper.evaluate(colDef.isTitle()));
         assertFalse("Shouldn't be a callerRef", TransformationHelper.evaluate(colDef.isCallerRef()));
         assertFalse("Doesn't have to exist", TransformationHelper.evaluate(colDef.isMustExist()));
@@ -196,27 +107,27 @@ public class TestCsvEntity extends AbstractImport{
 
         assertEquals(values[0] + "." + values[3], header.getCode());
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
-        assertEquals("Silver and Bronze medal values are 0 so should not be included", 5, header.getTags().size());
+//        assertEquals("Silver and Bronze medal values are 0 so should not be included", 5, header.getTags().size());
         for (TagInputBean tagInputBean : header.getTags()) {
-            if (tagInputBean.getCode().equals("Gold Medals")) {
+            if (tagInputBean.getCode().equals("Gold")) {
                 assertEquals("Gold Medals", tagInputBean.getLabel());
-                Object o = tagInputBean.getEntityLinks().get("competed");
+                EntityTagRelationshipInput o = tagInputBean.getEntityTagLinks().get("competed");
                 assertNotNull("Custom relationship name not working", o);
-                assertEquals(8, ((HashMap) o).get("value"));
+                assertEquals(8, o.getProperties().get("value"));
                 goldTag = true;
             }
             if (tagInputBean.getCode().equals("Michael Phelps")) {
-                assertNotNull("Custom relationship name not working", tagInputBean.getEntityLinks().containsKey("won"));
+                assertNotNull("Custom relationship name not working", tagInputBean.getEntityTagLinks().containsKey("won"));
                 assertEquals("Athlete", tagInputBean.getLabel());
                 athleteTag = true;
             }
             if (tagInputBean.getCode().equals("Swimming")) {
-                assertNotNull("Default relationship name not working", tagInputBean.getEntityLinks().containsKey("blah"));
+                assertNotNull("Default relationship name not working", tagInputBean.getEntityTagLinks().containsKey("blah"));
                 assertEquals("Sport", tagInputBean.getLabel());
                 sportTag = true;
             }
             if (tagInputBean.getCode().equals("United States")) {
-                assertNotNull("Relationship name not working", tagInputBean.getEntityLinks().containsKey("from"));
+                assertNotNull("Relationship name not working", tagInputBean.getEntityTagLinks().containsKey("from"));
                 countryTag = true;
             }
             if (tagInputBean.getCode().equals("Sport")) {

@@ -49,9 +49,8 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- *
  * Access to Entity objects stored in Neo4j
- *
+ * <p>
  * User: Mike Holdsworth
  * Date: 21/04/13
  * Time: 8:00 PM
@@ -63,7 +62,7 @@ public class EntityDaoNeo {
     EntityRepo entityRepo;
 
     @Autowired
-    @Qualifier ("engineConfig")
+    @Qualifier("engineConfig")
     PlatformConfig engineConfig;
 
     @Autowired
@@ -131,10 +130,10 @@ public class EntityDaoNeo {
     }
 
     public Entity findEntity(String key, boolean inflate) {
-        if ( key == null )
+        if (key == null)
             return null;
 
-        Entity entity = entityRepo.findByKey( key);
+        Entity entity = entityRepo.findByKey(key);
         if (inflate && entity != null) {
             fetch(entity);
 
@@ -163,22 +162,43 @@ public class EntityDaoNeo {
 
     }
 
-//    @Cacheable (value = "entityByCode", unless = "#result == null")
+    //    @Cacheable (value = "entityByCode", unless = "#result == null")
     public Entity findByCode(Long fortressId, DocumentType document, String code) {
         if (logger.isTraceEnabled())
             logger.trace("findByCode fortressUser [" + fortressId + "] docType[" + document + "], code[" + code + "]");
 
-        String extKey = "" + fortressId + "." + document.getId() + "." + code;
-        //Entity result= entityRepo.findBySchemaPropertyValue(EXT_KEY, keyToFind);
-        Entity result = entityRepo.findByExtKey(extKey);
+        Entity result;
+        if (document == null || document.getName().equalsIgnoreCase("entity")) {
+            // Locating an entity with a caller key across doctypes. This can return multiples of course
+            // so caller should be aware of this. Current default action is to use the first found
+            logger.debug("Locating by code {} in fortress {}", code, fortressId);
+            Collection<Entity> entities = entityRepo.findByCode(fortressId, code);
+            logger.debug("found {} results", entities.size());
+
+            if (entities.size() == 1) {
+                result = entities.iterator().next();
+            } else if (entities.size() > 1) {
+                logger.error("Multiple Entity objects found in the fortress {} for code {}. Returning the first", fortressId, code);
+                result = entities.iterator().next();
+            } else {
+                // nothing found;
+                result = null;
+            }
+
+        } else {
+            String extKey = "" + fortressId + "." + document.getId() + "." + code;
+            //Entity result= entityRepo.findBySchemaPropertyValue(EXT_KEY, keyToFind);
+            result = entityRepo.findByExtKey(extKey);
+
+        }
         return fetch(result);
     }
 
     public Entity fetch(Entity entity) {
-        if (entity != null ) {
-            if ( entity.getCreatedBy()!=null)
+        if (entity != null) {
+            if (entity.getCreatedBy() != null)
                 template.fetch(entity.getCreatedBy());
-            if ( entity.getLastUpdate() !=null )
+            if (entity.getLastUpdate() != null)
                 template.fetch(entity.getLastUser());
         }
 
@@ -236,7 +256,7 @@ public class EntityDaoNeo {
 
     public Set<EntityLog> getLogs(Entity entity) {
         EntityLog mockLog = getMockLog(entity);
-        if ( mockLog != null ) {
+        if (mockLog != null) {
             Set<EntityLog> results = new HashSet<>();
             results.add(mockLog);
             return results;
@@ -248,7 +268,7 @@ public class EntityDaoNeo {
     public Map<String, Object> findByTransaction(org.flockdata.model.TxRef txRef) {
         //Example showing how to use cypher and extract
 
-        String findByTagRef =" match (tag)-[:AFFECTED]->log<-[logs:LOGGED]-(track) " +
+        String findByTagRef = " match (tag)-[:AFFECTED]->log<-[logs:LOGGED]-(track) " +
                 "              where id(tag)={txRef}" +
                 "             return logs, track, log " +
                 "           order by logs.sysWhen";
@@ -282,7 +302,7 @@ public class EntityDaoNeo {
 
     public EntityLog save(EntityLog log) {
         // DAT-349 - don't persist mocked logs
-        if ( log.isMocked())
+        if (log.isMocked())
             return log;
         logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getLog().getId());
         return template.save(log);
@@ -306,9 +326,9 @@ public class EntityDaoNeo {
         return changeLog;
     }
 
-    private EntityLog getMockLog(Entity entity){
+    private EntityLog getMockLog(Entity entity) {
         // DAT-349 returns a mock log if storage history is not being maintained by a KV impl
-        if ( !entity.getSegment().getFortress().isStoreEnabled()){
+        if (!entity.getSegment().getFortress().isStoreEnabled()) {
             Log log = new Log(entity);
             return new EntityLog(entity, log, entity.getFortressCreatedTz());
         }
@@ -317,8 +337,8 @@ public class EntityDaoNeo {
 
     public EntityLog getLog(Entity entity, Long logId) {
 
-        EntityLog mockLog = getMockLog( entity);
-        if ( mockLog !=null )
+        EntityLog mockLog = getMockLog(entity);
+        if (mockLog != null)
             return mockLog;
 
         Relationship change = template.getRelationship(logId);
@@ -339,19 +359,19 @@ public class EntityDaoNeo {
     }
 
     public Log fetch(Log lastChange) {
-        if ( lastChange.getId() == null || lastChange.isMocked())
+        if (lastChange.getId() == null || lastChange.isMocked())
             return lastChange;
         return template.fetch(lastChange);
     }
 
     public EntityLog writeLog(Entity entity, Log newLog, DateTime fortressWhen) throws FlockException {
 
-        EntityLog entityLog =new EntityLog(entity, newLog, fortressWhen);
+        EntityLog entityLog = new EntityLog(entity, newLog, fortressWhen);
 
         if (entity.getId() == null)// Graph tracking is suppressed; caller is only creating search docs
             return entityLog;
 
-        if ( entity.getSegment().getFortress().isStoreDisabled() )
+        if (entity.getSegment().getFortress().isStoreDisabled())
             return entityLog;
 
         logger.debug(entity.getKey());
@@ -361,10 +381,10 @@ public class EntityDaoNeo {
         // Easiest way to test is when there is not fortress and you track the first request in to it.
         // DAT-419
 
-        while ( currentState.getKey() ==null )
+        while (currentState.getKey() == null)
             currentState = template.fetch(entity);
 
-        if ( entity.getKey() == null )
+        if (entity.getKey() == null)
             throw new FlockException("Where has the key gone?");
 
         entity.setLastUser(newLog.getMadeBy());
@@ -400,7 +420,7 @@ public class EntityDaoNeo {
         }
         if (latest == null)
             return;
-        moreRecent = (latest.getLog().getEntityLog().getFortressWhen() > entity.getFortressUpdatedTz().getMillis() );
+        moreRecent = (latest.getLog().getEntityLog().getFortressWhen() > entity.getFortressUpdatedTz().getMillis());
         if (moreRecent) {
             logger.debug("Detected a more recent change ", new DateTime(latest.getFortressWhen()), entity.getId(), latest.getFortressWhen());
 
@@ -444,7 +464,7 @@ public class EntityDaoNeo {
         Collection<Entity> foundEntities = entityRepo.findEntities(company.getId(), keys);
         Map<String, Entity> unsorted = new HashMap<>();
         for (Entity foundEntity : foundEntities) {
-            if ( foundEntity.getSegment().getFortress().getCompany().getId().equals(company.getId()))
+            if (foundEntity.getSegment().getFortress().getCompany().getId().equals(company.getId()))
                 unsorted.put(foundEntity.getKey(), foundEntity);
         }
         return unsorted;
@@ -492,7 +512,7 @@ public class EntityDaoNeo {
         Log lastChange = entity.getLastChange();
         if (lastChange == null) {
             // If no last change, then this might be a mock log
-            return getMockLog( entity);
+            return getMockLog(entity);
         }
 
         return trackLogRepo.getLog(entity.getLastChange().getId());
@@ -511,12 +531,12 @@ public class EntityDaoNeo {
     }
 
     public Collection<String> getEntityBatchForSegment(Long id, DocumentType documentType, Long segmentId, int limit) {
-        Collection<String>results = new ArrayList<>();
-        Map<String,Object>params = new HashMap<>();
+        Collection<String> results = new ArrayList<>();
+        Map<String, Object> params = new HashMap<>();
         params.put("0", id);
         params.put("1", segmentId);
         params.put("2", limit);
-        String query =" match (fortress:Fortress)-[:DEFINES]-(fs:FortressSegment)-[:TRACKS]->(entity:`"+documentType.getName()+"`) " +
+        String query = " match (fortress:Fortress)-[:DEFINES]-(fs:FortressSegment)-[:TRACKS]->(entity:`" + documentType.getName() + "`) " +
                 " where id(fortress)={0} and id(fs)={1}" +
                 " return entity.key " +
                 " limit {2} ";
@@ -539,7 +559,7 @@ public class EntityDaoNeo {
 
         for (Entity entity : entities) {
             Collection<EntityTag> entityTags;
-            if ( withEntityTags){
+            if (withEntityTags) {
                 entityTags = entityTagService.findEntityTags(childEntity.getFortress().getCompany(), entity);
                 results.add(new EntityKeyBean(entity, entityTags, indexManager.parseIndex(entity)).addRelationship(""));
             } else {

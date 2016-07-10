@@ -1,9 +1,6 @@
 package org.flockdata.test.helper;
 
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.FortressSegment;
+import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
@@ -29,18 +26,18 @@ public class TestEntityInputBean {
         EntityInputBean movie = new EntityInputBean()
                 .setCode("tt0356910")
                 .setDocumentType(movieDoc)
-                .addTag(new TagInputBean("Doug Liman", "Person", "DIRECTED"));
+                .addTag(new TagInputBean("Doug Liman", "Person", new EntityTagRelationshipInput("DIRECTED")));
 
 
         EntityInputBean brad = new EntityInputBean()
                 .setCode("tt0356910")
                 .setDocumentType(movieDoc)
-                .addTag(new TagInputBean("Brad Pitt", "Person", "ACTED"));
+                .addTag(new TagInputBean("Brad Pitt", "Person", new EntityTagRelationshipInput("ACTED")));
 
         EntityInputBean angie = new EntityInputBean()
                 .setCode("tt0356910")
                 .setDocumentType(movieDoc)
-                .addTag(new TagInputBean("Angelina Jolie", "Person", "ACTED"));
+                .addTag(new TagInputBean("Angelina Jolie", "Person", new EntityTagRelationshipInput("ACTED")));
 
         movie.merge(brad,angie);
         assertEquals("Tag Inputs did not merge", 3, movie.getTags().size());
@@ -48,12 +45,12 @@ public class TestEntityInputBean {
         EntityInputBean producer = new EntityInputBean()
                 .setCode("tt0356910")
                 .setDocumentType(movieDoc)
-                .addTag(new TagInputBean("Angelina Jolie", "Person", "PRODUCED"));
+                .addTag(new TagInputBean("Angelina Jolie", "Person", new EntityTagRelationshipInput("PRODUCED")));
 
         movie.merge(producer);
         assertEquals("Existing tag with different relationship not recorded", 3, movie.getTags().size());
         TagInputBean angieTag = movie.getTags().get(movie.getTags().indexOf(producer.getTags().iterator().next()));
-        assertEquals ("An acting and production relationship should exist", 2, angieTag.getEntityLinks().size());
+        assertEquals ("An acting and production relationship should exist", 2, angieTag.getEntityTagLinks().size());
 
     }
 

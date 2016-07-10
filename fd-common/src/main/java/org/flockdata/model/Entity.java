@@ -54,6 +54,7 @@ public class Entity implements Serializable {
     @Indexed(unique = true)
     private String extKey;   // Calculated field defining a unique external key
 
+    @Indexed
     private String code;
 
     private String name;

@@ -27,7 +27,7 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
-import org.flockdata.track.bean.EntityLinkInputBean;
+import org.flockdata.track.bean.EntityToEntityLinkInput;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -82,8 +82,8 @@ public class TestNonTransactional extends EngineBase {
         codeRefs.add(new EntityKeyBean("ABC333", "123", "444"));
 
         refs.put("cites",codeRefs);
-        EntityLinkInputBean bean = new EntityLinkInputBean(inputBean);
-        List<EntityLinkInputBean> inputs = new ArrayList<>();
+        EntityToEntityLinkInput bean = new EntityToEntityLinkInput(inputBean);
+        List<EntityToEntityLinkInput> inputs = new ArrayList<>();
         inputs.add(bean);
         Collection<EntityTag> tagsA = entityTagService.getEntityTags(docA.getEntity());
         assertEquals(1, tagsA.size());

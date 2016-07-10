@@ -256,9 +256,13 @@ public class MediationFacadeNeo implements MediationFacade {
             Collection<TrackResultBean> allResults = new ArrayList<>();
             // We have to wait for the docType before proceeding to create entities
             Collection<DocumentType> docs = docType.get(10, TimeUnit.SECONDS);
-            assert docs.size()!=0;
+//            assert docs.size()!=0; //
             for (List<EntityInputBean> entityInputBeans : splitList) {
-                Iterable<TrackResultBean> loopResults = entityRetry.track(docs.iterator().next(), segment, entityInputBeans, tagResults);
+                DocumentType documentType = null;
+                if ( docs.iterator().hasNext())
+                    documentType = docs.iterator().next();
+
+                Iterable<TrackResultBean> loopResults = entityRetry.track(documentType, segment, entityInputBeans, tagResults);
                 logger.debug("Tracked requests");
                 distributeChanges(segment.getFortress(), loopResults);
 

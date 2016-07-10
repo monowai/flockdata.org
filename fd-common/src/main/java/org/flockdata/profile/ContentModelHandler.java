@@ -118,10 +118,11 @@ public class ContentModelHandler implements ContentModel {
         if ( content == null )
             content = columns;
         else
-            for (String column : columns.keySet()) {
-                if ( !content.containsKey(column)) // Adding in only the new ColumnDefinition
-                    content.put(column, columns.get(column));
-            }
+            // Adding in only the new ColumnDefinition
+            columns.keySet().stream().filter(
+                    column -> !content.containsKey(column))
+                        .forEachOrdered(column -> content.put(column, columns.get(column)
+                                ));
     }
 
     public void setSegmentExpression(String segmentExpression) {

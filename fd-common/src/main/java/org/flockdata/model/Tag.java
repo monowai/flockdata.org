@@ -63,8 +63,8 @@ public class Tag {
     private Set<Alias> aliases = new HashSet<>();
 
     //@Relationship(type = "located")
-    @RelatedTo(elementClass = Tag.class, type = "located")
-    private Set<Tag> located = null;
+//    @RelatedTo(elementClass = Tag.class, type = "located")
+//    private Set<Tag> located = null;
 
     DynamicProperties props = new DynamicPropertiesContainer();
 
@@ -196,13 +196,6 @@ public class Tag {
 
     public Set<Alias> getAliases() {
         return aliases;
-    }
-
-    public Tag getLocated() {
-        if (located == null || located.isEmpty())
-            return null;
-
-        return located.iterator().next();
     }
 
     @JsonIgnore

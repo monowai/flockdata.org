@@ -19,11 +19,13 @@ package org.flockdata.transform;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.flockdata.model.EntityTagRelationshipInput;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.transform.tags.TagProfile;
 import org.flockdata.transform.tags.TagProfileDeserializer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -87,6 +89,8 @@ public class ColumnDefinition implements GeoDefinition {
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> properties; // Properties to add to an object
     private ArrayList<Map<String, String>> entityLinks = new ArrayList<>();
+    @JsonDeserialize(using = EntityTagRelationshipDeserializer.class)
+    private Collection<EntityTagRelationshipInput> entityTagLinks ;
     private ArrayList<AliasInputBean> aliases;
 
     private String relationship; // Explicit relationship name
@@ -407,6 +411,14 @@ public class ColumnDefinition implements GeoDefinition {
      */
     public Boolean isMerge() {
         return merge;
+    }
+
+    public void setEntityTagLinks(Collection<EntityTagRelationshipInput> entityTagLinks) {
+        this.entityTagLinks = entityTagLinks;
+    }
+
+    public Collection<EntityTagRelationshipInput> getEntityTagLinks() {
+        return entityTagLinks;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

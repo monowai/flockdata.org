@@ -19,6 +19,7 @@ package org.flockdata.test.unit.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.EntityTagRelationshipInput;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
@@ -27,7 +28,6 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.List;
 
 import static junit.framework.TestCase.assertNotNull;
@@ -62,17 +62,21 @@ public class TestImporterPreparsing extends AbstractImport {
                 if ( tagInputBean.getLabel().equals("Politician"))
                     politician= tagInputBean;
                 if ( tagInputBean.getLabel().equals("InterestGroup")){
-                    assertEquals("direct", tagInputBean.getEntityLinks().keySet().iterator().next());
-                    TestCase.assertEquals(2, tagInputBean.getProperties().size());
-                    TestCase.assertNotNull(tagInputBean.getProperties().get("amount"));
-                    TestCase.assertEquals("ABC123", tagInputBean.getProperties().get("calculatedColumn"));
+                    assertEquals("direct", tagInputBean.getEntityTagLinks().keySet().iterator().next());
+                    for (String key : tagInputBean.getEntityTagLinks().keySet()) {
+                        EntityTagRelationshipInput etib = tagInputBean.getEntityTagLinks().get(key);
+                        TestCase.assertEquals(2, etib.getProperties().size());
+                        TestCase.assertNotNull(etib.getProperties().get("amount"));
+                        TestCase.assertEquals("ABC123", etib.getProperties().get("calculatedColumn"));
+
+                    }
                 }
             }
             assertNotNull(politician);
-            HashMap link = (HashMap) politician.getEntityLinks().get("receives");
+            EntityTagRelationshipInput link = politician.getEntityTagLinks().get("receives");
             assertNotNull(link);
-            assertNotNull(link.get("amount"));
-            assertTrue("Amount not calculated as a value", Integer.parseInt(link.get("amount").toString()) >0);
+            assertNotNull(link.getProperties().get("amount"));
+            assertTrue("Amount not calculated as a value", Integer.parseInt(link.getProperties().get("amount").toString()) >0);
 
         }
         ObjectMapper om = new ObjectMapper();

@@ -442,9 +442,9 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean entityInput = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
         TagInputBean tag = new TagInputBean("TagA");
-        tag.addEntityLink("Type1");
-        tag.addEntityLink("Type2");
-        tag.addEntityLink("Type3");
+        tag.addEntityTagLink("Type1");
+        tag.addEntityTagLink("Type2");
+        tag.addEntityTagLink("Type3");
         entityInput.addTag(tag);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
@@ -470,7 +470,7 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
 
         TagInputBean tagA = new TagInputBean("mike@flockdata.com", "Email", "email-to");
-        tagA.addEntityLink("email-cc");
+        tagA.addEntityTagLink("email-cc");
         TagInputBean tagB = new TagInputBean("np@flockdata.com", "Email", "email-cc");
         inputBean.addTag(tagA);
         inputBean.addTag(tagB);
@@ -493,7 +493,7 @@ public class TestEntityTags extends EngineBase {
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
         TagInputBean tagA = new TagInputBean("mike@flockdata.com", null, "email-to");
-        tagA.addEntityLink("email-cc");
+        tagA.addEntityTagLink("email-cc");
         TagInputBean tagB = new TagInputBean("np@flockdata.com", null, "email-cc");
         inputBean.addTag(tagA);
         inputBean.addTag(tagB);
@@ -520,9 +520,9 @@ public class TestEntityTags extends EngineBase {
         propA.put("myValue", 10);
         propB.put("myValue", 20);
 
-        TagInputBean tagA = new TagInputBean("mike@flockdata.com", "Email", "email-to", propA).setLabel("Email");
-        tagA.addEntityLink("email-cc", propB);
-        TagInputBean tagB = new TagInputBean("np@auditbucket.com", "Email", "email-cc");
+        TagInputBean tagA = new TagInputBean("mike@flockdata.com", "Email", new EntityTagRelationshipInput("email-to", propA)).setLabel("Email");
+        tagA.addEntityTagLink("email-cc", propB);
+        TagInputBean tagB = new TagInputBean("np@flockdata.com", "Email", "email-cc");
 
         inputBean.addTag(tagA);
         inputBean.addTag(tagB);
@@ -545,8 +545,8 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
 
         TagInputBean tagInputBean = new TagInputBean("mike@flockdata.com", null, "email-to");
-        tagInputBean.addEntityLink("email-to");
-        tagInputBean.addEntityLink("email-to");
+        tagInputBean.addEntityTagLink("email-to");
+        tagInputBean.addEntityTagLink("email-to");
 
         inputBean.addTag(tagInputBean);
 
@@ -566,9 +566,9 @@ public class TestEntityTags extends EngineBase {
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
 
-        TagInputBean tagInputBean = new TagInputBean("mike@auditbucket.com", null, "email-to");
-        tagInputBean.setReverse(true); // relationships will be reversed
-        tagInputBean.addEntityLink("email-to");
+        TagInputBean tagInputBean = new TagInputBean("mike@flockdata.com", null)
+                .addEntityTagLink(new EntityTagRelationshipInput("email-to")
+        );// Entity->Tag
 
         inputBean.addTag(tagInputBean);
 
@@ -592,7 +592,7 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
 
         TagInputBean tagA = new TagInputBean("mike@flockdata.com", null, "email-to");
-        tagA.addEntityLink("email cc");
+        tagA.addEntityTagLink("email cc");
         TagInputBean tagB = new TagInputBean("np@flockdata.com", null, "email-cc");
 
         inputBean.addTag(tagA);
@@ -740,18 +740,19 @@ public class TestEntityTags extends EngineBase {
         String city = "Los Angeles";
 
         TagInputBean countryInputTag = new TagInputBean(country, "Country");
-        TagInputBean cityInputTag = new TagInputBean(city, "City");
         TagInputBean stateInputTag = new TagInputBean("CA", "State");
+        TagInputBean cityInputTag = new TagInputBean(city, "City");
 
-        // Institution is in a city
-        inputBean.addTag(cityInputTag.addEntityLink("geodata"));
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
+
+        // Institution is in a city
+        inputBean.addTag(cityInputTag.addEntityTagLink(new EntityTagRelationshipInput("geodata",true)));
 
         inputBean.setContent(new ContentInputBean(EntityContentHelper.getRandomMap()));
 
         // Institution<-city<-state<-country
-
+        assertEquals(1, inputBean.getTags().iterator().next().getEntityTagLinks().size());
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(resultBean);
 
@@ -759,7 +760,8 @@ public class TestEntityTags extends EngineBase {
         for (EntityTag tag : tags) {
             logger.info(tag.toString());
             assertEquals("geodata", tag.getRelationship());
-            assertNotNull("geo data block not found for a located relationship connected to an entity",
+            assertTrue(tag.isGeo());
+            assertNotNull("geo data block not found for a geo flagged relationship connected to an entity",
                     tag.getGeoData());
         }
 
@@ -772,8 +774,8 @@ public class TestEntityTags extends EngineBase {
     public void entityTag_SimpleRelationship() throws Exception {
         String name = "Doctor John";
         TagInputBean authorTag = new TagInputBean(name + ":person");
-        authorTag.addEntityLink("writer");
-        authorTag.addEntityLink("lead");
+        authorTag.addEntityTagLink("writer");
+        authorTag.addEntityTagLink("lead");
 
         SystemUser su = registerSystemUser("targetTagWithAuditRelationship", mike_admin);
         assertNotNull(su);
@@ -787,8 +789,8 @@ public class TestEntityTags extends EngineBase {
         TagInputBean institution = new TagInputBean("Auckland University:Institution");
         cityTag.setTargets("jurisdiction", countryTag); // Auckland located in NZ
 
-        institution.addEntityLink("located");
-        cityTag.addEntityLink("city");
+        institution.addEntityTagLink("located");
+        cityTag.addEntityTagLink("city");
 
         inputBean.addTag(cityTag); // Not attached to entity
         inputBean.addTag(countryTag);
@@ -820,7 +822,8 @@ public class TestEntityTags extends EngineBase {
         TagInputBean cityInputTag = new TagInputBean("LA", "City", "").setName(city);
         TagInputBean stateInputTag = new TagInputBean("CA", "State", "");
 
-        TagInputBean institutionTag = new TagInputBean("mikecorp", null, "owns");
+        TagInputBean institutionTag = new TagInputBean("mikecorp", "Institution");
+        institutionTag.addEntityTagLink(new EntityTagRelationshipInput("owns", true));
         // Institution is in a city
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
@@ -1034,12 +1037,12 @@ public class TestEntityTags extends EngineBase {
         rlxProperties.put("weight", 99);
         rlxProperties.put("abAdded", "z");
 
-        TagInputBean inBound = new TagInputBean("TAG-IN", "DefTag", "rlx-test", rlxProperties);
+        TagInputBean inBound = new TagInputBean("TAG-IN", "DefTag", new EntityTagRelationshipInput("rlx-test", rlxProperties).setReverse(true));
         inputBean.addTag(inBound);
 
-        TagInputBean outBound = new TagInputBean("TAG-OUT", null, "rlxb-test").setReverse(true);
-
+        TagInputBean outBound = new TagInputBean("TAG-OUT", "DefTest", new EntityTagRelationshipInput("rlxb-test", rlxProperties));
         inputBean.addTag(outBound);
+
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity created = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         entityService.getLastEntityLog(su.getCompany(), created.getKey()).getLog();
@@ -1047,9 +1050,9 @@ public class TestEntityTags extends EngineBase {
         // Total of two tags
         validateTag(created, null, 2);
 
-        Collection<EntityTag> outboundTags = entityTagService.findInboundTags(created);
-        assertEquals("One tag should be reversed", 1, outboundTags.size());
-        EntityTag trackOut = outboundTags.iterator().next();
+        Collection<EntityTag> inboundTags = entityTagService.findInboundTags(created);
+        assertEquals("One tag should be inbound", 1, inboundTags.size());
+        EntityTag trackOut = inboundTags.iterator().next();
         Assert.assertEquals("TAG-IN", trackOut.getTag().getCode());
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
@@ -1065,7 +1068,7 @@ public class TestEntityTags extends EngineBase {
         // Removing the inbound tag
         mediationFacade.trackEntity(su.getCompany(), inputBean);
         validateTag(created, null, 1);
-        outboundTags = entityTagService.findOutboundTags(su.getCompany(), created);
+        Collection<EntityTag> outboundTags = entityTagService.findOutboundTags(su.getCompany(), created);
 
         // One remains and is reversed
         assertEquals(1, outboundTags.size());
@@ -1117,8 +1120,8 @@ public class TestEntityTags extends EngineBase {
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag", true));
         EntityInputBean inputBean = new EntityInputBean(fo, "wally", "CancelDoc", new DateTime(), "ABC123");
         ContentInputBean log = new ContentInputBean("wally", new DateTime(), EntityContentHelper.getRandomMap());
-        inputBean.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
-        inputBean.addTag(new TagInputBean("Happy Days").addEntityLink("testingb"));
+        inputBean.addTag(new TagInputBean("Happy").addEntityTagLink("testinga"));
+        inputBean.addTag(new TagInputBean("Happy Days").addEntityTagLink("testingb"));
         inputBean.setContent(log);
         TrackResultBean result;
         mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -1128,8 +1131,8 @@ public class TestEntityTags extends EngineBase {
         // Add another Log - replacing the two existing Tags with two new ones
         log = new ContentInputBean("wally", new DateTime(), EntityContentHelper.getRandomMap());
         inputBean.getTags().clear();
-        inputBean.addTag(new TagInputBean("Sad Days").addEntityLink("testingb"));
-        inputBean.addTag(new TagInputBean("Days Bay").addEntityLink("testingc"));
+        inputBean.addTag(new TagInputBean("Sad Days").addEntityTagLink("testingb"));
+        inputBean.addTag(new TagInputBean("Days Bay").addEntityTagLink("testingc"));
         inputBean.setContent(log);
         result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         // We now have 2 logs, sad tags, no happy tags
@@ -1161,7 +1164,7 @@ public class TestEntityTags extends EngineBase {
     SearchHandler searchHandler;
 
     @Test
-    public void search_seperateLogEventUpdatesSameSearchObject() throws Exception {
+    public void search_separateLogEventUpdatesSameSearchObject() throws Exception {
         logger.info("## search_nGramDefaults");
         SystemUser su = registerSystemUser("Romeo");
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ngram", true));
@@ -1211,8 +1214,8 @@ public class TestEntityTags extends EngineBase {
             EntityInputBean inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", new DateTime());
             inputBean.setDescription("This is a description");
             ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
-            inputBean.addTag(new TagInputBean("Samsung").setLabel("Law").setEntityLink("plaintiff"));
-            inputBean.addTag(new TagInputBean("Apple").setLabel("Law").setEntityLink("defendant"));
+            inputBean.addTag(new TagInputBean("Samsung").setLabel("Law").addEntityTagLink("plaintiff"));
+            inputBean.addTag(new TagInputBean("Apple").setLabel("Law").addEntityTagLink("defendant"));
             inputBean.setContent(cib);
 
             TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -1244,12 +1247,13 @@ public class TestEntityTags extends EngineBase {
 
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean(fortress, "DAT386", "DAT386", new DateTime(), "abc");
-        TagInputBean tagInput = new TagInputBean("MissingTag", "TestUndefined", "rlx").setMustExist(true, "Unknown");
+        TagInputBean tagInput = new TagInputBean("MissingTag", "TestUndefined", new EntityTagRelationshipInput("rlx"))
+                .setMustExist(true, "Unknown");
         entityInput.addTag(tagInput);
 
-        mediationFacade.trackEntity(su.getCompany(), entityInput);
-
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
+
+        result = mediationFacade.trackEntity(su.getCompany(), entityInput);
         assertNotNull(result.getEntity());
         Collection<EntityTag> tags = entityTagService.findEntityTags(su.getCompany(), result.getEntity());
         assertNotNull(tags);
@@ -1294,7 +1298,7 @@ public class TestEntityTags extends EngineBase {
 
         EntityInputBean entityInputBean = new EntityInputBean(fortress, "blah", documentType.getName(), new DateTime());
         entityInputBean.setEntityOnly(true);
-        term.setEntityLink("references");
+        term.addEntityTagLink("references");
         entityInputBean.addTag(term); // Terms are connected to entities
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), entityInputBean);
         assertNotNull(trackResultBean.getEntity());
@@ -1338,6 +1342,25 @@ public class TestEntityTags extends EngineBase {
         assertNotNull(deserialized);
         assertEquals(searchChange.getTagValues().size(), deserialized.getTagValues().size());
         assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, searchChange.getTagStructure());
+    }
+
+    @Test
+    public void tagsInOut() throws Exception{
+        SystemUser su = registerSystemUser("tagsInOut", mike_admin);
+        String json = "[{\"code\":\"10000001\",\"fortress\":{\"name\":\"icij.org\",\"timeZone\":\"Pacific/Auckland\",\"enabled\":true,\"system\":false,\"code\":\"icij.org\"},\"documentType\":{\"name\":\"LegalEntity\",\"code\":\"LegalEntity\",\"versionStrategy\":\"FORTRESS\",\"tagStructure\":\"DEFAULT\"},\"when\":1143028800000,\"lastChange\":1361098800000,\"content\":{\"pVer\":1.0,\"when\":1143028800000,\"data\":{\"address\":\"ORION HOUSE SERVICES (HK) LIMITED ROOM 1401; 14/F.; WORLD COMMERCE  CENTRE; HARBOUR CITY; 7-11 CANTON ROAD; TSIM SHA TSUI; KOWLOON; HONG KONG\",\"internal_id\":1001256,\"jurisdiction\":\"SAM\",\"struck_off_date\":\"2013-02-15T00:00:00.000+13:00\",\"dorm_date\":null,\"service_provider\":\"Mossack Fonseca\",\"jurisdiction_description\":\"Samoa\",\"ibcRUC\":\"25221\",\"original_name\":\"TIANSHENG INDUSTRY AND TRADING CO., LTD.\",\"name\":\"TIANSHENG INDUSTRY AND TRADING CO., LTD.\",\"inactivation_date\":\"2013-02-18T00:00:00.000+13:00\",\"country_codes\":\"HKG\",\"incorporation_date\":\"2006-03-23T00:00:00.000+12:00\",\"status\":\"Defaulted\",\"node_id\":10000001},\"forceReindex\":false,\"contentType\":\"json\",\"transactional\":false},\"tags\":[{\"code\":\"SAM\",\"reverse\":false,\"label\":\"Jurisdiction\",\"entityTagLinks\":{\"jurisdiction\":{\"geo\":true,\"relationshipName\":\"jurisdiction\"}},\"mustExist\":false,\"aliases\":[],\"since\":false,\"merge\":false},{\"code\":\"Mossack Fonseca\",\"reverse\":true,\"label\":\"ServiceProvider\",\"entityTagLinks\":{\"manages\":{\"relationshipName\":\"manages\"}},\"mustExist\":false,\"since\":false,\"merge\":true},{\"code\":\"25221\",\"reverse\":false,\"label\":\"RUC\",\"entityTagLinks\":{\"ibc\":{\"relationshipName\":\"ibc\"}},\"mustExist\":false,\"since\":false,\"merge\":true},{\"code\":\"HKG\",\"reverse\":false,\"label\":\"Country\",\"entityTagLinks\":{\"located\":{\"geo\":true,\"relationshipName\":\"located\"}},\"mustExist\":false,\"aliases\":[],\"since\":false,\"merge\":false}],\"entityLinks\":{},\"properties\":{},\"description\":\"TIANSHENG INDUSTRY AND TRADING CO., LTD.\",\"name\":\"TIANSHENG INDUSTRY AND TRADING CO., LTD.\",\"searchSuppressed\":false,\"trackSuppressed\":false,\"entityOnly\":false,\"timezone\":\"Pacific/Auckland\",\"archiveTags\":false}]";
+        Collection<EntityInputBean> eib = JsonUtils.toCollection(json.getBytes(), EntityInputBean.class);
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), eib.iterator().next());
+        assertNotNull ( result);
+        Iterable<EntityTag> tags = entityTagService.getEntityTagsWithGeo(result.getEntity());
+        assertNotNull ( tags);
+        assertTrue (tags.iterator().hasNext());
+        int count =0;
+
+        for (EntityTag tag : tags) {
+            count ++;
+        }
+        assertEquals (4, count);
+
     }
 
     private void validateTag(Entity entity, String tagName, int totalExpected) {
