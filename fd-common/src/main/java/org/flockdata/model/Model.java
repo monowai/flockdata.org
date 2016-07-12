@@ -44,9 +44,13 @@ public class Model {
     @RelatedTo(type = "FORTRESS_MODEL")
     private Fortress fortress;
 
+    private String fortressName;
+
     //@Relationship( type = "DOCUMENT_PROFILE")
     @RelatedTo( type = "DOCUMENT_MODEL")
     private DocumentType document;
+
+    private String documentName;
 
     @RelatedTo(type = "COMPANY_MODEL")
     private Company company;
@@ -61,6 +65,8 @@ public class Model {
         this.company = trackResultBean.getCompany();
         this.fortress = fortress;
         this.document = documentType;
+        this.fortressName = fortress.getName();
+        this.documentName = (documentType==null?null:documentType.getName());
         this.name = trackResultBean.getEntity().getName();
         this.key = trackResultBean.getKey();
 
@@ -104,5 +110,13 @@ public class Model {
 
     public String getCode() {
         return code;
+    }
+
+    public String getFortressName() {
+        return fortressName;
+    }
+
+    public String getDocumentName() {
+        return documentName;
     }
 }

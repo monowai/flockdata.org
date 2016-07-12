@@ -50,6 +50,7 @@ public class ContentModelDaoNeo {
     public Model findTagProfile(Company company, String code) {
         return contentModelRepo.findTagModel(company.getId(), code);
     }
+
     public Model find (Fortress fortress, DocumentType documentType ){
         return contentModelRepo.findTagModel(fortress.getId(), documentType.getId());
     }
@@ -65,8 +66,10 @@ public class ContentModelDaoNeo {
         Collection<Model> models = contentModelRepo.findCompanyModels(companyId);
         Collection<ContentModelResult>results = new ArrayList<>(models.size());
         for (Model model : models) {
-            template.fetch(model.getFortress());
-            template.fetch(model.getDocument());
+            if ( model.getFortress() !=null)
+                template.fetch(model.getFortress());
+            if (model.getDocument() !=null )
+                template.fetch(model.getDocument());
             results.add(new ContentModelResult(model));
         }
         return results;

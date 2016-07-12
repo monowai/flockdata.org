@@ -149,14 +149,22 @@ public class SchemaDaoNeo4j {
 
     @Transactional
     public void purge(Fortress fortress) {
-
-        String docRlx = "match (fort:Fortress)-[fd:FORTRESS_DOC]-(a:DocType)-[dr]-(o)-[k]-(p)" +
-                "where id(fort)={fortId}  delete dr, k, o;";
-
-        // ToDo: Purge Unused Concepts!!
         HashMap<String, Object> params = new HashMap<>();
         params.put("fortId", fortress.getId());
-        runQuery(docRlx, params);
+
+        String modelRelationships =" match (m:Model)-[r:FORTRESS_MODEL]->(fort:Fortress) " +
+                "where id(fort)={fortId} " +
+                "delete r";
+        runQuery(modelRelationships, params);
+
+        String conceptRelationships = "match (fort:Fortress)-[fd:FORTRESS_DOC]-(a:DocType)-[dr]-(o)-[k]-(p)" +
+                "where id(fort)={fortId} " +
+                "and not (o:Model)  " +
+                "delete dr, k, o;";
+
+        // ToDo: Purge Unused Concepts!!
+        runQuery(conceptRelationships, params);
+
     }
 
 }

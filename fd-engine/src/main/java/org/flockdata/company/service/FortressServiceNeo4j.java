@@ -212,6 +212,12 @@ public class FortressServiceNeo4j implements FortressService {
     public void purge(Fortress fortress) throws FlockException {
         logger.info("Purging fortress {}", fortress);
         fortressDao.purgeFortress(fortress.getId());
+        Collection<DocumentType> docTypes = conceptDao.getFortressDocumentsInUse(fortress);
+        for (DocumentType docType : docTypes) {
+            logger.debug("Deleting DocType {}", docType);
+            conceptDao.delete(docType.getId());
+        }
+
         fortressDao.delete(fortress);
         logger.info("Purged fortress {}", fortress);
     }

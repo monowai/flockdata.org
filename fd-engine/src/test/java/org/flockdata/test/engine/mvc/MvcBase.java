@@ -140,7 +140,6 @@ public abstract class MvcBase {
     }
 
     /**
-     *
      * @return mike - works for AnyCo
      */
     public RequestPostProcessor mike() {
@@ -148,7 +147,6 @@ public abstract class MvcBase {
     }
 
     /**
-     *
      * @return sally - works for OtherCo
      */
     public RequestPostProcessor sally() {
@@ -166,7 +164,7 @@ public abstract class MvcBase {
     public void setSecurity() throws Exception {
     }
 
-    FortressResultBean updateFortress(RequestPostProcessor user, String code, FortressInputBean update,  ResultMatcher resultMatch) throws Exception {
+    FortressResultBean updateFortress(RequestPostProcessor user, String code, FortressInputBean update, ResultMatcher resultMatch) throws Exception {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
@@ -293,7 +291,7 @@ public abstract class MvcBase {
                 .with(user)
         ).andExpect(status).andReturn();
 
-        if (response.getResolvedException() !=null) {
+        if (response.getResolvedException() != null) {
             throw response.getResolvedException();
         }
         String json = response.getResponse().getContentAsString();
@@ -417,6 +415,16 @@ public abstract class MvcBase {
 
     }
 
+    public void purgeFortress(RequestPostProcessor user, String fortressName, ResultMatcher expectedResult) throws Exception {
+
+        mvc()
+                .perform(
+                        MockMvcRequestBuilders.delete(apiPath + "/admin/{fortressName}", fortressName)
+                                .with(user)
+                ).andExpect(expectedResult);
+
+    }
+
     public FortressResultBean getFortress(RequestPostProcessor user, String code) throws Exception {
         MvcResult response = mvc()
                 .perform(
@@ -454,7 +462,6 @@ public abstract class MvcBase {
 
 
     }
-
 
     public ContentModel getDefaultContentModel(RequestPostProcessor user, ContentValidationRequest content) throws Exception {
         MvcResult response = mvc()
@@ -640,7 +647,7 @@ public abstract class MvcBase {
     }
 
     public Collection<DocumentResultBean> getDocumentWithSegments(RequestPostProcessor user, String fortressCode, String docType) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/fortress/{fortress}/{doc}/segments", fortressCode,docType )
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/fortress/{fortress}/{doc}/segments", fortressCode, docType)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -651,7 +658,7 @@ public abstract class MvcBase {
     }
 
     public Collection<FortressSegment> getDocumentWithSegments(RequestPostProcessor user, String fortressCode) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/fortress/{fortressCode}/segments", fortressCode )
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/fortress/{fortressCode}/segments", fortressCode)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -730,9 +737,9 @@ public abstract class MvcBase {
         throw response.getResolvedException();
     }
 
-    public ContentModelResult findContentModelByKey(RequestPostProcessor user, String key, ResultMatcher status) throws Exception{
+    public ContentModelResult findContentModelByKey(RequestPostProcessor user, String key, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.get(apiPath + "/model/{key}",key)
+                .perform(MockMvcRequestBuilders.get(apiPath + "/model/{key}", key)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
                 ).andExpect(status).andReturn();

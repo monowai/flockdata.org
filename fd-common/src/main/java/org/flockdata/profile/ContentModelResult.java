@@ -29,25 +29,37 @@ public class ContentModelResult {
     private String code;
     private String name;
     private String documentType;
-    private String fortress ;
+    private String fortress;
     private ContentModel contentModel;
 
     ContentModelResult() {
 
     }
 
-    public ContentModelResult(Model model){
+    public ContentModelResult(Model model) {
         this();
         this.key = model.getKey();
         this.name = model.getName();
         this.code = model.getCode();
-        if ( model.getFortress()!=null) {
+        if (model.getFortress() != null) {
             this.fortress = model.getFortress().getName();
-            if ( model.getDocument()!=null)
-                this.documentType = model.getDocument().getName();
+        } else if (model.getFortressName() !=null){
+            this.fortress = model.getFortressName();
         } else {
             this.fortress = "Tag";
-            this.documentType = code;
+        }
+
+        if (model.getDocument() == null) {
+            if (model.getCode() != null) {
+                this.code = model.getCode();
+                this.documentType = model.getCode();
+            }
+            else {
+                this.documentType = model.getDocumentName();
+            }
+        } else {
+            this.documentType = model.getDocument().getName();
+
         }
 
     }

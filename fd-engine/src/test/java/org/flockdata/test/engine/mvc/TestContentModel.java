@@ -219,4 +219,39 @@ public class TestContentModel extends MvcBase {
         assertTrue(contentResult.isTagModel());
 //        assertEquals(keyResult.getKey());
     }
+
+    @Test
+    public void find_afterDeletingFortress() throws Exception {
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
+        contentModel.setName("anyName");
+        makeDataAccessProfile("find_afterDeletingFortress", "mike");
+        FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("find_afterDeletingFortress"));
+
+        makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean("ContentStoreFind"));
+        ContentModelResult result = makeContentModel(mike(),
+                fortressResultBean.getCode(),
+                "ContentStoreFind",
+                contentModel,
+                MockMvcResultMatchers.status().isOk());
+        assertNotNull(result);
+
+        Collection<ContentModelResult> profileResults = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
+        assertNotNull(profileResults);
+        assertTrue(profileResults.size() == 1);
+        for (ContentModelResult foundResult : profileResults) {
+            assertNotNull(foundResult.getFortress());
+            assertNotNull(foundResult.getDocumentType());
+        }
+
+        ContentModelResult foundResult = findContentModelByKey(mike(), result.getKey(), MockMvcResultMatchers.status().isOk());
+        assertNotNull (foundResult);
+        purgeFortress(mike(), fortressResultBean.getName(), MockMvcResultMatchers.status().isAccepted());
+        Thread.sleep(500); // Purge is async
+        Collection<ContentModelResult> contentModels = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
+        assertFalse(contentModels.isEmpty());
+        foundResult = findContentModelByKey(mike(), result.getKey(), MockMvcResultMatchers.status().isOk());
+        assertNotNull (foundResult);
+        assertNotNull( "Document Type not resolved from the document it used to be associated with", foundResult.getDocumentType());
+
+    }
 }

@@ -28,6 +28,7 @@ import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
+import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
@@ -87,6 +88,9 @@ public class AdminService implements EngineAdminService {
 
     @Autowired
     IndexManager indexManager;
+
+    @Autowired
+    ContentModelService contentModelService;
 
     private Logger logger = LoggerFactory.getLogger(AdminService.class);
 

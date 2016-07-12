@@ -500,6 +500,17 @@ public class EntityDaoNeo {
         documentTypeRepo.purgeDocumentConceptRelationshipsForFortress(fortress.getId());
 
         documentTypeRepo.purgeFortressDocuments(fortress.getId());
+//        String value = "match (fortress:Fortress)-[r:FORTRESS_DOC]-(d:DocType)-[dr]-(x)" +
+//                "where id(fortress) = {fort} return dr";
+//
+//        Map<String,Object>args = new HashMap<>();
+//        args.put("fort", fortress.getId());
+//        Result<Map<String, Object>> results = template.query(value, args);
+//        for (Map<String, Object> result : results) {
+//            logger.info ( "");
+//        }
+
+
     }
 
     public EntityLog getLastLog(Long entityId) {
