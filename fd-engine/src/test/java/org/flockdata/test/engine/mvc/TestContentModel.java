@@ -263,12 +263,19 @@ public class TestContentModel extends MvcBase {
         assertNotNull(results);
         assertEquals ("Request to create multiple models failed", 2, results.size());
 
+        Collection<String>modelKeys = new ArrayList<>();
+
         for (ContentModelResult result : results) {
             ContentModelResult keyResult = findContentModelByKey(mike(), result.getKey(),  MockMvcResultMatchers.status().isOk());
             assertNotNull ( keyResult);
+            modelKeys.add(keyResult.getKey());
         }
         Collection<ContentModelResult>contentModelResults = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
         assertEquals("Didn't find the two we just created", 2, contentModelResults.size());
+
+        Collection<ContentModel> download = findContentModels(mike(),modelKeys, MockMvcResultMatchers.status().isOk());
+        assertEquals("Should have downloaded two content models", 2, download.size());
+
     }
 
     @Test
