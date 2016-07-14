@@ -93,4 +93,17 @@ public class ContentModelDaoNeo {
 
         return new ContentModelResult(model);
     }
+
+    public void delete(Company company, String key) {
+        Model model = contentModelRepo.findByKey(key);
+        if ( model == null )
+            return ;
+
+        if (!Objects.equals(model.getCompany().getId(), company.getId()))
+            return ; // Somehow you have a key but it ain't for this company
+
+        contentModelRepo.delete(model);
+
+        // ToDo: delete the associated Entity
+    }
 }

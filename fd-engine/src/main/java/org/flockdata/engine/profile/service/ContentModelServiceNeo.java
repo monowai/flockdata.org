@@ -90,7 +90,7 @@ public class ContentModelServiceNeo implements ContentModelService {
     private ContentModel getContentModel(Company company, String profileKey) throws FlockException {
         Map<String, Object> data = entityService.getEntityDataLast(company, profileKey);
         String json = JsonUtils.toJson(data);
-        ContentModel contentModel ;
+        ContentModel contentModel;
         try {
             contentModel = objectMapper.readValue(json, ContentModelHandler.class);
         } catch (IOException e) {
@@ -249,6 +249,15 @@ public class ContentModelServiceNeo implements ContentModelService {
     }
 
     @Override
+    @Transactional
+    public void delete(Company company, String key) {
+        ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
+        if ( model !=null )
+            contentModelDao.delete(company, model.getKey());
+
+    }
+
+    @Override
     public ContentValidationResults validate(ContentValidationRequest contentRequest) {
         assert contentRequest != null;
         assert contentRequest.getContentModel() != null;
@@ -264,7 +273,7 @@ public class ContentModelServiceNeo implements ContentModelService {
     @Override
     public ContentModel createDefaultContentModel(ContentValidationRequest contentRequest) {
         ContentModel result = contentRequest.getContentModel();
-        if (result == null )
+        if (result == null)
             result = new ContentModelHandler();
 
         result.setContent(Transformer.fromMapToProfile(contentRequest.getRows()));

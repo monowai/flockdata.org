@@ -197,6 +197,29 @@ public class TestContentModel extends MvcBase {
     }
 
     @Test
+    public void delete_TagProfile() throws Exception {
+        makeDataAccessProfile("delete_TagProfile", "mike");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-tag-model.json");
+        ContentModelResult result = makeTagModel(mike(),
+                "Countries",
+                contentModel,
+                MockMvcResultMatchers.status().isOk());
+
+        assertNotNull(result);
+
+        ContentModelResult keyResult = findContentModelByKey(mike(), result.getKey(),  MockMvcResultMatchers.status().isOk());
+        assertNotNull (keyResult);
+
+        Collection<ContentModelResult> contentModels = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
+        assertEquals("Didn't find a content model", 1, contentModels.size());
+
+        deleteContentModel(mike(), keyResult.getKey(), MockMvcResultMatchers.status().isOk());
+
+        contentModels = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
+        assertEquals("Model did not delete", 0, contentModels.size());
+    }
+
+    @Test
     public void create_TagProfile() throws Exception {
         makeDataAccessProfile("create_TagProfile", "mike");
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-tag-model.json");
@@ -219,6 +242,7 @@ public class TestContentModel extends MvcBase {
         assertTrue(contentResult.isTagModel());
 //        assertEquals(keyResult.getKey());
     }
+
 
     @Test
     public void find_afterDeletingFortress() throws Exception {

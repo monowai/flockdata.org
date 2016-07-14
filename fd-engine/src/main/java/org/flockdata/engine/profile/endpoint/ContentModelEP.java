@@ -65,11 +65,20 @@ public class ContentModelEP {
 
     @RequestMapping(value = "/{key}",
             produces = "application/json",
+            method = RequestMethod.DELETE)
+    public void deleteModelKey(HttpServletRequest request, @PathVariable("key") String key) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        contentModelService.delete(company, key);
+    }
+
+    @RequestMapping(value = "/{key}",
+            produces = "application/json",
             method = RequestMethod.GET)
     public ContentModelResult getModelKey(HttpServletRequest request, @PathVariable("key") String key) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return contentModelService.find(company,key);
     }
+
 
     @RequestMapping(value = "/{fortressCode}/{docTypeName}",
             produces = "application/json", method = RequestMethod.GET)

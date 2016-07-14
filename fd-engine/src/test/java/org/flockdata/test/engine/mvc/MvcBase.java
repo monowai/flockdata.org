@@ -753,6 +753,16 @@ public abstract class MvcBase {
 
     }
 
+    public void deleteContentModel(RequestPostProcessor user, String key, ResultMatcher status) throws Exception {
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.delete(apiPath + "/model/{key}", key)
+                        .with(user)
+                ).andExpect(status).andReturn();
+        if (response.getResolvedException() != null) {
+            throw response.getResolvedException();
+        }
+    }
+
     public ContentModel getContentModel(RequestPostProcessor user, String fortress, String documentType, ContentModel contentModel, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
                 .perform(MockMvcRequestBuilders.get(apiPath + "/model/{fortress}/{documentType}", fortress, documentType)

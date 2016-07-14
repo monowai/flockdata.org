@@ -51,4 +51,6 @@ public interface ContentModelService {
     ContentModelResult find(Company company, String key) throws FlockException;
 
     ContentModel getTagModel(Company company, String code) throws FlockException;
+
+    void delete(Company company, String key);
 }
