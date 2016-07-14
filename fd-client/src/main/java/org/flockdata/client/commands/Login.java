@@ -16,10 +16,9 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.registration.LoginRequest;
 import org.flockdata.registration.SystemUserResultBean;
-import org.flockdata.shared.ClientConfiguration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +36,8 @@ public class Login extends AbstractRestCommand{
 
     SystemUserResultBean result;
 
-    public Login(ClientConfiguration clientConfiguration, FdRestWriter restWriter) {
-        super(clientConfiguration, restWriter);
+    public Login(FdTemplate fdTemplate) {
+        super(fdTemplate);
     }
 
     public SystemUserResultBean result() {

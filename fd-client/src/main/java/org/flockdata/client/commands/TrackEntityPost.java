@@ -16,8 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackRequestResult;
 import org.springframework.http.HttpEntity;
@@ -37,8 +36,8 @@ public class TrackEntityPost extends AbstractRestCommand  {
 
     private TrackRequestResult result;
 
-    public TrackEntityPost(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, EntityInputBean entityInputBean) {
-        super(clientConfiguration, fdRestWriter);
+    public TrackEntityPost(FdTemplate fdTemplate, EntityInputBean entityInputBean) {
+        super(fdTemplate);
         this.entityInputBean = entityInputBean;
     }
 

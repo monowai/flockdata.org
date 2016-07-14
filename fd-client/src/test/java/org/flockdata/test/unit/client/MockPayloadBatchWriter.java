@@ -16,7 +16,7 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.shared.FdBatcher;
+import org.flockdata.shared.FdBatchWriter;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
  */
 @Profile("dev")
 @Service
-public class MockPayloadBatcher extends FdBatcher {
+public class MockPayloadBatchWriter extends FdBatchWriter {
 
     @Override
     public void flush(){

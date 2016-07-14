@@ -43,7 +43,7 @@
         <org.springdata.neo4j>3.4.4.RELEASE</org.springdata.neo4j>
         <ehcache.version>2.6.10</ehcache.version>
         <org.aspectj.version>1.8.4</org.aspectj.version>
-        <surefire.version>2.19.1</surefire.version>
+        <surefire.version>2.18.1</surefire.version>
         <slf4j.version>1.7.10</slf4j.version>
         <log4j2.version>2.4.1</log4j2.version>
         <dependency.locations.enabled>false</dependency.locations.enabled>

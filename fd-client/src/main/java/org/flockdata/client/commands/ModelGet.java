@@ -16,9 +16,8 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.profile.model.ContentModel;
-import org.flockdata.shared.ClientConfiguration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +36,8 @@ public class ModelGet extends AbstractRestCommand {
     private String type;
     private String clazz;
 
-    public ModelGet(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String type, String clazz) {
-        super(clientConfiguration, fdRestWriter);
+    public ModelGet(FdTemplate fdTemplate, String type, String clazz) {
+        super(fdTemplate);
         this.type = type.toLowerCase();
         this.clazz = clazz.toLowerCase();
     }

@@ -316,7 +316,7 @@ public class QueryDaoES implements QueryDao {
             response = future.get();
         } catch (ExecutionException e ){
             logger.debug(e.getCause().getMessage() +"\n"+queryParams.toString() + " computed indexes"+ Arrays.toString(indexes));
-            return  new EsSearchResult("Error looking for entities "+ e.getCause().getCause().getMessage());
+            return  new EsSearchResult("Error looking for entities "+ parseException(e));
 
         }catch (InterruptedException  e) {
             logger.error("Search Exception processing query", e);
@@ -331,6 +331,14 @@ public class QueryDaoES implements QueryDao {
         watch.stop();
         logger.debug("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
         return searchResult;
+    }
+
+    private String parseException(ExecutionException e) {
+        if ( e.getCause()!=null){
+            return (e.getCause().getCause()!=null ? e.getCause().getCause().getMessage() : e.getCause().getMessage());
+        }
+        return e.getMessage();
+
     }
 
     private void getEntityResults(Collection<SearchResult> results, SearchResponse response, QueryParams queryParams) {

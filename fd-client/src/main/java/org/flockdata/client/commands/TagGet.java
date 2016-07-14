@@ -16,9 +16,8 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.shared.ClientConfiguration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +36,8 @@ public class TagGet extends AbstractRestCommand  {
 
     private TagResultBean result;
 
-    public TagGet(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String label, String code) {
-        super(clientConfiguration, fdRestWriter);
+    public TagGet(FdTemplate fdTemplate, String label, String code) {
+        super(fdTemplate);
         this.label = label;
         this.code = code;
     }

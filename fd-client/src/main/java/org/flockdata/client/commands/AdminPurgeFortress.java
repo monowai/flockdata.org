@@ -16,8 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.client.FdTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +34,8 @@ public class AdminPurgeFortress extends AbstractRestCommand {
     private String result;
     private String fortress;
 
-    public AdminPurgeFortress(ClientConfiguration clientConfiguration, FdRestWriter restWriter, String fortress) {
-        super(clientConfiguration, restWriter);
+    public AdminPurgeFortress(FdTemplate fdTemplate, String fortress) {
+        super(fdTemplate);
         this.fortress = fortress;
     }
 

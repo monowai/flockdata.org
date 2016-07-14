@@ -25,7 +25,6 @@ import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.model.SearchResults;
-import org.flockdata.shared.AmqpRabbitConfig;
 import org.flockdata.shared.Exchanges;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -57,9 +56,6 @@ public class WriteEntityResult {
 
     @Autowired
     SearchHandler searchHandler;
-
-    @Autowired
-    AmqpRabbitConfig rabbitConfig;
 
     @Autowired
     Exchanges exchanges;

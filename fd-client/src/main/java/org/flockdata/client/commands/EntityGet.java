@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -39,13 +39,13 @@ public class EntityGet extends AbstractRestCommand  {
 
     private String key;
 
-    public EntityGet(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, EntityInputBean entityInputBean) {
-        super(clientConfiguration, fdRestWriter);
+    public EntityGet(ClientConfiguration clientConfiguration, FdTemplate fdTemplate, EntityInputBean entityInputBean) {
+        super(fdTemplate);
         this.entityInputBean = entityInputBean;
     }
 
-    public EntityGet(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String key) {
-        super(clientConfiguration, fdRestWriter);
+    public EntityGet(ClientConfiguration clientConfiguration, FdTemplate fdTemplate, String key) {
+        super(fdTemplate);
         this.key = key;
     }
 

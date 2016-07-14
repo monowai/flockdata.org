@@ -17,7 +17,6 @@
 package org.flockdata.client;
 
 import org.flockdata.client.commands.RegistrationPost;
-import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.slf4j.Logger;
@@ -74,7 +73,7 @@ public class Register {
     private ClientConfiguration clientConfiguration;
 
     @Autowired
-    private FdRestWriter fdClient;
+    private FdTemplate fdTemplate;
 
     @PostConstruct
     void register() {
@@ -84,10 +83,10 @@ public class Register {
             System.exit(-1);
         }
 
-        CommandRunner.configureAuth(logger, authUser, clientConfiguration, fdClient);
+        CommandRunner.configureAuth(logger, authUser, fdTemplate);
 
         RegistrationBean regBean = new RegistrationBean(clientConfiguration.getCompany(), login);
-        RegistrationPost register = new RegistrationPost(clientConfiguration, fdClient, regBean);
+        RegistrationPost register = new RegistrationPost(fdTemplate, regBean);
         register.exec();
         if ( register.error()!=null)
             logger.error(register.error());

@@ -224,10 +224,13 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>2.19.1</version>
+                        <!-- Getting integration errors on CircleCI with 2.19.1 -->
+                        <!--https://github.com/spring-projects/spring-boot/issues/6254-->
+                        <version>2.18.1</version>
                         <configuration>
                             <reportsDirectory>${project.build.directory}/test-results</reportsDirectory>
                             <argLine>-Xmx256m</argLine>
+                            <runOrder>alphabetical</runOrder>
                         </configuration>
                         <executions>
                             <execution>

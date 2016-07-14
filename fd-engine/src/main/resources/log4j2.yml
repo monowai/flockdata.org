@@ -27,7 +27,7 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
       Logger:
-        - name: org.flockdata.
+        - name: org.flockdata
           additivity: false
           level: info
           AppenderRef:
@@ -41,7 +41,7 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: org.apache.
+        - name: org.apache
           additivity: false
           level: error
           AppenderRef:
@@ -55,7 +55,7 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: com.
+        - name: com
           additivity: false
           level: error
           AppenderRef:
@@ -69,14 +69,14 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: org.springframework.amqp.
+        - name: org.springframework.amqp
           additivity: false
           level: error
           AppenderRef:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: com.sun.jersey.
+        - name: com.sun.jersey
           ## Typically the Neo4j browser
           additivity: false
           level: fatal

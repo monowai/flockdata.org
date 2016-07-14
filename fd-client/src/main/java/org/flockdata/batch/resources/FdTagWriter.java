@@ -47,7 +47,7 @@ public class FdTagWriter implements ItemWriter<TagInputBean> {
     @Override
     public void write(List<? extends TagInputBean> items) throws Exception {
         for (TagInputBean item : items) {
-            payloadBatcher.batchTag(item, "");
+            payloadBatcher.writeTag(item, "");
         }
     }
 }

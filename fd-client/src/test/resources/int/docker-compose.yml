@@ -8,17 +8,17 @@ rabbit:
   image: rabbitmq:3-management
 
 # Uncomment ports for non-proxy debug
-#  ports:
-#    - '5672:5672'
-#    - '15672:15672'
+  ports:
+    - '5672:5672'
+    - '15672:15672'
 
-#  expose:
-#    - 5672
-#    - 15672
+  expose:
+    - 5672
+    - 15672
 
 fdengine:
   image: flockdata/fd-engine
-  command: "-ea -Xmx384m "
+  command: "-ea -Xmx256m "
   links:
      - rabbit
      - fdsearch
@@ -94,7 +94,7 @@ fdsearch:
 
   links:
     - rabbit
-    - elasticsearch
+#    - elasticsearch
 
   environment:
     server.port: 8091
@@ -107,13 +107,13 @@ fdsearch:
     org.fd.search.es.local: "false"
     # True == Connect to remote ES cluster (enable link to elasticsearch
     # False == Start a local embedded data node
-    org.fd.search.es.transportOnly: "true"
+    org.fd.search.es.transportOnly: "false"
     # optional ; delimited list of hosts to join with
-    es.nodes: elasticsearch:9300
+#    es.nodes: elasticsearch:9300
 
     # If !transportOnly then which port should ES start with?
     es.http.port: 9201
-    es.http.port: 9301
+    es.http.port: 9303
 
     spring.jackson.serialization.indent_output: 'true'
 
@@ -125,10 +125,10 @@ fdsearch:
     rabbit.port: 5672
 
 
-elasticsearch:
-  # Regular standalone elasticsearch image
-  image: elasticsearch:1.7.5
-  command: elasticsearch -Xmx256m -Des.cluster.name=es_int_fd
+#elasticsearch:
+#  # Regular standalone elasticsearch image
+#  image: elasticsearch:1.7.5
+#  command: elasticsearch -Xmx256m -Des.cluster.name=es_int_fd
 
 #  expose:
 #    - 9200

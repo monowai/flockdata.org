@@ -40,7 +40,7 @@ import org.junit.runners.Suite;
         TestFortressEP.class,
         TestNeoRestInterface.class,
         TestPathEP.class,
-        TestProfileRegistration.class,
+        TestSystemUserRegistration.class,
         TestTagEP.class,
         TestTrackEP.class,
         TestContentModel.class,

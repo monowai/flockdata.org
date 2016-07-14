@@ -24,9 +24,9 @@ import org.flockdata.batch.resources.FdEntityProcessor;
 import org.flockdata.batch.resources.FdRowMapper;
 import org.flockdata.batch.resources.FdTagProcessor;
 import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.FdBatcher;
+import org.flockdata.shared.FdBatchWriter;
 import org.flockdata.test.unit.client.MockFdWriter;
-import org.flockdata.test.unit.client.MockPayloadBatcher;
+import org.flockdata.test.unit.client.MockPayloadBatchWriter;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.PayloadBatcher;
 import org.junit.Test;
@@ -54,11 +54,11 @@ import static org.junit.Assert.assertNotNull;
         FdBatchResources.class,
         ClientConfiguration.class,
         MockFdWriter.class,
-        MockPayloadBatcher.class,
+        MockPayloadBatchWriter.class,
         FdTagProcessor.class,
         FdEntityProcessor.class,
         FdRowMapper.class,
-        FdBatcher.class,
+        FdBatchWriter.class,
         HsqlDataSource.class,
         JobLauncherTestUtils.class,
         SqlEntityJob.class

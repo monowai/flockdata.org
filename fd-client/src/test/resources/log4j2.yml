@@ -16,15 +16,15 @@ Configuration:
             - ref: CONSOLE
                #- ref: APPLICATION
       Logger:
-        - name: org.flockdata.test
+#        - name: org.flockdata.test
+#          additivity: false
+#          level: info
+#          AppenderRef:
+#            - ref: CONSOLE
+
+        - name: org.flockdata
           additivity: false
           level: info
-          AppenderRef:
-            - ref: CONSOLE
-
-        - name: org.flockdata.
-          additivity: false
-          level: debug
           AppenderRef:
             - ref: CONSOLE
            # - ref: APPLICATION
@@ -41,7 +41,7 @@ Configuration:
           AppenderRef:
             - ref: CONSOLE
 
-        - name: org.apache.
+        - name: org.apache
           additivity: false
           level: error
           AppenderRef:
@@ -55,14 +55,14 @@ Configuration:
             - ref: CONSOLE
            # - ref: APPLICATION
 
-        - name: com.
+        - name: com
           additivity: false
           level: error
           AppenderRef:
             - ref: CONSOLE
            # - ref: APPLICATION
 
-        - name: org.springframework.
+        - name: org.springframework
           additivity: false
           level: error
           AppenderRef:

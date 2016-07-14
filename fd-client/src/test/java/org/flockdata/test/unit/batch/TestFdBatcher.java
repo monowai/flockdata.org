@@ -16,7 +16,7 @@
 
 package org.flockdata.test.unit.batch;
 
-import org.flockdata.shared.FdBatcher;
+import org.flockdata.shared.FdBatchWriter;
 import org.flockdata.test.unit.client.AbstractImport;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Test;
@@ -30,20 +30,20 @@ import static org.junit.Assert.assertEquals;
 public class TestFdBatcher extends AbstractImport{
 
     @Autowired
-    FdBatcher myBatcher;
+    FdBatchWriter myBatcher;
     @Test
     public void fdBatcherAccumulation() throws Exception {
         EntityInputBean eib = new EntityInputBean("fort", "type");
         eib.setCode("tt111");
 
-        myBatcher.batchEntity(eib);
-        myBatcher.batchEntity(eib);
+        myBatcher.writeEntity(eib);
+        myBatcher.writeEntity(eib);
         assertEquals(1, myBatcher.getEntities().size());
 
         eib = new EntityInputBean("fort", "Type");
         eib.setCode("tt222");
-        myBatcher.batchEntity(eib);
-        myBatcher.batchEntity(eib);
+        myBatcher.writeEntity(eib);
+        myBatcher.writeEntity(eib);
 
         assertEquals(2, myBatcher.getEntities().size());
     }

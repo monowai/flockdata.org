@@ -20,7 +20,7 @@
 package org.flockdata.spring.service;
 
 import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.FdBatcher;
+import org.flockdata.shared.FdBatchWriter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @TestPropertySource("/fd-client-config.properties")
 @SpringApplicationConfiguration({
         ClientConfiguration.class,
-        FdBatcher.class,
+        FdBatchWriter.class,
         SimpleTrackedService.class
 })
 public class SimpleFlockServiceTest {

@@ -47,7 +47,7 @@ public class FdEntityWriter implements ItemWriter<EntityInputBean> {
     @Override
     public void write(List<? extends EntityInputBean> items) throws Exception {
         for (EntityInputBean item : items) {
-            payloadBatcher.batchEntity(item);
+            payloadBatcher.writeEntity(item);
         }
     }
 }

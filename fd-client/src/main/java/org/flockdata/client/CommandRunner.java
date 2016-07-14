@@ -18,8 +18,6 @@ package org.flockdata.client;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.flockdata.client.commands.Login;
-import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.shared.ClientConfiguration;
 import org.slf4j.Logger;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
@@ -66,19 +64,25 @@ public class CommandRunner {
         context.close();
     }
 
-    static void configureAuth(Logger logger, String authUser, ClientConfiguration clientConfiguration, FdRestWriter fdClient) {
-        if ( authUser!=null ){
+    static void configureAuth(Logger logger, String authUser, FdTemplate fdTemplate) {
+        if ( authUser!=null && !authUser.equals("")){
 
             String[] uArgs = authUser.split(":");
-            clientConfiguration.setHttpUser(uArgs[0]);
-            clientConfiguration.setHttpPass(uArgs[1]);
-            Login login = new Login(clientConfiguration,fdClient);
+
+            if ( uArgs.length==1)
+                throw new RuntimeException("No password supplied for {}"+uArgs[0]);
+
+            fdTemplate.getClientConfiguration()
+                    .setHttpUser(uArgs[0])
+                    .setHttpPass(uArgs[1]);
+            Login login = new Login(fdTemplate);
             login.exec();
             if (login.error()!= null){
                 logger.error("Login error for {} - message {}", uArgs[0], login.error());
                 System.exit(-1);
             }
-            clientConfiguration.setApiKey(login.result().getApiKey());
+            // Setting to that of the user who just logged in
+            fdTemplate.getClientConfiguration().setApiKey(login.result().getApiKey());
 
         }
     }

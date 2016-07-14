@@ -2,12 +2,18 @@ machine:
   services:
     - docker
 
+dependencies:
+  # https://issues.apache.org/jira/browse/MDEP-51 6
+  # Maven will error on a fresh repo becuase fd-common does not exist; it hasn't been built yet!
+  override:
+    - mvn package dependency:go-offline -DskipTests=true
+
 test:
   override:
-    - mvn -q clean test
+    - mvn -q verify -P docker,integration
   post:
-    - mvn -q install -P docker -DskipTests=true
-    - mvn -f fd-client/pom.xml verify -P integration
+#    - mvn -q package -P docker -DskipTests=true
+#    - mvn -f fd-client/pom.xml verify -P integration
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/target/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
 

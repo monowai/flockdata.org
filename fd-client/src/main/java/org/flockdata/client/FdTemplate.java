@@ -14,20 +14,17 @@
  *  limitations under the License.
  */
 
-package org.flockdata.client.rest;
+package org.flockdata.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.AlreadyClosedException;
 import org.apache.commons.codec.binary.Base64;
-import org.flockdata.client.amqp.AmqpServices;
+import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.Login;
 import org.flockdata.client.commands.ModelGet;
 import org.flockdata.client.commands.Ping;
 import org.flockdata.client.commands.RegistrationPost;
-import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
-import org.flockdata.model.Company;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ContentModelHandler;
 import org.flockdata.profile.ExtractProfileDeserializer;
@@ -44,53 +41,55 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Template to support writing Entity and Tag information to a remote FlockData service
+ * over various transport mechanisms - RabbitMQ & Http
  *
  * @see org.flockdata.client.Importer
  * <p>
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
-@Component
-public class FdRestWriter implements FdWriter {
+@Service
+public class FdTemplate implements FdWriter {
 
     private static boolean compress = true;
 
-    @Autowired
-    ClientConfiguration clientConfiguration;
+    private final ClientConfiguration clientConfiguration;
 
-    private ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
+    private final FdRabbitClient fdRabbitClient;
 
     @Autowired
-    private AmqpServices amqpServices;
+    FdTemplate (FdRabbitClient fdRabbitClient, ClientConfiguration clientConfiguration){
+        this.clientConfiguration = clientConfiguration;
+        this.fdRabbitClient = fdRabbitClient;
+    }
 
     public SystemUserResultBean me() {
-        Login login = new Login(clientConfiguration, this);
+        Login login = new Login(this);
         return login.exec().result();
     }
 
-    private HttpHeaders getHeaders(ClientConfiguration configuration) {
-        return getHeaders(configuration.getHttpUser(), configuration.getHttpPass(), configuration.getApiKey());
+    public ClientConfiguration getClientConfiguration(){
+        return clientConfiguration;
     }
-
-
     /**
      * Simple ping to see if the service endpoint is up
      *
      * @return "pong"
      */
     public String ping() {
-        Ping ping = new Ping(clientConfiguration, this);
+        Ping ping = new Ping(this);
         ping.exec();
         return ping.result();
     }
@@ -104,18 +103,17 @@ public class FdRestWriter implements FdWriter {
      * @return details about the system user data access account
      */
     public SystemUserResultBean register(String userName, String company) {
-        RegistrationBean registrationBean = new RegistrationBean(company, userName).setIsUnique(false);
-        RegistrationPost registrationPost = new RegistrationPost(clientConfiguration, this, registrationBean);
-        registrationPost.exec();
-        return registrationPost.result();
+        RegistrationBean registrationBean = new RegistrationBean(company, userName).setIsUnique(true);
+        RegistrationPost registrationPost = new RegistrationPost(this, registrationBean);
+        return registrationPost.exec().result();
     }
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdRestWriter.class);
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdTemplate.class);
 
-    private String flushEntitiesAmqp(Collection<EntityInputBean> entityInputs) throws FlockException {
+    private String writeEntitiesAmqp(Collection<EntityInputBean> entityInputs) throws FlockException {
         try {
             // DAT-373
-            amqpServices.publish(entityInputs);
+            fdRabbitClient.publish(entityInputs);
         } catch (IOException ioe) {
             logger.error(ioe.getLocalizedMessage());
             throw new FlockException("IO Exception", ioe.getCause());
@@ -124,10 +122,10 @@ public class FdRestWriter implements FdWriter {
 
     }
 
-    private String flushTagsAmqp(Collection<TagInputBean> tagInputs) throws FlockException {
+    private String writeTagsAmqp(Collection<TagInputBean> tagInputs) throws FlockException {
         try {
             // DAT-373
-            amqpServices.publishTags(tagInputs);
+            fdRabbitClient.publishTags(tagInputs);
         } catch (IOException | AlreadyClosedException ioe) {
             logger.error(ioe.getLocalizedMessage());
             throw new FlockException("IO Exception", ioe.getCause());
@@ -136,33 +134,15 @@ public class FdRestWriter implements FdWriter {
 
     }
 
-    public String flushEntities(Company company, List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
+    public String writeEntities(Collection<EntityInputBean> entityInputs) throws FlockException {
         if (entityInputs.isEmpty())
             return "OK";
 
-//        if (configuration.isAmqp())
-        return flushEntitiesAmqp(entityInputs);
+        return writeEntitiesAmqp(entityInputs);
 
-//        RestTemplate restTemplate = getRestTemplate();
-//
-//        HttpHeaders httpHeaders = getHeaders(configuration);
-//        HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
-//
-//        try {
-//            restTemplate.exchange(TRACK + "?async=" + configuration.isAsync(), HttpMethod.PUT, requestEntity, Void.class);
-//            return "OK";
-//        } catch (HttpClientErrorException e) {
-//            logger.error("Service tracking error {}", getErrorMessage(e));
-//            return null;
-//        } catch (HttpServerErrorException e) {
-//            logger.error("Service tracking error {}", getErrorMessage(e));
-//            return null;
-//
-//        }
     }
 
-
-    RestTemplate restTemplate = null;
+    private RestTemplate restTemplate = null;
 
     public RestTemplate getRestTemplate() {
         if (restTemplate == null) {
@@ -172,25 +152,12 @@ public class FdRestWriter implements FdWriter {
         return restTemplate;
     }
 
-    public String flushTags(List<TagInputBean> tagInputs) throws FlockException {
+    public String writeTags(Collection<TagInputBean> tagInputs) throws FlockException {
         if (tagInputs.isEmpty())
             return "OK";
 
-        return flushTagsAmqp(tagInputs);
+        return writeTagsAmqp(tagInputs);
 
-    }
-
-    private void logServerMessages(ResponseEntity<ArrayList> response) {
-        ArrayList x = response.getBody();
-        if (x != null)
-            for (Object val : x) {
-                Map map = (Map) val;
-                if (map.containsKey("serviceMessage")) {
-                    Object serviceMessage = map.get("serviceMessage");
-                    if (serviceMessage != null)
-                        logger.error("Service returned [{}]", serviceMessage.toString());
-                }
-            }
     }
 
     private HttpHeaders httpHeaders = null;
@@ -224,6 +191,7 @@ public class FdRestWriter implements FdWriter {
         return httpHeaders;
     }
 
+    @SuppressWarnings("unused")
     public static Map<String, Object> getWeightedMap(int weight) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("weight", weight);
@@ -238,8 +206,8 @@ public class FdRestWriter implements FdWriter {
                 '}';
     }
 
-    public SystemUserResultBean login(ClientConfiguration clientConfiguration) {
-        Login login = new Login(clientConfiguration, this);
+    public SystemUserResultBean login() {
+        Login login = new Login(this);
         String result = login.exec().error();
         if (result != null)
             logger.error("Login result {}", result);
@@ -256,7 +224,7 @@ public class FdRestWriter implements FdWriter {
             // format is {fortress}.{docType}, or tag.doctype
             String[] args = fileModel.split(":");
             if ( args.length == 2){
-                contentModel = getContentModel(clientConfiguration, args[0], args[1]);
+                contentModel = getContentModel(args[0], args[1]);
             }
             if (contentModel ==null )
                 contentModel = new ContentModelHandler();// Default??
@@ -264,8 +232,8 @@ public class FdRestWriter implements FdWriter {
         }
         return contentModel;
     }
-    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String type, String clazz){
-        ModelGet modelGet = new ModelGet(clientConfiguration, this, type, clazz);
+    public ContentModel getContentModel(String type, String clazz){
+        ModelGet modelGet = new ModelGet(this, type, clazz);
         modelGet.exec();
         String result = modelGet.exec().error();
         if (result != null)
@@ -273,11 +241,11 @@ public class FdRestWriter implements FdWriter {
         return modelGet.result();
     }
 
-    public ExtractProfile getExtractProfile(String fileModel, ContentModel contentModel) {
+    ExtractProfile getExtractProfile(String name, ContentModel contentModel) {
         ExtractProfile extractProfile = null;
 
         try {
-            extractProfile = ExtractProfileDeserializer.getImportProfile(fileModel,contentModel );
+            extractProfile = ExtractProfileDeserializer.getImportProfile(name,contentModel );
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
 
@@ -285,5 +253,14 @@ public class FdRestWriter implements FdWriter {
         if ( extractProfile == null )
             extractProfile = new ExtractProfileHandler(contentModel);
         return extractProfile;
+    }
+
+    /**
+     * Only called for integration testing - resets the host port which is proxied
+     * @param rabbitHost url
+     * @param rabbitPort port
+     */
+    public void resetRabbitClient(String rabbitHost, Integer rabbitPort) {
+        fdRabbitClient.resetRabbitClient(rabbitHost, rabbitPort);
     }
 }

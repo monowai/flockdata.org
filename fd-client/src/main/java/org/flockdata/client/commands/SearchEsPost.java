@@ -16,9 +16,8 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.shared.ClientConfiguration;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -40,8 +39,8 @@ public class SearchEsPost extends AbstractRestCommand {
 
     private Map<String,Object> result;
 
-    public SearchEsPost(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, QueryParams queryParams) {
-        super(clientConfiguration, fdRestWriter);
+    public SearchEsPost(FdTemplate fdTemplate, QueryParams queryParams) {
+        super(fdTemplate);
         this.queryParams = queryParams;
     }
 

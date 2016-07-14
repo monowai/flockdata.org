@@ -17,7 +17,6 @@
 package org.flockdata.client;
 
 import org.flockdata.client.commands.Health;
-import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.shared.ClientConfiguration;
@@ -70,7 +69,7 @@ public class HealthRunner {
     private ClientConfiguration clientConfiguration;
 
     @Autowired
-    private FdRestWriter fdClient;
+    private FdTemplate fdTemplate;
 
     @Value("${auth.user:#{null}}")
     String authUser;
@@ -78,9 +77,9 @@ public class HealthRunner {
     @PostConstruct
     void health() {
         logger.info("Looking for Flockdata on {}", clientConfiguration.getServiceUrl());
-        CommandRunner.configureAuth(logger, authUser, clientConfiguration, fdClient);
+        CommandRunner.configureAuth(logger, authUser, fdTemplate);
 
-        Health health = new Health(clientConfiguration, fdClient);
+        Health health = new Health(fdTemplate);
         health.exec();
         logger.info(JsonUtils.pretty(health.result()));
 

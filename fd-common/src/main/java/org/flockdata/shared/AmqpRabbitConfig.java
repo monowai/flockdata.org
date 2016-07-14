@@ -33,7 +33,7 @@ import org.springframework.integration.annotation.IntegrationComponentScan;
 import javax.annotation.PostConstruct;
 
 /**
- * Rabbit MQ / AMQP
+ * Rabbit MQ / AMQP Configuration and channel initialization
  * <p>
  * Created by mike on 3/07/15.
  */
@@ -48,6 +48,9 @@ public class AmqpRabbitConfig {
 
     @Value("${rabbit.host:localhost}")
     String rabbitHost;
+
+    @Value("${rabbit.virtualHost:/}")
+    String virtualHost;
 
     @Value("${rabbit.port:5672}")
     Integer rabbitPort;
@@ -72,7 +75,9 @@ public class AmqpRabbitConfig {
 
     @Value("${amqp.lazyConnect:false}")
     Boolean amqpLazyConnect;
-    private String pass;
+
+    @Value("${amqp.channelCacheSize:25}")
+    private int channelCacheSize;
 
     @PostConstruct
     public void logStatus() {
@@ -80,42 +85,8 @@ public class AmqpRabbitConfig {
         logger.info("**** rabbit.host: [{}], rabbit.port [{}], rabbit.user [{}]", rabbitHost, rabbitPort, rabbitUser);
     }
 
-    @Bean
-    RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) throws Exception {
-        return new RabbitTemplate(connectionFactory);
-    }
-
-    @Bean
-    ConnectionFactory connectionFactory() throws Exception {
-        return setConnectionProperties(new CachingConnectionFactory());
-    }
-
-    private ConnectionFactory setConnectionProperties(CachingConnectionFactory connect) {
-        // First load or a refresh
-        connect.setHost(rabbitHost);
-        connect.setPort(rabbitPort);
-        connect.setUsername(rabbitUser);
-        connect.setPassword(rabbitPass);
-        connect.setPublisherConfirms(publisherConfirms);
-        connect.setPublisherReturns(publisherReturns);
-        connect.setChannelCacheSize(publisherCacheSize);
-        return connect;
-    }
-
     @Autowired
     Exchanges exchanges;
-
-    @Autowired
-    ConnectionFactory connectionFactory;
-
-    private AmqpAdmin amqpAdmin = null;
-
-    @Bean
-    public AmqpAdmin amqpAdmin(ConnectionFactory connectionFactory) throws Exception {
-        if (amqpAdmin == null)
-            amqpAdmin = new RabbitAdmin(connectionFactory);
-        return amqpAdmin;
-    }
 
     public Boolean getAmqpLazyConnect() {
         return amqpLazyConnect;
@@ -133,8 +104,6 @@ public class AmqpRabbitConfig {
         this.persistentDelivery = persistentDelivery;
     }
 
-
-
     public String getHost() {
         return rabbitHost;
     }
@@ -147,19 +116,62 @@ public class AmqpRabbitConfig {
         return rabbitUser;
     }
 
-    public AmqpRabbitConfig setServicePoint(String url, Integer rabbitPort) {
-        this.rabbitHost = url;
-        this.rabbitPort = rabbitPort;
-        logger.info("Resetting rabbit connection to {}:{}", rabbitHost, rabbitPort);
-        setConnectionProperties((CachingConnectionFactory) connectionFactory);
-        if (connectionFactory != null)
-            ((CachingConnectionFactory) connectionFactory).resetConnection();
-
-        return this;
-    }
-
     public String getPass() {
         return rabbitPass;
     }
 
+    public Boolean getPublisherConfirms() {
+        return publisherConfirms;
+    }
+
+    public Boolean getPublisherReturns() {
+        return publisherReturns;
+    }
+
+    public int getChannelCacheSize() {
+        return channelCacheSize;
+    }
+
+    public String getVirtualHost() {
+        return virtualHost;
+    }
+
+    // Supports docker-compose integration testing where the port is obtained and mapped dynamic
+    public void resetHost(String url, Integer rabbitPort) {
+        this.rabbitHost = url;
+        this.rabbitPort = rabbitPort;
+    }
+
+    @Bean
+    @Profile("fd-server")
+    RabbitTemplate rabbitTemplate(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory) throws Exception {
+        return new RabbitTemplate(connectionFactory);
+    }
+
+    @Bean
+    @Profile("fd-server")
+    public AmqpAdmin amqpAdmin(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory) throws Exception {
+        return new RabbitAdmin(connectionFactory);
+    }
+
+    @Bean
+    @Profile("fd-server")
+    ConnectionFactory connectionFactory() throws Exception {
+        logger.info("Initialising Rabbit connection factory");
+        return setConnectionProperties(new CachingConnectionFactory());
+    }
+
+    private ConnectionFactory setConnectionProperties(CachingConnectionFactory connectionFactory) {
+        logger.info("Setting Rabbit connection properties");
+        // First load or a refresh
+        connectionFactory.setHost(getHost());
+        connectionFactory.setPort(getPort());
+        connectionFactory.setUsername(getUser());
+        connectionFactory.setPassword(getPass());
+        connectionFactory.setPublisherConfirms(getPublisherConfirms());
+        connectionFactory.setPublisherReturns(getPublisherReturns());
+        connectionFactory.setChannelCacheSize(getChannelCacheSize());
+//        connectionFactory.setVirtualHost(getVirtualHost());
+        return connectionFactory;
+    }
 }

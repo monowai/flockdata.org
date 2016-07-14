@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -74,14 +74,13 @@ public class FdServerWriter implements FdWriter {
     }
 
     @Override
-    public String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
+    public String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException {
         return null;
     }
 
     @Override
-    public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
-        if ( company == null )
-            company = securityHelper.getCompany();
+    public String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException {
+        Company company = securityHelper.getCompany();
         try {
             for (EntityInputBean entityInputBean : entityBatch) {
                 mediationFacade.trackEntity(company, entityInputBean);

@@ -41,7 +41,7 @@ import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.shared.IndexManager;
 import org.flockdata.test.engine.MapBasedStorageProxy;
-import org.flockdata.test.engine.MockFdBatcher;
+import org.flockdata.test.engine.MockFdBatchWriter;
 import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.track.service.*;
 import org.junit.Before;
@@ -74,7 +74,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration({FdEngine.class,
         Neo4jConfigTest.class,
-        MockFdBatcher.class,
+        MockFdBatchWriter.class,
         MapBasedStorageProxy.class})
 
 @ActiveProfiles({"dev", "fd-auth-test", "fd-batch"})

@@ -17,7 +17,6 @@
 package org.flockdata.client;
 
 import org.flockdata.client.commands.Ping;
-import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.slf4j.Logger;
@@ -68,11 +67,11 @@ public class PingRunner {
     private ClientConfiguration clientConfiguration;
 
     @Autowired
-    private FdRestWriter fdClient;
+    private FdTemplate fdTemplate;
 
     @PostConstruct
     void register() {
-        Ping pingCmd = new Ping(clientConfiguration, fdClient);
+        Ping pingCmd = new Ping(fdTemplate);
         pingCmd.exec();
         logger.info("FlockData endpoint [{}] responded with [{}]", clientConfiguration.getServiceUrl(), pingCmd.error()!=null?pingCmd.error():pingCmd.result());
 

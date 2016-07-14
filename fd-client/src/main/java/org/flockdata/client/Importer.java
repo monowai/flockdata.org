@@ -16,7 +16,6 @@
 
 package org.flockdata.client;
 
-import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ExtractProfileDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
@@ -60,7 +59,7 @@ import java.util.List;
  * import --auth.user=demo:123 --fd.client.delimiter=";" --fd.client.import="/fd-cow.txt,/countries.json"
  * <p>
  *
- * @see org.flockdata.client.rest.FdRestWriter
+ * @see FdTemplate
  * @see org.flockdata.profile.model.Mappable
  * @see TagInputBean
  * @see org.flockdata.track.bean.EntityInputBean
@@ -80,7 +79,7 @@ public class Importer  {
     private ClientConfiguration clientConfiguration;
 
     @Autowired
-    private FdRestWriter fdClient;
+    private FdTemplate fdTemplate;
 
     @Autowired
     private FileProcessor fileProcessor;
@@ -97,7 +96,7 @@ public class Importer  {
     @PostConstruct
     void importFiles() {
         logger.info("Looking for Flockdata on {}", clientConfiguration.getServiceUrl());
-        CommandRunner.configureAuth(logger, authUser, clientConfiguration, fdClient);
+        CommandRunner.configureAuth(logger, authUser, fdTemplate);
 
         if (clientConfiguration.getApiKey() == null) {
             logger.error("No API key is set in the config file. Have you run the fdregister process?");
@@ -151,7 +150,7 @@ public class Importer  {
                     logger.error("No import parameters to work with");
                     return;
                 }
-                SystemUserResultBean su = fdClient.me(); // Use the configured API as the default FU unless another is set
+                SystemUserResultBean su = fdTemplate.me(); // Use the configured API as the default FU unless another is set
                 if (su == null) {
                     if (!clientConfiguration.isAmqp())
                         throw new FlockException("Unable to connect to FlockData. Is the service running at [" + clientConfiguration.getServiceUrl() + "]?");
@@ -181,12 +180,12 @@ public class Importer  {
     }
 
     private ExtractProfile resolveExtractProfile(String fileModel, ContentModel contentModel) {
-        return fdClient.getExtractProfile(fileModel, contentModel);
+        return fdTemplate.getExtractProfile(fileModel, contentModel);
     }
 
     // import --auth.user=mike:123 --fd.client.import="/fd-cow.txt" --fd.content.model=tag:countries
     public ContentModel resolveContentModel(String fileModel) throws IOException {
-      return fdClient.getContentModel(clientConfiguration, fileModel);
+      return fdTemplate.getContentModel(clientConfiguration, fileModel);
     }
 
 

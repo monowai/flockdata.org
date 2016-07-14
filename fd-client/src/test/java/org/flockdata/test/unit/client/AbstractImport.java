@@ -40,7 +40,7 @@ import static junit.framework.TestCase.assertTrue;
 @ActiveProfiles({"dev", "fd-batch"})
 @SpringApplicationConfiguration({
         ClientConfiguration.class,
-        MockPayloadBatcher.class,
+        MockPayloadBatchWriter.class,
         FileProcessor.class,
         MockFdWriter.class,
 })

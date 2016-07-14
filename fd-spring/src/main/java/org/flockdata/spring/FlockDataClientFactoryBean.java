@@ -18,7 +18,7 @@ package org.flockdata.spring;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.client.FdTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +44,7 @@ public class FlockDataClientFactoryBean {
     private String password;
 
     @Autowired
-    FdRestWriter fdRestWriter;
+    FdTemplate fdTemplate;
 
 
 }

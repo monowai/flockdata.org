@@ -190,7 +190,7 @@ public class FileProcessor {
             else
                 tags = mapper.readValue(stream, collType);
             for (TagInputBean tag : tags) {
-                getPayloadBatcher().batchTag(tag, "JSON Tag Importer");
+                getPayloadBatcher().writeTag(tag, "JSON Tag Importer");
                 processed++;
             }
 
@@ -281,7 +281,7 @@ public class FileProcessor {
             entityInputBean.getEntityLinks().size();
         }
 
-        getPayloadBatcher().batchEntity(entityInputBean);
+        getPayloadBatcher().writeEntity(entityInputBean);
 
     }
 
@@ -304,7 +304,7 @@ public class FileProcessor {
                     EntityInputBean entityInputBean = Transformer.transformToEntity(mappable, xsr, extractProfile.getContentModel());
                     rows++;
                     xsr.nextTag();
-                    getPayloadBatcher().batchEntity(entityInputBean);
+                    getPayloadBatcher().writeEntity(entityInputBean);
 
                     if (stopProcessing(rows, then)) {
                         break;
@@ -375,13 +375,13 @@ public class FileProcessor {
                             if (extractProfile.getContentModel().isTagModel() ) {
                                 TagInputBean tagInputBean = Transformer.transformToTag(map, extractProfile.getContentModel());
                                 if (tagInputBean != null) {
-                                    getPayloadBatcher().batchTag(tagInputBean, "TagInputBean");
+                                    getPayloadBatcher().writeTag(tagInputBean, "TagInputBean");
                                 }
                             } else {
                                 EntityInputBean entityInputBean = Transformer.transformToEntity(map, extractProfile.getContentModel());
                                 // Dispatch/load mechanism
                                 if (entityInputBean != null)
-                                    getPayloadBatcher().batchEntity(entityInputBean);
+                                    getPayloadBatcher().writeEntity(entityInputBean);
                             }
                             if (stopProcessing(currentRow, then)) {
                                 break;

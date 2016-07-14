@@ -16,9 +16,8 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.shared.ClientConfiguration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -38,8 +37,8 @@ public class Health extends AbstractRestCommand {
 
     Map<String,Object> result;
 
-    public Health(ClientConfiguration clientConfiguration, FdRestWriter restWriter) {
-        super(clientConfiguration, restWriter);
+    public Health(FdTemplate restWriter) {
+        super(restWriter);
     }
 
     public Map<String,Object> result() {

@@ -16,10 +16,9 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.shared.ClientConfiguration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -38,12 +37,11 @@ public class SearchFdPost extends AbstractRestCommand {
     private EsSearchResult result;
 
     /**
-     * @param clientConfiguration where to find the API
-     * @param fdRestWriter        dispatch mechanism
+     * @param fdTemplate        dispatch mechanism
      * @param queryParams         query params. Company will be added automatically based on login used
      */
-    public SearchFdPost(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, QueryParams queryParams) {
-        super(clientConfiguration, fdRestWriter);
+    public SearchFdPost(FdTemplate fdTemplate, QueryParams queryParams) {
+        super(fdTemplate);
         this.queryParams = queryParams;
     }
 

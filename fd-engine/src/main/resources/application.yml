@@ -38,6 +38,10 @@ spring:
     serialization:
       indent_output: true
 
+logging:
+  level:
+    org.flockdata.client: debug
+
 application:
   title: FlockData GraphWriter
 

@@ -16,8 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.track.bean.EntityLogResult;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -36,8 +35,8 @@ public class EntityLogsGet extends AbstractRestCommand {
 
     private String key;
 
-    public EntityLogsGet(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String key) {
-        super(clientConfiguration, fdRestWriter);
+    public EntityLogsGet(FdTemplate fdTemplate, String key) {
+        super(fdTemplate);
         this.key = key;
     }
 

@@ -16,8 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.client.FdTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
@@ -40,15 +39,14 @@ abstract class AbstractRestCommand<T> implements Command {
     /**
      * Set's the basic immutable properties for this command
      *
-     * @param clientConfiguration URL, APIkey, user, password
-     * @param restWriter Helper class to access HTTP resources
+     * @param fdTemplate Helper class to access HTTP resources
      */
-    AbstractRestCommand(ClientConfiguration clientConfiguration, FdRestWriter restWriter) {
-        this.url = clientConfiguration.getServiceUrl();
-        this.restTemplate = restWriter.getRestTemplate();
-        this.user = clientConfiguration.getHttpUser();
-        this.pass = clientConfiguration.getHttpPass();
-        this.httpHeaders = restWriter.getHeaders(user, pass, clientConfiguration.getApiKey());
+    AbstractRestCommand(FdTemplate fdTemplate) {
+        this.url = fdTemplate.getClientConfiguration().getServiceUrl();
+        this.restTemplate = fdTemplate.getRestTemplate();
+        this.user = fdTemplate.getClientConfiguration().getHttpUser();
+        this.pass = fdTemplate.getClientConfiguration().getHttpPass();
+        this.httpHeaders = fdTemplate.getHeaders(user, pass, fdTemplate.getClientConfiguration().getApiKey());
 
     }
 

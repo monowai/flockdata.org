@@ -16,10 +16,9 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
-import org.flockdata.shared.ClientConfiguration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -44,8 +43,8 @@ public class RegistrationPost extends AbstractRestCommand {
 
     private SystemUserResultBean result =null;
 
-    public RegistrationPost(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, RegistrationBean registrationBean) {
-        super(clientConfiguration, fdRestWriter);
+    public RegistrationPost(FdTemplate fdTemplate, RegistrationBean registrationBean) {
+        super(fdTemplate);
         this.registrationBean=registrationBean;
 
     }

@@ -17,7 +17,6 @@
 package org.flockdata.test.unit.client;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Company;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.SystemUserResultBean;
@@ -30,7 +29,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Mock writer that satisfies the interface for testing purposes
@@ -41,16 +40,16 @@ import java.util.List;
 @Profile("dev")
 public class MockFdWriter implements FdWriter {
 
-    public List<EntityInputBean> getEntities() {
+    public Collection<EntityInputBean> getEntities() {
         return entities;
     }
 
-    public List<TagInputBean> getTags() {
+    public Collection<TagInputBean> getTags() {
         return tags;
     }
 
-    public List<EntityInputBean> entities = null;
-    public List<TagInputBean> tags = null;
+    public Collection<EntityInputBean> entities = null;
+    public Collection<TagInputBean> tags = null;
 
     @Autowired
     ClientConfiguration clientConfiguration;
@@ -61,13 +60,13 @@ public class MockFdWriter implements FdWriter {
     }
 
     @Override
-    public String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
+    public String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException {
         this.tags = tagInputBeans;
         return null;
     }
 
     @Override
-    public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
+    public String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException {
         this.entities = entityBatch;
         return null;
     }

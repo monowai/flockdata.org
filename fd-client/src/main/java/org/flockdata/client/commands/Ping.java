@@ -16,8 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.client.FdTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -35,8 +34,8 @@ public class Ping extends AbstractRestCommand {
     String result;
     HttpHeaders httpHeaders;
 
-    public Ping(ClientConfiguration clientConfiguration, FdRestWriter restWriter) {
-            super(clientConfiguration,restWriter);
+    public Ping(FdTemplate fdTemplate) {
+            super(fdTemplate);
     }
 
     public String result() {

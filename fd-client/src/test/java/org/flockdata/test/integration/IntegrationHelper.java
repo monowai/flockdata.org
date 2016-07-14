@@ -17,21 +17,15 @@
 package org.flockdata.test.integration;
 
 import me.tongfei.progressbar.ProgressBar;
-import org.flockdata.client.amqp.AmqpServices;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.client.commands.*;
-import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.registration.SystemUserResultBean;
-import org.flockdata.shared.*;
-import org.flockdata.test.integration.matchers.EntityKeyReady;
-import org.flockdata.test.integration.matchers.EntityLogReady;
-import org.flockdata.test.integration.matchers.EntitySearchReady;
-import org.flockdata.test.integration.matchers.ReadyMatcher;
+import org.flockdata.test.integration.matchers.*;
 import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
@@ -53,17 +47,6 @@ import static org.springframework.test.util.AssertionErrors.fail;
  */
 @Service
 @Configuration
-@SpringApplicationConfiguration({
-        ClientConfiguration.class,
-        FdBatcher.class,
-        FdRestWriter.class,
-        SearchHelper.class,
-        Exchanges.class,
-        FileProcessor.class,
-        AmqpRabbitConfig.class,
-        AmqpServices.class
-
-})
 class IntegrationHelper {
 
     // These are defined in docker-compose.yml
@@ -106,10 +89,10 @@ class IntegrationHelper {
         return entities;
     }
 
-    private void waitUntil(Logger logger, ReadyMatcher readyMatcher) {
+    private void waitUntil(Logger logger, String function, ReadyMatcher readyMatcher) {
         ProgressBar pb = null;
         StopWatch watch = new StopWatch();
-        watch.start(readyMatcher.getMessage());
+        watch.start(function + " - " + readyMatcher.getMessage());
         int count = 0;
         boolean ready = false;
 
@@ -141,39 +124,42 @@ class IntegrationHelper {
 
     }
 
-    void waitForEntityLog(Logger logger, EntityLogsGet entityLogs, int waitFor) {
+    void waitForEntityLog(Logger logger, String function, EntityLogsGet entityLogs, int waitFor) {
         EntityLogReady ready = new EntityLogReady(entityLogs, waitFor);
-        waitUntil(logger, ready);
+        waitUntil(logger, function, ready);
     }
 
     // Executes a GetEntity command and waits for a result. Can take some time depending on the environment that this
     // is working on.
-    void waitForEntityKey(Logger logger, EntityGet entityGet) {
+    void waitForEntityKey(Logger logger, String function, EntityGet entityGet) {
         EntityKeyReady ready = new EntityKeyReady(entityGet);
-        waitUntil(logger, ready);
+        waitUntil(logger, function, ready);
     }
 
-    void waitForSearch(Logger logger, EntityGet entityGet, int searchCount) {
+    void waitForSearch(Logger logger, String function, EntityGet entityGet, int searchCount) {
         EntitySearchReady ready = new EntitySearchReady(entityGet, searchCount);
-        waitUntil(logger, ready);
+        waitUntil(logger, function, ready);
+    }
+
+    void waitForTagCount(Logger logger, String function, TagsGet tagGet, int searchCount) {
+        TagCountReady ready = new TagCountReady(tagGet, searchCount);
+        waitUntil(logger, function, ready);
     }
 
     private void waitForPong(Ping pingCommand, int waitCount) throws InterruptedException {
         // A nice little status bar to show how long we've been hanging around
-        ProgressBar pb = new ProgressBar("Looking for services.... ", waitCount);
+        ProgressBar pb = new ProgressBar("Looking for services... ", waitCount);
         pb.start();
         int run = 0;
         do {
             run++;
             pb.step();
-            // After waiting for 40% of the waitCount will try running the command if it exists
-            if (pingCommand != null && run % 10 == 0 && (((double) run) / waitCount) > .3) {
+            // After waiting for 30% of the waitCount will try running the command if it exists
+            if (pingCommand != null && (((double) run) / waitCount) > .3) {
                 // After 1 minute we will ping to see if we can finish this early
 
                 if (pingCommand.exec().worked() && pingCommand.result().equals("pong")) {
-                    // We can finish early
-//                    pb.stepBy((waitCount - run));
-                    logger.info("finished after {}", run);
+                    logger.info("finished after {}", run); // Early finish - yay!
                     return;
 
                 }
@@ -222,13 +208,7 @@ class IntegrationHelper {
     }
 
     @Autowired
-    ClientConfiguration clientConfiguration;
-
-    @Autowired
-    FdRestWriter fdRestWriter;
-
-    @Autowired
-    AmqpRabbitConfig rabbitConfig;
+    FdTemplate fdTemplate;
 
     void waitForServices()  {
 
@@ -238,16 +218,15 @@ class IntegrationHelper {
             return; // This method is called before every @Test - it's expensive :o)
 
         logger.info("Waiting for containers to come on-line");
-        clientConfiguration.setServiceUrl(getEngine());
+        fdTemplate.getClientConfiguration().setServiceUrl(getEngine());
 
         logger.debug("Running with debug logging");
-        clientConfiguration.setServiceUrl(getEngine());
-        Ping enginePing = new Ping(clientConfiguration, fdRestWriter);
-        clientConfiguration.setServiceUrl(getStore());
-        Ping storePing = new Ping(clientConfiguration, fdRestWriter);
-        clientConfiguration.setServiceUrl(getSearch());
-        Ping searchPing = new Ping(clientConfiguration, fdRestWriter);
-        rabbitConfig.setServicePoint(getIpAddress(), getRabbitPort());
+        fdTemplate.getClientConfiguration().setServiceUrl(getEngine());
+        Ping enginePing = new Ping(fdTemplate);
+        fdTemplate.getClientConfiguration().setServiceUrl(getStore());
+        Ping storePing = new Ping(fdTemplate);
+        fdTemplate.getClientConfiguration().setServiceUrl(getSearch());
+        Ping searchPing = new Ping(fdTemplate);
 
         logger.info("org.fd.test.sleep.short {}ms", shortSleep);
         logger.info("org.fd.test.sleep.long  {}ms", longSleep);
@@ -281,6 +260,9 @@ class IntegrationHelper {
             logger.error("Failed to start the stack");
 
         setupComplete = true;
+        fdTemplate.resetRabbitClient(getIpAddress(), getRabbitPort());
+
+        fdTemplate.getClientConfiguration().setServiceUrl(getEngine());
     }
 
 
@@ -339,19 +321,19 @@ class IntegrationHelper {
      * @return details about the DataAcessUser
      */
     SystemUserResultBean makeDataAccessUser() {
-        return fdRestWriter.register(ADMIN_REGRESSION_USER, "TestCompany");
+        return fdTemplate.register(ADMIN_REGRESSION_USER, "TestCompany");
     }
 
     Login login(String user, String pass) {
-        return login(fdRestWriter, user, pass);
+        return login(fdTemplate, user, pass);
     }
 
-    Login login(FdRestWriter fdRestWriter, String user, String pass) {
-        clientConfiguration.setServiceUrl(getEngine())
+    Login login(FdTemplate fdTemplate, String user, String pass) {
+        fdTemplate.getClientConfiguration().setServiceUrl(getEngine())
                 .setHttpUser(user)
                 .setHttpPass(pass);
 
-        return new Login(clientConfiguration, fdRestWriter);
+        return new Login(fdTemplate);
 
     }
 

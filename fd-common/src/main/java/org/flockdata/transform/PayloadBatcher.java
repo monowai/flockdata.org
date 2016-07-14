@@ -27,11 +27,11 @@ import java.util.List;
  * Created by mike on 5/03/16.
  */
 public interface PayloadBatcher {
-    void batchTag(TagInputBean tagInputBean, String message) throws FlockException;
+    void writeTag(TagInputBean tagInputBean, String message) throws FlockException;
 
-    void batchEntity(EntityInputBean entityInputBean) throws FlockException;
+    void writeEntity(EntityInputBean entityInputBean) throws FlockException;
 
-    void batchEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException;
+    void writeEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException;
 
     void flush();
 
