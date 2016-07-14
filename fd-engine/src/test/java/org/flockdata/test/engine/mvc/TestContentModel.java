@@ -38,6 +38,7 @@ import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -243,6 +244,32 @@ public class TestContentModel extends MvcBase {
 //        assertEquals(keyResult.getKey());
     }
 
+    @Test
+    public void create_BulkContentProfiles() throws Exception {
+        makeDataAccessProfile("create_BulkContentProfiles", "mike");
+        Collection<ContentModel>models = new ArrayList<>();
+
+        ContentModel tagModel = ContentModelDeserializer.getContentModel("/models/test-tag-model.json");
+        assertNotNull(tagModel.getCode());
+        models.add(tagModel);
+
+        ContentModel entityModel = ContentModelDeserializer.getContentModel("/models/test-entity-tag-links.json");
+        models.add(entityModel);
+
+        Collection<ContentModelResult> results = makeContentModels(mike(),
+                models,
+                MockMvcResultMatchers.status().isOk());
+
+        assertNotNull(results);
+        assertEquals ("Request to create multiple models failed", 2, results.size());
+
+        for (ContentModelResult result : results) {
+            ContentModelResult keyResult = findContentModelByKey(mike(), result.getKey(),  MockMvcResultMatchers.status().isOk());
+            assertNotNull ( keyResult);
+        }
+        Collection<ContentModelResult>contentModelResults = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
+        assertEquals("Didn't find the two we just created", 2, contentModelResults.size());
+    }
 
     @Test
     public void find_afterDeletingFortress() throws Exception {

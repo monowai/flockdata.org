@@ -61,6 +61,10 @@ public class ContentModelDeserializer extends JsonDeserializer<ContentModel> {
         if (!isNull(nodeValue))
             contentModel.setHandler(nodeValue.asText());
 
+        nodeValue = node.get("code");
+        if (!isNull(nodeValue))
+            contentModel.setCode(nodeValue.asText());
+
         nodeValue = node.get("fortressName");
         if (!isNull(nodeValue))
             contentModel.setFortress(new FortressInputBean(nodeValue.asText()));

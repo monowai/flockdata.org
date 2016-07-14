@@ -2,6 +2,8 @@
   "contentType": "csv",
   "delimiter": ";",
   "header": true,
+  "tagModel": true,
+  "code": "TestingTags",
   "content": {
     "ISOen_name": {
       "tag": true,

@@ -722,6 +722,23 @@ public abstract class MvcBase {
         throw response.getResolvedException();
     }
 
+    public Collection<ContentModelResult> makeContentModels(RequestPostProcessor user, Collection<ContentModel> contentModel, ResultMatcher status) throws Exception {
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.post(apiPath + "/model/")
+                        .content(JsonUtils.toJson(contentModel))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(status).andReturn();
+
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toCollection(json.getBytes(), ContentModelResult.class);
+        }
+        throw response.getResolvedException();
+    }
+
+
     public Collection<ContentModelResult> findContentModels(RequestPostProcessor user, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
                 .perform(MockMvcRequestBuilders.get(apiPath + "/model/")

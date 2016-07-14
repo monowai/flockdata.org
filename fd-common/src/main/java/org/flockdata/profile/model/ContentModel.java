@@ -84,4 +84,7 @@ public interface ContentModel {
     boolean isTagModel();
 
     ContentModel setTagModel(boolean tagModel);
+
+    String getCode(); // Unique user friendly code for a tag model
+
 }

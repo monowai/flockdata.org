@@ -246,4 +246,7 @@ public class ContentModelHandler implements ContentModel {
         return result;
     }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
 }
