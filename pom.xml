@@ -8,8 +8,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>fd-config</module>
-        <module>fd-discovery</module>
         <module>fd-common</module>
         <module>fd-security</module>
         <module>fd-engine</module>
@@ -17,7 +15,6 @@
         <module>fd-search</module>
         <module>fd-client</module>
         <module>fd-spring</module>
-        <!--<module>fd-integration-tests</module>-->
     </modules>
 
     <properties>
@@ -34,9 +31,10 @@
         <org.springbatch.version>3.0.7.RELEASE</org.springbatch.version>
         <org.springintegration.version>4.2.5.RELEASE</org.springintegration.version>
         <org.springsecurity.version>4.0.4.RELEASE</org.springsecurity.version>
-        <org.springcloud.release.train>Brixton.RELEASE</org.springcloud.release.train>
 
-        <org.springcloud.version>1.1.0.RELEASE</org.springcloud.version>
+        <org.springcloud.release.train>Brixton.SR3</org.springcloud.release.train>
+        <org.springcloud.version>1.1.2.RELEASE</org.springcloud.version>
+
         <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
         <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>
         <neo4j.version>2.3.3</neo4j.version>

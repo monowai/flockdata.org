@@ -1,7 +1,0 @@
-spring:
-  application:
-    name: configuration
-  profiles:
-    active: fd-server
-encrypt:
-  failOnError: false

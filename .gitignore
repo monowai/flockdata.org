@@ -63,3 +63,10 @@ release.properties
 fd-search/data/
 
 
+fd-client/src/main/resources/log/
+fd-engine/out.txt
+fd-engine/src/main/docker/container_settings.json
+fd-search/out
+fd-spring/conf/
+out.txt
+vpproject/
