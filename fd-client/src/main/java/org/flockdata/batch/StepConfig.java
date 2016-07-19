@@ -24,18 +24,18 @@ import org.flockdata.profile.model.ContentModel;
 public class StepConfig {
     String query;
     String step;
-    String profile;
     String model;
+    String modelKey;
 
     private ContentModel contentModel;
 
     StepConfig (){}
 
-    StepConfig (String step, String model, String query){
+    StepConfig (String step, String modelKey, String query){
         this();
         this.query = query;
         this.step = step;
-        this.profile = model;
+        this.model = modelKey;
     }
 
     public String getQuery() {
@@ -46,16 +46,16 @@ public class StepConfig {
         return step;
     }
 
-    public String getProfile() {
-        return profile;
+    public String getModel() {
+        return model;
     }
 
     /**
      *
      * @return endpoint to look for serverside content model
      */
-    public String getModel() {
-        return model;
+    public String getModelKey() {
+        return modelKey;
     }
 
     public StepConfig setContentModel(ContentModel contentModel){
@@ -71,7 +71,7 @@ public class StepConfig {
     public String toString() {
         return "StepConfig{" +
                 "step='" + step + '\'' +
-                ", profile='" + profile + '\'' +
+                ", model='" + model + '\'' +
                 '}';
     }
 
@@ -83,14 +83,14 @@ public class StepConfig {
         StepConfig that = (StepConfig) o;
 
         if (step != null ? !step.equals(that.step) : that.step != null) return false;
-        return profile != null ? profile.equals(that.profile) : that.profile == null;
+        return model != null ? model.equals(that.model) : that.model == null;
 
     }
 
     @Override
     public int hashCode() {
         int result = step != null ? step.hashCode() : 0;
-        result = 31 * result + (profile != null ? profile.hashCode() : 0);
+        result = 31 * result + (model != null ? model.hashCode() : 0);
         return result;
     }
 }

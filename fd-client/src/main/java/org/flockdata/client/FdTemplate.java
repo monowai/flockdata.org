@@ -216,13 +216,13 @@ public class FdTemplate implements FdWriter {
 
     }
 
-    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String fileModel) throws IOException {
+    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String modelKey) throws IOException {
         ContentModel contentModel ;
-        contentModel = ContentModelDeserializer.getContentModel(fileModel);
+        contentModel = ContentModelDeserializer.getContentModel(modelKey);
         if ( contentModel == null ){
             // See if it can be found on the server
-            // format is {fortress}.{docType}, or tag.doctype
-            String[] args = fileModel.split(":");
+            // format is {fortress}:{docType}, or tag:doctype
+            String[] args = modelKey.split(":");
             if ( args.length == 2){
                 contentModel = getContentModel(args[0], args[1]);
             }

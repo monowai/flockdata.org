@@ -101,6 +101,10 @@ public class DocumentType  implements Comparable<DocumentType> {
     protected DocumentType() {
     }
 
+    public DocumentType(Fortress fortress, DocumentTypeInputBean docType) {
+        this(fortress.getDefaultSegment(), docType);
+    }
+
     public DocumentType(FortressSegment segment, DocumentTypeInputBean docType) {
         this(segment.getFortress(), docType.getName());
         this.name = docType.getName();

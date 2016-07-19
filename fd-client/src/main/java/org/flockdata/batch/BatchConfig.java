@@ -165,11 +165,15 @@ public class BatchConfig {
     private StepConfig loadStepConfig(String stepName) throws IOException, ClassNotFoundException {
         StepConfig stepConfig;
         stepConfig = readConfig(stepName.trim());
-        if (stepConfig.getProfile() != null) {
-            ContentModel contentModel = ContentModelDeserializer.getContentModel(stepConfig.getProfile());
+        if (stepConfig.getModel() != null) {
+            // Resolve from local file system
+            ContentModel contentModel = ContentModelDeserializer.getContentModel(stepConfig.getModel());
+            if ( contentModel == null )
+                // Check the server
+                contentModel = payloadBatcher.getContentModel(stepConfig.getModel());
             stepConfig.setContentModel(contentModel);
-        } else if ( stepConfig.getModel()!=null){
-            payloadBatcher.getContentModel(stepConfig.getModel());
+        } else if ( stepConfig.getModelKey()!=null){
+            payloadBatcher.getContentModel(stepConfig.getModelKey());
         }
 
         return stepConfig;

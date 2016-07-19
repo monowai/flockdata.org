@@ -16,7 +16,7 @@
 
 package org.flockdata.test.unit.batch;
 
-import org.flockdata.batch.FdAbstractSqlJob;
+import org.flockdata.batch.FdAbstractSqlStep;
 import org.flockdata.batch.resources.FdRowMapper;
 import org.flockdata.track.bean.EntityInputBean;
 import org.springframework.batch.core.Job;
@@ -45,7 +45,7 @@ import java.util.Map;
  */
 @Configuration
 @EnableBatchProcessing
-public class SqlEntityJob extends FdAbstractSqlJob {
+public class SqlEntityStep extends FdAbstractSqlStep {
 
     @Autowired
     FdRowMapper fdRowMapper;

@@ -96,8 +96,8 @@ public class FdServerWriter implements FdWriter {
     }
 
     @Override
-    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String fileModel) throws IOException {
-        String[] args = fileModel.split(":");
+    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String modelKey) throws IOException {
+        String[] args = modelKey.split(":");
         // ToDo: this is not yet properly supported - needs to be tested with Tag fortress - which is logical
         if ( args.length == 2){
             Company company = securityHelper.getCompany();
@@ -106,7 +106,7 @@ public class FdServerWriter implements FdWriter {
             try {
                 return contentModelService.get(company, fortress, docType);
             } catch (FlockException e) {
-                throw new IOException("Problem locating content model ["+fileModel+"]");
+                throw new IOException("Problem locating content model ["+ modelKey +"]");
             }
 
         }

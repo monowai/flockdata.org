@@ -46,6 +46,6 @@ public interface FdWriter {
 
     String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException;
 
-    ContentModel getContentModel(ClientConfiguration clientConfiguration, String fileModel) throws IOException;
+    ContentModel getContentModel(ClientConfiguration clientConfiguration, String modelKey) throws IOException;
 
 }

@@ -61,7 +61,7 @@ import static org.junit.Assert.assertNotNull;
                                   FdBatchWriter.class,
                                   HsqlDataSource.class,
                                   JobLauncherTestUtils.class,
-                                  SqlTagJob.class
+                                  SqlTagStep.class
                                 })
 
 @TestPropertySource({"/fd-batch.properties", "/application_dev.properties"})

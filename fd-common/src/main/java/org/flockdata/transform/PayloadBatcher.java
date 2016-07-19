@@ -45,5 +45,5 @@ public interface PayloadBatcher {
 
     List<TagInputBean> getTags();
 
-    ContentModel getContentModel(String model);
+    ContentModel getContentModel(String modelKey);
 }

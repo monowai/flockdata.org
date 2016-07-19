@@ -169,8 +169,14 @@ public class ContentModelEP {
             throw new IllegalArgumentException("Unable to locate the fortress " + fortressCode);
 
         DocumentType documentType = conceptService.resolveByDocCode(fortress, docTypeName, Boolean.FALSE);
+
+        if (documentType == null && contentModel.getDocumentType() != null) {
+            documentType = conceptService.findOrCreate(fortress, new DocumentType(fortress, contentModel.getDocumentType()));
+        }
+
         if (documentType == null)
             throw new IllegalArgumentException("Unable to locate the document " + docTypeName);
+
         return contentModelService.saveEntityModel(company, fortress, documentType, contentModel);
 
     }

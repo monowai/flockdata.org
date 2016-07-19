@@ -234,11 +234,11 @@ public class FdBatchWriter implements PayloadBatcher {
     }
 
     @Override
-    public ContentModel getContentModel(String model) {
+    public ContentModel getContentModel(String modelKey) {
         try {
-            return fdWriter.getContentModel(clientConfiguration, model);
+            return fdWriter.getContentModel(clientConfiguration, modelKey);
         } catch (IOException e) {
-            logger.error("Failed to get the ContentModel ["+model+"]. ", e);
+            logger.error("Failed to get the ContentModel ["+ modelKey +"]. ", e);
         }
         return null;
     }

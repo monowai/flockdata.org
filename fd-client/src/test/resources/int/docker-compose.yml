@@ -1,8 +1,3 @@
-#  proxy:
-#    container_name: nginx
-#    image: nginx:mainline-alpine
-#    ports:
-#        - "80:80"
 
 rabbit:
   image: rabbitmq:3-management
@@ -18,7 +13,6 @@ rabbit:
 
 fdengine:
   image: flockdata/fd-engine
-  command: "-ea -Xmx256m "
   links:
      - rabbit
      - fdsearch
@@ -36,6 +30,7 @@ fdengine:
 
   environment:
     server.port: 8090
+    _JAVA_OPTIONS: "-Xms512m -Xmx1g"
     org.fd.engine.fortress.search: 'true'
     org.fd.engine.fortress.store: 'true'
     org.fd.engine.system.storage: memory
@@ -47,7 +42,7 @@ fdengine:
     org.fd.auth.simple.users.integration.roles: FD_USER;FD_ADMIN
     org.fd.auth.simple.login.method: basic
 
-    logging.level.org.flockdata: DEBUG
+    logging.level.org.flockdata: INFO
     # Disable the webserver
     org.neo4j.server.webserver.port: -1
     spring.jackson.serialization.indent_output: 'true'
@@ -56,7 +51,6 @@ fdengine:
 
 fdstore:
   image: flockdata/fd-store
-  command: "-Xmx256m"
   links:
      - rabbit
 
@@ -71,6 +65,7 @@ fdstore:
 
   environment:
     server.port: 8092
+    _JAVA_OPTIONS: "-Xms256m -Xmx512m"
     spring.jackson.serialization.indent_output: 'true'
     spring.profiles.active: fd-no-auth,memstore
     rabbit.host: rabbit
@@ -79,7 +74,7 @@ fdstore:
 
 fdsearch:
   image: flockdata/fd-search
-  command: "-Xmx256m"
+#  command: "-Xmx256m"
 
 # Uncomment ports for non-proxy debug
 #  ports:
@@ -98,6 +93,7 @@ fdsearch:
 
   environment:
     server.port: 8091
+    _JAVA_OPTIONS: "-Xms256m -Xmx512m"
     org.fd.engine.url: 'http://fdengine:8090'
     # Enables integration functionality
     org.fd.engine.api: http://fdengine:8090

@@ -1,4 +1,4 @@
-profile: /batch/tag.json
+model: /batch/tag.json
 step: olympic.athlete.as.tag
 query: >
   SELECT ID,CODE,NAME from COUNTRY

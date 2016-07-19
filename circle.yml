@@ -1,10 +1,16 @@
 machine:
+#  pre:
+#    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
   services:
     - docker
+  environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+  java:
+    version: oraclejdk8
 
 dependencies:
   # https://issues.apache.org/jira/browse/MDEP-51 6
-  # Maven will error on a fresh repo becuase fd-common does not exist; it hasn't been built yet!
+  # Maven will error on a fresh repo becuase fd-common does not exist; it hasn't been built yet, so let's do that
   override:
     - mvn clean package dependency:go-offline -DskipTests=true
 

@@ -39,6 +39,15 @@ org.fd:
     system:
       enabled: true
 
+org:
+  neo4j:
+    # Disable the neo4j browser by setting the port to 0
+    server:
+      webserver:
+        # Set the port to < 0 to disable the WEBUI for Neo4j
+        port: 0
+        address: disable
+
 rabbit:
   user: guest
   pass: guest

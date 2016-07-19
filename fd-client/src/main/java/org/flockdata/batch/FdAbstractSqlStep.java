@@ -29,7 +29,7 @@ import java.sql.SQLException;
 /**
  * Created by mike on 3/03/16.
  */
-public abstract class FdAbstractSqlJob {
+public abstract class FdAbstractSqlStep {
     @Autowired
     protected FdBatchResources batchResources;
 

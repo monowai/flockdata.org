@@ -72,8 +72,8 @@ public class MockFdWriter implements FdWriter {
     }
 
     @Override
-    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String fileModel) throws IOException {
-        return ContentModelDeserializer.getContentModel(fileModel);
+    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String modelKey) throws IOException {
+        return ContentModelDeserializer.getContentModel(modelKey);
     }
 
 }
