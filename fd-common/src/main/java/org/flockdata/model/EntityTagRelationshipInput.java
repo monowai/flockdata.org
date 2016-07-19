@@ -20,6 +20,7 @@
 
 package org.flockdata.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -106,5 +107,11 @@ public class EntityTagRelationshipInput {
     @Override
     public int hashCode() {
         return relationshipName != null ? relationshipName.hashCode() : 0;
+    }
+
+    public void addProperty(String key, Object value) {
+        if (properties == null)
+            properties = new HashMap<>();
+        properties.put(key, value);
     }
 }

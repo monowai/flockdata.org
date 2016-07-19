@@ -69,7 +69,7 @@ public class FdTemplate implements FdWriter {
 
     private final FdRabbitClient fdRabbitClient;
 
-    @Autowired
+    @Autowired(required = false)
     FdTemplate (FdRabbitClient fdRabbitClient, ClientConfiguration clientConfiguration){
         this.clientConfiguration = clientConfiguration;
         this.fdRabbitClient = fdRabbitClient;

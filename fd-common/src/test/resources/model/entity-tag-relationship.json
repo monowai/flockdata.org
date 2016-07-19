@@ -99,25 +99,6 @@
       "tag": false,
       "reverse": false
     },
-    "service_provider": {
-      "code": "service_provider",
-      "dataType": "string",
-      "persistent": true,
-      "storeNull": true,
-      "country": false,
-      "tag": true,
-      "reverse": true,
-      "label": "ServiceProvider",
-      "relationship": "manages"
-    },
-    "countries": {
-      "dataType": "string",
-      "persistent": false,
-      "storeNull": true,
-      "country": false,
-      "tag": false,
-      "reverse": false
-    },
     "jurisdiction_description": {
       "dataType": "string",
       "persistent": true,
@@ -130,7 +111,13 @@
       "entityTagLinks": [
         {
           "geo": true,
-          "relationshipName": "legal"
+          "relationshipName": "legal",
+          "properties": [
+            {
+              "target": "value",
+              "dataType": "string"
+            }
+          ]
         }
       ]
     },

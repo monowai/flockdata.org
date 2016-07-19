@@ -44,9 +44,12 @@
       "entityTagLinks": [
         {
           "relationshipName": "Year",
-          "properties": {
-            "value": "#data['Gold Medals']"
-          }
+          "properties": [
+            {
+              "target": "value",
+              "value": "#data['Gold Medals']"
+            }
+          ]
         }
       ]
     },

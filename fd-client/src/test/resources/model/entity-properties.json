@@ -6,7 +6,7 @@
     "0": {
       "tag": true,
       "label": "Year",
-      "relationship":"cycle"
+      "relationship": "cycle"
     },
     "1": {
       "callerRef": true
@@ -16,32 +16,68 @@
       "label": "Contributor",
       "name": "3",
       "mustExist": false,
-      "entityTagLinks": [{"relationshipName": "contributed", "properties": {"value": "value"}}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "contributed",
+          "properties": [
+            {
+              "source": "9",
+              "target": "value",
+              "dataType": "number"
+            }
+          ]
+        }
+      ]
     },
     "3": {
-      "title":true
+      "title": true
     },
     "4": {
       "tag": true,
       "label": "Politician",
       "mustExist": false,
-      "entityTagLinks": [{"relationshipName": "received", "properties": {"value": "value"}}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "received",
+          "properties": [
+            {
+              "source": "9",
+              "target": "value",
+              "dataType": "number"
+            }
+          ]
+        }
+      ]
     },
     "6": {
       "tag": true,
       "label": "Organization",
       "name": "5",
-      "entityTagLinks": [{"relationshipName": "contributed", "properties": {"source": "value"}}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "contributed",
+          "properties": [
+            {
+              "source": "9",
+              "target": "value",
+              "dataType": "number"
+            }
+          ]
+        }
+      ]
     },
     "8": {
       "target": "contributionDate",
       "dateFormat": "MM/dd/yyyy",
-      "createDate" :true
+      "createDate": true
     },
-
     "13": {
       "tag": true,
-      "entityTagLinks": [{"relationshipName": "lives"}],
+      "entityTagLinks": [
+        {
+          "relationshipName": "lives"
+        }
+      ],
       "dataType": "string",
       "label": "ZipCode",
       "targets": [
@@ -64,12 +100,16 @@
       "tag": true,
       "label": "OSCategory",
       "mustExist": true,
-      "entityTagLinks": [{"relationshipName": "industry"}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "industry"
+        }
+      ]
     },
     "9": {
-      "target": "value",
       "properties": [
         {
+          "target": "value",
           "dataType": "long",
           "valueOnError": 0
         }
@@ -79,7 +119,8 @@
       "target": "valueNull",
       "properties": [
         {
-          "storeNull":false, // We don't want to store null values
+          "storeNull": false,
+          // We don't want to store null values
           "dataType": "long"
         }
       ]

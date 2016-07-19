@@ -384,7 +384,7 @@ public class ITests {
         Login login = integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123");
         integrationHelper.assertWorked("Login failed ", login.exec());
         SystemUserResultBean su = integrationHelper.makeDataAccessUser();
-        assertNotNull(su);
+        assertNotNull("message = "+login.error(), su);
         clientConfiguration.setApiKey(su.getApiKey());
 
         EntityInputBean entityInputBean = new EntityInputBean()

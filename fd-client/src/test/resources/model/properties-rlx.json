@@ -1,5 +1,7 @@
 {
-  "fortress": {"name": "GovTrack"},
+  "fortress": {
+    "name": "GovTrack"
+  },
   "documentName": "PAC",
   "fortressUser": "mike",
   "content": {
@@ -10,13 +12,32 @@
       "tag": true,
       "label": "Politician",
       "mustExist": true,
-      "entityTagLinks": [{"relationshipName": "receives", "properties": {"amount": "#data['4']"}}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "receives",
+          "properties": [
+            {
+              "value": "#data['4']",
+              "target": "amount"
+            }
+          ]
+        }
+      ]
     },
     "2": {
       "tag": true,
       "label": "InterestGroup",
       "mustExist": true,
-      "entityTagLinks": [{"relationshipName": "#data['8']=='D' ?'direct':'indirect'", "properties": {"amount": "#data['4']"}}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "#data['8']=='D' ?'direct':'indirect'",
+          "properties": [{
+              "value": "#data['4']",
+              "target": "amount"
+            }
+          ]
+        }
+      ]
     },
     "6": {
       "tag": true,

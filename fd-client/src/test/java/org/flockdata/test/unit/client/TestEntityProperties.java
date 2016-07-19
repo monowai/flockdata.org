@@ -70,7 +70,7 @@ public class TestEntityProperties extends AbstractImport {
                         assertFalse(igRlx.isEmpty());
                         EntityTagRelationshipInput valueMap = igRlx.get("contributed");
                         assertTrue(valueMap.getProperties().containsKey("value"));
-                        assertTrue(Double.parseDouble(valueMap.getProperties().get("value").toString()) != 0);
+                        assertTrue(Double.parseDouble(valueMap.getProperties().get("value").toString()) ==500);
 
                         break;
                     case "OSCategory":
@@ -81,7 +81,7 @@ public class TestEntityProperties extends AbstractImport {
                         assertFalse(rlx.isEmpty());
                         EntityTagRelationshipInput valMap = rlx.get("received");
                         assertTrue(valMap.getProperties().containsKey("value"));
-                        assertTrue(Double.parseDouble(valMap.getProperties().get("value").toString()) != 0);
+                        assertTrue(Double.parseDouble(valMap.getProperties().get("value").toString()) ==500);
                         break;
                     case "ZipCode":
                         assertEquals("Zip code should not be turned to a number. Should be preserved as a string", "07450", tagInputBean.getCode());

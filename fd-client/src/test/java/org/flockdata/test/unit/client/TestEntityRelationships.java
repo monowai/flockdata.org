@@ -47,7 +47,7 @@ public class TestEntityRelationships extends AbstractImport{
 
     @Test
     public void evaluation_EntityLinkExpressions() throws Exception {
-        String file = "/model/entity-relationships.json";
+        String file = "/model/entity-links.json";
         ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
         ExtractProfile params = new ExtractProfileHandler(contentModel);
         long rows = fileProcessor.processFile(params, "/data/entity-relationships.txt");

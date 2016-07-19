@@ -23,6 +23,7 @@ package org.flockdata.transform;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.EntityTagRelationshipDefinition;
 import org.flockdata.model.EntityTagRelationshipInput;
 import org.flockdata.model.Tag;
 import org.flockdata.profile.model.ContentModel;
@@ -158,28 +159,28 @@ public class TransformationHelper {
     public static EntityTagRelationshipInput getRelationship(Map<String, Object> row, ColumnDefinition colDef) {
 
         if (colDef.getEntityTagLinks() != null) {
-            EntityTagRelationshipInput etr = colDef.getEntityTagLinks().iterator().next();
-            Object resolvedName = ExpressionHelper.getValue(row, etr.getRelationshipName());
+            EntityTagRelationshipDefinition etd = colDef.getEntityTagLinks().iterator().next();
+            Object resolvedName = ExpressionHelper.getValue(row, etd.getRelationshipName());
             if (resolvedName == null)
-                resolvedName = etr.getRelationshipName();
-            etr.setRelationshipName(resolvedName.toString());
-            return resolveEtrProperties(row, etr);
+                resolvedName = etd.getRelationshipName();
+
+            EntityTagRelationshipInput etr = new EntityTagRelationshipInput(resolvedName.toString(), etd.getGeo());
+            etr.setReverse(etd.isReverse());
+            return resolveETRProperties(row, etd, etr);
 
         }
         return null;
         //return ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.RELATIONSHIP, colDef, colDef.getRelationship());
     }
 
-    private static EntityTagRelationshipInput resolveEtrProperties(Map<String, Object> row, EntityTagRelationshipInput etr) {
-        if (etr.getProperties() == null)
+    private static EntityTagRelationshipInput resolveETRProperties(Map<String, Object> row, EntityTagRelationshipDefinition etd, EntityTagRelationshipInput etr) {
+        if (etd.getProperties() == null )
             return etr;
-        for (String key : etr.getProperties().keySet()) {
-            Object expression = etr.getProperties().get(key);
-            if (expression != null) {
-                Object value = ExpressionHelper.getValue(row, expression.toString());
-                if (value != null)
-                    etr.getProperties().put(key, transformValue(value, null, null));
-            }
+        for (ColumnDefinition colDef : etd.getProperties()) {
+            Object value = ExpressionHelper.getValue(row, colDef.getValue(), colDef, row.get(colDef.getSource()));
+            if (value != null )
+                etr.addProperty(colDef.getTarget(), transformValue(value, colDef.getSource(), colDef));
+
         }
         return etr;
     }

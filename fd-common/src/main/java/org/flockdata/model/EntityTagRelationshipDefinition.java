@@ -18,28 +18,42 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test.helper;
+package org.flockdata.model;
 
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.model.ContentModel;
 import org.flockdata.transform.ColumnDefinition;
-import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import java.util.Collection;
 
 /**
- * Created by mike on 12/07/16.
+ * Created by mike on 19/07/16.
  */
-public class TestContentModel {
+public class EntityTagRelationshipDefinition {
+    private Boolean geo ;
+    private boolean reverse; // default is Entity->Tag
+    private String relationshipName;
+    private Collection<ColumnDefinition> properties;
 
-    @Test
-    public void serializeEntityTagRelationship() throws Exception{
-        ContentModel model = ContentModelDeserializer.getContentModel("/model/entity-tag-relationship.json");
-        assertNotNull ( model);
-        ColumnDefinition jurisdiction = model.getContent().get("jurisdiction_description");
-        assertNotNull ( jurisdiction);
-        assertNotNull ( jurisdiction.getEntityTagLinks());
-        assertEquals (1, jurisdiction.getEntityTagLinks().size());
+
+    public Boolean getGeo() {
+        return geo;
+    }
+
+    public boolean isReverse() {
+        return reverse;
+    }
+
+    public String getRelationshipName() {
+        return relationshipName;
+    }
+
+    public Collection<ColumnDefinition> getProperties() {
+        return properties;
+    }
+
+    @Override
+    public String toString() {
+        return "EntityTagRelationshipDefinition{" +
+                "relationshipName='" + relationshipName + '\'' +
+                '}';
     }
 }

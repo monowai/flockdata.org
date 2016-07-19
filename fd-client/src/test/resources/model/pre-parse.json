@@ -17,9 +17,12 @@
       "entityTagLinks": [
         {
           "relationshipName": "receives",
-          "properties": {
-            "amount": "#data['4']"
-          }
+          "properties": [
+            {
+              "value": "#data['4']",
+              "target": "amount"
+            }
+          ]
         }
       ]
     },
@@ -30,10 +33,17 @@
       "entityTagLinks": [
         {
           "relationshipName": "#data['8']=='D' ?'direct':'indirect'",
-          "properties": {
-            "amount": "#data['4']",
-            "calculatedColumn": "'ABC'+'123'"
-          }
+          "properties": [
+            {
+              "target": "amount",
+              "value": "#data['4']",
+              "dataType": "number"
+            },
+            {
+              "target":"calculatedColumn",
+              "value": "'ABC'+'123'"
+            }
+          ]
         }
       ]
     },

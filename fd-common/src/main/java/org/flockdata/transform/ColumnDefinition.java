@@ -23,7 +23,7 @@ package org.flockdata.transform;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.flockdata.model.EntityTagRelationshipInput;
+import org.flockdata.model.EntityTagRelationshipDefinition;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.transform.tags.TagProfile;
 import org.flockdata.transform.tags.TagProfileDeserializer;
@@ -91,10 +91,11 @@ public class ColumnDefinition implements GeoDefinition {
     private GeoPayload geoData;
 
     @JsonDeserialize(using = ColumnDeserializer.class)
-    private ArrayList<ColumnDefinition> properties; // Properties to add to an object
+    private ArrayList<ColumnDefinition> properties; // Properties to add to this object
     private ArrayList<Map<String, String>> entityLinks = new ArrayList<>();
+
     @JsonDeserialize(using = EntityTagRelationshipDeserializer.class)
-    private Collection<EntityTagRelationshipInput> entityTagLinks ;
+    private Collection<EntityTagRelationshipDefinition> entityTagLinks ;
     private ArrayList<AliasInputBean> aliases;
 
     private String relationship; // Explicit relationship name
@@ -417,17 +418,21 @@ public class ColumnDefinition implements GeoDefinition {
         return merge;
     }
 
-    public void setEntityTagLinks(Collection<EntityTagRelationshipInput> entityTagLinks) {
+    public void setEntityTagLinks(Collection<EntityTagRelationshipDefinition> entityTagLinks) {
         this.entityTagLinks = entityTagLinks;
     }
 
-    public Collection<EntityTagRelationshipInput> getEntityTagLinks() {
+    public Collection<EntityTagRelationshipDefinition> getEntityTagLinks() {
         return entityTagLinks;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Boolean getStoreNull() {
         return storeNull;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     @Override

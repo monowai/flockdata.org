@@ -1,38 +1,46 @@
 [FlockData](http://FlockData.com) - Information Integration Services
 ===========
 
-FlockData mediates data flows from any datastore in to Neo4j and ElasticSearch. It is an information processing pipeline.
+FlockData is a collection of modularized services that work with domain driven documents mutated by business events originating in your organizational systems. A domain driven approach to data normalization enables business users to better interact with data as the modeled domain context is that of the organisation.
 
-FD utilises Spring Boot, Integration, Security, MVC etc, RabbitMQ, Neo4j, ElasticSearch, and Riak. Deployment is by configuration and each module has a Docker image built and made availiable.
+It provides a series of modular services that work together to provide data transformation, processing pipeline capabilities and master data management.  FD enables you to integrate data from any source into modularised databases, such as Neo4j, ElasticSearch and Riak, for analysis.
 
-Using FD reduces the effort in keeping pace with change across a stack such as this.
+* Transformation model management reduces the effort of integration by letting you visually convert existing data into the target structure you want to achieve for your information.
+* Processing pipeline takes transformed data and writes the results into Neo4j and ElasticSearch databases for analysis.
+* Maser data management capabilities handle processing of data on a one-off load or on-going incremental update basis.
+
+Data can be ingested from many sources including delimited files, JSON and SQL result sets.
+
+    Model->Load->Analyze
+
+## Docker
+
+The FD stack can be rapidly deployed via Docker using a docker-compose script. Please see [fd-demo](http://github.com/monowai/fd-demo) for more details on how to start the stack in various ways .
+
+## What
+
+FlockData normalizes the data in your organisation around the business context.
+
+  * Standardised way in which data can be securely read and analyzed
+  * Agnostic to the underlying structure of your data
+  * Independent of existing systems
+
+
+## Overview
+Model the data you want to import, load it then start analyzing using your favourite tools
+
+FlockData is a system of insight built as a [DataShore](http://martinfowler.com/bliki/DataLake.html) using the principals of Microservices and Domain Driven Design. We define the service boundary for writes as Audit (tracking data changes) and Search (indexing your data). An exciting off shoot of this idea is that by tracking your data as information you also gain an analytics platform for the powerful query analysis, offered by graph and search databases, indexed in a consistent manner.
+
+Turn your information in to an accessible resource. See if our data [Mission](http://wiki.flockdata.com/pages/viewpage.action?pageId=13172853) aligns with your way of thinking.
+
+FD uses Spring Boot, Integration, Security, MVC etc, RabbitMQ, Neo4j, ElasticSearch, and Riak. Each service module has an associated [Docker image](https://hub.docker.com/u/flockdata/) for ease of deployment.
 
 This stack requires Java 8 and if you're going to build it, then also mvn 3.x. If you want to build docker images then you will also require Docker to be installed.
 
 We use the mvn spotify project for docker management, and run integration tests using testcontainers in Docker. This can all be found in the fd-client project
 
-##Docker
-Stack is now entirely executed through Docker with a compose script. Please see [fd-demo](http://github.com/monowai/fd-demo) for more details on how to start the stack in various ways .
-
-![Alt text](https://github.com/monowai/flockdata.org/blob/master/docker.png)
-
 ## Postman
 The API can be invoked via the supplied postman [Postman](https://github.com/monowai/flockdata.org/blob/master/fd.api-postman.json). This contains environments for both localhost DEV and docker
-
-## What
-* FD combines ideas from Master Data Management, Content Management and Datawarehousing without actually being any of those things
-* FD guides you to look at data as information that need to be analysed which is achieved through acombination of
-  * Heterogeneous storage capabilities
-  * Standardised path in which to read and write data securely
-  * Being agnostic to the structure of your data
-* FD tracks metadata and builds the structures in to NoSQL databases ready for you to analyse
-
-## Overview
-Collect, Connect Compare and Explore  - FlockData helps you find data you're looking for.
-
-FlockData is a system of insight built as a [DataShore](http://martinfowler.com/bliki/DataLake.html) using the principals of Microservices and Domain Driven Design. We define the service boundary for writes as Audit (tracking data changes) and Search (indexing your data). An exciting off shoot of this idea is that by tracking your data as information you also gain an analytics platform for the powerful query analysis, offered by graph and search databases, indexed in a consistent manner.
-
-Turn your information in to an accessible resource. See if our data [Mission](http://wiki.flockdata.com/pages/viewpage.action?pageId=13172853) aligns with your way of thinking.
 
 ##Design
 FD follows the design concepts of a [Microservice](http://martinfowler.com/articles/microservices.html). As a service it is in fact itself made up of microservices.

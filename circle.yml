@@ -6,7 +6,7 @@ dependencies:
   # https://issues.apache.org/jira/browse/MDEP-51 6
   # Maven will error on a fresh repo becuase fd-common does not exist; it hasn't been built yet!
   override:
-    - mvn package dependency:go-offline -DskipTests=true
+    - mvn clean package dependency:go-offline -DskipTests=true
 
 test:
   override:

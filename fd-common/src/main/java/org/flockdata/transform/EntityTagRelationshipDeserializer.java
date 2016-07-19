@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.model.EntityTagRelationshipInput;
+import org.flockdata.model.EntityTagRelationshipDefinition;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,15 +36,15 @@ import java.util.Collection;
  * JSON
  * Created by mike on 29/07/15.
  */
-public class EntityTagRelationshipDeserializer extends JsonDeserializer<Collection<EntityTagRelationshipInput>> {
+public class EntityTagRelationshipDeserializer extends JsonDeserializer<Collection<EntityTagRelationshipDefinition>> {
 
     @Override
-    public Collection<EntityTagRelationshipInput> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        Collection<EntityTagRelationshipInput> values = new ArrayList<>();
+    public Collection<EntityTagRelationshipDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        Collection<EntityTagRelationshipDefinition> values = new ArrayList<>();
         JsonNode node = jp.getCodec().readTree(jp);
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
         for (JsonNode jsonNode : node) {
-            values.add(om.readValue(jsonNode.toString(), EntityTagRelationshipInput.class));
+            values.add(om.readValue(jsonNode.toString(), EntityTagRelationshipDefinition.class));
 
         }
         return values;

@@ -9,16 +9,28 @@
   "content": {
     "Athlete": {
       "tag": true,
-      "entityTagLinks": [{"relationshipName": "won"}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "won"
+        }
+      ]
     },
     "Country": {
-      "entityTagLinks": [{"relationshipName": "from"}],
+      "entityTagLinks": [
+        {
+          "relationshipName": "from"
+        }
+      ],
       "tag": true,
       "label": "Country"
     },
     "Sport": {
       "tag": true,
-      "entityTagLinks": [{"relationshipName": "balh"}],
+      "entityTagLinks": [
+        {
+          "relationshipName": "balh"
+        }
+      ],
       "mustExist": false,
       "targets": [
         {
@@ -46,19 +58,49 @@
       "tag": true,
       "code": "'Gold'",
       "name": "'Gold Medals'",
-      "entityTagLinks": [{"relationshipName": "competed", "properties": {"value": "#data['Gold Medals']"}}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "competed",
+          "properties": [
+            {
+              "target": "value",
+              "value": "#data['Gold Medals']"
+            }
+          ]
+        }
+      ]
     },
     "Silver Medals": {
       "tag": true,
       "code": "'Silver'",
       "name": "'Silver Medals'",
-      "entityTagLinks": [{"relationshipName": "competed", "properties": {"value": "#data['Silver Medals']"}}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "competed",
+          "properties": [
+            {
+              "target": "value",
+              "value": "#data['Silver Medals']"
+            }
+          ]
+        }
+      ]
     },
     "Bronze Medals": {
       "tag": true,
       "code": "'Bronze'",
       "name": "'Bronze Medals'",
-      "entityTagLinks": [{"relationshipName": "competed", "properties": {"value": "#data['Bronze Medals']"}}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "competed",
+          "properties": [
+            {
+              "target": "value",
+              "value": "#data['Bronze Medals']"
+            }
+          ]
+        }
+      ]
     }
   }
 }
