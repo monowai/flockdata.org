@@ -23,7 +23,7 @@
             "callerRef": true,
             "title": false,
             "description": false,
-            "country": false,
+
             "createDate": false,
             "document": false,
             "tag": false,
@@ -55,7 +55,7 @@
                     "notFound": null,
                     "relationship": "represents",
                     "delimiter": null,
-                    "country": false,
+
                     "label": "District",
                     "condition": null,
                     "targets": [
@@ -67,7 +67,7 @@
                             "notFound": null,
                             "relationship": "located",
                             "delimiter": null,
-                            "country": false,
+
                             "label": "State",
                             "condition": null
                         }
@@ -91,7 +91,7 @@
             "callerRef": false,
             "title": false,
             "description": false,
-            "country": false,
+
             "createDate": false,
             "document": false,
             "tag": true,
@@ -110,7 +110,7 @@
                     "callerRef": false,
                     "title": false,
                     "description": false,
-                    "country": false,
+
                     "createDate": false,
                     "document": false,
                     "tag": false,
@@ -137,7 +137,7 @@
                     "notFound": null,
                     "relationship": "represents",
                     "delimiter": null,
-                    "country": false,
+
                     "label": "District",
                     "condition": null,
                     "targets": [
@@ -149,7 +149,7 @@
                             "notFound": null,
                             "relationship": "located",
                             "delimiter": null,
-                            "country": false,
+
                             "label": "State",
                             "condition": null
                         }
@@ -188,8 +188,6 @@
             "callerRef": false,
             "title": false,
             "description": false,
-            "valueAsProperty": false,
-            "country": false,
             "createDate": true,
             "document": false,
             "tag": false,

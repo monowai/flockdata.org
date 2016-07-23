@@ -62,7 +62,7 @@ public class TransformationHelper {
             label = resolveValue(colDef.getLabel(), column, colDef, row);
 
         tag.setMustExist(TransformationHelper.evaluate(colDef.isMustExist()))
-                .setLabel(colDef.isCountry() ? "Country" : label)
+                .setLabel(label)
                 .setNotFoundCode(colDef.getNotFound());
 
         if (TransformationHelper.evaluate(colDef.isMerge(), true))

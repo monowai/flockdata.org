@@ -390,7 +390,7 @@ public class MediationFacadeNeo implements MediationFacade {
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
     public String reindexByDocType(Company company, String fortressName, String docType) throws FlockException {
-        Fortress fortress = fortressService.findByName(company, fortressName);
+        Fortress fortress = fortressService.findByCode(company, fortressName);
         if (fortress == null)
             throw new FlockException("Fortress [" + fortressName + "] could not be found");
 

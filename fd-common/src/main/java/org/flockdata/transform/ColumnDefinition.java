@@ -31,6 +31,7 @@ import org.flockdata.transform.tags.TagProfileDeserializer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * User: mike
@@ -59,8 +60,6 @@ public class ColumnDefinition implements GeoDefinition {
     private Boolean callerRef=null;
     private Boolean title=null;
     private Boolean description=null;
-    private Boolean valueAsProperty=null;
-    private Boolean country=null;
     private Boolean createDate=null;
     private Boolean document=null;
     private Boolean tag=null;
@@ -71,7 +70,6 @@ public class ColumnDefinition implements GeoDefinition {
     private Boolean updateDate=null;
     private Boolean merge=null;
 
-    private String strategy = null;
     private String fortress = null;
     private String documentType = null;
     private String label;
@@ -99,7 +97,7 @@ public class ColumnDefinition implements GeoDefinition {
     private ArrayList<AliasInputBean> aliases;
 
     private String relationship; // Explicit relationship name
-    private String delimiter;
+    private String delimiter;    // value delimiter
 
     public String getLabel() {
         return label;
@@ -132,7 +130,7 @@ public class ColumnDefinition implements GeoDefinition {
      *       while tracking an entity
      */
     public Boolean isTag() {
-        return (tag !=null && tag) || isCountry();
+        return (tag !=null && tag) ;
     }
 
     /**
@@ -144,14 +142,6 @@ public class ColumnDefinition implements GeoDefinition {
         return mustExist;
     }
 
-    public Boolean isValueAsProperty() {
-        return valueAsProperty;
-    }
-
-    public Boolean isCountry() {
-        return (country==null?false:country);
-    }
-
     public String getName() {
         return name;
     }
@@ -159,11 +149,6 @@ public class ColumnDefinition implements GeoDefinition {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public ArrayList<TagProfile> getTargets() {
         return targets;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getStrategy() {
-        return strategy;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -436,102 +421,30 @@ public class ColumnDefinition implements GeoDefinition {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ColumnDefinition)) return false;
-
-        ColumnDefinition that = (ColumnDefinition) o;
-
-        if (callerRef != that.callerRef) return false;
-        if (title != that.title) return false;
-        if (description != that.description) return false;
-        if (valueAsProperty != that.valueAsProperty) return false;
-        if (country != that.country) return false;
-        if (createDate != that.createDate) return false;
-        if (document != that.document) return false;
-        if (tag != that.tag) return false;
-        if (mustExist != that.mustExist) return false;
-        if (createUser != that.createUser) return false;
-        if (updateUser != that.updateUser) return false;
-        if (reverse != that.reverse) return false;
-        if (updateDate != that.updateDate) return false;
-        if (merge != that.merge) return false;
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (source != null ? !source.equals(that.source) : that.source != null) return false;
-        if (keyPrefix != null ? !keyPrefix.equals(that.keyPrefix) : that.keyPrefix != null) return false;
-        if (target != null ? !target.equals(that.target) : that.target != null) return false;
-        if (dateFormat != null ? !dateFormat.equals(that.dateFormat) : that.dateFormat != null) return false;
-        if (timeZone != null ? !timeZone.equals(that.timeZone) : that.timeZone != null) return false;
-        if (dataType != null ? !dataType.equals(that.dataType) : that.dataType != null) return false;
-        if (persistent != null ? !persistent.equals(that.persistent) : that.persistent != null) return false;
-        if (storeNull != null ? !storeNull.equals(that.storeNull) : that.storeNull != null) return false;
-        if (strategy != null ? !strategy.equals(that.strategy) : that.strategy != null) return false;
-        if (fortress != null ? !fortress.equals(that.fortress) : that.fortress != null) return false;
-        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
-        if (label != null ? !label.equals(that.label) : that.label != null) return false;
-        if (type != null ? !type.equals(that.type) : that.type != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (value != null ? !value.equals(that.value) : that.value != null) return false;
-        if (valueOnError != null ? !valueOnError.equals(that.valueOnError) : that.valueOnError != null) return false;
-        if (nullOrEmpty != null ? !nullOrEmpty.equals(that.nullOrEmpty) : that.nullOrEmpty != null) return false;
-        if (notFound != null ? !notFound.equals(that.notFound) : that.notFound != null) return false;
-        if (rlxProperties != null ? !rlxProperties.equals(that.rlxProperties) : that.rlxProperties != null)
-            return false;
-        if (geoData != null ? !geoData.equals(that.geoData) : that.geoData != null) return false;
-        if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
-        if (entityLinks != null ? !entityLinks.equals(that.entityLinks) : that.entityLinks != null) return false;
-        if (aliases != null ? !aliases.equals(that.aliases) : that.aliases != null) return false;
-        if (relationship != null ? !relationship.equals(that.relationship) : that.relationship != null) return false;
-        if (delimiter != null ? !delimiter.equals(that.delimiter) : that.delimiter != null) return false;
-        return targets != null ? targets.equals(that.targets) : that.targets == null;
-
+    public int hashCode() {
+        return Objects.hash(code, source, keyPrefix, target, dataType, fortress, documentType, label, type, name, value, relationship);
     }
 
     @Override
-    public int hashCode() {
-        int result = code != null ? code.hashCode() : 0;
-        result = 31 * result + (source != null ? source.hashCode() : 0);
-        result = 31 * result + (keyPrefix != null ? keyPrefix.hashCode() : 0);
-        result = 31 * result + (target != null ? target.hashCode() : 0);
-        result = 31 * result + (dateFormat != null ? dateFormat.hashCode() : 0);
-        result = 31 * result + (timeZone != null ? timeZone.hashCode() : 0);
-        result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
-        result = 31 * result + (persistent != null ? persistent.hashCode() : 0);
-        result = 31 * result + (storeNull != null ? storeNull.hashCode() : 0);
-        result = 31 * result + (callerRef ? 1 : 0);
-        result = 31 * result + (title ? 1 : 0);
-        result = 31 * result + (description ? 1 : 0);
-        result = 31 * result + (valueAsProperty ? 1 : 0);
-        result = 31 * result + (country ? 1 : 0);
-        result = 31 * result + (createDate ? 1 : 0);
-        result = 31 * result + (document ? 1 : 0);
-        result = 31 * result + (tag ? 1 : 0);
-        result = 31 * result + (mustExist ? 1 : 0);
-        result = 31 * result + (createUser ? 1 : 0);
-        result = 31 * result + (updateUser ? 1 : 0);
-        result = 31 * result + (reverse ? 1 : 0);
-        result = 31 * result + (strategy != null ? strategy.hashCode() : 0);
-        result = 31 * result + (fortress != null ? fortress.hashCode() : 0);
-        result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
-        result = 31 * result + (label != null ? label.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        result = 31 * result + (valueOnError != null ? valueOnError.hashCode() : 0);
-        result = 31 * result + (nullOrEmpty != null ? nullOrEmpty.hashCode() : 0);
-        result = 31 * result + (notFound != null ? notFound.hashCode() : 0);
-        result = 31 * result + (rlxProperties != null ? rlxProperties.hashCode() : 0);
-        result = 31 * result + (geoData != null ? geoData.hashCode() : 0);
-        result = 31 * result + (properties != null ? properties.hashCode() : 0);
-        result = 31 * result + (entityLinks != null ? entityLinks.hashCode() : 0);
-        result = 31 * result + (aliases != null ? aliases.hashCode() : 0);
-        result = 31 * result + (relationship != null ? relationship.hashCode() : 0);
-        result = 31 * result + (delimiter != null ? delimiter.hashCode() : 0);
-        result = 31 * result + (updateDate ? 1 : 0);
-        result = 31 * result + (merge ? 1 : 0);
-        result = 31 * result + (targets != null ? targets.hashCode() : 0);
-        return result;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final ColumnDefinition other = (ColumnDefinition) obj;
+        return Objects.equals(this.code, other.code)
+                && Objects.equals(this.source, other.source)
+                && Objects.equals(this.keyPrefix, other.keyPrefix)
+                && Objects.equals(this.target, other.target)
+                && Objects.equals(this.dataType, other.dataType)
+                && Objects.equals(this.fortress, other.fortress)
+                && Objects.equals(this.documentType, other.documentType)
+                && Objects.equals(this.label, other.label)
+                && Objects.equals(this.type, other.type)
+                && Objects.equals(this.name, other.name)
+                && Objects.equals(this.value, other.value)
+                && Objects.equals(this.relationship, other.relationship);
     }
-
-
 }

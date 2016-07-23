@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.profile.service;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.dao.ContentModelDaoNeo;
@@ -69,7 +71,9 @@ public class ContentModelServiceNeo implements ContentModelService {
     ConceptService conceptService;
 
 
-    private static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper( new FdJsonObjectMapper())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .enable(JsonParser.Feature.ALLOW_COMMENTS);
 
     public ContentModel get(Company company, Fortress fortress, DocumentType documentType) throws FlockException {
         Model model = contentModelDao.find(fortress, documentType);

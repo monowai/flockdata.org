@@ -10,7 +10,7 @@
             "tag": true
         },
         "Origin": {
-            "country": true,
+            "label": "Country",
             "mustExist": true
         },
         "Tag": {

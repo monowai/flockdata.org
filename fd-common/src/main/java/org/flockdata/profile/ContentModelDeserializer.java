@@ -21,10 +21,7 @@
 package org.flockdata.profile;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.FortressInputBean;
@@ -44,7 +41,10 @@ import java.util.Map;
  * Created by mike on 24/06/16.
  */
 public class ContentModelDeserializer extends JsonDeserializer<ContentModel> {
-    ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper( new FdJsonObjectMapper())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .enable(JsonParser.Feature.ALLOW_COMMENTS);
+
 
     @Override
     public ContentModel deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
