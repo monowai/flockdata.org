@@ -1,8 +1,8 @@
 {
   "contentType": "csv",
-  "tagOrEntity": "tag",
-  "delimiter":",",
-  "header": true,
+  "tagModel": "true",
+  "code": "states",
+  "name": "Known states",
   "content": {
     "name": {
       "tag": true,

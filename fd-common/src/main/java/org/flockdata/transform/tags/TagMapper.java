@@ -28,6 +28,8 @@ import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.TransformationHelper;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -35,17 +37,15 @@ import java.util.Map;
  * Date: 27/04/14
  * Time: 4:36 PM
  */
-public class TagMapper extends TagInputBean implements Mappable{
+public class TagMapper implements Mappable {
 
-    public TagMapper(String documentName) {
-        setLabel(documentName);
-    }
+    private Collection<TagInputBean> tags = new ArrayList<>();
 
     public TagMapper() {
     }
 
-    public Map<String, Object> setData(Map<String,Object>row, ContentModel contentModel) throws FlockException {
-        if ( !TransformationHelper.processRow(row, contentModel))
+    public Map<String, Object> setData(Map<String, Object> row, ContentModel contentModel) throws FlockException {
+        if (!TransformationHelper.processRow(row, contentModel))
             return null;
 
         Map<String, ColumnDefinition> content = contentModel.getContent();
@@ -59,39 +59,50 @@ public class TagMapper extends TagInputBean implements Mappable{
             if (value != null)
                 value = value.trim();
 
-            if (colDef != null) {
+            if (colDef != null && colDef.isTag()) {
 
-                if (colDef.isTag()) {
-                    TransformationHelper.setTagInputBean(this, row, column, content, value);
-                }
+                TagInputBean tagInputBean = new TagInputBean();
+
+                TransformationHelper.setTagInputBean(tagInputBean, row, column, contentModel, value);
                 if (TransformationHelper.evaluate(colDef.isTitle())) {
-                    setName(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
+                    tagInputBean.setName(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
                     if (colDef.getCode() != null)
                         row.get(colDef.getCode());
                 }
-                if (colDef.getTarget() != null && TransformationHelper.evaluate(colDef.isPersistent(),true)) {
+
+                if (colDef.getLabelDescription() != null) {
+                    value = ExpressionHelper.getValue(row, colDef.getLabelDescription(), colDef, row.get(column));
+                    Object oValue = ExpressionHelper.getValue(value, colDef);
+                    if (oValue != null)
+                        tagInputBean.setDescription(oValue.toString());
+
+                }
+                if (colDef.getTarget() != null && TransformationHelper.evaluate(colDef.isPersistent(), true)) {
                     value = ExpressionHelper.getValue(row, colDef.getValue(), colDef, row.get(column));
                     Object oValue = ExpressionHelper.getValue(value, colDef);
                     if (oValue != null)
-                        setProperty(colDef.getTarget(), oValue);
+                        tagInputBean.setProperty(colDef.getTarget(), oValue);
                 }
-                if ( colDef.getGeoData() != null ){
-                    TransformationHelper.doGeoTransform(this, row, colDef);
+                if (colDef.getGeoData() != null) {
+                    TransformationHelper.doGeoTransform(tagInputBean, row, colDef);
                 }
-
+                tags.add(tagInputBean);
 
             } // ignoreMe
         }
         return row;
     }
 
-    public static Mappable newInstance(ContentModel contentModel) {
+    public static TagMapper newInstance(ContentModel contentModel) {
 //        if (contentModel.getContentType()== ImportProfile.ContentType.CSV)
 //            return new TagMapper();
 //        if ( contentModel.getDocumentType() !=null )
 //            return new TagMapper(contentModel.getDocumentType().getName());
 //        else
-            return new TagMapper();
+        return new TagMapper();
     }
 
+    public Collection<TagInputBean> getTags() {
+        return tags;
+    }
 }

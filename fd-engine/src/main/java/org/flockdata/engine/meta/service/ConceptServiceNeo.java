@@ -88,7 +88,7 @@ public class ConceptServiceNeo implements ConceptService {
     public Set<DocumentResultBean> findConcepts(Company company, String documentName, boolean withRelationships) {
         Collection<String> documentNames = new ArrayList<>();
         documentNames.add(documentName);
-        return conceptDao.findConcepts(company, documentNames, withRelationships);
+        return conceptDao.findConcepts(company, documentNames);
     }
 
     /**
@@ -101,7 +101,7 @@ public class ConceptServiceNeo implements ConceptService {
      */
     @Override
     public Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships) {
-        return conceptDao.findConcepts(company, documentNames, withRelationships);
+        return conceptDao.findConcepts(company, documentNames);
     }
 
     /**
@@ -169,15 +169,15 @@ public class ConceptServiceNeo implements ConceptService {
         // ToDo: This could be established the first time a DocType is encountered. Option to suppress subsequent
         //       registration analysis once the docType exists. This would need to be configurable as
         //       evolving models of connected concepts also exist
-        Map<DocumentType, ArrayList<ConceptInputBean>> payload = new HashMap<>();
+        Map<DocumentType, ArrayList<ConceptInputBean>> docTypeToConcept = new HashMap<>();
 
         for (TrackResultBean resultBean : resultBeans) {
             if (resultBean.getEntity() != null && resultBean.getEntity().getId() != null) {
                 DocumentType docType = resultBean.getDocumentType();
-                ArrayList<ConceptInputBean> conceptInputBeans = payload.get(docType);
+                ArrayList<ConceptInputBean> conceptInputBeans = docTypeToConcept.get(docType);
                 if (conceptInputBeans == null) {
                     conceptInputBeans = new ArrayList<>();
-                    payload.put(docType, conceptInputBeans);
+                    docTypeToConcept.put(docType, conceptInputBeans);
                 }
 
                 EntityInputBean inputBean = resultBean.getEntityInputBean();
@@ -197,8 +197,8 @@ public class ConceptServiceNeo implements ConceptService {
             }
         }
         logger.debug("About to register via SchemaDao");
-        if (!payload.isEmpty())
-            conceptDao.registerConcepts(payload);
+        if (!docTypeToConcept.isEmpty())
+            conceptDao.registerConcepts(docTypeToConcept);
     }
 
     @Override

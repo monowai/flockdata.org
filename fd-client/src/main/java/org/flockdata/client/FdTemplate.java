@@ -26,7 +26,6 @@ import org.flockdata.client.commands.RegistrationPost;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ContentModelHandler;
 import org.flockdata.profile.ExtractProfileDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
@@ -226,12 +225,10 @@ public class FdTemplate implements FdWriter {
             if ( args.length == 2){
                 contentModel = getContentModel(args[0], args[1]);
             }
-            if (contentModel ==null )
-                contentModel = new ContentModelHandler();// Default??
-
         }
         return contentModel;
     }
+
     public ContentModel getContentModel(String type, String clazz){
         ModelGet modelGet = new ModelGet(this, type, clazz);
         modelGet.exec();
@@ -263,4 +260,21 @@ public class FdTemplate implements FdWriter {
     public void resetRabbitClient(String rabbitHost, Integer rabbitPort) {
         fdRabbitClient.resetRabbitClient(rabbitHost, rabbitPort);
     }
+
+    void validateConnectivity() throws FlockException {
+        boolean error = false;
+        if (clientConfiguration.getApiKey() == null || clientConfiguration.getApiKey().length() == 0) {
+            error = true;
+            SystemUserResultBean me = me();
+            if (me != null && me.isActive()) {   // Resolve the api key from a login result
+                clientConfiguration.setApiKey(me.getApiKey());
+                error = false;
+            }
+        }
+        if (error) {
+            throw new FlockException(String.format("Failed to validate connectivity to %s for user %s - apiKey set == %b", clientConfiguration.getServiceUrl(), clientConfiguration.getHttpUser(), clientConfiguration.getApiKey() != null));
+        }
+    }
+
+
 }

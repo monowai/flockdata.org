@@ -21,9 +21,9 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.helper.TagHelper;
 import org.flockdata.model.*;
 import org.flockdata.query.EdgeResults;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
@@ -31,15 +31,23 @@ import org.flockdata.track.bean.RelationshipResultBean;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
+import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.HeuristicRollbackException;
 import java.util.*;
 
 /**
@@ -49,32 +57,40 @@ import java.util.*;
  */
 @Repository
 public class ConceptDaoNeo {
-    @Autowired
-    ConceptTypeRepo conceptTypeRepo;
+    private final ConceptTypeRepo conceptTypeRepo;
 
-    @Autowired
-    DocumentTypeRepo documentTypeRepo;
+    private final DocumentTypeRepo documentTypeRepo;
 
-    @Autowired
-    Neo4jTemplate template;
+    private final Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(ConceptDaoNeo.class);
+
+    @Autowired
+    public ConceptDaoNeo(DocumentTypeRepo documentTypeRepo, ConceptTypeRepo conceptTypeRepo, Neo4jTemplate template) {
+        this.documentTypeRepo = documentTypeRepo;
+        this.conceptTypeRepo = conceptTypeRepo;
+        this.template = template;
+    }
 
     public boolean linkEntities(DocumentType fromDoc, String relationship, DocumentType targetDoc) {
         Node from = template.getNode(fromDoc.getId());
         Node to = template.getNode(targetDoc.getId());
-        org.neo4j.graphdb.Relationship r = from.getSingleRelationship(DynamicRelationshipType.withName(relationship), Direction.OUTGOING);
-        if (r == null) {
-            template.createRelationshipBetween(from, to, relationship, null);
-            return true; // Link created
-        }
-        return false; // Link already existed
+        return linkNodesWithRelationship(relationship, from, to);
     }
 
-
-    public boolean linkConcept(DocumentType fromDoc, String relationship, Concept concept) {
+    private boolean linkDocToConcept(DocumentType fromDoc, String relationship, Concept concept) {
         Node from = template.getNode(fromDoc.getId());
         Node to = template.getNode(concept.getId());
+        return linkNodesWithRelationship(relationship, from, to);
+    }
+
+    private boolean linkConceptToConcept(Concept fromConcept, String relationship, Concept concept) {
+        Node from = template.getNode(fromConcept.getId());
+        Node to = template.getNode(concept.getId());
+        return linkNodesWithRelationship(relationship, from, to);
+    }
+
+    private boolean linkNodesWithRelationship(String relationship, Node from, Node to) {
         org.neo4j.graphdb.Relationship r = from.getSingleRelationship(DynamicRelationshipType.withName(relationship), Direction.OUTGOING);
         if (r == null) {
             template.createRelationshipBetween(from, to, relationship, null);
@@ -98,7 +114,7 @@ public class ConceptDaoNeo {
                         logger.debug("No existing conceptInput found for [{}]. Creating it", relationship);
                         concept = template.save(new Concept(conceptInput));
                     }
-                    linkConcept(docType, relationship, concept);
+                    linkDocToConcept(docType, relationship, concept);
 
                 }
             }
@@ -117,7 +133,7 @@ public class ConceptDaoNeo {
     public DocumentType findDocumentType(Fortress fortress, String docType, Boolean createIfMissing) {
         DocumentType docResult = documentExists(fortress, docType);
 
-        if ( (docResult == null && createIfMissing) && (!docType.equalsIgnoreCase("entity"))) {
+        if ((docResult == null && createIfMissing) && (!docType.equalsIgnoreCase("entity"))) {
             docResult = documentTypeRepo.save(new DocumentType(fortress, docType));
         }
 
@@ -152,7 +168,7 @@ public class ConceptDaoNeo {
 
     // Query Routines
 
-    public Set<DocumentResultBean> findConcepts(Company company, Collection<String> docNames, boolean withRelationships) {
+    public Set<DocumentResultBean> findConcepts(Company company, Collection<String> docNames) {
         Set<DocumentResultBean> documentResults = new HashSet<>();
         Set<DocumentType> documents;
         if (docNames == null)
@@ -161,7 +177,6 @@ public class ConceptDaoNeo {
             documents = documentTypeRepo.findDocuments(company, docNames);
 
         for (DocumentType document : documents) {
-//            template.fetch(document.getFortress());
 
             DocumentResultBean documentResult = new DocumentResultBean(document);
             documentResults.add(documentResult);
@@ -197,31 +212,67 @@ public class ConceptDaoNeo {
         return documentTypeRepo.findAllDocuments(company);
     }
 
-    private boolean schemaTagDefExists(Company company, String labelName) {
-        return documentTypeRepo.schemaTagDefExists(company.getId(), TagLabel.parseTagLabel(company, labelName)) != null;
+    private Concept schemaTagDefExists(Company company, ConceptInputBean conceptInputBean) {
+
+        return documentTypeRepo.schemaTagDefExists(company.getId(), Concept.toKey(conceptInputBean)) ;
     }
 
     /**
-     * The general sSchema is tracked so that we know what the general structure is
+     * The general Schema is tracked to understand the general structure
      *
-     * @param company   who owns the tags
-     * @param labelName labelName being create
+     * @param company who owns the tags
      * @return true if it was created for the first time
      */
-    public boolean registerTag(Company company, String labelName) {
-        if (TagHelper.isSystemLabel(labelName))
-            return true;
+    @Async
+    @Transactional
+    @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20,
+            backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
+    public Concept registerTag(Company company, TagResultBean tagResultBean) {
+        Concept source ;
+        if (tagResultBean.isNewTag() && !tagResultBean.getTag().isDefault()) {
 
-        if (!schemaTagDefExists(company, labelName)) {
-            createSchemaTagDef(company, labelName);
+            ConceptInputBean conceptInputBean = new ConceptInputBean(tagResultBean);
+            source = schemaTagDefExists(company, conceptInputBean);
+            if (source == null ) {
+                source = createSchemaTag(conceptInputBean);
+            }
+            processNestedTags(company, source, tagResultBean.getTargets());
+        }  else {
+            if ( tagResultBean.getLabel() != null)
+                source = findConcept(tagResultBean);
+            else
+                source = null;
+            processNestedTags(company, source, tagResultBean.getTargets()); // Current tag is not new but sub tags may be
         }
-        return true;
+        return source;
     }
 
-    @Async
-    public void createSchemaTagDef(Company company, String labelName) {
-        TagLabel tagLabelNode = new TagLabel(company, labelName);
-        template.saveOnly(tagLabelNode);
+    private Concept findConcept(TagResultBean tagResultBean) {
+        return conceptTypeRepo.findByLabel( Concept.toKey(new ConceptInputBean(tagResultBean)));
+    }
+
+    private void processNestedTags(Company company, Concept source, Map<TagResultBean, Collection<String>> targets) {
+        if (targets == null || targets.isEmpty())
+            return;
+
+        for (TagResultBean tagResultBean : targets.keySet()) {
+            Concept target = registerTag(company, tagResultBean);
+            if ( source!=null && target!=null){
+                Collection<String>rlxs= targets.get(tagResultBean);
+                for (String rlx : rlxs) {
+                    linkConceptToConcept(source,rlx,target);
+                }
+            }
+        }
+
+
+    }
+
+    //    @Async
+    private Concept createSchemaTag(ConceptInputBean conceptInputBean) {
+        Concept concept = new Concept(conceptInputBean);
+        template.save(concept);
+        return concept;
     }
 
     public DocumentType save(DocumentType documentType) {
@@ -253,12 +304,12 @@ public class ConceptDaoNeo {
     }
 
     public void delete(DocumentType documentType, FortressSegment segment) {
-        template.deleteRelationshipBetween(documentType,segment, "USES_SEGMENT");
+        template.deleteRelationshipBetween(documentType, segment, "USES_SEGMENT");
     }
 
-    public EdgeResults getStructure(Fortress fortress){
+    public EdgeResults getStructure(Fortress fortress) {
         String query = "match (f:Fortress{code:{0})-[]-(d:DocType)-[]-(c:Concept) return c,d";
-        Map<String,Object>params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
         params.put("fortress", fortress.getId());
 
         Result<Map<String, Object>> results = template.query(query, params);

@@ -171,7 +171,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             Tag existingTag = getTag(existingTags, tagInputBean.getCode(), tagInputBean.getLabel());
             Tag tag;
             if (existingTag == null) {
-                tag = tagService.createTag(company, tagInputBean);
+                tag = tagService.createTag(company, tagInputBean).getTag();
                 // Might exist as an alia
                 existingTag = getTag(existingTags, tag.getCode(), tag.getLabel());
                 if ( existingTag !=null )

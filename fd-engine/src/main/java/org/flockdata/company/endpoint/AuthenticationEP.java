@@ -46,16 +46,19 @@ public class AuthenticationEP {
 
     //private static final Logger logger = LoggerFactory.getLogger(AuthenticationEP.class);
 
+    private final AuthenticationManager authenticationManager;
+
+    private final RegistrationService regService;
+
+
+    private final UserProfileService userProfileService;
+
     @Autowired(required = false)
-    @Qualifier("authenticationManager")
-    AuthenticationManager authenticationManager;
-
-    @Autowired
-    RegistrationService regService;
-
-
-    @Autowired
-    private UserProfileService userProfileService;
+    public AuthenticationEP(@Qualifier("authenticationManager") AuthenticationManager authenticationManager, RegistrationService regService, UserProfileService userProfileService) {
+        this.authenticationManager = authenticationManager;
+        this.regService = regService;
+        this.userProfileService = userProfileService;
+    }
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     public String getPing() {

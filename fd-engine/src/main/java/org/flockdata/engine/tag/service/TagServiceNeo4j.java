@@ -37,13 +37,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Handles management of a companies tags.
@@ -57,22 +57,27 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class TagServiceNeo4j implements TagService {
-    @Autowired
-    private SecurityHelper securityHelper;
+    private final SecurityHelper securityHelper;
 
-    @Autowired
-    private TagDaoNeo4j tagDaoNeo4j;
+    private final TagDaoNeo4j tagDaoNeo4j;
 
-    @Autowired
-    private ConceptDaoNeo conceptDao;
+    private final ConceptDaoNeo conceptDao;
 
-    @Autowired
-    PlatformConfig engineConfig;
+    private final Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
 
+    @Autowired
+    public TagServiceNeo4j(PlatformConfig engineAdmin, ConceptDaoNeo conceptDao, TagDaoNeo4j tagDaoNeo4j, SecurityHelper securityHelper, Neo4jTemplate template) {
+        this.engineAdmin = engineAdmin;
+        this.conceptDao = conceptDao;
+        this.tagDaoNeo4j = tagDaoNeo4j;
+        this.securityHelper = securityHelper;
+        this.template = template;
+    }
+
     @Override
-    public Tag createTag(Company company, TagInputBean tagInput) throws FlockException {
+    public TagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException {
         Collection<TagInputBean>tags = new ArrayList<>();
         tags.add(tagInput);
 
@@ -84,7 +89,7 @@ public class TagServiceNeo4j implements TagService {
 
         if ( tagResult.getTag() == null  )
             throw new AmqpRejectAndDontRequeueException(tagResult.getMessage());
-        return tagResult.getTag();
+        return tagResult;
     }
 
     @Override
@@ -99,8 +104,7 @@ public class TagServiceNeo4j implements TagService {
         Collection<TagResultBean> results = tagDaoNeo4j.save(payload);
 
         for (TagResultBean result : results) {
-            if ( result.isNewTag() && !result.getTag().isDefault() )
-                conceptDao.registerTag(company, result.getTag().getLabel());
+            conceptDao.registerTag(company, result);
         }
         return results;
     }
@@ -121,13 +125,22 @@ public class TagServiceNeo4j implements TagService {
     public Collection<TagResultBean> findTagResults(Company company, String label) {
         Collection<Tag> tags = tagDaoNeo4j.findTags(label);
         Collection<TagResultBean>countries = new ArrayList<>(tags.size());
-        countries.addAll(tags.stream().map(TagResultBean::new).collect(Collectors.toList()));
+        for (Tag tag : tags) {
+            template.fetch(tag.getAliases());
+            countries.add(new TagResultBean(tag));
+        }
+//        countries.addAll(tags.stream().map(TagResultBean::new).collect(Collectors.toList()));
         return countries;
     }
 
     @Override
     public Collection<Tag> findTags(Company company, String label) {
         return tagDaoNeo4j.findTags(label);
+    }
+
+    @Override
+    public Collection<TagResultBean> findTags(Company company) {
+        return tagDaoNeo4j.findTags();
     }
 
     @Override
@@ -153,7 +166,7 @@ public class TagServiceNeo4j implements TagService {
         return tag;
     }
 
-    @Autowired
+    final
     PlatformConfig engineAdmin;
 
     @Override

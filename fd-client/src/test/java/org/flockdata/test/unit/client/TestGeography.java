@@ -50,7 +50,7 @@ public class TestGeography extends AbstractImport{
     @Test
     public void string_Countries() throws Exception {
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-countries.json");
-        TagMapper tag = new TagMapper();
+        TagMapper tagMapper= new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
         String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
@@ -58,7 +58,10 @@ public class TestGeography extends AbstractImport{
         // CsvImporter will convert Lon/Lat to doubles - ToDo: write CSV Import tests
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
+        tagMapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
+        assertEquals(1, tagMapper.getTags().size());
+        TagInputBean tag = tagMapper.getTags().iterator().next();
+
         assertNotNull(tag);
 
         assertEquals("NZ", tag.getCode() );
@@ -83,35 +86,41 @@ public class TestGeography extends AbstractImport{
     @Test
     public void string_ConditionalTag() throws Exception {
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-countries.json");
-        TagMapper tag = new TagMapper();
+        TagMapper tagMapper = new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
         String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
 
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
+        tagMapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
+        assertEquals(1, tagMapper.getTags().size());
+        TagInputBean tag = tagMapper.getTags().iterator().next();
+
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
 
         data = new String[]{"NZ","New Zealand","-41.27","174.71","0", "Wellington" };
-        tag = new TagMapper(); // Clear down the object
-        tag.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
+        tagMapper = new TagMapper(); // Clear down the object
+        tagMapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
+        tag = tagMapper.getTags().iterator().next();
         TestCase.assertFalse("Capital city was not suppressed", tag.hasTargets());
     }
 
     @Test
     public void string_ConditionalTagProperties() throws Exception {
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-countries.json");
-        TagMapper tag = new TagMapper();
+        TagMapper tagMapper = new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
         String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
 
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
+        tagMapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
+        assertEquals(1, tagMapper.getTags().size());
+        TagInputBean tag = tagMapper.getTags().iterator().next();
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
@@ -125,15 +134,18 @@ public class TestGeography extends AbstractImport{
     @Test
     public void null_PropertyValuesNotSaved() throws Exception {
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-countries.json");
-        TagMapper tag = new TagMapper();
+        TagMapper tagMapper = new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
         String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
 
         String[] data = new String[]{"NZ","New Zealand",null,null,"1", "Wellington" };
 
-        tag.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
-        assertNotNull(tag);
+        tagMapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
+        assertNotNull(tagMapper);
+        assertEquals(1, tagMapper.getTags().size());
+        TagInputBean tag = tagMapper.getTags().iterator().next();
+
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
         Collection<TagInputBean> capitals = tag.getTargets().get("capital");

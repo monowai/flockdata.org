@@ -25,41 +25,55 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
+import org.flockdata.profile.ContentValidationRequest;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.service.BatchService;
 import org.flockdata.track.service.FortressService;
+import org.flockdata.track.service.TagService;
+import org.flockdata.transform.tags.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by mike on 24/05/16.
  */
 @Service
-public class BatchServiceRunner implements BatchService {
+class BatchServiceRunner implements BatchService {
 
-    @Autowired
+    private final
     FortressService fortressService;
 
-    @Autowired
+    private final
     ConceptService conceptService;
 
-    @Autowired
+    private final
     ContentModelService profileService;
 
-    @Autowired
-    FdServerWriter fdServerWriter;
-
-    @Autowired
+    private final
     FileProcessor fileProcessor;
 
+    private final
+    TagService tagService;
+
+    @Autowired
+    public BatchServiceRunner(ContentModelService profileService, ConceptService conceptService, TagService tagService, FortressService fortressService, FileProcessor fileProcessor) {
+        this.profileService = profileService;
+        this.conceptService = conceptService;
+        this.tagService = tagService;
+        this.fortressService = fortressService;
+        this.fileProcessor = fileProcessor;
+    }
 
     /**
      * Does not validate the arguments.
@@ -105,5 +119,35 @@ public class BatchServiceRunner implements BatchService {
             throw new NotFoundException("Unable to resolve document type " + documentCode);
 
 
+    }
+
+    @Override
+    public ContentValidationRequest process(Company company, ContentValidationRequest validationRequest) {
+       if ( validationRequest.getContentModel().isTagModel())
+           return trackTags(company, validationRequest);
+
+        return null;
+    }
+
+    private ContentValidationRequest trackTags(Company company,ContentValidationRequest validationRequest) {
+        int rowCount = 0;
+        for (Map<String,Object> row : validationRequest.getRows()) {
+            try {
+                TagMapper tagMapper = new TagMapper();
+                tagMapper.setData(row, validationRequest.getContentModel());
+                Collection<TagResultBean> tagResultBeans = tagService.createTags(company, tagMapper.getTags());
+                for (TagResultBean result : tagResultBeans) {
+                    if ( result.isNewTag() )
+                        validationRequest.addResult(rowCount,"Previously Unknown");
+                    else
+                        validationRequest.addResult(rowCount,"Known");
+                }
+            } catch ( FlockException e) {
+                validationRequest.addResult(rowCount, e.getMessage());
+                // log an error
+            }
+            rowCount ++;
+        }
+        return validationRequest;
     }
 }

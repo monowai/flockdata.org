@@ -1,7 +1,9 @@
 {
 
   "delimiter": ";",
-
+  "tagModel": true,
+  "code": "Countries",
+  "name": "ISO Countries of the world",
   "content": {
     "ISOen_name": {
       "tag": true,

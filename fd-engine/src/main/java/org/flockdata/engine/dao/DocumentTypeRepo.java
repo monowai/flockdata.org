@@ -21,8 +21,8 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.model.Company;
+import org.flockdata.model.Concept;
 import org.flockdata.model.DocumentType;
-import org.flockdata.model.TagLabel;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -39,11 +39,16 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentType> {
                     "match ( d:DocType {companyKey:{0} }) return d;")
     DocumentType findFortressDocCode(String docKey);
 
-    @Query(value =
-                    "optional MATCH (company:FDCompany)<-[:TAG_INDEX]-(tag:TagLabel) " +
-                            "        where id(company)={0} and tag.companyKey ={1}" +
+//    @Query(value =
+//                    "optional MATCH (company:FDCompany)<-[:TAG_INDEX]-(tag:TagLabel) " +
+//                            "        where id(company)={0} and tag.companyKey ={1}" +
+//                            "       return tag")
+
+        @Query(value =
+                    "MATCH (tag:Concept) " +
+                            "        where tag.key ={1}" +
                             "       return tag")
-    TagLabel schemaTagDefExists(Long companyId, String companyKey);
+    Concept schemaTagDefExists(Long companyId, String companyKey);
 
 
     @Query(elementClass = DocumentType.class,

@@ -615,6 +615,36 @@ public abstract class MvcBase {
         return JsonUtils.toCollection(json, TagResultBean.class);
     }
 
+    public Collection<TagResultBean> getTags(RequestPostProcessor user) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/tag/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.toCollection(json, TagResultBean.class);
+    }
+
+    ContentValidationRequest batchRequest(RequestPostProcessor user, ContentValidationRequest validationRequest) throws Exception {
+        MvcResult response = mvc()
+                .perform(
+                        MockMvcRequestBuilders
+                                .post(apiPath + "/batch/")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .with(user)
+                                .content(JsonUtils.toJson(validationRequest))).andReturn();
+
+        if (response.getResolvedException() == null) {
+            byte[] json = response.getResponse().getContentAsByteArray();
+            return JsonUtils.toObject(json, ContentValidationRequest.class);
+
+        }
+
+        throw (response.getResolvedException());
+
+    }
+
+
     public Map<String, Object> getConnectedTags(RequestPostProcessor user, String label, String code, String relationship, String targetLabel) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/tag/" + label + "/" + code + "/path/" + relationship + "/" + targetLabel)
                 .contentType(MediaType.APPLICATION_JSON)

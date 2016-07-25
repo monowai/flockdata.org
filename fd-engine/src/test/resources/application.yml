@@ -12,7 +12,7 @@ application:
 spring:
   profiles:
     active: dev
-    include: fd-auth-test
+    include: fd-auth-test, fd-batch
 
 org.fd:
   engine:

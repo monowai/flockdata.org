@@ -58,23 +58,27 @@ import java.util.concurrent.Future;
 public class FortressServiceNeo4j implements FortressService {
     private Logger logger = LoggerFactory.getLogger(FortressServiceNeo4j.class);
 
-    @Autowired
-    private FortressDaoNeo fortressDao;
+    private final FortressDaoNeo fortressDao;
+
+    private final SystemUserService sysUserService;
+
+    private final ConceptDaoNeo conceptDao;
+
+    private final SecurityHelper securityHelper;
+
+    private final PlatformConfig engineConfig;
+
+    private final IndexManager indexManager;
 
     @Autowired
-    private SystemUserService sysUserService;
-
-    @Autowired
-    private ConceptDaoNeo conceptDao;
-
-    @Autowired
-    private SecurityHelper securityHelper;
-
-    @Autowired
-    private PlatformConfig engineConfig;
-
-    @Autowired
-    IndexManager indexManager;
+    public FortressServiceNeo4j(FortressDaoNeo fortressDao, ConceptDaoNeo conceptDao, IndexManager indexManager, SystemUserService sysUserService, PlatformConfig engineConfig, SecurityHelper securityHelper) {
+        this.fortressDao = fortressDao;
+        this.conceptDao = conceptDao;
+        this.indexManager = indexManager;
+        this.sysUserService = sysUserService;
+        this.engineConfig = engineConfig;
+        this.securityHelper = securityHelper;
+    }
 
     @Override
     public Fortress getFortress(Long id) {
@@ -395,12 +399,11 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Override
     public Fortress findInternalFortress(Company company) {
-        String internal = "fd-system";
+        String internal = "fd-system-"+company.getId(); // Content models are stored against the internal fortress for the company
         Fortress systemFortress = findByName(company, internal);
         if ( systemFortress== null ){
-            FortressInputBean createMe = new FortressInputBean(internal);
-            createMe.setSystem(true);
-            systemFortress = save(company, createMe);
+            systemFortress = save(company, new FortressInputBean(internal)
+                    .setSystem(true));
 
         }
         return systemFortress;

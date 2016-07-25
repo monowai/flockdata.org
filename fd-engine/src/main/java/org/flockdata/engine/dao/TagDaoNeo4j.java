@@ -66,6 +66,10 @@ public class TagDaoNeo4j {
         return tagWrangler.findTags(label);
     }
 
+    public Collection<TagResultBean> findTags() {
+        return tagWrangler.findTags();
+    }
+
     public Collection<AliasInputBean> findTagAliases(Tag sourceTag) throws NotFoundException {
         Collection<Alias>aliases = aliasDaoNeo.findTagAliases(sourceTag);
         Collection<AliasInputBean> aliasResults = new ArrayList<>();
@@ -83,6 +87,7 @@ public class TagDaoNeo4j {
     public Tag findTagNode(String suffix, String label, String tagPrefix, String tagCode, boolean inflate) {
         return tagWrangler.findTag(suffix, label, tagPrefix, tagCode, inflate);
     }
+
 
 //    public Collection<Tag> findTags(String suffix, String label, String tagCode, boolean inflate) {
 //        return tagWrangler.findTags(TagHelper.suffixLabel(label, suffix), tagCode);

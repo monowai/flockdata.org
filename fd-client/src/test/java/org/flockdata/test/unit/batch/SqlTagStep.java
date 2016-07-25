@@ -18,6 +18,8 @@ package org.flockdata.test.unit.batch;
 
 import org.flockdata.batch.FdAbstractSqlStep;
 import org.flockdata.batch.resources.FdRowMapper;
+import org.flockdata.batch.resources.FdTagProcessor;
+import org.flockdata.batch.resources.FdTagWriter;
 import org.flockdata.registration.TagInputBean;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecutionListener;
@@ -26,9 +28,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -56,7 +56,7 @@ public class SqlTagStep extends FdAbstractSqlStep {
     }
 
     @Bean
-    public Job runEntityQuery(JobBuilderFactory jobs, @Qualifier("readTagSql") Step s1, JobExecutionListener listener) {
+    public Job runEntityQuery(JobBuilderFactory jobs, @Qualifier("testReadTagFromSQL") Step s1, JobExecutionListener listener) {
         return jobs.get(getStepName())
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
@@ -66,8 +66,8 @@ public class SqlTagStep extends FdAbstractSqlStep {
     }
 
     @Bean
-    public Step readTagSql(StepBuilderFactory stepBuilderFactory, ItemReader<Map<String, Object>> tagItemReader,
-                           ItemWriter<TagInputBean> fdTagWriter, ItemProcessor<Map<String, Object>, TagInputBean> fdTagProcessor) {
+    public Step testReadTagFromSQL(ItemReader<Map<String, Object>> tagItemReader, FdTagWriter fdTagWriter, StepBuilderFactory stepBuilderFactory,
+                                   FdTagProcessor fdTagProcessor) {
 
         return stepBuilderFactory.get(getStepName())
                 .<Map<String, Object>, TagInputBean> chunk(10)

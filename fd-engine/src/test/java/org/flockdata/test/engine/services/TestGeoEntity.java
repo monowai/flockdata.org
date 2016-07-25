@@ -148,7 +148,7 @@ public class TestGeoEntity extends EngineBase {
         // which in turns contains both a valid state relationship and an invalid one.
         lender.setTargets("located", new TagInputBean(ZIP, "ZipCode"));
 
-        Tag lenderTag = tagService.createTag(su.getCompany(), lender);
+        Tag lenderTag = tagService.createTag(su.getCompany(), lender).getTag();
         // Entity->Lender->Zip->State->Country
 
         TestCase.assertEquals("Lender should be connected to one Zip", 1, tagService.findDirectedTags(lenderTag).size());

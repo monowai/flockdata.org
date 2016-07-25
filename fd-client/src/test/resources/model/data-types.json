@@ -32,15 +32,18 @@
     },
     "whenCreated": {
       "createDate": true ,
+      "dataType": "date",
       "dateFormat": "timestamp"
     } ,
 
     "lastChange1": {
       "updateDate": true ,
+      "dataType": "date",
       "dateFormat": "timestamp"
     },
     "lastChange2": {
       "updateDate": true ,
+      "dataType": "date",
       "dateFormat": "timestamp"
     },
     "randomDate": {

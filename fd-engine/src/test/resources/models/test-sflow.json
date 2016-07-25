@@ -12,23 +12,38 @@
     "tags": {
       "label": "Topic",
       "reverse": true,
-      "relationship": "REFERS",
+      "entityTagLinks": [
+        {
+          "relationshipName": "REFERS"
+        }
+      ],
       "delimiter": ","
     },
     "i": {
       "tag": true,
       "label": "Developer",
-      "relationship": "ASKS",
+      "entityTagLinks": [
+        {
+          "relationshipName": "ASKS"
+        }
+      ],
+
       "createUser": true
     },
     "j": {
       "tag": true,
       "label": "Developer",
-      "relationship": "HAS_ANSWER",
+      "entityTagLinks": [
+        {
+          "relationshipName": "HAS_ANSWER"
+        }
+      ],
+
       "updateUser": true
     },
     "at": {
       "createDate": true,
+      "dataType": "date",
       "dateFormat": "epoc"
     }
   }

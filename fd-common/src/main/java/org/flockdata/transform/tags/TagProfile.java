@@ -20,6 +20,7 @@
 
 package org.flockdata.transform.tags;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.transform.ColumnDefinition;
@@ -35,25 +36,38 @@ import java.util.ArrayList;
  * Time: 3:51 PM
  */
 public class TagProfile implements GeoDefinition {
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String name;
     private String code;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String keyPrefix;
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Boolean reverse =false;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String notFound;
 
     private String relationship;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String delimiter =null;
-    private boolean country = false;
+//    private boolean country = false;
     private String label;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String labelDescription;
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String condition;// boolean expression that determines if this tag will be created
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private ArrayList<TagProfile> targets;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private ArrayList<ColumnDefinition>properties;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private ArrayList<ColumnDefinition>rlxProperties;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private ArrayList<AliasInputBean>aliases;
 
     @JsonDeserialize(using = GeoDeserializer.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private GeoPayload geoData;
 
     private boolean mustExist;
@@ -134,14 +148,6 @@ public class TagProfile implements GeoDefinition {
         this.delimiter= delimiter;
     }
 
-    public boolean isCountry() {
-        return country;
-    }
-
-    public void setCountry(boolean country) {
-        this.country = country;
-    }
-
     public String getCondition() {
         return condition;
     }
@@ -152,6 +158,10 @@ public class TagProfile implements GeoDefinition {
 
     public ArrayList<ColumnDefinition> getRlxProperties() {
         return rlxProperties;
+    }
+
+    public String getLabelDescription() {
+        return labelDescription;
     }
 
     public boolean isMustExist() {
@@ -198,23 +208,14 @@ public class TagProfile implements GeoDefinition {
 
         TagProfile that = (TagProfile) o;
 
-        if (country != that.country) return false;
-        if (mustExist != that.mustExist) return false;
-        if (merge != that.merge) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (keyPrefix != null ? !keyPrefix.equals(that.keyPrefix) : that.keyPrefix != null) return false;
         if (reverse != null ? !reverse.equals(that.reverse) : that.reverse != null) return false;
-        if (notFound != null ? !notFound.equals(that.notFound) : that.notFound != null) return false;
         if (relationship != null ? !relationship.equals(that.relationship) : that.relationship != null) return false;
         if (delimiter != null ? !delimiter.equals(that.delimiter) : that.delimiter != null) return false;
         if (label != null ? !label.equals(that.label) : that.label != null) return false;
         if (condition != null ? !condition.equals(that.condition) : that.condition != null) return false;
-        if (targets != null ? !targets.equals(that.targets) : that.targets != null) return false;
-        if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
-        if (rlxProperties != null ? !rlxProperties.equals(that.rlxProperties) : that.rlxProperties != null)
-            return false;
-        if (aliases != null ? !aliases.equals(that.aliases) : that.aliases != null) return false;
         return geoData != null ? geoData.equals(that.geoData) : that.geoData == null;
 
     }
@@ -225,19 +226,11 @@ public class TagProfile implements GeoDefinition {
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (keyPrefix != null ? keyPrefix.hashCode() : 0);
         result = 31 * result + (reverse != null ? reverse.hashCode() : 0);
-        result = 31 * result + (notFound != null ? notFound.hashCode() : 0);
         result = 31 * result + (relationship != null ? relationship.hashCode() : 0);
         result = 31 * result + (delimiter != null ? delimiter.hashCode() : 0);
-        result = 31 * result + (country ? 1 : 0);
         result = 31 * result + (label != null ? label.hashCode() : 0);
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
-        result = 31 * result + (targets != null ? targets.hashCode() : 0);
-        result = 31 * result + (properties != null ? properties.hashCode() : 0);
-        result = 31 * result + (rlxProperties != null ? rlxProperties.hashCode() : 0);
-        result = 31 * result + (aliases != null ? aliases.hashCode() : 0);
         result = 31 * result + (geoData != null ? geoData.hashCode() : 0);
-        result = 31 * result + (mustExist ? 1 : 0);
-        result = 31 * result + (merge ? 1 : 0);
         return result;
     }
 }

@@ -20,7 +20,6 @@ import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.listener.FlockDataJobListener;
 import org.flockdata.batch.listener.FlockDataSkipListener;
 import org.flockdata.batch.listener.FlockDataStepListener;
-import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.PayloadBatcher;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,7 @@ import java.sql.SQLException;
  */
 @Configuration
 @Component
-@Profile("fd-batch")
+@Profile({"fd-batch", "fd-batch-dev"})
 public class FdBatchResources {
 
     @Autowired
@@ -121,10 +120,6 @@ public class FdBatchResources {
         return new FdEntityWriter(payloadBatcher);
     }
 
-    @Bean
-    public ItemWriter<TagInputBean> fdTagWriter() {
-        return new FdTagWriter(payloadBatcher);
-    }
 
 
 }

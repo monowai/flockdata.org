@@ -22,6 +22,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -31,21 +32,16 @@ import java.util.List;
  * @author nabil
  */
 @Component
-@Profile("fd-batch")
+@Profile({"fd-batch", "fd-batch-dev"})
+@Service
 public class FdTagWriter implements ItemWriter<TagInputBean> {
 
     @Autowired
-    private PayloadBatcher payloadBatcher;
-
-    private FdTagWriter(){}
-
-    FdTagWriter(PayloadBatcher payloadBatcher) {
-        this();
-        this.payloadBatcher = payloadBatcher;
-    }
+    private  PayloadBatcher payloadBatcher;
 
     @Override
     public void write(List<? extends TagInputBean> items) throws Exception {
+
         for (TagInputBean item : items) {
             payloadBatcher.writeTag(item, "");
         }

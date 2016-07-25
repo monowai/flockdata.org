@@ -1,209 +1,196 @@
 {
-    "name": null,
-    "fortress": null,
-    "documentType": {
-        "name": "Gov",
-        "code": "Gov",
-        "geoQuery": null,
-        "versionStrategy": "FORTRESS",
-        "tagStructure": "DEFAULT",
-        "searchEnabled": null,
-        "storeEnabled": null
+  "documentType": {
+    "name": "Politics"
+  },
+  "contentType": "JSON",
+  "content": {
+    "bill_id": {
+      "persistent": true,
+      "storeNull": true,
+      "callerRef": true,
+      "title": false,
+      "description": false,
+      "createDate": false,
+      "document": false,
+      "tag": false,
+      "mustExist": false,
+      "createUser": false,
+      "updateUser": false,
+      "reverse": false,
+      "value": "#data['bill_id']",
+      "entityLinks": [],
+      "updateDate": false,
+      "merge": false,
+      "targets": []
     },
-    "contentType": "JSON",
-    "emptyIgnored": false,
-    "delimiter": ",",
-    "quoteCharacter": null,
-    "entityOnly": false,
-    "archiveTags": true,
-    "content": {
-        "bill_id": {
-            "persistent": true,
-            "storeNull": true,
-            "callerRef": true,
-            "title": false,
-            "description": false,
-
-            "createDate": false,
-            "document": false,
-            "tag": false,
-            "mustExist": false,
-            "createUser": false,
-            "updateUser": false,
-            "reverse": false,
-            "value": "#data['bill_id']",
-            "entityLinks": [],
-            "updateDate": false,
-            "merge": false,
-            "targets": []
-        },
-        "sponsor": {
-            "code": "thomas_id",
-            "tag": true,
-            "label": "Person",
-            "name": "name",
-            "entityLinks": [],
-            "relationship": "sponsored",
-            "updateDate": false,
-            "merge": false,
-            "targets": [
-                {
-                    "name": null,
-                    "code": "district",
-                    "keyPrefix": null,
-                    "reverse": false,
-                    "notFound": null,
-                    "relationship": "represents",
-                    "delimiter": null,
-
-                    "label": "District",
-                    "condition": null,
-                    "targets": [
-                        {
-                            "name": null,
-                            "code": "state",
-                            "keyPrefix": null,
-                            "reverse": false,
-                            "notFound": null,
-                            "relationship": "located",
-                            "delimiter": null,
-
-                            "label": "State",
-                            "condition": null
-                        }
-                    ],
-                    "properties": null,
-                    "rlxProperties": null,
-                    "aliases": null,
-                    "geoData": null,
-                    "mustExist": true,
-                    "merge": false
-                }
-            ]
-        },
-        "short_title": {
-            "title": true
-        },
-        "cosponsors": {
-            "code": "thomas_id",
-            "persistent": true,
-            "storeNull": true,
-            "callerRef": false,
-            "title": false,
-            "description": false,
-
-            "createDate": false,
-            "document": false,
-            "tag": true,
-            "mustExist": false,
-            "createUser": false,
-            "updateUser": false,
-            "reverse": false,
-            "label": "Person",
-            "name": "name",
-            "rlxProperties": [
-                {
-                    "source": "sponsored_at",
-                    "target": "sponsored_at",
-                    "persistent": true,
-                    "storeNull": true,
-                    "callerRef": false,
-                    "title": false,
-                    "description": false,
-
-                    "createDate": false,
-                    "document": false,
-                    "tag": false,
-                    "mustExist": false,
-                    "createUser": false,
-                    "updateUser": false,
-                    "reverse": false,
-                    "entityLinks": [],
-                    "updateDate": false,
-                    "merge": false,
-                    "targets": []
-                }
-            ],
-            "entityLinks": [],
-            "relationship": "cosponsors",
-            "updateDate": false,
-            "merge": false,
-            "targets": [
-                {
-                    "name": null,
-                    "code": "district",
-                    "keyPrefix": null,
-                    "reverse": false,
-                    "notFound": null,
-                    "relationship": "represents",
-                    "delimiter": null,
-
-                    "label": "District",
-                    "condition": null,
-                    "targets": [
-                        {
-                            "name": null,
-                            "code": "state",
-                            "keyPrefix": null,
-                            "reverse": false,
-                            "notFound": null,
-                            "relationship": "located",
-                            "delimiter": null,
-
-                            "label": "State",
-                            "condition": null
-                        }
-                    ],
-                    "properties": null,
-                    "rlxProperties": null,
-                    "aliases": null,
-                    "geoData": null,
-                    "mustExist": true,
-                    "merge": false
-                }
-            ]
-        },
-        "subjects": {
-            "persistent": true,
-            "storeNull": true,
-            "tag": true,
-            "label": "Subject",
-            "relationship": "covers",
-            "delimiter": "array",
-            "updateDate": false,
-            "merge": false,
-            "targets": []
-        },
-        "bill_type": {
-            "persistent": true,
-            "storeNull": true,
-            "callerRef": false,
-            "title": false,
-            "description": false,
-            "document": true
-        },
-        "introduced_at": {
-            "persistent": true,
-            "storeNull": true,
-            "callerRef": false,
-            "title": false,
-            "description": false,
-            "createDate": true,
-            "document": false,
-            "tag": false,
-            "mustExist": false,
-            "createUser": false,
-            "updateUser": false,
-            "reverse": false,
-            "entityLinks": [],
-            "updateDate": false,
-            "merge": false,
-            "targets": []
+    "sponsor": {
+      "code": "thomas_id",
+      "tag": true,
+      "label": "Person",
+      "name": "name",
+      "entityLinks": [],
+      "entityTagLinks": [
+        {
+          "relationshipName": "sponsored",
+          "geo": true
         }
+      ],
+      "relationship": "sponsored",
+      "updateDate": false,
+      "merge": false,
+      "targets": [
+        {
+          "name": null,
+          "code": "district",
+          "keyPrefix": null,
+          "reverse": false,
+          "notFound": null,
+          "relationship": "represents",
+          "delimiter": null,
+          "label": "District",
+          "condition": null,
+          "targets": [
+            {
+              "name": null,
+              "code": "state",
+              "keyPrefix": null,
+              "reverse": false,
+              "notFound": null,
+              "relationship": "located",
+              "delimiter": null,
+              "label": "State",
+              "condition": null
+            }
+          ],
+          "properties": null,
+          "rlxProperties": null,
+          "aliases": null,
+          "geoData": null,
+          "mustExist": true,
+          "merge": false
+        }
+      ]
     },
-    "event": null,
-    "preParseRowExp": null,
-    "properties": null,
-    "segmentExpression": null,
-    "condition": null
+    "short_title": {
+      "title": true
+    },
+    "cosponsors": {
+      "code": "thomas_id",
+      "persistent": true,
+      "storeNull": true,
+      "callerRef": false,
+      "title": false,
+      "description": false,
+      "createDate": false,
+      "document": false,
+      "tag": true,
+      "mustExist": false,
+      "createUser": false,
+      "updateUser": false,
+      "reverse": false,
+      "label": "Person",
+      "name": "name",
+      "rlxProperties": [
+        {
+          "source": "sponsored_at",
+          "target": "sponsored_at",
+          "persistent": true,
+          "storeNull": true,
+          "callerRef": false,
+          "title": false,
+          "description": false,
+          "createDate": false,
+          "document": false,
+          "tag": false,
+          "mustExist": false,
+          "createUser": false,
+          "updateUser": false,
+          "reverse": false,
+          "entityLinks": [],
+          "updateDate": false,
+          "merge": false,
+          "targets": []
+        }
+      ],
+      "entityLinks": [],
+      "entityTagLinks": [
+        {
+          "relationshipName": "cosponsors",
+          "geo": true
+        }
+      ],
+      "updateDate": false,
+      "merge": false,
+      "targets": [
+        {
+          "name": null,
+          "code": "district",
+          "keyPrefix": null,
+          "reverse": false,
+          "notFound": null,
+          "relationship": "represents",
+          "delimiter": null,
+          "label": "District",
+          "condition": null,
+          "targets": [
+            {
+              "name": null,
+              "code": "state",
+              "keyPrefix": null,
+              "reverse": false,
+              "notFound": null,
+              "relationship": "located",
+              "delimiter": null,
+              "label": "State"
+            }
+          ],
+          "properties": null,
+          "rlxProperties": null,
+          "aliases": null,
+          "geoData": null,
+          "mustExist": true,
+          "merge": false
+        }
+      ]
+    },
+    "subjects": {
+      "persistent": true,
+      "storeNull": true,
+      "tag": true,
+      "label": "Subject",
+      "relationship": "covers",
+      "delimiter": "array",
+      "updateDate": false,
+      "merge": false
+    },
+    "bill_type": {
+      "persistent": true,
+      "storeNull": true,
+      "callerRef": false,
+      "title": false,
+      "description": false,
+      "document": true
+    },
+    "introduced_at": {
+      "persistent": true,
+      "storeNull": true,
+      "callerRef": false,
+      "title": false,
+      "description": false,
+      "createDate": true,
+      "document": false,
+      "tag": false,
+      "mustExist": false,
+      "createUser": false,
+      "updateUser": false,
+      "reverse": false,
+      "entityLinks": [],
+      "updateDate": false,
+      "merge": false,
+      "targets": []
+    }
+  },
+  "fortress": {
+    "name": "us-gov"
+  }
 }

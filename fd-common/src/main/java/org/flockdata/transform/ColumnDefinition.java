@@ -73,6 +73,7 @@ public class ColumnDefinition implements GeoDefinition {
     private String fortress = null;
     private String documentType = null;
     private String label;
+    private String labelDescription;
     private String type; //datatype
     private String name;
     private String value; // User define value
@@ -96,7 +97,6 @@ public class ColumnDefinition implements GeoDefinition {
     private Collection<EntityTagRelationshipDefinition> entityTagLinks ;
     private ArrayList<AliasInputBean> aliases;
 
-    private String relationship; // Explicit relationship name
     private String delimiter;    // value delimiter
 
     public String getLabel() {
@@ -180,12 +180,6 @@ public class ColumnDefinition implements GeoDefinition {
             return source;
         else
             return target;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getRelationship() {
-        return relationship;
-
     }
 
     public Boolean getReverse() {
@@ -307,8 +301,6 @@ public class ColumnDefinition implements GeoDefinition {
                 return label;
             case KEY_PREFIX:
                 return keyPrefix;
-            case RELATIONSHIP:
-                return relationship;
         }
 
         return null;
@@ -361,7 +353,7 @@ public class ColumnDefinition implements GeoDefinition {
     @JsonIgnore
     public boolean isDate() {
         // DAT-523
-        return (dataType != null && dataType.equals("date")) || dateFormat!=null;
+        return (dataType != null && dataType.equals("date")) ;
     }
 
     public String getValueOnError() {
@@ -416,13 +408,18 @@ public class ColumnDefinition implements GeoDefinition {
         return storeNull;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String getLabelDescription() {
+        return labelDescription;
+    }
+
     public void setSource(String source) {
         this.source = source;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(code, source, keyPrefix, target, dataType, fortress, documentType, label, type, name, value, relationship);
+        return Objects.hash(code, source, keyPrefix, target, dataType, fortress, documentType, label, type, name, value);
     }
 
     @Override
@@ -444,7 +441,6 @@ public class ColumnDefinition implements GeoDefinition {
                 && Objects.equals(this.label, other.label)
                 && Objects.equals(this.type, other.type)
                 && Objects.equals(this.name, other.name)
-                && Objects.equals(this.value, other.value)
-                && Objects.equals(this.relationship, other.relationship);
+                && Objects.equals(this.value, other.value);
     }
 }

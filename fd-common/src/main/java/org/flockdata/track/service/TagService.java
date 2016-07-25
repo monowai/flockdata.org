@@ -38,13 +38,15 @@ import java.util.Map;
  */
 public interface TagService {
 
-    Tag createTag(Company company, TagInputBean tagInput) throws FlockException;
+    TagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException;
 
     Collection<TagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException;
 
     Tag findTag(Company company, String keyPrefix, String tagCode);
 
     Collection<Tag> findDirectedTags(Tag startTag);
+
+    Collection<TagResultBean> findTags(Company company);
 
     Collection<Tag> findTags(Company company, String label);
 

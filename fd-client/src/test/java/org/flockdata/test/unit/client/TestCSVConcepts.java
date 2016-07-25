@@ -38,20 +38,23 @@ public class TestCSVConcepts {
     @org.junit.Test
     public void csvTags() throws Exception{
         ContentModel params = ContentModelDeserializer.getContentModel("/model/csv-tag-import.json");
-        TagMapper mappedTag = new TagMapper();
+        TagMapper tagMapper = new TagMapper();
         String[] headers= new String[]{"company_name", "device_name",  "device_code", "type",         "city", "ram", "tags"};
         String[] data = new String[]{  "Samsoon",      "Palaxy",       "PX",          "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};
 
-        Map<String,Object> json = mappedTag.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
+        Map<String,Object> json = tagMapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
+        assertEquals(1, tagMapper.getTags().size());
+        TagInputBean tag = tagMapper.getTags().iterator().next();
+
         assertNotNull (json);
-        Map<String, Collection<TagInputBean>> allTargets = mappedTag.getTargets();
+        Map<String, Collection<TagInputBean>> allTargets = tag.getTargets();
         assertNotNull(allTargets);
         assertEquals(3, allTargets.size());
-        assertEquals("Should have overridden the column name of device_name", "Device", mappedTag.getLabel());
-        assertEquals("Name value should be that of the defined column", "Palaxy", mappedTag.getName());
-        assertEquals("PX", mappedTag.getCode());
-        assertEquals("Device", mappedTag.getLabel());
-        assertNotNull(mappedTag.getProperties().get("RAM"));
+        assertEquals("Should have overridden the column name of device_name", "Device", tag.getLabel());
+        assertEquals("Name value should be that of the defined column", "Palaxy", tag.getName());
+        assertEquals("PX", tag.getCode());
+        assertEquals("Device", tag.getLabel());
+        assertNotNull(tag.getProperties().get("RAM"));
 
         TagInputBean makes = allTargets.get("makes").iterator().next();
         assertEquals("Manufacturer", makes.getLabel());

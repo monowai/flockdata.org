@@ -44,6 +44,8 @@ public class Concept {
 
     private String name;
 
+    private String description;
+
     @Indexed(unique = true)
     private String key;
 
@@ -53,6 +55,7 @@ public class Concept {
     public Concept(ConceptInputBean inputBean) {
         this();
         this.name = inputBean.getName();
+        this.description = inputBean.getDescription();
         this.key = toKey(inputBean);
     }
 
@@ -64,6 +67,10 @@ public class Concept {
         return name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     @JsonIgnore
     public Long getId() {
         return id;
@@ -71,7 +78,7 @@ public class Concept {
 
     @Override
     public String toString() {
-        return "DocumentType{" +
+        return "Concept{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';

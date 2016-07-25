@@ -28,7 +28,7 @@ spring:
     name: fd-engine
   profiles:
     active: fd-auth-test
-    include: fd-server
+    include: fd-server,fd-batch
   cloud:
     discovery:
       enabled: false

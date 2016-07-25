@@ -21,14 +21,13 @@
 package org.flockdata.company.service;
 
 
-import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.dao.CompanyDao;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.shared.KeyGenService;
-import org.flockdata.track.service.SchemaService;
+import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,22 +40,23 @@ import java.util.Collection;
 @Transactional
 public class CompanyServiceNeo4j implements CompanyService {
 
-    @Autowired
-    private CompanyDao companyDao;
+    private final CompanyDao companyDao;
 
-    @Autowired
-    KeyGenService keyGenService;
+    private final KeyGenService keyGenService;
 
-    @Autowired
-    EngineConfig engineConfig;
+    private final FortressService fortressService;
 
-    @Autowired
-    SchemaService schemaService;
-
-    @Autowired
-    private SecurityHelper securityHelper;
+    private final SecurityHelper securityHelper;
 
     private static Logger logger = LoggerFactory.getLogger(CompanyServiceNeo4j.class);
+
+    @Autowired
+    public CompanyServiceNeo4j(CompanyDao companyDao, SecurityHelper securityHelper, FortressService fortressService, KeyGenService keyGenService ) {
+        this.companyDao = companyDao;
+        this.securityHelper = securityHelper;
+        this.fortressService = fortressService;
+        this.keyGenService = keyGenService;
+    }
 
     @Override
     @Transactional
@@ -94,8 +94,9 @@ public class CompanyServiceNeo4j implements CompanyService {
     }
 
     @Transactional
-    public org.flockdata.model.Company create(org.flockdata.model.Company company){
+    public Company create(Company company){
         company = companyDao.create(company);
+        fortressService.findInternalFortress(company);// Create this at the outset
         logger.debug("Created company {}",company);
         return company;
 

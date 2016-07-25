@@ -19,6 +19,7 @@ package org.flockdata.test.unit.client;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.Transformer;
 import org.flockdata.transform.tags.TagMapper;
 import org.junit.Test;
@@ -37,39 +38,42 @@ public class TestExpressions extends AbstractImport {
     @Test
     public void string_Concatenation() throws Exception {
         ContentModel params = ContentModelDeserializer.getContentModel("/model/tag-expressions.json");
-        TagMapper mapper = new TagMapper();
+        TagMapper tagMapper = new TagMapper();
         String[] headers = new String[]{"last_name", "first_name", "birthday", "gender", "type", "state", "district", "party", "url", "address", "phone", "contact_form", "rss_url", "twitter", "facebook", "facebook_id", "youtube", "youtube_id", "bioguide_id", "thomas_id", "opensecrets_id", "lis_id", "cspan_id", "govtrack_id", "votesmart_id", "ballotpedia_id", "washington_post_id", "icpsr_id", "wikipedia_id"};
         String[] data = new String[]{"Whitehouse", "Sheldon", "1955-10-20", "M", "sen", "RI", "", "Democrat", "http://www.whitehouse.senate.gov", "530 Hart Senate Office Building Washington DC 20510", "202-224-2921", "http://www.whitehouse.senate.gov/contact", "http://www.whitehouse.senate.gov/rss/feeds/?type=all&amp;cachebuster=1", "SenWhitehouse", "SenatorWhitehouse", "194172833926853", "SenatorWhitehouse", "UCnG0N70SNBkNqvIMLodPTIA", "W000802", "01823", "N00027533", "S316", "92235", "412247", "2572", "Sheldon Whitehouse", "gIQA7KHw9O", "40704", "Sheldon Whitehouse"};
-        Map<String, Object> json = mapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
+        Map<String, Object> json = tagMapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
         assertNotNull(json);
-        assertNotNull(mapper);
-        assertEquals("Politician", mapper.getLabel());
-        assertEquals("Whitehouse, Sheldon", mapper.getName());
-        assertEquals("01823", mapper.getCode());
-        assertEquals(1, mapper.getTargets().get("HAS_ALIAS").size());
+        assertEquals(1, tagMapper.getTags().size());
+        TagInputBean tag = tagMapper.getTags().iterator().next();
+
+        assertEquals("Politician", tag.getLabel());
+        assertEquals("Whitehouse, Sheldon", tag.getName());
+        assertEquals("01823", tag.getCode());
+        assertEquals(1, tag.getTargets().get("HAS_ALIAS").size());
     }
 
     @Test
     public void string_Properties() throws Exception {
         ContentModel params = ContentModelDeserializer.getContentModel("/model/tag-expressions.json");
-        TagMapper mapper = new TagMapper();
+        TagMapper tagMapper = new TagMapper();
         String[] headers = new String[]{"last_name", "first_name", "birthday", "gender", "type", "state", "district", "party", "url", "address", "phone", "contact_form", "rss_url", "twitter", "facebook", "facebook_id", "youtube", "youtube_id", "bioguide_id", "thomas_id", "opensecrets_id", "lis_id", "cspan_id", "govtrack_id", "votesmart_id", "ballotpedia_id", "washington_post_id", "icpsr_id", "wikipedia_id"};
         String[] data = new String[]{"Whitehouse", "Sheldon", "1955-10-20", "M", "sen", "RI", "", "Democrat", "http://www.whitehouse.senate.gov", "530 Hart Senate Office Building Washington DC 20510", "202-224-2921", "http://www.whitehouse.senate.gov/contact", "http://www.whitehouse.senate.gov/rss/feeds/?type=all&amp;cachebuster=1", "SenWhitehouse", "SenatorWhitehouse", "194172833926853", "SenatorWhitehouse", "UCnG0N70SNBkNqvIMLodPTIA", "W000802", "01823", "N00027533", "S316", "92235", "412247", "2572", "Sheldon Whitehouse", "gIQA7KHw9O", "40704", "Sheldon Whitehouse"};
-        Map<String, Object> json = mapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
+        Map<String, Object> json = tagMapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
         assertNotNull(json);
-        assertNotNull(mapper);
+        assertEquals(1, tagMapper.getTags().size());
+        TagInputBean tag = tagMapper.getTags().iterator().next();
 
-        assertEquals("Custom properties not being set", 3, mapper.getProperties().size());
+        assertEquals("Custom properties not being set", 3, tag.getProperties().size());
         boolean birthdaySet = false, urlSet = false, genderSet = false;
-        for (String key : mapper.getProperties().keySet()) {
+        for (String key : tag.getProperties().keySet()) {
             switch (key) {
                 case "dob":
-                    assertEquals("1955-10-20", mapper.getProperties().get("dob"));
+                    assertEquals("1955-10-20", tag.getProperties().get("dob"));
                     birthdaySet = true;
                     break;
                 case "url":
                     urlSet = true;
-                    assertEquals("http://www.whitehouse.senate.gov", mapper.getProperties().get("url"));
+                    assertEquals("http://www.whitehouse.senate.gov", tag.getProperties().get("url"));
                     break;
                 case "gender":
                     genderSet = true;

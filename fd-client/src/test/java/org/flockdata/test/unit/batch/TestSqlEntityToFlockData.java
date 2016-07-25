@@ -49,7 +49,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ActiveProfiles({"dev", "fd-batch"})
+@ActiveProfiles({"dev", "fd-batch-dev"})
 @SpringApplicationConfiguration({BatchConfig.class,
         FdBatchResources.class,
         ClientConfiguration.class,

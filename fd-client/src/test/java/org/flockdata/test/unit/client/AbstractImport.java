@@ -37,7 +37,7 @@ import static junit.framework.TestCase.assertTrue;
  * Created by mike on 12/02/15.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ActiveProfiles({"dev", "fd-batch"})
+@ActiveProfiles({"dev", "fd-batch-dev"})
 @SpringApplicationConfiguration({
         ClientConfiguration.class,
         MockPayloadBatchWriter.class,

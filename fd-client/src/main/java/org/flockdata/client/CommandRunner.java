@@ -35,7 +35,6 @@ public class CommandRunner {
         if (ArrayUtils.contains(args, "import")) {
             app = new SpringApplication(Importer.class);
             app.setAdditionalProfiles("fd-importer");
-
         } else if (ArrayUtils.contains(args, "register")) {
             app = new SpringApplication(Register.class);
             app.setAdditionalProfiles("fd-register");
@@ -62,6 +61,7 @@ public class CommandRunner {
 
         // finished so close the context
         context.close();
+        System.exit(0);
     }
 
     static void configureAuth(Logger logger, String authUser, FdTemplate fdTemplate) {

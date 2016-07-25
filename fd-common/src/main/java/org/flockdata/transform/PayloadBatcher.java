@@ -25,13 +25,17 @@ import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
  * Created by mike on 5/03/16.
  */
 public interface PayloadBatcher {
+
     void writeTag(TagInputBean tagInputBean, String message) throws FlockException;
+
+    void writeTags(Collection<TagInputBean> tagInputBean, String message) throws FlockException;
 
     void writeEntity(EntityInputBean entityInputBean) throws FlockException;
 

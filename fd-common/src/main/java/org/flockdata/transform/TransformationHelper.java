@@ -50,10 +50,10 @@ public class TransformationHelper {
     public static boolean setTagInputBean(TagInputBean tag,
                                           Map<String, Object> row,
                                           String column,
-                                          Map<String, ColumnDefinition> content,
+                                          ContentModel content,
                                           String value) throws FlockException {
 
-        ColumnDefinition colDef = content.get(column);
+        ColumnDefinition colDef = content.getColumnDef(column);
 
         String label;
         if (colDef.getLabel() != null && colDef.getLabel().equals(colDef.getTarget() != null ? colDef.getTarget() : column))
@@ -73,6 +73,12 @@ public class TransformationHelper {
 
         tag.setKeyPrefix(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.KEY_PREFIX, colDef, null));
 
+        if (colDef.getLabelDescription() != null) {
+            Object o = ExpressionHelper.getValue(row, colDef.getLabelDescription(), colDef, colDef.getLabelDescription());
+            if (o != null)
+                tag.setDescription(o.toString());
+        }
+
         if (!TransformationHelper.evaluate(colDef.isMustExist())) {     // Must exists only resolves the Code, so don't waste time setting the name
             String name = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue);
             if (name != null && !name.equals(codeValue))
@@ -80,8 +86,10 @@ public class TransformationHelper {
         }
 
         setAliases(tag, colDef, row);
-        EntityTagRelationshipInput relationship = getRelationship(row, colDef);
-        tag.addEntityTagLink(relationship);
+        if( !content.isTagModel()) {
+            EntityTagRelationshipInput relationship = getRelationship(row, colDef);
+            tag.addEntityTagLink(relationship);
+        }
 
 
         tag.setReverse(TransformationHelper.evaluate(colDef.getReverse()));
@@ -174,11 +182,11 @@ public class TransformationHelper {
     }
 
     private static EntityTagRelationshipInput resolveETRProperties(Map<String, Object> row, EntityTagRelationshipDefinition etd, EntityTagRelationshipInput etr) {
-        if (etd.getProperties() == null )
+        if (etd.getProperties() == null)
             return etr;
         for (ColumnDefinition colDef : etd.getProperties()) {
             Object value = ExpressionHelper.getValue(row, colDef.getValue(), colDef, row.get(colDef.getSource()));
-            if (value != null )
+            if (value != null)
                 etr.addProperty(colDef.getTarget(), transformValue(value, colDef.getSource(), colDef));
 
         }
@@ -220,15 +228,6 @@ public class TransformationHelper {
                 if (tagProfile.getDelimiter() != null) {
                     // No known entity relationship
                     setInTo.setTargets(tagProfile.getRelationship(), getTagsFromList(tagProfile, row, null));
-                } else if (tagProfile.isCountry()) {
-                    String iso = value.toString();
-
-                    newTag = new TagInputBean(iso)
-                            .setLabel("Country")
-                            .setNotFoundCode(tagProfile.getNotFound());
-
-                    setInTo.setTargets(tagProfile.getRelationship(), newTag);
-
                 } else {
                     newTag = new TagInputBean(value.toString())
                             .setLabel(tagProfile.getLabel());
@@ -243,6 +242,12 @@ public class TransformationHelper {
                     newTag.setReverse(tagProfile.getReverse());
                     newTag.setMustExist(tagProfile.isMustExist());
                     newTag.setNotFoundCode(tagProfile.getNotFound());
+                    if (tagProfile.getLabelDescription() != null) {
+                        Object o = ExpressionHelper.getValue(row, tagProfile.getLabelDescription());
+                        if (o != null)
+                            newTag.setDescription(o.toString());
+                    }
+
                     // Todo: Smell - how to return defaults consistently?
                     Object keyPrefix = ExpressionHelper.getValue(row, tagProfile.getKeyPrefix());
                     if (keyPrefix == null && tagProfile.getKeyPrefix() != null)
@@ -311,7 +316,10 @@ public class TransformationHelper {
         return results;
     }
 
-    public static String getDataType(Object value, String column) {
+    static String getDataType(Object value, String column) {
+
+        if (value==null)
+            return null;
 
         Boolean tryAsNumber = true;
         Boolean tryAsDate = true;
@@ -329,13 +337,16 @@ public class TransformationHelper {
                 dataType = "date";
                 tryAsNumber = false;
             }
-
         }
+
+        if ( value.toString().startsWith("0x"))
+            // Treating Hex as String
+            return "string";
 
 
         if (tryAsNumber) {
 
-            if (value != null && NumberUtils.isNumber(value.toString())) {
+            if (NumberUtils.isNumber(value.toString())) {
                 value = NumberUtils.createNumber(value.toString());
                 if (value != null)
                     dataType = "number";
@@ -379,6 +390,9 @@ public class TransformationHelper {
 
     public static Object transformValue(Object value, String column, ColumnDefinition colDef) {
 
+        if (value == null)
+            return null;
+
         Boolean tryAsNumber = true;
         String dataType = null;
         if (colDef != null) {
@@ -397,19 +411,23 @@ public class TransformationHelper {
             tryAsNumber = false;
         }
 
-        if (dataType != null)
+        if ( value.toString().startsWith("0x"))
+            // Treating Hex as String
+            return value.toString();
+
+        if (dataType != null) {
             if (dataType.equalsIgnoreCase("string") || dataType.equalsIgnoreCase("date"))
                 tryAsNumber = false;
             else if (dataType.equalsIgnoreCase("number")) {
                 tryAsNumber = true;
                 // User wants us to coerce this to a number
                 // To do so requires tidying up a few common formatting issues
-                if (value != null) {
-                    value = removeLeadingZeros(value.toString());
-                    value = removeSeparator(value.toString());
-                }
+                value = removeLeadingZeros(value.toString());
+                value = removeSeparator(value.toString());// Sets an empty string to null
 
             }
+        }
+
         if (tryAsNumber) {
 
             if (value != null && NumberUtils.isNumber(value.toString())) {

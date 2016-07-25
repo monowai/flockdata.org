@@ -35,9 +35,10 @@ public class SystemUserResultBean {
     private String name;
     private String companyName;
     private String apiKey;
-    private String userEmail;
+    private String email;
     private String status;
     private Object[] userRoles;
+    private boolean active = true;
 
     public SystemUserResultBean() {
     }
@@ -60,7 +61,7 @@ public class SystemUserResultBean {
         this(sysUser);
         this.userRoles = userProfile.getUserRoles();
         this.status = userProfile.getStatus();
-        this.userEmail = userProfile.getUserEmail();
+        this.email = userProfile.getUserEmail();
 
     }
 
@@ -80,8 +81,8 @@ public class SystemUserResultBean {
         return companyName;
     }
 
-    public String getUserEmail() {
-        return userEmail;
+    public String getEmail() {
+        return email;
     }
 
     public String getStatus() {
@@ -102,5 +103,13 @@ public class SystemUserResultBean {
                 ", userRoles=" + Arrays.toString(userRoles) +
                 ", companyName='" + companyName + '\'' +
                 '}';
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

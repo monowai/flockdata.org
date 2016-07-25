@@ -68,6 +68,7 @@
     },
     "8": {
       "target": "contributionDate",
+      "dataType": "date",
       "dateFormat": "MM/dd/yyyy",
       "createDate": true
     },

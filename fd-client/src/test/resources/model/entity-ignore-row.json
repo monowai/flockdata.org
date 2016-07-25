@@ -37,7 +37,7 @@
                   "targets": [
                     {
                       "code": "'NZ'",
-                      "country": true,
+                      "label": "Country",
                       "mustExist": true,
                       "relationship": "country"
                     }

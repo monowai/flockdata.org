@@ -207,11 +207,11 @@ public class TestDataTypeConversion  extends AbstractImport {
 
     @Test
     public void map_NoArgsSuppliedToGetDefaultContentModel() throws Exception {
-        assertEquals("Null map should return 0 entries", 0, Transformer.fromMapToProfile( null ).size());
+        assertEquals("Null map should return 0 entries", 0, Transformer.fromMapToModel( null ).size());
         Collection<Map<String, Object>> rows = new ArrayList<>();
-        assertEquals("Empty row set should return 0 entries", 0, Transformer.fromMapToProfile( rows ).size());
+        assertEquals("Empty row set should return 0 entries", 0, Transformer.fromMapToModel( rows ).size());
         rows.add(new HashMap<>());
-        assertEquals("Empty row should return 0 entries", 0, Transformer.fromMapToProfile( rows ).size());
+        assertEquals("Empty row should return 0 entries", 0, Transformer.fromMapToModel( rows ).size());
     }
 
     @Test
@@ -238,7 +238,7 @@ public class TestDataTypeConversion  extends AbstractImport {
         Collection<Map<String, Object>> rows = new ArrayList<>();
         rows.add(firstRow);
         rows.add(secondRow);
-        Map<String, ColumnDefinition> columnDefinitions = Transformer.fromMapToProfile(rows);
+        Map<String, ColumnDefinition> columnDefinitions = Transformer.fromMapToModel(rows);
         assertEquals(firstRow.size(), columnDefinitions.size());
         for (String column : columnDefinitions.keySet()) {
             ColumnDefinition colDef = columnDefinitions.get(column);

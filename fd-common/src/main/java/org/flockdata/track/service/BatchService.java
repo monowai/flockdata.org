@@ -25,6 +25,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
+import org.flockdata.profile.ContentValidationRequest;
 
 import java.io.IOException;
 
@@ -41,4 +42,5 @@ public interface BatchService {
     void validateArguments(Company company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException ;
 
 
+    ContentValidationRequest process(Company company, ContentValidationRequest validationRequest);
 }

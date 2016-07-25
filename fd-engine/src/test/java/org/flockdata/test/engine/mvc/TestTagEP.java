@@ -20,17 +20,21 @@
 
 package org.flockdata.test.engine.mvc;
 
-import junit.framework.TestCase;
 import org.flockdata.helper.TagHelper;
+import org.flockdata.profile.ContentModelDeserializer;
+import org.flockdata.profile.ContentValidationRequest;
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.*;
 
 /**
  * Created by mike on 31/05/15.
@@ -52,13 +56,13 @@ public class TestTagEP extends MvcBase {
         zipCode.setTargets("located", tractCode);
 
         Collection<TagResultBean> tags = createTag(mike(), zipCode);
-        TestCase.assertEquals(1, tags.size());
+        assertEquals(1, tags.size());
 
 
         Map<String, Object> targetTags = getConnectedTags(mike(), zipCode.getLabel(), zipCode.getCode(), "*", tractCode.getLabel());
-        TestCase.assertEquals(1, targetTags.size());
+        assertEquals(1, targetTags.size());
         Collection<Map>tagResults = (Collection<Map>) targetTags.get("located");
-        TestCase.assertEquals(tractCode.getCode(), tagResults.iterator().next().get("code"));
+        assertEquals(tractCode.getCode(), tagResults.iterator().next().get("code"));
 
 
     }
@@ -72,18 +76,18 @@ public class TestTagEP extends MvcBase {
         login(mike_admin, "123");
 
         Collection<TagResultBean> tags = createTag(mike(), thingTag);
-        TestCase.assertEquals(1, tags.size());
+        assertEquals(1, tags.size());
 
         Collection<TagResultBean> targetTags = getTags(mike(), thingTag.getLabel());
-        TestCase.assertEquals(1, targetTags.size());
+        assertEquals(1, targetTags.size());
 
         TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()), MockMvcResultMatchers.status().isOk());
-        TestCase.assertNotNull(tagResultBean);
-        TestCase.assertEquals("The / should have been converted to - in order to be found", thingTag.getCode(), tagResultBean.getCode());
+        assertNotNull(tagResultBean);
+        assertEquals("The / should have been converted to - in order to be found", thingTag.getCode(), tagResultBean.getCode());
 
         tagResultBean = getTag(mike(), thingTag.getLabel(), "This/That", MockMvcResultMatchers.status().isOk());
-        TestCase.assertNotNull ( tagResultBean);
-        TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
+        assertNotNull ( tagResultBean);
+        assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 
     }
 
@@ -98,11 +102,11 @@ public class TestTagEP extends MvcBase {
 
         createTag(mike(), ignoredTag);// Same tag code, different prefix
         Collection<TagResultBean> tags = createTag(mike(), prefixedTag);
-        TestCase.assertEquals(1, tags.size());
+        assertEquals(1, tags.size());
 
         TagResultBean tagResultBean = getTagWithPrefix(mike(), prefixedTag.getLabel(), prefixedTag.getKeyPrefix(), prefixedTag.getCode());
-        TestCase.assertEquals(prefixedTag.getCode(), tagResultBean.getCode());
-        TestCase.assertNotNull(tagResultBean.getLabel());
+        assertEquals(prefixedTag.getCode(), tagResultBean.getCode());
+        assertNotNull(tagResultBean.getLabel());
 
 
     }
@@ -113,18 +117,18 @@ public class TestTagEP extends MvcBase {
         TagInputBean thingTag = new TagInputBean("This That", "Thing");
 
         Collection<TagResultBean> tags = createTag(mike(), thingTag);
-        TestCase.assertEquals(1, tags.size());
+        assertEquals(1, tags.size());
 
         Collection<TagResultBean> targetTags = getTags(mike(), thingTag.getLabel());
-        TestCase.assertEquals(1, targetTags.size());
+        assertEquals(1, targetTags.size());
 
         TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()), MockMvcResultMatchers.status().isOk());
-        TestCase.assertNotNull(tagResultBean);
-        TestCase.assertEquals("The / should have been converted to - in order to be found", thingTag.getCode(), tagResultBean.getCode());
+        assertNotNull(tagResultBean);
+        assertEquals("The / should have been converted to - in order to be found", thingTag.getCode(), tagResultBean.getCode());
 
         tagResultBean = getTag(mike(), thingTag.getLabel(), "This That", MockMvcResultMatchers.status().isOk());
-        TestCase.assertNotNull ( tagResultBean);
-        TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
+        assertNotNull ( tagResultBean);
+        assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 
     }
 
@@ -134,14 +138,14 @@ public class TestTagEP extends MvcBase {
         TagInputBean thingTag = new TagInputBean("1% Increase", "Thing2");
 
         Collection<TagResultBean> tags = createTag(mike(), thingTag);
-        TestCase.assertEquals(1, tags.size());
+        assertEquals(1, tags.size());
 
         Collection<TagResultBean> targetTags = getTags(mike(), thingTag.getLabel());
-        TestCase.assertEquals(1, targetTags.size());
+        assertEquals(1, targetTags.size());
 
         TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), "1% Increase", MockMvcResultMatchers.status().isOk());
-        TestCase.assertNotNull ( tagResultBean);
-        TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
+        assertNotNull ( tagResultBean);
+        assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 
     }
 
@@ -163,4 +167,35 @@ public class TestTagEP extends MvcBase {
         assertFalse(countries.isEmpty());
 
     }
+
+    @Test
+    public void pushTagsAndFindConcepts() throws  Exception{
+        makeDataAccessProfile("pushTagsAndFindConcepts", "mike");
+        setSecurity();
+        Collection<TagResultBean>tags = getTags(mike());
+        assertTrue("should not be any tags", tags.isEmpty());
+
+        ContentModel contentModel = ContentModelDeserializer.getContentModel( "/models/test-tag-concepts.json");
+        assertNotNull (contentModel);
+        assertTrue("Model", contentModel.isTagModel());
+        Map<String,Object>data = new HashMap<>();
+        data.put("zip", 90210);
+        data.put("city", "Beverly Hills");
+        data.put("state", "CA");
+        data.put ("country", "USA");
+
+        ContentValidationRequest validationRequest = new ContentValidationRequest(contentModel, Collections.singleton(data));
+        assertNotNull (validationRequest.getContentModel());
+
+        validationRequest = batchRequest(mike(), validationRequest);
+        assertNotNull(validationRequest);
+        assertFalse(validationRequest.getMessages().isEmpty());
+
+        assertNotNull ( "City was not found", getTag(mike(), "City", "Beverly Hills", MockMvcResultMatchers.status().isOk()));
+        assertNotNull ( "State was not found", getTag(mike(), "State", "CA", MockMvcResultMatchers.status().isOk()));
+        assertNotNull ( "Country was not found", getTag(mike(), "Country", "USA", MockMvcResultMatchers.status().isOk()));
+
+        assertEquals(4, getTags(mike()).size());
+    }
+
 }

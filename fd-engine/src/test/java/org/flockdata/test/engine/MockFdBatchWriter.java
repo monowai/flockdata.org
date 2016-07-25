@@ -20,19 +20,38 @@
 
 package org.flockdata.test.engine;
 
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FdBatchWriter;
+import org.flockdata.transform.FdWriter;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
- * Unit testing of fd-client requires holding on to payloads.
+ * Unit testing of fd-engine requires holding on to payloads.
  * fd-engine unit testing wants to process them.
  * This class is to signal that fd-engine can use the FdBatcher in all its glory
  *
  *
  * Created by mike on 13/04/16.
  */
-@Profile("dev")
+@Profile("fd-batch-dev")
 @Service
 public class MockFdBatchWriter extends FdBatchWriter {
+
+    /**
+     * POJO configuration approach
+     *
+     * @param writer        writer to send payloads to
+     * @param configuration configuration properties
+     */
+    public MockFdBatchWriter(FdWriter writer, ClientConfiguration configuration) {
+        super(writer, configuration);
+    }
+
+    @Override
+    public void flush(){
+        // Noop
+    }
+
+
 }

@@ -70,14 +70,14 @@ public class FdRabbitClient {
 
     @PreDestroy
     public void shutingDown() {
-        logger.info("Goodbye cruel world, I'm leaving you today");
+        logger.debug("Jumping out of the rabbit hold due to shutdown request");
     }
 
     private void initialiseConnection() {
 
         try {
             if (connectionFactory == null ) {
-                logger.info("Initializing Rabbit connection");
+                logger.debug("Initializing Rabbit connection");
                 entityProps = null;
                 tagProps = null;
 

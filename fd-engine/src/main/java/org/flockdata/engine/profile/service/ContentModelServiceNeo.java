@@ -280,7 +280,7 @@ public class ContentModelServiceNeo implements ContentModelService {
         if (result == null)
             result = new ContentModelHandler();
 
-        result.setContent(Transformer.fromMapToProfile(contentRequest.getRows()));
+        result.setContent(Transformer.fromMapToModel(contentRequest.getRows()));
         return result;
     }
 

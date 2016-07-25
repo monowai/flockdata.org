@@ -9,10 +9,11 @@
     },
     "code": {
       "tag": true,
-      "code": "#data['code']+'.' +#data['exchangeCode']",
-      "relationship": "key",
-      "name": "issueName",
       "label": "Asset",
+      "code": "#data['code']+'.' +#data['exchangeCode']",
+      "name": "issueName",
+      "labelDescription": "'this is a random description of the Label'",
+      "relationship": "key",
       "aliases": [
         { "code": "assetID", "description": "Asset PK"},
         { "code": "isin", "description": "ISIN"},

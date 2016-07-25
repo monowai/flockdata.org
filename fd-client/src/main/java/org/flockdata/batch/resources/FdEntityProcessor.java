@@ -34,7 +34,7 @@ import java.util.Map;
  * @author nabil
  */
 @Component
-@Profile("fd-batch")
+@Profile({"fd-batch", "fd-batch-dev"})
 public class FdEntityProcessor implements ItemProcessor<Map<String, Object>, EntityInputBean> {
 
     @Autowired

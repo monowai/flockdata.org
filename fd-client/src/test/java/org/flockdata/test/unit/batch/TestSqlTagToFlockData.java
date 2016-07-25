@@ -19,10 +19,7 @@ package org.flockdata.test.unit.batch;
 
 import junit.framework.TestCase;
 import org.flockdata.batch.BatchConfig;
-import org.flockdata.batch.resources.FdBatchResources;
-import org.flockdata.batch.resources.FdEntityProcessor;
-import org.flockdata.batch.resources.FdRowMapper;
-import org.flockdata.batch.resources.FdTagProcessor;
+import org.flockdata.batch.resources.*;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FdBatchWriter;
@@ -49,20 +46,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ActiveProfiles({"dev", "fd-batch"})
-@SpringApplicationConfiguration({ BatchConfig.class,
-                                  FdBatchResources.class,
-                                  ClientConfiguration.class,
-                                  MockFdWriter.class,
-                                  MockPayloadBatchWriter.class,
-                                  FdTagProcessor.class,
-                                  FdEntityProcessor.class,
-                                  FdRowMapper.class,
-                                  FdBatchWriter.class,
-                                  HsqlDataSource.class,
-                                  JobLauncherTestUtils.class,
-                                  SqlTagStep.class
-                                })
+@ActiveProfiles({"dev", "fd-batch-dev"})
+@SpringApplicationConfiguration({BatchConfig.class,
+        FdBatchResources.class,
+        ClientConfiguration.class,
+        MockFdWriter.class,
+        MockPayloadBatchWriter.class,
+        FdTagProcessor.class,
+        FdTagWriter.class,
+        FdEntityProcessor.class,
+        FdRowMapper.class,
+        FdBatchWriter.class,
+        HsqlDataSource.class,
+        JobLauncherTestUtils.class,
+        SqlTagStep.class
+})
 
 @TestPropertySource({"/fd-batch.properties", "/application_dev.properties"})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -78,18 +76,18 @@ public class TestSqlTagToFlockData extends AbstractTransactionalJUnit4SpringCont
     PayloadBatcher payloadBatcher;
 
     @Test
-    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,scripts =  {"/batch/sql/countries.sql", "/batch/sql/country-data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"/batch/sql/countries.sql", "/batch/sql/country-data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
     @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = {"classpath:org/springframework/batch/core/schema-drop-hsqldb.sql"})
     public void testDummy() throws Exception {
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
         assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());
-        assertTrue(clientConfiguration.getBatchSize()>1);
+        assertTrue(clientConfiguration.getBatchSize() > 1);
         // This check works because 2 is < the configured batch size
         TestCase.assertEquals("Number of rows loaded ex entity-data.sql does not match", 2, payloadBatcher.getTags().size());
         for (TagInputBean tagInputBean : payloadBatcher.getTags()) {
             assertEquals("Country", tagInputBean.getLabel());
             assertNotNull(tagInputBean.getName());
-            assertEquals (3, tagInputBean.getCode().length());
+            assertEquals(3, tagInputBean.getCode().length());
             assertNotNull(tagInputBean.getCode());
         }
     }

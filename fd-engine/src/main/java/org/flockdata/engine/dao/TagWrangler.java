@@ -27,6 +27,7 @@ import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.Alias;
 import org.flockdata.model.Company;
+import org.flockdata.model.Concept;
 import org.flockdata.model.Tag;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
@@ -82,7 +83,7 @@ public class TagWrangler {
     }
 
     // ToDo: Turn this in to ServerSide
-    TagResultBean save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> cachedValues, boolean suppressRelationships)  {
+    TagResultBean save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> cachedValues, boolean suppressRelationships) {
         // Check exists
         boolean isNew = false;
         TagResultBean tagResultBean;
@@ -108,20 +109,20 @@ public class TagWrangler {
                     return new TagResultBean(tagInput);
             } else {
                 isNew = true;
-                if ( tagInput.getCode()==null )
-                    throw new FlockDataTagException("The code property for a tag cannot be null {" +tagInput.toString());
+                if (tagInput.getCode() == null)
+                    throw new FlockDataTagException("The code property for a tag cannot be null {" + tagInput.toString());
                 startTag = createTag(company, tagInput, tagSuffix);
             }
         } else {
             // Existing Tag. We only update certain properties. Code is immutable (or near enough to)
-            if (tagInput.isMerge() ) {
-                if ( tagInput.hasTagProperties())
+            if (tagInput.isMerge()) {
+                if (tagInput.hasTagProperties())
                     for (String key : tagInput.getProperties().keySet()) {
                         startTag.addProperty(key, tagInput.getProperty(key));
                         changed = true;
                     }
 
-                if ( tagInput.getName()!=null && !tagInput.getName().equals(startTag.getName())) {
+                if (tagInput.getName() != null && !tagInput.getName().equals(startTag.getName())) {
                     startTag.setName(tagInput.getName());
                     changed = true;
                 }
@@ -132,7 +133,7 @@ public class TagWrangler {
                 }
             }
         }
-
+        TagResultBean sourceResult = new TagResultBean(tagInput, startTag, (isNew | changed));
         if (tagInput.hasAliases()) {
             handleAliases(tagInput, startTag);
         }
@@ -142,13 +143,13 @@ public class TagWrangler {
             for (String rlxName : targets.keySet()) {
                 Collection<TagInputBean> associatedTag = targets.get(rlxName);
                 for (TagInputBean tagInputBean : associatedTag) {
-                    processAssociatedTags(company, tagSuffix, startTag, tagInputBean, rlxName, cachedValues, suppressRelationships);
+                    processAssociatedTags(company, tagSuffix, sourceResult, tagInputBean, rlxName, cachedValues, suppressRelationships);
                 }
 
             }
         }
 
-        return new TagResultBean(tagInput, startTag, (isNew|changed));
+        return sourceResult;
     }
 
     private void handleAliases(TagInputBean tagInput, Tag startTag) {
@@ -295,20 +296,25 @@ public class TagWrangler {
      * @param cachedValues          running list of values already created - performance op.
      * @param suppressRelationships @return the created tag
      */
-    private void processAssociatedTags(Company company, String tagSuffix, Tag startTag, TagInputBean associatedTag, String rlxName, Collection<String> cachedValues, boolean suppressRelationships) {
+    private void processAssociatedTags(Company company, String tagSuffix, TagResultBean startTag, TagInputBean associatedTag, String rlxName, Collection<String> cachedValues, boolean suppressRelationships) {
 
-        Tag endTag = save(company, associatedTag, tagSuffix, cachedValues, suppressRelationships).getTag();
+        TagResultBean endTag = save(company, associatedTag, tagSuffix, cachedValues, suppressRelationships);
         if (suppressRelationships)
             return;
         //Node endNode = template.getNode(tag.getId());
 
-        Tag startId = (!associatedTag.isReverse() ? startTag : endTag);
-        Tag endId = (!associatedTag.isReverse() ? endTag : startTag);
+        Tag startId = (!associatedTag.isReverse() ? startTag.getTag() : endTag.getTag());
+        Tag endId = (!associatedTag.isReverse() ? endTag.getTag() : startTag.getTag());
+
+        if ( endId == null || startId== null )
+            return;
+
         String key = rlxName + ":" + startId.getId() + ":" + endId.getId();
         if (cachedValues.contains(key))
             return;
 
         cachedValues.add(createRelationship(rlxName, startId, endId, key));
+        startTag.addTargetResult(rlxName, endTag);
     }
 
 
@@ -354,6 +360,19 @@ public class TagWrangler {
 
         }
         return tagResults;
+    }
+
+    @Autowired
+    ConceptTypeRepo conceptTypeRepo;
+
+    public Collection<TagResultBean> findTags() {
+        Collection<TagResultBean> tagResults = new ArrayList<>();
+        Result<Concept> concepts = conceptTypeRepo.findAll();
+        for (Concept concept : concepts) {
+            tagResults.add(new TagResultBean(concept));
+        }
+        return tagResults;
+
     }
 
 //    public Collection<Tag> findTags(String label, String code) {

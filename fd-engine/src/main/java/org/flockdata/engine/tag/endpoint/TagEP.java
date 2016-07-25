@@ -78,6 +78,14 @@ public class TagEP {
         return results;
     }
 
+    @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
+    public Collection<TagResultBean> getTags(
+                                             HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return tagService.findTags(company);
+    }
+
+
     @RequestMapping(value = "/{label}/{code}", produces = "application/json", method = RequestMethod.GET)
     public TagResultBean getTag(@PathVariable("label") String label, @PathVariable("code") String code,
                                 HttpServletRequest request) throws FlockException, UnsupportedEncodingException {

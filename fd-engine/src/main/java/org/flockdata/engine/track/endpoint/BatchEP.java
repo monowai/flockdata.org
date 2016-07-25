@@ -24,6 +24,7 @@ import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
+import org.flockdata.profile.ContentValidationRequest;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.track.service.BatchService;
 import org.flockdata.track.service.MediationFacade;
@@ -74,20 +75,12 @@ public class BatchEP {
             batchService.process(company, fortressCode, documentName, filename.toString(), async);
     }
 
-//    @RequestMapping(value = "/{fortress}/{document}", consumes = "application/json", method = RequestMethod.POST)
-//    @ResponseStatus(value = HttpStatus.OK)
-//    public void putDocument(@RequestBody ContentProfileImpl profile,
-//                            HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-//        Company company = CompanyResolver.resolveCompany(request);
-//        profileService.saveFortressContentType(company, fortressCode, documentName, profile);
-//    }
-//
 
-//    @RequestMapping(value = "/{fortress}/{document}", consumes = "application/json", method = RequestMethod.GET)
-//    @ResponseStatus(value = HttpStatus.OK)
-//    public ContentProfile getDocument(HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-//        Company company = CompanyResolver.resolveCompany(request);
-//        return profileService.get(company, fortressCode, documentName);
-//    }
+    @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    public ContentValidationRequest trackData(@RequestBody ContentValidationRequest validationRequest,
+                                                    HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return batchService.process(company, validationRequest);
 
+    }
 }

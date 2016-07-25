@@ -21,6 +21,7 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.model.Concept;
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 /**
@@ -29,6 +30,10 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  * Time: 10:33 AM
  */
 public interface ConceptTypeRepo extends GraphRepository<Concept> {
+
+    @Query (value = "match ( c:Concept) where c.key ={0} return c")
+
+    Concept findByLabel(String key);
 
 //    @Query( value =
 //                    "MATCH (company:FDCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +

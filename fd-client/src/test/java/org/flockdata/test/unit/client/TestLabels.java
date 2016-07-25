@@ -33,6 +33,7 @@ import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Various import profiles
@@ -121,6 +122,19 @@ public class TestLabels extends AbstractImport {
                 }
             }
         }
+    }
+
+    @Test
+    public void tagDescription() throws Exception{
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/labels.json");
+        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/empty-ignored.json", contentModel);
+
+        fileProcessor.processFile(
+                extractProfile,
+                "/data/assets.txt");
+        List<EntityInputBean>entities = fdBatcher.getEntities();
+        List<TagInputBean> tagInputBeans = entities.iterator().next().getTags();
+        assertNotNull("Tag Description of the label was not honoured", tagInputBeans.iterator().next().getDescription());
     }
 
 }

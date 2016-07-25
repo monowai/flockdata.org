@@ -21,7 +21,6 @@
 package org.flockdata.company.endpoint;
 
 import org.flockdata.authentication.UserProfileService;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.RegistrationBean;
@@ -29,7 +28,6 @@ import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -44,27 +42,28 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/profiles")
 public class RegistrationEP {
 
-    @Autowired
-    RegistrationService regService;
+    private final RegistrationService regService;
+
+    private final UserProfileService userProfileService;
 
     @Autowired
-    SecurityHelper secHelper;
+    public RegistrationEP(UserProfileService userProfileService, RegistrationService regService) {
+        this.userProfileService = userProfileService;
+        this.regService = regService;
+    }
 
-    @Autowired
-    UserProfileService userProfileService;
 
-
-    @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.POST)
-
-    public ResponseEntity<SystemUserResultBean> registerSystemUser(@RequestBody RegistrationBean regBean) throws FlockException {
-        // curl -u admin:hackme -H "Content-Type:application/json" -X PUT http://localhost:8080/ab/profiles/register -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
+    @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public SystemUserResultBean registerSystemUser(@RequestBody RegistrationBean regBean) throws FlockException {
+        // curl -u admin:hackme -H "Content-Type:application/json" -X PUT http://localhost:8080/api/v1/profiles -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
         SystemUser su = regService.registerSystemUser( regBean);
 
         if (su == null)
-            return new ResponseEntity<>(new SystemUserResultBean(su), HttpStatus.CONFLICT);
+            return new SystemUserResultBean(su);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return new ResponseEntity<>(new SystemUserResultBean(su, userProfileService.getUser(auth)), HttpStatus.CREATED);
+        return new SystemUserResultBean(su, userProfileService.getUser(auth));
     }
 
     @RequestMapping(value = "/me", method = RequestMethod.GET)

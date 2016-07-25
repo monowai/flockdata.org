@@ -70,7 +70,7 @@ import java.util.List;
 @Profile("fd-importer")
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"org.flockdata.authentication", "org.flockdata.shared", "org.flockdata.client"})
+@ComponentScan(basePackages = {"org.flockdata.shared", "org.flockdata.client"})
 public class Importer  {
 
     private Logger logger = LoggerFactory.getLogger(Importer.class);
@@ -87,7 +87,7 @@ public class Importer  {
     @Value("${auth.user:#{null}}")
     String authUser;
 
-    @Value("${fd.client.delimiter}")
+    @Value("${fd.client.delimiter:','}")
     String delimiter;
 
     @Value("${fd.content.model:#{null}}")
@@ -117,8 +117,7 @@ public class Importer  {
 
             int skipCount = clientConfiguration.getSkipCount();
 
-            int rowsToProcess = clientConfiguration.getStopRowProcessCount();
-
+            fdTemplate.validateConnectivity();
             watch.start();
 
             for (String thisFile : clientConfiguration.getFilesToImport()) {
@@ -137,19 +136,25 @@ public class Importer  {
                     item++;
                 }
                 ContentModel contentModel;
-                ExtractProfile extractProfile = null;
+                ExtractProfile extractProfile;
                 if ( fileModel != null) {
                     // Reading model from file
                     contentModel = resolveContentModel(fileModel);
                     extractProfile = resolveExtractProfile(fileModel,contentModel);
                 } else if (serverSideContentModel!=null ){
                     contentModel = resolveContentModel(serverSideContentModel);
+                    if (contentModel==null ){
+                        logger.error(String.format("Unable to located the requested content model %s", serverSideContentModel));
+                        System.exit(-1);
+                    }
+
                     extractProfile = new ExtractProfileHandler(contentModel, delimiter);
 
                 } else {
                     logger.error("No import parameters to work with");
                     return;
                 }
+
                 SystemUserResultBean su = fdTemplate.me(); // Use the configured API as the default FU unless another is set
                 if (su == null) {
                     if (!clientConfiguration.isAmqp())

@@ -1,15 +1,6 @@
 {
-    "documentName": "Sales",
-    "contentType": "csv",
-    "tagOrEntity": "entity",
-    "entityOnly": false,
-    "fortress": "Sales",
-    "fortressUser": "batch",
-    "header": true,
+    "tagModel": true,
     "content": {
-        "transaction_id": {
-            "callerRef": true
-        },
         "zip": {
             "tag": true,
             "relationship": "lives",
@@ -18,20 +9,17 @@
                 {
                     "relationship": "located",
                     "code": "city",
-                    "labelDescription": "city",
                     "label": "City",
                     "targets": [
                         {
                             "relationship": "city",
                             "code": "state",
-                            "name": "stateName",
                             "label": "State",
                             "targets": [
                                 {
                                     "relationship": "state",
                                     "code": "country",
-                                    "label": "Country",
-                                    "mustExist": true
+                                    "label": "Country"
                                 }
                             ]
 
@@ -39,12 +27,6 @@
                     ]
                 }
             ]
-        },
-
-        "name": {
-            "tag" :true,
-            "relationship":"blah",
-            "label": "Wow"
         }
     }
 

@@ -20,6 +20,8 @@
 
 package org.flockdata.track.bean;
 
+import org.flockdata.registration.TagResultBean;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,12 +36,18 @@ public class ConceptInputBean {
     private boolean tag = true;
 
     Collection<String> relationships = new HashSet<>();
+    private String description;
 
     private ConceptInputBean() {}
 
     public ConceptInputBean(String name) {
         this();
         this.name = name;
+    }
+
+    public ConceptInputBean(TagResultBean tagResultBean) {
+        this(tagResultBean.getTag().getLabel());
+        this.description = tagResultBean.getDescription();
     }
 
     public String getName() {
@@ -101,5 +109,13 @@ public class ConceptInputBean {
         return "ConceptInputBean{" +
                 "name='" + name + '\'' +
                 '}';
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

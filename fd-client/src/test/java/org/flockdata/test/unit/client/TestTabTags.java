@@ -19,10 +19,12 @@ package org.flockdata.test.unit.client;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.Transformer;
 import org.flockdata.transform.tags.TagMapper;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -36,17 +38,24 @@ public class TestTabTags {
     @Test
     public void string_NestedTags() throws Exception {
         ContentModel params = ContentModelDeserializer.getContentModel("/model/sectors.json");
-        TagMapper mapper = new TagMapper();
+        TagMapper tagMapper = new TagMapper();
         String[] headers = new String[]{"Catcode","Catname","Catorder","Industry","Sector","Sector Long"};
         String[] data = new String[]{"F2600","Private Equity & Investment Firms","F07","Securities & Investment","Finance/Insur/RealEst","Finance","Insurance & Real Estate"};
 
-        Map<String, Object> json = mapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)),params);
+        Map<String, Object> json = tagMapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)),params);
+        assertEquals(1, tagMapper.getTags().size());
+        TagInputBean tag = tagMapper.getTags().iterator().next();
+
         assertNotNull(json);
-        assertNotNull(mapper);
-        assertEquals("Code does not match", "F2600", mapper.getCode());
-        assertEquals("Name does not match", "Private Equity & Investment Firms", mapper.getName());
-        assertNotNull(mapper.getProperties().get("order"));
-        assertEquals(1, mapper.getTargets().size());
+        assertNotNull(tagMapper);
+        assertEquals("Code does not match", "F2600", tag.getCode());
+        assertEquals("Name does not match", "Private Equity & Investment Firms", tag.getName());
+        assertNotNull(tag.getProperties().get("order"));
+        assertEquals(1, tag.getTargets().size());
+        Collection<TagInputBean> targets = tag.getTargets().get("comprises");
+        assertEquals(1, targets.size());
+        tag = targets.iterator().next();
+        assertNotNull(tag.getDescription());
     }
 
 }

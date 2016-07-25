@@ -1,45 +1,46 @@
 {
-    "contentType": "csv",
-    "tagOrTrack": "tag",
-    "header": true,
-    "content": {
-        "device_name": {
-            "tag": true,
-            "label": "Device",
-            "code": "device_code",
-            "name": "device_name",
-            "mustExist": false,
-            "targets": [
-                {
-                    "code": "company_name",
-                    "label": "Manufacturer",
-                    "relationship": "makes",
-                    "reverse": true,
-                    "targets": [
-                        {
-                            "relationship": "located",
-                            "code": "city",
-                            "label": "City"
-                        }
-                    ]
-                },
-                {
-                    "code": "type",
-                    "relationship": "of-type",
-                    "reverse": true
-                } ,
-                {
-                    "code": "tags",
-                    "label":"_Tag",
-                    "relationship": "mentions",
-                    "delimiter": ","
-
-                }
-            ]
+  "contentType": "csv",
+  "tagModel": "true",
+  "header": true,
+  "content": {
+    "device_name": {
+      "tag": true,
+      "label": "Device",
+      "code": "device_code",
+      "name": "device_name",
+      "mustExist": false,
+      "targets": [
+        {
+          "code": "company_name",
+          "label": "Manufacturer",
+          "relationship": "makes",
+          "reverse": true,
+          "targets": [
+            {
+              "relationship": "located",
+              "code": "city",
+              "label": "City"
+            }
+          ]
         },
-        "ram": {
-            "target": "RAM"
+        {
+          "code": "type",
+          "relationship": "of-type",
+          "reverse": true
+        },
+        {
+          "code": "tags",
+          "label": "_Tag",
+          "relationship": "mentions",
+          "delimiter": ","
         }
-
+      ],
+      "properties": [
+        {
+          "source": "ram",
+          "target": "RAM"
+        }
+      ]
     }
+  }
 }

@@ -174,6 +174,8 @@ public class TestEntityLinks extends EngineBase {
         ContentModel params = ContentModelDeserializer.getContentModel("/models/test-entitylinks.json");
         contentModelService.saveEntityModel(su.getCompany(), fortress, timesheet, params );
         batchService.process(su.getCompany(), fortress, timesheet, "/data/test-entitylinks.csv", false);
+
+        assertNotNull( "couldn't find the entity we created", entityService.findByCode(su.getCompany(), fortress.getName(), "Timesheet", "1" ));
         // recorded is the relationship type in the content profile definition
         String rlxName = "recorded";
         Map<String, Collection<Entity>> linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "1", rlxName);

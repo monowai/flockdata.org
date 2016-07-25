@@ -150,7 +150,7 @@ public class EntityMapper extends EntityInputBean implements Mappable {
             } else if (TransformationHelper.evaluate(colDef.isTag())) {
                 TagInputBean tag = new TagInputBean();
 
-                if (TransformationHelper.setTagInputBean(tag, row, sourceColumn, contentModel.getContent(), value)) {
+                if (TransformationHelper.setTagInputBean(tag, row, sourceColumn, contentModel, value)) {
                     addTag(tag);
                 }
             }

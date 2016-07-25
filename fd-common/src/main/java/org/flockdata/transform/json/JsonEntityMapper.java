@@ -21,6 +21,8 @@
 package org.flockdata.transform.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.flockdata.model.EntityTagRelationshipDefinition;
+import org.flockdata.model.EntityTagRelationshipInput;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
@@ -106,12 +108,18 @@ public class JsonEntityMapper extends EntityInputBean  {
             }
         }
         setSubTags(tag, colDef.getTargets(), thisNode);
-        String rlx = colDef.getRelationship();
+        Collection<EntityTagRelationshipDefinition> links = colDef.getEntityTagLinks();
+        String rlx ;
+        boolean geo = false;
+        if ( links == null || links.isEmpty())
+            rlx = "default";
+        else {
+            EntityTagRelationshipDefinition etr = links.iterator().next();
+            geo = etr.getGeo();
+            rlx = links.iterator().next().getRelationshipName();
+        }
 
-        if ( rlx==null )
-            rlx = "undefined";
-
-        tag.addEntityTagLink(rlx, rlxProperties);
+        tag.addEntityTagLink(rlx, new EntityTagRelationshipInput(rlx,geo));
         return tag;
     }
 

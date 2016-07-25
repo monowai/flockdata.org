@@ -76,10 +76,10 @@ public class Transformer {
 
     }
 
-    public static TagInputBean transformToTag(Map<String, Object> row, ContentModel contentModel) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
-        Mappable mappable = TagMapper.newInstance(contentModel);
+    public static Collection<TagInputBean> transformToTag(Map<String, Object> row, ContentModel contentModel) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+        TagMapper mappable = TagMapper.newInstance(contentModel);
         mappable.setData(row, contentModel);
-        return (TagInputBean) mappable;
+        return mappable.getTags();
 
     }
 
@@ -128,7 +128,7 @@ public class Transformer {
      * @param content data to analyse
      * @return basic ContentProfile that descibes the Contents
      */
-    public static Map<String, ColumnDefinition> fromMapToProfile(Collection<Map<String, Object>> content )  {
+    public static Map<String, ColumnDefinition> fromMapToModel(Collection<Map<String, Object>> content )  {
         Map<String, ColumnDefinition> result = new TreeMap<>();
         if ( content == null)
             return result;

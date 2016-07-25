@@ -52,7 +52,7 @@ import java.util.Map;
         @PropertySource(value = "classpath:/fd-batch.properties"),
         @PropertySource(value = "file:${org.fd.batch.properties}", ignoreResourceNotFound = true)
 })
-@Profile("fd-batch")
+@Profile( {"fd-batch", "fd-batch-dev"})
 public class BatchConfig {
     private Logger logger = LoggerFactory.getLogger(BatchConfig.class);
 

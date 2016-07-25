@@ -26,6 +26,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Map;
@@ -34,7 +35,8 @@ import java.util.Map;
  * @author nabil
  */
 @Component
-@Profile("fd-batch")
+@Profile({"fd-batch", "fd-batch-dev"})
+@Service
 public class FdTagProcessor implements ItemProcessor<Map<String, Object>, TagInputBean> {
 
     @Autowired
@@ -46,14 +48,14 @@ public class FdTagProcessor implements ItemProcessor<Map<String, Object>, TagInp
     public TagInputBean process(Map<String, Object> item) throws Exception {
         // This should be initialised just the once
         ContentModel contentModel = getContentModel(stepName);
-        return Transformer.transformToTag(item, contentModel);
+        return Transformer.transformToTag(item, contentModel).iterator().next();
 
     }
 
     private ContentModel getContentModel(String name) throws IOException, ClassNotFoundException {
         ContentModel result =batchConfig.getStepConfig(name).getContentModel();
         if ( result == null )
-            throw new ClassNotFoundException(String.format("Unable to resolve the content profile mapping for step %s",name.toLowerCase()));
+            throw new ClassNotFoundException(String.format("Unable to resolve the content profile mapping for step %s, %s",name,batchConfig.getStepConfig(name).getModel()));
         return result;
     }
 

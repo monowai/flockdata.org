@@ -176,6 +176,8 @@ public class TestCsvEntity extends AbstractImport{
         assertNotNull(cityTag);
         assertEquals("San Francisco", cityTag.getCode());
         assertEquals("City", cityTag.getLabel());
+        assertNotNull( cityTag.getDescription());
+        assertEquals(cityTag.getCode(), cityTag.getDescription());
 
         Map<String, Collection<TagInputBean>> stateTags = cityTag.getTargets();
         assertEquals(1, stateTags.size());

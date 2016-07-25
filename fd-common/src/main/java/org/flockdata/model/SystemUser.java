@@ -37,7 +37,7 @@ public class SystemUser  {
     private String login;
 
 //    @Indexed(unique = true)
-//    private String companyLogin;
+    private String email;
 
     @Indexed
     private String apiKey;
@@ -92,6 +92,10 @@ public class SystemUser  {
 
     public Company getCompany() {
         return company;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public Long getId() {

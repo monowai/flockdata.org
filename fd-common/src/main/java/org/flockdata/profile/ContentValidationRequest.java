@@ -24,6 +24,7 @@ import org.flockdata.profile.model.ContentModel;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,6 +36,7 @@ public class ContentValidationRequest {
 
     ContentModel contentModel;
     Collection<Map<String,Object>> rows;
+    Map<Integer,Collection<String>> messages = new HashMap<>();
 
     public ContentValidationRequest(){}
 
@@ -49,11 +51,34 @@ public class ContentValidationRequest {
         this.rows = rows;
     }
 
+    public ContentValidationRequest(ContentModel contentModel, Collection<Map<String, Object>> data) {
+        this(contentModel);
+        this.rows = data;
+    }
+
+    public ContentValidationRequest(Collection<Map<String, Object>> rows) {
+        this.rows = rows;
+    }
+
     public ContentModel getContentModel() {
         return contentModel;
     }
 
     public Collection<Map<String, Object>> getRows() {
         return rows;
+    }
+
+    public Map<Integer, Collection<String>> getMessages() {
+        return messages;
+    }
+
+    public void addResult(int rowCount, String message) {
+
+        Collection<String> existingMessages = messages.get(rowCount);
+        if ( existingMessages == null ) {
+            existingMessages = new ArrayList<>();
+            messages.put(rowCount, existingMessages);
+        }
+        existingMessages.add(message);
     }
 }

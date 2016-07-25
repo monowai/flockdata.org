@@ -46,7 +46,6 @@ public class TestNestedTags extends AbstractImport {
 
         assertEquals(1, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
-            System.out.println(tagInputBean);
             assertFalse("The target tag should not exist as the source value was missing", tagInputBean.hasTargets());
         }
     }

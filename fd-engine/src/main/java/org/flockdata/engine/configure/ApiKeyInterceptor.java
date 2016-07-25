@@ -47,7 +47,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
 
-        if ( HttpMethod.OPTIONS == HttpMethod.resolve(request.getMethod()))
+        if (HttpMethod.OPTIONS == HttpMethod.resolve(request.getMethod()))
             return true; // CORS - this interceptor does not handle OPTIONS requests
         String apiKey = request.getHeader(API_KEY);
 
@@ -82,19 +82,21 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
 
     private boolean isDataAccessRequest(HttpServletRequest request) {
         String url = request.getRequestURL().toString();
-        return ! (url.contains("/api/v1/admin/health") || url.contains("/api/v1/admin/ping"))
+        return !(url.contains("/api/v1/admin/health")
+                    || url.contains("/api/v1/admin/ping"))
                 && (url.contains("/api/v1/company")
-                 || url.contains("/api/v1/track")
-                 || url.contains("/api/v1/admin")
-                || url.contains("/api/v1/concept")
-                 || url.contains("/api/v1/entity")
-                 || url.contains("/api/v1/fortress")
-                 || url.contains("/api/v1/tag")
-                 || url.contains("/api/v1/model")
-                 || url.contains("/api/v1/path")
-                 || url.contains("/api/v1/query")
-                 || url.contains("/api/v1/doc")
-                 || url.contains("/api/v1/geo"));
+                    || url.contains("/api/v1/track")
+                    || url.contains("/api/v1/admin")
+                    || url.contains("/api/v1/concept")
+                    || url.contains("/api/v1/entity")
+                    || url.contains("/api/v1/fortress")
+                    || url.contains("/api/v1/tag")
+                    || url.contains("/api/v1/batch")
+                    || url.contains("/api/v1/model")
+                    || url.contains("/api/v1/path")
+                    || url.contains("/api/v1/query")
+                    || url.contains("/api/v1/doc")
+                    || url.contains("/api/v1/geo"));
     }
 
     private boolean noApiKey(String apiKey) {

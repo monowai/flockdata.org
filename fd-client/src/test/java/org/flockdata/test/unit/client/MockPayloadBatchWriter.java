@@ -28,12 +28,13 @@ import org.springframework.stereotype.Service;
  *
  * Created by mike on 13/04/16.
  */
-@Profile("dev")
+@Profile("fd-batch-dev")
 @Service
-public class MockPayloadBatchWriter extends FdBatchWriter {
+public class MockPayloadBatchWriter extends FdBatchWriter{
 
     @Override
     public void flush(){
         // Noop
     }
+
 }

@@ -44,7 +44,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Component
 @Configuration
-@Profile({"!dev"})
+@Profile({"fd-batch"})
 public class FdBatchWriter implements PayloadBatcher {
     private List<EntityInputBean> entityBatch = new ArrayList<>();
     private Map<String, TagInputBean> tagBatch = new HashMap<>();
@@ -53,16 +53,16 @@ public class FdBatchWriter implements PayloadBatcher {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdBatchWriter.class);
 
     @Autowired
-    private ClientConfiguration  clientConfiguration;
+    private ClientConfiguration clientConfiguration;
 
-    @Autowired (required = false) // Misc impls provided in fd-client, fd-engine etc.
-    FdWriter fdWriter;
+    @Autowired(required = false)  FdWriter fdWriter;   // Misc impls provided in fd-client, fd-engine etc.
 
-    public FdBatchWriter(){}
+    protected FdBatchWriter () {}
 
     /**
      * POJO configuration approach
-     * @param writer    writer to send payloads to
+     *
+     * @param writer        writer to send payloads to
      * @param configuration configuration properties
      */
     public FdBatchWriter(FdWriter writer, ClientConfiguration configuration) {
@@ -75,7 +75,12 @@ public class FdBatchWriter implements PayloadBatcher {
 
     @Override
     public void writeTag(TagInputBean tagInputBean, String message) throws FlockException {
-        writeTag(tagInputBean, false, message);
+        writeTags(Collections.singletonList(tagInputBean), false, message);
+    }
+
+    @Override
+    public void writeTags(Collection<TagInputBean> tagInputBeans, String message) throws FlockException {
+        writeTags(tagInputBeans, false, message);
     }
 
     @Override
@@ -85,21 +90,21 @@ public class FdBatchWriter implements PayloadBatcher {
 
     @Override
     public void writeEntity(EntityInputBean entityInputBean, boolean doWrite) throws FlockException {
-        if ( fdWriter == null )
-            throw new FlockException( "No valid FdWriter could be found. Please provide an implementation");
+        if (fdWriter == null)
+            throw new FlockException("No valid FdWriter could be found. Please provide an implementation");
         try {
             entityLock.lock();
             if (entityInputBean != null) {
 
-                if ( entityInputBean.getFortress() == null )
+                if (entityInputBean.getFortress() == null)
                     throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via a content model with the fortressName attribute.");
 
-                if ( !validDocumentType(entityInputBean)  )
+                if (!validDocumentType(entityInputBean))
                     throw new FlockException("Unable to resolve the document type name that defines this entity. Add this via a content model with the documentName attribute.");
 
                 int existingIndex = getExistingIndex(entityInputBean);
 
-                if ( existingIndex>-1){  // Additive behaviour - merge tags in this entity into one we already know about
+                if (existingIndex > -1) {  // Additive behaviour - merge tags in this entity into one we already know about
                     EntityInputBean masterEntity = entityBatch.get(existingIndex);
                     masterEntity.merge(entityInputBean);
                 } else {
@@ -108,9 +113,9 @@ public class FdBatchWriter implements PayloadBatcher {
                 writeTags(entityInputBean);
             }
 
-            if ( clientConfiguration.getBatchSize()> 0 && (doWrite || entityBatch.size() >=  clientConfiguration.getBatchSize())) {
+            if (clientConfiguration.getBatchSize() > 0 && (doWrite || entityBatch.size() >= clientConfiguration.getBatchSize())) {
 
-                if (entityBatch.size() >0 ) {
+                if (entityBatch.size() > 0) {
                     logger.debug("Writing....");
                     fdWriter.writeEntities(entityBatch);
                     logger.debug("Wrote Batch [{}]", entityBatch.size());
@@ -132,38 +137,43 @@ public class FdBatchWriter implements PayloadBatcher {
 
     /**
      * determines if an entity already being tracked can be considered to be merged with
+     *
      * @param entityInputBean incoming entity
      * @return index of an existing EIB or -1 if it should be ignored
      */
     private int getExistingIndex(EntityInputBean entityInputBean) {
-        int existingIndex =-1;
-        if ( (entityInputBean.getCode()!= null || entityInputBean.getKey()!=null ) && entityInputBean.getContent() == null )
+        int existingIndex = -1;
+        if ((entityInputBean.getCode() != null || entityInputBean.getKey() != null) && entityInputBean.getContent() == null)
             existingIndex = entityBatch.indexOf(entityInputBean);
         return existingIndex;
     }
 
-    private void writeTag(TagInputBean tagInputBean, boolean flush, String message) throws FlockException {
-
+    private void writeTags(Collection<TagInputBean> tagInputBeans, boolean forceFlush, String message) throws FlockException {
+        if ( tagInputBeans== null )
+            return;
         try {
             tagLock.lock();
-            if (tagInputBean != null) {
-                if ( tagInputBean.getCode()==null || tagInputBean.getCode().equals("")) {
-                    logger.error("Attempting to create a tag without a code value. Code is a required field []" + tagInputBean);
-                    return ;
+            for (TagInputBean tagInputBean : tagInputBeans) {
+
+                if (tagInputBean != null) {
+                    if (tagInputBean.getCode() == null || tagInputBean.getCode().equals("")) {
+                        logger.error("Attempting to create a tag without a code value. Code is a required field []" + tagInputBean);
+                        return;
+                    }
+
+                    tagBatch.put(getTagKey(tagInputBean), tagInputBean);
                 }
 
-                tagBatch.put(getTagKey(tagInputBean), tagInputBean);
-
+                if (tagBatch.size() > 0)
+                    if (forceFlush || tagBatch.size() >= clientConfiguration.getBatchSize()) {
+                        logger.debug("Writing " + message + " Tag Batch [{}]", tagBatch.size());
+                        if (tagBatch.size() > 0)
+                            fdWriter.writeTags(new ArrayList<>(tagBatch.values()));
+                        logger.debug("Wrote Tag Batch");
+                        tagBatch = new HashMap<>();
+                    }
             }
 
-            if ( tagBatch.size() >0 )
-                if (flush || tagBatch.size() >= clientConfiguration.getBatchSize()) {
-                    logger.debug("Writing " + message + " Tag Batch [{}]", tagBatch.size());
-                    if (tagBatch.size() > 0)
-                        fdWriter.writeTags(new ArrayList<>(tagBatch.values()));
-                    logger.debug("Wrote Tag Batch");
-                    tagBatch = new HashMap<>();
-                }
         } finally {
             tagLock.unlock();
         }
@@ -175,7 +185,7 @@ public class FdBatchWriter implements PayloadBatcher {
     }
 
     @SuppressWarnings("unused")
-    public Collection<String> getFilesToImport(){
+    public Collection<String> getFilesToImport() {
         return clientConfiguration.getFilesToImport();
     }
 
@@ -193,16 +203,16 @@ public class FdBatchWriter implements PayloadBatcher {
     }
 
     private String getTagKey(TagInputBean tag) {
-        return (tag.getKeyPrefix()!=null ?tag.getKeyPrefix()+"-":"")+tag.getCode() + "-" +tag.getLabel();
+        return (tag.getKeyPrefix() != null ? tag.getKeyPrefix() + "-" : "") + tag.getCode() + "-" + tag.getLabel();
     }
 
     @Override
-    public void flush()  {
+    public void flush() {
         try {
             entityLock.lock();
             try {
-                writeTag(null, true, "");
-                if ( entityBatch.size() >0)
+                writeTags(null, true, "");
+                if (entityBatch.size() > 0)
                     fdWriter.writeEntities(entityBatch);
                 entityBatch.clear();
             } catch (FlockException e) {
@@ -218,7 +228,7 @@ public class FdBatchWriter implements PayloadBatcher {
     }
 
     @Override
-    public void reset(){
+    public void reset() {
         entityBatch.clear();
         tagBatch.clear();
     }
@@ -238,7 +248,7 @@ public class FdBatchWriter implements PayloadBatcher {
         try {
             return fdWriter.getContentModel(clientConfiguration, modelKey);
         } catch (IOException e) {
-            logger.error("Failed to get the ContentModel ["+ modelKey +"]. ", e);
+            logger.error("Failed to get the ContentModel [" + modelKey + "]. ", e);
         }
         return null;
     }

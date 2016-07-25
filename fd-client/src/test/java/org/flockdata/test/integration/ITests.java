@@ -75,7 +75,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 })
 @RunWith(SpringJUnit4ClassRunner.class)
 @Configuration
-@ActiveProfiles("fd-server")
+@ActiveProfiles({"fd-server", "fd-batch"})
 public class ITests {
 
 
@@ -219,7 +219,7 @@ public class ITests {
 //       ToDo: figure out getting ImportProfiles into the fileProcessor
         int countryInputs = fileProcessor.processFile(extractProfile, "/fd-cow.txt");
 
-        assertEquals("Countries not processed", countryInputs, 249);
+        assertEquals("Countries not processed", 250, countryInputs); //+1 "Undefined"
         TagsGet countries = new TagsGet(fdTemplate, "Country");
         // Tags are processed over a messageQ so will take a wee bit of time to be processed
         integrationHelper.longSleep();
@@ -435,7 +435,7 @@ public class ITests {
 
         Collection<TagInputBean> tags = new ArrayList<>();
         String tagLabel = "simpleTag";
-        TagInputBean tagInputBean = new TagInputBean("ACode", tagLabel);
+        TagInputBean tagInputBean = new TagInputBean("ACode", tagLabel).setDescription("Description of the Tag");
         tags.add(tagInputBean);
         tagInputBean = new TagInputBean("BCode", tagLabel);
         tags.add(tagInputBean);

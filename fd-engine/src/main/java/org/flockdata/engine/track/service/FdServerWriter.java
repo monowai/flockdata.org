@@ -21,7 +21,6 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
@@ -50,27 +49,29 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class FdServerWriter implements FdWriter {
 
-    @Autowired
-    GeographyService geoService;
+    private final FortressService fortressService;
 
-    @Autowired
-    FortressService fortressService;
+    private final ConceptService conceptService;
 
-    @Autowired
-    ConceptService conceptService;
+    private final MediationFacade mediationFacade;
 
-    @Autowired
-    MediationFacade mediationFacade;
+    private final SecurityHelper securityHelper;
 
-    @Autowired
-    SecurityHelper securityHelper;
-
-    @Autowired
+    private final
     ContentModelService contentModelService;
+
+    @Autowired
+    public FdServerWriter(MediationFacade mediationFacade, SecurityHelper securityHelper, ContentModelService contentModelService, FortressService fortressService, ConceptService conceptService) {
+        this.mediationFacade = mediationFacade;
+        this.securityHelper = securityHelper;
+        this.contentModelService = contentModelService;
+        this.fortressService = fortressService;
+        this.conceptService = conceptService;
+    }
 
     @Override
     public SystemUserResultBean me() {
-        return new SystemUserResultBean(securityHelper.getSysUser(true));
+        return new SystemUserResultBean(securityHelper.getSysUser(false));
     }
 
     @Override

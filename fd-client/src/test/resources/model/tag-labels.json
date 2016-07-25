@@ -1,7 +1,5 @@
 {
-  "tagOrEntity": "entity",
-  "documentName": "test" ,
-  "fortressName":"WhoCares",
+  "tagModel": true,
   "content": {
     "Occupancy": {
       "tag": true,

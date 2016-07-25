@@ -24,11 +24,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.Alias;
+import org.flockdata.model.Concept;
 import org.flockdata.model.Tag;
 import org.flockdata.track.bean.AliasResultBean;
 import org.neo4j.graphdb.Node;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,8 +40,8 @@ import java.util.Map;
  * Created by mike on 11/05/15.
  */
 public class TagResultBean {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     String code;
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     String name;
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -48,6 +50,7 @@ public class TagResultBean {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     String message;
 
+    @JsonIgnore
     Boolean newTag = false;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     ArrayList<AliasResultBean> aliases = new ArrayList<>();
@@ -109,6 +112,10 @@ public class TagResultBean {
         this.label = TagHelper.getLabel(pc.getLabels());
     }
 
+    public TagResultBean(Concept concept) {
+        this.label = concept.getName();
+    }
+
     public String getKey() {
         return key;
     }
@@ -154,7 +161,7 @@ public class TagResultBean {
     public String toString() {
         return "TagResultBean{" +
                 "label='" + label + '\'' +
-                "code='" + code + '\'' +
+                ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 '}';
     }
@@ -188,5 +195,20 @@ public class TagResultBean {
         result = 31 * result + (key != null ? key.hashCode() : 0);
         result = 31 * result + (label != null ? label.hashCode() : 0);
         return result;
+    }
+
+    Map<TagResultBean, Collection<String>>targets = new HashMap<>();
+
+    public void addTargetResult(String rlxName, TagResultBean targetTag) {
+        Collection<String>relationships = targets.get(targetTag);
+        if ( relationships == null )
+            relationships = new ArrayList<>();
+        relationships.add(rlxName);
+        targets.put(targetTag,relationships);
+    }
+
+    @JsonIgnore
+    public Map<TagResultBean, Collection<String>> getTargets() {
+        return targets;
     }
 }

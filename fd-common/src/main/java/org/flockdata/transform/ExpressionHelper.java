@@ -52,7 +52,7 @@ public class ExpressionHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(ExpressionHelper.class);
 
-    static StandardEvaluationContext context = new StandardEvaluationContext();
+    private static StandardEvaluationContext context = new StandardEvaluationContext();
 
     public static Object getValue(Object value, ColumnDefinition colDef) {
 
@@ -132,7 +132,12 @@ public class ExpressionHelper {
 
         // set the #Data variable
         context.setVariable("data", row);
-        return parser.parseExpression(expression).getValue(context);
+        try {
+            return parser.parseExpression(expression).getValue(context);
+        } catch ( Exception e ){
+            logger.debug (String.format("Error evaluating expression [%s], message was %s ", expression, e.getMessage()));
+            throw (e);
+        }
     }
 
     private static String getNullSafeDefault(Object defaultValue, ColumnDefinition colDef) {
@@ -154,14 +159,19 @@ public class ExpressionHelper {
 
 
         if (colDef.getDateFormat().equalsIgnoreCase("timestamp")) {
-            return Timestamp.valueOf(value).getTime();
+            try {
+                return Timestamp.valueOf(value).getTime();
+            } catch (IllegalArgumentException e){
+                logger.error("Failed to evaluate timestamp for {}. Tried to evaluate {}", colDef, value);
+                throw (e);
+            }
         }
 
         if (NumberUtils.isDigits(value))  // plain old java millis
             return Long.parseLong(value);
 
         // Custom Date formats
-        DateTimeFormatter pattern = DateTimeFormatter.ofPattern(colDef.getDateFormat(), Locale.ENGLISH);
+//
         String tz = colDef.getTimeZone();
         if ( tz == null )
             tz = TimeZone.getDefault().getID();
@@ -172,6 +182,7 @@ public class ExpressionHelper {
             return new SimpleDateFormat(colDef.getDateFormat()).parse(value).getTime();
         } catch (DateTimeParseException | ParseException e) {
             // Just a plain date
+            DateTimeFormatter pattern = DateTimeFormatter.ofPattern(colDef.getDateFormat(), Locale.ENGLISH);
             LocalDate date = LocalDate.parse(value, pattern);
             return new DateTime(date.toString(), DateTimeZone.forID(tz)).getMillis();
         }

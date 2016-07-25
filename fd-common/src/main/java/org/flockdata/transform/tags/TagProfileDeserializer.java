@@ -21,10 +21,7 @@
 package org.flockdata.transform.tags;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import org.flockdata.helper.FdJsonObjectMapper;
 
 import java.io.IOException;
@@ -36,13 +33,17 @@ import java.util.ArrayList;
  * Time: 4:25 PM
  */
 public class TagProfileDeserializer extends JsonDeserializer<ArrayList<TagProfile>> {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper( new FdJsonObjectMapper())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .enable(JsonParser.Feature.ALLOW_COMMENTS);
+
     @Override
     public ArrayList<TagProfile> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ArrayList<TagProfile> values = new ArrayList<>();
         JsonNode node = jp.getCodec().readTree(jp);
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
         for (JsonNode jsonNode : node) {
-            values.add(om.readValue(jsonNode.toString(), TagProfile.class));
+            values.add(objectMapper.readValue(jsonNode.toString(), TagProfile.class));
 
         }
         return values;

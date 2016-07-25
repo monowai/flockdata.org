@@ -24,12 +24,10 @@ import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.dao.EntityDaoNeo;
-import org.flockdata.engine.meta.service.TxService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
@@ -39,7 +37,6 @@ import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
-import org.flockdata.track.service.TagService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -68,47 +65,41 @@ public class EntityServiceNeo4J implements EntityService {
 
     private static final String EMPTY = "";
 
-    @Autowired
-    FortressService fortressService;
+    private final FortressService fortressService;
 
-    @Autowired
-    CompanyService companyService;
+    private final SystemUserService sysUserService;
 
-    @Autowired
-    SystemUserService sysUserService;
+    private final SecurityHelper securityHelper;
 
-    @Autowired
-    private SecurityHelper securityHelper;
+    private final EntityTagService entityTagService;
 
-    @Autowired
-    EntityTagService entityTagService;
+    private final ConceptService conceptService;
 
-    @Autowired
-    ConceptService conceptService;
+    private final IndexManager indexManager;
 
-    @Autowired
-    IndexManager indexManager;
+    private final StorageProxy contentReader;
 
-    @Autowired
-    TxService txService;
+    private final EntityDaoNeo entityDao;
 
-    @Autowired
-    StorageProxy contentReader;
+    private final StorageProxy storageProxy;
 
-    @Autowired
-    EntityDaoNeo entityDao;
-
-    @Autowired
-    TagService tagService;
-
-    @Autowired
-    StorageProxy storageProxy;
-
-    @Autowired
-    @Qualifier("engineConfig")
-    PlatformConfig platformConfig;
+    private final PlatformConfig platformConfig;
 
     private Logger logger = LoggerFactory.getLogger(EntityServiceNeo4J.class);
+
+    @Autowired
+    public EntityServiceNeo4J(SecurityHelper securityHelper, StorageProxy storageProxy, @Qualifier("engineConfig") PlatformConfig platformConfig, EntityDaoNeo entityDao, StorageProxy contentReader, IndexManager indexManager, ConceptService conceptService, EntityTagService entityTagService, SystemUserService sysUserService, FortressService fortressService) {
+        this.securityHelper = securityHelper;
+        this.storageProxy = storageProxy;
+        this.platformConfig = platformConfig;
+        this.entityDao = entityDao;
+        this.contentReader = contentReader;
+        this.indexManager = indexManager;
+        this.conceptService = conceptService;
+        this.entityTagService = entityTagService;
+        this.sysUserService = sysUserService;
+        this.fortressService = fortressService;
+    }
 
     @Override
     public EntityKeyBean findParent(Entity childEntity) {
@@ -215,9 +206,9 @@ public class EntityServiceNeo4J implements EntityService {
 
             return trackResult;
         }
-        Collection<TagResultBean> createdTags = null;
+//        Collection<TagResultBean> createdTags = null;
         try {
-            createdTags = getTags(tags);
+//            createdTags = getTags(tags);
             entity = makeEntity(segment, documentType, entityInput);
         } catch (FlockException e) {
             logger.error(e.getMessage());
@@ -340,7 +331,7 @@ public class EntityServiceNeo4J implements EntityService {
             return null;
 
         if (!(entity.getSegment().getFortress().getCompany().getId().equals(company.getId())))
-            throw new SecurityException("CompanyNode mismatch. [" + key + "] working for [" + company.getName() + "] cannot write meta records for [" + entity.getSegment().getFortress().getCompany().getName() + "]");
+            throw new SecurityException("CompanyNode mismatch. [" + key + "] working for [" + company.getName() + "] cannot write Entities for [" + entity.getSegment().getFortress().getCompany().getName() + "]");
         return entity;
     }
 

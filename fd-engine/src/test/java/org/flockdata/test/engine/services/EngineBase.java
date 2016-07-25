@@ -35,6 +35,7 @@ import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
+import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.service.CompanyService;
@@ -160,6 +161,9 @@ public abstract class EngineBase {
 
     @Autowired
     SecurityHelper securityHelper;
+
+    @Autowired
+    ContentModelService contentModelService;
 
     static Logger logger = LoggerFactory.getLogger(EngineBase.class);
 
