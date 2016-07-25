@@ -27,6 +27,7 @@ package org.flockdata.engine.configure;
  */
 
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.GraphDatabaseAPI;
 import org.neo4j.server.configuration.Configurator;
@@ -42,10 +43,10 @@ import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableTransactionManagement
-@EnableNeo4jRepositories(basePackages = { "org.flockdata.company.dao",
-                                          "org.flockdata.geography.dao",
-                                          "org.flockdata.engine.*"
-                                          })
+@EnableNeo4jRepositories(basePackages = {"org.flockdata.company.dao",
+        "org.flockdata.geography.dao",
+        "org.flockdata.engine.*"
+})
 @Configuration
 @Profile({"fd-server"})
 public class Neo4jConfig extends Neo4jConfiguration {
@@ -59,6 +60,7 @@ public class Neo4jConfig extends Neo4jConfiguration {
     public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.server.webserver.port:7474}") Integer port,
                                                      @Value("${org.neo4j.server.webserver.address:disable}") String address,
                                                      @Value("${org.neo4j.auth:true}") Boolean enableSecurity,
+                                                     @Value("${org.neo4j.dbms.pagecache.memory:@null}") String pageCache,
                                                      @Value("${org.neo4j.path:.}") String props,
                                                      @Value("${org.neo4j.server.database.location:data/neo4j}") String dbPath) {
         try {
@@ -68,16 +70,23 @@ public class Neo4jConfig extends Neo4jConfiguration {
 
             this.dbPath = dbPath;
             setBasePackage("org.flockdata.model");
-            GraphDatabaseAPI graphdb = (GraphDatabaseAPI) new GraphDatabaseFactory()
+            if (pageCache != null && pageCache.equals("@null"))
+                pageCache = null;
+            GraphDatabaseBuilder graphdbBuilder = new GraphDatabaseFactory()
                     .newEmbeddedDatabaseBuilder(dbPath)
-                    .loadPropertiesFromFile(configFile)
+                    .loadPropertiesFromFile(configFile);
+
+            if (pageCache != null)
+                graphdbBuilder.setConfig("dbms.pagecache.memory", pageCache);
+
+            GraphDatabaseAPI graphdb = (GraphDatabaseAPI) graphdbBuilder
                     .newGraphDatabase();
-            if ( port >0 ) {
-                logger.info ("**** Neo4j browser enabled at url [{}] port [{}]", address, port );
+            if (port > 0) {
+                logger.info("**** Neo4j browser enabled at url [{}] port [{}]", address, port);
                 ServerConfigurator config = new ServerConfigurator(graphdb);
                 config.configuration().setProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, port);
-                if ( !address.equals("disable"))
-                    config.configuration().setProperty(Configurator.WEBSERVER_ADDRESS_PROPERTY_KEY, address );
+                if (!address.equals("disable"))
+                    config.configuration().setProperty(Configurator.WEBSERVER_ADDRESS_PROPERTY_KEY, address);
                 config.configuration().setProperty("dbms.security.auth_enabled", enableSecurity);
                 new WrappingCommunityNeoServer(graphdb, config).start();
             } else {

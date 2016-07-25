@@ -45,6 +45,7 @@ fdengine:
     logging.level.org.flockdata: INFO
     # Disable the webserver
     org.neo4j.server.webserver.port: -1
+    org.neo4j.dbms.pagecache.memory: 256m
     spring.jackson.serialization.indent_output: 'true'
     rabbit.host: rabbit
     rabbit.port: 5672
@@ -93,7 +94,7 @@ fdsearch:
 
   environment:
     server.port: 8091
-#    _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+    _JAVA_OPTIONS: "-Xms256m -Xmx512m"
     org.fd.engine.url: 'http://fdengine:8090'
     # Enables integration functionality
     org.fd.engine.api: http://fdengine:8090

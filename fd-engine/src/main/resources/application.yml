@@ -161,10 +161,11 @@ org:
     path: src/main/resources
     # where to write the db files to - required
     server.database.location: data/neo4j
+#    dbms.pagecache.memory: 1g
     # Disable the neo4j browser by setting the port to 0
     server:
       webserver:
-        # Set the port to < 0 to disable the WEBUI for Neo4j
+        # Set the port to =< 0 to disable the WEBUI for Neo4j
         port: 7474
         # 0.0.0.0 sets access from anywhere
         address: 0.0.0.0
