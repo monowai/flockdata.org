@@ -60,6 +60,8 @@ public class TagResultBean {
     private Tag tag =null;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String relationship;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String description;
 
     public TagResultBean(){}
 
@@ -75,8 +77,10 @@ public class TagResultBean {
             this.code = tagInputBean.getCode();
             this.name = tagInputBean.getName();
         }
-        if ( tagInputBean != null )
+        if ( tagInputBean != null ) {
             this.message = tagInputBean.setServiceMessage();
+            this.description = tagInputBean.getDescription();
+        }
 
     }
 
@@ -114,6 +118,7 @@ public class TagResultBean {
 
     public TagResultBean(Concept concept) {
         this.label = concept.getName();
+        this.description = concept.getDescription();
     }
 
     public String getKey() {
@@ -210,5 +215,9 @@ public class TagResultBean {
     @JsonIgnore
     public Map<TagResultBean, Collection<String>> getTargets() {
         return targets;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }
