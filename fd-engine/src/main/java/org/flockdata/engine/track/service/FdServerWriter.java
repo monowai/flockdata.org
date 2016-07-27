@@ -114,4 +114,9 @@ public class FdServerWriter implements FdWriter {
         return null;
     }
 
+    @Override
+    public void validateConnectivity() throws FlockException {
+        // No-op - We're on the server, so we better be running
+    }
+
 }

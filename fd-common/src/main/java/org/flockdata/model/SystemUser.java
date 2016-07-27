@@ -20,6 +20,7 @@
 
 package org.flockdata.model;
 
+import org.flockdata.registration.RegistrationBean;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
@@ -57,9 +58,18 @@ public class SystemUser  {
         setLogin(login);
 
         if (admin)
-            setAdministers(company);
+            setCompanyAccess(company);
 //        if ( company != null) // GUEST user does not belong to any company
 //            companyLogin = company.getId()+"."+login;
+    }
+
+    public SystemUser(RegistrationBean regBean) {
+        this.login = regBean.getLogin();
+        this.name = regBean.getName();
+        this.email = regBean.getEmail();
+
+        this.setCompanyAccess(regBean.getCompany());
+
     }
 
     public String getName() {
@@ -103,7 +113,7 @@ public class SystemUser  {
 
     }
 
-    void setAdministers(org.flockdata.model.Company company) {
+    private void setCompanyAccess(Company company) {
         this.company = company;
     }
 

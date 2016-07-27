@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -71,6 +72,15 @@ public class FdBatchWriter implements PayloadBatcher {
         this.fdWriter = writer;
         logger.info("Configuration {}", clientConfiguration);
 
+    }
+
+    @PostConstruct
+    void verifyConnectivity(){
+        try {
+            fdWriter.validateConnectivity();
+        } catch (FlockException e){
+            logger.error (String.format("Unable to verify connectivity with FlockData - %s",e.getMessage())) ;
+        }
     }
 
     @Override

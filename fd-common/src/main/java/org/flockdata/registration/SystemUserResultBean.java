@@ -49,6 +49,7 @@ public class SystemUserResultBean {
             this.apiKey = su.getApiKey();
             this.name = su.getName();
             this.login = su.getLogin();
+            this.email = su.getEmail();
             if (this.name == null)
                 this.name = login;
             if (su.getCompany() != null) // an unauthenticated user does not have a company
@@ -61,7 +62,7 @@ public class SystemUserResultBean {
         this(sysUser);
         this.userRoles = userProfile.getUserRoles();
         this.status = userProfile.getStatus();
-        this.email = userProfile.getUserEmail();
+        this.email = (userProfile.getUserEmail()!=null ? userProfile.getUserEmail(): sysUser.getEmail());
 
     }
 

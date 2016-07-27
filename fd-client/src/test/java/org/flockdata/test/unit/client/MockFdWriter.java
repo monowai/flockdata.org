@@ -76,4 +76,9 @@ public class MockFdWriter implements FdWriter {
         return ContentModelDeserializer.getContentModel(modelKey);
     }
 
+    @Override
+    public void validateConnectivity() throws FlockException {
+        // noop
+    }
+
 }

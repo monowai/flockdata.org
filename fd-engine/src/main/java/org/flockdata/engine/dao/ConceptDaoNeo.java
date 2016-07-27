@@ -91,7 +91,7 @@ public class ConceptDaoNeo {
     }
 
     private boolean linkNodesWithRelationship(String relationship, Node from, Node to) {
-        org.neo4j.graphdb.Relationship r = from.getSingleRelationship(DynamicRelationshipType.withName(relationship), Direction.OUTGOING);
+        org.neo4j.graphdb.Relationship r = from.getSingleRelationship(DynamicRelationshipType.withName(relationship), Direction.BOTH);
         if (r == null) {
             template.createRelationshipBetween(from, to, relationship, null);
             return true; // Link created

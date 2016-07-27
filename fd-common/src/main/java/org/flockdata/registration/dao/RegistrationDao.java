@@ -21,8 +21,8 @@
 package org.flockdata.registration.dao;
 
 
-import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.RegistrationBean;
 
 /**
  * User: Mike Holdsworth
@@ -34,6 +34,5 @@ public interface RegistrationDao {
 
     SystemUser findByApiKey(String apiKey);
 
-    SystemUser save(Company company, String userName, String password);
-
+    SystemUser save(RegistrationBean regBean);
 }

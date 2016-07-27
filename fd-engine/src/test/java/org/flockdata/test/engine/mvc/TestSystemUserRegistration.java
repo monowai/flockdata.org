@@ -63,10 +63,14 @@ public class TestSystemUserRegistration extends MvcBase {
         setSecurity();
 
         // Retry the operation
-        SystemUserResultBean regResult = registerSystemUser(mike(), new RegistrationBean(ANYCO, harry));
+        SystemUserResultBean regResult
+                = registerSystemUser(mike(),
+                    new RegistrationBean(ANYCO, "new-user")
+                                .setEmail("anyone@anywhere.com"));
         assertNotNull(regResult);
-        assertEquals(harry, regResult.getLogin());
-        assertEquals(harry, regResult.getLogin());
+        assertEquals("new-user", regResult.getLogin());
+        assertNotNull(regResult.getCompanyName());
+        assertEquals("anyone@anywhere.com", regResult.getEmail());
         assertNotNull(regResult.getApiKey());
         setSecurityEmpty();
 

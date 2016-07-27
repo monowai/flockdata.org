@@ -35,6 +35,7 @@ public class RegistrationBean {
     private Company company;
   //TODO: This was changed from default value of true to false
     private boolean unique = false;
+    private String email;
 
     public RegistrationBean() {
     }
@@ -59,16 +60,8 @@ public class RegistrationBean {
         return companyName;
     }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
-
     public String getLogin() {
         return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
     }
 
     public String getName() {
@@ -77,13 +70,6 @@ public class RegistrationBean {
 
     public Company getCompany() {
         return this.company;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
-        if ( company != null )
-            this.companyName = company.getName();
-
     }
 
     public RegistrationBean setIsUnique(boolean mustBeUnique) {
@@ -104,4 +90,43 @@ public class RegistrationBean {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public RegistrationBean setName(final String name) {
+        this.name = name;
+        return this;
+    }
+
+    public RegistrationBean setLogin(final String login) {
+        this.login = login;
+        return this;
+    }
+
+    public RegistrationBean setCompanyName(final String companyName) {
+        this.companyName = companyName;
+        return this;
+    }
+
+    public RegistrationBean setCompany(final Company company) {
+        this.company = company;
+        if ( company != null )
+            this.companyName = company.getName();
+
+        return this;
+    }
+
+    public RegistrationBean setUnique(final boolean unique) {
+        this.unique = unique;
+        return this;
+    }
+
+    public RegistrationBean setEmail(final String email) {
+        this.email = email;
+        return this;
+    }
 }
+
+

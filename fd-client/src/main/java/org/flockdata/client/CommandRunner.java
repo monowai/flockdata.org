@@ -34,7 +34,7 @@ public class CommandRunner {
 //        System.out.print(ArrayUtils.toString(args));
         if (ArrayUtils.contains(args, "import")) {
             app = new SpringApplication(Importer.class);
-            app.setAdditionalProfiles("fd-importer");
+            app.setAdditionalProfiles("fd-importer","fd-batch");
         } else if (ArrayUtils.contains(args, "register")) {
             app = new SpringApplication(Register.class);
             app.setAdditionalProfiles("fd-register");

@@ -261,7 +261,8 @@ public class FdTemplate implements FdWriter {
         fdRabbitClient.resetRabbitClient(rabbitHost, rabbitPort);
     }
 
-    void validateConnectivity() throws FlockException {
+    @Override
+    public void validateConnectivity() throws FlockException {
         boolean error = false;
         if (clientConfiguration.getApiKey() == null || clientConfiguration.getApiKey().length() == 0) {
             error = true;

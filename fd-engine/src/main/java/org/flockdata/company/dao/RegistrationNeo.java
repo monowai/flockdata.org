@@ -20,8 +20,8 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.dao.RegistrationDao;
 import org.flockdata.shared.KeyGenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,16 +52,19 @@ public class RegistrationNeo implements RegistrationDao {
         return suRepo.findBySchemaPropertyValue("apiKey", apiKey);
     }
 
+    @Override
+    public SystemUser save(RegistrationBean regBean) {
+        SystemUser su = new SystemUser(regBean);
+        su.setApiKey(keyGenService.getUniqueKey());
+        su = save(su);
+        return su;
+
+
+    }
+
     public SystemUser findSysUserByName(String name) {
         return suRepo.getSystemUser(name);
     }
 
-    @Override
-    public SystemUser save(Company company, String name, String login) {
-        SystemUser su = new SystemUser(name, login, company, true);
-        su.setApiKey(keyGenService.getUniqueKey());
-        su = save(su);
-        return su;
-    }
 
 }

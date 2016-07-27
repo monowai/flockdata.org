@@ -48,4 +48,6 @@ public interface FdWriter {
 
     ContentModel getContentModel(ClientConfiguration clientConfiguration, String modelKey) throws IOException;
 
+    void validateConnectivity() throws FlockException;
+
 }

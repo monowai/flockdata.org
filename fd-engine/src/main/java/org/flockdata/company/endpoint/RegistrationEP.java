@@ -52,7 +52,6 @@ public class RegistrationEP {
         this.regService = regService;
     }
 
-
     @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.CREATED)
     public SystemUserResultBean registerSystemUser(@RequestBody RegistrationBean regBean) throws FlockException {
@@ -66,8 +65,7 @@ public class RegistrationEP {
         return new SystemUserResultBean(su, userProfileService.getUser(auth));
     }
 
-    @RequestMapping(value = "/me", method = RequestMethod.GET)
-
+    @RequestMapping(value = "/me", method = RequestMethod.GET, produces = "application/json")
     public SystemUserResultBean get(@RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         // curl -u batch:123 -X GET http://localhost:8080/ab/profiles/me/
 
