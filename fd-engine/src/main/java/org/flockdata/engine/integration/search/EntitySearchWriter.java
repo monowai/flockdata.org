@@ -38,11 +38,13 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.NullChannel;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by mike on 12/02/16.
  */
 @Configuration
+@Service
 @Profile("fd-server")
 public class EntitySearchWriter {
 
@@ -51,6 +53,7 @@ public class EntitySearchWriter {
 
     @Autowired
     Exchanges exchanges;
+
     @Autowired
     MessageSupport messageSupport;
 

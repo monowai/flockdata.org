@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.model.ContentModel;
-import org.flockdata.transform.PayloadBatcher;
+import org.flockdata.transform.FdIoInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,8 +85,7 @@ public class BatchConfig {
     private String batchDriver;
 
     @Autowired
-    PayloadBatcher payloadBatcher;
-
+    private FdIoInterface fdIoInterface;
 
     public String getUrl() {
         return url;
@@ -132,7 +131,7 @@ public class BatchConfig {
         return batchDriver;
     }
 
-    Map<String, StepConfig> config = new HashMap<>();
+    private Map<String, StepConfig> config = new HashMap<>();
 
     @Autowired
     void loadConfigs(@Value("${org.fd.client.configs:}") final String str) throws Exception {
@@ -153,29 +152,26 @@ public class BatchConfig {
         }
     }
 
+    private StepConfig loadStepConfig(String stepName) throws IOException, ClassNotFoundException {
+        StepConfig stepConfig;
+        stepConfig = readConfig(stepName.trim());
+
+        return stepConfig;
+    }
+
     public StepConfig getStepConfig(String stepName) {
         StepConfig stepConfig = config.get(stepName);
         if (stepConfig == null) {
             logger.error("The requested step configuration [{}] does not exist - known step configs [{}]", stepName, Arrays.toString(config.values().toArray()));
             throw new IllegalArgumentException("The requested step configuration " + stepName + " does not exist. Known configs are [" + Arrays.toString(config.values().toArray()) + "]");
         }
-        return stepConfig;
-    }
-
-    private StepConfig loadStepConfig(String stepName) throws IOException, ClassNotFoundException {
-        StepConfig stepConfig;
-        stepConfig = readConfig(stepName.trim());
-        if (stepConfig.getModel() != null) {
-            // Resolve from local file system
-            ContentModel contentModel = ContentModelDeserializer.getContentModel(stepConfig.getModel());
-            if ( contentModel == null )
-                // Check the server
-                contentModel = payloadBatcher.getContentModel(stepConfig.getModel());
-            stepConfig.setContentModel(contentModel);
-        } else if ( stepConfig.getModelKey()!=null){
-            payloadBatcher.getContentModel(stepConfig.getModelKey());
+        try {
+            if (stepConfig.getContentModel() == null)
+                stepConfig.setContentModel(getModelForStep(stepConfig));
+        } catch (IOException e){
+            logger.error ( "Failed to resolve content model for "+stepName);
+            throw new RuntimeException(e);
         }
-
         return stepConfig;
     }
 
@@ -198,6 +194,21 @@ public class BatchConfig {
         }
         return stepConfig;
 
+    }
+
+    private ContentModel getModelForStep(StepConfig stepConfig) throws IOException{
+        ContentModel contentModel =null;
+        if (stepConfig.getModel() != null) {
+            // Resolve from local file system
+             contentModel = ContentModelDeserializer.getContentModel(stepConfig.getModel());
+            if ( contentModel == null )
+                // Check the server
+                contentModel = fdIoInterface.getContentModel(stepConfig.getModel());
+            stepConfig.setContentModel(contentModel);
+        } else if ( stepConfig.getModelKey()!=null){
+            contentModel = fdIoInterface.getContentModel(stepConfig.getModelKey());
+        }
+        return contentModel;
     }
 
     private StepConfig loadStepConfig(URL url) throws IOException {

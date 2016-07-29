@@ -57,8 +57,8 @@ org:
   neo4j:
     server:
       webserver:
-        # Set the port to < 0 to disable the WEBUI for Neo4j
-        port: 7474
+        # Set the port to =< 0 to disable the WEBUI for Neo4j
+        port: 0
         # 0.0.0.0 sets access from anywhere
         address: 0.0.0.0
     # enable/disable neo4j security (omitting defaults to enabled)

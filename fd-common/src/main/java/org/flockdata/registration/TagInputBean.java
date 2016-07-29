@@ -39,8 +39,8 @@ import java.util.Map;
  */
 public class TagInputBean implements org.flockdata.transform.UserProperties {
 
-    Map<String, Object> properties; // stored on the tag
-    Map<String, EntityTagRelationshipInput> entityTagLinks; // between entity and this tag
+    private Map<String, Object> properties; // stored on the tag
+    private Map<String, EntityTagRelationshipInput> entityTagLinks; // between entity and this tag
     private String name;
     private String code;
     private String description; // Optional description of the Label
@@ -464,12 +464,12 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     /**
      * determines if the targets Map contains a TagInputBean with requested properties
-     * Tags are uniquely identified by either Code or keyPrefix+"-"+code within a Label
+     * Tags are uniquely identified by either Label+Code or keyPrefix+"-"+code within a Label
      *
      * @param code      case-insensitive - mandatory
      * @param label     case-sensitive - mandatory
      * @param keyPrefix case-insensitive - optional
-     * @return
+     * @return  TagInputBean if found
      * @since DAT-491
      */
     public TagInputBean findTargetTag(String code, String label, String keyPrefix) {

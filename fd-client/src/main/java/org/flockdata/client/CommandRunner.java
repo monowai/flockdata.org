@@ -17,7 +17,7 @@
 package org.flockdata.client;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.flockdata.client.commands.Login;
+import org.flockdata.registration.SystemUserResultBean;
 import org.slf4j.Logger;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
@@ -34,7 +34,7 @@ public class CommandRunner {
 //        System.out.print(ArrayUtils.toString(args));
         if (ArrayUtils.contains(args, "import")) {
             app = new SpringApplication(Importer.class);
-            app.setAdditionalProfiles("fd-importer","fd-batch");
+            app.setAdditionalProfiles("fd-importer", "fd-batch");
         } else if (ArrayUtils.contains(args, "register")) {
             app = new SpringApplication(Register.class);
             app.setAdditionalProfiles("fd-register");
@@ -64,25 +64,20 @@ public class CommandRunner {
         System.exit(0);
     }
 
-    static void configureAuth(Logger logger, String authUser, FdTemplate fdTemplate) {
-        if ( authUser!=null && !authUser.equals("")){
+    public static void configureAuth(Logger logger, String authUser, FdTemplate fdTemplate) {
+        if (authUser != null && !authUser.equals("")) {
 
             String[] uArgs = authUser.split(":");
 
-            if ( uArgs.length==1)
-                throw new RuntimeException("No password supplied for {}"+uArgs[0]);
+            if (uArgs.length == 1)
+                throw new RuntimeException("No password supplied for {}" + uArgs[0]);
 
-            fdTemplate.getClientConfiguration()
-                    .setHttpUser(uArgs[0])
-                    .setHttpPass(uArgs[1]);
-            Login login = new Login(fdTemplate);
-            login.exec();
-            if (login.error()!= null){
-                logger.error("Login error for {} - message {}", uArgs[0], login.error());
+            logger.info("Using user id {}", uArgs[0]);
+            SystemUserResultBean su = fdTemplate.login(uArgs[0], uArgs[1]);
+            if (su == null) {
+                logger.error("Error logging into {} for user {}", fdTemplate.getClientConfiguration().getServiceUrl(), uArgs[0]);
                 System.exit(-1);
             }
-            // Setting to that of the user who just logged in
-            fdTemplate.getClientConfiguration().setApiKey(login.result().getApiKey());
 
         }
     }

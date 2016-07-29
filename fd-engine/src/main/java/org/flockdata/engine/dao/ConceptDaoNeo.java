@@ -28,8 +28,6 @@ import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.RelationshipResultBean;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
@@ -72,31 +70,34 @@ public class ConceptDaoNeo {
         this.template = template;
     }
 
-    public boolean linkEntities(DocumentType fromDoc, String relationship, DocumentType targetDoc) {
+    public boolean linkEntities(DocumentType fromDoc, DocumentType toDoc, String relationship) {
         Node from = template.getNode(fromDoc.getId());
-        Node to = template.getNode(targetDoc.getId());
-        return linkNodesWithRelationship(relationship, from, to);
+        Node to = template.getNode(toDoc.getId());
+        return linkNodesWithRelationship(from, to, relationship);
     }
 
-    private boolean linkDocToConcept(DocumentType fromDoc, String relationship, Concept concept) {
+    private boolean linkDocToConcept(DocumentType fromDoc, Concept toConcept, String relationship) {
         Node from = template.getNode(fromDoc.getId());
-        Node to = template.getNode(concept.getId());
-        return linkNodesWithRelationship(relationship, from, to);
+        Node to = template.getNode(toConcept.getId());
+        return linkNodesWithRelationship(from, to, relationship);
     }
 
-    private boolean linkConceptToConcept(Concept fromConcept, String relationship, Concept concept) {
+    private boolean linkConceptToConcept(Concept fromConcept, Concept toConcept, String relationship) {
         Node from = template.getNode(fromConcept.getId());
-        Node to = template.getNode(concept.getId());
-        return linkNodesWithRelationship(relationship, from, to);
+        Node to = template.getNode(toConcept.getId());
+        return linkNodesWithRelationship(from, to, relationship);
     }
 
-    private boolean linkNodesWithRelationship(String relationship, Node from, Node to) {
-        org.neo4j.graphdb.Relationship r = from.getSingleRelationship(DynamicRelationshipType.withName(relationship), Direction.BOTH);
-        if (r == null) {
+    private boolean linkNodesWithRelationship(Node from, Node to, String relationship) {
+        if (!relationshipExists(from, to, relationship)) {
             template.createRelationshipBetween(from, to, relationship, null);
             return true; // Link created
         }
         return false; // Link already existed
+    }
+
+    private boolean relationshipExists(Node from, Node to, String relationship) {
+        return template.getRelationshipBetween(from, to, relationship) !=null ;
     }
 
     public void registerConcepts(Map<DocumentType, ArrayList<ConceptInputBean>> documentConcepts) {
@@ -114,7 +115,7 @@ public class ConceptDaoNeo {
                         logger.debug("No existing conceptInput found for [{}]. Creating it", relationship);
                         concept = template.save(new Concept(conceptInput));
                     }
-                    linkDocToConcept(docType, relationship, concept);
+                    linkDocToConcept(docType, concept, relationship);
 
                 }
             }
@@ -260,7 +261,7 @@ public class ConceptDaoNeo {
             if ( source!=null && target!=null){
                 Collection<String>rlxs= targets.get(tagResultBean);
                 for (String rlx : rlxs) {
-                    linkConceptToConcept(source,rlx,target);
+                    linkConceptToConcept(source, target, rlx);
                 }
             }
         }

@@ -24,7 +24,6 @@ import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
-import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.shared.IndexManager;
 import org.flockdata.shared.KeyGenService;
 import org.flockdata.store.Store;
@@ -58,41 +57,42 @@ import java.util.*;
 @Repository("entityDao")
 public class EntityDaoNeo {
 
-    @Autowired
-    EntityRepo entityRepo;
+    private final EntityRepo entityRepo;
 
-    @Autowired
-    @Qualifier("engineConfig")
-    PlatformConfig engineConfig;
+    private final PlatformConfig engineConfig;
 
-    @Autowired
-    TxRepo txRepo;
+    private final TxRepo txRepo;
 
-    @Autowired
-    TrackLogRepo trackLogRepo;
+    private final TrackLogRepo trackLogRepo;
 
-    @Autowired
-    DocumentTypeRepo documentTypeRepo;
+    private final DocumentTypeRepo documentTypeRepo;
 
-    @Autowired
-    TrackEventService trackEventService;
+    private final TrackEventService trackEventService;
 
-    @Autowired
-    KeyGenService keyGenService;
+    private final KeyGenService keyGenService;
 
-    @Autowired
-    SystemUserService systemUserService;
+    private final EntityTagService entityTagService;
 
-    @Autowired
-    EntityTagService entityTagService;
+    private final IndexManager indexManager;
 
-    @Autowired
-    IndexManager indexManager;
-
-    @Autowired
-    Neo4jTemplate template;
+    private final Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
+
+    @Autowired
+    public EntityDaoNeo(EntityRepo entityRepo, KeyGenService keyGenService, TrackEventService trackEventService, DocumentTypeRepo documentTypeRepo, EntityTagService entityTagService, TxRepo txRepo,
+                        TrackLogRepo trackLogRepo, IndexManager indexManager, @Qualifier("engineConfig") PlatformConfig engineConfig, Neo4jTemplate template) {
+        this.entityRepo = entityRepo;
+        this.keyGenService = keyGenService;
+        this.trackEventService = trackEventService;
+        this.documentTypeRepo = documentTypeRepo;
+        this.entityTagService = entityTagService;
+        this.txRepo = txRepo;
+        this.trackLogRepo = trackLogRepo;
+        this.indexManager = indexManager;
+        this.engineConfig = engineConfig;
+        this.template = template;
+    }
 
     public Entity create(EntityInputBean inputBean, FortressSegment segment, FortressUser fortressUser, DocumentType documentType) throws FlockException {
         String key = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
@@ -406,7 +406,7 @@ public class EntityDaoNeo {
         return entityLog;
     }
 
-    void setLatest(Entity entity) {
+    private void setLatest(Entity entity) {
         EntityLog latest = null;
         boolean moreRecent;
 

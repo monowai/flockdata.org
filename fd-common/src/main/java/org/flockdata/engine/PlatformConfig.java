@@ -22,7 +22,6 @@ package org.flockdata.engine;
 
 import org.flockdata.model.Company;
 import org.flockdata.store.Store;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 
@@ -32,8 +31,6 @@ import java.util.Map;
  * Time: 1:22 PM
  */
 public interface PlatformConfig {
-
-    String apiBase();
 
     String getTagSuffix(Company company);
 
@@ -45,9 +42,6 @@ public interface PlatformConfig {
 
     void setMultiTenanted(boolean multiTenanted);
 
-    @Value("${org.fd.engine.system.constraints:@null}")
-    void setSystemConstraints(String constraints);
-
     Store setStore(Store kvStore);
 
     Store store();
@@ -58,15 +52,11 @@ public interface PlatformConfig {
 
     void setDuplicateRegistration(boolean duplicateRegistration);
 
-    boolean isDuplicateRegistration();
-
     void setTestMode(boolean testMode);
 
     boolean isTestMode();
 
     String authPing();
-
-    boolean createSystemConstraints();
 
     Boolean storeEnabled();
 
@@ -78,12 +68,7 @@ public interface PlatformConfig {
 
     Boolean isSearchRequiredToConfirm() ;
 
-    boolean isTiming();
-
     String getFdSearch();
-
-    void setFdSearch (String url);
-
 
     String getFdStore();
 

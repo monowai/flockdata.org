@@ -29,8 +29,6 @@ import org.flockdata.model.Company;
 import org.flockdata.shared.AmqpRabbitConfig;
 import org.flockdata.shared.VersionHelper;
 import org.flockdata.store.Store;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.endpoint.InfoEndpoint;
@@ -56,8 +54,6 @@ import static org.flockdata.authentication.FdRoles.FD_ROLE_USER;
 @Configuration
 public class EngineConfig implements PlatformConfig {
 
-    private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
-
     @Value("${org.fd.engine.system.storage:RIAK}")
     private String storeEngine; // The default store to write to IF a fortress allows it
                                 // By default, storage engine services are not disabled
@@ -71,10 +67,6 @@ public class EngineConfig implements PlatformConfig {
 
     @Value("${spring.cloud.config.discovery.enabled:false}")
     Boolean discoveryEnabled;
-
-    public String apiBase(){
-        return apiBase;
-    }
 
     @Autowired (required = false)
     PingGateway pingSearchGateway;
@@ -92,23 +84,22 @@ public class EngineConfig implements PlatformConfig {
     @Value("${org.fd.engine.system.multiTenanted:false}")
     private Boolean multiTenanted = false;
     private boolean conceptsEnabled = true;
+    @Value("${org.fd.engine.system.constraints:true}")
     private boolean systemConstraints = true;
     private boolean duplicateRegistration;
     private boolean testMode;
+
+    @Value("${org.fd.engine.fortress.search:true}")
     private boolean searchEnabled = true;
+
+    @Value("${org.fd.search.api:http://localhost:8081}")
     private String fdSearch;
 
     @Value("${org.fd.store.api:http://localhost:8082}")
     private String fdStoreUrl;
-    //eureka.instance.hostname
+
     @Value ("${eureka.client.serviceUrl.defaultZone}")
     private String eurekaUrl;
-
-    @Value("${org.fd.search.api:http://localhost:8081}")
-    public void setFdSearch( String url) {
-        fdSearch = url;
-    }
-
 
     @Override
     public String getFdStore() {
@@ -122,41 +113,24 @@ public class EngineConfig implements PlatformConfig {
         return this;
     }
 
-    private boolean timing = false;
-
-    public void setStoreEnabled(boolean storeEnabled) {
-        this.storeEnabled = storeEnabled;
-    }
-
-    @Value("${org.fd.engine.fortress.search:true}")
-    public void setSearchEnabled(String searchEnabled) {
-        this.searchEnabled =Boolean.parseBoolean(searchEnabled);
-    }
-
-
-    /**
-     * Default property for a fortress if not explicitly set.
-     * When true (default) KV versions of information will be tracked
-     *
-     * @param timing defaults to true
-     */
     @Value("${org.fd.engine.system.timings:false}")
-    public void setTiming(String timing) {
-        this.timing = "@null".equals(timing) || Boolean.parseBoolean(timing);
-    }
-
+    private boolean timing = false;
 
     // By default, we only require a reply if this is being indexed for the first time
     @Value("${org.fd.engine.search.update:true}")
     Boolean requireSearchToConfirm = false;
 
-    public Boolean isSearchRequiredToConfirm() {
-        return requireSearchToConfirm;
+    public void setStoreEnabled(boolean storeEnabled) {
+        this.storeEnabled = storeEnabled;
     }
 
-    @Override
-    public boolean isTiming() {
-        return timing;
+    public void setSearchEnabled(String searchEnabled) {
+        this.searchEnabled =Boolean.parseBoolean(searchEnabled);
+    }
+
+
+    public Boolean isSearchRequiredToConfirm() {
+        return requireSearchToConfirm;
     }
 
     /**
@@ -180,13 +154,6 @@ public class EngineConfig implements PlatformConfig {
     @Value("${org.fd.engine.system.concepts:@null}")
     public void setConceptsEnabled(String conceptsEnabled) {
         this.conceptsEnabled = "@null".equals(conceptsEnabled) || Boolean.parseBoolean(conceptsEnabled);
-    }
-
-    @Override
-    @Value("${org.fd.engine.system.constraints:@null}")
-    public void setSystemConstraints(String constraints) {
-        this.systemConstraints = !"@null".equals(constraints) && Boolean.parseBoolean(constraints);
-
     }
 
     public Store setStore(Store store) {
@@ -291,11 +258,6 @@ public class EngineConfig implements PlatformConfig {
         this.duplicateRegistration = duplicateRegistration;
     }
 
-    @Override
-    public boolean isDuplicateRegistration() {
-        return duplicateRegistration;
-    }
-
     public boolean isTestMode() {
         return testMode;
     }
@@ -304,11 +266,6 @@ public class EngineConfig implements PlatformConfig {
     @PreAuthorize(FdRoles.EXP_EITHER)
     public String authPing() {
         return "pong";
-    }
-
-    @Override
-    public boolean createSystemConstraints() {
-        return systemConstraints;
     }
 
 

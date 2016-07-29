@@ -21,10 +21,9 @@
 package org.flockdata.shared;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.FdWriter;
+import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.PayloadBatcher;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +31,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -56,7 +53,8 @@ public class FdBatchWriter implements PayloadBatcher {
     @Autowired
     private ClientConfiguration clientConfiguration;
 
-    @Autowired(required = false)  FdWriter fdWriter;   // Misc impls provided in fd-client, fd-engine etc.
+    @Autowired(required = false)
+    FdIoInterface fdIoInterface;   // Misc impls provided in fd-client, fd-engine etc.
 
     protected FdBatchWriter () {}
 
@@ -66,21 +64,12 @@ public class FdBatchWriter implements PayloadBatcher {
      * @param writer        writer to send payloads to
      * @param configuration configuration properties
      */
-    public FdBatchWriter(FdWriter writer, ClientConfiguration configuration) {
+    public FdBatchWriter(FdIoInterface writer, ClientConfiguration configuration) {
         this();
         this.clientConfiguration = configuration;
-        this.fdWriter = writer;
+        this.fdIoInterface = writer;
         logger.info("Configuration {}", clientConfiguration);
 
-    }
-
-    @PostConstruct
-    void verifyConnectivity(){
-        try {
-            fdWriter.validateConnectivity();
-        } catch (FlockException e){
-            logger.error (String.format("Unable to verify connectivity with FlockData - %s",e.getMessage())) ;
-        }
     }
 
     @Override
@@ -100,8 +89,8 @@ public class FdBatchWriter implements PayloadBatcher {
 
     @Override
     public void writeEntity(EntityInputBean entityInputBean, boolean doWrite) throws FlockException {
-        if (fdWriter == null)
-            throw new FlockException("No valid FdWriter could be found. Please provide an implementation");
+        if (fdIoInterface == null)
+            throw new FlockException("No valid FdIoHandler could be found. Please provide an implementation");
         try {
             entityLock.lock();
             if (entityInputBean != null) {
@@ -127,7 +116,7 @@ public class FdBatchWriter implements PayloadBatcher {
 
                 if (entityBatch.size() > 0) {
                     logger.debug("Writing....");
-                    fdWriter.writeEntities(entityBatch);
+                    fdIoInterface.writeEntities(entityBatch);
                     logger.debug("Wrote Batch [{}]", entityBatch.size());
                 }
                 entityBatch = new ArrayList<>();
@@ -178,7 +167,7 @@ public class FdBatchWriter implements PayloadBatcher {
                     if (forceFlush || tagBatch.size() >= clientConfiguration.getBatchSize()) {
                         logger.debug("Writing " + message + " Tag Batch [{}]", tagBatch.size());
                         if (tagBatch.size() > 0)
-                            fdWriter.writeTags(new ArrayList<>(tagBatch.values()));
+                            fdIoInterface.writeTags(new ArrayList<>(tagBatch.values()));
                         logger.debug("Wrote Tag Batch");
                         tagBatch = new HashMap<>();
                     }
@@ -223,7 +212,7 @@ public class FdBatchWriter implements PayloadBatcher {
             try {
                 writeTags(null, true, "");
                 if (entityBatch.size() > 0)
-                    fdWriter.writeEntities(entityBatch);
+                    fdIoInterface.writeEntities(entityBatch);
                 entityBatch.clear();
             } catch (FlockException e) {
                 logger.error(e.getMessage());
@@ -253,13 +242,4 @@ public class FdBatchWriter implements PayloadBatcher {
         return new ArrayList<>(tagBatch.values());
     }
 
-    @Override
-    public ContentModel getContentModel(String modelKey) {
-        try {
-            return fdWriter.getContentModel(clientConfiguration, modelKey);
-        } catch (IOException e) {
-            logger.error("Failed to get the ContentModel [" + modelKey + "]. ", e);
-        }
-        return null;
-    }
 }

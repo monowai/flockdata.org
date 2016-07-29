@@ -29,9 +29,9 @@ import org.neo4j.server.configuration.Configurator;
  *
  * Created by mike on 28/03/16.
  */
-class WrappingCommunityNeoServer extends WrappingNeoServer {
+public class WrappingCommunityNeoServer extends WrappingNeoServer {
 
-    WrappingCommunityNeoServer(GraphDatabaseAPI db, Configurator configurator) {
+    public WrappingCommunityNeoServer(GraphDatabaseAPI db, Configurator configurator) {
         super(db, configurator);
     }
 }

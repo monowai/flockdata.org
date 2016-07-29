@@ -21,8 +21,8 @@
 package org.flockdata.engine.query.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
-import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.integration.search.DeleteIndex;
 import org.flockdata.engine.integration.search.EntitySearchWriter;
 import org.flockdata.engine.integration.search.EntitySearchWriter.EntitySearchWriterGateway;
@@ -40,7 +40,6 @@ import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.graphdb.NotFoundException;
@@ -48,6 +47,7 @@ import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
@@ -59,6 +59,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * Search Service interactions
@@ -71,42 +72,58 @@ import java.util.Collection;
 public class SearchServiceFacade {
     private Logger logger = LoggerFactory.getLogger(SearchServiceFacade.class);
 
-    @Autowired
-    EntityService entityService;
+    private final EntityService entityService;
+
+    private final StorageProxy storageProxy;
+
+    private EntitySearchWriterGateway searchWriterGateway;
+
+    private EntitySearchWriter entitySearchWriter;
+
+    private final DeleteIndex.DeleteIndexGateway deleteIndexGateway;
+
+    private final IndexManager indexManager;
+
+    private final FortressService fortressService;
+
+    private final EntityTagFinder taxonomyTags;
+
+    private final EntityTagFinder defaultTagFinder;
+
+    private final PlatformConfig engineConfig;
+
+    private FdViewQueryGateway fdViewQueryGateway;
 
     @Autowired
-    StorageProxy storageProxy;
+    public SearchServiceFacade(FortressService fortressService, EntityService entityService, StorageProxy storageProxy,
+                               IndexManager indexManager, @Qualifier("engineConfig") PlatformConfig engineConfig,
+                               DeleteIndex.DeleteIndexGateway deleteIndexGateway, EntityTagFinder taxonomyTags,
+                               EntityTagFinder defaultTagFinder) {
 
-    @Autowired(required = false) // Functional tests don't require gateways
-            EntitySearchWriterGateway searchWriter;
+        this.fortressService = fortressService;
+        this.entityService = entityService;
+        this.storageProxy = storageProxy;
+        this.indexManager = indexManager;
+        this.engineConfig = engineConfig;
+        this.deleteIndexGateway = deleteIndexGateway;
+        this.taxonomyTags = taxonomyTags;
+        this.defaultTagFinder = defaultTagFinder;
+    }
 
     @Autowired(required = false)
-    EntitySearchWriter entitySearchWriter;
-
-    @Autowired
-    DeleteIndex.DeleteIndexGateway deleteIndexGateway;
-
-    @Autowired
-    IndexManager indexManager;
-
-    @Autowired
-    EntityTagService entityTagService;
-
-    @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    EntityTagFinder taxonomyTags;
-
-    @Autowired
-    EntityTagFinder defaultTagFinder;
-
-    @Autowired
-    EngineConfig engineConfig;
+    void setEntitySearchWriter(EntitySearchWriter entitySearchWriter) {
+        this.entitySearchWriter = entitySearchWriter;
+    }
 
     @Autowired(required = false)
-    FdViewQueryGateway fdViewQueryGateway;
+    private void setEntitySearchWriterGateway(EntitySearchWriterGateway entitySearchWriterGateway) {
+        this.searchWriterGateway = entitySearchWriterGateway;
+    }
 
+    @Autowired(required = false)
+    private void setFdViewQueryGateway(FdViewQueryGateway fdViewQueryGateway) {
+        this.fdViewQueryGateway = fdViewQueryGateway;
+    }
     public void makeChangeSearchable(SearchChange searchChange) {
         if (searchChange == null)
             return;
@@ -125,7 +142,7 @@ public class SearchServiceFacade {
         else
             logger.debug("Sending request to index [{}]] logs", searchDocuments.size());
         if (entitySearchWriter != null)
-            searchWriter.makeSearchChanges(new SearchChanges(searchDocuments));
+            searchWriterGateway.makeSearchChanges(new SearchChanges(searchDocuments));
         else {
             logger.debug("Search Gateway is disabled");
         }
@@ -213,7 +230,7 @@ public class SearchServiceFacade {
             return null;
         }
 
-        if (searchDocument.getSysWhen() == 0l)
+        if (searchDocument.getSysWhen() == 0L)
             searchDocument.setSysWhen(entity.getDateCreated());
 
         if (entity.getId() == null) {
@@ -351,7 +368,7 @@ public class SearchServiceFacade {
      * @param trackResultBean data from which to create the search change
      * @return null if search is not required or is being actively suppressed
      */
-    EntitySearchChange getChangeToPublish(Fortress fortress, TrackResultBean trackResultBean) {
+    private EntitySearchChange getChangeToPublish(Fortress fortress, TrackResultBean trackResultBean) {
         if (trackResultBean == null)
             return null;
 
@@ -393,7 +410,7 @@ public class SearchServiceFacade {
         return trackResultBean.getCurrentLog();
     }
 
-    public void refresh(Company company, Collection<Long> entities) {
+    public void reIndex(Collection<Long> entities) {
         // To support DAT-279 - not going to work well with massive result sets
         Collection<Entity> entitiesSet = entityService.getEntities(entities);
         Collection<SearchChange> searchChanges = new ArrayList<>();
@@ -413,12 +430,10 @@ public class SearchServiceFacade {
     }
 
     public Boolean makeTagsSearchable(Company company, Collection<TagResultBean> tagResults) {
-        Collection<SearchChange> tagSearchChanges = new ArrayList<>();
-        for (TagResultBean tagResult : tagResults) {
-            if (tagResult.isNewTag()) {
-                tagSearchChanges.add(getTagChangeToPublish(company, tagResult));
-            }
-        }
+        Collection<SearchChange> tagSearchChanges = tagResults.stream().filter(TagResultBean::isNewTag)
+                .map(tagResult ->
+                        getTagChangeToPublish(company, tagResult))
+                .collect(Collectors.toCollection(ArrayList::new));
 
         return makeChangesSearchable(tagSearchChanges);
     }

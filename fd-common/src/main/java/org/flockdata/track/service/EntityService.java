@@ -111,7 +111,7 @@ public interface EntityService {
      * @param key      FD UID
      * @param relationship relationship
      * @return all entities connected
-     * @throws FlockException
+     * @throws FlockException problems
      */
     Map<String, Collection<Entity>> getCrossReference(Company company, String key, String relationship) throws FlockException;
 
@@ -126,7 +126,7 @@ public interface EntityService {
      * @param targetKeys    collection of entities we will link to
      * @param xRefName      the name to give the relationship
      * @return all targetkeys that were ignored
-     * @throws FlockException
+     * @throws FlockException problems
      */
     Collection<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> targetKeys, String xRefName) throws FlockException;
 

@@ -20,13 +20,11 @@ import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.listener.FlockDataJobListener;
 import org.flockdata.batch.listener.FlockDataSkipListener;
 import org.flockdata.batch.listener.FlockDataStepListener;
-import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.PayloadBatcher;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -59,9 +57,6 @@ public class FdBatchResources {
 
     @Autowired
     FdEntityProcessor fdEntityProcessor;
-
-    @Autowired
-    ItemWriter<EntityInputBean> fdEntityWriter;
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
 
@@ -114,12 +109,6 @@ public class FdBatchResources {
     public SkipListener skipListener() {
         return new FlockDataSkipListener();
     }
-
-    @Bean
-    public ItemWriter<EntityInputBean> fdEntityWriter() {
-        return new FdEntityWriter(payloadBatcher);
-    }
-
 
 
 }

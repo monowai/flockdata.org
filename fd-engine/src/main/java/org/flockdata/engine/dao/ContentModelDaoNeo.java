@@ -40,11 +40,16 @@ import java.util.Objects;
  */
 @Repository
 public class ContentModelDaoNeo {
-    @Autowired
-    ContentModelRepo contentModelRepo;
+
+    private final ContentModelRepo contentModelRepo;
+
+    private final Neo4jTemplate template;
 
     @Autowired
-    Neo4jTemplate template;
+    public ContentModelDaoNeo(ContentModelRepo contentModelRepo, Neo4jTemplate template) {
+        this.contentModelRepo = contentModelRepo;
+        this.template = template;
+    }
 
 
     public Model findTagProfile(Company company, String code) {

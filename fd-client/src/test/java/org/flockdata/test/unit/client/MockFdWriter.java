@@ -23,7 +23,7 @@ import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.FdWriter;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ import java.util.Collection;
  */
 @Service
 @Profile("dev")
-public class MockFdWriter implements FdWriter {
+public class MockFdWriter implements FdIoInterface {
 
     public Collection<EntityInputBean> getEntities() {
         return entities;
@@ -72,13 +72,18 @@ public class MockFdWriter implements FdWriter {
     }
 
     @Override
-    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String modelKey) throws IOException {
+    public ContentModel getContentModel( String modelKey) throws IOException {
         return ContentModelDeserializer.getContentModel(modelKey);
     }
 
     @Override
-    public void validateConnectivity() throws FlockException {
+    public SystemUserResultBean validateConnectivity() throws FlockException {
+        return null;
         // noop
     }
 
+    @Override
+    public SystemUserResultBean register(String userName, String company) {
+        return null;
+    }
 }

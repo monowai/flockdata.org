@@ -28,11 +28,11 @@ import org.springframework.web.client.ResourceAccessException;
 
 /**
  * HTTP login
- *
+ * <p>
  * Created by mike on 4/04/16.
  */
 
-public class Login extends AbstractRestCommand{
+public class Login extends AbstractRestCommand {
 
     SystemUserResultBean result;
 
@@ -45,26 +45,20 @@ public class Login extends AbstractRestCommand{
     }
 
     /**
-     *
      * @return an error message (if one occurred) and null if everything is worked. Call result() to get, umm, the result
      */
     @Override    // Command
     public Login exec() {
         String exec = url + "/api/login";
-        result = null; error =null;
+        result = null;
+        error = null;
         try {
             ResponseEntity<SystemUserResultBean> response;
-            HttpEntity<LoginRequest> request = new HttpEntity<>(new LoginRequest(user,pass), httpHeaders);
+            HttpEntity<LoginRequest> request = new HttpEntity<>(new LoginRequest(user, pass), httpHeaders);
             response = restTemplate.exchange(exec, HttpMethod.POST, request, SystemUserResultBean.class);
             result = response.getBody();
-        } catch (HttpClientErrorException e) {
-
-            if (e.getMessage().startsWith("401"))
-                error = "auth";
-            else
-                error = e.getMessage();
-        } catch (HttpServerErrorException | ResourceAccessException e) {
-            error = e.getMessage();
+        } catch (HttpClientErrorException |HttpServerErrorException | ResourceAccessException e) {
+            error = String.format("Login for %s on %s failed with %s", getUrl(), user, e.getMessage());
         }
         return this;
     }

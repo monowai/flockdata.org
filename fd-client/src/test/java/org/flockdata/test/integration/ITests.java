@@ -157,13 +157,11 @@ public class ITests {
     }
 
     @Test
-    public void aaStatusChecks() {
+    public void aaStatusChecks() throws Exception {
         logger.info("HealthChecks");
         // If the services can't see each other, its not worth proceeding
-        integrationHelper.login(fdTemplate, ADMIN_REGRESSION_USER, "123").exec();
-        Login login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        integrationHelper.assertWorked("Login error ", login.exec());
-        assertTrue("Unexpected login error " + login.error(), login.worked());
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
         Health health = new Health(fdTemplate);
         integrationHelper.assertWorked("Health Check", health.exec());
 
@@ -189,9 +187,11 @@ public class ITests {
     }
 
     @Test
-    public void registration() {
+    public void registration() throws Exception{
         // An authorised user can create DataAccess users for a given company
-        integrationHelper.assertWorked("Registration failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, IntegrationHelper.ADMIN_REGRESSION_PASS).exec());
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
+
         SystemUserResultBean suResult = integrationHelper.makeDataAccessUser();
         assertNotNull(suResult);
         assertNotNull(suResult.getApiKey());
@@ -209,7 +209,8 @@ public class ITests {
     @Test
     public void loadCountries() throws Exception {
 
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
 
         clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
         clientConfiguration.setBatchSize(5);
@@ -265,7 +266,9 @@ public class ITests {
     @Test
     public void trackEntityOverHttp() throws Exception {
 
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
+
         clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
 
         EntityInputBean entityInputBean = new EntityInputBean()
@@ -292,8 +295,9 @@ public class ITests {
     @Test
     public void trackEntityOverAmqpThenFindInSearch() throws Exception {
 
-        Login login = integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec();
-        integrationHelper.assertWorked("Login failed ", login);
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
+
         SystemUserResultBean su= integrationHelper.makeDataAccessUser();
         assertNotNull(su);
         clientConfiguration.setApiKey(su.getApiKey());
@@ -342,8 +346,8 @@ public class ITests {
     @Test
     public void validateEntityLogs() throws Exception {
 
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
-        clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("validateEntityLogs", false))
@@ -381,11 +385,10 @@ public class ITests {
     @Test
     public void findByESPassThroughWithUTF8() throws Exception {
 
-        Login login = integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123");
-        integrationHelper.assertWorked("Login failed ", login.exec());
-        SystemUserResultBean su = integrationHelper.makeDataAccessUser();
-        assertNotNull("message = "+login.error(), su);
-        clientConfiguration.setApiKey(su.getApiKey());
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
+
+        integrationHelper.makeDataAccessUser();
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("findByESPassThroughWithUTF8")
@@ -430,8 +433,8 @@ public class ITests {
     @Test
     public void simpleTags() throws Exception {
 
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
-        clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
 
         Collection<TagInputBean> tags = new ArrayList<>();
         String tagLabel = "simpleTag";
@@ -490,8 +493,9 @@ public class ITests {
 
     @Test
     public void bulkTagsDontBlock() throws Exception {
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
-        clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
+
         Collection<TagInputBean> setA = getRandomTags("codea", "Set");
         Collection<TagInputBean> setB = getRandomTags("codea", "Set");
         Collection<TagInputBean> setC = getRandomTags("codea", "Set");
@@ -511,8 +515,8 @@ public class ITests {
 
     @Test
     public void purgeFortressRemovesEsIndex() throws Exception {
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
-        clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("purgeFortressRemovesEsIndex")
@@ -550,11 +554,11 @@ public class ITests {
 
     @Test
     public void purgeSegmentRemovesOnlyTheSpecifiedOne() throws Exception {
-        Login loginResult = integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec();
-        integrationHelper.assertWorked("Login failed ", loginResult);
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
+
         SystemUserResultBean su = integrationHelper.makeDataAccessUser();
         assertNotNull("Data Access User should not be null", su);
-        clientConfiguration.setApiKey(su.getApiKey());
 
         DocumentTypeInputBean docType = new DocumentTypeInputBean("DeleteSearchDoc");
 
@@ -657,8 +661,8 @@ public class ITests {
     @Test
     public void purgeSegmentEntitiesWithNoLogs() throws Exception {
 
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
-        clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull (login);
         final String FORTRESS = "purgeSegmentEntitiesWithNoLogs";
         DocumentTypeInputBean docType = new DocumentTypeInputBean(FORTRESS);
 

@@ -351,7 +351,7 @@ public class EntityServiceNeo4J implements EntityService {
         return entityDao.findEntities(fortress.getId(), docType.getName(), skipTo);
     }
 
-    Entity getEntity(Long id) {
+    private Entity getEntity(Long id) {
         return entityDao.getEntity(id);
     }
 
@@ -404,7 +404,7 @@ public class EntityServiceNeo4J implements EntityService {
         return getLogs(entity, from, to);
     }
 
-    Set<EntityLog> getLogs(Entity entity, Date from, Date to) {
+    private Set<EntityLog> getLogs(Entity entity, Date from, Date to) {
         return entityDao.getLogs(entity.getId(), from, to);
     }
 

@@ -35,7 +35,7 @@ import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.FdWriter;
+import org.flockdata.transform.FdIoInterface;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -60,7 +60,7 @@ import java.util.Map;
  * Since: 13/10/13
  */
 @Service
-public class FdTemplate implements FdWriter {
+public class FdTemplate implements FdIoInterface {
 
     private static boolean compress = true;
 
@@ -69,9 +69,9 @@ public class FdTemplate implements FdWriter {
     private final FdRabbitClient fdRabbitClient;
 
     @Autowired(required = false)
-    FdTemplate (FdRabbitClient fdRabbitClient, ClientConfiguration clientConfiguration){
-        this.clientConfiguration = clientConfiguration;
+    public FdTemplate(FdRabbitClient fdRabbitClient, ClientConfiguration clientConfiguration) {
         this.fdRabbitClient = fdRabbitClient;
+        this.clientConfiguration = clientConfiguration;
     }
 
     public SystemUserResultBean me() {
@@ -79,9 +79,10 @@ public class FdTemplate implements FdWriter {
         return login.exec().result();
     }
 
-    public ClientConfiguration getClientConfiguration(){
+    public ClientConfiguration getClientConfiguration() {
         return clientConfiguration;
     }
+
     /**
      * Simple ping to see if the service endpoint is up
      *
@@ -104,7 +105,10 @@ public class FdTemplate implements FdWriter {
     public SystemUserResultBean register(String userName, String company) {
         RegistrationBean registrationBean = new RegistrationBean(company, userName).setIsUnique(true);
         RegistrationPost registrationPost = new RegistrationPost(this, registrationBean);
-        return registrationPost.exec().result();
+        SystemUserResultBean result = registrationPost.exec().result();
+        if (result != null)
+            clientConfiguration.setApiKey(result.getApiKey());
+        return result;
     }
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdTemplate.class);
@@ -207,34 +211,48 @@ public class FdTemplate implements FdWriter {
 
     public SystemUserResultBean login() {
         Login login = new Login(this);
-        String result = login.exec().error();
-        if (result != null)
-            logger.error("Login result {}", result);
+        if (login.exec().error() != null) {
+            return null;
+        }
 
-        return login.result();
+        SystemUserResultBean suResult = login.result();
+        if (suResult != null) {
+            if (suResult.getApiKey() != null) {
+                logger.info("Configuring apiKey for user {}", clientConfiguration.getHttpUser());
+                clientConfiguration.setApiKey(suResult.getApiKey());
+            } else {
+                logger.info ( "User {} authenticated at {} but is not a registered data access user", clientConfiguration.getHttpUser(), clientConfiguration.getServiceUrl());
+            }
+
+        }
+        return suResult;
 
     }
 
-    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String modelKey) throws IOException {
-        ContentModel contentModel ;
+    public ContentModel getContentModel(String modelKey) throws IOException {
+        ContentModel contentModel;
         contentModel = ContentModelDeserializer.getContentModel(modelKey);
-        if ( contentModel == null ){
+        if (contentModel == null) {
             // See if it can be found on the server
             // format is {fortress}:{docType}, or tag:doctype
             String[] args = modelKey.split(":");
-            if ( args.length == 2){
+            if (args.length == 2) {
                 contentModel = getContentModel(args[0], args[1]);
             }
         }
         return contentModel;
     }
 
-    public ContentModel getContentModel(String type, String clazz){
+    public ContentModel getContentModel(String type, String clazz) {
         ModelGet modelGet = new ModelGet(this, type, clazz);
         modelGet.exec();
-        String result = modelGet.exec().error();
-        if (result != null)
-            logger.error("Get Model resulted in {} for {} {}", result,type,clazz);
+        String error = modelGet.exec().error();
+        if (error != null)
+            logger.error("Get Model resulted in {} for {} {} on {} for {}",
+                    error, type, clazz,
+                    clientConfiguration.getServiceUrl(),
+                    clientConfiguration.getHttpUser());
+
         return modelGet.result();
     }
 
@@ -242,18 +260,19 @@ public class FdTemplate implements FdWriter {
         ExtractProfile extractProfile = null;
 
         try {
-            extractProfile = ExtractProfileDeserializer.getImportProfile(name,contentModel );
+            extractProfile = ExtractProfileDeserializer.getImportProfile(name, contentModel);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
 
         }
-        if ( extractProfile == null )
+        if (extractProfile == null)
             extractProfile = new ExtractProfileHandler(contentModel);
         return extractProfile;
     }
 
     /**
      * Only called for integration testing - resets the host port which is proxied
+     *
      * @param rabbitHost url
      * @param rabbitPort port
      */
@@ -262,20 +281,30 @@ public class FdTemplate implements FdWriter {
     }
 
     @Override
-    public void validateConnectivity() throws FlockException {
+    public SystemUserResultBean validateConnectivity() throws FlockException {
         boolean error = false;
+        SystemUserResultBean me = null;
         if (clientConfiguration.getApiKey() == null || clientConfiguration.getApiKey().length() == 0) {
             error = true;
-            SystemUserResultBean me = me();
+            me = me();
             if (me != null && me.isActive()) {   // Resolve the api key from a login result
                 clientConfiguration.setApiKey(me.getApiKey());
                 error = false;
             }
+
         }
         if (error) {
             throw new FlockException(String.format("Failed to validate connectivity to %s for user %s - apiKey set == %b", clientConfiguration.getServiceUrl(), clientConfiguration.getHttpUser(), clientConfiguration.getApiKey() != null));
         }
+        return me;
     }
 
 
+    public SystemUserResultBean login(String user, String pass) {
+        getClientConfiguration()
+                .setHttpUser(user)
+                .setHttpPass(pass)
+                .setApiKey(null);
+        return login();
+    }
 }

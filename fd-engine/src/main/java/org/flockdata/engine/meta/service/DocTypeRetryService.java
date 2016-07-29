@@ -49,8 +49,13 @@ import java.util.concurrent.Future;
 @Service
 @Async("fd-engine")
 public class DocTypeRetryService {
+
+    private final ConceptService conceptService;
+
     @Autowired
-    ConceptService conceptService;
+    public DocTypeRetryService(ConceptService conceptService) {
+        this.conceptService = conceptService;
+    }
 
     /**
      * Creates document types for the input beans if they do not exist

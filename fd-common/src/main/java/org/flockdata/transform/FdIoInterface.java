@@ -24,7 +24,6 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
 
 import java.io.IOException;
@@ -35,7 +34,7 @@ import java.util.Collection;
  * Date: 7/10/14
  * Time: 12:18 PM
  */
-public interface FdWriter {
+public interface FdIoInterface {
     /**
      * Resolve the currently logged in user
      * @return su
@@ -46,8 +45,10 @@ public interface FdWriter {
 
     String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException;
 
-    ContentModel getContentModel(ClientConfiguration clientConfiguration, String modelKey) throws IOException;
+    ContentModel getContentModel(String modelKey) throws IOException;
 
-    void validateConnectivity() throws FlockException;
+    SystemUserResultBean validateConnectivity() throws FlockException;
+
+    SystemUserResultBean register(String userName, String company);
 
 }

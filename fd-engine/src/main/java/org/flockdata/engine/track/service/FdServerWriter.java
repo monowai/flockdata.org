@@ -29,11 +29,10 @@ import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.MediationFacade;
-import org.flockdata.transform.FdWriter;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +46,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 8:47 AM
  */
 @Service
-public class FdServerWriter implements FdWriter {
+public class FdServerWriter implements FdIoInterface {
 
     private final FortressService fortressService;
 
@@ -57,8 +56,7 @@ public class FdServerWriter implements FdWriter {
 
     private final SecurityHelper securityHelper;
 
-    private final
-    ContentModelService contentModelService;
+    private final ContentModelService contentModelService;
 
     @Autowired
     public FdServerWriter(MediationFacade mediationFacade, SecurityHelper securityHelper, ContentModelService contentModelService, FortressService fortressService, ConceptService conceptService) {
@@ -76,6 +74,12 @@ public class FdServerWriter implements FdWriter {
 
     @Override
     public String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException {
+        Company company = securityHelper.getCompany();
+        try {
+            mediationFacade.createTags(company, tagInputBeans);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new FlockException("Interrupted", e);
+        }
         return null;
     }
 
@@ -96,8 +100,9 @@ public class FdServerWriter implements FdWriter {
         }
     }
 
+
     @Override
-    public ContentModel getContentModel(ClientConfiguration clientConfiguration, String modelKey) throws IOException {
+    public ContentModel getContentModel(String modelKey) throws IOException {
         String[] args = modelKey.split(":");
         // ToDo: this is not yet properly supported - needs to be tested with Tag fortress - which is logical
         if ( args.length == 2){
@@ -115,8 +120,14 @@ public class FdServerWriter implements FdWriter {
     }
 
     @Override
-    public void validateConnectivity() throws FlockException {
+    public SystemUserResultBean validateConnectivity() throws FlockException {
+        return null;
         // No-op - We're on the server, so we better be running
+    }
+
+    @Override
+    public SystemUserResultBean register(String userName, String company) {
+        throw new UnsupportedOperationException("Registration is not supported through this mechanism");
     }
 
 }

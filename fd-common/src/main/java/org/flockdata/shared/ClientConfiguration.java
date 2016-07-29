@@ -147,8 +147,9 @@ public class ClientConfiguration {
         return apiKey;
     }
 
-    public void setApiKey(String apiKey) {
+    public ClientConfiguration setApiKey(String apiKey) {
         this.apiKey = apiKey;
+        return this;
     }
 
     public int getBatchSize() {

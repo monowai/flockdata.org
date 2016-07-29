@@ -22,7 +22,7 @@ package org.flockdata.test.engine;
 
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FdBatchWriter;
-import org.flockdata.transform.FdWriter;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +44,7 @@ public class MockFdBatchWriter extends FdBatchWriter {
      * @param writer        writer to send payloads to
      * @param configuration configuration properties
      */
-    public MockFdBatchWriter(FdWriter writer, ClientConfiguration configuration) {
+    public MockFdBatchWriter(FdIoInterface writer, ClientConfiguration configuration) {
         super(writer, configuration);
     }
 

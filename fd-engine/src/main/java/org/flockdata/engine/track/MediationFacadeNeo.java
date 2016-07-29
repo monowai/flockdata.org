@@ -419,7 +419,7 @@ public class MediationFacadeNeo implements MediationFacade {
         // ToDo: Transactional?
         // Update the search docs for the affected entities
         Collection<Long> entities = entityTagService.mergeTags(source, target);
-        searchService.refresh(company, entities);
+        searchService.reIndex(entities);
 
     }
 

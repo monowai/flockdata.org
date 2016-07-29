@@ -57,13 +57,18 @@ import java.util.*;
 @Service
 @Transactional
 public class ConceptServiceNeo implements ConceptService {
-    @Autowired
-    ConceptDaoNeo conceptDao;
+
+    private final ConceptDaoNeo conceptDao;
+
+    private final FortressService fortressService;
+
+    private static Logger logger = LoggerFactory.getLogger(ConceptServiceNeo.class);
 
     @Autowired
-    FortressService fortressService;
-
-    static Logger logger = LoggerFactory.getLogger(ConceptServiceNeo.class);
+    public ConceptServiceNeo(FortressService fortressService, ConceptDaoNeo conceptDao) {
+        this.fortressService = fortressService;
+        this.conceptDao = conceptDao;
+    }
 
     /**
      * Entities being tracked as "DocumentTypes"
@@ -150,7 +155,7 @@ public class ConceptServiceNeo implements ConceptService {
      */
     @Override
     public void linkEntities(DocumentType sourceType, String relationship, DocumentType targetType) {
-        conceptDao.linkEntities(sourceType, relationship, targetType);
+        conceptDao.linkEntities(sourceType, targetType, relationship);
     }
 
     /**
@@ -237,7 +242,6 @@ public class ConceptServiceNeo implements ConceptService {
             // Entity is a reserved DocType in FD
             if (!isSystemType(entityInputBean.getDocumentType())) {
                 master = new DocumentType(segment, entityInputBean.getDocumentType());
-//                if (!docTypes.contains(master)) {
                 master = findOrCreate(segment.getFortress(), master);
                 master = conceptDao.findDocumentTypeWithSegments(master);
                 if (!master.getSegments().contains(segment)) {

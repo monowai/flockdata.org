@@ -19,10 +19,7 @@ package org.flockdata.test.unit.batch;
 
 import junit.framework.TestCase;
 import org.flockdata.batch.BatchConfig;
-import org.flockdata.batch.resources.FdBatchResources;
-import org.flockdata.batch.resources.FdEntityProcessor;
-import org.flockdata.batch.resources.FdRowMapper;
-import org.flockdata.batch.resources.FdTagProcessor;
+import org.flockdata.batch.resources.*;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FdBatchWriter;
 import org.flockdata.test.unit.client.MockFdWriter;
@@ -57,6 +54,7 @@ import static org.junit.Assert.assertNotNull;
         MockPayloadBatchWriter.class,
         FdTagProcessor.class,
         FdEntityProcessor.class,
+        FdEntityWriter.class,
         FdRowMapper.class,
         FdBatchWriter.class,
         HsqlDataSource.class,

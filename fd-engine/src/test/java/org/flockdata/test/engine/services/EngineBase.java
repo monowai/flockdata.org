@@ -168,7 +168,7 @@ public abstract class EngineBase {
     static Logger logger = LoggerFactory.getLogger(EngineBase.class);
 
     // These have to be in test-security.xml in order to create SysUserRegistrations
-    protected static final String sally_admin = "sally";
+    static final String sally_admin = "sally";
     protected static final String mike_admin = "mike"; // Admin role
     protected static final String harry = "harry";
 
@@ -277,7 +277,7 @@ public abstract class EngineBase {
      * -DsleepSeconds=1
      *
      * @param milliseconds to pause for
-     * @throws Exception
+     * @throws Exception problems
      */
     public static void waitAWhile(String message, long milliseconds)
             throws Exception {

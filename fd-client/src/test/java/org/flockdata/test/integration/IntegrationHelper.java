@@ -19,6 +19,7 @@ package org.flockdata.test.integration;
 import me.tongfei.progressbar.ProgressBar;
 import org.flockdata.client.FdTemplate;
 import org.flockdata.client.commands.*;
+import org.flockdata.helper.FlockException;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.test.integration.matchers.*;
 import org.flockdata.track.bean.EntityInputBean;
@@ -207,8 +208,7 @@ class IntegrationHelper {
         logger.info("{} is running. [{}]", service, url);
     }
 
-    @Autowired
-    FdTemplate fdTemplate;
+    @Autowired FdTemplate fdTemplate;
 
     void waitForServices()  {
 
@@ -265,7 +265,6 @@ class IntegrationHelper {
         fdTemplate.getClientConfiguration().setServiceUrl(getEngine());
     }
 
-
     private static String getUrl() {
 
         return "http://" + getIpAddress();
@@ -320,20 +319,20 @@ class IntegrationHelper {
      *
      * @return details about the DataAcessUser
      */
-    SystemUserResultBean makeDataAccessUser() {
+    SystemUserResultBean makeDataAccessUser() throws FlockException {
+//        fdTemplate.validateConnectivity();
         return fdTemplate.register(ADMIN_REGRESSION_USER, "TestCompany");
     }
 
-    Login login(String user, String pass) {
-        return login(fdTemplate, user, pass);
-    }
-
-    Login login(FdTemplate fdTemplate, String user, String pass) {
-        fdTemplate.getClientConfiguration().setServiceUrl(getEngine())
+    SystemUserResultBean login(String user, String pass) throws FlockException{
+        fdTemplate.getClientConfiguration()
+                .setServiceUrl(getEngine())
                 .setHttpUser(user)
+                .setApiKey(null)
                 .setHttpPass(pass);
 
-        return new Login(fdTemplate);
+//        fdTemplate.validateConnectivity();
+        return fdTemplate.login();
 
     }
 

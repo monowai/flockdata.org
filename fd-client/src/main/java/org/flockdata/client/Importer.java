@@ -190,7 +190,7 @@ public class Importer  {
 
     // import --auth.user=mike:123 --fd.client.import="/fd-cow.txt" --fd.content.model=tag:countries
     public ContentModel resolveContentModel(String fileModel) throws IOException {
-      return fdTemplate.getContentModel(clientConfiguration, fileModel);
+      return fdTemplate.getContentModel( fileModel);
     }
 
 

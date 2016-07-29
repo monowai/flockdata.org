@@ -16,12 +16,16 @@
 
 package org.flockdata.batch.resources;
 
+import org.flockdata.helper.FlockException;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.PayloadBatcher;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -31,17 +35,27 @@ import java.util.List;
  * @author nabil
  */
 @Component
-@Profile("fd-batch")
+@Profile({"fd-batch", "fd-batch-dev"})
+@Service
 public class FdEntityWriter implements ItemWriter<EntityInputBean> {
 
-    @Autowired
+
     private PayloadBatcher payloadBatcher;
 
-    private FdEntityWriter(){}
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdEntityWriter.class);
 
-    FdEntityWriter(PayloadBatcher payloadBatcher) {
+    private FdEntityWriter() {
+    }
+
+    @Autowired
+    FdEntityWriter(PayloadBatcher payloadBatcher, FdIoInterface fdIoInterface) {
         this();
         this.payloadBatcher = payloadBatcher;
+        try {
+            fdIoInterface.validateConnectivity();
+        } catch (FlockException e) {
+            logger.error("Error validating connectivity");
+        }
     }
 
     @Override

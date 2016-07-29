@@ -16,8 +16,11 @@
 
 package org.flockdata.batch.resources;
 
+import org.flockdata.helper.FlockException;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.PayloadBatcher;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -36,8 +39,18 @@ import java.util.List;
 @Service
 public class FdTagWriter implements ItemWriter<TagInputBean> {
 
+    private final PayloadBatcher payloadBatcher;
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdTagWriter.class);
+
     @Autowired
-    private  PayloadBatcher payloadBatcher;
+    public FdTagWriter(FdIoInterface fdIoInterface, PayloadBatcher payloadBatcher) {
+        this.payloadBatcher = payloadBatcher;
+        try {
+            fdIoInterface.validateConnectivity();
+        } catch (FlockException e){
+            logger.error("Error validating connectivity");
+        }
+    }
 
     @Override
     public void write(List<? extends TagInputBean> items) throws Exception {
