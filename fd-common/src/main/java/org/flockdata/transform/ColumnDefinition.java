@@ -53,6 +53,11 @@ public class ColumnDefinition implements GeoDefinition {
     private Boolean persistent = true;
     private Boolean storeNull = true;
 
+    public ColumnDefinition setDateFormat(String format) {
+        this.dateFormat = format;
+        return this;
+    }
+
 
     public enum ExpressionType {CODE, NAME, RELATIONSHIP, KEY_PREFIX, PROP_EXP, LABEL, CALLER_REF}
 

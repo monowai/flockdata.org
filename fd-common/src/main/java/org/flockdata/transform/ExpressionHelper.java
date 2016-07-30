@@ -37,13 +37,14 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
 /**
  * Encapsulate methods to evaluate transformational expressions
- *
+ * <p>
  * Created by mike on 30/07/15.
  */
 public class ExpressionHelper {
@@ -102,8 +103,8 @@ public class ExpressionHelper {
         if (colDef == null)
             return getNullSafeDefault(defaultValue, null);
 
-        if( contentModel !=null )
-            context.setVariable("model",contentModel);
+        if (contentModel != null)
+            context.setVariable("model", contentModel);
         Object result = evaluateExpression(row, expression);
         if (result == null)
             return getNullSafeDefault(defaultValue, colDef);
@@ -134,8 +135,8 @@ public class ExpressionHelper {
         context.setVariable("data", row);
         try {
             return parser.parseExpression(expression).getValue(context);
-        } catch ( Exception e ){
-            logger.debug (String.format("Error evaluating expression [%s], message was %s ", expression, e.getMessage()));
+        } catch (Exception e) {
+            logger.debug(String.format("Error evaluating expression [%s], message was %s ", expression, e.getMessage()));
             throw (e);
         }
     }
@@ -157,13 +158,16 @@ public class ExpressionHelper {
             return Long.parseLong(value) * 1000;
         }
 
-
-        if (colDef.getDateFormat().equalsIgnoreCase("timestamp")) {
+        try {
+            return Date.parse(value);
+        } catch (IllegalArgumentException e) {
+            // Try other formats
+        }
+        if (colDef.getDateFormat() != null && colDef.getDateFormat().equalsIgnoreCase("timestamp")) {
             try {
                 return Timestamp.valueOf(value).getTime();
-            } catch (IllegalArgumentException e){
-                logger.error("Failed to evaluate timestamp for {}. Tried to evaluate {}", colDef, value);
-                throw (e);
+            } catch (IllegalArgumentException e) {
+                // attempt other conversions
             }
         }
 
@@ -171,16 +175,15 @@ public class ExpressionHelper {
             return Long.parseLong(value);
 
         // Custom Date formats
-//
         String tz = colDef.getTimeZone();
-        if ( tz == null )
+        if (tz == null)
             tz = TimeZone.getDefault().getID();
 
         try {
 
             // Try first as DateTime
             return new SimpleDateFormat(colDef.getDateFormat()).parse(value).getTime();
-        } catch (DateTimeParseException | ParseException e) {
+        } catch (DateTimeParseException | IllegalArgumentException | ParseException e) {
             // Just a plain date
             DateTimeFormatter pattern = DateTimeFormatter.ofPattern(colDef.getDateFormat(), Locale.ENGLISH);
             LocalDate date = LocalDate.parse(value, pattern);

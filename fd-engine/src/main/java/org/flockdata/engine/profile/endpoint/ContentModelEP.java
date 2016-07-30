@@ -164,11 +164,15 @@ public class ContentModelEP {
                                                @RequestBody ContentModel contentModel) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
-        Fortress fortress = fortressService.getFortress(company, fortressCode);
+        Fortress fortress = fortressService.registerFortress(company, contentModel.getFortress(), false);
+        if (fortress == null && contentModel.getFortress() !=null){
+            fortress = fortressService.registerFortress(company, contentModel.getFortress(), true);
+        }
+
         if (fortress == null)
             throw new IllegalArgumentException("Unable to locate the fortress " + fortressCode);
 
-        DocumentType documentType = conceptService.resolveByDocCode(fortress, docTypeName, Boolean.FALSE);
+        DocumentType documentType = conceptService.resolveByDocCode(fortress, docTypeName, Boolean.TRUE);
 
         if (documentType == null && contentModel.getDocumentType() != null) {
             documentType = conceptService.findOrCreate(fortress, new DocumentType(fortress, contentModel.getDocumentType()));

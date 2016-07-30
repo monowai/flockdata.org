@@ -87,7 +87,7 @@ public class Importer  {
     @Value("${auth.user:#{null}}")
     String authUser;
 
-    @Value("${fd.client.delimiter:','}")
+    @Value("${fd.client.delimiter:,}")
     String delimiter;
 
     @Value("${fd.content.model:#{null}}")
