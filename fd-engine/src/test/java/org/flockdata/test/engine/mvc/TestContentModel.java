@@ -47,29 +47,36 @@ import static junit.framework.TestCase.*;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 /**
+ * Content Model storage and retrieval
  * Created by mike on 14/04/16.
  */
 public class TestContentModel extends MvcBase {
     @Test
     public void testSaveRetrieveModel() throws Exception {
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
-        contentModel.setDocumentType( new DocumentTypeInputBean("ContentStore"));
-        makeDataAccessProfile("TestContentProfileStorage", "mike");
-        FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("contentFortress"));
+        String docName = "testSaveRetrieveModel";
+        contentModel.setFortressName(docName);
 
-        makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean("ContentStore"));
+        contentModel.setDocumentType( new DocumentTypeInputBean(docName));
+        makeDataAccessProfile("TestContentProfileStorage", "mike");
+
+        FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean(docName));
+
+        makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean(docName));
+
         ContentModelResult result = makeContentModel(mike(),
                 fortressResultBean.getCode(),
-                "ContentStore",
+                docName,
                 contentModel,
                 MockMvcResultMatchers.status().isOk());
+
         assertNotNull(result);
         assertNotNull(result.getDocumentType());
         assertNotNull(result.getFortress());
 
         ContentModel contentResult = getContentModel(mike(),
                 fortressResultBean.getCode(),
-                "ContentStore",
+                docName,
                 contentModel,
                 MockMvcResultMatchers.status().isOk());
 
@@ -116,11 +123,12 @@ public class TestContentModel extends MvcBase {
         contentModel.setName("SettingTheName");
         makeDataAccessProfile("find_CompanyProfiles", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("find_CompanyProfiles"));
+        String docName = "find_CompanyProfiles";
 
-        makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean("ContentStoreFind"));
+        makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean(docName));
         ContentModelResult result = makeContentModel(mike(),
                 fortressResultBean.getCode(),
-                "ContentStoreFind",
+                docName,
                 contentModel,
                 MockMvcResultMatchers.status().isOk());
         assertNotNull(result);
@@ -143,7 +151,7 @@ public class TestContentModel extends MvcBase {
         contentModel.setName("Updated Name");
         result = makeContentModel(mike(),
                 fortressResultBean.getCode(),
-                "ContentStoreFind",
+                docName,
                 contentModel,
                 MockMvcResultMatchers.status().isOk());
 
@@ -284,11 +292,12 @@ public class TestContentModel extends MvcBase {
         contentModel.setName("anyName");
         makeDataAccessProfile("find_afterDeletingFortress", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("find_afterDeletingFortress"));
+        String docName = "find_afterDeletingFortress";
 
-        makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean("ContentStoreFind"));
+        makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean(docName));
         ContentModelResult result = makeContentModel(mike(),
                 fortressResultBean.getCode(),
-                "ContentStoreFind",
+                docName,
                 contentModel,
                 MockMvcResultMatchers.status().isOk());
         assertNotNull(result);

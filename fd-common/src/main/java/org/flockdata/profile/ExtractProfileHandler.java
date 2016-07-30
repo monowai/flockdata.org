@@ -51,7 +51,6 @@ public class ExtractProfileHandler implements ExtractProfile {
 
     public ExtractProfileHandler() {
         this.header = true;
-        this.delimiter =",";
         this.contentType=ContentType.CSV;
     }
 

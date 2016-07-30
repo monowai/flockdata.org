@@ -74,7 +74,7 @@ public class ContentModelHandler implements ContentModel {
     @Deprecated // use setFortress and provide default properties
     @Override
     public void setFortressName(String fortressName) {
-        this.fortressName = fortressName;
+        fortress = new FortressInputBean(fortressName);
     }
 
     @Override
