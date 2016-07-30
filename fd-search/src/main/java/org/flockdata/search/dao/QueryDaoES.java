@@ -25,6 +25,7 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
@@ -39,7 +40,6 @@ import org.flockdata.dao.QueryDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.search.helper.QueryGenerator;
 import org.flockdata.search.model.*;
 import org.flockdata.shared.IndexManager;
@@ -69,15 +69,19 @@ public class QueryDaoES implements QueryDao {
     public static final String CODE_FACET = ".code.facet";
     public static final String NAME_FACET = ".name.facet";
 
-    @Autowired
-    private SearchConfig esClient;
-    @Autowired
-    IndexManager indexManager;
+    private final Client elasticSearchClient;
+    private final IndexManager indexManager;
 
     @Value("${highlight.enabled:true}")
     Boolean highlightEnabled;
 
     private static Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
+
+    @Autowired
+    public QueryDaoES(IndexManager indexManager, Client elasticSearchClient) {
+        this.indexManager = indexManager;
+        this.elasticSearchClient = elasticSearchClient;
+    }
 
     private Collection<String> getTagArray(TagCloudParams params) {
         Collection<String> result = new ArrayList<>();
@@ -127,7 +131,7 @@ public class QueryDaoES implements QueryDao {
 
         Collection<String> whatAndTagFields = getTagArray(tagCloudParams);
 
-        SearchRequestBuilder query = esClient.elasticSearchClient().prepareSearch(
+        SearchRequestBuilder query = elasticSearchClient.prepareSearch(
                 getIndexes(tagCloudParams))
                 ;
 
@@ -214,7 +218,7 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public long getHitCount(String index) {
-        SearchResponse response = esClient.elasticSearchClient().prepareSearch(index)
+        SearchResponse response = elasticSearchClient.prepareSearch(index)
                 .execute()
                 .actionGet();
 
@@ -228,7 +232,7 @@ public class QueryDaoES implements QueryDao {
         if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
         }
-        SearchRequestBuilder query = esClient.elasticSearchClient().prepareSearch(indexManager.getIndexesToQuery(queryParams))
+        SearchRequestBuilder query = elasticSearchClient.prepareSearch(indexManager.getIndexesToQuery(queryParams))
                 .setTypes(types)
                 .addField(SearchSchema.KEY)
                 .setExtraSource(QueryGenerator.getFilteredQuery(queryParams, false));
@@ -259,7 +263,7 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public String doSearch(QueryParams queryParams) throws FlockException {
-        SearchResponse result = esClient.elasticSearchClient().prepareSearch(indexManager.getIndexesToQuery(queryParams))
+        SearchResponse result = elasticSearchClient.prepareSearch(indexManager.getIndexesToQuery(queryParams))
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, false))
                 .execute()
                 .actionGet();
@@ -270,7 +274,7 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public void getTags(String indexName) {
-//        GetMappingsResponse fieldMappings = esClient
+//        GetMappingsResponse fieldMappings = elasticSearchClient
 //                .admin()
 //                .indices()
 //                .getMappings(new GetMappingsRequest())
@@ -286,7 +290,7 @@ public class QueryDaoES implements QueryDao {
 
         watch.start(queryParams.toString());
         String[] indexes = indexManager.getIndexesToQuery(queryParams);
-        SearchRequestBuilder query = esClient.elasticSearchClient().prepareSearch(indexes)
+        SearchRequestBuilder query = elasticSearchClient.prepareSearch(indexes)
                 .addField(SearchSchema.KEY)
                 .addField(SearchSchema.FORTRESS)
                 .addField(SearchSchema.LAST_EVENT)
@@ -418,8 +422,8 @@ public class QueryDaoES implements QueryDao {
             else
                 query = query + "}";
 
-            SearchRequestBuilder esQuery = esClient
-                    .elasticSearchClient().prepareSearch(indexManager.getIndexesToQuery(queryParams));
+            SearchRequestBuilder esQuery = elasticSearchClient
+                    .prepareSearch(indexManager.getIndexesToQuery(queryParams));
 
             if ( queryParams.getTypes()!=null )
                     esQuery.setTypes(queryParams.getTypes());
@@ -457,7 +461,7 @@ public class QueryDaoES implements QueryDao {
                 index = indexManager.parseIndex(queryParams);
 
             GetResponse response =
-                    esClient.elasticSearchClient().prepareGet(index,
+                    elasticSearchClient.prepareGet(index,
                             queryParams.getTypes()[0],
                             queryParams.getCode())
                             .execute()

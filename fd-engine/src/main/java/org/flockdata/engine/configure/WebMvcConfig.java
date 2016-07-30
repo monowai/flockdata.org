@@ -38,7 +38,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
-    ApiKeyInterceptor apiKeyInterceptor;
+    private ApiKeyInterceptor apiKeyInterceptor;
 
     @Value("#{'${cors.allowOrigin:http://127.0.0.1:9000,http://localhost:9000}'.split(',')}")
     String[] origins;
@@ -49,7 +49,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     @Value("#{'${cors.supportedMethods:GET,POST,HEAD,OPTIONS,PUT,DELETE}'.split(',')}")
     String[] methods;
 
-    @Value("${cos.supportsCredentials:true}")
+    @Value("${cors.supportsCredentials:true}")
     Boolean allowCredentials;
 
     public void addInterceptors(InterceptorRegistry registry){

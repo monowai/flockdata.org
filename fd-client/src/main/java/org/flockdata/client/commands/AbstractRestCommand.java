@@ -17,8 +17,6 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.client.FdTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Commands are immutable and re-usable. Ensure your clientConfiguration has been configured prior
@@ -26,15 +24,10 @@ import org.springframework.web.client.RestTemplate;
  *
  * Created by mike on 13/04/16.
  */
-abstract class AbstractRestCommand<T> implements Command {
+abstract class AbstractRestCommand implements Command {
 
-    String url;
-    RestTemplate restTemplate;
-    HttpHeaders httpHeaders;
     String error = null;
-    String user = null;
-    String pass = null;
-
+    FdTemplate fdTemplate;
 
     /**
      * Set's the basic immutable properties for this command
@@ -42,16 +35,11 @@ abstract class AbstractRestCommand<T> implements Command {
      * @param fdTemplate Helper class to access HTTP resources
      */
     AbstractRestCommand(FdTemplate fdTemplate) {
-        this.url = fdTemplate.getClientConfiguration().getServiceUrl();
-        this.restTemplate = fdTemplate.getRestTemplate();
-        this.user = fdTemplate.getClientConfiguration().getHttpUser();
-        this.pass = fdTemplate.getClientConfiguration().getHttpPass();
-        this.httpHeaders = fdTemplate.getHeaders(user, pass, fdTemplate.getClientConfiguration().getApiKey());
-
+        this.fdTemplate = fdTemplate;
     }
 
-    String getUrl(){
-        return url;
+    public String getUrl(){
+        return fdTemplate.getUrl();
     }
 
     // NULL if no error

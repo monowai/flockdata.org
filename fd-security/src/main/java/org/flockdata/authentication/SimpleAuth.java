@@ -54,13 +54,13 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
         @Value("${org.fd.auth.simple.login.form:#{null}}")
         String loginForm;
 
-        @Value ("${org.fd.auth.simple.login.method:basic}")
+        @Value ("${org.fd.auth.simple.login.method:form}")
         String loginMethod ;
 
         @Override
         public void configure(HttpSecurity http) throws Exception {
-            // Security in FD take place at the service level so acess to all endpoints is granted
-            // ApiKeyInterceptor is a part of the auth chain
+            // Security in FD take place at the service level so access to all endpoints is granted
+            // ApiKeyInterceptor is a part of the auth chain - see WebMvcConfig
 
             http.authorizeRequests()
                     .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS

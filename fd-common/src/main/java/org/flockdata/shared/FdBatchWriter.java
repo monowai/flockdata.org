@@ -42,7 +42,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Component
 @Configuration
-@Profile({"fd-batch"})
+@Profile({"fd-batch", "fd-importer"})
 public class FdBatchWriter implements PayloadBatcher {
     private List<EntityInputBean> entityBatch = new ArrayList<>();
     private Map<String, TagInputBean> tagBatch = new HashMap<>();

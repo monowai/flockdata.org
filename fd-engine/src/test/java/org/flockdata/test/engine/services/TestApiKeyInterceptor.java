@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -80,8 +81,7 @@ public class TestApiKeyInterceptor extends EngineBase {
 
 		request.setRequestURI("/api/v1/fortress/");
 		request.addHeader("api-key", "someKey");
-		exception.expect(SecurityException.class);
-		TestCase.assertFalse(apiKeyInterceptor.preHandle(request, response, null));
+		TestCase.assertFalse("didn't fail pre-flight", apiKeyInterceptor.preHandle(request, response, null));
 	}
 
 	@Test
@@ -89,8 +89,11 @@ public class TestApiKeyInterceptor extends EngineBase {
 			throws Exception {
         setSecurity(sally_admin); // Sally is Authorised and has not API Key
 		request.setRequestURI("/api/v1/fortress/");
-		exception.expect(SecurityException.class);
+		//exception.expect(SecurityException.class);
+        // ToDo: Move to MVC tests
 		TestCase.assertFalse(apiKeyInterceptor.preHandle(request, response, null));
+        TestCase.assertNotNull( response.getErrorMessage());
+        TestCase.assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
 
 	}
 

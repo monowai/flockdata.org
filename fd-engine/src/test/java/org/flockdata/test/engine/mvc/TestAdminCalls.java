@@ -43,7 +43,7 @@ public class TestAdminCalls extends MvcBase {
         String result = authPing(mike(), MockMvcResultMatchers.status().isOk());
         assertTrue("pong".equalsIgnoreCase(result));
         setSecurityEmpty(); // Unsecured should not work
-        authPing(noUser(), MockMvcResultMatchers.status().isUnauthorized());
+        authPing(noUser(), MockMvcResultMatchers.status().isForbidden());
     }
 
     /**
@@ -56,7 +56,7 @@ public class TestAdminCalls extends MvcBase {
     public void authPing() throws Exception {
 
         setSecurityEmpty(); // Unsecured should fail
-        String result = authPing(noUser(), MockMvcResultMatchers.status().isUnauthorized());
+        String result = authPing(noUser(), MockMvcResultMatchers.status().isForbidden());
         assertFalse(result.contains("pong"));
         result = authPing(mike(), MockMvcResultMatchers.status().isOk());
         assertEquals("pong", result);

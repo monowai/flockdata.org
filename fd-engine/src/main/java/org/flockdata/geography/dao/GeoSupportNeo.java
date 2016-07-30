@@ -100,10 +100,10 @@ public class GeoSupportNeo {
                     name = null;
             }
             if (node.hasProperty(Tag.NODE_LAT))
-                lat = (Double) node.getProperty(Tag.NODE_LAT);
+                lat = Double.parseDouble(node.getProperty(Tag.NODE_LAT).toString());
 
             if (node.hasProperty(Tag.NODE_LON))
-                lon = (Double) node.getProperty(Tag.NODE_LON);
+                lon = Double.parseDouble(node.getProperty(Tag.NODE_LON).toString());
             geoData.add(label.toLowerCase(), code, name, lat, lon);
             geoBeans.add(label.toLowerCase(), geoData);
             if ( label.equals(sourceTag.getLabel())){

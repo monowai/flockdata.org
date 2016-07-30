@@ -33,13 +33,13 @@ public class ModelGet extends AbstractRestCommand {
 
     private ContentModel results;
 
+    private String fortress;
     private String type;
-    private String clazz;
 
-    public ModelGet(FdTemplate fdTemplate, String type, String clazz) {
+    public ModelGet(FdTemplate fdTemplate, String fortress, String type) {
         super(fdTemplate);
+        this.fortress = fortress.toLowerCase();
         this.type = type.toLowerCase();
-        this.clazz = clazz.toLowerCase();
     }
 
 
@@ -50,15 +50,13 @@ public class ModelGet extends AbstractRestCommand {
     @Override
     public ModelGet exec() {
         results=null;   error =null;
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
 
         try {
-
+            HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
             ResponseEntity<ContentModel> response;
-            response = restTemplate.exchange(url + "/api/v1/model/{type}/{class}", HttpMethod.GET, requestEntity, ContentModel.class, type,clazz);
-
-
+            response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/model/{fortress}/{type}", HttpMethod.GET, requestEntity, ContentModel.class, fortress, type);
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();
         }

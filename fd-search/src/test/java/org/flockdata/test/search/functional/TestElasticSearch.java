@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.model.EntitySearchChange;
@@ -102,7 +102,7 @@ public class TestElasticSearch extends ESBase {
         tempDir.delete();
         tempDir.mkdir();
 
-        ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder()
+        Settings settings = Settings.settingsBuilder()
                 .put("cluster.name", getComputerName())
                 .put("node.name", getComputerName())
                 .put("path.home", new File(tempDir, "./").getAbsolutePath())
@@ -111,7 +111,7 @@ public class TestElasticSearch extends ESBase {
                 .put("path.work", new File(tempDir, "work").getAbsolutePath())
 
                 .put("node.data", true)
-                .put("node.local", true);
+                .put("node.local", true).build();
 
         // Elasticsearch
         Node node = org.elasticsearch.node.NodeBuilder

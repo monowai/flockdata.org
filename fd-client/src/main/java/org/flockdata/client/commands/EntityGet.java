@@ -56,15 +56,15 @@ public class EntityGet extends AbstractRestCommand  {
 
     @Override
     public EntityGet exec() {
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
         result=null;   error =null;
         try {
 
             ResponseEntity<EntityBean> response ;
             if (key !=null ) // Locate by FD unique key
-                response = restTemplate.exchange(url+"/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityBean.class, key);
+                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityBean.class, key);
             else
-                response = restTemplate.exchange(url+"/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityBean.class,
+                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityBean.class,
                         entityInputBean.getFortress().getName(),
                         entityInputBean.getDocumentType().getName(),
                         entityInputBean.getCode());

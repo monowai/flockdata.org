@@ -47,6 +47,11 @@ public class SystemUserServiceNeo4j implements org.flockdata.registration.servic
         return regDao.save(regBean);
     }
 
+    @Override
+    public void save(SystemUser systemUser) {
+        regDao.save(systemUser);
+    }
+
     public SystemUser findByApiKey(String apiKey) {
         return regDao.findByApiKey(apiKey);
     }

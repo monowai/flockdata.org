@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -50,20 +51,17 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
         if (HttpMethod.OPTIONS == HttpMethod.resolve(request.getMethod()))
             return true; // CORS - this interceptor does not handle OPTIONS requests
         String apiKey = request.getHeader(API_KEY);
-
+        SystemUser su = null;
         if (noApiKey(apiKey)) {
             if (isDataAccessRequest(request)) { // Is it a data access endpoint?
                 // Data access requests require a company
                 // Resolve the user from the currently logged in user
-                SystemUser su = securityHelper.getSysUser(false);
-                if (su != null) {
-                    if (su.getCompany() != null) {
-                        request.setAttribute(COMPANY, su.getCompany());
-                        request.setAttribute(API_KEY, su.getApiKey());
-                        return true;
-                    }
-                } // Falls through to Forbidden
-
+                su = securityHelper.getSysUser(false);
+                if ( isValidSu(su)){
+                    request.setAttribute(COMPANY, su.getCompany());
+                    request.setAttribute(API_KEY, su.getApiKey());
+                    return true;
+                }
             } else {
                 return true; // No APIKey, not a data access request; not our problem
             }
@@ -77,7 +75,21 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
                 return true;
             }
         }
-        throw new SecurityException("A data access account is required to access this service. We couldn't resolve one for your login or apikey");
+
+        if ( su == null )
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "You require an authorized account to access this service.");
+        else
+            response.sendError(HttpStatus.FORBIDDEN.value(),  "You are an authenticated user but your account has has no data access privileges. Please ensure this account has been configured with an API key");
+        return false;
+    }
+
+    private boolean isValidSu(SystemUser su) {
+        if (su != null) {
+            if (su.isActive() && (su.getCompany() != null && su.getApiKey()!=null)) {
+                return true;
+            }
+        } // Falls through to Forbidden
+        return false;
     }
 
     private boolean isDataAccessRequest(HttpServletRequest request) {
@@ -107,6 +119,11 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request,
                            HttpServletResponse response, Object handler,
                            ModelAndView modelAndView) throws Exception {
+//        if (isDataAccessRequest(request) ){
+//            if ( request.getAttribute(API_KEY) == null )
+//                response.sendError(HttpStatus.FORBIDDEN.value(),  "You are an authenticated user but your account has has no data access privileges. Please ensure this account has been configured with an API key");
+//        }
+
     }
 
     @Override

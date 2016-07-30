@@ -11,7 +11,7 @@
     <artifactId>fd-search</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <es.version>1.7.5</es.version>
+        <es.version>2.3.4</es.version>
     </properties>
 
     <dependencies>
@@ -107,11 +107,11 @@
         </dependency>
         <!--Search Engine-->
 
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-elasticsearch</artifactId>
-            <version>1.3.4.RELEASE</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.data</groupId>-->
+            <!--<artifactId>spring-data-elasticsearch</artifactId>-->
+            <!--<version>${org.springdata.elasticsearch.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
@@ -136,8 +136,7 @@
         <dependency>
             <groupId>io.searchbox</groupId>
             <artifactId>jest</artifactId>
-            <version>1.0.0</version>
-            <scope>test</scope>
+            <version>2.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>

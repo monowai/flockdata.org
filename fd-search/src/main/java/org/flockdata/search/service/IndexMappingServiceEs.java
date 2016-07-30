@@ -27,9 +27,9 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
-import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.shared.IndexManager;
@@ -59,19 +59,25 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * Created by mike on 10/09/15.
  */
 @Service
-@DependsOn("searchConfig")
+@DependsOn("elasticSearchClient")
 @Scope("singleton")
 public class IndexMappingServiceEs implements IndexMappingService {
 
-    @Autowired
+    private final Client elasticSearchClient;
+
+    private final IndexManager indexManager;
+
     private SearchConfig searchConfig;
-
-    @Autowired
-    IndexManager indexManager;
-
 
     private Logger logger = LoggerFactory.getLogger(IndexMappingServiceEs.class);
     Collection<String>knownIndexes = new ArrayList<>();
+
+    @Autowired
+    public IndexMappingServiceEs(IndexManager indexManager, Client elasticSearchClient, SearchConfig searchConfig) {
+        this.indexManager = indexManager;
+        this.elasticSearchClient = elasticSearchClient;
+        this.searchConfig = searchConfig;
+    }
 
     @Override
     public boolean ensureIndexMapping(SearchChange change) {
@@ -98,11 +104,9 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     private void deleteIndex(String index) {
         try {
-            searchConfig.elasticSearchClient().admin().indices().delete(new DeleteIndexRequest(index)).get();
+            elasticSearchClient.admin().indices().delete(new DeleteIndexRequest(index)).get();
             logger.info("deleted [{}]", index);
-        } catch (IndexMissingException e){
-            logger.info("Index [{}] did not exist", index);
-        }catch (ExecutionException |InterruptedException e) {
+        } catch (ExecutionException |InterruptedException e) {
             logger.error(e.getMessage());
         }
     }
@@ -123,7 +127,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
             Map<String, Object> esSettings = getSettings();
             try {
                 if (esSettings != null) {
-                    searchConfig.elasticSearchClient().admin()
+                    elasticSearchClient.admin()
                             .indices()
                             .prepareCreate(indexName)
                             .addMapping(documentType, esMapping)
@@ -131,7 +135,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
                             .execute()
                             .actionGet();
                 } else {
-                    searchConfig.elasticSearchClient().admin()
+                    elasticSearchClient.admin()
                             .indices()
                             .prepareCreate(indexName)
                             .addMapping(documentType, esMapping)
@@ -163,7 +167,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
         String[] indexNames = new String[1];
         indexNames[0] = change.getIndexName();
 
-        boolean hasIndexMapping = searchConfig.elasticSearchClient().admin()
+        boolean hasIndexMapping = elasticSearchClient.admin()
                 .indices()
                 //.exists( new IndicesExistsRequest(indexNames))
                 .typesExists(new TypesExistsRequest(indexNames, documentType))
@@ -178,13 +182,13 @@ public class IndexMappingServiceEs implements IndexMappingService {
     }
 
     private synchronized void makeMapping(String documentType, String[] indexNames, XContentBuilder mapping) {
-        if (!searchConfig.elasticSearchClient().admin()
+        if (!elasticSearchClient.admin()
                 .indices()
                 //.exists( new IndicesExistsRequest(indexNames))
                 .typesExists(new TypesExistsRequest(indexNames, documentType))
                 .actionGet()
                 .isExists())
-            searchConfig.elasticSearchClient().admin().indices()
+            elasticSearchClient.admin().indices()
                     .preparePutMapping(indexNames[0])
                     .setType(documentType)
                     .setSource(mapping)
@@ -194,7 +198,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     private boolean hasIndex(SearchChange change) {
         String indexName = change.getIndexName();
-        boolean hasIndex = searchConfig.elasticSearchClient()
+        boolean hasIndex = elasticSearchClient
                 .admin()
                 .indices()
                 .exists(new IndicesExistsRequest(indexName))

@@ -47,14 +47,18 @@ import java.util.Collection;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/model")
 public class ContentModelEP {
 
-    @Autowired
-    ContentModelService contentModelService;
+    private final ContentModelService contentModelService;
+
+    private final FortressService fortressService;
+
+    private final ConceptService conceptService;
 
     @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    ConceptService conceptService;
+    public ContentModelEP(ContentModelService contentModelService, FortressService fortressService, ConceptService conceptService) {
+        this.contentModelService = contentModelService;
+        this.fortressService = fortressService;
+        this.conceptService = conceptService;
+    }
 
     @RequestMapping(value = "/",
             produces = "application/json",

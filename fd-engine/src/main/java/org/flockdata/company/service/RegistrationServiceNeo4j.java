@@ -73,6 +73,10 @@ public class RegistrationServiceNeo4j implements RegistrationService {
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
 
         if (systemUser != null) {
+            if ( systemUser.getApiKey() == null ) {
+                systemUser.setApiKey(keyGenService.getUniqueKey());
+                systemUserService.save(systemUser);
+            }
             logger.debug("Returning existing SU {}", systemUser);
             return systemUser;
         }

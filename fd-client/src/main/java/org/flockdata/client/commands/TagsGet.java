@@ -47,11 +47,11 @@ public class TagsGet extends AbstractRestCommand {
     @Override
     public TagsGet exec() {
         result =null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
 
         try {
             ResponseEntity<TagResultBean[]> response;
-            response = restTemplate.exchange(url + "/api/v1/tag/{label}", HttpMethod.GET, requestEntity, TagResultBean[].class, label);
+            response = fdTemplate.getRestTemplate().exchange(getUrl() + "/api/v1/tag/{label}", HttpMethod.GET, requestEntity, TagResultBean[].class, label);
 
             result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         }catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {

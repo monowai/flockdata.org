@@ -31,11 +31,11 @@ import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.index.mapper.MapperParsingException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.search.base.EntityChangeWriter;
-import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchSchema;
 import org.flockdata.search.model.SearchTag;
@@ -58,8 +58,11 @@ import java.util.*;
 @Service
 public class EntityChangeWriterEs implements EntityChangeWriter {
 
+//    @Autowired
+//    private SearchConfig elasticSearchClient;
+
     @Autowired
-    private SearchConfig searchConfig;
+    private Client elasticSearchClient;
 
     @Autowired
     IndexManager indexManager;
@@ -73,7 +76,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
         String existingIndexKey = searchChange.getSearchKey();
 
-        DeleteResponse dr = searchConfig.elasticSearchClient().prepareDelete(searchChange.getIndexName(), recordType, existingIndexKey)
+        DeleteResponse dr = elasticSearchClient.prepareDelete(searchChange.getIndexName(), recordType, existingIndexKey)
                 .setRouting(searchChange.getCode())
                 .execute()
                 .actionGet();
@@ -98,7 +101,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
         // Rebuilding a document after a reindex - preserving the unique key.
         IndexRequestBuilder irb =
-                searchConfig.elasticSearchClient()
+                elasticSearchClient
                         .prepareIndex(searchChange.getIndexName(), documentType)
                         .setSource(source);
 
@@ -146,7 +149,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             logger.debug("Update request for searchKey [{}], key[{}]", searchChange.getSearchKey(), searchChange.getKey());
 
             GetRequestBuilder request =
-                    searchConfig.elasticSearchClient().prepareGet(searchChange.getIndexName(),
+                    elasticSearchClient.prepareGet(searchChange.getIndexName(),
                             searchChange.getDocumentType(),
                             searchChange.getSearchKey());
 
@@ -192,8 +195,8 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             }
 
             // Update the existing document with the searchChange change
-            IndexRequestBuilder update = searchConfig
-                    .elasticSearchClient().prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
+            IndexRequestBuilder update = elasticSearchClient
+                    .prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
             //.setRouting(searchChange.getKey());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
@@ -230,7 +233,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             id = entity.getSearchKey();
         logger.debug("Looking for [{}] in {}", id, indexName + documentType);
 
-        GetResponse response = searchConfig.elasticSearchClient().prepareGet(indexName, documentType, id)
+        GetResponse response = elasticSearchClient.prepareGet(indexName, documentType, id)
                 //.setRouting(entity.getKey())
                 .execute()
                 .actionGet();
@@ -246,7 +249,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
     public Map<String, Object> ping() {
         Map<String, Object> results = new HashMap<>();
         ClusterHealthRequest request = new ClusterHealthRequest();
-        ClusterHealthResponse response = searchConfig.elasticSearchClient().admin().cluster().health(request).actionGet();
+        ClusterHealthResponse response = elasticSearchClient.admin().cluster().health(request).actionGet();
         if (response == null) {
             results.put("status", "error!");
             return results;
@@ -256,7 +259,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         results.put("dataNodes", response.getNumberOfDataNodes());
         results.put("nodes", response.getNumberOfNodes());
         results.put("clusterName", response.getClusterName());
-        results.put("nodeName", searchConfig.elasticSearchClient().settings().get("name"));
+        results.put("nodeName", elasticSearchClient.settings().get("name"));
 
         return results;
     }

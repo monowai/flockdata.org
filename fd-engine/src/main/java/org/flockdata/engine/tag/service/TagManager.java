@@ -45,13 +45,17 @@ import java.util.Map;
  */
 @Repository
 public class TagManager {
-    @Autowired
-    TagRepo tagRepo;
+    private final TagRepo tagRepo;
 
-    @Autowired
-    Neo4jTemplate template;
+    private final Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(TagManager.class);
+
+    @Autowired
+    public TagManager(Neo4jTemplate template, TagRepo tagRepo) {
+        this.template = template;
+        this.tagRepo = tagRepo;
+    }
 
     /**
      * Attempts to find tag.key by prefix.tagcode. If that doesn't exist, then it will

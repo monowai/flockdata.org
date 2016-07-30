@@ -21,10 +21,8 @@ import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -50,9 +48,6 @@ public class MockFdWriter implements FdIoInterface {
 
     public Collection<EntityInputBean> entities = null;
     public Collection<TagInputBean> tags = null;
-
-    @Autowired
-    ClientConfiguration clientConfiguration;
 
     @Override
     public SystemUserResultBean me() {

@@ -77,7 +77,6 @@ public class TestContentModel extends MvcBase {
         ContentModel contentResult = getContentModel(mike(),
                 fortressResultBean.getCode(),
                 docName,
-                contentModel,
                 MockMvcResultMatchers.status().isOk());
 
         assertNotNull(contentResult);
@@ -97,7 +96,6 @@ public class TestContentModel extends MvcBase {
         getContentModel(mike(),
                 fortressResultBean.getCode(),
                 "NonExistent",
-                contentModel,
                 MockMvcResultMatchers.status().isBadRequest());
 
 

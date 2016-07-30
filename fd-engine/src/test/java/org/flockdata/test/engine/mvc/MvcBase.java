@@ -845,7 +845,7 @@ public abstract class MvcBase {
         }
     }
 
-    public ContentModel getContentModel(RequestPostProcessor user, String fortress, String documentType, ContentModel contentModel, ResultMatcher status) throws Exception {
+    public ContentModel getContentModel(RequestPostProcessor user, String fortress, String documentType, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
                 .perform(MockMvcRequestBuilders.get(apiPath + "/model/{fortress}/{documentType}", fortress, documentType)
                         .contentType(MediaType.APPLICATION_JSON)

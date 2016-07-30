@@ -158,10 +158,12 @@ public class ExpressionHelper {
             return Long.parseLong(value) * 1000;
         }
 
-        try {
-            return Date.parse(value);
-        } catch (IllegalArgumentException e) {
-            // Try other formats
+        if (colDef.getDateFormat() == null || colDef.getDateFormat().equalsIgnoreCase("automatic")) {
+            try {
+                return Date.parse(value);
+            } catch (IllegalArgumentException e) {
+                // Try other formats
+            }
         }
         if (colDef.getDateFormat() != null && colDef.getDateFormat().equalsIgnoreCase("timestamp")) {
             try {

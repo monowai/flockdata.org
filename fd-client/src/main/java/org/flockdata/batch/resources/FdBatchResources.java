@@ -17,10 +17,9 @@
 package org.flockdata.batch.resources;
 
 import org.flockdata.batch.BatchConfig;
-import org.flockdata.batch.listener.FlockDataJobListener;
-import org.flockdata.batch.listener.FlockDataSkipListener;
-import org.flockdata.batch.listener.FlockDataStepListener;
-import org.flockdata.transform.PayloadBatcher;
+import org.flockdata.batch.listener.FdJobListener;
+import org.flockdata.batch.listener.FdSkipListener;
+import org.flockdata.batch.listener.FdStepListener;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.SkipListener;
@@ -28,7 +27,6 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -44,21 +42,17 @@ import java.sql.SQLException;
  * Kept here for reference only
  * Created by mike on 28/01/16.
  */
-@Configuration
 @Component
 @Profile({"fd-batch", "fd-batch-dev"})
 public class FdBatchResources {
 
-    @Autowired
-    BatchConfig batchConfig;
-
-    @Autowired
-    PayloadBatcher payloadBatcher;
-
-    @Autowired
-    FdEntityProcessor fdEntityProcessor;
-
+    private final BatchConfig batchConfig;
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
+
+    @Autowired
+    public FdBatchResources(BatchConfig batchConfig) {
+        this.batchConfig = batchConfig;
+    }
 
     @Bean
     public JdbcTemplate jdbcTemplate() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
@@ -81,7 +75,7 @@ public class FdBatchResources {
     @Qualifier("dataSource")
     @Primary
     public DataSource dataSource() throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        if ( !batchConfig.getDriver().equals("")) {
+        if (!batchConfig.getDriver().equals("")) {
             logger.info("Looking for driver class [{}] then will connect on url [{}]", batchConfig.getDriver(), batchConfig.getUrl());
             Class<?> clazz = Class.forName(batchConfig.getDriver());
             Driver driver = (Driver) clazz.newInstance();
@@ -96,18 +90,18 @@ public class FdBatchResources {
     }
 
     @Bean
-    public JobExecutionListener jobListener() {
-        return new FlockDataJobListener();
+    public JobExecutionListener fdJobListener() {
+        return new FdJobListener();
     }
 
     @Bean
-    public StepExecutionListener stepListener() {
-        return new FlockDataStepListener();
+    public StepExecutionListener fdStepListener() {
+        return new FdStepListener();
     }
 
     @Bean
-    public SkipListener skipListener() {
-        return new FlockDataSkipListener();
+    public SkipListener fdSkipListener() {
+        return new FdSkipListener();
     }
 
 

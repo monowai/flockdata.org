@@ -16,6 +16,9 @@
 server:
   port: 8080
 
+security:
+  sessions: NEVER
+
 eureka:
   client:
     healthcheck:
@@ -26,6 +29,10 @@ eureka:
 spring:
   application:
     name: fd-engine
+  cache:
+    cache-names: tag,geoQuery,geoData,fortressUser,sysUserApiKey,company,documentType,labels,entityByCode,fortressSegment
+    caffeine:
+      spec: "maximumSize=200,expireAfterAccess=600s"
   profiles:
     active: fd-auth-test
     include: fd-server,fd-batch
@@ -142,6 +149,7 @@ org.fd:
       login:
         method: basic
         form: /#/login
+
 #      users:
 #        admin:
 #          pass: 123

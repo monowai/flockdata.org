@@ -47,6 +47,7 @@ public class SystemUser  {
     @Fetch
     @RelatedTo( type = "ACCESSES", direction = Direction.OUTGOING)
     private Company company;
+    private Boolean active = true;
 
     protected SystemUser() {
     }
@@ -124,5 +125,11 @@ public class SystemUser  {
                 ", login='" + login + '\'' +
                 ", company=" + company +
                 '}';
+    }
+
+    public boolean isActive() {
+        if ( active == null )
+            return true;
+        return active;
     }
 }

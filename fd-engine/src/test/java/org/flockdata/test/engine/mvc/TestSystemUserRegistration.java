@@ -53,7 +53,7 @@ public class TestSystemUserRegistration extends MvcBase {
         setSecurityEmpty();
         // Unauthenticated users can't register accounts
         exception.expect(AccessDeniedException.class);
-        makeDataAccessProfile(noUser(), ANYCO, "a-user", MockMvcResultMatchers.status().isUnauthorized());
+        makeDataAccessProfile(noUser(), ANYCO, "a-user", MockMvcResultMatchers.status().isForbidden());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class TestSystemUserRegistration extends MvcBase {
 
         // Assert that harry, who is not an admin, cannot create another user
         exception.expect(AccessDeniedException.class);
-        makeDataAccessProfile(harry(), regResult.getCompanyName(), regResult.getCompanyName(), MockMvcResultMatchers.status().isUnauthorized());
+        makeDataAccessProfile(harry(), regResult.getCompanyName(), regResult.getCompanyName(), MockMvcResultMatchers.status().isForbidden());
 
 
     }

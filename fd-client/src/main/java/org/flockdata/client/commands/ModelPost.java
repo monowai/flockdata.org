@@ -17,8 +17,9 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.client.FdTemplate;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackRequestResult;
+import org.flockdata.profile.ContentModelResult;
+import org.flockdata.profile.model.ContentModel;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -26,34 +27,41 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.util.Collection;
+
 /**
  * Locate a tag
  * Created by mike on 17/04/16.
  */
-public class TrackEntityPost extends AbstractRestCommand  {
+public class ModelPost extends AbstractRestCommand {
 
-    private EntityInputBean entityInputBean;
+    private Collection<ContentModelResult> results;
 
-    private TrackRequestResult result;
+    private Collection<ContentModel> models;
 
-    public TrackEntityPost(FdTemplate fdTemplate, EntityInputBean entityInputBean) {
+    public ModelPost(FdTemplate fdTemplate,Collection<ContentModel> models) {
         super(fdTemplate);
-        this.entityInputBean = entityInputBean;
+        this.models = models;
     }
 
-    public TrackRequestResult result() {
-        return result;
+
+    public Collection<ContentModelResult> result() {
+        return results;
     }
 
     @Override
-    public TrackEntityPost exec() {
-        result=null; error =null;
-        HttpEntity<EntityInputBean> requestEntity = new HttpEntity<>(entityInputBean, fdTemplate.getHeaders());
-
+    public ModelPost exec() {
+        results=null;   error =null;
         try {
-            ResponseEntity<TrackRequestResult> restResult = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/track/", HttpMethod.POST, requestEntity, TrackRequestResult.class);
-            result = restResult.getBody();
-        }catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+
+            HttpEntity requestEntity = new HttpEntity<>(models, fdTemplate.getHeaders());
+            ParameterizedTypeReference<Collection<ContentModelResult>> responseType = new ParameterizedTypeReference<Collection<ContentModelResult>>() {};
+            ResponseEntity<Collection<ContentModelResult>> response;
+            response = fdTemplate.getRestTemplate().exchange(getUrl()+ "/api/v1/model/", HttpMethod.POST, requestEntity, responseType);
+
+
+            results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();
         }
         return this;// Everything worked

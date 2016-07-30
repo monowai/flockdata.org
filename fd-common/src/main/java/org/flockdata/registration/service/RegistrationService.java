@@ -32,9 +32,9 @@ import org.flockdata.registration.RegistrationBean;
  * Time: 9:43 AM
  */
 public interface RegistrationService {
-    org.flockdata.model.SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException;
+    SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException;
 
-    org.flockdata.model.SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException;
+    SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException;
 
     Company resolveCompany(String apiKey) throws FlockException;
 

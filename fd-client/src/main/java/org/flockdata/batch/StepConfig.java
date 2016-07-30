@@ -22,10 +22,10 @@ import org.flockdata.profile.model.ContentModel;
  * Created by mike on 25/02/16.
  */
 public class StepConfig {
-    String query;
-    String step;
-    String model;
-    String modelKey;
+    private String query;
+    private String step;
+    private String model;
+    private String modelKey;
 
     private ContentModel contentModel;
 
@@ -54,7 +54,7 @@ public class StepConfig {
      *
      * @return endpoint to look for serverside content model
      */
-    public String getModelKey() {
+    String getModelKey() {
         return modelKey;
     }
 

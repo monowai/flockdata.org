@@ -25,6 +25,8 @@ import org.flockdata.track.bean.GeoDataBean;
 import org.flockdata.track.bean.GeoDataBeans;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertNotNull;
+
 /**
  * Created by mike on 4/08/15.
  */
@@ -38,6 +40,15 @@ public class TestGeoDataBeans {
         beans.add("type", bean);
 
     }
+
+    @Test
+    public void zeroChecks(){
+        Integer zero = 0;
+        Double answer = Double.parseDouble(zero.toString());
+        assertNotNull ( answer);
+
+    }
+
 
     @Test
     public void description (){

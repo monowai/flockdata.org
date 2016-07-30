@@ -52,12 +52,12 @@ public class SearchEsPost extends AbstractRestCommand {
     @Override
     public SearchEsPost exec() {
         result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(queryParams,httpHeaders);
 
         try {
+            HttpEntity requestEntity = new HttpEntity<>(queryParams,fdTemplate.getHeaders());
             ParameterizedTypeReference<Map<String,Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {};
             ResponseEntity<Map<String,Object>> response;
-            response = restTemplate.exchange(url + "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
+            response = fdTemplate.getRestTemplate().exchange(getUrl()+ "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
 
             result = response.getBody();
             if ( result().containsKey("errors")){

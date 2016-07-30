@@ -47,12 +47,12 @@ public class AdminPurgeFortressSegment extends AbstractRestCommand {
 
     @Override    // Command
     public AdminPurgeFortressSegment exec() {
-        String exec = url + "/api/v1/admin/{fortress}/{docType}/{segment}";
+        String exec = getUrl()+ "/api/v1/admin/{fortress}/{docType}/{segment}";
         result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
         try {
             ResponseEntity<String> response;
-            response = restTemplate.exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress,docType,segment);
+            response = fdTemplate.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress,docType,segment);
             result = response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getMessage().startsWith("401"))

@@ -1,0 +1,68 @@
+{
+  "documentType": {
+    "name": "Movie",
+    "code": "Movie",
+    "versionStrategy": "FORTRESS",
+    "tagStructure": "DEFAULT"
+  },
+  "name": "Kodi.tv model for movie stuff",
+  "fortress": {
+    "name": "kodi",
+    "code": "kodi"
+  },
+  "archiveTags": true,
+  "tagModel": false,
+  "content": {
+    "c09": {
+      "callerRef": true // The primary key of the docuemntType being tracked
+    },
+    "c00": {
+      "title": true // writes the source property 'title' in to the name field of a node and the search doc
+    },
+    "c02": {
+      "description": true // writes the value in to a description field in a search document.
+    },
+    "c14": {
+      "tag": true,
+      "delimiter": " / ",  // Source data has "First Genre / Second Genre. This will create seperate Genre tag for each Delimiter
+      "label": "Genre",
+      "entityTagLinks": [{"relationshipName": "of-type"}]
+    },
+    "c06": {
+      "tag": true,
+      "delimiter": " / ",
+      "label": "Person",
+      "entityTagLinks": [{"relationshipName": "wrote"}]
+    },
+    "c15": {
+      "tag": true,
+      "delimiter": " / ",
+      "label": "Person",
+      "entityTagLinks": [{"relationshipName": "directed"}]
+    },
+
+    "name": {
+      "tag": true,
+      "label": "Person",
+      "entityTagLinks": [{"relationshipName": "acted", "properties":[{"source":"role"}]}]
+    },
+    "c05": {
+      "dataType": "number", // Force the datatype so that ElasticSearch indexes it correctly
+      "value": "#data['c05']==null?0:#data['c05']", // If playcount is null, store it as 0
+      "properties": [  // Store as an entity property
+        {
+          "target":"rating"
+        }
+      ]
+    },
+    "playCount": {
+      "value": "#data['playCount']==null?0:#data['playCount']", // If playcount is null, store it as 0
+      "dataType": "number",
+      "properties": [  // Make this an entity property called playCount
+        {
+          "target": "value"  // Changing the name of the column name
+        }
+      ]
+    }
+  }
+}

@@ -24,8 +24,8 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class FlockDataStepListener implements StepExecutionListener {
-    private static final Logger logger = LoggerFactory.getLogger(FlockDataStepListener.class);
+public class FdStepListener implements StepExecutionListener {
+    private static final Logger logger = LoggerFactory.getLogger(FdStepListener.class);
 
     @Autowired
     PayloadBatcher batchLoader;

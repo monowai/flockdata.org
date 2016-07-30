@@ -47,12 +47,12 @@ public class Health extends AbstractRestCommand {
 
     @Override    // Command
     public Health exec() {
-        String exec = url + "/api/v1/admin/health/";
+        String exec = getUrl() + "/api/v1/admin/health/";
         result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
         try {
             ResponseEntity<String> response;
-            response = restTemplate.exchange(exec, HttpMethod.GET, requestEntity, String.class);
+            response = fdTemplate.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
             result = JsonUtils.toMap(response.getBody());
         } catch (HttpClientErrorException e) {
             if (e.getMessage().startsWith("401"))

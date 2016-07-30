@@ -40,6 +40,7 @@ public class TestDateConversion {
 
         ColumnDefinition columnDefinition = new ColumnDefinition();
         columnDefinition.setDataType("date");
+        columnDefinition.setDateFormat("Automatic");
 
         Long converted = ExpressionHelper.parseDate(columnDefinition, convert);
         assertTrue("Didn't resolve", converted!=0L);
@@ -68,6 +69,23 @@ public class TestDateConversion {
         DateTime resolved = new DateTime(converted);
         assertEquals(2015, resolved.getYear());
         assertEquals(12, resolved.getMonthOfYear());
+        assertEquals(1, resolved.getDayOfMonth());
+    }
+
+    @Test
+    public void customFormatDmy() throws Exception{
+        String convert = "01/10/2015";
+
+        ColumnDefinition columnDefinition = new ColumnDefinition();
+        columnDefinition.setDataType("date");
+        columnDefinition.setDateFormat("dd/MM/yyyy");
+
+        Long converted = ExpressionHelper.parseDate(columnDefinition, convert);
+        assertTrue("Didn't resolve", converted!=0L);
+
+        DateTime resolved = new DateTime(converted);
+        assertEquals(2015, resolved.getYear());
+        assertEquals(10, resolved.getMonthOfYear());
         assertEquals(1, resolved.getDayOfMonth());
     }
 

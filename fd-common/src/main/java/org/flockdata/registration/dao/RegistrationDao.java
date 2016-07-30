@@ -35,4 +35,6 @@ public interface RegistrationDao {
     SystemUser findByApiKey(String apiKey);
 
     SystemUser save(RegistrationBean regBean);
+
+    SystemUser save(SystemUser systemUser);
 }

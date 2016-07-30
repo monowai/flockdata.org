@@ -49,16 +49,15 @@ public class Login extends AbstractRestCommand {
      */
     @Override    // Command
     public Login exec() {
-        String exec = url + "/api/login";
         result = null;
         error = null;
         try {
             ResponseEntity<SystemUserResultBean> response;
-            HttpEntity<LoginRequest> request = new HttpEntity<>(new LoginRequest(user, pass), httpHeaders);
-            response = restTemplate.exchange(exec, HttpMethod.POST, request, SystemUserResultBean.class);
+            HttpEntity<LoginRequest> request = new HttpEntity<>(new LoginRequest(fdTemplate.getUser(), fdTemplate.getPass()), fdTemplate.getHeaders());
+            response = fdTemplate.getRestTemplate().exchange(getUrl() + "/api/login", HttpMethod.POST, request, SystemUserResultBean.class);
             result = response.getBody();
         } catch (HttpClientErrorException |HttpServerErrorException | ResourceAccessException e) {
-            error = String.format("Login for %s on %s failed with %s", getUrl(), user, e.getMessage());
+            error = String.format("Login for %s on %s failed with %s", getUrl(), fdTemplate.getUser(), e.getMessage());
         }
         return this;
     }

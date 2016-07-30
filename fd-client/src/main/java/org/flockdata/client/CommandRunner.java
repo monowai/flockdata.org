@@ -34,7 +34,7 @@ public class CommandRunner {
 //        System.out.print(ArrayUtils.toString(args));
         if (ArrayUtils.contains(args, "import")) {
             app = new SpringApplication(Importer.class);
-            app.setAdditionalProfiles("fd-importer", "fd-batch");
+            app.setAdditionalProfiles("fd-importer");
         } else if (ArrayUtils.contains(args, "register")) {
             app = new SpringApplication(Register.class);
             app.setAdditionalProfiles("fd-register");
@@ -75,7 +75,7 @@ public class CommandRunner {
             logger.info("Using user id {}", uArgs[0]);
             SystemUserResultBean su = fdTemplate.login(uArgs[0], uArgs[1]);
             if (su == null) {
-                logger.error("Error logging into {} for user {}", fdTemplate.getClientConfiguration().getServiceUrl(), uArgs[0]);
+                logger.error("Error logging into {} for user {}", fdTemplate.getUrl(), uArgs[0]);
                 System.exit(-1);
             }
 

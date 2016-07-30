@@ -25,8 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FlockDataJobListener implements JobExecutionListener {
-    private static final Logger logger = LoggerFactory.getLogger(FlockDataJobListener.class);
+public class FdJobListener implements JobExecutionListener {
+    private static final Logger logger = LoggerFactory.getLogger(FdJobListener.class);
 
     @Autowired
     PayloadBatcher batchLoader;

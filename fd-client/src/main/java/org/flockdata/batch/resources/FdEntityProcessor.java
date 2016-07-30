@@ -37,10 +37,14 @@ import java.util.Map;
 @Profile({"fd-batch", "fd-batch-dev"})
 public class FdEntityProcessor implements ItemProcessor<Map<String, Object>, EntityInputBean> {
 
-    @Autowired
-    private BatchConfig batchConfig;
+    private final BatchConfig batchConfig;
 
     private String stepName;
+
+    @Autowired
+    public FdEntityProcessor(BatchConfig batchConfig) {
+        this.batchConfig = batchConfig;
+    }
 
     @Override
     public EntityInputBean process(Map<String, Object> item) throws Exception {

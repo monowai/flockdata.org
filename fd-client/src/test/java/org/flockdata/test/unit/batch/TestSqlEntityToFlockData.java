@@ -64,6 +64,7 @@ import static org.junit.Assert.assertNotNull;
 
 @TestPropertySource({"/fd-batch.properties", "/application_dev.properties"})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
+
 public class TestSqlEntityToFlockData extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired

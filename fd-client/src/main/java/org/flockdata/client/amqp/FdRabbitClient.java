@@ -21,6 +21,7 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.AmqpRabbitConfig;
 import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.shared.Exchanges;
 import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Writes entity and tag payloads to FlockData over AMQP
@@ -51,16 +53,19 @@ public class FdRabbitClient {
 
     private final AmqpRabbitConfig rabbitConfig;
 
+    private final Exchanges exchanges;
+
     private Connection connection;
 
     private ConnectionFactory connectionFactory = null;
 
-    private Channel channel = null; // Channel is cached but not thread safe
+    private Channel trackChannel = null; // Channel is cached but not thread safe
 
     @Autowired
-    public FdRabbitClient(ClientConfiguration clientConfiguration, AmqpRabbitConfig rabbitConfig) {
+    public FdRabbitClient(ClientConfiguration clientConfiguration, AmqpRabbitConfig rabbitConfig, Exchanges exchanges) {
         this.configuration = clientConfiguration;
         this.rabbitConfig = rabbitConfig;
+        this.exchanges = exchanges;
     }
 
     @PostConstruct
@@ -69,11 +74,11 @@ public class FdRabbitClient {
     }
 
     @PreDestroy
-    public void shutingDown() {
-        logger.debug("Jumping out of the rabbit hold due to shutdown request");
+    public void shuttingDown() {
+        logger.debug("Jumping out of the rabbit hole due to shutdown request");
     }
 
-    private void initialiseConnection() {
+    private void verifyConnection() {
 
         try {
             if (connectionFactory == null ) {
@@ -90,7 +95,6 @@ public class FdRabbitClient {
                 connectionFactory.setPort(rabbitConfig.getPort());
                 connectionFactory.setPassword(rabbitConfig.getPass());
                 connectionFactory.setUsername(rabbitConfig.getUser());
-                connectionFactory.setNetworkRecoveryInterval(1000);
                 connectionFactory.setExceptionHandler(new ExceptionHandler() {
                     @Override
                     public void handleUnexpectedConnectionDriverException(Connection conn, Throwable exception) {
@@ -137,32 +141,36 @@ public class FdRabbitClient {
                         logger.info(exception.getMessage());
                     }
                 });
-            }
-
-            if ( (channel ==null ||connection== null) || ! (connection.isOpen() && channel.isOpen())){
                 openConnection();
             }
-        } catch (IOException e) {
+
+            if ( (trackChannel ==null ||connection== null) || ! (connection.isOpen() && trackChannel.isOpen())){
+                openConnection();
+            }
+        } catch (TimeoutException | IOException e ) {
             logger.error("Unexpected error initializing Rabbit connection. Is it running @ {}:{}? {}", rabbitConfig.getHost(), rabbitConfig.getPort(), e.getMessage());
         }
 
     }
 
-    private void openConnection() throws IOException {
+    private void openConnection() throws IOException, TimeoutException {
         connection = connectionFactory.newConnection();
         connection.addShutdownListener(cause -> {
             Method reason = cause.getReason();
             if (cause.isHardError()) {
                 if (!cause.isInitiatedByApplication()) {
-
-                    logger.error("Hard shutdown initiate - {} {} {}", reason.protocolMethodName(), cause.getReason(), cause.getMessage());
+                    logger.error("Hard shutdown initiate - {} {} {}", (reason!=null ? reason.protocolMethodName(): "null protocol method"), cause.getReason(), cause.getMessage());
                 }
             } else {
-                logger.error("Shutdown initiated - {} {} {}", reason.protocolMethodName(), cause.getReason(), cause.getMessage());
+                logger.error("Shutdown initiated - {} {} {}", (reason!=null ? reason.protocolMethodName(): "null protocol method"), cause.getReason(), cause.getMessage());
             }
+            connection = null;
+            connectionFactory = null;
         });
-        channel = connection.createChannel();
-        channel.queueBind(configuration.getTrackQueue(), configuration.getTrackExchange(), configuration.getTrackRoutingKey());
+
+        trackChannel = connection.createChannel();
+        logger.debug("{}/{}/{}", configuration.getTrackQueue(), configuration.getTrackExchange(), configuration.getTrackRoutingKey());
+        logger.debug(trackChannel.queueBind(configuration.getTrackQueue(), configuration.getTrackExchange(), configuration.getTrackRoutingKey(), exchanges.getTrackQueueFeatures()).toString());
 
     }
 
@@ -194,8 +202,9 @@ public class FdRabbitClient {
     }
 
     public void publish(Collection<EntityInputBean> entityInputs) throws IOException {
-        initialiseConnection();
-        channel.basicPublish(
+        verifyConnection();
+        assert trackChannel.isOpen();
+        trackChannel.basicPublish(
                 configuration.getTrackExchange(),
                 configuration.getTrackRoutingKey(),
                 getEntityProps(),
@@ -203,8 +212,8 @@ public class FdRabbitClient {
     }
 
     public void publishTags(Collection<TagInputBean> tagInputs) throws IOException {
-        initialiseConnection();
-        channel.basicPublish(
+        verifyConnection();
+        trackChannel.basicPublish(
                 configuration.getTrackExchange(),
                 configuration.getTrackRoutingKey(),
                 getTagProps(),
@@ -229,7 +238,7 @@ public class FdRabbitClient {
         if (!(Objects.equals(rabbitHost, rabbitConfig.getHost()) && Objects.equals(rabbitPort, rabbitConfig.getPort()))) {
             rabbitConfig.resetHost(rabbitHost, rabbitPort);
             logger.info("Resetting Rabbit client clientConnection to {}:{}", rabbitConfig.getHost(), rabbitConfig.getPort());
-            initialiseConnection();
+            verifyConnection();
         }
 
     }

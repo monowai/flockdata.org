@@ -34,4 +34,6 @@ public interface SystemUserService {
     SystemUser findByApiKey(String apiKey);
 
     SystemUser save(RegistrationBean regBean);
+
+    void save(SystemUser systemUser);
 }

@@ -28,11 +28,11 @@ import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.index.mapper.MapperParsingException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Tag;
 import org.flockdata.search.base.TagChangeWriter;
-import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.search.model.SearchSchema;
 import org.flockdata.search.model.TagSearchChange;
 import org.flockdata.shared.IndexManager;
@@ -56,11 +56,15 @@ public class TagChangeWriterEs implements TagChangeWriter {
 
     private Logger logger = LoggerFactory.getLogger(TagChangeWriterEs.class);
 
-    @Autowired
-    SearchConfig searchConfig;
+    private final Client elasticSearchClient;
+
+    private final IndexManager indexManager;
 
     @Autowired
-    IndexManager indexManager;
+    public TagChangeWriterEs(IndexManager indexManager, Client elasticSearchClient) {
+        this.indexManager = indexManager;
+        this.elasticSearchClient = elasticSearchClient;
+    }
 
     @Override
     public TagSearchChange handle(TagSearchChange searchChange) throws IOException {
@@ -77,7 +81,7 @@ public class TagChangeWriterEs implements TagChangeWriter {
             logger.debug("Update request for searchKey [{}], key[{}]", searchChange.getSearchKey(), searchChange.getKey());
 
             GetRequestBuilder request =
-                    searchConfig.elasticSearchClient().prepareGet(searchChange.getIndexName(),
+                    elasticSearchClient.prepareGet(searchChange.getIndexName(),
                             indexManager.parseType(searchChange.getDocumentType()),
                             searchChange.getSearchKey());
 
@@ -98,8 +102,8 @@ public class TagChangeWriterEs implements TagChangeWriter {
             }
 
             // Update the existing document with the searchChange change
-            IndexRequestBuilder update = searchConfig
-                    .elasticSearchClient().prepareIndex(searchChange.getIndexName(), indexManager.parseType(searchChange.getDocumentType()), searchChange.getSearchKey());
+            IndexRequestBuilder update = elasticSearchClient
+                    .prepareIndex(searchChange.getIndexName(), indexManager.parseType(searchChange.getDocumentType()), searchChange.getSearchKey());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
                     execute();
@@ -121,7 +125,7 @@ public class TagChangeWriterEs implements TagChangeWriter {
 
         // Rebuilding a document after a reindex - preserving the unique key.
         IndexRequestBuilder irb =
-                searchConfig.elasticSearchClient()
+                elasticSearchClient
                         .prepareIndex(searchChange.getIndexName(), documentType)
                         .setSource(source);
 

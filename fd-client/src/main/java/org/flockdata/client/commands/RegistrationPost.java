@@ -56,10 +56,10 @@ public class RegistrationPost extends AbstractRestCommand {
     @Override
     public RegistrationPost exec() {
         result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(registrationBean, httpHeaders);
+        HttpEntity requestEntity = new HttpEntity<>(registrationBean, fdTemplate.getHeaders());
 
         try {
-            ResponseEntity<SystemUserResultBean> response = restTemplate.exchange(url+"/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
+            ResponseEntity<SystemUserResultBean> response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
             result = response.getBody();
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();

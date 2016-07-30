@@ -89,7 +89,7 @@ public class GlobalControllerExceptionHandler {
 
     //.class
     @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     public ModelAndView handleAuthException(final AccessDeniedException ex){
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }

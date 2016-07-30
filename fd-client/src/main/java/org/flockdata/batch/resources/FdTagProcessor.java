@@ -39,10 +39,14 @@ import java.util.Map;
 @Service
 public class FdTagProcessor implements ItemProcessor<Map<String, Object>, TagInputBean> {
 
-    @Autowired
-    private BatchConfig batchConfig;
+    private final BatchConfig batchConfig;
 
     private String stepName;
+
+    @Autowired
+    public FdTagProcessor(BatchConfig batchConfig) {
+        this.batchConfig = batchConfig;
+    }
 
     @Override
     public TagInputBean process(Map<String, Object> item) throws Exception {

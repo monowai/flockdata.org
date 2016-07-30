@@ -34,8 +34,22 @@ public class Ping extends AbstractRestCommand {
     String result;
     HttpHeaders httpHeaders;
 
+    private String url = null;
+
     public Ping(FdTemplate fdTemplate) {
-            super(fdTemplate);
+        super(fdTemplate);
+        this.url = fdTemplate.getUrl();
+    }
+
+    public Ping(FdTemplate fdTemplate, String url) {
+        super(fdTemplate);
+        this.url = url;
+
+    }
+
+    @Override
+    public String getUrl() {
+        return this.url;
     }
 
     public String result() {
@@ -44,12 +58,12 @@ public class Ping extends AbstractRestCommand {
 
     @Override    // Command
     public Ping exec() {
-        result=null;
+        result = null;
         error = null;
-        String exec = url + "/api/ping/";
+        String exec = getUrl() + "/api/ping/";
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
-            ResponseEntity<String> response = restTemplate.exchange(exec, HttpMethod.GET, requestEntity, String.class);
+            ResponseEntity<String> response = fdTemplate.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
             result = response.getBody();
             error = null;
         } catch (HttpClientErrorException e) {

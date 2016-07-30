@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -69,20 +70,20 @@ import java.util.List;
  */
 @Profile("fd-importer")
 @Configuration
-@EnableAutoConfiguration
 @ComponentScan(basePackages = {"org.flockdata.shared", "org.flockdata.client"})
+@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class Importer  {
 
     private Logger logger = LoggerFactory.getLogger(Importer.class);
 
-    @Autowired
     private ClientConfiguration clientConfiguration;
 
-    @Autowired
     private FdTemplate fdTemplate;
 
-    @Autowired
     private FileProcessor fileProcessor;
+
+    public Importer() {
+    }
 
     @Value("${auth.user:#{null}}")
     String authUser;
@@ -92,6 +93,28 @@ public class Importer  {
 
     @Value("${fd.content.model:#{null}}")
     String serverSideContentModel; // tag:{typeCode} or {fortress}:{doctype}
+
+    @Autowired
+    public Importer(FileProcessor fileProcessor, FdTemplate fdTemplate, ClientConfiguration clientConfiguration) {
+        this.fileProcessor = fileProcessor;
+        this.fdTemplate = fdTemplate;
+        this.clientConfiguration = clientConfiguration;
+    }
+
+    @Autowired
+    void setFileProcessor (FileProcessor fileProcessor){
+        this.fileProcessor= fileProcessor;
+    }
+
+    @Autowired
+    void setClientConfiguration (ClientConfiguration clientConfiguration){
+        this.clientConfiguration = clientConfiguration;
+    }
+
+    @Autowired
+    void setFdTemplate(FdTemplate fdTemplate){
+        this.fdTemplate = fdTemplate;
+    }
 
     @PostConstruct
     void importFiles() {

@@ -20,9 +20,11 @@
 
 package org.flockdata.search.configure;
 
+import io.searchbox.client.JestClient;
+import io.searchbox.client.JestClientFactory;
+import io.searchbox.client.config.HttpClientConfig;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -36,10 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import javax.annotation.PreDestroy;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -80,25 +81,36 @@ public class SearchConfig {
     private Logger logger = LoggerFactory.getLogger("configuration");
 
     private Settings getSettings() {
-        ImmutableSettings.Builder config = ImmutableSettings.settingsBuilder()
+        Settings settings = Settings.settingsBuilder()
                 .put("path.data", pathData)
                 .put("path.home", pathHome)
                 .put("http.port", httpPort)
                 .put("cluster.name", clusterName)
-                .put("node.local", (!transportOnly ?false:localOnly))
+                .put("node.local", (!transportOnly ? false : localOnly))
                 .put("node.client", transportOnly)
-                .put("transport.tcp.port", tcpPort);
+                .put("transport.tcp.port", tcpPort).build();
 
-        Settings settings = config.build();
 
         logger.info("ElasticSearch config settings " + JsonUtils.toJson(settings.getAsMap()));
         return settings;
     }
 
     @Bean
-    public ElasticsearchOperations elasticsearchTemplate() throws UnknownHostException {
-        return new ElasticsearchTemplate(elasticSearchClient());
+    JestClient getJestClient (){
+        JestClientFactory factory = new JestClientFactory();
+        factory.setHttpClientConfig(new HttpClientConfig
+                .Builder(urls)
+                .multiThreaded(true)
+                .build());
+        return factory.getObject();
+
+
     }
+//
+//    @Bean
+//    public ElasticsearchOperations elasticsearchTemplate() throws UnknownHostException {
+//        return new ElasticsearchTemplate(elasticSearchClient());
+//    }
 
     @PreDestroy
     void closeClient() {
@@ -106,16 +118,19 @@ public class SearchConfig {
             client.close();
     }
 
+    @Bean
     public Client elasticSearchClient() {
         if (client == null) {
             if (transportOnly) {
                 // You should set the host addresses to connect to
                 for (InetSocketTransportAddress address : addresses) {
-                    logger.info("**** Transport client looking for host {}", address.toString() );
+                    logger.info("**** Transport client looking for host {}", address.toString());
                 }
-                client = new TransportClient(getSettings())
-                        .addTransportAddresses((TransportAddress[]) addresses
-                        );
+                client = TransportClient
+                        .builder()
+                            .settings(getSettings())
+                        .build()
+                            .addTransportAddresses((TransportAddress[]) addresses);
 
             } else {
                 logger.info("Using embedded ES node");
@@ -129,36 +144,38 @@ public class SearchConfig {
     }
 
     private InetSocketTransportAddress[] addresses;
+    private String urls;
 
     /**
      * Transport hosts
-     *
+     * <p>
      * HostA:9300,HostB:9300,HostC:9300.....
      *
      * @param urls , separated list of hosts to connect to
      */
     @Autowired
-    void setTransportAddresses(@Value("${es.nodes:localhost:9300}") String urls) {
+    void setTransportAddresses(@Value("${es.nodes:localhost:9300}") String urls) throws UnknownHostException {
         Collection<String> values;
         if (urls == null || urls.equals("")) {
             return;
         }
+        this.urls = urls;
         values = Arrays.asList(urls.split(","));
 
         addresses = new InetSocketTransportAddress[values.size()];
         int i = 0;
         for (String value : values) {
             String[] serverPort = value.split(":");
-            addresses[i++] = new InetSocketTransportAddress(serverPort[0], Integer.parseInt(serverPort[1]));
+            addresses[i++] = new InetSocketTransportAddress(InetAddress.getByName(serverPort[0]), Integer.parseInt(serverPort[1]));
         }
     }
 
     public String getTransportAddresses() {
-        if ( !transportOnly)
+        if (!transportOnly)
             return null;
-        String result =null ;
+        String result = null;
         for (InetSocketTransportAddress address : addresses) {
-            if ( result!=null)
+            if (result != null)
                 result = result + "," + address.toString();
             else
                 result = address.toString();
@@ -172,7 +189,7 @@ public class SearchConfig {
                 .nodeBuilder()
                 .settings(getSettings())
                 .clusterName(clusterName)
-                .local(!transportOnly ?false:localOnly)
+                .local(!transportOnly ? false : localOnly)
                 .client(transportOnly)
                 .node();
     }
@@ -191,7 +208,7 @@ public class SearchConfig {
     }
 
     public String getEsMapping(SearchChange searchChange) {
-        if ( searchChange.isType(SearchChange.Type.ENTITY)) {
+        if (searchChange.isType(SearchChange.Type.ENTITY)) {
             if (searchChange.getTagStructure() != null && searchChange.getTagStructure() == EntityService.TAG_STRUCTURE.TAXONOMY)
                 return esTaxonomyMapping;
             else

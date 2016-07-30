@@ -20,20 +20,12 @@
 
 package org.flockdata.engine.configure;
 
-import com.google.common.cache.CacheBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.guava.GuavaCache;
-import org.springframework.cache.support.SimpleCacheManager;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 /**
  * FD-Cache configuration settings
@@ -49,79 +41,5 @@ public class CacheConfiguration {
             }, allEntries = true)
     public void resetCache() {
         logger.debug("Cache Reset");
-    }
-
-
-    @Bean
-    public CacheManager cacheManager() {
-
-        GuavaCache tagCache = new GuavaCache("tag", CacheBuilder.newBuilder()
-                .maximumSize(2000)
-                .expireAfterAccess(1, TimeUnit.MINUTES)
-                .build());
-
-        // Fortress GEO queries
-        GuavaCache geoCache = new GuavaCache("geoQuery", CacheBuilder.newBuilder()
-                .maximumSize(500)
-                .expireAfterAccess(2, TimeUnit.MINUTES)
-                .build());
-
-        // Geo query paths
-        GuavaCache geoData = new GuavaCache("geoData", CacheBuilder.newBuilder()
-                .maximumSize(500)
-                .expireAfterAccess(2, TimeUnit.MINUTES)
-                .build());
-
-        GuavaCache fortressUser = new GuavaCache("fortressUser", CacheBuilder.newBuilder()
-                .maximumSize(500)
-                .expireAfterAccess(1, TimeUnit.MINUTES)
-                .build());
-
-        GuavaCache sysUserApi = new GuavaCache("sysUserApiKey", CacheBuilder.newBuilder()
-                .maximumSize(500)
-                .expireAfterAccess(10, TimeUnit.MINUTES)
-                .build());
-
-        GuavaCache company = new GuavaCache("company", CacheBuilder.newBuilder()
-                .maximumSize(500)
-                .expireAfterAccess(10, TimeUnit.MINUTES)
-                .build());
-
-        GuavaCache docType = new GuavaCache("documentType", CacheBuilder.newBuilder()
-                .maximumSize(50)
-                .expireAfterAccess(10, TimeUnit.MINUTES)
-                .build());
-
-        GuavaCache labels = new GuavaCache("labels", CacheBuilder.newBuilder()
-                .maximumSize(500)
-                .expireAfterAccess(120, TimeUnit.MINUTES)
-                .build());
-
-        GuavaCache entityByCode  = new GuavaCache("entityByCode", CacheBuilder.newBuilder()
-                .maximumSize(1000)
-                .expireAfterAccess(20, TimeUnit.SECONDS)
-                .build());
-
-        GuavaCache fortressSegment = new GuavaCache("fortressSegment", CacheBuilder.newBuilder()
-                .maximumSize(500)
-                .expireAfterAccess(20, TimeUnit.MINUTES)
-                .build());
-
-
-        SimpleCacheManager simpleCacheManager = new SimpleCacheManager();
-
-        simpleCacheManager.setCaches(Arrays.asList(tagCache,
-                docType,
-                geoCache,
-                fortressUser,
-                entityByCode,
-                labels,
-                geoData,
-                fortressSegment,
-                company,
-                sysUserApi));
-
-        logger.info("**** Configured for Guava caching");
-        return simpleCacheManager;
     }
 }

@@ -25,8 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -47,12 +51,12 @@ import java.util.Map;
  * <p>
  * Created by mike on 24/01/16.
  */
-@Configuration
 @PropertySources({
         @PropertySource(value = "classpath:/fd-batch.properties"),
         @PropertySource(value = "file:${org.fd.batch.properties}", ignoreResourceNotFound = true)
 })
 @Profile( {"fd-batch", "fd-batch-dev"})
+@Service
 public class BatchConfig {
     private Logger logger = LoggerFactory.getLogger(BatchConfig.class);
 
@@ -84,8 +88,12 @@ public class BatchConfig {
     @Value("${batch.datasource.driver:org.hsqldb.jdbc.JDBCDriver}")
     private String batchDriver;
 
+    private final FdIoInterface fdIoInterface;
+
     @Autowired
-    private FdIoInterface fdIoInterface;
+    public BatchConfig(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
 
     public String getUrl() {
         return url;
@@ -211,17 +219,17 @@ public class BatchConfig {
         return contentModel;
     }
 
-    private StepConfig loadStepConfig(URL url) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        return mapper.readValue(url, StepConfig.class);
 
-    }
+    private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
     private StepConfig loadStepConfig(InputStream file) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         return mapper.readValue(file, StepConfig.class);
     }
 
+    private StepConfig loadStepConfig(URL url) throws IOException {
+        return mapper.readValue(url, StepConfig.class);
+
+    }
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
         return new PropertySourcesPlaceholderConfigurer();

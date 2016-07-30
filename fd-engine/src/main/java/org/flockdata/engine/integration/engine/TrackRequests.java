@@ -21,7 +21,6 @@
 package org.flockdata.engine.integration.engine;
 
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Company;
@@ -29,7 +28,6 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.Exchanges;
-import org.flockdata.shared.MessageSupport;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.MediationFacade;
 import org.slf4j.Logger;
@@ -64,14 +62,23 @@ import java.util.concurrent.ExecutionException;
 @Profile({"fd-server"})
 public class TrackRequests {
 
-    @Autowired
-    TrackBatchSplitter batchSplitter;
+    private final MediationFacade mediationFacade;
+
+    private final SecurityHelper securityHelper;
+
+
+    private Exchanges exchanges;
 
     @Autowired
-    MediationFacade mediationFacade;
+    public TrackRequests(MediationFacade mediationFacade, SecurityHelper securityHelper) {
+        this.mediationFacade = mediationFacade;
+        this.securityHelper = securityHelper;
+    }
 
     @Autowired (required = false)
-    Exchanges exchanges;
+    void setExchanges ( Exchanges exchanges){
+        this.exchanges = exchanges;
+    }
 
     @Bean
     MessageChannel doTrackEntity() {
@@ -87,12 +94,6 @@ public class TrackRequests {
     MessageChannel trackResult() {
         return new DirectChannel();
     }
-
-    @Autowired
-    MessageSupport messageSupport;
-
-    @Autowired
-    SecurityHelper securityHelper;
 
     private Logger logger = LoggerFactory.getLogger(TrackRequests.class);
 

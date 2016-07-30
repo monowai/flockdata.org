@@ -35,19 +35,23 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class RegistrationNeo implements RegistrationDao {
-    @Autowired
-    private SystemUserRepository suRepo;
+    private final SystemUserRepository suRepo;
+
+    private final KeyGenService keyGenService;
 
     @Autowired
-    KeyGenService keyGenService;
+    public RegistrationNeo(SystemUserRepository suRepo, KeyGenService keyGenService) {
+        this.suRepo = suRepo;
+        this.keyGenService = keyGenService;
+    }
 
-    SystemUser save(SystemUser systemUser) {
+    public SystemUser save(SystemUser systemUser) {
         return suRepo.save(systemUser);
     }
 
-    @Cacheable (value = "sysUserApiKey", unless = "#result==null")
-    public SystemUser findByApiKey(String apiKey){
-        if ( apiKey == null )
+    @Cacheable(value = "sysUserApiKey", unless = "#result==null")
+    public SystemUser findByApiKey(String apiKey) {
+        if (apiKey == null)
             return null;
         return suRepo.findBySchemaPropertyValue("apiKey", apiKey);
     }

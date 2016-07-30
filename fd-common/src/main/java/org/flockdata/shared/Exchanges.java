@@ -138,12 +138,15 @@ public class Exchanges {
         return searchExchange;
     }
 
-    @Bean
-    public Queue fdTrackQueue() {
+    public Map<String,Object> getTrackQueueFeatures() {
         Map<String, Object> params = new HashMap<>();
         params.put("x-dead-letter-exchange", trackDlqExchange);
-        // ToDo: Figure out DLQ Binding
-        return new Queue(trackQueue, true, false, false, params);
+        return params;
+    }
+
+    @Bean
+    public Queue fdTrackQueue() {
+        return new Queue(trackQueue, true, false, false, getTrackQueueFeatures());
     }
 
     @Bean
@@ -209,7 +212,6 @@ public class Exchanges {
     // DLQ
     @Bean
     public Queue fdTrackDlq() {
-        // ToDo: Figure out DLQ Binding
         return new Queue(trackDlq);
     }
 

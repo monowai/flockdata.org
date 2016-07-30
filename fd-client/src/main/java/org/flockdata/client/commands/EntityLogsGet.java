@@ -48,12 +48,12 @@ public class EntityLogsGet extends AbstractRestCommand {
     @Override
     public EntityLogsGet exec() {
         results=null;   error =null;
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
 
         try {
 
             ResponseEntity<EntityLogResult[]> response;
-            response = restTemplate.exchange(url + "/api/v1/entity/{key}/log?withData=true", HttpMethod.GET, requestEntity, EntityLogResult[].class, key);
+            response = fdTemplate.getRestTemplate().exchange(getUrl() + "/api/v1/entity/{key}/log?withData=true", HttpMethod.GET, requestEntity, EntityLogResult[].class, key);
 
 
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);

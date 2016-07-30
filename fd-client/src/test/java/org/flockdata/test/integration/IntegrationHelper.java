@@ -37,8 +37,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-import static org.springframework.test.util.AssertionErrors.assertTrue;
-import static org.springframework.test.util.AssertionErrors.fail;
+import static junit.framework.TestCase.assertNotNull;
+import static org.springframework.test.util.AssertionErrors.*;
 
 
 /**
@@ -54,6 +54,8 @@ class IntegrationHelper {
     static final String ADMIN_REGRESSION_USER = "integration";
     static final String ADMIN_REGRESSION_PASS = "123";
     private static Logger logger = LoggerFactory.getLogger(IntegrationHelper.class);
+
+    @Autowired private FdTemplate fdTemplate;
 
     @Value("${org.fd.test.sleep.short:1500}")
     private int shortSleep;
@@ -82,7 +84,6 @@ class IntegrationHelper {
 
     // If any one of FD's services fail to come up we can't perform integration testing
     private static boolean stackFailed = false;
-
 
     Collection<EntityInputBean> toCollection(EntityInputBean entityInputBean) throws IOException {
         Collection<EntityInputBean> entities = new ArrayList<>();
@@ -184,7 +185,7 @@ class IntegrationHelper {
 
     }
 
-    private void waitForService(String service, Ping pingCommand, String url, int countDown) throws InterruptedException {
+    private void waitForService(String service, Ping pingCommand, int countDown) throws InterruptedException {
 
         if (stackFailed)
             return;
@@ -205,10 +206,8 @@ class IntegrationHelper {
             stackFailed = true;
             fail("Failed to ping " + service + " before timeout");
         }
-        logger.info("{} is running. [{}]", service, url);
+        logger.info("{} is running. [{}]", service, pingCommand.getUrl());
     }
-
-    @Autowired FdTemplate fdTemplate;
 
     void waitForServices()  {
 
@@ -217,16 +216,12 @@ class IntegrationHelper {
         if (setupComplete)
             return; // This method is called before every @Test - it's expensive :o)
 
-        logger.info("Waiting for containers to come on-line");
-        fdTemplate.getClientConfiguration().setServiceUrl(getEngine());
+        logger.info("Waiting for containers to come on-line. Service URL {}"+fdTemplate.getUrl());
 
         logger.debug("Running with debug logging");
-        fdTemplate.getClientConfiguration().setServiceUrl(getEngine());
-        Ping enginePing = new Ping(fdTemplate);
-        fdTemplate.getClientConfiguration().setServiceUrl(getStore());
-        Ping storePing = new Ping(fdTemplate);
-        fdTemplate.getClientConfiguration().setServiceUrl(getSearch());
-        Ping searchPing = new Ping(fdTemplate);
+        Ping enginePing = new Ping(fdTemplate, getEngine());
+        Ping storePing = new Ping(fdTemplate, getStore());
+        Ping searchPing = new Ping(fdTemplate, getSearch());
 
         logger.info("org.fd.test.sleep.short {}ms", shortSleep);
         logger.info("org.fd.test.sleep.long  {}ms", longSleep);
@@ -244,9 +239,9 @@ class IntegrationHelper {
         if (stack != null)
             try {
                 waitForPong(enginePing, waitSeconds);
-                waitForService("fd-engine", enginePing, getEngine(), 30);
-                waitForService("fd-search", searchPing, getSearch(), 30);
-                waitForService("fd-store", storePing, getStore(), 30);
+                waitForService("fd-engine", enginePing, 30);
+                waitForService("fd-search", searchPing, 30);
+                waitForService("fd-store", storePing, 30);
             } catch (InterruptedException e) {
                 logger.error(e.getMessage());
                 setupComplete=true;
@@ -262,7 +257,7 @@ class IntegrationHelper {
         setupComplete = true;
         fdTemplate.resetRabbitClient(getIpAddress(), getRabbitPort());
 
-        fdTemplate.getClientConfiguration().setServiceUrl(getEngine());
+        fdTemplate.setServiceUrl(getEngine());
     }
 
     private static String getUrl() {
@@ -312,27 +307,23 @@ class IntegrationHelper {
     }
 
     /**
-     * A login is associated with a single company. Create different fortresses to partion
-     * data access users.
-     * <p>
-     * The user name you want to create has to exist in the security context otherwise login will fail
+     * Convenience function
      *
-     * @return details about the DataAcessUser
+     * Logs in with the externally configured integration account and then
+     * sets that user up as a DataAccessUser.
+     *
+     * @param user  integration
+     * @param pass  123
+     * @return      suresult
+     * @throws FlockException errors
      */
-    SystemUserResultBean makeDataAccessUser() throws FlockException {
-//        fdTemplate.validateConnectivity();
-        return fdTemplate.register(ADMIN_REGRESSION_USER, "TestCompany");
-    }
-
     SystemUserResultBean login(String user, String pass) throws FlockException{
-        fdTemplate.getClientConfiguration()
-                .setServiceUrl(getEngine())
-                .setHttpUser(user)
-                .setApiKey(null)
-                .setHttpPass(pass);
-
-//        fdTemplate.validateConnectivity();
-        return fdTemplate.login();
+        assertEquals("Only engine URL supports login", getEngine(), fdTemplate.getUrl());
+        SystemUserResultBean su = fdTemplate.login(user, pass);
+        assertNotNull ( String.format("failed to login as %s", user), su);
+        su = fdTemplate.register(user, "TestCompany");
+        assertNotNull ( String.format("Failed to make the login %s a data access user",user), su.getApiKey());
+        return su;
 
     }
 

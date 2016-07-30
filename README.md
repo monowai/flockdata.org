@@ -1,13 +1,15 @@
 [FlockData](http://FlockData.com) - Information Integration Services
 ===========
 
+FlockData lets you visually model data and connect it back to the core business domain concepts that exist within your conceptual models.
+
 FlockData is a collection of modularized services that work with domain driven documents mutated by business events originating in your organizational systems. A domain driven approach to data normalization enables business users to better interact with data as the modeled domain context is that of the organisation.
 
-It provides a series of modular services that work together to provide data transformation, processing pipeline capabilities and master data management.  FD enables you to integrate data from any source into modularised databases, such as Neo4j, ElasticSearch and Riak, for analysis.
+Using modular services that work together, FDo provides data transformation, processing pipeline capabilities and master data management.  The results are written out to Neo4j, ElasticSearch and Riak where they can be efficiently analyzed
 
-* Transformation model management reduces the effort of integration by letting you visually convert existing data into the target structure you want to achieve for your information.
-* Processing pipeline takes transformed data and writes the results into Neo4j and ElasticSearch databases for analysis.
-* Maser data management capabilities handle processing of data on a one-off load or on-going incremental update basis.
+* Model management reduces the effort of integration by letting you visually convert existing data into the target conceptual structure
+* Processing pipeline writes modeled data into Neo4j and ElasticSearch databases for analysis.
+* Maser data management capabilities enable repeatable loads of data and track the meta concepts of your information
 
 Data can be ingested from many sources including delimited files, JSON and SQL result sets.
 
@@ -15,15 +17,20 @@ Data can be ingested from many sources including delimited files, JSON and SQL r
 
 ## Docker
 
-The FD stack can be rapidly deployed via Docker using a docker-compose script. Please see [fd-demo](http://github.com/monowai/fd-demo) for more details on how to start the stack in various ways .
+The FD stack can be rapidly deployed via Docker using a docker-compose script. 
+    `git clone http://github.com/monowai/fd-demo`
+    `docker-compose up -d`
+    `http://docker-ip - login as demo/123`
+      
+Further details can be found on [fd-demo](http://github.com/monowai/fd-demo)
 
 ## What
 
-FlockData normalizes the data in your organisation around the business context.
+FlockData allows you to model your data and normalize it around the business context - the conceptual model. The results allow you to 
 
   * Standardised way in which data can be securely read and analyzed
-  * Agnostic to the underlying structure of your data
-  * Independent of existing systems
+  * Independent of the underlying structure of your data
+  * See the conceptual structure of your data 
 
 
 ## Overview
@@ -43,13 +50,12 @@ We use the mvn spotify project for docker management, and run integration tests 
 The API can be invoked via the supplied postman [Postman](https://github.com/monowai/flockdata.org/blob/master/fd.api-postman.json). This contains environments for both localhost DEV and docker
 
 ##Design
-FD follows the design concepts of a [Microservice](http://martinfowler.com/articles/microservices.html). As a service it is in fact itself made up of microservices.
 
-![Alt text](https://github.com/monowai/flockdata.org/blob/master/micro-service.png)
+FlockData is inspired by Domain Driven Design which defines the way we look at information
 
-FlockData is inspired by Domain Driven Design (the way we look at information), ROA & SOA architectures (API access). It integrates sophisticated index technologies and document management logic in to highly scalable JSON databases. The result lets you look at your information in new and innovative ways to discover patterns in information.
+FD is implemented using the design goals of a [Microservice](http://martinfowler.com/articles/microservices.html). As a service it is in fact itself made up of microservices.
 
-Loosely coupled services have become the way to build systems to support independent scaling and reduce impact of change. Tracking the information that flows across these services becomes vital when it comes to analysing issues both technically and from the user's experience. FD supports this approach by using [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html) techniques.
+Loosely coupled services are the way to build systems to support independent scaling and reduce impact of change. 
 
 ##Datastores
 FlockData coordinates and directs information to various highly scalable data sources to achieve functionality. 
@@ -94,5 +100,6 @@ We encourage contributions to FlockData from the community. Here’s how to get 
 To report a bug or issue, please register and open a new [issue](https://monowai.atlassian.net/) in our Jira issue tracking system.
 
 ### Licensing
+fd-client provides an Apache licensed interface to the GPL licensed backend of FlockData. 
 We want everyone to get the most out of FD. We use GPL to ensure that changes to FD code, the stuff that runs behind the API, can be made shared with everyone.
 FlockData is an open source project. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by [contacting](http://flockdata.com/). Talk to us about clustering as there can be external costs involved with the underlying stack.

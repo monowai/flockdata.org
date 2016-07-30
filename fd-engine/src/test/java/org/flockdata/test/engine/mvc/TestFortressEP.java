@@ -215,7 +215,7 @@ public class TestFortressEP extends MvcBase {
 
         // Sally works for a different company
         exception.expect(AccessDeniedException.class);
-        updateFortress(harry(), fortress.getCode(), update, MockMvcResultMatchers.status().isUnauthorized());
+        updateFortress(harry(), fortress.getCode(), update, MockMvcResultMatchers.status().isForbidden());
 
     }
 

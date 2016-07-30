@@ -54,12 +54,12 @@ public class SearchFdPost extends AbstractRestCommand {
     public SearchFdPost exec() {
         result = null;
         error = null;
-        HttpEntity requestEntity = new HttpEntity<>(queryParams, httpHeaders);
+        HttpEntity requestEntity = new HttpEntity<>(queryParams, fdTemplate.getHeaders());
 
         try {
 
             ResponseEntity<EsSearchResult> response;
-            response = restTemplate.exchange(url + "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
+            response = fdTemplate.getRestTemplate().exchange(getUrl()+ "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
 
             result = response.getBody();
             error = result.getFdSearchError();

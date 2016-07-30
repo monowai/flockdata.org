@@ -63,15 +63,17 @@ import java.util.Map;
 public class FdTemplate implements FdIoInterface {
 
     private static boolean compress = true;
+    private ClientConfiguration clientConfiguration;
+    private FdRabbitClient fdRabbitClient;
 
-    private final ClientConfiguration clientConfiguration;
-
-    private final FdRabbitClient fdRabbitClient;
+    @Autowired
+    void setClientConfiguration (ClientConfiguration clientConfiguration){
+        this.clientConfiguration = clientConfiguration;
+    }
 
     @Autowired(required = false)
-    public FdTemplate(FdRabbitClient fdRabbitClient, ClientConfiguration clientConfiguration) {
+    void setFdRabbitClient (FdRabbitClient fdRabbitClient){
         this.fdRabbitClient = fdRabbitClient;
-        this.clientConfiguration = clientConfiguration;
     }
 
     public SystemUserResultBean me() {
@@ -79,7 +81,7 @@ public class FdTemplate implements FdIoInterface {
         return login.exec().result();
     }
 
-    public ClientConfiguration getClientConfiguration() {
+    private ClientConfiguration getClientConfiguration() {
         return clientConfiguration;
     }
 
@@ -103,8 +105,7 @@ public class FdTemplate implements FdIoInterface {
      * @return details about the system user data access account
      */
     public SystemUserResultBean register(String userName, String company) {
-        RegistrationBean registrationBean = new RegistrationBean(company, userName).setIsUnique(true);
-        RegistrationPost registrationPost = new RegistrationPost(this, registrationBean);
+        RegistrationPost registrationPost = new RegistrationPost(this, new RegistrationBean(company, userName));
         SystemUserResultBean result = registrationPost.exec().result();
         if (result != null)
             clientConfiguration.setApiKey(result.getApiKey());
@@ -165,6 +166,10 @@ public class FdTemplate implements FdIoInterface {
 
     private HttpHeaders httpHeaders = null;
 
+    public HttpHeaders getHeaders () {
+        return getHeaders(clientConfiguration.getHttpUser(), clientConfiguration.getHttpPass(), clientConfiguration.getApiKey());
+    }
+
     public HttpHeaders getHeaders(String user, String pass, final String apiKey) {
         String auth = user + ":" + pass;
         byte[] encodedAuth = Base64.encodeBase64(
@@ -212,6 +217,7 @@ public class FdTemplate implements FdIoInterface {
     public SystemUserResultBean login() {
         Login login = new Login(this);
         if (login.exec().error() != null) {
+            logger.error ( "Error logging in as [{}] - {}", getUser(), login.error());
             return null;
         }
 
@@ -221,7 +227,7 @@ public class FdTemplate implements FdIoInterface {
                 logger.info("Configuring apiKey for user {}", clientConfiguration.getHttpUser());
                 clientConfiguration.setApiKey(suResult.getApiKey());
             } else {
-                logger.info ( "User {} authenticated at {} but is not a registered data access user", clientConfiguration.getHttpUser(), clientConfiguration.getServiceUrl());
+                logger.debug( "User [{}] authenticated at [{}] but is not a registered data access user", clientConfiguration.getHttpUser(), clientConfiguration.getServiceUrl());
             }
 
         }
@@ -301,10 +307,29 @@ public class FdTemplate implements FdIoInterface {
 
 
     public SystemUserResultBean login(String user, String pass) {
+        httpHeaders = null;
         getClientConfiguration()
                 .setHttpUser(user)
                 .setHttpPass(pass)
                 .setApiKey(null);
+
         return login();
+    }
+
+    public String getUrl() {
+        return clientConfiguration.getServiceUrl();
+    }
+
+    public String getUser() {
+        return clientConfiguration.getHttpUser();
+    }
+
+    public String getPass() {
+        return clientConfiguration.getHttpPass();
+    }
+
+    public void setServiceUrl(String serviceUrl) {
+        logger.info ("setting service URL to {}", serviceUrl);
+        clientConfiguration.setServiceUrl(serviceUrl);
     }
 }

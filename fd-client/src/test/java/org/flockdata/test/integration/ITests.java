@@ -109,7 +109,7 @@ public class ITests {
     private FileProcessor fileProcessor;
 
     @Autowired
-    IntegrationHelper integrationHelper;
+    private IntegrationHelper integrationHelper;
 
     private SearchHelper searchHelper = new SearchHelper();
 
@@ -161,7 +161,7 @@ public class ITests {
         logger.info("HealthChecks");
         // If the services can't see each other, its not worth proceeding
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
+        assertNotNull(login);
         Health health = new Health(fdTemplate);
         integrationHelper.assertWorked("Health Check", health.exec());
 
@@ -178,23 +178,19 @@ public class ITests {
     @Test
     public void simpleLogin() {
         logger.info("Testing simpleLogin");
-        clientConfiguration.setHttpUser(IntegrationHelper.ADMIN_REGRESSION_USER);
-        clientConfiguration.setHttpPass("123");
-        clientConfiguration.setServiceUrl(getEngine());
-        SystemUserResultBean suResult = fdTemplate.login();
+        SystemUserResultBean suResult = fdTemplate.login(ADMIN_REGRESSION_USER, "123");
         assertNotNull(suResult);
         assertTrue("User Roles missing", suResult.getUserRoles().length != 0);
     }
 
     @Test
-    public void registration() throws Exception{
+    public void registration() throws Exception {
         // An authorised user can create DataAccess users for a given company
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
+        assertNotNull(login);
 
-        SystemUserResultBean suResult = integrationHelper.makeDataAccessUser();
-        assertNotNull(suResult);
-        assertNotNull(suResult.getApiKey());
+        assertNotNull(login);
+        assertNotNull(login.getApiKey());
 
     }
 
@@ -204,15 +200,13 @@ public class ITests {
      * Country Content Profile
      * Tag being tracked over an AMQP endpoint
      * Countries can be found via the Tag endpoint by label
-     *
      */
     @Test
     public void loadCountries() throws Exception {
 
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
+        assertNotNull(login);
 
-        clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
         clientConfiguration.setBatchSize(5);
 
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/countries.json");
@@ -267,9 +261,7 @@ public class ITests {
     public void trackEntityOverHttp() throws Exception {
 
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
-
-        clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
+        assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("TrackEntity", false))
@@ -296,11 +288,7 @@ public class ITests {
     public void trackEntityOverAmqpThenFindInSearch() throws Exception {
 
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
-
-        SystemUserResultBean su= integrationHelper.makeDataAccessUser();
-        assertNotNull(su);
-        clientConfiguration.setApiKey(su.getApiKey());
+        assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("TrackEntityAmqp")
@@ -347,7 +335,7 @@ public class ITests {
     public void validateEntityLogs() throws Exception {
 
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
+        assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("validateEntityLogs", false))
@@ -386,9 +374,7 @@ public class ITests {
     public void findByESPassThroughWithUTF8() throws Exception {
 
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
-
-        integrationHelper.makeDataAccessUser();
+        assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("findByESPassThroughWithUTF8")
@@ -434,7 +420,7 @@ public class ITests {
     public void simpleTags() throws Exception {
 
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
+        assertNotNull(login);
 
         Collection<TagInputBean> tags = new ArrayList<>();
         String tagLabel = "simpleTag";
@@ -494,7 +480,7 @@ public class ITests {
     @Test
     public void bulkTagsDontBlock() throws Exception {
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
+        assertNotNull(login);
 
         Collection<TagInputBean> setA = getRandomTags("codea", "Set");
         Collection<TagInputBean> setB = getRandomTags("codea", "Set");
@@ -516,7 +502,7 @@ public class ITests {
     @Test
     public void purgeFortressRemovesEsIndex() throws Exception {
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
+        assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("purgeFortressRemovesEsIndex")
@@ -555,10 +541,7 @@ public class ITests {
     @Test
     public void purgeSegmentRemovesOnlyTheSpecifiedOne() throws Exception {
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
-
-        SystemUserResultBean su = integrationHelper.makeDataAccessUser();
-        assertNotNull("Data Access User should not be null", su);
+        assertNotNull(login);
 
         DocumentTypeInputBean docType = new DocumentTypeInputBean("DeleteSearchDoc");
 
@@ -628,7 +611,7 @@ public class ITests {
         qp.setSegment("2015");
         assertNotNull("Command failed to execute", search.exec().result());
         assertNotNull("Expected an index not found type error", search.result().getFdSearchError());
-        assertTrue("2015 index should be reported as missing", search.result().getFdSearchError().contains("2015"));
+        assertTrue("2015 index should be reported as missing", search.result().getFdSearchError().contains("no such index"));
 
         // Check we can track back into previously purged fortress
         entityInputBean = new EntityInputBean()
@@ -656,13 +639,13 @@ public class ITests {
      * Much the same as purgeSegmentRemovesOnlyTheSpecifiedOne but ensures the functions
      * work for entities that have no logs
      *
-     * @throws Exception   anything
+     * @throws Exception anything
      */
     @Test
     public void purgeSegmentEntitiesWithNoLogs() throws Exception {
 
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull (login);
+        assertNotNull(login);
         final String FORTRESS = "purgeSegmentEntitiesWithNoLogs";
         DocumentTypeInputBean docType = new DocumentTypeInputBean(FORTRESS);
 
@@ -733,7 +716,7 @@ public class ITests {
         qp.setSegment("2015");
         assertNotNull("Command failed to execute", search.exec().result());
         assertNotNull("Expected an index not found type error", search.result().getFdSearchError());
-        assertTrue("2015 index should be reported as missing", search.result().getFdSearchError().contains("2015"));
+        assertTrue("2015 index should be reported as missing", search.result().getFdSearchError().contains("no such index"));
 
         // Check we can track back into previously purged fortress
         entityInputBean = new EntityInputBean()
@@ -751,10 +734,27 @@ public class ITests {
                 .exec();
 
         assertNotNull(search.result());
-        assertNull("Didn't expect an error", search.error());
+        assertEquals("Didn't expect an error", null, search.error());
         assertEquals("expected 1 hit on segment 2015", 1, search.result().getResults().size());
 
 
+    }
+
+
+    @Test
+    public void persistEntityRelationshipModel() throws Exception {
+        integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-entity-relationships.json");
+        assertNotNull ( contentModel);
+        Collection<ContentModel>models = new ArrayList<>();
+        models.add(contentModel);
+
+        ModelPost sendModels = new ModelPost(fdTemplate, models);
+        assertNull ( sendModels.exec().error());
+        assertEquals("Expected a response equal to the number of inputs", 1, sendModels.result().size());
+        ContentModel found = fdTemplate.getContentModel(contentModel.getFortress().getName(), contentModel.getDocumentType().getCode());
+        assertNotNull ( found);
+        assertFalse (found.getContent().isEmpty());
     }
 
     private Collection<TagInputBean> getRandomTags(String code, String label) {
