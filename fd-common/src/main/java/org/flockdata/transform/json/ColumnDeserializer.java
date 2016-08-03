@@ -18,27 +18,36 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform;
+package org.flockdata.transform.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.transform.ColumnDefinition;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
- * Created by mike on 29/07/15.
+ * User: mike
+ * Date: 27/05/14
+ * Time: 4:25 PM
  */
-public class GeoDeserializer extends JsonDeserializer<GeoPayload> {
+public class ColumnDeserializer extends JsonDeserializer<ArrayList<ColumnDefinition>> {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper( new FdJsonObjectMapper())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .enable(JsonParser.Feature.ALLOW_COMMENTS);
 
     @Override
-    public GeoPayload deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public ArrayList<ColumnDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        ArrayList<ColumnDefinition> values = new ArrayList<>();
         JsonNode node = jp.getCodec().readTree(jp);
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-        return om.readValue(node.toString(), GeoPayload.class);
+
+        for (JsonNode jsonNode : node) {
+            values.add(objectMapper.readValue(jsonNode.toString(), ColumnDefinition.class));
+
+        }
+        return values;
     }
 }

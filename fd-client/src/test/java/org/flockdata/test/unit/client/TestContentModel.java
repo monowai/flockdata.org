@@ -20,14 +20,14 @@ import junit.framework.TestCase;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ContentModelHandler;
 import org.flockdata.profile.model.ContentModel;
+import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.*;
 
 /**
  * Basic deserialization checks
@@ -38,9 +38,9 @@ public class TestContentModel {
     @Test
     public void contentModelDeserializes() throws Exception {
         String fileName = "/model/document-type.json";
-        ContentModel params = ContentModelDeserializer.getContentModel(fileName);
-        assertNotNull(params.getDocumentType());
-        TestCase.assertEquals("PAC", params.getDocumentType().getName());
+        ContentModel model = ContentModelDeserializer.getContentModel(fileName);
+        assertNotNull(model.getDocumentType());
+        TestCase.assertEquals("PAC", model.getDocumentType().getName());
     }
 
     @Test
@@ -60,6 +60,17 @@ public class TestContentModel {
         contentModel.setContent(columns);
         assertEquals("Second ColDef did not merge with the existing one", 2, contentModel.getContent().size());
 
+    }
+
+    @Test
+    public void suppressionFlags() throws Exception {
+        ContentModel model = ContentModelDeserializer.getContentModel("/model/track-suppression.json");
+        Map<String,Object> row = new HashMap<>();
+        row.put("blah", 10);
+        EntityInputBean result = org.flockdata.transform.Transformer.toEntity(row, model);
+        assertNotNull (result);
+        assertTrue(result.isSearchSuppressed());
+        assertTrue(result.isTrackSuppressed());
     }
 
 }

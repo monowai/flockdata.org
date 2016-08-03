@@ -52,7 +52,7 @@ public class FdTagProcessor implements ItemProcessor<Map<String, Object>, TagInp
     public TagInputBean process(Map<String, Object> item) throws Exception {
         // This should be initialised just the once
         ContentModel contentModel = getContentModel(stepName);
-        return Transformer.transformToTag(item, contentModel).iterator().next();
+        return Transformer.toTags(item, contentModel).iterator().next();
 
     }
 

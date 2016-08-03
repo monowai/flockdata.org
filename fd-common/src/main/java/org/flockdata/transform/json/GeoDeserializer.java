@@ -18,35 +18,28 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform;
+package org.flockdata.transform.json;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.model.EntityTagRelationshipDefinition;
+import org.flockdata.transform.GeoPayload;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
- * JSON
  * Created by mike on 29/07/15.
  */
-public class EntityTagRelationshipDeserializer extends JsonDeserializer<Collection<EntityTagRelationshipDefinition>> {
+public class GeoDeserializer extends JsonDeserializer<GeoPayload> {
 
     @Override
-    public Collection<EntityTagRelationshipDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        Collection<EntityTagRelationshipDefinition> values = new ArrayList<>();
+    public GeoPayload deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         JsonNode node = jp.getCodec().readTree(jp);
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-        for (JsonNode jsonNode : node) {
-            values.add(om.readValue(jsonNode.toString(), EntityTagRelationshipDefinition.class));
-
-        }
-        return values;
+        return om.readValue(node.toString(), GeoPayload.class);
     }
 }

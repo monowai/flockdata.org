@@ -91,4 +91,7 @@ public interface ContentModel {
 
     String getCode(); // Unique user friendly code for a tag model
 
+    Boolean isTrackSuppressed();
+
+    Boolean isSearchSuppressed();
 }

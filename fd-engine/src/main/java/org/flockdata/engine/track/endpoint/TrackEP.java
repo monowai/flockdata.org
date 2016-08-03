@@ -67,13 +67,12 @@ public class TrackEP {
     //private static Logger logger = LoggerFactory.getLogger(TrackEP.class);
 
 
-    @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.PUT)
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public void trackEntities(@RequestBody List<EntityInputBean> inputBeans,
-                              HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
-        //Company company = CompanyResolver.resolveCompany(request);
+    @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.PUT)
+    public Collection<TrackRequestResult> trackEntities(@RequestBody List<EntityInputBean> inputBeans,
+                                                        HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
+        Company company = CompanyResolver.resolveCompany(request);
 
-        mediationFacade.trackEntities(inputBeans, CompanyResolver.resolveCallerApiKey(request));
+        return mediationFacade.trackEntities(company, inputBeans);
     }
 
     /**

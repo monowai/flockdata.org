@@ -21,7 +21,7 @@ import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.Transformer;
-import org.flockdata.transform.tags.TagMapper;
+import org.flockdata.transform.tag.TagPayloadTransformer;
 
 import java.util.Collection;
 import java.util.Map;
@@ -37,14 +37,14 @@ import static org.junit.Assert.assertNotNull;
 public class TestCSVConcepts {
     @org.junit.Test
     public void csvTags() throws Exception{
-        ContentModel params = ContentModelDeserializer.getContentModel("/model/csv-tag-import.json");
-        TagMapper tagMapper = new TagMapper();
+        ContentModel model = ContentModelDeserializer.getContentModel("/model/csv-tag-import.json");
         String[] headers= new String[]{"company_name", "device_name",  "device_code", "type",         "city", "ram", "tags"};
         String[] data = new String[]{  "Samsoon",      "Palaxy",       "PX",          "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};
 
-        Map<String,Object> json = tagMapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
-        assertEquals(1, tagMapper.getTags().size());
-        TagInputBean tag = tagMapper.getTags().iterator().next();
+        TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(model);
+        Map<String,Object> json = tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(model)));
+        assertEquals(1, tagTransformer.getTags().size());
+        TagInputBean tag = tagTransformer.getTags().iterator().next();
 
         assertNotNull (json);
         Map<String, Collection<TagInputBean>> allTargets = tag.getTargets();

@@ -42,6 +42,7 @@ import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.ColumnDefinition;
+import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.Transformer;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -61,19 +63,31 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class ContentModelServiceNeo implements ContentModelService {
 
-    @Autowired
-    ContentModelDaoNeo contentModelDao;
+    private final ContentModelDaoNeo contentModelDao;
 
-    @Autowired
-    FortressService fortressService;
+    private final FortressService fortressService;
 
-    @Autowired
-    ConceptService conceptService;
+    private final EntityService entityService;
 
+    private final ConceptService conceptService;
 
-    private static final ObjectMapper objectMapper = new ObjectMapper( new FdJsonObjectMapper())
+    private final MediationFacade mediationFacade;
+
+    private final SecurityHelper securityHelper;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper(new FdJsonObjectMapper())
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .enable(JsonParser.Feature.ALLOW_COMMENTS);
+
+    @Autowired
+    public ContentModelServiceNeo(MediationFacade mediationFacade, ContentModelDaoNeo contentModelDao, FortressService fortressService, SecurityHelper securityHelper, ConceptService conceptService, EntityService entityService) {
+        this.mediationFacade = mediationFacade;
+        this.contentModelDao = contentModelDao;
+        this.fortressService = fortressService;
+        this.securityHelper = securityHelper;
+        this.conceptService = conceptService;
+        this.entityService = entityService;
+    }
 
     public ContentModel get(Company company, Fortress fortress, DocumentType documentType) throws FlockException {
         Model model = contentModelDao.find(fortress, documentType);
@@ -102,15 +116,6 @@ public class ContentModelServiceNeo implements ContentModelService {
         }
         return contentModel;
     }
-
-    @Autowired
-    MediationFacade mediationFacade;
-
-    @Autowired
-    SecurityHelper securityHelper;
-
-    @Autowired
-    EntityService entityService;
 
     @Transactional
     public ContentModelResult saveTagModel(Company company, String code, ContentModel contentModel) throws FlockException {
@@ -256,7 +261,7 @@ public class ContentModelServiceNeo implements ContentModelService {
     @Transactional
     public void delete(Company company, String key) {
         ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
-        if ( model !=null )
+        if (model != null)
             contentModelDao.delete(company, model.getKey());
 
     }
@@ -266,12 +271,61 @@ public class ContentModelServiceNeo implements ContentModelService {
         assert contentRequest != null;
         assert contentRequest.getContentModel() != null;
         ContentValidationResults validatedContent = new ContentValidationResults();
-        Map<String, ColumnDefinition> content = contentRequest.getContentModel().getContent();
-        for (String column : content.keySet()) {
-            ContentValidationResult result = new ContentValidationResult(content.get(column), "ok");
-            validatedContent.add(result);
+
+        if ( contentRequest.getRows() == null)
+            return validatedContent;
+
+        int row = 0;
+        if (contentRequest.getContentModel().isTagModel()) {
+
+            for (Map<String, Object> dataRow : contentRequest.getRows()) {
+                validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel()));
+                try {
+                    validatedContent.add(row, Transformer.toTags(dataRow, contentRequest.getContentModel()));
+                } catch ( InstantiationException | IllegalAccessException |ClassNotFoundException|FlockException e){
+                    validatedContent.setMessage(row, e.getMessage());
+                }
+                row ++;
+            }
+
+        } else {// do entity
+            for (Map<String, Object> dataRow : contentRequest.getRows()) {
+                validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel()));
+                try {
+                    validatedContent.add(row, Transformer.toEntity(dataRow, contentRequest.getContentModel()));
+                } catch ( InstantiationException | IllegalAccessException |ClassNotFoundException|FlockException e){
+                    validatedContent.setMessage(row, e.getMessage());
+                }
+                row ++;
+            }
+
+
         }
+
         return validatedContent;
+    }
+
+    private Collection<ColumnValidationResult> validate(Map<String,Object>row, ContentModel model){
+        Collection<ColumnValidationResult> results = new ArrayList<>();
+
+        for (ColumnDefinition column : model.getContent().values()) {
+            String message = null;
+            try {
+                Object oVal = row.get(column.getSource());
+                String colValue = null;
+
+                if (oVal != null)
+                    colValue = oVal.toString();
+                Object o = TransformationHelper.resolveValue(colValue, column.getSource(), column, row);
+                if (o == null)
+                    message = "Null was calculated";
+            } catch (Exception e){
+                message = e.getMessage();
+            }
+            results.add(new ColumnValidationResult(column.getSource(), column, message));
+
+        }
+        return results;
     }
 
     @Override

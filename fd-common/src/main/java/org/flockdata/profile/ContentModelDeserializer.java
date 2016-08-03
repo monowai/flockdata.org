@@ -114,6 +114,14 @@ public class ContentModelDeserializer extends JsonDeserializer<ContentModel> {
         if (!isNull(nodeValue))
             contentModel.setSegmentExpression(nodeValue.asText());
 
+        nodeValue = node.get("trackSuppressed");
+        if (!isNull(nodeValue))
+            contentModel.setTrackSuppressed(nodeValue.asBoolean());
+
+        nodeValue = node.get("searchSuppressed");
+        if (!isNull(nodeValue))
+            contentModel.setSearchSuppressed(nodeValue.asBoolean());
+
         nodeValue = node.get("content");
         if (!isNull(nodeValue)){
 

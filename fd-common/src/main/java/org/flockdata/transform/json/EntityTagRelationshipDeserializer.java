@@ -18,33 +18,33 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform;
+package org.flockdata.transform.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.model.EntityTagRelationshipDefinition;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
- * User: mike
- * Date: 27/05/14
- * Time: 4:25 PM
+ * JSON
+ * Created by mike on 29/07/15.
  */
-public class ColumnDeserializer extends JsonDeserializer<ArrayList<ColumnDefinition>> {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper( new FdJsonObjectMapper())
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .enable(JsonParser.Feature.ALLOW_COMMENTS);
+public class EntityTagRelationshipDeserializer extends JsonDeserializer<Collection<EntityTagRelationshipDefinition>> {
 
     @Override
-    public ArrayList<ColumnDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        ArrayList<ColumnDefinition> values = new ArrayList<>();
+    public Collection<EntityTagRelationshipDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        Collection<EntityTagRelationshipDefinition> values = new ArrayList<>();
         JsonNode node = jp.getCodec().readTree(jp);
-
+        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
         for (JsonNode jsonNode : node) {
-            values.add(objectMapper.readValue(jsonNode.toString(), ColumnDefinition.class));
+            values.add(om.readValue(jsonNode.toString(), EntityTagRelationshipDefinition.class));
 
         }
         return values;

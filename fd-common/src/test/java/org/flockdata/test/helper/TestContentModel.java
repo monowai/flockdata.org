@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * Created by mike on 12/07/16.
@@ -41,5 +42,7 @@ public class TestContentModel {
         assertNotNull ( jurisdiction);
         assertNotNull ( jurisdiction.getEntityTagLinks());
         assertEquals (1, jurisdiction.getEntityTagLinks().size());
+        assertTrue ( "Boolean did not set", model.isSearchSuppressed());
+        assertTrue ( "Boolean did not set", model.isTrackSuppressed()) ;
     }
 }

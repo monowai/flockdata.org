@@ -53,6 +53,8 @@ public class ContentModelHandler implements ContentModel {
     private String fortressUser;
     private String handler;
     private String condition;
+    private Boolean trackSuppressed;
+    private Boolean searchSuppressed;
     private boolean tagModel;
 
     private Map<String, ColumnDefinition> content;
@@ -199,6 +201,22 @@ public class ContentModelHandler implements ContentModel {
     @Override
     public Boolean isEmptyIgnored() {
         return emptyIgnored;
+    }
+
+    public Boolean isTrackSuppressed() {
+        return trackSuppressed;
+    }
+
+    void setTrackSuppressed(Boolean trackSuppressed) {
+        this.trackSuppressed = trackSuppressed;
+    }
+
+    public Boolean isSearchSuppressed() {
+        return searchSuppressed;
+    }
+
+    void setSearchSuppressed(Boolean searchSuppressed) {
+        this.searchSuppressed = searchSuppressed;
     }
 
     @Override

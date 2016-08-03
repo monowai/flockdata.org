@@ -18,11 +18,11 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform.tags;
+package org.flockdata.transform.tag;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.Mappable;
+import org.flockdata.profile.model.PayloadTransformer;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.ExpressionHelper;
@@ -33,18 +33,26 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
+ * Transforms the Map in to a suitable TagInput payload
+ *
  * User: mike
  * Date: 27/04/14
  * Time: 4:36 PM
  */
-public class TagMapper implements Mappable {
+public class TagPayloadTransformer implements PayloadTransformer {
 
+    private final ContentModel contentModel;
     private Collection<TagInputBean> tags = new ArrayList<>();
 
-    public TagMapper() {
+    public TagPayloadTransformer(ContentModel contentModel) {
+        this.contentModel = contentModel;
     }
 
-    public Map<String, Object> setData(Map<String, Object> row, ContentModel contentModel) throws FlockException {
+    public Map<String, Object> transform(Map<String, Object> row) throws FlockException {
+        return transform(row, contentModel);
+    }
+
+    protected Map<String, Object> transform(Map<String, Object> row, ContentModel contentModel) throws FlockException {
         if (!TransformationHelper.processRow(row, contentModel))
             return null;
 
@@ -93,13 +101,8 @@ public class TagMapper implements Mappable {
         return row;
     }
 
-    public static TagMapper newInstance(ContentModel contentModel) {
-//        if (contentModel.getContentType()== ImportProfile.ContentType.CSV)
-//            return new TagMapper();
-//        if ( contentModel.getDocumentType() !=null )
-//            return new TagMapper(contentModel.getDocumentType().getName());
-//        else
-        return new TagMapper();
+    public static TagPayloadTransformer newInstance(ContentModel contentModel) {
+        return new TagPayloadTransformer(contentModel);
     }
 
     public Collection<TagInputBean> getTags() {

@@ -18,7 +18,7 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform.json;
+package org.flockdata.transform.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.flockdata.model.EntityTagRelationshipDefinition;
@@ -29,7 +29,7 @@ import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.TransformationHelper;
-import org.flockdata.transform.tags.TagProfile;
+import org.flockdata.transform.tag.TagProfile;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
@@ -39,9 +39,9 @@ import java.util.*;
  * Date: 9/12/14
  * Time: 6:15 PM
  */
-public class JsonEntityMapper extends EntityInputBean  {
+public class JsonEntityTransformer extends EntityInputBean  {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(JsonEntityMapper.class);
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(JsonEntityTransformer.class);
 
     public void setData(JsonNode node, ContentModel profile) {
         for (Map.Entry<String, ColumnDefinition> entry : profile.getContent().entrySet()) {

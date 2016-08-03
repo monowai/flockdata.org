@@ -20,23 +20,71 @@
 
 package org.flockdata.profile;
 
-import java.util.ArrayList;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * All the validation results
+ * All the validation results. Maps are indexed from 0
  *
  * Created by mike on 14/04/16.
  */
 public class ContentValidationResults {
 
-    private Collection<ContentValidationResult> results = new ArrayList<>();
+    private Map<Integer,EntityInputBean> entity = new HashMap<>();
+    private Map<Integer,Collection<TagInputBean>> tags= new HashMap<>();
 
-    public Collection<ContentValidationResult> getResults() {
+    private Map<Integer,Collection<ColumnValidationResult>> results = new HashMap<>();
+    private Map<Integer,String> message= new HashMap<>();
+
+    public Collection<ColumnValidationResult> getResults(Integer row) {
+        return results.get(row);
+    }
+
+    // 0 based row index
+    public EntityInputBean getEntity(Integer row) {
+        return entity.get(row);
+    }
+
+    public ContentValidationResults add(Integer row, Collection<TagInputBean> tags) {
+        this.tags .put(row, tags);
+        return this;
+    }
+
+    public ContentValidationResults add(Integer row, EntityInputBean entityInputBean) {
+        this.entity.put(row,entityInputBean);
+        return this;
+    }
+
+
+    public void setMessage(int row, String message) {
+        this.message.put(row, message);
+    }
+
+    public String getMessage(int row ) {
+        return message.get(row);
+    }
+
+    public void addResults(int row, Collection<ColumnValidationResult> validatedResults) {
+        this.results.put(row, validatedResults);
+    }
+
+    public Map<Integer, EntityInputBean> getEntity() {
+        return entity;
+    }
+
+    public Map<Integer, Collection<TagInputBean>> getTags() {
+        return tags;
+    }
+
+    public Map<Integer, Collection<ColumnValidationResult>> getResults() {
         return results;
     }
 
-    public void add(ContentValidationResult result) {
-        results.add(result);
+    public Map<Integer, String> getMessage() {
+        return message;
     }
 }

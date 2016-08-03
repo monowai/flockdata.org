@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.Mappable;
+import org.flockdata.profile.model.PayloadTransformer;
 import org.flockdata.track.bean.ContentInputBean;
 
 import javax.xml.bind.JAXBException;
@@ -36,7 +36,7 @@ import javax.xml.stream.XMLStreamReader;
  * User: Mike Holdsworth
  * Since: 20/11/13
  */
-public interface XmlMappable extends Mappable {
+public interface XmlMappable extends PayloadTransformer {
     /**
      *
      *
@@ -57,6 +57,6 @@ public interface XmlMappable extends Mappable {
      */
     void positionReader(XMLStreamReader xsr) throws XMLStreamException;
 
-    XmlMappable newInstance(ContentModel importProfile);
+    XmlMappable newInstance(ContentModel contentModel);
 }
 

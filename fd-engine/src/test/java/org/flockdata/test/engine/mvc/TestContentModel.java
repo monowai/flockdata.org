@@ -23,10 +23,7 @@ package org.flockdata.test.engine.mvc;
 import au.com.bytecode.opencsv.CSVReader;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ContentModelResult;
-import org.flockdata.profile.ContentValidationRequest;
-import org.flockdata.profile.ContentValidationResults;
+import org.flockdata.profile.*;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
@@ -105,13 +102,25 @@ public class TestContentModel extends MvcBase {
     public void validate_Profile() throws Exception {
         makeDataAccessProfile("validateContentProfile", "mike");
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-model.json");
-        ContentValidationRequest validationRequest = new ContentValidationRequest(contentModel);
+
+        String[] headers = {"Athlete", "Age", "Country", "Year", "Sport", "Gold Medals", "Silver Medals", "Bronze Medals"};
+        String[] values = {"Michael Phelps", "23", "United States", "2008", "Swimming", "8", "0", "0", "8"};
+        Map<String,Object> row = Transformer.convertToMap(headers, values, new ExtractProfileHandler(contentModel));
+
+        Collection<Map<String,Object>>rows = new ArrayList<>();
+        rows.add(row);
+
+        ContentValidationRequest validationRequest = new ContentValidationRequest(contentModel,rows);
+
         String json = JsonUtils.toJson(validationRequest);
         assertNotNull(json);
         assertNotNull(JsonUtils.toObject(json.getBytes(), ContentValidationRequest.class).getContentModel());
         ContentValidationResults result = validateContentModel(mike(), validationRequest, MockMvcResultMatchers.status().isOk());
+
         assertNotNull(result);
-        assertFalse(result.getResults().isEmpty());
+        assertNotNull(result.getResults());
+        assertNotNull(result.getEntity(0));
+        assertFalse(result.getResults(0).isEmpty());
 
     }
 

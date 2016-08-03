@@ -21,7 +21,7 @@ import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.Transformer;
-import org.flockdata.transform.tags.TagMapper;
+import org.flockdata.transform.tag.TagPayloadTransformer;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -37,17 +37,17 @@ import static org.junit.Assert.assertNotNull;
 public class TestTabTags {
     @Test
     public void string_NestedTags() throws Exception {
-        ContentModel params = ContentModelDeserializer.getContentModel("/model/sectors.json");
-        TagMapper tagMapper = new TagMapper();
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/sectors.json");
+        TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(contentModel);
         String[] headers = new String[]{"Catcode","Catname","Catorder","Industry","Sector","Sector Long"};
         String[] data = new String[]{"F2600","Private Equity & Investment Firms","F07","Securities & Investment","Finance/Insur/RealEst","Finance","Insurance & Real Estate"};
 
-        Map<String, Object> json = tagMapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)),params);
-        assertEquals(1, tagMapper.getTags().size());
-        TagInputBean tag = tagMapper.getTags().iterator().next();
+        Map<String, Object> json = tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)));
+        assertEquals(1, tagTransformer.getTags().size());
+        TagInputBean tag = tagTransformer.getTags().iterator().next();
 
         assertNotNull(json);
-        assertNotNull(tagMapper);
+        assertNotNull(tagTransformer);
         assertEquals("Code does not match", "F2600", tag.getCode());
         assertEquals("Name does not match", "Private Equity & Investment Firms", tag.getName());
         assertNotNull(tag.getProperties().get("order"));

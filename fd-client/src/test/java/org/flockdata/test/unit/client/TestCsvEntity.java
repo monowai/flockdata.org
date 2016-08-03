@@ -29,7 +29,7 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.Transformer;
-import org.flockdata.transform.csv.EntityMapper;
+import org.flockdata.transform.entity.EntityPayloadTransformer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -100,7 +100,7 @@ public class TestCsvEntity extends AbstractImport{
 
         String[] headers = {"Athlete", "Age", "Country", "Year", "Sport", "Gold Medals", "Silver Medals", "Bronze Medals"};
         String[] values = {"Michael Phelps", "23", "United States", "2008", "Swimming", "8", "0", "0", "8"};
-        EntityInputBean header = Transformer.transformToEntity(Transformer.convertToMap(headers, values, new ExtractProfileHandler(contentModel)), contentModel);
+        EntityInputBean header = Transformer.toEntity(Transformer.convertToMap(headers, values, new ExtractProfileHandler(contentModel)), contentModel);
 
         assertEquals(values[0] + "." + values[3], header.getCode());
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
@@ -159,7 +159,7 @@ public class TestCsvEntity extends AbstractImport{
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"transaction_id", "zip", "state", "stateName", "city", "country"};
         String[] data = new String[]{"1", "123", "CA", "California", "San Francisco", "United States"};
-        EntityInputBean entity = Transformer.transformToEntity(Transformer.convertToMap(headers, data, new ExtractProfileHandler(con)), con);
+        EntityInputBean entity = Transformer.toEntity(Transformer.convertToMap(headers, data, new ExtractProfileHandler(con)), con);
 
         assertNotNull(entity);
         List<TagInputBean> tags = entity.getTags();
@@ -199,8 +199,8 @@ public class TestCsvEntity extends AbstractImport{
         String[] headers = new String[]{"Title", "Tag"};
         String[] data = new String[]{"TitleTests", "TagA,TagB,TagC"};
         ContentModel params = getContentModel("/model/csv-entity-tags.json");
-        EntityMapper mapper = new EntityMapper(params);
-        mapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
+        EntityPayloadTransformer mapper = EntityPayloadTransformer.newInstance(params);
+        mapper.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)));
 
         ColumnDefinition colDef = params.getColumnDef(headers[0]);
 
@@ -226,9 +226,9 @@ public class TestCsvEntity extends AbstractImport{
         String[] data = new String[]{"TitleTests", "123", "123", "123", "1235015570", "1235015805"};
         ContentModel contentModel = getContentModel("/model/csv-entity-data-types.json");
         assertTrue(contentModel.isEntityOnly());
-        EntityMapper mapper = new EntityMapper(contentModel);
+        EntityPayloadTransformer mapper = EntityPayloadTransformer.newInstance(contentModel);
 
-        Map<String,Object> json = mapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)), contentModel);
+        Map<String,Object> json = mapper.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)));
 
         ColumnDefinition colDef = contentModel.getColumnDef(headers[0]);
 
@@ -256,11 +256,11 @@ public class TestCsvEntity extends AbstractImport{
     @Test
     public void null_EntityRow() throws Exception {
         ContentModel params = ContentModelDeserializer.getContentModel("/model/csvtest.json");
-        EntityMapper mapper = new EntityMapper(params);
+        EntityPayloadTransformer mapper = EntityPayloadTransformer.newInstance(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Field", "Year"};
         String[] data = new String[]{"TitleTests", null, "2009" };
-        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
+        Map<String, Object> jsonMap = mapper.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)));
         assertNotNull(jsonMap);
 
         assertEquals(null, jsonMap.get("Field"));
@@ -275,11 +275,11 @@ public class TestCsvEntity extends AbstractImport{
     @Test
     public void empty_ColumnWithASpace() throws Exception {
         ContentModel params = ContentModelDeserializer.getContentModel("/model/csvtest.json");
-        EntityMapper mapper = new EntityMapper(params);
+        EntityPayloadTransformer mapper = EntityPayloadTransformer.newInstance(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Year"};
         String[] data = new String[]{" ",  "2009" };
-        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
+        Map<String, Object> jsonMap = mapper.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)));
         assertNotNull(jsonMap);
 
         assertEquals("", jsonMap.get("Title"));
@@ -296,11 +296,11 @@ public class TestCsvEntity extends AbstractImport{
         ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/header-ignore-empty.json",contentModel);
         assertTrue("isEmptyIgnored is not set", contentModel.isEmptyIgnored());
 
-        EntityMapper mapper = new EntityMapper(contentModel);
+        EntityPayloadTransformer mapper = EntityPayloadTransformer.newInstance(contentModel);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Year"};
         String[] data = new String[]{" ",  "2009" };
-        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, extractProfile), contentModel);
+        Map<String, Object> jsonMap = mapper.transform(Transformer.convertToMap(headers, data, extractProfile));
         assertNotNull(jsonMap);
 
         assertNull(jsonMap.get("Title"));

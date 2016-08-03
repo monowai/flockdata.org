@@ -26,13 +26,13 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ExtractProfile;
-import org.flockdata.profile.model.Mappable;
+import org.flockdata.profile.model.PayloadTransformer;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.csv.EntityMapper;
-import org.flockdata.transform.json.JsonEntityMapper;
-import org.flockdata.transform.tags.TagMapper;
+import org.flockdata.transform.entity.EntityPayloadTransformer;
+import org.flockdata.transform.entity.JsonEntityTransformer;
+import org.flockdata.transform.tag.TagPayloadTransformer;
 import org.flockdata.transform.xml.XmlMappable;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
@@ -52,13 +52,13 @@ public class Transformer {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Transformer.class);
 
 
-    public static EntityInputBean transformToEntity( Map<String, Object> row, ContentModel contentModel) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
-        Mappable mappable = EntityMapper.newInstance(contentModel);
-        Map<String, Object> jsonData = mappable.setData(row, contentModel);
+    public static EntityInputBean toEntity(Map<String, Object> row, ContentModel contentModel) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+        PayloadTransformer payloadTransformer = EntityPayloadTransformer.newInstance(contentModel);
+        Map<String, Object> jsonData = payloadTransformer.transform(row);
         if ( jsonData == null )
             return null;// No entity did not get created
 
-        EntityInputBean entityInputBean = (EntityInputBean) mappable;
+        EntityInputBean entityInputBean = (EntityInputBean) payloadTransformer;
 
         if (TransformationHelper.evaluate(contentModel.isEntityOnly()) || jsonData.isEmpty()) {
             entityInputBean.setEntityOnly(true);
@@ -76,15 +76,15 @@ public class Transformer {
 
     }
 
-    public static Collection<TagInputBean> transformToTag(Map<String, Object> row, ContentModel contentModel) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
-        TagMapper mappable = TagMapper.newInstance(contentModel);
-        mappable.setData(row, contentModel);
+    public static Collection<TagInputBean> toTags(Map<String, Object> row, ContentModel contentModel) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+        TagPayloadTransformer mappable = TagPayloadTransformer.newInstance(contentModel);
+        mappable.transform(row);
         return mappable.getTags();
 
     }
 
-    public static EntityInputBean transformToEntity(JsonNode node, ContentModel importProfile) throws FlockException {
-        JsonEntityMapper entityInputBean = new JsonEntityMapper();
+    public static EntityInputBean toEntity(JsonNode node, ContentModel importProfile) throws FlockException {
+        JsonEntityTransformer entityInputBean = new JsonEntityTransformer();
         entityInputBean.setData(node, importProfile);
         if (entityInputBean.getFortress() == null)
             entityInputBean.setFortress(importProfile.getFortress());
@@ -98,7 +98,7 @@ public class Transformer {
 
     }
 
-    public static EntityInputBean transformToEntity(XmlMappable mappable, XMLStreamReader xsr, ContentModel importProfile) throws FlockException, JAXBException, JsonProcessingException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public static EntityInputBean toEntity(XmlMappable mappable, XMLStreamReader xsr, ContentModel importProfile) throws FlockException, JAXBException, JsonProcessingException, IllegalAccessException, InstantiationException, ClassNotFoundException {
 
         XmlMappable row = mappable.newInstance(importProfile);
         ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile);

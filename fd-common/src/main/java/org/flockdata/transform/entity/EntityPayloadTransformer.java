@@ -18,22 +18,20 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform.csv;
+package org.flockdata.transform.entity;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.EntityTagRelationshipInput;
 import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.Mappable;
+import org.flockdata.profile.model.PayloadTransformer;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.TransformationHelper;
-import org.flockdata.transform.tags.TagProfile;
+import org.flockdata.transform.tag.TagProfile;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.expression.spel.SpelEvaluationException;
 
 import java.util.Arrays;
@@ -46,18 +44,24 @@ import java.util.Map;
  * Date: 27/04/14
  * Time: 4:34 PM
  */
-public class EntityMapper extends EntityInputBean implements Mappable {
+public class EntityPayloadTransformer extends EntityInputBean implements PayloadTransformer {
 
-    private static final Logger logger = LoggerFactory.getLogger(EntityMapper.class);
+//    private static final Logger logger = LoggerFactory.getLogger(EntityMapper.class);
+    private final ContentModel contentModel ;
+    private static final ColumnDefinition EMPTY_COLDEF = new ColumnDefinition();
 
-    public EntityMapper(ContentModel contentModel) {
+    private EntityPayloadTransformer(ContentModel contentModel) {
+        this.contentModel = contentModel;
         setDocumentType(contentModel.getDocumentType());
         setFortress(contentModel.getFortress());
         setFortressUser(contentModel.getFortressUser());
+
+    }
+    public Map<String, Object> transform(Map<String, Object> row) throws FlockException{
+        return transform(row, contentModel);
     }
 
-    @Override
-    public Map<String, Object> setData(Map<String, Object> row, ContentModel contentModel) throws FlockException {
+    protected Map<String, Object> transform(Map<String, Object> row, ContentModel contentModel) throws FlockException {
         if ( !TransformationHelper.processRow(row, contentModel))
             return null;
 
@@ -70,8 +74,17 @@ public class EntityMapper extends EntityInputBean implements Mappable {
             ColumnDefinition colDef = content.get(sourceColumn);
 
             // Import Profile let's you alter the name of the column
-            String valueColumn = (colDef != null && colDef.getTarget() == null ? sourceColumn : colDef.getTarget());
+            if ( colDef == null )
+                colDef = EMPTY_COLDEF;
+
+            String valueColumn = (colDef.getTarget() == null ? sourceColumn : colDef.getTarget());
             String value = getString(row, valueColumn);
+
+            if (TransformationHelper.evaluate(contentModel.isTrackSuppressed()))
+                setTrackSuppressed(true);
+
+            if (TransformationHelper.evaluate(contentModel.isSearchSuppressed()))
+                setSearchSuppressed(true);
 
             if (firstColumn) {
                 // While the definition is in the profile, the value is in the data.
@@ -203,7 +216,7 @@ public class EntityMapper extends EntityInputBean implements Mappable {
         return row;
     }
 
-    public String getString(Map<String, Object> row, String valueColumn) {
+    private String getString(Map<String, Object> row, String valueColumn) {
         Object o = row.get(valueColumn);
         String value = null;
         if (o != null)
@@ -211,8 +224,8 @@ public class EntityMapper extends EntityInputBean implements Mappable {
         return value;
     }
 
-    public static EntityMapper newInstance(ContentModel importProfile) {
-        return new EntityMapper(importProfile);
+    public static EntityPayloadTransformer newInstance(ContentModel importProfile) {
+        return new EntityPayloadTransformer(importProfile);
     }
 
 }

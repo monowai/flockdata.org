@@ -18,29 +18,31 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.profile;
+package org.flockdata.profile.model;
 
-import org.flockdata.transform.ColumnDefinition;
+import org.flockdata.helper.FlockException;
+import org.flockdata.transform.entity.EntityPayloadTransformer;
+import org.flockdata.transform.tag.TagPayloadTransformer;
+
+import java.util.Map;
 
 /**
- * Encapsulates the result of a single validation run
+ * Interface to support transformation of Map data into a target object
  *
- * Created by mike on 14/04/16.
+ * User: Mike Holdsworth
+ * Since: 20/11/13
  */
-public class ContentValidationResult {
-    ColumnDefinition column;
-    String status ;
+public interface PayloadTransformer
+{
 
-    public ContentValidationResult(){
+    /**
+     * @see EntityPayloadTransformer
+     * @see TagPayloadTransformer
+     * @param map raw input data
+     * @return transformed data
+     * @throws FlockException transformation issues
+     */
+    Map<String,Object> transform(Map<String, Object> map) throws FlockException;
 
-    }
-    public ContentValidationResult(ColumnDefinition column, String status) {
-        this();
-        this.column = column;
-        this.status = status;
-    }
 
-    public ColumnDefinition getColumn() {
-        return column;
-    }
 }

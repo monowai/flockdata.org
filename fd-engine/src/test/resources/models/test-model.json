@@ -1,32 +1,40 @@
 {
-    "documentName": "Athlete",
-    "entityOnly": true,
-    "fortressName": "Olympic",
-    "fortressUser": "mike",
-    "content": {
-        "Title": {
-            "callerRef": true,
-            "title": true,
-            "tag": true
-        },
-        "Origin": {
-            "label": "Country",
-            "mustExist": true
-        },
-        "Tag": {
-            "tag": true,
-            "mustExist": false
-        },
-        "TagVal": {
-            "tag": true,
-            "mustExist": true
-        },
-        "ValTag": {
-            "tag": true
-        },
-        "Gold Medals": {
-            "name": "Year",
-            "tag": true
+  "documentName": "Athlete",
+  "entityOnly": true,
+  "fortressName": "Olympic",
+  "fortressUser": "mike",
+  "content": {
+    "Title": {
+      "callerRef": true,
+      "title": true,
+      "tag": true
+    },
+    "Origin": {
+      "label": "Country",
+      "entityTagLinks": [
+        {
+          "geo": true,
+          "reverse": false,
+          "relationshipName": "'competed'",
+          "properties": null
         }
+      ],
+      "mustExist": true
+    },
+    "Tag": {
+      "tag": true,
+      "mustExist": false
+    },
+    "TagVal": {
+      "tag": true,
+      "mustExist": true
+    },
+    "ValTag": {
+      "tag": true
+    },
+    "Gold Medals": {
+      "name": "Year",
+      "tag": true
     }
+  }
 }

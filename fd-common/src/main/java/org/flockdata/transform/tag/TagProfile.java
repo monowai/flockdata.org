@@ -18,15 +18,15 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform.tags;
+package org.flockdata.transform.tag;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.GeoDefinition;
-import org.flockdata.transform.GeoDeserializer;
 import org.flockdata.transform.GeoPayload;
+import org.flockdata.transform.json.GeoDeserializer;
 
 import java.util.ArrayList;
 

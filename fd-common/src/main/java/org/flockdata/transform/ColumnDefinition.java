@@ -25,8 +25,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.model.EntityTagRelationshipDefinition;
 import org.flockdata.registration.AliasInputBean;
-import org.flockdata.transform.tags.TagProfile;
-import org.flockdata.transform.tags.TagProfileDeserializer;
+import org.flockdata.transform.json.ColumnDeserializer;
+import org.flockdata.transform.json.EntityTagRelationshipDeserializer;
+import org.flockdata.transform.json.GeoDeserializer;
+import org.flockdata.transform.tag.TagProfile;
+import org.flockdata.transform.tag.TagProfileDeserializer;
 
 import java.util.ArrayList;
 import java.util.Collection;

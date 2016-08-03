@@ -21,6 +21,7 @@ import org.flockdata.profile.ExtractProfileDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ExtractProfile;
+import org.flockdata.profile.model.PayloadTransformer;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
@@ -61,7 +62,7 @@ import java.util.List;
  * <p>
  *
  * @see FdTemplate
- * @see org.flockdata.profile.model.Mappable
+ * @see PayloadTransformer
  * @see TagInputBean
  * @see org.flockdata.track.bean.EntityInputBean
  * <p>

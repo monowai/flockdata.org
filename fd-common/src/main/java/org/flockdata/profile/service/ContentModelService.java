@@ -46,7 +46,7 @@ public interface ContentModelService {
 
     ContentModel get(Company company, String fortressCode, String documentName) throws FlockException;
 
-    ContentValidationResults validate(ContentValidationRequest contentRequest);
+    ContentValidationResults validate(ContentValidationRequest contentRequest) throws FlockException;
 
     ContentModel createDefaultContentModel(ContentValidationRequest contentRequest);
 

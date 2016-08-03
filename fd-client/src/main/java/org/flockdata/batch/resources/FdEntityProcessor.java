@@ -51,7 +51,7 @@ public class FdEntityProcessor implements ItemProcessor<Map<String, Object>, Ent
         // This should be initialised just the once
         ContentModel contentModel = getContentModel(stepName);
 
-        return Transformer.transformToEntity(item, contentModel);
+        return Transformer.toEntity(item, contentModel);
 
     }
 

@@ -102,6 +102,7 @@ public class EntityTagIn extends AbstractEntityTag {
     }
 
     @Override
+    @JsonIgnore
     public Boolean isReversed() {
         return false;
     }
@@ -113,6 +114,7 @@ public class EntityTagIn extends AbstractEntityTag {
     }
 
     @Override
+    @JsonIgnore
     public boolean isGeo() {
         return geoRelationship;
     }

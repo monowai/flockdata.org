@@ -279,7 +279,7 @@ public class FileProcessor {
     }
 
     private void processJsonNode(JsonNode node, ContentModel importProfile, List<EntityToEntityLinkInput> referenceInputBeans) throws FlockException {
-        EntityInputBean entityInputBean = Transformer.transformToEntity(node, importProfile);
+        EntityInputBean entityInputBean = Transformer.toEntity(node, importProfile);
         if (!entityInputBean.getEntityLinks().isEmpty()) {
             referenceInputBeans.add(new EntityToEntityLinkInput(entityInputBean));
             entityInputBean.getEntityLinks().size();
@@ -305,7 +305,7 @@ public class FileProcessor {
             try {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(dataType)) {
-                    EntityInputBean entityInputBean = Transformer.transformToEntity(mappable, xsr, extractProfile.getContentModel());
+                    EntityInputBean entityInputBean = Transformer.toEntity(mappable, xsr, extractProfile.getContentModel());
                     rows++;
                     xsr.nextTag();
                     getPayloadBatcher().writeEntity(entityInputBean);
@@ -377,12 +377,12 @@ public class FileProcessor {
 
                         if (map != null) {
                             if (extractProfile.getContentModel().isTagModel() ) {
-                                Collection<TagInputBean> tagInputBean = Transformer.transformToTag(map, extractProfile.getContentModel());
+                                Collection<TagInputBean> tagInputBean = Transformer.toTags(map, extractProfile.getContentModel());
                                 if (tagInputBean != null) {
                                     getPayloadBatcher().writeTags(tagInputBean, "TagInputBean");
                                 }
                             } else {
-                                EntityInputBean entityInputBean = Transformer.transformToEntity(map, extractProfile.getContentModel());
+                                EntityInputBean entityInputBean = Transformer.toEntity(map, extractProfile.getContentModel());
                                 // Dispatch/load mechanism
                                 if (entityInputBean != null)
                                     getPayloadBatcher().writeEntity(entityInputBean);

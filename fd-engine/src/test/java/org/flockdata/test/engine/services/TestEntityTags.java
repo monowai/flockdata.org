@@ -605,6 +605,9 @@ public class TestEntityTags extends EngineBase {
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         EntitySummaryBean summaryBean = entityService.getEntitySummary(null, entity.getKey());
         assertEquals(3, summaryBean.getTags().size());
+
+        String json = JsonUtils.toJson(summaryBean);
+        assertNotNull ("Error serializing to json", json );
     }
 
     @Test

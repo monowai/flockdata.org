@@ -29,7 +29,7 @@ import org.flockdata.model.Tag;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.tags.TagProfile;
+import org.flockdata.transform.tag.TagProfile;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +114,7 @@ public class TransformationHelper {
         return true;
     }
 
-    private static String resolveValue(String value, String column, ColumnDefinition colDef, Map<String, Object> row) {
+    public static String resolveValue(String value, String column, ColumnDefinition colDef, Map<String, Object> row) {
         if (value == null)
             return column; // Default to the column Name
         Object result = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.LABEL, colDef, value);

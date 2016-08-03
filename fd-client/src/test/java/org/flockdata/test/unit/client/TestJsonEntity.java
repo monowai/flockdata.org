@@ -25,7 +25,7 @@ import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.json.JsonEntityMapper;
+import org.flockdata.transform.entity.JsonEntityTransformer;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public class TestJsonEntity extends AbstractImport{
     @Test
     public void entity_JsonStructure() throws Exception {
         ContentModel params = ContentModelDeserializer.getContentModel("/model/gov.json");
-        JsonEntityMapper entity = new JsonEntityMapper();
+        JsonEntityTransformer entity = new JsonEntityTransformer();
 
         try {
             ObjectMapper mapper = new ObjectMapper();

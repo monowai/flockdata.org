@@ -29,7 +29,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class PojoToFdTransformerTest {
+public class PojoToFdPayloadTransformerTest {
 
     @Test
     public void testTransformPojoPublicField() throws IllegalAccessException, IOException, FlockException {

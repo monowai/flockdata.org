@@ -28,7 +28,7 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.Transformer;
-import org.flockdata.transform.csv.EntityMapper;
+import org.flockdata.transform.entity.EntityPayloadTransformer;
 import org.junit.Test;
 
 import java.util.List;
@@ -108,12 +108,12 @@ public class TestEntityRelationships extends AbstractImport{
     @Test
     public void entityRowWithEntityLinks() throws Exception {
         ContentModel params = ContentModelDeserializer.getContentModel("/model/csvtest.json");
-        EntityMapper entity = new EntityMapper(params);
+        EntityPayloadTransformer entity = EntityPayloadTransformer.newInstance(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category", "xRef"};
         // Category column is intentionally null
         String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12", null, "qwerty" };
-        Map<String, Object> json = entity.setData(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)), params);
+        Map<String, Object> json = entity.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)));
         Assert.assertNotNull(json);
 
         assertTrue("Title Missing", json.containsKey("Title"));

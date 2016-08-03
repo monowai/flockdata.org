@@ -36,7 +36,7 @@ import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.service.BatchService;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.TagService;
-import org.flockdata.transform.tags.TagMapper;
+import org.flockdata.transform.tag.TagPayloadTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -131,11 +131,11 @@ class BatchServiceRunner implements BatchService {
 
     private ContentValidationRequest trackTags(Company company,ContentValidationRequest validationRequest) {
         int rowCount = 0;
+        TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(validationRequest.getContentModel());
         for (Map<String,Object> row : validationRequest.getRows()) {
             try {
-                TagMapper tagMapper = new TagMapper();
-                tagMapper.setData(row, validationRequest.getContentModel());
-                Collection<TagResultBean> tagResultBeans = tagService.createTags(company, tagMapper.getTags());
+                tagTransformer.transform(row);
+                Collection<TagResultBean> tagResultBeans = tagService.createTags(company, tagTransformer.getTags());
                 for (TagResultBean result : tagResultBeans) {
                     if ( result.isNewTag() )
                         validationRequest.addResult(rowCount,"Previously Unknown");
