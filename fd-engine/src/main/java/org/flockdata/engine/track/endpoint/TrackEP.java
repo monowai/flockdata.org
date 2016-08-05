@@ -20,14 +20,12 @@
 
 package org.flockdata.engine.track.endpoint;
 
-import org.flockdata.engine.meta.service.TxService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.EntityLog;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.registration.service.CompanyService;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.MediationFacade;
@@ -53,18 +51,10 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/track")
 public class TrackEP {
     @Autowired
-    EntityService entityService;
+    private EntityService entityService;
 
     @Autowired
-    MediationFacade mediationFacade;
-
-    @Autowired
-    CompanyService companyService;
-
-    @Autowired
-    TxService txService;
-
-    //private static Logger logger = LoggerFactory.getLogger(TrackEP.class);
+    private MediationFacade mediationFacade;
 
 
     @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.PUT)

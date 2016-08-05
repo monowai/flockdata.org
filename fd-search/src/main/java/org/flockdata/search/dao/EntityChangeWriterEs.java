@@ -61,13 +61,17 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 //    @Autowired
 //    private SearchConfig elasticSearchClient;
 
-    @Autowired
-    private Client elasticSearchClient;
+    private final Client elasticSearchClient;
 
-    @Autowired
-    IndexManager indexManager;
+    private final IndexManager indexManager;
 
     private Logger logger = LoggerFactory.getLogger(EntityChangeWriterEs.class);
+
+    @Autowired
+    public EntityChangeWriterEs(Client elasticSearchClient, IndexManager indexManager) {
+        this.elasticSearchClient = elasticSearchClient;
+        this.indexManager = indexManager;
+    }
 
     @Override
     public boolean delete(EntitySearchChange searchChange) {

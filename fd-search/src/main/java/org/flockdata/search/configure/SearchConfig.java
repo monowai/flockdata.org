@@ -20,9 +20,6 @@
 
 package org.flockdata.search.configure;
 
-import io.searchbox.client.JestClient;
-import io.searchbox.client.JestClientFactory;
-import io.searchbox.client.config.HttpClientConfig;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -73,6 +70,10 @@ public class SearchConfig {
     @Value("${org.fd.search.es.settings:fd-default-settings.json}")
     String esSettings;
 
+    private InetSocketTransportAddress[] addresses;
+    private String urls;
+
+
     private String esDefaultMapping = "fd-default-mapping.json";
     private String esTaxonomyMapping = "fd-taxonomy-mapping.json"; // ToDo: hard coded taxonmy is not very flexible!
 
@@ -95,17 +96,17 @@ public class SearchConfig {
         return settings;
     }
 
-    @Bean
-    JestClient getJestClient (){
-        JestClientFactory factory = new JestClientFactory();
-        factory.setHttpClientConfig(new HttpClientConfig
-                .Builder(urls)
-                .multiThreaded(true)
-                .build());
-        return factory.getObject();
-
-
-    }
+//    @Bean
+//    JestClient getJestClient (){
+//        JestClientFactory factory = new JestClientFactory();
+//        factory.setHttpClientConfig(new HttpClientConfig
+//                .Builder(urls)
+//                .multiThreaded(true)
+//                .build());
+//        return factory.getObject();
+//
+//
+//    }
 //
 //    @Bean
 //    public ElasticsearchOperations elasticsearchTemplate() throws UnknownHostException {
@@ -142,9 +143,6 @@ public class SearchConfig {
 
         return client;
     }
-
-    private InetSocketTransportAddress[] addresses;
-    private String urls;
 
     /**
      * Transport hosts

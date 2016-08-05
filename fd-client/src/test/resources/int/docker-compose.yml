@@ -74,7 +74,6 @@ fdstore:
 
 fdsearch:
   image: flockdata/fd-search
-#  command: "-Xmx256m"
 
 # Uncomment ports for non-proxy debug
 #  ports:
@@ -99,11 +98,11 @@ fdsearch:
     org.fd.engine.api: http://fdengine:8090
     logging.level.org.flockdata: DEBUG
 
-    # Limit looking for ES nodes ouside of the fd-search JVM
-    org.fd.search.es.local: "false"
     # True == Connect to remote ES cluster (enable link to elasticsearch
     # False == Start a local embedded data node
     org.fd.search.es.transportOnly: "false"
+    # Limit looking for ES nodes ouside of the fd-search JVM
+    org.fd.search.es.local: "false"
     # optional ; delimited list of hosts to join with
 #    es.nodes: elasticsearch:9300
 
@@ -122,10 +121,18 @@ fdsearch:
 
 
 #elasticsearch:
+# Reducing memory usage on CircleCI so not currently running in this config
 #  # Regular standalone elasticsearch image
-#  image: elasticsearch:1.7.5
-#  command: elasticsearch -Xmx256m -Des.cluster.name=es_int_fd
-
+#
+#  image: elasticsearch:2.3
+#  command: "elasticsearch -Des.cluster.name=es-fd-int -Des.node.master=true --network.host=0.0.0.0 --net=host"
+#  environment:
+#    _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+#
+#  ports:
+#    - '9200-9200'
+#    - '9300-9300'
+#
 #  expose:
 #    - 9200
 #    - 9300

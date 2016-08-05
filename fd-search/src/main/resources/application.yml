@@ -26,15 +26,19 @@ server:
 
 es:
   clustername: es_flockdata
+  # this clients ports
   http:
     port: 9200
   tcp:
     port: 9300
+
   path:
     home: ./
     data: ../data/fd/es
+
+
   # , serparated list of hosts to connect to if transportOnly == true
-  #nodes: 192.168.99.100:9300
+#  nodes: localhost:9300
 
 rabbit:
     user: guest
@@ -64,12 +68,12 @@ org.fd:
       #Is the node going to be a client node which means it will hold no data ?
       # True for production/cluster
       # False for dev/demo (default)
-      # transportOnly: true
+      transportOnly: false
 
-      # A local node is a node that uses a local (JVM level) discovery and transport
-      # True for dev/demo  (default)
-      # False for production/cluster
-      # local: false
+      # Look outside of this jvm for an ES host
+      # True for dev/transportOnly = false (default)
+      # False for production/cluster/remote es client
+      local: true
 
     system:
       api: api
