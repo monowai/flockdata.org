@@ -111,7 +111,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
         irb.setId(searchChange.getSearchKey());
         if (searchChange.getParent() != null)
-            irb.setParent(searchChange.getParent().getCode());
+                irb.setParent(searchChange.getParent().getCode());
         else
             irb.setRouting(searchChange.getCode());
 
@@ -289,7 +289,8 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
     private Map<String, Object> getMapFromChange(EntitySearchChange searchChange) {
         Map<String, Object> indexMe = new HashMap<>();
         indexMe.put(SearchSchema.FORTRESS, searchChange.getFortressName());
-        indexMe.put(SearchSchema.DOC_TYPE, searchChange.getDocumentType());
+        // MKH - let elasticSearch manage this
+//        indexMe.put(SearchSchema.DOC_TYPE, searchChange.getDocumentType());
         if (searchChange.getKey() != null) //DAT-83 No need to track NULL key
             // This occurs if the search doc is not being tracked in fd-engine's graph
             indexMe.put(SearchSchema.KEY, searchChange.getKey());

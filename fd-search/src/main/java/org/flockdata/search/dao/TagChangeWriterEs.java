@@ -162,7 +162,7 @@ public class TagChangeWriterEs implements TagChangeWriter {
     private Map<String, Object> getMapFromChange(TagSearchChange searchChange) {
 
         Map<String, Object> indexMe = new HashMap<>();
-        indexMe.put(SearchSchema.DOC_TYPE, searchChange.getDocumentType());
+//        indexMe.put(SearchSchema.DOC_TYPE, searchChange.getDocumentType());
         indexMe.put(SearchSchema.CODE, searchChange.getCode());
         indexMe.put(SearchSchema.KEY, searchChange.getKey());
         if ( searchChange.getName()!=null)

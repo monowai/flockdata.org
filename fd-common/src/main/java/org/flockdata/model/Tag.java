@@ -66,11 +66,7 @@ public class Tag {
     @RelatedTo(elementClass = Alias.class, type = "HAS_ALIAS")
     private Set<Alias> aliases = new HashSet<>();
 
-    //@Relationship(type = "located")
-//    @RelatedTo(elementClass = Tag.class, type = "located")
-//    private Set<Tag> located = null;
-
-    DynamicProperties props = new DynamicPropertiesContainer();
+    private DynamicProperties props = new DynamicPropertiesContainer();
 
     private String name;
 
@@ -138,7 +134,7 @@ public class Tag {
         return props.getProperty(name);
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Map<String, Object> getProperties() {
         return props.asMap();
     }

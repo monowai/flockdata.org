@@ -20,7 +20,6 @@
 
 package org.flockdata.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.service.EntityService;
 import org.neo4j.graphdb.Direction;
@@ -74,9 +73,6 @@ public class DocumentType  implements Comparable<DocumentType> {
     @RelatedTo(elementClass = FortressSegment.class,  type = "USES_SEGMENT", direction = Direction.OUTGOING)
     Set<FortressSegment> segments ;
 
-
-    @RelatedTo(elementClass = DocumentType.class,  type = "PARENT", direction = Direction.INCOMING)
-    DocumentType parent;
 
     private String geoQuery;
 
@@ -254,19 +250,6 @@ public class DocumentType  implements Comparable<DocumentType> {
     // DAT-498
     public void setTagStructure(EntityService.TAG_STRUCTURE tagFinderClass) {
         this.tagStructure = tagFinderClass;
-    }
-
-    public DocumentType getParent() {
-        return parent;
-    }
-
-    public void setParent(DocumentType parent) {
-        this.parent = parent;
-    }
-
-    @JsonIgnore
-    public boolean hasParent() {
-        return parent!=null;
     }
 
     public static String toKey(Fortress fortress, String docType) {

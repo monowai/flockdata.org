@@ -20,6 +20,7 @@
 
 package org.flockdata.track.bean;
 
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
 import org.flockdata.model.MetaFortress;
@@ -42,6 +43,7 @@ public class EntityKeyBean {
     private String key;
     private String code;
     private String name;
+    private boolean parent;
     private String description;
 
     private  HashMap<String, Map<String, ArrayList<SearchTag>>>  searchTags = new HashMap<>();
@@ -52,8 +54,21 @@ public class EntityKeyBean {
 
     private EntityKeyBean(){}
 
+    public EntityKeyBean(DocumentType documentType, String code) {
+        this(documentType.getCode(), documentType.getFortress(), code);
+    }
+
     public EntityKeyBean(String documentType, MetaFortress fortress, String code){
-        this(documentType, fortress.getName(), code);
+        assert (fortress.getName() !=null );
+        this.documentType = documentType;
+        this.fortressName = fortress.getName();
+        this.code = code;
+    }
+
+    public EntityKeyBean(DocumentType documentType, MetaFortress fortress, String code) {
+        this.documentType = documentType.getName();
+        this.fortressName = fortress.getName();
+        this.code = code;
     }
 
     public EntityKeyBean(String documentName, String fortress, String value) {
@@ -155,6 +170,15 @@ public class EntityKeyBean {
 
     public String getName() {
         return name;
+    }
+
+    public EntityKeyBean setParent(boolean parent) {
+        this.parent = parent;
+        return this;
+    }
+
+    public boolean isParent() {
+        return parent;
     }
 
     public enum ACTION {ERROR, IGNORE, CREATE}

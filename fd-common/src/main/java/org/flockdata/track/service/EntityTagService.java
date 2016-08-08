@@ -42,8 +42,6 @@ public interface EntityTagService {
 
     Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, EntityInputBean entityInputBean) throws FlockException;
 
-    Collection<EntityTag> findEntityTags(Company company, Entity entity);
-
     Collection<EntityTag> findEntityTags(Entity entity);
 
     Collection<EntityTag> findOutboundTags(Entity entity);
@@ -54,9 +52,7 @@ public interface EntityTagService {
 
     Collection<EntityTag> findInboundTags(Entity entity);
 
-    Collection<EntityTag> getEntityTags(Entity entity);
-
-    Iterable<EntityTag> getEntityTagsWithGeo(Entity entity);
+    Collection<EntityTag> findEntityTagsWithGeo(Entity entity);
 
     void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
 

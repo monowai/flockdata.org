@@ -293,20 +293,9 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         return rel;
     }
 
-    /**
-     * Finds both incoming and outgoing tags for the Entity
-     *
-     * @param entity Entity the caller is authorised to work with
-     * @return EntityTags found
-     */
-    @Override
-    public Collection<EntityTag> findEntityTags(Entity entity) {
-        Company company = securityHelper.getCompany();
-        return findEntityTags(company, entity);
-    }
 
-    public Collection<EntityTag> findEntityTags(Company company, Entity entity) {
-        return getEntityTags(entity);
+    public Collection<EntityTag> findEntityTags(Entity entity) {
+        return  entityTagDao.getEntityTags(entity);
     }
 
     @Override
@@ -331,13 +320,12 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         return findInboundTags(company, entity);
     }
 
-    @Override
-    public Collection<EntityTag> getEntityTags(Entity entity) {
+    private Collection<EntityTag> getEntityTags(Entity entity) {
         return entityTagDao.getEntityTags(entity);
     }
 
     @Override
-    public Iterable<EntityTag> getEntityTagsWithGeo(Entity entity) {
+    public Collection<EntityTag> findEntityTagsWithGeo(Entity entity) {
         return entityTagDao.getEntityTagsWithGeo(entity);
     }
 

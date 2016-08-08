@@ -121,7 +121,7 @@
       },
       {
         "geo_points": {
-          "path_match": "tag.*.geo.points.*",
+          "path_match": "*tag.*.geo.points.*",
           "match_mapping_type": "string",
           "mapping": {
             "type": "geo_point",
@@ -133,7 +133,7 @@
       },
       {
         "geo_code": {
-          "path_match": "tag.*.geo.*.code",
+          "path_match": "*tag.*.geo.*.code",
           "match_mapping_type": "string",
           "mapping": {
             "type": "multi_field",
@@ -155,7 +155,7 @@
       },
       {
         "geo_name": {
-          "path_match": "tag.*.geo.*.name",
+          "path_match": "*tag.*.geo.*.name",
           "match_mapping_type": "string",
           "mapping": {
             "type": "multi_field",

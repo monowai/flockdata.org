@@ -20,8 +20,8 @@
 
 package org.flockdata.track;
 
-import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
 
 /**
@@ -32,7 +32,7 @@ import org.flockdata.track.service.EntityService;
  */
 public interface EntityTagFinder {
 
-    Iterable<EntityTag> getEntityTags(Entity entity);
+    Iterable<EntityTag> getEntityTags(TrackResultBean trackResultBean);
 
     EntityService.TAG_STRUCTURE getTagStructure();
 }

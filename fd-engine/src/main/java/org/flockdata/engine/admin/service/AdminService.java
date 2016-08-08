@@ -22,13 +22,11 @@ package org.flockdata.engine.admin.service;
 
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.configure.CacheConfiguration;
-import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
-import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
@@ -65,35 +63,35 @@ import java.util.concurrent.TimeoutException;
 @Service
 public class AdminService implements EngineAdminService {
 
-    @Autowired
-    EntityService entityService;
+    private final EntityService entityService;
+    private final SchemaService schemaService;
+    private final ConceptService conceptService;
+    private final FortressService fortressService;
+    private final IndexManager indexManager;
 
-    @Autowired(required = false)
-    SearchServiceFacade searchService;
-
-    @Autowired
-    SchemaService schemaService;
-
-    @Autowired
-    ConceptService conceptService;
-
-    @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    EngineConfig engineConfig;
-
-    @Autowired (required =  false) // Functional tests don't require it
-    CacheConfiguration cacheConfiguration;
-
-    @Autowired
-    IndexManager indexManager;
-
-    @Autowired
-    ContentModelService contentModelService;
+    private CacheConfiguration cacheConfiguration;
+    private SearchServiceFacade searchService;
 
     private Logger logger = LoggerFactory.getLogger(AdminService.class);
 
+    @Autowired
+    public AdminService(SchemaService schemaService, EntityService entityService, IndexManager indexManager, ConceptService conceptService, FortressService fortressService) {
+        this.schemaService = schemaService;
+        this.entityService = entityService;
+        this.indexManager = indexManager;
+        this.conceptService = conceptService;
+        this.fortressService = fortressService;
+    }
+
+    @Autowired (required =  false) // Functional tests don't require it
+    private void setCacheConfiguration( CacheConfiguration cacheConfiguration){
+        this.cacheConfiguration=cacheConfiguration;
+    }
+
+    @Autowired (required =  false) // Functional tests don't require it
+    private void setSearchService( SearchServiceFacade searchService){
+        this.searchService= searchService;
+    }
     @Async("fd-engine")
     public Future<Boolean> purge(Company company, Fortress fortress, DocumentType documentType, String segmentToDelete) {
         NumberFormat nf = NumberFormat.getInstance();
@@ -128,7 +126,8 @@ public class AdminService implements EngineAdminService {
                         Entity entity = entityService.getEntity(company, entities.iterator().next());
                         // We need to get an entity to figure out which search index it is in
                         searchIndexToDelete = indexManager.parseIndex(entity);
-                    }
+                    }  else
+                        searchIndexToDelete = indexManager.getIndexRoot(segment.getFortress(), documentType);
                 }
                 entityService.purge(fortress, entities);
 

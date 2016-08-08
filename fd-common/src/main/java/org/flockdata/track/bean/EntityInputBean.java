@@ -286,12 +286,12 @@ public class EntityInputBean implements Serializable, UserProperties {
         return tags;
     }
 
-    public void setTags(Collection<TagInputBean> tags) {
+    public EntityInputBean setTags(Collection<TagInputBean> tags) {
         for (TagInputBean next : tags) {
             this.tags.add(next);
 
         }
-
+        return this;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

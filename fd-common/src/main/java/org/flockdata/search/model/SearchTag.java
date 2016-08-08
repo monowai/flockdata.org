@@ -69,11 +69,12 @@ public class SearchTag {
         if (NumberUtils.isNumber(this.code) && this.code.length() < 3 && this.name != null)
             this.code = null;
 
-        if (entityTag.getTag().hasProperties())
-            this.properties = new HashMap<>();
         for (String key : entityTag.getTag().getProperties().keySet()) {
-            if (!TagHelper.isSystemKey(key))
+            if (!TagHelper.isSystemKey(key)) {
+                if ( properties == null )
+                    properties= new HashMap<>();
                 this.properties.put(key, entityTag.getTag().getProperty(key));
+            }
         }
         handleSubTags(entityTag);
 

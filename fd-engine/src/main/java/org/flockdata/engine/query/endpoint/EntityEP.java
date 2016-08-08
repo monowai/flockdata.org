@@ -211,8 +211,8 @@ public class EntityEP {
         Company company = CompanyResolver.resolveCompany(request);
 
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{key}
-        Entity result = entityService.getEntity(company, key);
-        return convertTags(entityTagService.getEntityTags(result));
+        Entity entity = entityService.getEntity(company, key);
+        return convertTags(entityTagService.findEntityTags(entity));
     }
 
     @RequestMapping(value = "/{key}/log/last/attachment",

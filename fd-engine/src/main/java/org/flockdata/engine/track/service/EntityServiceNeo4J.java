@@ -102,16 +102,8 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public EntityKeyBean findParent(Entity childEntity) {
-        Entity parent = entityDao.findParent(childEntity);
-        if (parent != null)
-            return new EntityKeyBean(parent, indexManager.parseIndex(parent));
-        return null;
-    }
-
-    @Override
-    public Collection<EntityKeyBean> getInboundEntities(Entity entity, boolean withEntityTags) {
-        return entityDao.getInboundEntities(entity, withEntityTags);
+    public Collection<EntityKeyBean> getEntities(Company company, List<EntityKeyBean> entities) {
+        return entityDao.getEntities(company, entities);
     }
 
     @Override
@@ -430,7 +422,7 @@ public class EntityServiceNeo4J implements EntityService {
         EntityLog newEntityLog = null;
         if (fromLog != null) {
             entityDao.fetch(entity);
-            entityTagService.findEntityTags(company, entity);
+            entityTagService.findEntityTags(entity);
             entityDao.fetch(fromLog);
             entityDao.delete(currentLog);
             newEntityLog = entityDao.getLog(entity, fromLog.getEntityLog().getId());
@@ -562,7 +554,7 @@ public class EntityServiceNeo4J implements EntityService {
         if (entity == null)
             throw new FlockException("Invalid Meta Key [" + key + "]");
         Set<EntityLog> changes = getEntityLogs(entity);
-        Collection<EntityTag> tags = entityTagService.getEntityTags(entity);
+        Collection<EntityTag> tags = entityTagService.findEntityTagsWithGeo(entity);
         EntitySummaryBean esb = new EntitySummaryBean(entity, changes, tags);
         esb.setIndex(indexManager.parseIndex(entity));
         return esb;

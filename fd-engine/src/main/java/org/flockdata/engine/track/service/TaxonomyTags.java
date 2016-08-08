@@ -26,6 +26,7 @@ import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagOut;
 import org.flockdata.model.Tag;
 import org.flockdata.track.EntityTagFinder;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
 import org.neo4j.graphdb.Node;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,9 +59,9 @@ public class TaxonomyTags implements EntityTagFinder {
     Neo4jTemplate template;
 
     @Override
-    public Iterable<EntityTag> getEntityTags(Entity entity) {
+    public Iterable<EntityTag> getEntityTags(TrackResultBean trackResultBean) {
         String query = getSearchTagQuery();
-        Map<String, Object> params = getParams(entity);
+        Map<String, Object> params = getParams(trackResultBean.getEntity());
         Result<Map<String, Object>> dbResults = template.query(query, params);
         Map<Long, EntityTag> terms = new HashMap<>();
         Collection<EntityTag> results = new ArrayList<>();
@@ -83,7 +84,7 @@ public class TaxonomyTags implements EntityTagFinder {
                             Tag tag = template.projectTo(node, Tag.class);
 
                             // ETO is arbitrary
-                            term = new EntityTagOut(entity, tag);
+                            term = new EntityTagOut(trackResultBean.getEntity(), tag);
                             String relationship = "viewed";     // ToDo: Dynamic, not static
                             term.setRelationship(relationship);
                             terms.put(tag.getId(), term);

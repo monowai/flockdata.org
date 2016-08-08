@@ -77,7 +77,7 @@ public class TestEntityTagRelationships extends EngineBase {
     }
 
     public void validateEntities(SystemUser su, Entity entity) {
-        Iterable<EntityTag> entityTags = entityTagService.getEntityTagsWithGeo(entity);
+        Iterable<EntityTag> entityTags = entityTagService.findEntityTagsWithGeo(entity);
         int count = 0;
         for (EntityTag entityTag : entityTags) {
             if ( entityTag.getRelationship().equals("located")){

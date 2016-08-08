@@ -102,7 +102,7 @@ public class TestEntityDeadlock extends EngineBase {
                 //Thread.sleep(2000);
                 Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
                 assertNotNull(entity);
-                Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), entity);
+                Collection<EntityTag> entityTags = entityTagService.findEntityTags(entity);
                 if ( entityTags.size() == 0 ){
                     logger.debug("Why is this 0?");
                 }

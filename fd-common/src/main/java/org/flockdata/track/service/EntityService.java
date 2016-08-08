@@ -30,10 +30,7 @@ import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.*;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -44,11 +41,9 @@ import java.util.concurrent.Future;
  */
 public interface EntityService {
 
-    EntityKeyBean findParent(Entity entity);
-
-    Collection<EntityKeyBean> getInboundEntities(Entity entity, boolean withEntityTags);
-
     Map<String,Object> getEntityDataLast(Company company, String key) throws FlockException;
+
+    Collection<EntityKeyBean> getEntities(Company company, List<EntityKeyBean> linkTo);
 
     enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 

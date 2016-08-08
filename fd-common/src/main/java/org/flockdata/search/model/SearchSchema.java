@@ -48,7 +48,7 @@ public class SearchSchema {
     public static final String WHAT_DESCRIPTION = "description";
     public static final String FILENAME = "filename";
     public static final String CONTENT_TYPE = "contentType";
-    public static final String PROPS = "udp";
+    public static final String PROPS = "up";
     public static final String INDEX = "index";
 
     /**

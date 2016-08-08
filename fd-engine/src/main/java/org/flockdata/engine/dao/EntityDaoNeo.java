@@ -21,6 +21,7 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
@@ -32,6 +33,7 @@ import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.EntityTXResult;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityTagService;
+import org.flockdata.track.service.FortressService;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.Relationship;
@@ -75,7 +77,11 @@ public class EntityDaoNeo {
 
     private final IndexManager indexManager;
 
+    private FortressService fortressService;
+
     private final Neo4jTemplate template;
+
+    private ConceptService conceptService;
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
 
@@ -94,6 +100,15 @@ public class EntityDaoNeo {
         this.template = template;
     }
 
+    @Autowired
+    private void setFortressService(FortressService fortressService){
+        this.fortressService = fortressService;
+    }
+
+    @Autowired
+    private void setConceptService (ConceptService conceptService){
+        this.conceptService = conceptService;
+    }
     public Entity create(EntityInputBean inputBean, FortressSegment segment, FortressUser fortressUser, DocumentType documentType) throws FlockException {
         String key = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
         Entity entity = new Entity(key, segment, inputBean, documentType);
@@ -571,7 +586,7 @@ public class EntityDaoNeo {
         for (Entity entity : entities) {
             Collection<EntityTag> entityTags;
             if (withEntityTags) {
-                entityTags = entityTagService.findEntityTags(childEntity.getFortress().getCompany(), entity);
+                entityTags = entityTagService.findEntityTags(entity);
                 results.add(new EntityKeyBean(entity, entityTags, indexManager.parseIndex(entity)).addRelationship(""));
             } else {
                 results.add(new EntityKeyBean(entity, indexManager.parseIndex(entity)).addRelationship(""));
@@ -579,6 +594,31 @@ public class EntityDaoNeo {
 
         }
         return results;
+    }
+
+    public Collection<EntityKeyBean> getEntities(Company company, List<EntityKeyBean> entityKeys) {
+        assert ( company !=null);
+        Collection<EntityKeyBean> results = new ArrayList<>();
+        for (EntityKeyBean entityKey : entityKeys) {
+            Entity entity = findByCode(company, entityKey);
+            if (entity!=null ){
+                Collection<EntityTag> entityTags = entityTagService.findEntityTagsWithGeo(entity);
+                results.add(
+                        new EntityKeyBean(  entity, entityTags, indexManager.parseIndex(entity)).addRelationship(entityKey.getRelationship())
+                            .setParent(entityKey.isParent()));
+
+            }
+
+        }
+        return results;
+    }
+
+    private Entity findByCode(Company company, EntityKeyBean entityKeyBean) {
+        Fortress fortress = fortressService.findByCode(company, entityKeyBean.getFortressName());
+
+        DocumentType type = conceptService.findDocumentType(fortress, entityKeyBean.getDocumentType());
+
+        return findByCode(fortress.getId(), type, entityKeyBean.getCode());
     }
 
 }

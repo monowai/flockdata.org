@@ -204,7 +204,7 @@ public class EntityTagDaoNeo {
 
     }
 
-    public Iterable<EntityTag> getEntityTagsWithGeo(Entity entity) {
+    public Collection<EntityTag> getEntityTagsWithGeo(Entity entity) {
         Collection<EntityTag> entityTags = getEntityTags(entity);
         for (EntityTag entityTag : entityTags) {
             if (entityTag.isGeoRelationship()) {

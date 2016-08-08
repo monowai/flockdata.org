@@ -29,6 +29,7 @@ import org.flockdata.engine.integration.search.EntitySearchWriter.EntitySearchWr
 import org.flockdata.engine.integration.search.FdViewQuery.FdViewQueryGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.*;
+import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.AdminRequest;
 import org.flockdata.search.model.*;
@@ -59,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -94,6 +96,8 @@ public class SearchServiceFacade {
 
     private FdViewQueryGateway fdViewQueryGateway;
 
+    private ContentModelService contentModelService;
+
     @Autowired
     public SearchServiceFacade(FortressService fortressService, EntityService entityService, StorageProxy storageProxy,
                                IndexManager indexManager, @Qualifier("engineConfig") PlatformConfig engineConfig,
@@ -124,6 +128,12 @@ public class SearchServiceFacade {
     private void setFdViewQueryGateway(FdViewQueryGateway fdViewQueryGateway) {
         this.fdViewQueryGateway = fdViewQueryGateway;
     }
+
+    @Autowired
+    private void setContentModelService(ContentModelService contentModelService) {
+        this.contentModelService = contentModelService;
+    }
+
     public void makeChangeSearchable(SearchChange searchChange) {
         if (searchChange == null)
             return;
@@ -185,6 +195,14 @@ public class SearchServiceFacade {
         ContentInputBean contentInput = trackResultBean.getContentInput();
         Entity entity = trackResultBean.getEntity();
 
+//        ContentModel contentModel = null;
+//
+//        try {
+//            contentModel = contentModelService.get(entity.getFortress().getCompany(), entity.getFortress(), docType);
+//        } catch (org.flockdata.helper.NotFoundException |FlockException e){
+//            logger.warn("No server side content model");
+//        }
+
         EntitySearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput, indexManager.parseIndex(entity));
 
         if (entityLog != null) {
@@ -199,7 +217,7 @@ public class SearchServiceFacade {
         }
         // ToDo: Can we optimize by using tags already tracked in the result bean?
         EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
-        searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
+        searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(trackResultBean));
 
         // Description is not carried against the entity - todo: configurable?
         if (trackResultBean.getEntityInputBean() != null)
@@ -208,19 +226,11 @@ public class SearchServiceFacade {
         searchDocument.setSearchKey(entity.getSearchKey());
 
 
-        if (docType != null && docType.hasParent()) {
-            EntityKeyBean parent = entityService.findParent(entity);
-            if (parent != null) {
-                searchDocument.setParent(parent);
+        if (trackResultBean.getEntityInputBean() != null)
+            for (String relationship : trackResultBean.getEntityInputBean().getEntityLinks().keySet()) {
+                List<EntityKeyBean> linkTo = trackResultBean.getEntityInputBean().getEntityLinks().get(relationship);
+                searchDocument.addEntityLinks(entityService.getEntities(trackResultBean.getCompany(), linkTo));
             }
-
-        }
-
-        if (entity.getId() != null) {
-            Collection<EntityKeyBean> inboundEntities = entityService.getInboundEntities(entity, true);
-            searchDocument.addEntityLinks(inboundEntities);
-        }
-
 
         try {
             if (logger.isTraceEnabled())
@@ -286,7 +296,7 @@ public class SearchServiceFacade {
                     searchDocument.setWho(entity.getCreatedBy().getCode());
             }
             EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
-            searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
+            searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(new TrackResultBean(entity, new DocumentType(entity.getType()))));
 
             if (!engineConfig.isSearchRequiredToConfirm())
                 searchDocument.setReplyRequired(false);
@@ -425,7 +435,7 @@ public class SearchServiceFacade {
 
     public void setTags(Entity entity, EntitySearchChange searchDocument) {
         EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
-        searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
+        searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(new TrackResultBean(entity, new DocumentType(entity.getType()))));
 
     }
 

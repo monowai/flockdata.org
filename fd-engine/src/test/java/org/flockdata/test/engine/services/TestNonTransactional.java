@@ -86,9 +86,9 @@ public class TestNonTransactional extends EngineBase {
         EntityToEntityLinkInput bean = new EntityToEntityLinkInput(inputBean);
         List<EntityToEntityLinkInput> inputs = new ArrayList<>();
         inputs.add(bean);
-        Collection<EntityTag> tagsA = entityTagService.getEntityTags(docA.getEntity());
+        Collection<EntityTag> tagsA = entityTagService.findEntityTags(docA.getEntity());
         assertEquals(1, tagsA.size());
-        Collection<EntityTag> tagsB = entityTagService.getEntityTags(docB.getEntity());
+        Collection<EntityTag> tagsB = entityTagService.findEntityTags(docB.getEntity());
         assertEquals(1, tagsB.size());
 
     }

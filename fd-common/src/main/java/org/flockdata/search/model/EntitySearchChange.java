@@ -108,7 +108,8 @@ public class EntitySearchChange implements SearchChange {
         else
             this.who = (entity.getCreatedBy() != null ? entity.getCreatedBy().getCode() : null);
         this.sysWhen = entity.getDateCreated();
-        this.props = entity.getProperties(); // Userdefined entity properties
+        if ( entity.getProperties()!=null && !entity.getProperties().isEmpty())
+            this.props = entity.getProperties(); // Userdefined entity properties
         this.createdDate = entity.getFortressCreatedTz().toDate(); // UTC When created in the Fortress
         if (entity.getFortressUpdatedTz() != null)
             this.updatedDate = entity.getFortressUpdatedTz().toDate();
@@ -401,6 +402,7 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @Override
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Map<String, Object> getProps() {
         return props;
     }
@@ -478,7 +480,13 @@ public class EntitySearchChange implements SearchChange {
     }
 
     public SearchChange addEntityLinks(Collection<EntityKeyBean> inboundEntities) {
-        this.entityLinks = inboundEntities;
+        for (EntityKeyBean inboundEntity : inboundEntities) {
+            if ( inboundEntity.isParent()){
+                setParent(inboundEntity);
+            } else {
+                this.entityLinks.add(inboundEntity);
+            }
+        }
         return this;
     }
 

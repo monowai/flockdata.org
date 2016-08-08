@@ -91,7 +91,7 @@ public class TestGeoEntity extends EngineBase {
         tags.add(tagInput);
         entityInput.setTags(tags);
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Iterable<EntityTag> entityTags = entityTagService.getEntityTagsWithGeo(trackResultBean.getEntity());
+        Iterable<EntityTag> entityTags = entityTagService.findEntityTagsWithGeo(trackResultBean.getEntity());
         int expected = 1;
         int found = 0;
         for (EntityTag entityTag : entityTags) {
@@ -178,7 +178,7 @@ public class TestGeoEntity extends EngineBase {
 
         searchService.getEntityChange(result);
 
-        Iterable<EntityTag> iTags = entityTagService.getEntityTagsWithGeo(result.getEntity());
+        Iterable<EntityTag> iTags = entityTagService.findEntityTagsWithGeo(result.getEntity());
         int count = 0;
         for (EntityTag entityTag : iTags) {
             assertNotNull (entityTag.getGeoData());
@@ -217,7 +217,7 @@ public class TestGeoEntity extends EngineBase {
         tags.add(atlantis);
         entityInput.setTags(tags);
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Iterable<EntityTag> entityTags = entityTagService.getEntityTagsWithGeo(trackResultBean.getEntity());
+        Iterable<EntityTag> entityTags = entityTagService.findEntityTagsWithGeo(trackResultBean.getEntity());
         int expected = 2;
         int found = 0;
         for (EntityTag entityTag : entityTags) {

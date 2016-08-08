@@ -1,0 +1,93 @@
+{
+  "documentType": {
+    "name": "WorkRecord",
+    "code": "WorkRecord",
+    "versionStrategy": "FORTRESS",
+    "tagStructure": "DEFAULT"
+  },
+  "name": "Work records for test",
+  "fortress": {
+    "name": "WorkData",
+    "searchEnabled": false,
+    "timeZone": "Pacific/Auckland",
+    "enabled": true,
+    "system": false,
+    "code": "WorkData"
+  },
+  "entityOnly": true,
+  "archiveTags": false,
+  "emptyIgnored": false,
+  "trackSuppressed": true,
+  "tagModel": false,
+  "content": {
+    "date": {
+      "dateFormat": "timestamp",
+      "dataType": "date",
+      "persistent": false,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "staffID": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false,
+      "entityLinks": [
+        {
+          "fortress": "ParentFortress",
+          "documentName": "Staff",
+          "relationshipName": "worked",
+          "parent": true
+        }
+      ]
+    },
+    "marketValue": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false,
+      "properties": [
+        {
+          "target": "marketValue",
+          "persistent": true,
+          "storeNull": true,
+          "tag": false,
+          "reverse": false
+        }
+      ]
+    },
+    "id": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "callerRef": true,
+      "tag": false,
+      "reverse": false,
+      "properties": [
+        {
+          "source": "date",
+          "target": "date",
+          "dataType": "date",
+          "dateFormat": "timestamp",
+          "persistent": true,
+          "storeNull": true,
+          "tag": false,
+          "reverse": false
+        }
+      ]
+    },
+    "SimpleTag": {
+      "tag": true,
+      "label": "FindMe",
+      "code": "'constant-value'",
+      "entityTagLinks": [
+        {
+          "relationshipName": "linked"
+        }
+      ]
+    }
+  }
+}

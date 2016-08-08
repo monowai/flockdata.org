@@ -20,9 +20,9 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
 import org.flockdata.track.EntityTagFinder;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.EntityTagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +36,19 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class DefaultTagFinder implements EntityTagFinder {
 
+    final EntityTagService entityTagService;
+
     @Autowired
-    EntityTagService entityTagService;
+    public DefaultTagFinder(EntityTagService entityTagService) {
+        this.entityTagService = entityTagService;
+    }
 
     @Override
-    public Iterable<EntityTag> getEntityTags(Entity entity) {
-        return entityTagService.getEntityTagsWithGeo(entity);
+    public Iterable<EntityTag> getEntityTags(TrackResultBean trackResultBean) {
+        if (trackResultBean.getEntity().getId() == null )
+            return trackResultBean.getTags();  // non-persistent entity in the graph, but the trackResult has EntityTags
+        else
+            return entityTagService.findEntityTagsWithGeo(trackResultBean.getEntity());
     }
 
     @Override

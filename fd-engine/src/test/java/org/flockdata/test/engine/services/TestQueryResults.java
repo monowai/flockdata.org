@@ -58,7 +58,7 @@ public class TestQueryResults extends EngineBase {
         inputBean.addTag(new TagInputBean("Grapes", TestQueryResults.FRUIT, "allergic").setLabel(TestQueryResults.FRUIT));
         inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes").setLabel(VEGETABLE)); // No co-occurrence
         Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity() ;
-        assertEquals(5, entityTagService.getEntityTags(entity).size());
+        assertEquals(5, entityTagService.findEntityTags(entity).size());
 
         inputBean = new EntityInputBean(fortress, "mike", "Study", new DateTime(), "StudyB");
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "dislikes"));
@@ -68,7 +68,7 @@ public class TestQueryResults extends EngineBase {
         inputBean.addTag(new TagInputBean("Kiwi", TestQueryResults.FRUIT, "likes"));
         inputBean.addTag(new TagInputBean("Peas", TestQueryResults.VEGETABLE, "dislikes"));
         entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity() ;
-        assertEquals(6, entityTagService.getEntityTags(entity).size());
+        assertEquals(6, entityTagService.findEntityTags(entity).size());
 
         MatrixInputBean input = new MatrixInputBean();
         input.setSampleSize(-1); // Disable fd-search

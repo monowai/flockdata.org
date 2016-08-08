@@ -129,6 +129,10 @@ public class IndexManager {
         return fdSystemIndexPrefix + company.toLowerCase() + ".tags";
     }
 
+    public String getIndexRoot(Fortress fortress, DocumentType documentType) {
+        return getIndexRoot(fortress)+getSuffix(documentType.getName());
+    }
+
     public String getIndexRoot(Fortress fortress) {
 
         if (fortress.isSystem()) {
