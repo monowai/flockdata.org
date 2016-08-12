@@ -23,6 +23,7 @@ package org.flockdata.profile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +39,8 @@ public class ContentValidationResults {
     private Map<Integer,Collection<TagInputBean>> tags= new HashMap<>();
 
     private Map<Integer,Collection<ColumnValidationResult>> results = new HashMap<>();
-    private Map<Integer,String> message= new HashMap<>();
+    private Map<Integer,Collection<String>> messages = new HashMap<>();
+    private String message;
 
     public Collection<ColumnValidationResult> getResults(Integer row) {
         return results.get(row);
@@ -60,12 +62,18 @@ public class ContentValidationResults {
     }
 
 
-    public void setMessage(int row, String message) {
-        this.message.put(row, message);
+    public void addMessage(int row, String message) {
+        Collection<String>messages = this.messages.get(row);
+        if (messages == null ) {
+            messages = new ArrayList<>();
+            this.messages.put(row, messages);
+        }
+        messages.add(message);
+
     }
 
-    public String getMessage(int row ) {
-        return message.get(row);
+    public Collection<String> getMessage(int row ) {
+        return messages.get(row);
     }
 
     public void addResults(int row, Collection<ColumnValidationResult> validatedResults) {
@@ -84,7 +92,7 @@ public class ContentValidationResults {
         return results;
     }
 
-    public Map<Integer, String> getMessage() {
-        return message;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

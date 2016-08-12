@@ -25,13 +25,11 @@ import org.flockdata.engine.integration.search.EntityKeyQuery.EntityKeyGateway;
 import org.flockdata.engine.integration.search.FdViewQuery.FdViewQueryGateway;
 import org.flockdata.engine.integration.search.TagCloudRequest.TagCloudGateway;
 import org.flockdata.engine.integration.store.EsStoreRequest.ContentStoreEs;
-import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.search.model.*;
 import org.flockdata.shared.IndexManager;
-import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,34 +51,48 @@ public class QueryService {
 
     private Logger logger = LoggerFactory.getLogger(QueryService.class);
 
-    @Autowired
-    FortressService fortressService;
+    private final FortressService fortressService;
+
+    private TagCloudGateway tagCloudGateway;
+
+    private final IndexManager indexManager;
+
+    private EntityKeyGateway entityKeyGateway;
+
+    private ContentStoreEs esStore;
+
+    private FdViewQueryGateway fdViewQueryGateway;
 
     @Autowired
-    EntityTagService tagService;
-
-    @Autowired
-    ConceptService conceptService;
-
-    @Autowired(required = false) // Functional tests don't require gateways
-    TagCloudGateway tagCloudGateway;
-
-    @Autowired(required = false) // Functional tests don't require gateways
-    EntityKeyGateway searchKeyGateway;
+    public QueryService(IndexManager indexManager, FortressService fortressService) {
+        this.indexManager = indexManager;
+        this.fortressService = fortressService;
+    }
 
     @Autowired(required = false)
-    FdViewQueryGateway fdViewQueryGateway;
+        // Functional tests don't require gateways
+    void setTagCloudGateway(TagCloudGateway tagCloudGateway) {
+        this.tagCloudGateway = tagCloudGateway;
+    }
+
+    @Autowired(required = false) // Functional tests don't require gateways
+    void setEntityKeyGateway(EntityKeyGateway entityKeyGateway) {
+        this.entityKeyGateway = entityKeyGateway;
+    }
+
 
     @Autowired(required = false)
-    ContentStoreEs esStore;
+    void setFdViewQueryGateway(FdViewQueryGateway fdViewQueryGateway){
+        this.fdViewQueryGateway = fdViewQueryGateway;
+    }
+    @Autowired(required = false)
+    void setContentStoreEs(ContentStoreEs contentStoreEs){
+        this.esStore = contentStoreEs;
+    }
 
-    @Autowired
-    IndexManager indexManager;
 
     public EsSearchResult search(Company company, QueryParams queryParams) {
 
-//        StopWatch watch = new StopWatch(queryParams.toString());
-//        watch.start("Get ES Query Results");
         queryParams.setCompany(company.getName());
         EsSearchResult esSearchResult;
         if (queryParams.isSearchTagsOnly()) {
@@ -89,8 +101,7 @@ public class QueryService {
 
         }
 
-
-        if (queryParams.getQuery() != null) {
+        if (queryParams.getQuery() != null || queryParams.getAggs() != null) {
             esSearchResult = esStore.getData(queryParams);
         } else {
             if (fdViewQueryGateway == null) {
@@ -99,11 +110,6 @@ public class QueryService {
             } else
                 esSearchResult = fdViewQueryGateway.fdSearch(queryParams);
         }
-
-
-        //watch.stop();
-        //logger.info("Hit Count {}, Results {}",esSearchResult.getTotalHits(), (esSearchResult.getResults() == null ? 0 : esSearchResult.getResults().size()));
-        //logger.info(watch.prettyPrint());
 
         return esSearchResult;
 
@@ -120,6 +126,6 @@ public class QueryService {
 
     public EntityKeyResults getKeys(Company company, QueryParams queryParams) {
         queryParams.setCompany(company.getName());
-        return searchKeyGateway.keys(queryParams);
+        return entityKeyGateway.keys(queryParams);
     }
 }

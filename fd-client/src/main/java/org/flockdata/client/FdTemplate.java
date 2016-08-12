@@ -19,10 +19,7 @@ package org.flockdata.client;
 import com.rabbitmq.client.AlreadyClosedException;
 import org.apache.commons.codec.binary.Base64;
 import org.flockdata.client.amqp.FdRabbitClient;
-import org.flockdata.client.commands.Login;
-import org.flockdata.client.commands.ModelGet;
-import org.flockdata.client.commands.Ping;
-import org.flockdata.client.commands.RegistrationPost;
+import org.flockdata.client.commands.*;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.profile.ContentModelDeserializer;
@@ -33,6 +30,7 @@ import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.search.model.QueryParams;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
@@ -314,6 +312,13 @@ public class FdTemplate implements FdIoInterface {
                 .setApiKey(null);
 
         return login();
+    }
+
+    public Map<String, Object> search(QueryParams qp) {
+        SearchEsPost postQuery = new SearchEsPost(this, qp);
+        if ( postQuery.exec().error()!=null)
+            logger.error(postQuery.error());
+        return postQuery.exec().result();
     }
 
     public String getUrl() {

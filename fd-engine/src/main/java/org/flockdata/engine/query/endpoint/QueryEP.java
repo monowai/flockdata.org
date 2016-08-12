@@ -30,7 +30,6 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
-import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.search.model.*;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,17 +53,20 @@ import java.util.Set;
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/query")
 public class QueryEP {
-    @Autowired
-    MatrixService matrixService;
+
+    private final MatrixService matrixService;
+
+    private final QueryService queryService;
+
+    private final ConceptService conceptService;
 
     @Autowired
-    QueryService queryService;
+    public QueryEP(MatrixService matrixService, ConceptService conceptService, QueryService queryService) {
+        this.matrixService = matrixService;
+        this.conceptService = conceptService;
+        this.queryService = queryService;
 
-    @Autowired
-    ConceptService conceptService;
-
-    @Autowired
-    RegistrationService registrationService;
+    }
 
     @RequestMapping(value = "/matrix", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public MatrixResults getMatrixResult(@RequestBody MatrixInputBean matrixInput, HttpServletRequest request) throws FlockException {
@@ -80,14 +82,15 @@ public class QueryEP {
     }
 
     @RequestMapping(value = "/es", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public Map<String,Object> searchEsParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException, IOException {
+    public Map<String, Object> searchEsParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
         queryParams.setEntityOnly(false);
         queryParams.setCompany(company.getName());
+
         EsSearchResult result = queryService.search(company, queryParams);
-        if ( result.getJson() == null )
+        if (result.getJson() == null)
             throw new NotFoundException("No search results were found");
-        return JsonUtils.toMap(result.getJson()) ;
+        return JsonUtils.toMap(result.getJson());
     }
 
     @RequestMapping(value = "/tagcloud", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
@@ -105,7 +108,7 @@ public class QueryEP {
 
     @RequestMapping(value = "/documents", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     @Deprecated // fd-view is using this. it should point to the /doc/ EP
-    public Collection<DocumentResultBean> getDocumentsInUse(@RequestBody (required = false) Collection<String> fortresses, HttpServletRequest request) throws FlockException {
+    public Collection<DocumentResultBean> getDocumentsInUse(@RequestBody(required = false) Collection<String> fortresses, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return conceptService.getDocumentsInUse(company, fortresses);
     }
@@ -113,13 +116,13 @@ public class QueryEP {
 
     @RequestMapping(value = "/concepts", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     @Deprecated // fd-view is using this. it should point to the /concept/ EP
-    public Set<DocumentResultBean> getConcepts(@RequestBody (required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
+    public Set<DocumentResultBean> getConcepts(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return conceptService.findConcepts(company, documents, false);
     }
 
 
-    @RequestMapping(value = "/relationships", method = RequestMethod.POST,consumes = "application/json", produces = "application/json")
+    @RequestMapping(value = "/relationships", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     @Deprecated // fd-view is using this. it should point to the /concept/ EP
     public Set<DocumentResultBean> getRelationships(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);

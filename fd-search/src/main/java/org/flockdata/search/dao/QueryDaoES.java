@@ -413,7 +413,10 @@ public class QueryDaoES implements QueryDao {
         EsSearchResult result ;
         if (queryParams.getQuery() != null || queryParams.getAggs()!=null) {
             // Raw ES query
-            String query = "{\"query\": " + JsonUtils.toJson(queryParams.getQuery()) ;
+            String query="{\"query\": {\"match_all\": {}}";
+
+            if ( queryParams.getQuery()!=null )
+                query = "{\"query\": " + JsonUtils.toJson(queryParams.getQuery()) ;
             if ( queryParams.getFields()!=null){
                 query = query +",\"fields\": "+JsonUtils.toJson(queryParams.getFields());
             }

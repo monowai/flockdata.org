@@ -282,8 +282,8 @@ public class ContentModelServiceNeo implements ContentModelService {
                 validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel()));
                 try {
                     validatedContent.add(row, Transformer.toTags(dataRow, contentRequest.getContentModel()));
-                } catch ( InstantiationException | IllegalAccessException |ClassNotFoundException|FlockException e){
-                    validatedContent.setMessage(row, e.getMessage());
+                } catch ( Exception e){
+                    validatedContent.addMessage(row, e.getMessage());
                 }
                 row ++;
             }
@@ -293,36 +293,44 @@ public class ContentModelServiceNeo implements ContentModelService {
                 validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel()));
                 try {
                     validatedContent.add(row, Transformer.toEntity(dataRow, contentRequest.getContentModel()));
-                } catch ( InstantiationException | IllegalAccessException |ClassNotFoundException|FlockException e){
-                    validatedContent.setMessage(row, e.getMessage());
+                } catch ( Exception e){
+                    validatedContent.addMessage(row, e.getMessage());
                 }
                 row ++;
             }
 
 
         }
-
         return validatedContent;
     }
 
     private Collection<ColumnValidationResult> validate(Map<String,Object>row, ContentModel model){
         Collection<ColumnValidationResult> results = new ArrayList<>();
 
-        for (ColumnDefinition column : model.getContent().values()) {
-            String message = null;
+        for (String source : model.getContent().keySet()) {
+            Collection<String> messages = new ArrayList<>();
             try {
-                Object oVal = row.get(column.getSource());
+                ColumnDefinition column = model.getContent().get(source);
+                String sourceColumn = column.getSource();
+                if ( sourceColumn  == null )
+                    sourceColumn = source;
+
+                Object oVal = row.get(sourceColumn);
                 String colValue = null;
 
                 if (oVal != null)
                     colValue = oVal.toString();
-                Object o = TransformationHelper.resolveValue(colValue, column.getSource(), column, row);
+                Object o = TransformationHelper.resolveValue(colValue, sourceColumn, column, row);
                 if (o == null)
-                    message = "Null was calculated";
+                    messages.add("Null was calculated");
+                if ( !Transformer.isValidForEs(sourceColumn)){
+                    messages.add(sourceColumn + " is not valid for ElasticSearch");
+                }
             } catch (Exception e){
-                message = e.getMessage();
+                messages.add(e.getMessage());
             }
-            results.add(new ColumnValidationResult(column.getSource(), column, message));
+//            if ( Transformer.isValidForEs(column.getSource()))
+            results.add(new ColumnValidationResult(source, model.getContent().get(source), messages));
 
         }
         return results;

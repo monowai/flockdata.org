@@ -96,7 +96,7 @@ public abstract class MvcBase {
     public static String harry = "harry";
     public static String mike_admin = "mike";
     public static String sally_admin = "sally"; // admin in a different company
-
+    ResultMatcher OK = MockMvcResultMatchers.status().isOk();
     static Logger logger = LoggerFactory.getLogger(MvcBase.class);
 
     @Rule

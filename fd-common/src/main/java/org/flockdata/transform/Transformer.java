@@ -144,6 +144,7 @@ public class Transformer {
                     } else if (existingColumn == null ) {
                         ColumnDefinition columnDefinition = new ColumnDefinition();
                         columnDefinition.setDataType(thisDataType);
+                        columnDefinition.setTarget(getValidTarget(column));
                         result.put(column, columnDefinition);
                     }
                 }
@@ -152,6 +153,18 @@ public class Transformer {
         }
 
         return result;
+    }
+
+    public static boolean isValidForEs(String colName){
+        return !colName.contains(".");
+    }
+
+    private static String getValidTarget(String column) {
+        if ( column== null || column.length()==0)
+            return null;
+        if ( !isValidForEs(column)) // ElasticSearch does not accept columns with a period
+            return column.replace(".", "");
+        return null; // Null nothing to rename
     }
 
     public static Map<String, Object> convertToMap(String[] headerRow, String[] line) {

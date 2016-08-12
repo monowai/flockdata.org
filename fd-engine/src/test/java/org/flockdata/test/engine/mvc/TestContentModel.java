@@ -48,6 +48,7 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
  * Created by mike on 14/04/16.
  */
 public class TestContentModel extends MvcBase {
+
     @Test
     public void testSaveRetrieveModel() throws Exception {
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
@@ -213,6 +214,88 @@ public class TestContentModel extends MvcBase {
     }
 
     @Test
+    public void create_DefaultProfileIllegalColNames() throws Exception {
+        makeDataAccessProfile("create_DefaultProfileIllegalColNames", "mike");
+
+        Reader reader = FileProcessor.getReader("/data/test-illegal-columns.csv");
+        CSVReader csvReader = new CSVReader(reader);
+        List<String[]> data = csvReader.readAll();
+
+        int count = 0;
+        String[] headers=null;
+        String[] dataRow=null;
+        for (String[] strings : data) {
+            if ( count ==0) {
+                headers = strings;
+            } else
+                dataRow = strings;
+            count++;
+        }
+        Map<String,Object> dataMap = Transformer.convertToMap(headers, dataRow);;
+        assertFalse(dataMap.isEmpty());
+        ContentValidationRequest validationRequest = new ContentValidationRequest(dataMap);
+        String json = JsonUtils.toJson(validationRequest);
+        assertNotNull(json);
+        ContentValidationRequest valRequest = JsonUtils.toObject(json.getBytes(), ContentValidationRequest.class);
+        assertNotNull(valRequest);
+
+        ContentModel model = getDefaultContentModel(mike(), valRequest);
+        model.setDocumentType( new DocumentTypeInputBean("Entity"));
+        assertNotNull(model);
+        assertNotNull(model.getContent());
+
+        ColumnDefinition columnDefinition = model.getContent().get("drumID.key");
+        assertEquals("Elastic does not accept columns with a period. FD should remove the character", "drumIDkey", columnDefinition.getTarget());
+    }
+    @Test
+    public void create_ContentValidationErrors() throws Exception {
+        makeDataAccessProfile("create_ContentValidationErrors", "mike");
+
+        Reader reader = FileProcessor.getReader("/data/test-illegal-columns.csv");
+        CSVReader csvReader = new CSVReader(reader);
+        List<String[]> data = csvReader.readAll();
+
+        int count = 0;
+        String[] headers=null;
+        String[] dataRow=null;
+        for (String[] strings : data) {
+            if ( count ==0) {
+                headers = strings;
+            } else
+                dataRow = strings;
+            count++;
+        }
+        Map<String,Object> dataMap = Transformer.convertToMap(headers, dataRow);;
+        assertFalse(dataMap.isEmpty());
+        ContentValidationRequest validationRequest = new ContentValidationRequest(dataMap);
+        String json = JsonUtils.toJson(validationRequest);
+        assertNotNull(json);
+        ContentValidationRequest valRequest = JsonUtils.toObject(json.getBytes(), ContentValidationRequest.class);
+        assertNotNull(valRequest);
+
+        ContentModel model = getDefaultContentModel(mike(), valRequest);
+        assertNotNull(model);
+        assertNotNull(model.getContent());
+        model.setDocumentType( new DocumentTypeInputBean("Entity"));
+        model.setTagModel(false);
+
+        ColumnDefinition columnDefinition = model.getContent().get("drumID.key");
+        columnDefinition.setTarget("drumID.key"); // We want to pickup content validation error
+        ContentValidationResults valResults = validateContentModel(mike(), validationRequest.setContentModel(model), OK);
+        assertNotNull(valResults);
+        assertEquals("One data row, one result", 1, valResults.getResults().size());
+        assertNotNull ( valResults);
+        Collection<ColumnValidationResult> columnValidationResults = valResults.getResults().get(0);
+        for (ColumnValidationResult columnValidationResult : columnValidationResults) {
+            if ( columnValidationResult.getSourceColumn().equals("drumID.key")){
+                assertEquals("Expected a validation error message", 1, columnValidationResult.getMessages().size());
+            } else
+                assertEquals("Didn't expect a validation error message", 0, columnValidationResult.getMessages().size());
+        }
+
+    }
+
+    @Test
     public void delete_TagProfile() throws Exception {
         makeDataAccessProfile("delete_TagProfile", "mike");
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-tag-model.json");
@@ -223,7 +306,8 @@ public class TestContentModel extends MvcBase {
 
         assertNotNull(result);
 
-        ContentModelResult keyResult = findContentModelByKey(mike(), result.getKey(),  MockMvcResultMatchers.status().isOk());
+        OK = MockMvcResultMatchers.status().isOk();
+        ContentModelResult keyResult = findContentModelByKey(mike(), result.getKey(), OK);
         assertNotNull (keyResult);
 
         Collection<ContentModelResult> contentModels = findContentModels(mike(), MockMvcResultMatchers.status().isOk());

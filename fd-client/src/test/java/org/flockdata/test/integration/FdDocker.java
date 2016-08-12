@@ -17,6 +17,7 @@
 package org.flockdata.test.integration;
 
 import org.junit.rules.ExternalResource;
+import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.DockerComposeContainer;
@@ -50,19 +51,19 @@ public class FdDocker extends ExternalResource {
 
     @Override
     protected void before() throws Throwable {
-        logger.info("Starting FD full docker stack");
         if (stack != null)
-            stack.start();
+            stack.starting(Description.EMPTY);
     }
 
     @Override
     protected void after() {
-        logger.info("Stopping FD full docker stack");
+        logger.debug("Stopping FD full docker stack");
         if (stack != null)
-            stack.stop();
+            stack.finished(Description.EMPTY);
     }
 
     static DockerComposeContainer getStack() {
+        logger.debug("Stack started from FdDocker = {}", stack!=null);
         return stack;
     }
 }

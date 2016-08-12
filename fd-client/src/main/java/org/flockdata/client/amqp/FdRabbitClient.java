@@ -81,68 +81,7 @@ public class FdRabbitClient {
     private void verifyConnection() {
 
         try {
-            if (connectionFactory == null ) {
-                logger.debug("Initializing Rabbit connection");
-                entityProps = null;
-                tagProps = null;
-
-                // Had issues with injecting amqpRabbitConfig.connectionFactory into this class
-                // Connection was randomly closed in integration tests
-
-                connectionFactory = new ConnectionFactory();
-                connectionFactory.setAutomaticRecoveryEnabled(true);
-                connectionFactory.setHost(rabbitConfig.getHost());
-                connectionFactory.setPort(rabbitConfig.getPort());
-                connectionFactory.setPassword(rabbitConfig.getPass());
-                connectionFactory.setUsername(rabbitConfig.getUser());
-                connectionFactory.setExceptionHandler(new ExceptionHandler() {
-                    @Override
-                    public void handleUnexpectedConnectionDriverException(Connection conn, Throwable exception) {
-                        logger.info(exception.getMessage());
-                    }
-
-                    @Override
-                    public void handleReturnListenerException(Channel channel, Throwable exception) {
-                        logger.info(exception.getMessage());
-                    }
-
-                    @Override
-                    public void handleFlowListenerException(Channel channel, Throwable exception) {
-                        logger.info(exception.getMessage());
-                    }
-
-                    @Override
-                    public void handleConfirmListenerException(Channel channel, Throwable exception) {
-                        logger.info(exception.getMessage());
-                    }
-
-                    @Override
-                    public void handleBlockedListenerException(Connection connection, Throwable exception) {
-                        logger.info(exception.getMessage());
-                    }
-
-                    @Override
-                    public void handleConsumerException(Channel channel, Throwable exception, Consumer consumer, String consumerTag, String methodName) {
-                        logger.info(exception.getMessage());
-                    }
-
-                    @Override
-                    public void handleConnectionRecoveryException(Connection conn, Throwable exception) {
-
-                    }
-
-                    @Override
-                    public void handleChannelRecoveryException(Channel ch, Throwable exception) {
-                        logger.info(exception.getMessage());
-                    }
-
-                    @Override
-                    public void handleTopologyRecoveryException(Connection conn, Channel ch, TopologyRecoveryException exception) {
-                        logger.info(exception.getMessage());
-                    }
-                });
-                openConnection();
-            }
+            initConnectionFactory();
 
             if ( (trackChannel ==null ||connection== null) || ! (connection.isOpen() && trackChannel.isOpen())){
                 openConnection();
@@ -153,7 +92,74 @@ public class FdRabbitClient {
 
     }
 
+    private void initConnectionFactory() throws IOException, TimeoutException {
+        if (connectionFactory == null ) {
+            logger.debug("Initializing Rabbit connection");
+            entityProps = null;
+            tagProps = null;
+
+            // Had issues with injecting amqpRabbitConfig.connectionFactory into this class
+            // Connection was randomly closed in integration tests
+
+            connectionFactory = new ConnectionFactory();
+            connectionFactory.setAutomaticRecoveryEnabled(true);
+            connectionFactory.setHost(rabbitConfig.getHost());
+            connectionFactory.setPort(rabbitConfig.getPort());
+            connectionFactory.setPassword(rabbitConfig.getPass());
+            connectionFactory.setUsername(rabbitConfig.getUser());
+            connectionFactory.setExceptionHandler(new ExceptionHandler() {
+                @Override
+                public void handleUnexpectedConnectionDriverException(Connection conn, Throwable exception) {
+                    logger.info(exception.getMessage());
+                }
+
+                @Override
+                public void handleReturnListenerException(Channel channel, Throwable exception) {
+                    logger.info(exception.getMessage());
+                }
+
+                @Override
+                public void handleFlowListenerException(Channel channel, Throwable exception) {
+                    logger.info(exception.getMessage());
+                }
+
+                @Override
+                public void handleConfirmListenerException(Channel channel, Throwable exception) {
+                    logger.info(exception.getMessage());
+                }
+
+                @Override
+                public void handleBlockedListenerException(Connection connection, Throwable exception) {
+                    logger.info(exception.getMessage());
+                }
+
+                @Override
+                public void handleConsumerException(Channel channel, Throwable exception, Consumer consumer, String consumerTag, String methodName) {
+                    logger.info(exception.getMessage());
+                }
+
+                @Override
+                public void handleConnectionRecoveryException(Connection conn, Throwable exception) {
+
+                }
+
+                @Override
+                public void handleChannelRecoveryException(Channel ch, Throwable exception) {
+                    logger.info(exception.getMessage());
+                }
+
+                @Override
+                public void handleTopologyRecoveryException(Connection conn, Channel ch, TopologyRecoveryException exception) {
+                    logger.info(exception.getMessage());
+                }
+            });
+        }
+    }
+
     private void openConnection() throws IOException, TimeoutException {
+        if ( connectionFactory == null )
+            initConnectionFactory();
+
         connection = connectionFactory.newConnection();
         connection.addShutdownListener(cause -> {
             Method reason = cause.getReason();

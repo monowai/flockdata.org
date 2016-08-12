@@ -33,6 +33,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Map;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -50,8 +51,8 @@ public class TestFdQueries extends ESBase{
     public void query_EndPoints() throws Exception {
         Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
 
-        String fortress = "epFortress";
-        String company = "epCompany";
+        String fortress = "query_EndPoints";
+        String company = "query_EndPoints";
         String doc = "epDocType";
         String user = "mike";
 
@@ -70,35 +71,61 @@ public class TestFdQueries extends ESBase{
         assertNotNull(searchResult);
         assertNotNull(searchResult.getSearchKey());
 
-        QueryParams qp = new QueryParams(entity.getSegment());
-        qp.setCompany(company);
-        qp.setSearchText("*");
+        QueryParams queryParams = new QueryParams(entity.getSegment());
+        queryParams.setCompany(company);
+        queryParams.setSearchText("*");
         // Sanity check - there is only one document in the index
-        EsSearchResult queryResult = queryServiceEs.doFdViewSearch(qp);
+        EsSearchResult queryResult = queryServiceEs.doFdViewSearch(queryParams);
         assertEquals(1, queryResult.getResults().size());
         assertEquals(entity.getKey(), queryResult.getResults().iterator().next().getKey());
-        EntityKeyResults metaResults = queryServiceEs.doKeyQuery(qp);
+        EntityKeyResults metaResults = queryServiceEs.doKeyQuery(queryParams);
         assertEquals(1, metaResults.getResults().size());
         assertEquals(entity.getKey(), metaResults.getResults().iterator().next());
 
         // Find with just a fortress
-        qp = new QueryParams(entity.getSegment());
-        qp.setSearchText("description");
-        queryResult = queryServiceEs.doFdViewSearch(qp);
+        queryParams = new QueryParams(entity.getSegment());
+        queryParams.setSearchText("description");
+        queryResult = queryServiceEs.doFdViewSearch(queryParams);
         assertEquals(1, queryResult.getResults().size());
         assertEquals(entity.getKey(), queryResult.getResults().iterator().next().getKey());
 
-        qp = new QueryParams().setCompany(company.toLowerCase());
-        qp.setSearchText("description");
-        queryResult = queryServiceEs.doFdViewSearch(qp);
+        queryParams = new QueryParams().setCompany(company.toLowerCase());
+        queryParams.setSearchText("description");
+        queryResult = queryServiceEs.doFdViewSearch(queryParams);
         assertEquals(1, queryResult.getResults().size());
         assertEquals(entity.getKey(), queryResult.getResults().iterator().next().getKey());
 
-        qp = new QueryParams(entity.getSegment());
-        qp.setSearchText("-description"); // Ignore description
-        queryResult = queryServiceEs.doFdViewSearch(qp);
+        queryParams = new QueryParams(entity.getSegment());
+        queryParams.setSearchText("-description"); // Ignore description
+        queryResult = queryServiceEs.doFdViewSearch(queryParams);
         assertEquals(0, queryResult.getResults().size());
 
+    }
+    @Test
+    public void query_EsPassthrough() throws Exception {
+        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
 
+        String fortress = "query_EsPassthrough";
+        String company = "query_EsPassthrough";
+        String doc = "epDocType";
+        String user = "mike";
+
+        Entity entity = getEntity(company, fortress, user, doc);
+        deleteEsIndex(entity);
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        change.setDescription("Test Description");
+        change.setData(json);
+
+        SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
+        SearchResult searchResult = searchResults.getSearchResults().iterator().next();
+        Thread.sleep(2000);
+        assertNotNull(searchResult);
+        assertNotNull(searchResult.getSearchKey());
+
+        QueryParams queryParams = new QueryParams(entity.getSegment());
+        queryParams.setCompany(company);
+        String results = queryServiceEs.doSearch(queryParams);
+        assertNotNull("Hmm, not defaulting the query to a match_all?", results);
+        assertTrue(results.contains(fortress));
     }
 }

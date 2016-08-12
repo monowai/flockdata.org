@@ -81,4 +81,9 @@ public class ContentValidationRequest {
         }
         existingMessages.add(message);
     }
+
+    public ContentValidationRequest setContentModel(ContentModel contentModel) {
+        this.contentModel = contentModel;
+        return this;
+    }
 }

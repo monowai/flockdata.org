@@ -22,6 +22,8 @@ package org.flockdata.profile;
 
 import org.flockdata.transform.ColumnDefinition;
 
+import java.util.Collection;
+
 /**
  * Encapsulates the result of a single validation run
  * <p>
@@ -30,17 +32,17 @@ import org.flockdata.transform.ColumnDefinition;
 public class ColumnValidationResult {
     private String sourceColumn;
     private ColumnDefinition column;
-    private String message;
+    private Collection<String> messages;
 
     public ColumnValidationResult() {
 
     }
 
-    public ColumnValidationResult(String sourceColumn, ColumnDefinition column, String message) {
+    public ColumnValidationResult(String sourceColumn, ColumnDefinition column, Collection<String> messages) {
         this();
         this.sourceColumn = sourceColumn;
         this.column = column;
-        this.message = message;
+        this.messages = messages;
     }
 
     public ColumnDefinition getColumn() {
@@ -48,8 +50,16 @@ public class ColumnValidationResult {
     }
 
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setMessage(Collection<String> messages) {
+        this.messages = messages;
+    }
+
+    public String getSourceColumn() {
+        return sourceColumn;
+    }
+
+    public Collection<String> getMessages() {
+        return messages;
     }
 
     @Override

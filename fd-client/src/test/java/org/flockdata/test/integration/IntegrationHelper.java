@@ -38,12 +38,13 @@ import java.util.Collection;
 import java.util.Objects;
 
 import static junit.framework.TestCase.assertNotNull;
-import static org.springframework.test.util.AssertionErrors.*;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 
 /**
  * Integration utils. Keeps generic functionality out of the IT class
- *
+ * <p>
  * Created by mike on 20/04/16.
  */
 @Service
@@ -55,7 +56,8 @@ class IntegrationHelper {
     static final String ADMIN_REGRESSION_PASS = "123";
     private static Logger logger = LoggerFactory.getLogger(IntegrationHelper.class);
 
-    @Autowired private FdTemplate fdTemplate;
+
+    private FdTemplate fdTemplate;
 
     @Value("${org.fd.test.sleep.short:1500}")
     private int shortSleep;
@@ -85,6 +87,12 @@ class IntegrationHelper {
     // If any one of FD's services fail to come up we can't perform integration testing
     private static boolean stackFailed = false;
 
+
+    @Autowired
+    void setFdTemplate(FdTemplate fdTemplate) {
+        this.fdTemplate = fdTemplate;
+    }
+
     Collection<EntityInputBean> toCollection(EntityInputBean entityInputBean) throws IOException {
         Collection<EntityInputBean> entities = new ArrayList<>();
         entities.add(entityInputBean);
@@ -101,24 +109,24 @@ class IntegrationHelper {
         do {
             try {
                 ready = readyMatcher.isReady();
-                if ( !ready ) {
-                    if ( pb == null && count > 5 ) {
-                        pb = new ProgressBar(readyMatcher.getMessage(), attempts -5);
+                if (!ready) {
+                    if (pb == null && count > 5) {
+                        pb = new ProgressBar(readyMatcher.getMessage(), attempts - 5);
                         pb.start();
                     }
 
                     Thread.sleep(shortSleep);
-                    if ( pb!=null )
+                    if (pb != null)
                         pb.stepBy(1);
-                    count ++;
+                    count++;
 
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-        } while ( count < attempts && !ready);
-        if ( count == attempts ) {
+        } while (count < attempts && !ready);
+        if (count == attempts) {
             logger.error("Timeout of {} was hit before we got a result for {}", attempts, readyMatcher.getMessage());
         }
         watch.stop();
@@ -173,7 +181,6 @@ class IntegrationHelper {
     }
 
     /**
-     *
      * Executes and asserts that the command worked
      *
      * @param message assertion message
@@ -209,55 +216,68 @@ class IntegrationHelper {
         logger.info("{} is running. [{}]", service, pingCommand.getUrl());
     }
 
-    void waitForServices()  {
+    void waitForServices() {
 
         if (stackFailed)
             fail("Stack has failed to startup cleanly - test will fail");
         if (setupComplete)
             return; // This method is called before every @Test - it's expensive :o)
 
-        logger.info("Waiting for containers to come on-line. Service URL {}"+fdTemplate.getUrl());
+        logger.info("Waiting for containers to come on-line. Service URL {}" + fdTemplate.getUrl());
 
         logger.debug("Running with debug logging");
-        Ping enginePing = new Ping(fdTemplate, getEngine());
-        Ping storePing = new Ping(fdTemplate, getStore());
-        Ping searchPing = new Ping(fdTemplate, getSearch());
-
         logger.info("org.fd.test.sleep.short {}ms", shortSleep);
         logger.info("org.fd.test.sleep.long  {}ms", longSleep);
-        logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine());
-        logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch());
-        logger.info("FDStore  - {} - reachable @ {}", SERVICE_STORE, getStore());
-        logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, getIpAddress() + ":" + getEngineDebug());
-        logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_SEARCH, getIpAddress() + ":" + getSearchDebug());
-        logger.info("FDStore-Debug  - {} - reachable @ {}", DEBUG_STORE, getIpAddress() + ":" + getStoreDebug());
-        logger.info("Rabbit Admin on http://{}:{}", getIpAddress(), getRabbitAdmin());
         // ToDo: Bind in yourkit profiler and expose port
 
         logger.info("Initial wait for docker containers to startup. --org.fd.test.pause={} seconds ..... ", waitSeconds);
 
-        if (stack != null)
-            try {
-                waitForPong(enginePing, waitSeconds);
-                waitForService("fd-engine", enginePing, 30);
-                waitForService("fd-search", searchPing, 30);
-                waitForService("fd-store", storePing, 30);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage());
-                setupComplete=true;
-                stackFailed=true;
-            }
-
-
+        startServices();
         if (!stackFailed)
             logger.info("Stack is running");
         else
             logger.error("Failed to start the stack");
 
         setupComplete = true;
-        fdTemplate.resetRabbitClient(getIpAddress(), getRabbitPort());
+        fdTemplate.resetRabbitClient(getRabbit(), getRabbitPort());
 
-        fdTemplate.setServiceUrl(getEngine());
+    }
+
+    void startServices() {
+        if (stack != null)
+            try {
+                boolean gotPorts = false;
+                while (!gotPorts) {
+                    try {
+                        getEngine();
+                        getSearch();
+                        getStore();
+                        gotPorts = true;
+                    } catch (IllegalStateException e) {
+                        gotPorts = false;
+                        Thread.sleep(5000);
+                    }
+                }
+                Ping enginePing = new Ping(fdTemplate, getEngine());
+                Ping searchPing = new Ping(fdTemplate, getSearch());
+                Ping storePing = new Ping(fdTemplate, getStore());
+                logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine());
+                logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch());
+                logger.info("FDStore  - {} - reachable @ {}", SERVICE_STORE, getStore());
+//              logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, getEngine() + ":" + getEngineDebug());
+//              logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_SEARCH, getSearch() + ":" + getSearchDebug());
+//              logger.info("FDStore-Debug  - {} - reachable @ {}", DEBUG_STORE, getStore() + ":" + getStoreDebug());
+                logger.info("Rabbit Admin on http://{}:{}", getRabbit(), getRabbitAdmin());
+                waitForPong(enginePing, waitSeconds);
+                waitForService("fd-engine", enginePing, 30);
+                waitForService("fd-search", searchPing, 30);
+                waitForService("fd-store", storePing, 30);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage());
+                setupComplete = true;
+                stackFailed = true;
+            }
+
     }
 
     private static String getUrl() {
@@ -265,64 +285,79 @@ class IntegrationHelper {
         return "http://" + getIpAddress();
     }
 
-    private Integer getRabbitAdmin() {
+    private Integer getRabbitAdmin() throws IllegalStateException{
         return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("rabbit_1", 15672) : 15672);
     }
 
-    static String getEngine() {
+    String getRabbit() throws IllegalStateException{
+        if (stack != null)
+            return stack.getServiceHost("rabbit_1", 5672);
+        return getIpAddress();
+    }
+
+    static String getEngine() throws IllegalStateException{
         return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdengine_1", SERVICE_ENGINE) : SERVICE_ENGINE);
     }
 
-    private Integer getRabbitPort() {
+    private Integer getRabbitPort() throws IllegalStateException{
         return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("rabbit_1", 5672) : 5672);
     }
 
-    String getSearch() {
+    String getSearch() throws IllegalStateException{
         return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdsearch_1", SERVICE_SEARCH) : SERVICE_SEARCH);
     }
 
-    String getStore() {
+    String getStore() throws IllegalStateException{
         return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", SERVICE_STORE) : SERVICE_STORE);
     }
 
-    private Integer getEngineDebug() {
-        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdengine_1", DEBUG_ENGINE) : DEBUG_ENGINE);
-    }
+//    private Integer getEngineDebug() {
+//        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdengine_1", DEBUG_ENGINE) : DEBUG_ENGINE);
+//    }
+//
+//    private Integer getSearchDebug() {
+//        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdsearch_1", DEBUG_SEARCH) : DEBUG_SEARCH);
+//    }
+//
+//    private Integer getStoreDebug() {
+//        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", DEBUG_STORE) : DEBUG_STORE);
+//    }
 
-    private Integer getSearchDebug() {
-        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdsearch_1", DEBUG_SEARCH) : DEBUG_SEARCH);
-    }
 
-    private Integer getStoreDebug() {
-        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", DEBUG_STORE) : DEBUG_STORE);
-    }
+    //    private Integer getSearchDebug() {
+//        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdsearch_1", DEBUG_SEARCH) : DEBUG_SEARCH);
+//    }
+//
+//    private Integer getStoreDebug() {
+//        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", DEBUG_STORE) : DEBUG_STORE);
+//    }
 
     private static String getIpAddress() {
-        if ( stack == null )
+        if (stack == null)
             return "192.168.99.100";
         else
-            return FdDocker.getStack().getContainerIpAddress();
+            return stack.getServiceHost("fdengine_1", SERVICE_ENGINE);
 
         //return DockerClientFactory.instance().dockerHostIpAddress();
     }
 
     /**
      * Convenience function
-     *
+     * <p>
      * Logs in with the externally configured integration account and then
      * sets that user up as a DataAccessUser.
      *
-     * @param user  integration
-     * @param pass  123
-     * @return      suresult
+     * @param user integration
+     * @param pass 123
+     * @return suresult
      * @throws FlockException errors
      */
-    SystemUserResultBean login(String user, String pass) throws FlockException{
-        assertEquals("Only engine URL supports login", getEngine(), fdTemplate.getUrl());
+    SystemUserResultBean login(String user, String pass) throws FlockException {
+        fdTemplate.setServiceUrl(getEngine());
         SystemUserResultBean su = fdTemplate.login(user, pass);
-        assertNotNull ( String.format("failed to login as %s", user), su);
+        assertNotNull(String.format("failed to login as %s", user), su);
         su = fdTemplate.register(user, "TestCompany");
-        assertNotNull ( String.format("Failed to make the login %s a data access user",user), su.getApiKey());
+        assertNotNull(String.format("Failed to make the login %s a data access user", user), su.getApiKey());
         return su;
 
     }
@@ -332,7 +367,7 @@ class IntegrationHelper {
         Thread.sleep(longSleep);
     }
 
-    void shortSleep() throws InterruptedException{
+    void shortSleep() throws InterruptedException {
         Thread.sleep(shortSleep);
     }
 

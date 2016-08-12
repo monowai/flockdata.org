@@ -47,7 +47,7 @@ public class ColumnDefinition implements GeoDefinition {
     private String code;   // Evaluate and setCode()
     private String source; // source property to read from
     private String keyPrefix; // Optional value to prefix a code with
-    private String target; // source property to write source to (rename the column)
+    private String target; // New name for the source - null by default
     private String dateFormat =null; // Java valid date format
     private String timeZone = null; // To use for dates
 
@@ -423,6 +423,10 @@ public class ColumnDefinition implements GeoDefinition {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
     @Override

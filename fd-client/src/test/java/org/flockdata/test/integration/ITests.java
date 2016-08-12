@@ -52,7 +52,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import static junit.framework.TestCase.*;
-import static org.flockdata.test.integration.IntegrationHelper.*;
+import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_PASS;
+import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_USER;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -125,7 +126,6 @@ public class ITests {
 
     @Before
     public void setupServices() {
-        clientConfiguration.setServiceUrl(getEngine());
         integrationHelper.waitForServices();
     }
 
@@ -740,6 +740,36 @@ public class ITests {
 
     }
 
+//    @Test
+//    public void esPassThroughWithNoQuery() throws Exception {
+//        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+//        assertNotNull(login);
+//
+//        EntityInputBean entityInputBean = new EntityInputBean()
+//                .setFortress(new FortressInputBean("esPassthroughWithNoQuery")
+//                        .setSearchEnabled(true))
+//                .setCode("Katerina Neumannová")
+//                .setDescription("Katerina Neumannová")
+//                .setDocumentType(new DocumentTypeInputBean("entityamqp"))
+//                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")));
+//
+//        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
+//        EntityGet entityGet = new EntityGet(clientConfiguration, fdTemplate, entityInputBean);
+//        integrationHelper.waitForEntityKey(logger, "esPassthroughWithNoQuery", entityGet);
+//
+//        EntityBean entityResult = entityGet.result();
+//        assertNotNull(entityResult);
+//        assertNotNull(entityResult.getKey());
+//        integrationHelper.waitForSearch(logger, "esPassthroughWithNoQuery", entityGet, 1);
+//        assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityGet.result().getSearch());
+//
+//        QueryParams qp = new QueryParams();
+//        qp.setCompany(login.getCompanyName());
+//        qp.setSearchText("*");
+//        // Searching with no parameters
+//        Map<String, Object> searchResults = fdTemplate.search(qp);
+//        assertNotNull(searchResults);
+//    }
 
     @Test
     public void persistEntityRelationshipModel() throws Exception {
