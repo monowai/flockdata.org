@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * Functional service point for interactions between fd-engine and fd-store
@@ -93,10 +94,15 @@ public class FdStorageProxy implements StorageProxy {
         if ( logRequest.getStore() == Store.NONE){
             contentResult = esRepo.read(index,type,key);
         } else {
-            contentResult = readGateway.read(logRequest.getStore(),
-                    index,
-                    type,
-                    key);
+            try {
+                contentResult = readGateway.read(logRequest.getStore(),
+                        index,
+                        type,
+                        key);
+            } catch (HttpClientErrorException nfe){
+                logger.debug("Request caused error - {} - for {}/{}/{} was not found", nfe.getMessage(), index,type,key);
+                return null;
+            }
         }
 
         return contentResult;
