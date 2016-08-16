@@ -123,7 +123,7 @@ public class TagEP {
         Tag source = tagService.findTag(company, label, null , sourceTag);
         if (source == null)
             throw new NotFoundException(String.format("Unable to locate the tag {%s}/{%s}", label, sourceTag));
-        mediationFacade.createAlias(company, label, source, akaValue);
+        tagService.createAlias(company, source, label, akaValue);
 
     }
 

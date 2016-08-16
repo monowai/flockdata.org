@@ -52,6 +52,9 @@ public class JsonUtils {
         return mapper.readValue(bytes, clazz);
     }
 
+    public static <T> T  toObject(String json, Class<T>  clazz) throws IOException{
+        return toObject(json.getBytes(), clazz );
+    }
 
     public static <T> Collection<T> toCollection(String json, Class<T> clazz) throws IOException {
         if (json == null || json.equals(""))

@@ -30,7 +30,6 @@ import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.FdIoInterface;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.dao.ContentModelDaoNeo;
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.*;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
@@ -36,10 +37,10 @@ import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.TransformationHelper;
@@ -129,7 +130,7 @@ public class ContentModelServiceNeo implements ContentModelService {
         Model existingModel = contentModelDao.findTagProfile(company, profileCode);
         try {
             if (existingModel == null) {
-                EntityInputBean entityInputBean = new EntityInputBean(internalFortress, "TagModel");
+                EntityInputBean entityInputBean = new EntityInputBean(internalFortress, new DocumentTypeInputBean("TagModel"));
                 entityInputBean.setCode(code);
                 entityInputBean.setName(contentModel.getName());
                 ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
@@ -186,7 +187,7 @@ public class ContentModelServiceNeo implements ContentModelService {
         Model model = contentModelDao.find(fortress, documentType);
         try {
             if (model == null) {
-                EntityInputBean entityInputBean = new EntityInputBean(internalFortress, "FdContentModel");
+                EntityInputBean entityInputBean = new EntityInputBean(internalFortress, new DocumentTypeInputBean("FdContentModel"));
                 entityInputBean.setName(contentModel.getName());
                 ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
                 Map<String, Object> map = JsonUtils.convertToMap(contentModel);

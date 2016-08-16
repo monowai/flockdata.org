@@ -43,10 +43,6 @@ import static junit.framework.TestCase.assertEquals;
 public class TestEntitySearch extends EngineBase {
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
-    @org.junit.Before
-    public void setup(){
-        engineConfig.setDuplicateRegistration(true);
-    }
 
     @Test
     public void count_SearchDocsFromTrackRequestForNew() throws Exception {

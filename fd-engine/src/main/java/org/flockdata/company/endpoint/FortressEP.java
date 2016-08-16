@@ -20,8 +20,8 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -29,13 +29,10 @@ import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
-import org.flockdata.query.EdgeResults;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
-import org.flockdata.registration.service.CompanyService;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
-import org.flockdata.track.service.FortressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -55,17 +52,15 @@ import java.util.stream.Collectors;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/fortress")
 public class FortressEP {
 
-    @Autowired
-    CompanyService companyService;
+    private final ConceptService conceptService;
+
+    private final FortressService fortressService;
 
     @Autowired
-    ConceptService conceptService;
-
-    @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    SecurityHelper securityHelper;
+    public FortressEP(ConceptService conceptService, FortressService fortressService) {
+        this.conceptService = conceptService;
+        this.fortressService = fortressService;
+    }
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
     public Collection<FortressResultBean> findFortresses(HttpServletRequest request) throws FlockException {
@@ -143,14 +138,6 @@ public class FortressEP {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress f = fortressService.findByCode(company, code);
         return fortressService.getSegments(f);
-    }
-
-    @RequestMapping(value = "/{fortress}/structure", method = RequestMethod.GET)
-    public EdgeResults getContentStructure
-            (@PathVariable("fortress") String code, HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
-        Fortress f = fortressService.findByCode(company, code);
-        return fortressService.getContentStructure(f);
     }
 
     /**

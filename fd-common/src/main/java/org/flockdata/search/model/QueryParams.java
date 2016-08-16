@@ -23,7 +23,7 @@ package org.flockdata.search.model;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
-import org.flockdata.query.MatrixInputBean;
+import org.flockdata.track.bean.MatrixInputBean;
 
 import java.util.ArrayList;
 import java.util.Arrays;

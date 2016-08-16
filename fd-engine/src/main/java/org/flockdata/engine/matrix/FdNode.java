@@ -18,33 +18,59 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.query;
+package org.flockdata.engine.matrix;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.flockdata.helper.TagHelper;
+import org.neo4j.graphdb.Node;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Represents a node structure used by Cytoscape to visualise graphs
+ *
  * Created by mike on 2/05/16.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FdNode {
-    Map<String,Object>data = new HashMap<>();
-    public FdNode(){}
+    Map<String, Object> data = new HashMap<>(); // Cytoscape convention is to put node properties in a data block
 
-    public FdNode(String key, Object value) {
-        data.put("id", key);
-        data.put("name", value);
+    FdNode() {
     }
 
-    public Map<String,Object>getData(){
+    public FdNode(long id) {
+        this();
+        data.put("id", id) ;
+    }
+
+    public FdNode(Node node) {
+        this(node.getId());
+        String nameValue;
+        if (node.hasProperty("name")) {
+            nameValue = node.getProperty("name").toString();
+            if (node.hasProperty("code")) // Concept nodes don't have a code property :/
+                data.put("code", node.getProperty("code"));
+        } else
+            nameValue = node.getProperty("code").toString();
+        data.put("name", nameValue);
+        data.put("label", TagHelper.getLabel(node.getLabels()));
+    }
+
+    public Map<String, Object> getData() {
         return data;
     }
 
-    //    @JsonIgnore
     public String getKey() {
         return data.get("id").toString();
     }
 
-    //    @JsonIgnore
+    public String getLabel() {
+        if ( !data.containsKey("label"))
+            return null;
+        return data.get("label").toString();
+    }
+
     public Object getName() {
         return data.get("name");
     }
@@ -57,14 +83,14 @@ public class FdNode {
         FdNode fdNode = (FdNode) o;
 
         if (getKey() != null ? !getKey().equals(fdNode.getKey()) : fdNode.getKey() != null) return false;
-        return !(getName()!= null ? !getName().equals(fdNode.getName()) : fdNode.getName() != null);
+        return !(getLabel() != null ? !getLabel().equals(fdNode.getLabel()) : fdNode.getLabel() != null);
 
     }
 
     @Override
     public int hashCode() {
         int result = getKey() != null ? getKey().hashCode() : 0;
-        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
+        result = 31 * result + (getLabel() != null ? getLabel().hashCode() : 0);
         return result;
     }
 
@@ -72,7 +98,8 @@ public class FdNode {
     public String toString() {
         return "FdNode{" +
                 "key='" + getKey() + '\'' +
-                ", value=" + getName() +
+                ", name=" + getName() +
+                ", label=" + getLabel() +
                 '}';
     }
 }

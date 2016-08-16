@@ -27,9 +27,9 @@ import org.flockdata.engine.integration.search.DeleteIndex;
 import org.flockdata.engine.integration.search.EntitySearchWriter;
 import org.flockdata.engine.integration.search.EntitySearchWriter.EntitySearchWriterGateway;
 import org.flockdata.engine.integration.search.FdViewQuery.FdViewQueryGateway;
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.*;
-import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.AdminRequest;
 import org.flockdata.search.model.*;
@@ -41,7 +41,6 @@ import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.FortressService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -96,7 +95,6 @@ public class SearchServiceFacade {
 
     private FdViewQueryGateway fdViewQueryGateway;
 
-    private ContentModelService contentModelService;
 
     @Autowired
     public SearchServiceFacade(FortressService fortressService, EntityService entityService, StorageProxy storageProxy,
@@ -127,11 +125,6 @@ public class SearchServiceFacade {
     @Autowired(required = false)
     private void setFdViewQueryGateway(FdViewQueryGateway fdViewQueryGateway) {
         this.fdViewQueryGateway = fdViewQueryGateway;
-    }
-
-    @Autowired
-    private void setContentModelService(ContentModelService contentModelService) {
-        this.contentModelService = contentModelService;
     }
 
     public void makeChangeSearchable(SearchChange searchChange) {

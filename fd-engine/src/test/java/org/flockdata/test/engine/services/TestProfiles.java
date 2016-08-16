@@ -91,7 +91,7 @@ public class TestProfiles extends EngineBase {
     public void serverSideModelAndTagsLinkToExistingDocumentType() throws Exception {
         SystemUser su = registerSystemUser("serverSideModelAndTagsLink", mike_admin);
 
-        engineConfig.setConceptsEnabled("true");
+        engineConfig.setConceptsEnabled(true);
         ContentModel simpleModel = ContentModelDeserializer.getContentModel("/models/test-sflow.json");
         Collection<ContentModel> contentModels = new ArrayList<>();
         contentModels.add(simpleModel);

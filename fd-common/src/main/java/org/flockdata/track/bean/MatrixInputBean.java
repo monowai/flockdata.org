@@ -18,7 +18,7 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.query;
+package org.flockdata.track.bean;
 
 import java.util.ArrayList;
 

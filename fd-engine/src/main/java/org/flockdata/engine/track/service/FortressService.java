@@ -18,17 +18,17 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.track.service;
+package org.flockdata.engine.track.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
-import org.flockdata.query.EdgeResults;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.service.EntityService;
 
 import java.util.Collection;
 import java.util.List;
@@ -84,8 +84,6 @@ public interface FortressService {
     String getGeoQuery(Entity entity);
 
     EntityService.TAG_STRUCTURE getTagStructureFinder(Entity entity);
-
-    EdgeResults getContentStructure(Fortress fortress);
 
     FortressSegment getDefaultSegment (Fortress fortress);
 

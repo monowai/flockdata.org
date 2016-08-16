@@ -21,7 +21,10 @@
 package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.*;
+import org.flockdata.model.Company;
+import org.flockdata.model.Entity;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.*;
@@ -77,9 +80,6 @@ public interface MediationFacade {
 
 
     void mergeTags(Company company, Long source, Long target);
-
-    void createAlias(Company company, String label, Tag source, String akaValue);
-
 
     Map<String,Object> getLogContent(Entity entity, Long logId);
 

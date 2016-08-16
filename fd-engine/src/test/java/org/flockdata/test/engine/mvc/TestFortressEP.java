@@ -26,6 +26,7 @@ import org.flockdata.model.FortressSegment;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Assert;
 import org.junit.Test;
@@ -68,7 +69,7 @@ public class TestFortressEP extends MvcBase {
     public void get_FortressSegmentsForDocumentType() throws Exception {
 
         FortressResultBean fortress = makeFortress(mike(), "make_DocSegmentDocTypes");
-        EntityInputBean eib = new EntityInputBean(fortress.getName(), "segTestDoc")
+        EntityInputBean eib = new EntityInputBean(fortress, new DocumentTypeInputBean("segTestDoc"))
                 .setSegment("2014");
         track(mike(),eib );
 
@@ -95,7 +96,7 @@ public class TestFortressEP extends MvcBase {
         FortressResultBean fortressA = makeFortress(mike(), "multi_FortA");
         FortressResultBean fortressB = makeFortress(mike(), "multi_FortB");
         String docType = "sameDocType";
-        EntityInputBean eib = new EntityInputBean(fortressA.getName(), docType)
+        EntityInputBean eib = new EntityInputBean(fortressA, new DocumentTypeInputBean(docType))
                 .setSegment("2014");
         track(mike(),eib );
 
@@ -105,7 +106,7 @@ public class TestFortressEP extends MvcBase {
         eib.setSegment("2016");
         track(mike(),eib );
 
-        eib = new EntityInputBean(fortressB.getName(), docType)
+        eib = new EntityInputBean(fortressB, new DocumentTypeInputBean(docType))
                 .setSegment("2014");
         track(mike(),eib );
 

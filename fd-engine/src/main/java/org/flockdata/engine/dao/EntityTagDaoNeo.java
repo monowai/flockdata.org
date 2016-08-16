@@ -22,11 +22,11 @@ package org.flockdata.engine.dao;
 
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.geography.dao.GeoSupportNeo;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
-import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;

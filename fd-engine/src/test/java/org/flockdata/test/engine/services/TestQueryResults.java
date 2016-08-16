@@ -20,14 +20,14 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.query.MatrixInputBean;
-import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.MatrixInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

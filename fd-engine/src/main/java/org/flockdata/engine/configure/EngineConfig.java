@@ -86,7 +86,6 @@ public class EngineConfig implements PlatformConfig {
     private boolean conceptsEnabled = true;
     @Value("${org.fd.engine.system.constraints:true}")
     private boolean systemConstraints = true;
-    private boolean duplicateRegistration;
     private boolean testMode;
 
     @Value("${org.fd.engine.fortress.search:true}")
@@ -151,9 +150,11 @@ public class EngineConfig implements PlatformConfig {
      * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
      */
     @Override
-    @Value("${org.fd.engine.system.concepts:@null}")
-    public void setConceptsEnabled(String conceptsEnabled) {
-        this.conceptsEnabled = "@null".equals(conceptsEnabled) || Boolean.parseBoolean(conceptsEnabled);
+    @Value("${org.fd.engine.system.concepts:true}")
+    public Boolean setConceptsEnabled(boolean conceptsEnabled) {
+        Boolean previous = conceptsEnabled;
+        this.conceptsEnabled =conceptsEnabled;
+        return previous  ;
     }
 
     public Store setStore(Store store) {
@@ -246,16 +247,9 @@ public class EngineConfig implements PlatformConfig {
         this.multiTenanted = multiTenanted;
     }
 
-
     @Override
     public boolean isConceptsEnabled() {
         return conceptsEnabled;
-    }
-
-
-    @Override
-    public void setDuplicateRegistration(boolean duplicateRegistration) {
-        this.duplicateRegistration = duplicateRegistration;
     }
 
     public boolean isTestMode() {
@@ -267,7 +261,6 @@ public class EngineConfig implements PlatformConfig {
     public String authPing() {
         return "pong";
     }
-
 
     @Override
     public void setTestMode(boolean testMode) {

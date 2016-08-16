@@ -34,7 +34,6 @@ import org.flockdata.registration.TagResultBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.service.BatchService;
-import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.TagService;
 import org.flockdata.transform.tag.TagPayloadTransformer;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -22,13 +22,17 @@ package org.flockdata.engine.query.endpoint;
 
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.meta.service.TxService;
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
 import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.service.*;
+import org.flockdata.track.service.EntityService;
+import org.flockdata.track.service.EntityTagService;
+import org.flockdata.track.service.LogService;
+import org.flockdata.track.service.MediationFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

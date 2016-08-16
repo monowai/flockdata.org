@@ -35,7 +35,6 @@ import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,11 +60,6 @@ import static org.junit.Assert.*;
 public class TestEntityTrack extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
-
-    @Before
-    public void setup() {
-        engineConfig.setDuplicateRegistration(true);
-    }
 
     /**
      * Most basic functionality. An entity is created and can be found
@@ -121,7 +115,7 @@ public class TestEntityTrack extends EngineBase {
         cleanUpGraph();
         SystemUser su = registerSystemUser("docTypeFromInput", mike_admin);
         assertNotNull(su);
-        engineConfig.setConceptsEnabled("false");
+        engineConfig.setConceptsEnabled(true);
 
         FortressInputBean fib = new FortressInputBean("docTypeFromInput", true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
@@ -1246,12 +1240,12 @@ public class TestEntityTrack extends EngineBase {
         String name = "Space Fortress";
 
         Collection<EntityInputBean> entities = new ArrayList<>();
-        EntityInputBean entity = new EntityInputBean(name, "Census");
+        EntityInputBean entity = new EntityInputBean(new FortressInputBean(name), new DocumentTypeInputBean("Census"));
         entity.setDescription("Mt. Albert 2013 Maori");
         entity.setArchiveTags(false);
         entities.add(entity);
 
-        entity = new EntityInputBean(name, "Census");
+        entity = new EntityInputBean(new FortressInputBean(name), new DocumentTypeInputBean("Census"));
         entity.setDescription("Mt. Albert 2013 Asian");
         entity.setArchiveTags(false);
         entities.add(entity);
@@ -1271,14 +1265,14 @@ public class TestEntityTrack extends EngineBase {
 
         Collection<EntityInputBean> entities = new ArrayList<>();
 
-        EntityInputBean entity = new EntityInputBean(name, "Census")
+        EntityInputBean entity = new EntityInputBean(new FortressInputBean(name), new DocumentTypeInputBean("Census"))
                 .setDescription("Mt. Albert 2013 Maori")
                 .setArchiveTags(false)
                 .setSegment("Segment One");
 
         entities.add(entity);
 
-        entity = new EntityInputBean(name, "Census")
+        entity = new EntityInputBean(new FortressInputBean(name), new DocumentTypeInputBean("Census"))
                 .setDescription("Mt. Albert 2013 Asian")
                 .setArchiveTags(false)
                 .setSegment("Segment Two");

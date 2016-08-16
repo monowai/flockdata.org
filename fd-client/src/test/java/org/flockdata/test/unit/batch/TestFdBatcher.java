@@ -16,8 +16,10 @@
 
 package org.flockdata.test.unit.batch;
 
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.shared.FdBatchWriter;
 import org.flockdata.test.unit.client.AbstractImport;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +35,14 @@ public class TestFdBatcher extends AbstractImport{
     FdBatchWriter myBatcher;
     @Test
     public void fdBatcherAccumulation() throws Exception {
-        EntityInputBean eib = new EntityInputBean("fort", "type");
+        EntityInputBean eib = new EntityInputBean(new FortressInputBean("fort"), new DocumentTypeInputBean("type"));
         eib.setCode("tt111");
 
         myBatcher.writeEntity(eib);
         myBatcher.writeEntity(eib);
         assertEquals(1, myBatcher.getEntities().size());
 
-        eib = new EntityInputBean("fort", "Type");
+        eib = new EntityInputBean(new FortressInputBean("fort"), new DocumentTypeInputBean("Type"));
         eib.setCode("tt222");
         myBatcher.writeEntity(eib);
         myBatcher.writeEntity(eib);

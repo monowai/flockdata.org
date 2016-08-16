@@ -48,9 +48,7 @@ public interface PlatformConfig {
 
     boolean isConceptsEnabled();
 
-    void setConceptsEnabled(String conceptsEnabled);
-
-    void setDuplicateRegistration(boolean duplicateRegistration);
+    Boolean setConceptsEnabled(boolean conceptsEnabled);
 
     void setTestMode(boolean testMode);
 

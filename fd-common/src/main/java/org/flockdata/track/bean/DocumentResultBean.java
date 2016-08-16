@@ -38,6 +38,8 @@ public class DocumentResultBean {
 
     private Long id;
     private String name;
+    private Boolean searchSuppressed;
+    private Boolean trackSuppressed;
     ArrayList<ConceptResultBean> concepts = new ArrayList<>();
     ArrayList<String> segments = null;
 
@@ -46,8 +48,15 @@ public class DocumentResultBean {
 
     public DocumentResultBean(DocumentType documentType) {
         this();
-        this.name = documentType.getName();
-        this.id = documentType.getId();
+        if ( documentType !=null ) {
+            this.name = documentType.getName();
+            this.id = documentType.getId();
+            if ( documentType.getSearchEnabled() !=null)
+                this.searchSuppressed = !documentType.getSearchEnabled();
+            if ( documentType.getTrackEnabled() !=null) // Suppressed if it's not enabled
+                this.trackSuppressed = !documentType.getTrackEnabled();
+
+        }
     }
 
     public DocumentResultBean(DocumentType documentType, Collection<FortressSegment> segments) {
@@ -118,5 +127,17 @@ public class DocumentResultBean {
         if (this.segments == null)
             segments = new ArrayList<>();
         this.segments.add(segment.getCode());
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Boolean getSearchSuppressed() {
+        // Null defaults to the fortress
+        return searchSuppressed;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Boolean getTrackSuppressed() {
+        // Null defaults to the fortress
+        return trackSuppressed;
     }
 }

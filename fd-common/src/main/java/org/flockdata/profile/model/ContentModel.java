@@ -94,4 +94,8 @@ public interface ContentModel {
     Boolean isTrackSuppressed();
 
     Boolean isSearchSuppressed();
+
+    ContentModel setTrackSuppressed(Boolean suppressed);
+
+    ContentModel setSearchSuppressed(Boolean suppressed);
 }

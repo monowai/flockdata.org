@@ -20,10 +20,10 @@
 
 package org.flockdata.geography.dao;
 
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.model.Tag;
 import org.flockdata.track.bean.GeoDataBean;
 import org.flockdata.track.bean.GeoDataBeans;
-import org.flockdata.track.service.FortressService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;

@@ -18,24 +18,28 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.track;
+package org.flockdata.helper;
 
-import org.flockdata.helper.NodeHelper;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
- * Created by mike on 5/07/15.
+ * Centralise node identification
+ *
+ * Created by mike on 16/08/16.
  */
-public class EntityHelper {
-    public static String parseKey(Long fortressId, Long documentId, String code) {
-        return  "" + fortressId + "." + documentId + "." + code;
+public class NodeHelper {
+
+    private static Collection<String> internalLabels = new ArrayList<>();
+
+    static {
+        internalLabels.add("tag"); // FD concept
+        internalLabels.add("_tag"); // SDN prefix
+        internalLabels.add("entity"); // FD entity
+        internalLabels.add("_entity"); // SDN prefix
     }
 
-    public static String getLabel(Iterable<String> labels) {
-        for (String label : labels) {
-            if (!NodeHelper.isInternalLabel(label))
-                return label;
-        }
-        return null;
+    public static boolean isInternalLabel(String label) {
+        return internalLabels.contains(label.toLowerCase());
     }
-
 }

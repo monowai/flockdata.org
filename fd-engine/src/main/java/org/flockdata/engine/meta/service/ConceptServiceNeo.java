@@ -21,7 +21,9 @@
 package org.flockdata.engine.meta.service;
 
 import org.flockdata.engine.dao.ConceptDaoNeo;
+import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
@@ -30,7 +32,6 @@ import org.flockdata.model.FortressSegment;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,7 +178,7 @@ public class ConceptServiceNeo implements ConceptService {
         Map<DocumentType, ArrayList<ConceptInputBean>> docTypeToConcept = new HashMap<>();
 
         for (TrackResultBean resultBean : resultBeans) {
-            if (resultBean.getEntity() != null && resultBean.getEntity().getId() != null) {
+            if (resultBean.getEntity() != null ) {
                 DocumentType docType = resultBean.getDocumentType();
                 ArrayList<ConceptInputBean> conceptInputBeans = docTypeToConcept.get(docType);
                 if (conceptInputBeans == null) {
@@ -290,6 +291,12 @@ public class ConceptServiceNeo implements ConceptService {
     @Override
     public void delete(DocumentType documentType, FortressSegment segment) {
         conceptDao.delete(documentType, segment);
+    }
+
+    @Override
+    public MatrixResults getContentStructure(Company company, String fortress) {
+        Fortress f = fortressService.findByCode(company, fortress);
+        return conceptDao.getStructure(f)  ;
     }
 
     @Override

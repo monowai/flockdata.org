@@ -30,7 +30,6 @@ import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.LogResultBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.FortressService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.kernel.DeadlockDetectedException;

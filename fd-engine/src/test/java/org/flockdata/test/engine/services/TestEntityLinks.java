@@ -30,6 +30,7 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchTag;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -234,7 +235,7 @@ public class TestEntityLinks extends EngineBase {
         mediationFacade.trackEntity(su.getCompany(), eStaff);
 
         // Cross reference two entities in the same fortress irrespective of the Document type
-        EntityInputBean xRef = new EntityInputBean(fortress, "Entity");
+        EntityInputBean xRef = new EntityInputBean(fortress, new DocumentTypeInputBean("Entity"));
         xRef.setCode("30250");
 
         xRef.addEntityLink("manages", new EntityKeyBean("30251", "Entity"));
@@ -289,7 +290,7 @@ public class TestEntityLinks extends EngineBase {
         tags.add(tag) ;
 
 
-        EntityInputBean workRecord = new EntityInputBean("WorkData", "WorkRecord")
+        EntityInputBean workRecord = new EntityInputBean(new FortressInputBean("WorkData"), new DocumentTypeInputBean("WorkRecord"))
                 .setCode("123")
                 .setTrackSuppressed(true)
                 .setEntityOnly(true)
@@ -331,7 +332,7 @@ public class TestEntityLinks extends EngineBase {
 
         relationships.put("worked", entityKeys);
 
-        EntityInputBean workRecord = new EntityInputBean("WorkData", "WorkRecord")
+        EntityInputBean workRecord = new EntityInputBean(new FortressInputBean("WorkData"), new DocumentTypeInputBean("WorkRecord"))
                 .setCode("123")
                 .setTrackSuppressed(true)
                 .setEntityOnly(true)

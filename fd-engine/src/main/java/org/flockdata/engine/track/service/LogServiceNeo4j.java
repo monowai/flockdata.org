@@ -28,7 +28,6 @@ import org.flockdata.registration.service.CompanyService;
 import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -22,12 +22,12 @@ package org.flockdata.company.service;
 
 
 import org.flockdata.engine.configure.SecurityHelper;
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.dao.CompanyDao;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.shared.KeyGenService;
-import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

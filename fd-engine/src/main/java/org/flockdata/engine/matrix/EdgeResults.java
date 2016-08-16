@@ -18,7 +18,7 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.query;
+package org.flockdata.engine.matrix;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
  * Created by mike on 29/04/15.
  */
 public class EdgeResults {
-    List<EdgeResult> edgeResults = new ArrayList<>();
+    private List<EdgeResult> edgeResults = new ArrayList<>();
 
     public void addResult (EdgeResult edgeResult){
         int index = edgeResults.indexOf(edgeResult);
@@ -41,7 +41,7 @@ public class EdgeResults {
 
     }
 
-    public List<EdgeResult> get() {
+    public List<EdgeResult> getEdgeResults() {
         return edgeResults;
     }
 }

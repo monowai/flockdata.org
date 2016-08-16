@@ -21,6 +21,7 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.FortressSegment;
@@ -55,14 +56,18 @@ import java.util.concurrent.Future;
 @Service
 public class EntityRetryService {
 
-    @Autowired
-    EntityService entityService;
+    private final EntityService entityService;
+
+    private final LogService logService;
+
+    private final PlatformConfig engineConfig;
 
     @Autowired
-    LogService logService;
-
-    @Autowired
-    PlatformConfig engineConfig;
+    public EntityRetryService(EntityService entityService, EngineConfig engineConfig, LogService logService) {
+        this.entityService = entityService;
+        this.engineConfig = engineConfig;
+        this.logService = logService;
+    }
 
     @Retryable(include = {NotFoundException.class, InvalidDataAccessResourceUsageException.class, DataIntegrityViolationException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
             maxAttempts = 20,

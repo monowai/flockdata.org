@@ -83,7 +83,7 @@ public class TestVersionedDocuments extends EngineBase {
                                 .setCode("Memory"))
         .setVersionStrategy(DocumentType.VERSION.FORTRESS));
 
-        EntityInputBean eib = new EntityInputBean(fortress, memoryType.getName())
+        EntityInputBean eib = new EntityInputBean(fortress, new DocumentTypeInputBean(memoryType.getName()))
                 .setCode("ABC");
 
         TrackResultBean memResultBean = mediationFacade.trackEntity(su.getCompany(), eib);
@@ -106,7 +106,7 @@ public class TestVersionedDocuments extends EngineBase {
 
         TestCase.assertEquals(DocumentType.VERSION.DISABLE, noneType.getVersionStrategy());
 
-        eib = new EntityInputBean(fortress, noneType.getName())
+        eib = new EntityInputBean(fortress, new DocumentTypeInputBean(noneType.getName()))
                 .setCode("CBA");
 
         TrackResultBean noneResultBean = mediationFacade.trackEntity(su.getCompany(), eib);

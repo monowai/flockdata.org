@@ -38,6 +38,7 @@ public class DocumentTypeInputBean {
     private EntityService.TAG_STRUCTURE tagStructure = EntityService.TAG_STRUCTURE.DEFAULT;
     private Boolean searchEnabled; // If null default to fortress
     private Boolean storeEnabled; // If null default to fortress
+    private Boolean trackEnabled;
 
     DocumentTypeInputBean(){}
 
@@ -47,6 +48,14 @@ public class DocumentTypeInputBean {
             throw new IllegalArgumentException("DocumentType name is invalid");
         this.name = docName;
         this.code = docName;
+    }
+
+    /**
+     * Helps unit testing
+     * @param documentResultBean result of a previous request to create
+     */
+    public DocumentTypeInputBean(DocumentResultBean documentResultBean) {
+        this.name =documentResultBean.getName();
     }
 
     public String getName() {
@@ -116,6 +125,11 @@ public class DocumentTypeInputBean {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Boolean isStoreEnabled() {
         return storeEnabled;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Boolean isTrackEnabled() {
+        return trackEnabled;
     }
 
     public DocumentTypeInputBean setTagStructure(EntityService.TAG_STRUCTURE tagStructure) {

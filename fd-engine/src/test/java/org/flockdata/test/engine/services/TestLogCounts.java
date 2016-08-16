@@ -25,6 +25,7 @@ import org.flockdata.model.SystemUser;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
@@ -44,18 +45,13 @@ import static org.junit.Assert.assertEquals;
 public class TestLogCounts extends EngineBase {
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
-    @org.junit.Before
-    public void setup() {
-        engineConfig.setDuplicateRegistration(true);
-    }
-
     @Test
     public void historic_BackFillingLogsWontCreateDuplicates() throws Exception {
         // DAT-267
         logger.debug("### historic_BackFillingLogsDontCreateDuplicates");
         SystemUser su = registerSystemUser("historic_BackFillingLogsDontCreateDuplicates");
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("historic_BackFillingLogsWontCreateDuplicates", true));
-        EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "poppy" );
+        EntityInputBean inputBean = new EntityInputBean(fortWP, new DocumentTypeInputBean("poppy"));
 
         DateTime today = DateTime.now();
         inputBean.setContent(new ContentInputBean("poppy", today, EntityContentHelper.getSimpleMap("name", "a")));
@@ -85,7 +81,7 @@ public class TestLogCounts extends EngineBase {
         logger.debug("### historic_AttachmentsWithSameChecksumWontCreateDuplicates");
         SystemUser su = registerSystemUser("historic_AttachmentsWithSameChecksumWontCreateDuplicates");
         Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("historic_AttachmentsWithSameChecksumWontCreateDuplicates", true));
-        EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "poppy" );
+        EntityInputBean inputBean = new EntityInputBean(fortWP, new DocumentTypeInputBean("poppy" ));
 
         DateTime today = DateTime.now();
         ContentInputBean cib = new ContentInputBean("poppy", today);

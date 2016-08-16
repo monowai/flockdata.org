@@ -31,6 +31,7 @@ import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.JsonUtils;
@@ -193,8 +194,6 @@ public abstract class EngineBase {
         //Neo4jHelper.cleanDb(neo4jTemplate);
         neo4jTemplate.query("match (n)-[r]-() delete r,n", null);
         neo4jTemplate.query("match (n) delete n", null);
-        engineConfig.setDuplicateRegistration(true);
-        engineConfig.setTestMode(true);
     }
 
     @Before
@@ -202,7 +201,7 @@ public abstract class EngineBase {
         engineConfig.setMultiTenanted(false);
         engineConfig.setTestMode(true); // prevents Async log processing from occurring
         engineConfig.setStoreEnabled(true);
-        engineConfig.setConceptsEnabled("false");
+        engineConfig.setConceptsEnabled(false);
         SecurityContextHolder.getContext().setAuthentication(authDefault);
     }
 

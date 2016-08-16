@@ -1,6 +1,7 @@
 {
   "SomeLabel": {
     "numeric_detection": false,
+    "date_detection": false,
     "dynamic_templates": [
       {
         "geo_points": {
@@ -30,7 +31,7 @@
       "code": {
         "type": "string",
         "doc_values": true,
-        "boost": "2.0",
+        "boost": "3.0",
         "mapping": {
           "type": "multi_field",
           "fields": {

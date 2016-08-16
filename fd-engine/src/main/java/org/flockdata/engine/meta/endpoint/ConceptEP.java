@@ -20,11 +20,12 @@
 
 package org.flockdata.engine.meta.endpoint;
 
-import org.flockdata.engine.query.service.QueryService;
+import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
+import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -41,12 +42,12 @@ import java.util.Set;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/concept")
 public class ConceptEP {
 
-    @Autowired
-    QueryService queryService;
+    private final ConceptService conceptService;
 
     @Autowired
-    ConceptService conceptService;
-
+    public ConceptEP(ConceptService conceptService) {
+        this.conceptService = conceptService;
+    }
 
     @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public Set<DocumentResultBean> getConceptsAllDocs(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
@@ -71,6 +72,14 @@ public class ConceptEP {
         return conceptService.findConcepts(company, documents, false);
     }
 
+    @RequestMapping(value = "/{fortress}/structure", method = RequestMethod.GET)
+    public MatrixResults getContentStructure
+            (@PathVariable("fortress") String fortress, HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return conceptService.getContentStructure(company, fortress);
+    }
+
+
     @RequestMapping(value = "/relationships", method = RequestMethod.POST,consumes = "application/json", produces = "application/json")
     public Set<DocumentResultBean> getRelationships(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
@@ -78,6 +87,16 @@ public class ConceptEP {
         return conceptService.findConcepts(company, documents, true);
     }
 
-
+    @RequestMapping(value = "/{docType}/values", method = RequestMethod.GET)
+    public Collection<ConceptResultBean> getDocsLabels(HttpServletRequest request, @PathVariable("docType") String docType) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        Collection<String>docNames = new ArrayList<>();
+        docNames.add(docType);
+        Set<DocumentResultBean> results = conceptService.findConcepts(company, docNames, true);
+        for (DocumentResultBean result : results) {
+            return result.getConcepts();
+        }
+        return new ArrayList<>();
+    }
 
 }

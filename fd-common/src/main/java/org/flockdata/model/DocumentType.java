@@ -20,6 +20,7 @@
 
 package org.flockdata.model;
 
+import org.flockdata.profile.model.ContentModel;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.service.EntityService;
 import org.neo4j.graphdb.Direction;
@@ -35,18 +36,18 @@ import java.util.Set;
 
 /**
  * FD has a document oriented view of information.
- *
+ * <p>
  * Classifies a type of Entity as being of a "DocumentType"
- *
+ * <p>
  * For example, Invoice, Customer, Person etc.
- *
+ * <p>
  * User: Mike Holdsworth
  * Date: 30/06/13
  * Time: 10:06 AM
  */
 @NodeEntity
 @TypeAlias("DocType")
-public class DocumentType  implements Comparable<DocumentType> {
+public class DocumentType implements Comparable<DocumentType> {
     @GraphId
     Long id;
 
@@ -62,36 +63,47 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     private Boolean storeEnabled;
 
+    private Boolean trackEnabled;
+
     //@Relationship( type = "FORTRESS_DOC", direction = Relationship.OUTGOING)
-    @RelatedTo( type = "FORTRESS_DOC", direction = Direction.OUTGOING)
+    @RelatedTo(type = "FORTRESS_DOC", direction = Direction.OUTGOING)
     private Fortress fortress;
 
     //@Relationship(type = "HAS_CONCEPT", direction = Relationship.OUTGOING)
-    @RelatedTo(elementClass = Concept.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = Concept.class, type = "HAS_CONCEPT", direction = Direction.OUTGOING)
     Set<Concept> concepts;
 
-    @RelatedTo(elementClass = FortressSegment.class,  type = "USES_SEGMENT", direction = Direction.OUTGOING)
-    Set<FortressSegment> segments ;
-
+    @RelatedTo(elementClass = FortressSegment.class, type = "USES_SEGMENT", direction = Direction.OUTGOING)
+    Set<FortressSegment> segments;
 
     private String geoQuery;
 
     private VERSION vstrat = VERSION.FORTRESS;
 
+    public DocumentType(FortressSegment segment, ContentModel contentModel) {
+        this(segment, contentModel.getDocumentType());
+        if (searchEnabled == null && contentModel.isSearchSuppressed()!=null )
+            searchEnabled = !contentModel.isSearchSuppressed();
+        if (trackEnabled == null && contentModel.isTrackSuppressed()!=null )
+            trackEnabled = !contentModel.isTrackSuppressed();
+    }
+
+    public DocumentType(Fortress fortress, ContentModel contentModel) {
+        this(fortress.getDefaultSegment(), contentModel);
+    }
+
     /**
-     *
      * Set the version strategy on a per DocumentType basis
-     *
+     * <p>
      * Enable version control when segment.storeEnabled== false
      * Suppress when your segment.storeEnabled== true and you don't want to version
      * Fortress (default) means use whatever the segment default is
-     *
      */
     public enum VERSION {
         FORTRESS, ENABLE, DISABLE
     }
 
-        // DAT-498
+    // DAT-498
     private EntityService.TAG_STRUCTURE tagStructure;
 
     protected DocumentType() {
@@ -111,15 +123,16 @@ public class DocumentType  implements Comparable<DocumentType> {
         this.geoQuery = docType.getGeoQuery(); // DAT-507
         this.searchEnabled = docType.isSearchEnabled();
         this.storeEnabled = docType.isStoreEnabled();
+        this.trackEnabled = docType.isTrackEnabled();
 
-        if ( docType.getTagStructure()!= null)
+        if (docType.getTagStructure() != null)
             this.tagStructure = docType.getTagStructure();
 
-        if ( segment.getFortress() !=null ){
+        if (segment.getFortress() != null) {
             this.companyKey = segment.getCompany().getId() + "." + code;
             setFortress(segment.getFortress());
         }
-        if ( docType.getVersionStrategy()!=null )
+        if (docType.getVersionStrategy() != null)
             setVersionStrategy(docType.getVersionStrategy());
 
     }
@@ -130,15 +143,16 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     /**
      * Only used for testing purposes!
-     * @param fortress      could be null - testing only
-     * @param documentName  usually entity.getType()
+     *
+     * @param fortress     could be null - testing only
+     * @param documentName usually entity.getType()
      */
     public DocumentType(Fortress fortress, String documentName) {
         this();
         this.name = documentName;
         this.code = parseCode(fortress, documentName);
 
-        if ( fortress !=null ){
+        if (fortress != null) {
             this.companyKey = fortress.getCompany().getId() + "." + code;
             setFortress(fortress);
         }
@@ -147,7 +161,7 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     public DocumentType(Fortress fortress, String name, EntityService.TAG_STRUCTURE tagStructure) {
         this(fortress, name);
-        this.tagStructure = tagStructure ;
+        this.tagStructure = tagStructure;
     }
 
     public void setFortress(Fortress fortress) {
@@ -182,9 +196,9 @@ public class DocumentType  implements Comparable<DocumentType> {
     }
 
     public void add(Concept concept) {
-        if ( concepts == null )
+        if (concepts == null)
             concepts = new HashSet<>();
-        concepts.add( concept);
+        concepts.add(concept);
     }
 
     @Override
@@ -199,12 +213,12 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     public static String parseCode(Fortress fortress, String documentType) {
         // Only in testing would the segment be null
-        Long fid ;
-        if ( fortress == null || fortress.getId() == null )
+        Long fid;
+        if (fortress == null || fortress.getId() == null)
             fid = -1L;
         else
             fid = fortress.getId();
-        return fid+ "."+ documentType.toLowerCase().replaceAll("\\s", ".");
+        return fid + "." + documentType.toLowerCase().replaceAll("\\s", ".");
     }
 
     public int compareTo(DocumentType o) {
@@ -253,12 +267,12 @@ public class DocumentType  implements Comparable<DocumentType> {
     }
 
     public static String toKey(Fortress fortress, String docType) {
-        assert fortress.getCompany()!=null;
+        assert fortress.getCompany() != null;
         return String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parseCode(fortress, docType);
     }
 
     public VERSION getVersionStrategy() {
-        if ( vstrat == null )
+        if (vstrat == null)
             vstrat = VERSION.FORTRESS;
         return vstrat;
     }
@@ -268,7 +282,7 @@ public class DocumentType  implements Comparable<DocumentType> {
         return this;
     }
 
-    public Set<FortressSegment>getSegments (){
+    public Set<FortressSegment> getSegments() {
         return segments;
     }
 
@@ -278,5 +292,9 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     public Boolean getStoreEnabled() {
         return storeEnabled;
+    }
+
+    public Boolean getTrackEnabled() {
+        return trackEnabled;
     }
 }

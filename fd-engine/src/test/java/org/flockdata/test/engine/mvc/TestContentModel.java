@@ -21,14 +21,19 @@
 package org.flockdata.test.engine.mvc;
 
 import au.com.bytecode.opencsv.CSVReader;
+import org.flockdata.engine.matrix.EdgeResult;
+import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.*;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.FileProcessor;
+import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
+import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.Transformer;
 import org.junit.Test;
@@ -48,6 +53,27 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
  * Created by mike on 14/04/16.
  */
 public class TestContentModel extends MvcBase {
+
+    @Test
+    public void documentTypeFlagChecksFromModel() throws Exception{
+        String test = "documentTypeFlagChecksFromModel";
+        ContentModel model = new ContentModelHandler();
+        model.setDocumentType( new DocumentTypeInputBean(test))
+                .setTrackSuppressed(true)
+                .setSearchSuppressed(true)
+                .setTagModel(false)
+                .setFortress( new FortressInputBean(test));
+
+        makeDataAccessProfile("test", "mike");
+        makeContentModel(mike(),test,test, model, OK );
+        DocumentResultBean documentResultBean = getDocument(mike(), test, test);
+        assertNotNull (documentResultBean);
+        assertNotNull ( "Property did not default to true from the content model to the documentType", documentResultBean.getTrackSuppressed());
+        assertTrue(documentResultBean.getTrackSuppressed());
+        assertNotNull ( documentResultBean.getSearchSuppressed());
+        assertTrue(documentResultBean.getSearchSuppressed());
+
+    }
 
     @Test
     public void testSaveRetrieveModel() throws Exception {
@@ -86,7 +112,6 @@ public class TestContentModel extends MvcBase {
     @Test
     public void testContentNotFound() throws Exception {
 
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
         makeDataAccessProfile("TestContentProfileStorage", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("contentFortress"));
 
@@ -127,11 +152,12 @@ public class TestContentModel extends MvcBase {
 
     @Test
     public void find_CompanyProfiles() throws Exception {
+        String docName = "find_CompanyProfiles";
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
         contentModel.setName("SettingTheName");
+        contentModel.setDocumentType(new DocumentTypeInputBean(docName));
         makeDataAccessProfile("find_CompanyProfiles", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("find_CompanyProfiles"));
-        String docName = "find_CompanyProfiles";
 
         makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean(docName));
         ContentModelResult result = makeContentModel(mike(),
@@ -247,6 +273,7 @@ public class TestContentModel extends MvcBase {
         ColumnDefinition columnDefinition = model.getContent().get("drumID.key");
         assertEquals("Elastic does not accept columns with a period. FD should remove the character", "drumIDkey", columnDefinition.getTarget());
     }
+
     @Test
     public void create_ContentValidationErrors() throws Exception {
         makeDataAccessProfile("create_ContentValidationErrors", "mike");
@@ -379,11 +406,12 @@ public class TestContentModel extends MvcBase {
 
     @Test
     public void find_afterDeletingFortress() throws Exception {
+        String docName = "find_afterDeletingFortress";
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
         contentModel.setName("anyName");
+        contentModel.setDocumentType(new DocumentTypeInputBean(docName));
         makeDataAccessProfile("find_afterDeletingFortress", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("find_afterDeletingFortress"));
-        String docName = "find_afterDeletingFortress";
 
         makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean(docName));
         ContentModelResult result = makeContentModel(mike(),
@@ -410,6 +438,45 @@ public class TestContentModel extends MvcBase {
         foundResult = findContentModelByKey(mike(), result.getKey(), MockMvcResultMatchers.status().isOk());
         assertNotNull (foundResult);
         assertNotNull( "Document Type not resolved from the document it used to be associated with", foundResult.getDocumentType());
+
+    }
+
+    @Test
+    public void trackSuppressedCreatesConceptStructure () throws Exception {
+        engineConfig.setConceptsEnabled(true);
+        String docName = "trackSuppressedCreatesConceptStructure";
+
+        makeDataAccessProfile(docName, "mike");
+
+        FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean(docName));
+        DocumentResultBean documentResultBean = makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean(docName));
+
+        EntityInputBean eib = new EntityInputBean(fortressResultBean, new DocumentTypeInputBean(documentResultBean));
+        eib.setTrackSuppressed(true);
+        Collection<TagInputBean>tags = new ArrayList<>();
+        TagInputBean tagA= new TagInputBean("MyCode", "LabelToFind", "simple");
+        TagInputBean tagB= new TagInputBean("MyCode", "LabelToFind", "complex");
+        tags.add(tagA);
+        tags.add(tagB);
+        eib.setTags(tags);
+        track(mike(), eib);
+        Thread.sleep(1000);// Concepts are created in a separate thread so wait a bit
+
+        MatrixResults contentStructure = getContentStructure(mike(), docName, OK);
+        assertNotNull (contentStructure);
+        assertEquals("Expected 1 document and 1 concept", 2, contentStructure.getNodes().size());
+        assertEquals ("2 edge relationships are expected", 2, contentStructure.getEdges().size());
+        boolean simpleFound=false, complexFound = false;
+        for (EdgeResult edgeResult : contentStructure.getEdges()) {
+            if (edgeResult.getRelationship().equals("simple"))
+                simpleFound = true;
+            if (edgeResult.getRelationship().equals("complex"))
+                complexFound = true;
+
+        }
+
+        assertTrue ("Didn't find the simple relationship name", simpleFound);
+        assertTrue ("Didn't find the complex relationship name", complexFound);
 
     }
 }

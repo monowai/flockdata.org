@@ -105,7 +105,7 @@ public class ExpressionHelper {
 
         if (contentModel != null)
             context.setVariable("model", contentModel);
-        Object result = evaluateExpression(row, expression);
+        Object result = (expression==null || expression.length()==0? null:evaluateExpression(row, expression));
         if (result == null)
             return getNullSafeDefault(defaultValue, colDef);
         return result.toString().trim();

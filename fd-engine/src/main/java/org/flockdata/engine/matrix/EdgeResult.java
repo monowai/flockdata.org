@@ -18,19 +18,27 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.query;
+package org.flockdata.engine.matrix;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.neo4j.graphdb.Node;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Pojo for carrying matrix result data
+ * Carries details about an edge between 2 nodes
+ *
  * User: mike
  * Date: 19/04/14
  * Time: 6:52 AM
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EdgeResult {
-    private Map<String,Object> data = new HashMap<>();
+    private Map<String, Object> data = new HashMap<>();
+
+    EdgeResult() {
+    }
 
     public EdgeResult(String source, String target, Number count) {
         this();
@@ -40,10 +48,22 @@ public class EdgeResult {
 
     }
 
-    public EdgeResult() {
+    public EdgeResult(Node conceptFrom, Node conceptTo, Number value) {
+        this();
+        data.put("source", conceptFrom.getId());
+        data.put("target", conceptTo.getId());
+        data.put("count", value);
+
     }
 
-    public Map<String,Object> getData(){
+    public EdgeResult(FdNode doc, FdNode concept, String name) {
+        data.put("source", doc.getKey());
+        data.put("target", concept.getKey());
+        data.put("relationship", name);
+
+    }
+
+    public Map<String, Object> getData() {
         return data;
     }
 
@@ -52,7 +72,7 @@ public class EdgeResult {
     }
 
     public void setSource(String source) {
-        data.put("source",source);
+        data.put("source", source);
     }
 
     public String getTarget() {
@@ -63,9 +83,16 @@ public class EdgeResult {
         getData().put("target", target);
     }
 
+    public String getRelationship() {
+        Object o = getData().get("relationship");
+        if ( o == null )
+            return null;
+        return o.toString();
+    }
+
     public Number getCount() {
 
-        return (Number)getData().get("count");
+        return (Number) getData().get("count");
     }
 
     public void setCount(Number count) {
@@ -88,8 +115,9 @@ public class EdgeResult {
 
         EdgeResult that = (EdgeResult) o;
 
-        if (getSource() != null ? !getSource().equals(that.getSource()) : that.getSource()!= null) return false;
-        return !(getTarget() != null ? !getTarget().equals(that.getTarget()) : that.getTarget()!= null);
+        if (getSource() != null ? !getSource().equals(that.getSource()) : that.getSource() != null) return false;
+        if (getRelationship() != null ? !getRelationship().equals(that.getRelationship()) : that.getRelationship() != null) return false;
+        return !(getTarget() != null ? !getTarget().equals(that.getTarget()) : that.getTarget() != null);
 
     }
 
@@ -97,6 +125,7 @@ public class EdgeResult {
     public int hashCode() {
         int result = getSource() != null ? getSource().hashCode() : 0;
         result = 31 * result + (getTarget() != null ? getTarget().hashCode() : 0);
+        result = 31 * result + (getRelationship() != null ? getRelationship().hashCode() : 0);
         return result;
     }
 

@@ -20,15 +20,19 @@
 
 package org.flockdata.engine.dao;
 
+import org.flockdata.engine.matrix.EdgeResult;
+import org.flockdata.engine.matrix.EdgeResults;
+import org.flockdata.engine.matrix.FdNode;
+import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
-import org.flockdata.query.EdgeResults;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.RelationshipResultBean;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +101,7 @@ public class ConceptDaoNeo {
     }
 
     private boolean relationshipExists(Node from, Node to, String relationship) {
-        return template.getRelationshipBetween(from, to, relationship) !=null ;
+        return template.getRelationshipBetween(from, to, relationship) != null;
     }
 
     public void registerConcepts(Map<DocumentType, ArrayList<ConceptInputBean>> documentConcepts) {
@@ -215,7 +219,7 @@ public class ConceptDaoNeo {
 
     private Concept schemaTagDefExists(Company company, ConceptInputBean conceptInputBean) {
 
-        return documentTypeRepo.schemaTagDefExists(company.getId(), Concept.toKey(conceptInputBean)) ;
+        return documentTypeRepo.schemaTagDefExists(company.getId(), Concept.toKey(conceptInputBean));
     }
 
     /**
@@ -229,17 +233,17 @@ public class ConceptDaoNeo {
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20,
             backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
     public Concept registerTag(Company company, TagResultBean tagResultBean) {
-        Concept source ;
+        Concept source;
         if (tagResultBean.isNewTag() && !tagResultBean.getTag().isDefault()) {
 
             ConceptInputBean conceptInputBean = new ConceptInputBean(tagResultBean);
             source = schemaTagDefExists(company, conceptInputBean);
-            if (source == null ) {
+            if (source == null) {
                 source = createSchemaTag(conceptInputBean);
             }
             processNestedTags(company, source, tagResultBean.getTargets());
-        }  else {
-            if ( tagResultBean.getLabel() != null)
+        } else {
+            if (tagResultBean.getLabel() != null)
                 source = findConcept(tagResultBean);
             else
                 source = null;
@@ -249,7 +253,7 @@ public class ConceptDaoNeo {
     }
 
     private Concept findConcept(TagResultBean tagResultBean) {
-        return conceptTypeRepo.findByLabel( Concept.toKey(new ConceptInputBean(tagResultBean)));
+        return conceptTypeRepo.findByLabel(Concept.toKey(new ConceptInputBean(tagResultBean)));
     }
 
     private void processNestedTags(Company company, Concept source, Map<TagResultBean, Collection<String>> targets) {
@@ -258,8 +262,8 @@ public class ConceptDaoNeo {
 
         for (TagResultBean tagResultBean : targets.keySet()) {
             Concept target = registerTag(company, tagResultBean);
-            if ( source!=null && target!=null){
-                Collection<String>rlxs= targets.get(tagResultBean);
+            if (source != null && target != null) {
+                Collection<String> rlxs = targets.get(tagResultBean);
                 for (String rlx : rlxs) {
                     linkConceptToConcept(source, target, rlx);
                 }
@@ -308,8 +312,8 @@ public class ConceptDaoNeo {
         template.deleteRelationshipBetween(documentType, segment, "USES_SEGMENT");
     }
 
-    public EdgeResults getStructure(Fortress fortress) {
-        String query = "match (f:Fortress{code:{0})-[]-(d:DocType)-[]-(c:Concept) return c,d";
+    public MatrixResults getStructure(Fortress fortress) {
+        String query = "match (f:Fortress)-[]-(d:DocType)-[r]-(c:Concept) where id(f)= {fortress} return c,d,r";
         Map<String, Object> params = new HashMap<>();
         params.put("fortress", fortress.getId());
 
@@ -318,13 +322,21 @@ public class ConceptDaoNeo {
         Iterator<Map<String, Object>> rows = results.iterator();
 
         EdgeResults edgeResults = new EdgeResults();
-
+        Collection<FdNode> nodes = new ArrayList<>();
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            row.get("c");
-        }
+            FdNode concept = new FdNode((Node) row.get("c"));
+            FdNode doc = new FdNode((Node) row.get("d"));
+            if ( !nodes.contains(concept))
+                nodes.add(concept);
+            if ( !nodes.contains(doc))
+                nodes.add(doc);
+            Relationship relationship = (Relationship) row.get("r");
+            edgeResults.addResult( new EdgeResult(doc, concept, relationship.getType().name()));
 
-        return edgeResults;
+        }
+        return new MatrixResults(edgeResults).setNodes(nodes);
+
 
     }
 }

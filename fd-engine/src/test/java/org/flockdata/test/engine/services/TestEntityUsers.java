@@ -47,11 +47,6 @@ public class TestEntityUsers extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
-    @org.junit.Before
-    public void setup() {
-        engineConfig.setDuplicateRegistration(true);
-    }
-
     @Test
     public void created_UserAgainstEntityAndLog() throws Exception {
         logger.debug("### created_UserAgainstEntityAndLog");

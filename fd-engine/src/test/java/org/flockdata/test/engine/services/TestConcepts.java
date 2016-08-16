@@ -82,7 +82,7 @@ public class TestConcepts extends EngineBase {
             logger.debug("### multipleDocsSameFortress");
 
             setSecurity();
-            engineConfig.setConceptsEnabled("true");
+            engineConfig.setConceptsEnabled(true);
 
             Transaction t = beginManualTransaction();
             SystemUser su = registerSystemUser("multipleDocsSameFortress", mike_admin);
@@ -131,7 +131,7 @@ public class TestConcepts extends EngineBase {
             logger.debug("### multipleFortressesSameTag");
 
             setSecurity();
-            engineConfig.setConceptsEnabled("true");
+            engineConfig.setConceptsEnabled(true);
 
             Transaction t = beginManualTransaction();
             SystemUser su = registerSystemUser("multipleFortressesSameTag", mike_admin);
@@ -181,7 +181,7 @@ public class TestConcepts extends EngineBase {
             setSecurity();
             SystemUser su = registerSystemUser("fortressConcepts", mike_admin);
             assertNotNull(su);
-            engineConfig.setConceptsEnabled("true");
+            engineConfig.setConceptsEnabled(true);
             engineConfig.setTestMode(true);
 
             Fortress fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortressConcepts", true));
@@ -251,7 +251,7 @@ public class TestConcepts extends EngineBase {
         try {
             logger.debug("### multipleRelationships");
             setSecurity();
-            engineConfig.setConceptsEnabled("true");
+            engineConfig.setConceptsEnabled(true);
             Transaction t = beginManualTransaction();
 
             SystemUser su = registerSystemUser("multipleRelationships", mike_admin);
@@ -313,7 +313,7 @@ public class TestConcepts extends EngineBase {
         try {
             logger.debug("### relationshipWorkForMultipleDocuments");
             setSecurity();
-            engineConfig.setConceptsEnabled("true");
+            engineConfig.setConceptsEnabled(true);
             engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
@@ -381,7 +381,7 @@ public class TestConcepts extends EngineBase {
         try {
             logger.debug("### uniqueRelationshipByDocType");
             setSecurity();
-            engineConfig.setConceptsEnabled("true");
+            engineConfig.setConceptsEnabled(true);
             engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
@@ -442,7 +442,7 @@ public class TestConcepts extends EngineBase {
             logger.debug("### uniqueRelationshipByDocType");
             setSecurity();
 
-            engineConfig.setConceptsEnabled("true");
+            engineConfig.setConceptsEnabled(true);
             engineConfig.setTestMode(true);
 
             Transaction t;
@@ -501,7 +501,7 @@ public class TestConcepts extends EngineBase {
         // Initial setup
         cleanUpGraph();
 
-        engineConfig.setConceptsEnabled("true");
+        engineConfig.setConceptsEnabled(true);
         engineConfig.setTestMode(true);
 
         SystemUser su = registerSystemUser("testEntityConceptsLink", mike_admin);

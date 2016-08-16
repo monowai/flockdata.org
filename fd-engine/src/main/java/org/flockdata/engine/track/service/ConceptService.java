@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
@@ -75,4 +76,12 @@ public interface ConceptService {
     DocumentResultBean findDocumentTypeWithSegments(Fortress f, String doc);
 
     void delete(DocumentType documentType, FortressSegment segment);
+
+    /**
+     * Concept structure associated to a Fortress. All DocumentTypes and connected concepts
+     * @param company   org that owns the fortress
+     * @param fortress  that which we are interested in
+     * @return edges and nodes
+     */
+    MatrixResults getContentStructure(Company company, String fortress);
 }

@@ -20,35 +20,33 @@
 
 package org.flockdata.test.engine.suites;
 
+import org.flockdata.test.engine.services.TestEntitySearch;
+import org.flockdata.test.engine.unit.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.springframework.retry.annotation.EnableRetry;
+
 /**
- * Suite for Web services
+ * The periodic failing of TestEntityDeadlock. Batching tests in to a suite for convenience
+ *
  * Created by mike on 2/04/15.
  */
 
-import org.flockdata.test.engine.mvc.*;
-import org.flockdata.test.engine.services.TestApiKeyInterceptor;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        TestAdminCalls.class,
-        TestAPISecurity.class,
-        TestAuthenticationEP.class,
-        TestCompanyEP.class,
-        TestDocEP.class,
-        TestFortressEP.class,
-        TestNeoRestInterface.class,
-        TestPathEP.class,
-        TestSystemUserRegistration.class,
-        TestTagEP.class,
-        TestTrackEP.class,
-        TestContentModel.class,
-        TestApiKeyInterceptor.class
-
-
+        TestApiKeyHelper.class,
+        TestBatchSplitter.class,
+        TestEdgeResults.class,
+        TestEntityKeys.class,
+        TestEntitySearch.class,
+        TestHashcodeAndEquality.class,
+        TestInputBeans.class,
+        TestQueryParameters.class
 })
-public class WebAPI {
-    public WebAPI() {
-    }
+@EnableRetry
+public class Unit {
+
+    public Unit(){}
+
 }

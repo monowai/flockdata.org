@@ -207,16 +207,18 @@ public class ContentModelHandler implements ContentModel {
         return trackSuppressed;
     }
 
-    void setTrackSuppressed(Boolean trackSuppressed) {
+    public ContentModel setTrackSuppressed(Boolean trackSuppressed) {
         this.trackSuppressed = trackSuppressed;
+        return this;
     }
 
     public Boolean isSearchSuppressed() {
         return searchSuppressed;
     }
 
-    void setSearchSuppressed(Boolean searchSuppressed) {
+    public ContentModel setSearchSuppressed(Boolean searchSuppressed) {
         this.searchSuppressed = searchSuppressed;
+        return this;
     }
 
     @Override

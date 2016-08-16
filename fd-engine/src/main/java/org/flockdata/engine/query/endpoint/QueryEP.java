@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.query.endpoint;
 
+import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.track.service.ConceptService;
@@ -28,10 +29,9 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
-import org.flockdata.query.MatrixInputBean;
-import org.flockdata.query.MatrixResults;
 import org.flockdata.search.model.*;
 import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.MatrixInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

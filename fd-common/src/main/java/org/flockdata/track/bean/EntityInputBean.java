@@ -93,23 +93,11 @@ public class EntityInputBean implements Serializable, UserProperties {
         setFortress(new FortressInputBean(fortress.getName()));
         setFortressUser(fortressUser);
         setDocumentType(new DocumentTypeInputBean(documentName));
-        this.documentType = new DocumentTypeInputBean(documentName);
         setCode(code);
     }
 
     public EntityInputBean(MetaFortress fortress, String fortressUser, String documentName, DateTime fortressWhen) {
         this(fortress, fortressUser, documentName, fortressWhen, null);
-
-    }
-
-    public EntityInputBean(String fortressName, String documentName) {
-        this();
-        this.fortress = new FortressInputBean(fortressName);
-        setDocumentType(new DocumentTypeInputBean(documentName));
-    }
-
-    public EntityInputBean(MetaFortress fortress, String documentName) {
-        this(fortress.getName(), documentName);
     }
 
     public EntityInputBean(MetaFortress fortress, DocumentTypeInputBean documentType) {

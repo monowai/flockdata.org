@@ -57,14 +57,22 @@ import java.util.concurrent.Future;
 @Service
 public class TagRetryService {
 
-    @Autowired
-    private TagService tagService;
+    private final TagService tagService;
+
+    private final IndexRetryService indexRetryService;
+
+    private SearchServiceFacade searchService;
 
     @Autowired
-    IndexRetryService indexRetryService;
+    public TagRetryService(TagService tagService, IndexRetryService indexRetryService) {
+        this.tagService = tagService;
+        this.indexRetryService = indexRetryService;
+    }
 
     @Autowired (required = false)
-    SearchServiceFacade searchService;
+    void setSearchServiceFacade (SearchServiceFacade searchService){
+        this.searchService = searchService;
+    }
 
     private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
 

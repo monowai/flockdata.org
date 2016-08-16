@@ -35,6 +35,8 @@ import java.util.ArrayList;
  */
 public class TagHelper {
 
+    public static final String TAG = "Tag";
+
     public static String suffixLabel(String label, String tagSuffix) {
         if (label.startsWith(":"))
             label = label.substring(1);
@@ -89,27 +91,21 @@ public class TagHelper {
         return (index.equals("Country") || index.equals("City"));
     }
 
-    public static boolean isInternalLabel(String label) {
-        if (label.equals("_Tag") || label.equals("Tag"))
-            return true;
-        return false;
-    }
-
     public static String getLabel(Iterable<Label> labels) {
-        for (Label label : labels) {
-            if (!isInternalLabel(label.name()))
-                return label.name();
-        }
-        return "Tag";
+        if ( labels !=null )
+            for (Label label : labels) {
+                if (!NodeHelper.isInternalLabel(label.name()))
+                    return label.name();
+            }
+        return TAG;
     }
 
     public static String getLabel(ArrayList<String> labels) {
         for (String label : labels) {
-            if (!isInternalLabel(label))
-//            if (!label.equals("_Tag") && !label.equals("Tag"))
+            if (!NodeHelper.isInternalLabel(label))
                 return label;
         }
-        return "Tag";
+        return TAG;
 
     }
 }

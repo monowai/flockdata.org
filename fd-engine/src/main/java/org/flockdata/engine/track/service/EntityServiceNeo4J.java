@@ -36,7 +36,6 @@ import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.EntityTagService;
-import org.flockdata.track.service.FortressService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -198,9 +197,7 @@ public class EntityServiceNeo4J implements EntityService {
 
             return trackResult;
         }
-//        Collection<TagResultBean> createdTags = null;
         try {
-//            createdTags = getTags(tags);
             entity = makeEntity(segment, documentType, entityInput);
         } catch (FlockException e) {
             logger.error(e.getMessage());
@@ -442,7 +439,6 @@ public class EntityServiceNeo4J implements EntityService {
             entity = entityDao.save(entity);
             entityDao.delete(currentLog);
         }
-        //kvService.delete(entity, currentLog); // ToDo: Move to mediation facade
         EntitySearchChange searchDocument = null;
         if (fromLog == null) {
             if (entity.getSegment().getFortress().isSearchEnabled()) {
@@ -688,7 +684,7 @@ public class EntityServiceNeo4J implements EntityService {
                         // DAT-443 - Create a place holding entity if the requested one does not exist
                         DocumentType documentType = conceptService.resolveByDocCode(fortress, targetKey.getDocumentType(), false);
                         if (documentType != null) {
-                            EntityInputBean eib = new EntityInputBean(fortress.getCode(), targetKey.getDocumentType()).setCode(targetKey.getCode());
+                            EntityInputBean eib = new EntityInputBean(fortress, new DocumentTypeInputBean(targetKey.getDocumentType())).setCode(targetKey.getCode());
                             TrackResultBean trackResult = createEntity(documentType, fortress.getDefaultSegment(), eib, null);
                             entity = trackResult.getEntity();
                         }

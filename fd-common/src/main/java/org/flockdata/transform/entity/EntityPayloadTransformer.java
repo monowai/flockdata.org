@@ -186,7 +186,7 @@ public class EntityPayloadTransformer extends EntityInputBean implements Payload
             }
 
             // Dynamic column DAT-527
-            if (colDef.getTarget() != null) {
+            if (colDef.getTarget() != null && colDef.getTarget().length()>0) {
                 Object targetValue = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
                 Object oValue = TransformationHelper.transformValue(targetValue, sourceColumn, colDef);
                 if (oValue != null)

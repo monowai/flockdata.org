@@ -21,11 +21,13 @@
 package org.flockdata.test.engine.unit;
 
 import org.flockdata.engine.dao.MatrixDaoNeo4j;
+import org.flockdata.engine.matrix.FdNode;
 import org.flockdata.helper.CypherHelper;
-import org.flockdata.query.FdNode;
-import org.flockdata.query.MatrixInputBean;
+import org.flockdata.test.engine.MockNode;
+import org.flockdata.track.bean.MatrixInputBean;
 import org.junit.Assert;
 import org.junit.Test;
+import org.neo4j.graphdb.Node;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,16 +62,16 @@ public class TestQueryParameters {
 
     @Test
     public void concepts() throws Exception {
-        Collection<Object> ids = new ArrayList<>();
-        Collection<Object> names = new ArrayList<>();
-        ids.add("123");
-        ids.add("123");
-        ids.add("456");
-        names.add("Name A");
-        names.add("Name A");
-        names.add("Name B");
+        Collection<Object> nodes = new ArrayList<>();
+        Node n = new MockNode(123);
+        n.setProperty("name", "Name A");
+        nodes.add(n);
+        nodes.add(n);
+        n = new MockNode(456);
+        n.setProperty("name", "Name B");
+        nodes.add(n);
         Collection<FdNode> values = new ArrayList<>();
-        MatrixDaoNeo4j.setTargetTags(values, ids, names);
+        MatrixDaoNeo4j.setTargetTags(values, nodes);
         assertEquals(2, values.size());
         for (FdNode value : values) {
             switch (value.getKey()) {

@@ -22,28 +22,27 @@ package org.flockdata.engine.track;
 
 import com.google.common.collect.Lists;
 import org.flockdata.authentication.FdRoles;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.admin.service.StorageProxy;
-import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.meta.service.DocTypeRetryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.engine.tag.service.TagRetryService;
-import org.flockdata.engine.track.service.ConceptRetryService;
-import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.engine.track.service.EntityRetryService;
-import org.flockdata.engine.track.service.TrackBatchSplitter;
+import org.flockdata.engine.track.service.*;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.*;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.registration.service.CompanyService;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.service.*;
+import org.flockdata.track.service.EntityService;
+import org.flockdata.track.service.EntityTagService;
+import org.flockdata.track.service.LogService;
+import org.flockdata.track.service.MediationFacade;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,62 +72,65 @@ import java.util.concurrent.TimeoutException;
 @Qualifier("mediationFacadeNeo4j")
 public class MediationFacadeNeo implements MediationFacade {
 
-    // Default behaviour when creating a new fortress
-    private static final boolean IGNORE_SEARCH_ENGINE = false;
-    @Autowired
-    EntityService entityService;
+    private final EntityService entityService;
 
-    @Autowired
-    EntityTagService entityTagService;
+    private final EntityTagService entityTagService;
 
-    @Autowired
-    FortressService fortressService;
+    private final FortressService fortressService;
 
-    @Autowired
-    CompanyService companyService;
+    private SearchServiceFacade searchServiceFacade;
 
-    @Autowired (required = false)
-    SearchServiceFacade searchService;
+    private final DocTypeRetryService docTypeRetryService;
 
-    @Autowired
-    DocTypeRetryService docTypeRetryService;
+    private final StorageProxy contentReader;
 
-    @Autowired
-    StorageProxy contentReader;
+    private final LogService logService;
 
-    @Autowired
-    TagService tagService;
+    private final PlatformConfig engineConfig;
 
-    @Autowired
-    LogService logService;
+    private final EntityRetryService entityRetry;
 
-    @Autowired
-    EngineConfig engineConfig;
+    private final ConceptRetryService conceptRetryService;
 
-    @Autowired
-    EntityRetryService entityRetry;
+    private final IndexRetryService indexRetryService;
 
-    @Autowired
-    ConceptRetryService conceptRetryService;
+    private final SecurityHelper securityHelper;
 
-    @Autowired
-    IndexRetryService indexRetryService;
+    private final TagRetryService tagRetryService;
 
-    @Autowired
-    SecurityHelper securityHelper;
+    private final EngineAdminService adminService;
 
-    @Autowired
-    TagRetryService tagRetryService;
+    private final TrackBatchSplitter batchSplitter;
 
-    @Autowired
-    EngineAdminService adminService;
-
-    @Autowired
-    TrackBatchSplitter batchSplitter;
+    private final ConceptService conceptService;
 
     private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo.class);
 
-    static DecimalFormat f = new DecimalFormat();
+    private static DecimalFormat f = new DecimalFormat();
+
+    @Autowired
+    public MediationFacadeNeo(ConceptService conceptService, LogService logService, FortressService fortressService, TrackBatchSplitter batchSplitter, EntityTagService entityTagService, TagRetryService tagRetryService, EntityService entityService, DocTypeRetryService docTypeRetryService, StorageProxy contentReader, EntityRetryService entityRetry, PlatformConfig engineConfig, SecurityHelper securityHelper, ConceptRetryService conceptRetryService, EngineAdminService adminService, IndexRetryService indexRetryService) {
+        this.conceptService = conceptService;
+        this.logService = logService;
+        this.fortressService = fortressService;
+        this.batchSplitter = batchSplitter;
+        this.entityTagService = entityTagService;
+        this.tagRetryService = tagRetryService;
+        this.entityService = entityService;
+        this.docTypeRetryService = docTypeRetryService;
+        this.contentReader = contentReader;
+        this.entityRetry = entityRetry;
+        this.engineConfig = engineConfig;
+        this.securityHelper = securityHelper;
+        this.conceptRetryService = conceptRetryService;
+        this.adminService = adminService;
+        this.indexRetryService = indexRetryService;
+    }
+
+    @Autowired (required = false)
+    void setSearchServiceFacade(SearchServiceFacade searchServiceFacade){
+        this.searchServiceFacade = searchServiceFacade;
+    }
 
     @Override
     public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, InterruptedException, ExecutionException, IOException {
@@ -295,9 +297,6 @@ public class MediationFacadeNeo implements MediationFacade {
         return tags;
     }
 
-    @Autowired
-    ConceptService conceptService;
-
     @Override
     public TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
         // Create the basic data within a transaction
@@ -419,13 +418,8 @@ public class MediationFacadeNeo implements MediationFacade {
         // ToDo: Transactional?
         // Update the search docs for the affected entities
         Collection<Long> entities = entityTagService.mergeTags(source, target);
-        searchService.reIndex(entities);
+        searchServiceFacade.reIndex(entities);
 
-    }
-
-    @Override
-    public void createAlias(Company company, String label, Tag tag, String akaValue) {
-        tagService.createAlias(company, tag, label, akaValue);
     }
 
     @Override
@@ -506,9 +500,9 @@ public class MediationFacadeNeo implements MediationFacade {
         //entity = entityService.getEntity(entity);
         searchChange = entityService.cancelLastLog(company, entity);
         if (searchChange != null ) {
-            if ( searchService !=null ) {
-                searchService.setTags(entity, searchChange);
-                searchService.makeChangeSearchable(searchChange);
+            if ( searchServiceFacade !=null ) {
+                searchServiceFacade.setTags(entity, searchChange);
+                searchServiceFacade.makeChangeSearchable(searchChange);
             }
         } else {
             logger.info("ToDo: Delete the search document {}", entity);
@@ -518,8 +512,8 @@ public class MediationFacadeNeo implements MediationFacade {
     void distributeChanges(final Fortress fortress, final Iterable<TrackResultBean> resultBeans) throws IOException, InterruptedException, ExecutionException, FlockException {
 
         logger.debug("Distributing changes to sub-services");
-        if ( searchService != null )
-            searchService.makeChangesSearchable(fortress, resultBeans);
+        if ( searchServiceFacade != null )
+            searchServiceFacade.makeChangesSearchable(fortress, resultBeans);
         // ToDo: how to wait for results when running tests
         if (engineConfig.isTestMode())
             conceptRetryService.trackConcepts(fortress, resultBeans).get();

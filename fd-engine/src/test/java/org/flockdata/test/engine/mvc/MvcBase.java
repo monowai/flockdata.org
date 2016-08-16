@@ -25,6 +25,7 @@ import org.flockdata.authentication.FdRoles;
 import org.flockdata.engine.FdEngine;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
+import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
@@ -33,8 +34,6 @@ import org.flockdata.profile.ContentModelResult;
 import org.flockdata.profile.ContentValidationRequest;
 import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentModel;
-import org.flockdata.query.MatrixInputBean;
-import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.*;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
@@ -87,15 +86,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @RunWith(SpringJUnit4ClassRunner.class)
 public abstract class MvcBase {
 
-    static final String apiRoot = "/api";
+    private static final String apiRoot = "/api";
+    private static final String OTHERCO = "otherco";
     static final String LOGIN_PATH = apiRoot + "/login";
     static final String apiPath = apiRoot + "/v1";
-    public static final String ANYCO = "anyco";
-    public static final String OTHERCO = "otherco";
+    static final String ANYCO = "anyco";
 
     public static String harry = "harry";
     public static String mike_admin = "mike";
-    public static String sally_admin = "sally"; // admin in a different company
+    static String sally_admin = "sally"; // admin in a different company
     ResultMatcher OK = MockMvcResultMatchers.status().isOk();
     static Logger logger = LoggerFactory.getLogger(MvcBase.class);
 
@@ -227,7 +226,6 @@ public abstract class MvcBase {
 
     }
 
-
     FortressResultBean makeFortress(RequestPostProcessor user, String fortressName)
             throws Exception {
         return this.makeFortress(user, new FortressInputBean(fortressName, true));
@@ -257,6 +255,18 @@ public abstract class MvcBase {
         String json = response.getResponse().getContentAsString();
 
         return JsonUtils.toCollection(json, DocumentResultBean.class);
+    }
+
+    public DocumentResultBean getDocument(RequestPostProcessor user, String fortress, String docName) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders
+                .get(apiPath + "/doc/{fortress}/{docName}", fortress,docName)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user)
+                .content(JsonUtils.toJson(fortress))
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.toObject(json, DocumentResultBean.class);
     }
 
     public Collection<DocumentType> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
@@ -299,7 +309,6 @@ public abstract class MvcBase {
         }
         throw response.getResolvedException();
     }
-
 
     public EntityBean getEntity(RequestPostProcessor user, String key) throws Exception {
         return getEntity(user, key, MockMvcResultMatchers.status().isOk());
@@ -581,8 +590,8 @@ public abstract class MvcBase {
         return JsonUtils.toCollection(json, DocumentResultBean.class);
     }
 
-    public Collection<ConceptResultBean> getLabelsForDocument(RequestPostProcessor user, String code, String docResultName) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/doc/" + code + "/" + docResultName)
+    public Collection<ConceptResultBean> getLabelsForDocument(RequestPostProcessor user, String docResultName) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/concept/{doc}/values" , docResultName)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -643,7 +652,6 @@ public abstract class MvcBase {
         throw (response.getResolvedException());
 
     }
-
 
     public Map<String, Object> getConnectedTags(RequestPostProcessor user, String label, String code, String relationship, String targetLabel) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/tag/" + label + "/" + code + "/path/" + relationship + "/" + targetLabel)
@@ -893,7 +901,7 @@ public abstract class MvcBase {
 
     public MatrixResults getContentStructure(RequestPostProcessor user, String fortressCode, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.get(apiPath + "/fortress/{code}/structure", fortressCode)
+                .perform(MockMvcRequestBuilders.get(apiPath + "/concept/{code}/structure", fortressCode)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
                 ).andExpect(status).andReturn();

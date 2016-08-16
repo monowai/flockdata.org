@@ -18,7 +18,7 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.query;
+package org.flockdata.engine.matrix;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -34,14 +34,23 @@ import java.util.Collection;
 public class MatrixResults {
     private long sampleSize;
     private long totalHits;
-    Collection<EdgeResult> edges;  // From To
-    Collection<FdNode> nodes;    // Lookup table if edges contains just Ids
+    private Collection<FdNode> nodes;    // Lookup table of nodes in the edges
+    private Collection<EdgeResult> edges;  // relationship between 2 nodes
 
     public MatrixResults (){}
 
     public MatrixResults(Collection<EdgeResult> edgeResults) {
         this();
         setEdges(edgeResults);
+    }
+
+    public MatrixResults(EdgeResults edgeResults) {
+        setEdges(edgeResults.getEdgeResults());
+    }
+
+    public MatrixResults(EdgeResults edges, Collection<FdNode> nodes) {
+        this(edges);
+        this.nodes = nodes;
     }
 
     public Collection<EdgeResult> getEdges() {
@@ -57,12 +66,14 @@ public class MatrixResults {
         this.edges = edges;
     }
 
-    public void setNodes(Collection<FdNode> nodes) {
+    public MatrixResults setNodes(Collection<FdNode> nodes) {
         this.nodes = nodes;
+        return this;
     }
 
-    public void setSampleSize(long sampleSize) {
+    public MatrixResults setSampleSize(long sampleSize) {
         this.sampleSize = sampleSize;
+        return this;
     }
 
     public long getSampleSize() {

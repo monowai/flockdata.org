@@ -26,10 +26,10 @@ import org.flockdata.company.dao.FortressDaoNeo;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.dao.ConceptDaoNeo;
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
-import org.flockdata.query.EdgeResults;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.service.SystemUserService;
@@ -39,7 +39,6 @@ import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -450,7 +449,4 @@ public class FortressServiceNeo4j implements FortressService {
 
     }
 
-    public EdgeResults getContentStructure(Fortress fortress){
-        return conceptDao.getStructure(fortress);
-    }
 }

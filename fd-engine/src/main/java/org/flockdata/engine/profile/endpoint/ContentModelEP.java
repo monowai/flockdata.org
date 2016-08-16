@@ -21,6 +21,7 @@
 package org.flockdata.engine.profile.endpoint;
 
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
@@ -31,7 +32,6 @@ import org.flockdata.profile.ContentValidationRequest;
 import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
-import org.flockdata.track.service.FortressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -79,11 +79,11 @@ public class ContentModelEP {
         for (ContentModel contentModel : contentModels) {
             ContentModelResult result;
             if (contentModel.isTagModel())
-                result = makeContentModel(request, contentModel.getCode(), contentModel);
+                result = saveContentModel(request, contentModel.getCode(), contentModel);
             else {
                 Fortress fortress = fortressService.registerFortress(company, contentModel.getFortress());
-                conceptService.save(new DocumentType(fortress.getDefaultSegment(), contentModel.getDocumentType()));
-                result = makeContentModel(request, contentModel.getFortress().getName(), contentModel.getDocumentType().getName(), contentModel);
+                conceptService.save(new DocumentType(fortress.getDefaultSegment(), contentModel));
+                result = saveContentModel(request, contentModel.getFortress().getName(), contentModel.getDocumentType().getName(), contentModel);
             }
             results.add(result);
         }
@@ -162,7 +162,7 @@ public class ContentModelEP {
             produces = "application/json",
             consumes = "application/json",
             method = RequestMethod.POST)
-    public ContentModelResult makeContentModel(HttpServletRequest request,
+    public ContentModelResult saveContentModel(HttpServletRequest request,
                                                @PathVariable("fortressCode") String fortressCode,
                                                @PathVariable("docTypeName") String docTypeName,
                                                @RequestBody ContentModel contentModel) throws FlockException {
@@ -176,10 +176,10 @@ public class ContentModelEP {
         if (fortress == null)
             throw new IllegalArgumentException("Unable to locate the fortress " + fortressCode);
 
-        DocumentType documentType = conceptService.resolveByDocCode(fortress, docTypeName, Boolean.TRUE);
+        DocumentType documentType = conceptService.resolveByDocCode(fortress, docTypeName, false);
 
         if (documentType == null && contentModel.getDocumentType() != null) {
-            documentType = conceptService.findOrCreate(fortress, new DocumentType(fortress, contentModel.getDocumentType()));
+            documentType = conceptService.findOrCreate(fortress, new DocumentType(fortress, contentModel));
         }
 
         if (documentType == null)
@@ -193,7 +193,7 @@ public class ContentModelEP {
             produces = "application/json",
             consumes = "application/json",
             method = RequestMethod.POST)
-    public ContentModelResult makeContentModel(HttpServletRequest request,
+    public ContentModelResult saveContentModel(HttpServletRequest request,
                                                @PathVariable("code") String code,
                                                @RequestBody ContentModel contentModel) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);

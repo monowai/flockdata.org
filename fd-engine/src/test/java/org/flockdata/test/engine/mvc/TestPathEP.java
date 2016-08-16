@@ -37,7 +37,7 @@ public class TestPathEP extends MvcBase {
 
     @Test
     public void get_tags() throws Exception {
-        engineConfig.setConceptsEnabled("true");
+        engineConfig.setConceptsEnabled(true);
         engineConfig.setMultiTenanted(false);
         // Creating a structure
         TagInputBean term = new TagInputBean("volvo 244", "Term");

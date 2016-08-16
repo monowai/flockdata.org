@@ -22,6 +22,7 @@ package org.flockdata.engine.dao;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
@@ -33,7 +34,6 @@ import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.EntityTXResult;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityTagService;
-import org.flockdata.track.service.FortressService;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.Relationship;
@@ -109,19 +109,26 @@ public class EntityDaoNeo {
     private void setConceptService (ConceptService conceptService){
         this.conceptService = conceptService;
     }
+
     public Entity create(EntityInputBean inputBean, FortressSegment segment, FortressUser fortressUser, DocumentType documentType) throws FlockException {
-        String key = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
+        Boolean trackEnabled = isTrackEnabled(documentType, inputBean);
+        String key = (trackEnabled ? keyGenService.getUniqueKey() : null );
         Entity entity = new Entity(key, segment, inputBean, documentType);
 
         entity.setIndexName(indexManager.parseIndex(entity));
         entity.setCreatedBy(fortressUser);
         entity.addLabel(documentType.getName());
 
-        if (!inputBean.isTrackSuppressed()) {
+        if (trackEnabled) {
             logger.debug("Creating {}", entity);
             entity = save(entity);
+            // ToDo: Track the meta structure!
         }
         return entity;
+    }
+
+    private Boolean isTrackEnabled(DocumentType documentType, EntityInputBean inputBean) {
+        return (documentType.getTrackEnabled()!=null && documentType.getTrackEnabled()) || !inputBean.isTrackSuppressed() ;
     }
 
     public Entity save(Entity entity) {

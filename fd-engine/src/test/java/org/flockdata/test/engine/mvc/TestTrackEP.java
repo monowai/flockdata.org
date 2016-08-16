@@ -45,7 +45,7 @@ public class TestTrackEP extends MvcBase {
     @Test
     public void track_MinimalArguments () throws Exception {
         FortressResultBean f = makeFortress(mike(),  new FortressInputBean("track_MinimalArguments", true));
-        EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
+        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("usera");
         eib.setCode(new DateTime().toString());
         ContentInputBean cib = new ContentInputBean("userA", EntityContentHelper.getRandomMap());
@@ -69,7 +69,7 @@ public class TestTrackEP extends MvcBase {
     @Test
     public void track_FortressUserInEntity() throws Exception {
         FortressResultBean f = makeFortress(mike(),  new FortressInputBean("track_MinimalArguments", true));
-        EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
+        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("userA");
         ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         eib.setContent(cib);
@@ -84,7 +84,7 @@ public class TestTrackEP extends MvcBase {
     @Test
     public void entity_findLogs() throws Exception {
         FortressResultBean f = makeFortress(mike(),  new FortressInputBean("entity_findLogs", true));
-        EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
+        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("userA");
         ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         eib.setContent(cib);
@@ -97,7 +97,7 @@ public class TestTrackEP extends MvcBase {
     @Test
     public void entity_findLogsWithIllegalEntity() throws Exception {
         FortressResultBean f = makeFortress(mike(),  new FortressInputBean("entity_findLogsWithIllegalEntity", true));
-        EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
+        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("userA");
         ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         eib.setContent(cib);

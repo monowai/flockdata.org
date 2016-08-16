@@ -46,11 +46,6 @@ import static org.junit.Assert.assertEquals;
 public class TestContentDuplicate  extends  EngineBase{
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
-    @org.junit.Before
-    public void setup(){
-        engineConfig.setDuplicateRegistration(true);
-    }
-
     @Test
     public void reprocess_HistoricContentsNotCreated() throws Exception {
         logger.debug("### reprocess_HistoricContentsNotCreated");

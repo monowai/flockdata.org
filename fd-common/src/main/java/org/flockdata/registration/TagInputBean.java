@@ -106,6 +106,13 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
         //this.code = this.name;
     }
 
+    /**
+     * Tag to use with a relationship to an Entity if being tracked via an EntityInputBean
+     *
+     * @param tagCode          Identifier for a Tag instance
+     * @param tagLabel         Classifier
+     * @param relationshipName Name used to create an EntityTagRelationshipInput
+     */
     public TagInputBean(String tagCode, String tagLabel, String relationshipName) {
         this (tagCode, tagLabel, new EntityTagRelationshipInput((relationshipName==null ?Tag.UNDEFINED:relationshipName)));
     }

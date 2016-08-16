@@ -129,7 +129,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             return searchChange;
         } catch (MapperParsingException e) {
             // DAT-359
-            logger.error("Parsing error {} - callerRef [{}], key [{}], [{}]", indexName, searchChange.getCode(), searchChange.getKey(), e.getMessage());
+            logger.error("Parsing error {} - code [{}], key [{}], [{}]", indexName, searchChange.getCode(), searchChange.getKey(), e.getMessage());
             throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], key [" + searchChange.getKey() + "], " + e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Writing to index {} produced an error [{}]", indexName, e.getMessage());

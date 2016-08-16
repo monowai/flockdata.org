@@ -20,10 +20,10 @@
 
 package org.flockdata.dao;
 
+import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
-import org.flockdata.query.MatrixInputBean;
-import org.flockdata.query.MatrixResults;
+import org.flockdata.track.bean.MatrixInputBean;
 
 /**
  * Created with IntelliJ IDEA.
