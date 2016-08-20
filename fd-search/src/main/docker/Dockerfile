@@ -34,4 +34,4 @@ ENTRYPOINT ["java",\
      "-Dlogging.config=/opt/flockdata/conf/log4j2.yml",\
      "-Djava.security.egd=file:/dev/./urandom"]
 
-CMD -Xmx2g
+#CMD -Xmx2g

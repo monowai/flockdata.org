@@ -43,7 +43,7 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.TransformationHelper;
+import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.Transformer;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -280,7 +280,7 @@ public class ContentModelServiceNeo implements ContentModelService {
         if (contentRequest.getContentModel().isTagModel()) {
 
             for (Map<String, Object> dataRow : contentRequest.getRows()) {
-                validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel()));
+                validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel().getContent()));
                 try {
                     validatedContent.add(row, Transformer.toTags(dataRow, contentRequest.getContentModel()));
                 } catch ( Exception e){
@@ -291,7 +291,7 @@ public class ContentModelServiceNeo implements ContentModelService {
 
         } else {// do entity
             for (Map<String, Object> dataRow : contentRequest.getRows()) {
-                validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel()));
+                validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel().getContent()));
                 try {
                     validatedContent.add(row, Transformer.toEntity(dataRow, contentRequest.getContentModel()));
                 } catch ( Exception e){
@@ -305,33 +305,36 @@ public class ContentModelServiceNeo implements ContentModelService {
         return validatedContent;
     }
 
-    private Collection<ColumnValidationResult> validate(Map<String,Object>row, ContentModel model){
+    /**
+     * Validate the data against the expressions in the ContentModel
+     *
+     * @param row   data to validate
+     * @param columnDefinitionMap validate against this
+     * @return Identified validation errors
+     */
+    private Collection<ColumnValidationResult> validate(Map<String,Object>row, Map<String,ColumnDefinition> columnDefinitionMap){
         Collection<ColumnValidationResult> results = new ArrayList<>();
 
-        for (String source : model.getContent().keySet()) {
+        for (String source : columnDefinitionMap.keySet()) {
             Collection<String> messages = new ArrayList<>();
+            ColumnDefinition column = columnDefinitionMap.get(source);
+            String sourceColumn = column.getSource();
             try {
-                ColumnDefinition column = model.getContent().get(source);
-                String sourceColumn = column.getSource();
                 if ( sourceColumn  == null )
                     sourceColumn = source;
 
                 Object oVal = row.get(sourceColumn);
-                String colValue = null;
 
-                if (oVal != null)
-                    colValue = oVal.toString();
-                Object o = TransformationHelper.resolveValue(colValue, sourceColumn, column, row);
+                Object o = ExpressionHelper.getValue(row, column.getValue(), column, oVal);
                 if (o == null)
                     messages.add("Null was calculated");
                 if ( !Transformer.isValidForEs(sourceColumn)){
                     messages.add(sourceColumn + " is not valid for ElasticSearch");
                 }
             } catch (Exception e){
-                messages.add(e.getMessage());
+                messages.add( "["+sourceColumn+ "] error - [" +e.getMessage() +"]");
             }
-//            if ( Transformer.isValidForEs(column.getSource()))
-            results.add(new ColumnValidationResult(source, model.getContent().get(source), messages));
+            results.add(new ColumnValidationResult(source, columnDefinitionMap.get(source), messages));
 
         }
         return results;

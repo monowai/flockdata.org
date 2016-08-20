@@ -47,4 +47,4 @@ ENTRYPOINT ["java",\
      "-Djava.security.egd=file:/dev/./urandom" \
      ]
 
-CMD -Xmx2g
+#CMD -Xmx2g

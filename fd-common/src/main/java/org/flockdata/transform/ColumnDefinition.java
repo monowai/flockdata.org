@@ -61,7 +61,6 @@ public class ColumnDefinition implements GeoDefinition {
         return this;
     }
 
-
     public enum ExpressionType {CODE, NAME, RELATIONSHIP, KEY_PREFIX, PROP_EXP, LABEL, CALLER_REF}
 
     // Flags that profile the properties of a column
@@ -84,13 +83,14 @@ public class ColumnDefinition implements GeoDefinition {
     private String labelDescription;
     private String type; //datatype
     private String name;
+
     private String value; // User define value
 
     private String valueOnError;// Value to set to if the format causes an exception
 
     private String nullOrEmpty;
-    private String notFound;
 
+    private String notFound;
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> rlxProperties;
 
@@ -99,12 +99,12 @@ public class ColumnDefinition implements GeoDefinition {
 
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> properties; // Properties to add to this object
-    private ArrayList<Map<String, String>> entityLinks = new ArrayList<>();
 
+    private ArrayList<Map<String, String>> entityLinks = new ArrayList<>();
     @JsonDeserialize(using = EntityTagRelationshipDeserializer.class)
     private Collection<EntityTagRelationshipDefinition> entityTagLinks ;
-    private ArrayList<AliasInputBean> aliases;
 
+    private ArrayList<AliasInputBean> aliases;
     private String delimiter;    // value delimiter
 
     public String getLabel() {
@@ -131,6 +131,11 @@ public class ColumnDefinition implements GeoDefinition {
 
     public Boolean isTitle() {
         return title;
+    }
+
+    // An expression value to use for a column
+    public void setValue(String value) {
+        this.value = value;
     }
 
     /**
@@ -427,6 +432,11 @@ public class ColumnDefinition implements GeoDefinition {
 
     public void setTarget(String target) {
         this.target = target;
+    }
+
+    public ColumnDefinition setTitle(boolean title) {
+        this.title = title;
+        return this;
     }
 
     @Override

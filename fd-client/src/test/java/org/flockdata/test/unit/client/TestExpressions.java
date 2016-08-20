@@ -20,9 +20,12 @@ import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.Transformer;
+import org.flockdata.transform.entity.EntityPayloadTransformer;
 import org.flockdata.transform.tag.TagPayloadTransformer;
 import org.junit.Test;
+import org.springframework.expression.spel.SpelEvaluationException;
 
 import java.util.Map;
 
@@ -84,6 +87,21 @@ public class TestExpressions extends AbstractImport {
         assertEquals("Unable to find remapped target property name", true, birthdaySet);
         assertEquals(true, urlSet);
         assertEquals(true, genderSet);
+    }
+
+    @Test (expected = SpelEvaluationException.class)
+    public void illegalExpression() throws Exception {
+        ContentModel model = ContentModelDeserializer.getContentModel("/model/tag-expressions.json");
+        ColumnDefinition columnDefinition = new ColumnDefinition().setTitle(true);
+        columnDefinition.setValue("a+b");
+        model.getContent().put("Illegal", columnDefinition);
+        EntityPayloadTransformer entityTransformer = EntityPayloadTransformer.newInstance(model);
+        String[] headers = new String[]{"last_name", "first_name", "birthday", "gender", "type", "state", "district", "party", "url", "address", "phone", "contact_form", "rss_url", "twitter", "facebook", "facebook_id", "youtube", "youtube_id", "bioguide_id", "thomas_id", "opensecrets_id", "lis_id", "cspan_id", "govtrack_id", "votesmart_id", "ballotpedia_id", "washington_post_id", "icpsr_id", "wikipedia_id"};
+        String[] data = new String[]{"Whitehouse", "Sheldon", "1955-10-20", "M", "sen", "RI", "", "Democrat", "http://www.whitehouse.senate.gov", "530 Hart Senate Office Building Washington DC 20510", "202-224-2921", "http://www.whitehouse.senate.gov/contact", "http://www.whitehouse.senate.gov/rss/feeds/?type=all&amp;cachebuster=1", "SenWhitehouse", "SenatorWhitehouse", "194172833926853", "SenatorWhitehouse", "UCnG0N70SNBkNqvIMLodPTIA", "W000802", "01823", "N00027533", "S316", "92235", "412247", "2572", "Sheldon Whitehouse", "gIQA7KHw9O", "40704", "Sheldon Whitehouse"};
+
+        entityTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(model)));
+
+
     }
 
 

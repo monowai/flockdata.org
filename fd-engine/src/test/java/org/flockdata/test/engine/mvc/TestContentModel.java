@@ -303,10 +303,16 @@ public class TestContentModel extends MvcBase {
         ContentModel model = getDefaultContentModel(mike(), valRequest);
         assertNotNull(model);
         assertNotNull(model.getContent());
+
+        ColumnDefinition columnDefinition = new ColumnDefinition();
+        columnDefinition.setValue("a+b");// Illegal expression
+        columnDefinition.setTitle(true);// make sure it gets evaluated;
+        model.getContent().put("illegalExpression", columnDefinition);
+
         model.setDocumentType( new DocumentTypeInputBean("Entity"));
         model.setTagModel(false);
 
-        ColumnDefinition columnDefinition = model.getContent().get("drumID.key");
+        columnDefinition = model.getContent().get("drumID.key");
         columnDefinition.setTarget("drumID.key"); // We want to pickup content validation error
         ContentValidationResults valResults = validateContentModel(mike(), validationRequest.setContentModel(model), OK);
         assertNotNull(valResults);
@@ -314,10 +320,17 @@ public class TestContentModel extends MvcBase {
         assertNotNull ( valResults);
         Collection<ColumnValidationResult> columnValidationResults = valResults.getResults().get(0);
         for (ColumnValidationResult columnValidationResult : columnValidationResults) {
-            if ( columnValidationResult.getSourceColumn().equals("drumID.key")){
-                assertEquals("Expected a validation error message", 1, columnValidationResult.getMessages().size());
-            } else
-                assertEquals("Didn't expect a validation error message", 0, columnValidationResult.getMessages().size());
+            switch (columnValidationResult.getSourceColumn()) {
+                case "drumID.key":
+                    assertEquals("Expected a validation error message", 1, columnValidationResult.getMessages().size());
+                    break;
+                case "illegalExpression":
+                    assertEquals("Expected and illegal expression message", 1, columnValidationResult.getMessages().size());
+                    break;
+                default:
+                    assertEquals("Didn't expect a validation error message", 0, columnValidationResult.getMessages().size());
+                    break;
+            }
         }
 
     }
