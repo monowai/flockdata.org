@@ -98,7 +98,7 @@ public class TagCloudRequest {
     }
 
     @MessagingGateway
-    @Profile({"fd-server"})
+//    @Profile({"fd-server"})
     public interface TagCloudGateway  {
         @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "tagCloudResult")
         TagCloud getTagCloud(TagCloudParams tagCloudParams);

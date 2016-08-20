@@ -69,8 +69,7 @@ public class QueryService {
         this.fortressService = fortressService;
     }
 
-    @Autowired(required = false)
-        // Functional tests don't require gateways
+    @Autowired(required = false)// Functional tests don't require gateways
     void setTagCloudGateway(TagCloudGateway tagCloudGateway) {
         this.tagCloudGateway = tagCloudGateway;
     }

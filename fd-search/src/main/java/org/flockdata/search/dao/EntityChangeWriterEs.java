@@ -22,6 +22,7 @@ package org.flockdata.search.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.NoShardAvailableActionException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
@@ -111,7 +112,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
         irb.setId(searchChange.getSearchKey());
         if (searchChange.getParent() != null)
-                irb.setParent(searchChange.getParent().getCode());
+            irb.setParent(searchChange.getParent().getCode());
         else
             irb.setRouting(searchChange.getCode());
 
@@ -286,7 +287,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
      * @param searchChange searchChange
      * @return document to index
      */
-    private Map<String, Object> getMapFromChange(EntitySearchChange searchChange) {
+    public Map<String, Object> getMapFromChange(EntitySearchChange searchChange) {
         Map<String, Object> indexMe = new HashMap<>();
         indexMe.put(SearchSchema.FORTRESS, searchChange.getFortressName());
         // MKH - let elasticSearch manage this
@@ -321,10 +322,17 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         if (searchChange.getCode() != null)
             indexMe.put(SearchSchema.CODE, searchChange.getCode());
 
-        if (searchChange.getName() != null)
-            indexMe.put(SearchSchema.NAME, searchChange.getName());
+        String name = searchChange.getName();
+        String description = searchChange.getDescription();
 
-        if (searchChange.getDescription() != null)
+        if ( name !=null ){
+            // We prefer storing the description in the search doc
+            if ( description==null || StringUtils.equals(name, description))
+                description = name;
+            else
+                indexMe.put(SearchSchema.NAME, searchChange.getName());
+        }
+        if (description != null) // Search description - generally always returned
             indexMe.put(SearchSchema.DESCRIPTION, searchChange.getDescription());
 
         if (!searchChange.getTagValues().isEmpty())
