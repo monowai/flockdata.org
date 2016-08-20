@@ -18,22 +18,19 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test.helper;
+package org.flockdata.test.integration;
 
 
 import junit.framework.TestCase;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.integration.IndexManager;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.shared.IndexManager;
 import org.junit.Test;
-
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Created by mike on 29/02/16.
@@ -54,11 +51,11 @@ public class TestIndexManager {
     public void json_QueryParams () throws Exception {
         QueryParams queryParams = new QueryParams("*");
         String json = JsonUtils.toJson(queryParams);
-        assertNotNull(json);
+        TestCase.assertNotNull(json);
 
         QueryParams qp = JsonUtils.toObject(json.getBytes(), QueryParams.class);
-        assertNotNull (qp);
-        assertEquals(queryParams.getSearchText(), qp.getSearchText());
+        TestCase.assertNotNull (qp);
+        TestCase.assertEquals(queryParams.getSearchText(), qp.getSearchText());
     }
 
     @Test
@@ -66,11 +63,11 @@ public class TestIndexManager {
         TagInputBean tagInputBean = new TagInputBean("abc","label");
         TagResultBean tagResult = new TagResultBean( tagInputBean);
         String json = JsonUtils.toJson(tagResult);
-        assertNotNull(json);
+        TestCase.assertNotNull(json);
 
         TagResultBean tr = JsonUtils.toObject(json.getBytes(), TagResultBean.class);
-        assertNotNull (tr);
-        assertEquals(tagResult.getCode(), tr.getCode());
+        TestCase.assertNotNull (tr);
+        TestCase.assertEquals(tagResult.getCode(), tr.getCode());
     }
 
 }

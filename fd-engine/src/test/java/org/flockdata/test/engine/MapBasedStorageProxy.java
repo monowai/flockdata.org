@@ -21,7 +21,7 @@
 package org.flockdata.test.engine;
 
 import org.flockdata.engine.admin.service.FdStorageProxy;
-import org.flockdata.shared.InMemoryRepo;
+import org.flockdata.integration.InMemoryRepo;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;

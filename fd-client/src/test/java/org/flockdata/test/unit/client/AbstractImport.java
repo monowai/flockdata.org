@@ -16,8 +16,8 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.FileProcessor;
+import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.FileProcessor;
 import org.flockdata.transform.PayloadBatcher;
 import org.junit.Before;
 import org.junit.Test;

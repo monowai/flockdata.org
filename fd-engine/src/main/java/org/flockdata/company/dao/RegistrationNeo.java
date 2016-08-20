@@ -20,10 +20,10 @@
 
 package org.flockdata.company.dao;
 
+import org.flockdata.integration.KeyGenService;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.dao.RegistrationDao;
-import org.flockdata.shared.KeyGenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;

@@ -17,8 +17,8 @@
 package org.flockdata.client;
 
 import org.flockdata.client.commands.Ping;
+import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.registration.RegistrationBean;
-import org.flockdata.shared.ClientConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

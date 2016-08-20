@@ -28,7 +28,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Date: 16/12/14
  * Time: 7:36 AM
  */
-@SpringBootApplication (scanBasePackages = {"org.flockdata.search", "org.flockdata.shared", "org.flockdata.authentication"})
+@SpringBootApplication (scanBasePackages = {"org.flockdata.search", "org.flockdata.integration", "org.flockdata.authentication"})
 public class FdSearch {
 
     public static void main(String[] args) {

@@ -21,9 +21,9 @@
 package org.flockdata.engine.integration.search;
 
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.integration.MessageSupport;
 import org.flockdata.search.model.EntityKeyResults;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.shared.MessageSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

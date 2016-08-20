@@ -20,6 +20,7 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.integration.FileProcessor;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
@@ -32,7 +33,6 @@ import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.junit.Test;

@@ -22,6 +22,8 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.FileProcessor;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
@@ -31,8 +33,6 @@ import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.service.BatchService;
 import org.flockdata.track.service.TagService;
 import org.flockdata.transform.tag.TagPayloadTransformer;

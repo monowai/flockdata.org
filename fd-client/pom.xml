@@ -22,6 +22,11 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.flockdata</groupId>
+            <artifactId>fd-integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!--<dependency>-->
             <!--&lt;!&ndash;https://github.com/testcontainers/testcontainers-java/blob/master/docs/index.md&ndash;&gt;-->
@@ -88,20 +93,6 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.fasterxml.jackson.core</groupId>-->
-            <!--<artifactId>jackson-core</artifactId>-->
-        <!--</dependency>-->
-        <!--If including fd-client as a dependency, you will likely want to exclude logging in favour of your own-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.logging.log4j</groupId>-->
-            <!--<artifactId>log4j-slf4j-impl</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.logging.log4j</groupId>-->
-            <!--<artifactId>log4j-core</artifactId>-->
-        <!--</dependency>-->
-
         <!-- fd-batch-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

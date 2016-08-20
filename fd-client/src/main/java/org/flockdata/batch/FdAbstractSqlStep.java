@@ -18,7 +18,7 @@ package org.flockdata.batch;
 
 import org.flockdata.batch.resources.FdBatchResources;
 import org.flockdata.batch.resources.FdRowMapper;
-import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.integration.ClientConfiguration;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.beans.factory.annotation.Autowired;

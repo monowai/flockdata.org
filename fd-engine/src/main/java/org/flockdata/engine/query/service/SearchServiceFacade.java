@@ -29,11 +29,11 @@ import org.flockdata.engine.integration.search.EntitySearchWriter.EntitySearchWr
 import org.flockdata.engine.integration.search.FdViewQuery.FdViewQueryGateway;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.integration.IndexManager;
 import org.flockdata.model.*;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.AdminRequest;
 import org.flockdata.search.model.*;
-import org.flockdata.shared.IndexManager;
 import org.flockdata.store.StoredContent;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;

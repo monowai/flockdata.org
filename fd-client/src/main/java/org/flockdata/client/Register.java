@@ -17,8 +17,8 @@
 package org.flockdata.client;
 
 import org.flockdata.client.commands.RegistrationPost;
+import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.registration.RegistrationBean;
-import org.flockdata.shared.ClientConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ import javax.annotation.PostConstruct;
  *
  * @see org.flockdata.registration.RegistrationBean
  * @see org.flockdata.registration.SystemUserResultBean
- * @see org.flockdata.shared.ClientConfiguration
+ * @see org.flockdata.integration.ClientConfiguration
  * <p>
  * User: Mike Holdsworth
  * Since: 13/10/13

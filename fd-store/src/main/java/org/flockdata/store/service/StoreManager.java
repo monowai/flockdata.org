@@ -22,9 +22,9 @@ package org.flockdata.store.service;
 
 import org.flockdata.helper.FlockServiceException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.integration.InMemoryRepo;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
-import org.flockdata.shared.InMemoryRepo;
 import org.flockdata.store.FdStoreRepo;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
@@ -53,23 +53,34 @@ import java.util.Map;
  * User: Mike Holdsworth
  * Since: 4/09/13
  */
-@Service ("fdStoreManager")
+@Service
 @Transactional
 public class StoreManager implements StoreService {
 
+    private RedisRepo redisRepo;
+    private RiakRepo riakRepo;
+    private InMemoryRepo inMemoryRepo;
+    private Logger logger = LoggerFactory.getLogger(StoreManager.class);
+
+    private FdStoreConfig storeConfig;
     @Autowired (required = false)
-    RedisRepo redisRepo;
+    void setRedisRepo (RedisRepo redisRepo){
+        this.redisRepo = redisRepo;
+    }
 
     @Autowired (required = false)
-    RiakRepo riakRepo;
-
+    void setRiakRepo (RiakRepo riakRepo ){
+        this.riakRepo = riakRepo;
+    }
     @Autowired (required = false)
-    InMemoryRepo inMemoryRepo;
+    void setInMemoryRepo (InMemoryRepo inMemoryRepo ){
+        this.inMemoryRepo = inMemoryRepo;
+    }
 
     @Autowired
-    FdStoreConfig storeConfig;
-
-    private Logger logger = LoggerFactory.getLogger(StoreManager.class);
+    void setStoreConfig (FdStoreConfig storeConfig ){
+        this.storeConfig = storeConfig;
+    }
 
     @Override
     public String ping(Store store) {

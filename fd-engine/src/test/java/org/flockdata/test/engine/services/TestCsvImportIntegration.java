@@ -21,11 +21,11 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
+import org.flockdata.integration.FileProcessor;
 import org.flockdata.model.*;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.shared.FileProcessor;
 import org.flockdata.store.Store;
 import org.flockdata.track.bean.EntityLogResult;
 import org.joda.time.DateTime;

@@ -20,6 +20,7 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.integration.FileProcessor;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
 import org.flockdata.model.SystemUser;
@@ -29,7 +30,6 @@ import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.FileProcessor;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

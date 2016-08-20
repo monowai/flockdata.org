@@ -24,15 +24,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.integration.IndexManager;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.shared.IndexManager;
 import org.flockdata.store.FdStore;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
-import org.flockdata.store.service.StoreService;
+import org.flockdata.store.service.StoreManager;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -81,19 +81,19 @@ public class TestStoreService {
 
 
     @Autowired
-    IndexManager indexManager;
+    private IndexManager indexManager;
 
     private MockMvc mockMvc;
 
     @Autowired
-    WebApplicationContext wac;
+    private WebApplicationContext wac;
 
     private Logger logger = LoggerFactory.getLogger(TestStoreService.class);
 
     private static RedisServer redisServer;
 
     @Autowired
-    private StoreService storeService;
+    private StoreManager storeManager;
 
     @Before
     public void resetKvStore() {
@@ -206,12 +206,12 @@ public class TestStoreService {
 
         // Finally! the actual write occurs
         try {
-            storeService.doWrite(storeBean);
+            storeManager.doWrite(storeBean);
 
             String index = indexManager.toStoreIndex(storeToTest, entity);
             String type = indexManager.parseType(entity);
             String key = indexManager.resolveKey(new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
-            StoredContent contentResult = storeService.doRead(storeToTest,
+            StoredContent contentResult = storeManager.doRead(storeToTest,
                     index,
                     type,
                     key);
@@ -222,7 +222,7 @@ public class TestStoreService {
             validateContent("Validating result found via Mock MVC", contentResult);
 
             // Testing that cancel works
-            storeService.delete(entity, trackResultBean.getCurrentLog().getLog());
+            storeManager.delete(entity, trackResultBean.getCurrentLog().getLog());
 
         } catch (AmqpRejectAndDontRequeueException e) {
             // ToDo: Mock RIAK
@@ -304,9 +304,9 @@ public class TestStoreService {
         try {
             TrackResultBean trackResultBean = new TrackResultBean(null, entity, documentType, inputBean);
             StorageBean storeBean = new StorageBean(trackResultBean);
-            storeService.doWrite(storeBean);
+            storeManager.doWrite(storeBean);
             EntityLog entityLog = trackResultBean.getCurrentLog();
-            StoredContent entityContent = storeService.doRead(storeToTest,
+            StoredContent entityContent = storeManager.doRead(storeToTest,
                     indexManager.toStoreIndex(storeToTest, entity),
                     indexManager.parseType(entity),
                     trackResultBean.getCurrentLog().getLog().getId().toString());

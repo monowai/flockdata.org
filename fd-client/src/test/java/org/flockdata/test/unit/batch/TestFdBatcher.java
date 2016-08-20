@@ -16,8 +16,8 @@
 
 package org.flockdata.test.unit.batch;
 
+import org.flockdata.integration.FdBatchWriter;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.shared.FdBatchWriter;
 import org.flockdata.test.unit.client.AbstractImport;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;

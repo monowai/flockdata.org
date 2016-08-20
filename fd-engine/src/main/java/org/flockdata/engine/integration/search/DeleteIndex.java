@@ -20,11 +20,11 @@
 
 package org.flockdata.engine.integration.search;
 
+import org.flockdata.integration.AmqpRabbitConfig;
+import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.Exchanges;
+import org.flockdata.integration.MessageSupport;
 import org.flockdata.search.AdminRequest;
-import org.flockdata.shared.AmqpRabbitConfig;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.Exchanges;
-import org.flockdata.shared.MessageSupport;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

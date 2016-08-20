@@ -18,6 +18,7 @@ package org.flockdata.test.unit.client;
 
 import junit.framework.TestCase;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.integration.FileProcessor;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
@@ -25,7 +26,6 @@ import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.EntityService;

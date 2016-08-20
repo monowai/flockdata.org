@@ -41,7 +41,7 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: org.flockdata.shared
+        - name: org.flockdata.integration
           additivity: false
           level: info
           AppenderRef:

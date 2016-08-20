@@ -16,7 +16,7 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.shared.FdBatchWriter;
+import org.flockdata.integration.FdBatchWriter;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 

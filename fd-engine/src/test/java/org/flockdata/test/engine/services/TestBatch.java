@@ -21,6 +21,7 @@
 package org.flockdata.test.engine.services;
 
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.integration.FileProcessor;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
@@ -29,7 +30,6 @@ import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.service.BatchService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

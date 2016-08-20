@@ -17,6 +17,8 @@
 package org.flockdata.client;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.FileProcessor;
 import org.flockdata.profile.ExtractProfileDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
@@ -24,8 +26,6 @@ import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.profile.model.PayloadTransformer;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.FileProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -21,8 +21,8 @@
 package org.flockdata.test.search;
 
 import junit.framework.TestCase;
+import org.flockdata.integration.IndexManager;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.shared.IndexManager;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertNotNull;

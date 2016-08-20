@@ -16,7 +16,7 @@
 
 package org.flockdata.test.unit.importer;
 
-import org.flockdata.shared.FileProcessor;
+import org.flockdata.integration.FileProcessor;
 import org.junit.Test;
 
 import java.util.Collection;

@@ -17,7 +17,7 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.client.FdTemplate;
-import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.springframework.http.HttpEntity;

@@ -27,7 +27,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
  * Starts fd-store
  * Created by mike on 17/02/16.
  */
-@SpringBootApplication(scanBasePackages = { "org.flockdata.store",
+@SpringBootApplication(scanBasePackages = {
+        "org.flockdata.integration",
+        "org.flockdata.store",
         "org.flockdata.authentication",
         "org.flockdata.shared"})
 public class FdStore {

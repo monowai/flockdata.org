@@ -50,6 +50,11 @@
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
+            <artifactId>fd-integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flockdata</groupId>
             <artifactId>fd-security</artifactId>
             <version>${project.version}</version>
         </dependency>

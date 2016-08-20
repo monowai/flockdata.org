@@ -20,8 +20,8 @@
 
 package org.flockdata.test.engine;
 
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.FdBatchWriter;
+import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.FdBatchWriter;
 import org.flockdata.transform.FdIoInterface;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;

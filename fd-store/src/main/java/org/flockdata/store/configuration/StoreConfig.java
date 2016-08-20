@@ -20,7 +20,7 @@
 
 package org.flockdata.store.configuration;
 
-import org.flockdata.shared.VersionHelper;
+import org.flockdata.integration.VersionHelper;
 import org.flockdata.store.Store;
 import org.flockdata.store.service.FdStoreConfig;
 import org.slf4j.Logger;

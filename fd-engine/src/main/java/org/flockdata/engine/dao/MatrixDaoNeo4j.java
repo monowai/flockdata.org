@@ -165,8 +165,11 @@ public class MatrixDaoNeo4j implements MatrixDao {
         EdgeResults edgeResults = new EdgeResults();
         Map<String, Object> uniqueKeys = new HashMap<>();
         while (rows.hasNext()) {
-            if (edgeResults.getEdgeResults().size() > input.getMaxEdges())
-                throw new FlockException("Excessive amount of data was requested "+edgeResults.getEdgeResults().size()+" vs. limit of "+input.getMaxEdges()+". Try increasing the minimum occurrences, applying a search filter or reducing the sample size");
+            if (edgeResults.getEdgeResults().size() > input.getMaxEdges()) {
+                String message = "Excessive amount of data was requested "+edgeResults.getEdgeResults().size()+" vs. limit of "+input.getMaxEdges()+". Try increasing the minimum occurrences, applying a search filter or reducing the sample size";
+                logger.error(message);
+                throw new FlockException(message);
+            }
 
             Map<String, Object> row = rows.next();
             Collection<Object> tag2 = (Collection<Object>) row.get(conceptToCol);

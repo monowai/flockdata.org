@@ -18,10 +18,10 @@ package org.flockdata.client.amqp;
 
 import com.rabbitmq.client.*;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.integration.AmqpRabbitConfig;
+import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.Exchanges;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.AmqpRabbitConfig;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.Exchanges;
 import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

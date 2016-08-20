@@ -18,7 +18,7 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.shared;
+package org.flockdata.integration;
 
 import org.flockdata.helper.ExecutorHelper;
 import org.slf4j.Logger;

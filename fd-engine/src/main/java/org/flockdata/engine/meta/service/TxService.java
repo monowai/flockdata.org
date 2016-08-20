@@ -22,12 +22,12 @@ package org.flockdata.engine.meta.service;
 
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.dao.EntityDaoNeo;
+import org.flockdata.integration.KeyGenService;
 import org.flockdata.model.Company;
 import org.flockdata.model.Entity;
 import org.flockdata.model.SystemUser;
 import org.flockdata.model.TxRef;
 import org.flockdata.registration.service.SystemUserService;
-import org.flockdata.shared.KeyGenService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

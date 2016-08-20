@@ -21,12 +21,12 @@
 package org.flockdata.company.dao;
 
 import org.flockdata.engine.configure.EngineConfig;
+import org.flockdata.integration.IndexManager;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.shared.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

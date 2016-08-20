@@ -20,9 +20,9 @@
 
 package org.flockdata.engine.integration.store;
 
-import org.flockdata.shared.AmqpRabbitConfig;
-import org.flockdata.shared.Exchanges;
-import org.flockdata.shared.MessageSupport;
+import org.flockdata.integration.AmqpRabbitConfig;
+import org.flockdata.integration.Exchanges;
+import org.flockdata.integration.MessageSupport;
 import org.flockdata.store.bean.StorageBean;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;

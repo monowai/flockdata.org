@@ -21,15 +21,15 @@
 package org.flockdata.search.integration;
 
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.integration.AmqpRabbitConfig;
+import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.Exchanges;
+import org.flockdata.integration.MessageSupport;
 import org.flockdata.search.AdminRequest;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.model.SearchChanges;
 import org.flockdata.search.model.SearchResults;
 import org.flockdata.search.service.SearchAdmin;
-import org.flockdata.shared.AmqpRabbitConfig;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.Exchanges;
-import org.flockdata.shared.MessageSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;

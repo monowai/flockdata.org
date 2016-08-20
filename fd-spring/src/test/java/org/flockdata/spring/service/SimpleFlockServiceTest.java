@@ -19,8 +19,8 @@
 
 package org.flockdata.spring.service;
 
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.FdBatchWriter;
+import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.FdBatchWriter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
