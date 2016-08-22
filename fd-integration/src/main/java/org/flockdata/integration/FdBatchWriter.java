@@ -142,7 +142,7 @@ public class FdBatchWriter implements PayloadBatcher {
      */
     private int getExistingIndex(EntityInputBean entityInputBean) {
         int existingIndex = -1;
-        if ((entityInputBean.getCode() != null || entityInputBean.getKey() != null) && entityInputBean.getContent() == null)
+        if (entityInputBean.getCode() != null || entityInputBean.getKey() != null)
             existingIndex = entityBatch.indexOf(entityInputBean);
         return existingIndex;
     }

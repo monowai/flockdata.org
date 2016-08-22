@@ -294,6 +294,7 @@ public class QueryDaoES implements QueryDao {
                 .addField(SearchSchema.KEY)
                 .addField(SearchSchema.FORTRESS)
                 .addField(SearchSchema.LAST_EVENT)
+                .addField(SearchSchema.NAME)
                 .addField(SearchSchema.DESCRIPTION)
                 .addField(SearchSchema.CODE)
                 .addField(SearchSchema.WHO)
@@ -369,7 +370,7 @@ public class QueryDaoES implements QueryDao {
                                 fragments);
 
                         sr.setDescription(getHitValue(searchHitFields.getFields().get(SearchSchema.DESCRIPTION)));
-
+                        sr.setName(getHitValue(searchHitFields.getFields().get(SearchSchema.NAME)));
                         sr.setCode(getHitValue(searchHitFields.getFields().get(SearchSchema.CODE)));
                         if (queryParams.getData() != null) {
                             for (String field : queryParams.getData()) {

@@ -52,14 +52,15 @@ public class TestEntityRelationships extends AbstractImport{
         ExtractProfile params = new ExtractProfileHandler(contentModel);
         long rows = fileProcessor.processFile(params, "/data/entity-relationships.txt");
 
-        assertEquals(3, rows);
+        assertEquals("Expected to parse 3 rows", 3, rows);
         List<EntityInputBean> entities = getFdBatcher().getEntities();
-        assertEquals(rows, entities.size());
-
+        assertEquals("Expected to compress all rows into a single entity", 1, entities.size());
         for (EntityInputBean entity : entities) {
             assertEquals(1, entity.getEntityLinks().size());
             assertNotNull("Relationship name did not evaluate as an expression", entity.getEntityLinks().get("intermediary of"));
         }
+        // Due to batch size > 1, entitiesLinks should be merged into a common primary key source
+        assertEquals("Expected relationships to 3 entities", 3, entities.iterator().next().getEntityLinks().get("intermediary of").size());
     }
 
     @Test

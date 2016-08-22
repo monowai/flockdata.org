@@ -49,13 +49,13 @@ import org.springframework.stereotype.Service;
 public class EntitySearchWriter {
 
     @Autowired
-    AmqpRabbitConfig rabbitConfig;
+    private AmqpRabbitConfig rabbitConfig;
 
     @Autowired
-    Exchanges exchanges;
+    private Exchanges exchanges;
 
     @Autowired
-    MessageSupport messageSupport;
+    private MessageSupport messageSupport;
 
     @MessagingGateway
     public interface EntitySearchWriterGateway {

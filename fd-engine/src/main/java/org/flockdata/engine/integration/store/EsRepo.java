@@ -88,10 +88,10 @@ public class EsRepo extends AbstractStore {
                 if (result.getJson() != null) {
                     HashMap map = JsonUtils.toObject(result.getJson(), HashMap.class);
                     contentInput.setData((Map<String, Object>) map.get(SearchSchema.DATA));
-                    if( map.get("name")!=null)
-                        contentInput.getData().put("_name", map.get("name"));
-                    if ( map.get("description")!=null)
-                        contentInput.getData().put("_description", map.get("description"));
+//                    if( map.get("name")!=null)
+//                        contentInput.getData().put("_name", map.get("name"));
+//                    if ( map.get("description")!=null)
+//                        contentInput.getData().put("_description", map.get("description"));
                 }
             } catch (FlockException | IOException e) {
                 logger.error("Json issue", e);

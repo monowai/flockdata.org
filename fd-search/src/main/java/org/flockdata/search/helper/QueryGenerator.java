@@ -57,6 +57,9 @@ public class QueryGenerator {
                     "  \"highlight\": { " +
                     "\"pre_tags\" : [\"<strong>\"]," +
                     "\"post_tags\" : [\"</strong>\"]," +
+                    "\"order\": \"score\", " +
+                    "\"require_field_match\": false, " +
+
                     "\"encoder\" : \"html\"," +
                     "    \"fields\": { " +
                     "      \"*\": {} " +

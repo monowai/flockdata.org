@@ -538,6 +538,15 @@ public class EntityInputBean implements Serializable, UserProperties {
                     addTag(tagInputBean);
                 }
             }
+            for (String key : entityInputBean.getEntityLinks().keySet()) {
+                List<EntityKeyBean> links = entityInputBean.getEntityLinks().get(key);
+                if ( getEntityLinks().containsKey(key))
+                    for (EntityKeyBean link : links) {
+                        getEntityLinks().get(key).add(link);
+                    } else {
+                        getEntityLinks().put(key, links);
+                }
+            }
 
         }
 

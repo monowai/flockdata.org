@@ -48,6 +48,7 @@ public class SearchResult {
     private String code;
     private String createdBy;
     private Long fdTimestamp;
+    private String name;
 
     public String getLastUser() {
         return lastUser;
@@ -228,5 +229,13 @@ public class SearchResult {
 
     public Map<String,Object> getData(){
         return data;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 }
