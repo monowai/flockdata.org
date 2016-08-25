@@ -93,7 +93,7 @@ public class DeleteIndex {
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
         outbound.setRoutingKey(exchanges.searchBinding());
-        outbound.setExchangeName(exchanges.searchExchange());
+        outbound.setExchangeName(exchanges.fdExchangeName());
         DefaultAmqpHeaderMapper headerMapper = new DefaultAmqpHeaderMapper();
         headerMapper.setRequestHeaderNames(ClientConfiguration.KEY_MSG_TYPE);
         outbound.setHeaderMapper(headerMapper);

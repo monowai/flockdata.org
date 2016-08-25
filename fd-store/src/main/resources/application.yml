@@ -26,6 +26,12 @@ spring:
       enabled: false
   messages:
     encoding: UTF-8
+  rabbitmq:
+    password: guest
+    username: guest
+    host: localhost
+    port: 5672
+    virtual-host: /
 
 org.fd:
   store:
@@ -38,7 +44,6 @@ org.fd:
       poolSize: 8-15
       queueCapacity: 3
     messaging:
-      exchange: fd.store.exchange
       binding: fd.store.binding
       queue: fd.store.queue
       concurrentConsumers: 2
@@ -51,9 +56,6 @@ riak:
   hosts: 127.0.0.1
   mapurl: http://localhost:8098/mapred
 
-rabbit:
-  port: 5672
-  host: localhost
 
 
 

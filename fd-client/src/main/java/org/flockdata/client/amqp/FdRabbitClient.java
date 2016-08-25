@@ -175,8 +175,8 @@ public class FdRabbitClient {
         });
 
         trackChannel = connection.createChannel();
-        logger.debug("{}/{}/{}", configuration.getTrackQueue(), configuration.getTrackExchange(), configuration.getTrackRoutingKey());
-        logger.debug(trackChannel.queueBind(configuration.getTrackQueue(), configuration.getTrackExchange(), configuration.getTrackRoutingKey(), exchanges.getTrackQueueFeatures()).toString());
+        logger.debug("{}/{}/{}", configuration.getTrackQueue(), configuration.getFdExchange(), configuration.getTrackRoutingKey());
+        logger.debug(trackChannel.queueBind(configuration.getTrackQueue(), configuration.getFdExchange(), configuration.getTrackRoutingKey(), exchanges.getTrackQueueFeatures()).toString());
 
     }
 
@@ -211,7 +211,7 @@ public class FdRabbitClient {
         verifyConnection();
         assert trackChannel.isOpen();
         trackChannel.basicPublish(
-                configuration.getTrackExchange(),
+                configuration.getFdExchange(),
                 configuration.getTrackRoutingKey(),
                 getEntityProps(),
                 JsonUtils.toJsonBytes(entityInputs));
@@ -220,7 +220,7 @@ public class FdRabbitClient {
     public void publishTags(Collection<TagInputBean> tagInputs) throws IOException {
         verifyConnection();
         trackChannel.basicPublish(
-                configuration.getTrackExchange(),
+                configuration.getFdExchange(),
                 configuration.getTrackRoutingKey(),
                 getTagProps(),
                 JsonUtils.toJsonBytes(tagInputs));

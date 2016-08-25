@@ -20,6 +20,12 @@ spring:
       enabled: false
   messages:
     encoding: UTF-8
+  rabbitmq:
+    password: guest
+    username: guest
+    host: localhost
+    port: 5672
+    virtual-host: /
 
 server:
   port: 8081
@@ -40,12 +46,6 @@ es:
   # , serparated list of hosts to connect to if transportOnly == true
 #  nodes: localhost:9300
 
-rabbit:
-    user: guest
-    pass: guest
-    host: localhost
-    port: 5672
-    heartbeat.secs: 30
 
 org.fd:
   engine:
@@ -53,10 +53,7 @@ org.fd:
     messaging:
       queue: fd.engine.queue
       binding: fd.engine.binding
-      exchange: fd.engine.exchange
-      dlq:
-        queue: fd.engine.dlq.queue
-        exchange: fd.engine.dlq.exchange
+      dlq.queue: fd.engine.dlq.queue
       prefetchCount: 3
       concurrentConsumers: 2
     executor:
@@ -78,11 +75,9 @@ org.fd:
     system:
       api: api
     messaging:
-      exchange: fd.search.exchange
       binding: fd.search.binding
       queue: fd.search.queue
       dlq.queue: fd.search.dlq.queue
-      dlq.exchange: fd.search.dlq.exchange
       concurrentConsumers: 2
       prefetchCount: 3
     executor:

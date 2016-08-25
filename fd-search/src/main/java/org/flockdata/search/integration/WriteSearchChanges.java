@@ -161,7 +161,7 @@ public class WriteSearchChanges {
     public AmqpOutboundEndpoint writeEntitySearchResult(AmqpTemplate amqpTemplate) {
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setExchangeName(exchanges.engineExchange());
+        outbound.setExchangeName(exchanges.fdExchangeName());
         outbound.setRoutingKey(exchanges.fdEngineBinding());
         outbound.setExpectReply(false);
         return outbound;

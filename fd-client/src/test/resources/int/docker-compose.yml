@@ -45,8 +45,7 @@ fdengine:
     org.neo4j.server.webserver.port: -1
     org.neo4j.dbms.pagecache.memory: 256m
     spring.jackson.serialization.indent_output: 'true'
-    rabbit.host: rabbit
-    rabbit.port: 5672
+    spring.rabbitmq.host: rabbit
     org.fd.auth.simple.login.method: basic
 
 fdstore:
@@ -68,8 +67,7 @@ fdstore:
     _JAVA_OPTIONS: "-Xms256m -Xmx512m"
     spring.jackson.serialization.indent_output: 'true'
     spring.profiles.active: fd-no-auth,memstore
-    rabbit.host: rabbit
-    rabbit.port: 5672
+    spring.rabbitmq.host: rabbit
 
 
 fdsearch:
@@ -116,8 +114,7 @@ fdsearch:
     es.path.home: /opt/flockdata
     es.path.data: /opt/flockdata/data
 
-    rabbit.host: rabbit
-    rabbit.port: 5672
+    spring.rabbitmq.host: rabbit
 
 
 #elasticsearch:

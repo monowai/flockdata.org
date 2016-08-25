@@ -53,7 +53,7 @@ public class ClientConfiguration {
     public static final String AMQP = "org.fd.client.amqp";
 
     private static final String KEY_TRACK_QUEUE = "org.fd.track.messaging.queue";
-    private static final String KEY_TRACK_EXCHANGE = "org.fd.track.messaging.exchange";
+    private static final String KEY_TRACK_EXCHANGE = "org.fd.messaging.exchange";
     private static final String KEY_TRACK_BINDING = "org.fd.track.messaging.binding";
     public static final String KEY_MSG_KEY = "fd-apiKey";
     public static final String KEY_MSG_TYPE = "fd-type";
@@ -68,8 +68,8 @@ public class ClientConfiguration {
     @Value("${"+ KEY_TRACK_QUEUE +":fd.track.queue}")
     private String trackQueue = "fd.track.queue";
 
-    @Value("${"+ KEY_TRACK_EXCHANGE +":fd.track.exchange}")
-    private String trackExchange = "fd.track.exchange";
+    @Value("${"+ KEY_TRACK_EXCHANGE +":fd}")
+    private String fdExchange = "fd";
 
     @Value("${"+ KEY_TRACK_BINDING +":fd.track.binding}")
     private String trackRoutingKey = "fd.track.binding";
@@ -124,7 +124,7 @@ public class ClientConfiguration {
 
         o = prop.get(KEY_TRACK_EXCHANGE);
         if (o != null)
-            setTrackExchange(o.toString());
+            setFdExchange(o.toString());
 
         o = prop.get(KEY_TRACK_QUEUE);
         if (o != null)
@@ -202,12 +202,12 @@ public class ClientConfiguration {
         this.trackQueue = trackQueue;
     }
 
-    public String getTrackExchange() {
-        return trackExchange;
+    public String getFdExchange() {
+        return fdExchange;
     }
 
-    private void setTrackExchange(String trackExchange) {
-        this.trackExchange = trackExchange;
+    private void setFdExchange(String fdExchange) {
+        this.fdExchange = fdExchange;
     }
 
     public String getTrackRoutingKey() {

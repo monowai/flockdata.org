@@ -43,32 +43,11 @@ public class Exchanges {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Value("${org.fd.track.messaging.exchange:fd.track.exchange}")
-    String trackExchange;
-
-    @Value("${org.fd.engine.messaging.exchange:fd.engine.exchange}")
-    private String engineExchange;
-
-    @Value("${org.fd.search.messaging.exchange:fd.search.exchange}")
-    String searchExchange;
-
-    @Value("${org.fd.store.messaging.exchange:fd.store.exchange}")
-    private String storeExchange;
+    @Value("${org.fd.messaging.exchange:fd}")
+    private String fdExchangeName;
 
     @Value("${org.fd.search.messaging.dlq.queue:fd.search.dlq.queue}")
     private String searchDlq;
-
-    @Value("${org.fd.search.messaging.dlq.exchange:fd.search.dlq.exchange}")
-    private String searchDlqExchange;
-
-    @Value("${org.fd.store.messaging.dlq.exchange:fd.store.dlq.exchange}")
-    private String storeDlqExchange;
-
-    @Value("${org.fd.track.messaging.dlq.exchange:fd.track.dlq.exchange}")
-    private String trackDlqExchange;
-
-    @Value("${org.fd.engine.messaging.dlq.exchange:fd.engine.dlq.exchange}")
-    private String engineDlqExchange;
 
     @Value("${org.fd.engine.messaging.queue:fd.engine.queue}")
     private String engineQueue;
@@ -81,9 +60,6 @@ public class Exchanges {
 
     @Value("${org.fd.search.messaging.queue:fd.search.queue}")
     private String searchQueue;
-
-    @Value("${org.fd.track.messaging.dlq.queue:fd.track.dlq.queue}")
-    private String trackhDlq;
 
     @Value("${org.fd.engine.messaging.dlq.queue:fd.engine.dlq.queue}")
     private String engineDlq;
@@ -134,13 +110,18 @@ public class Exchanges {
         return searchBinding;
     }
 
-    public String searchExchange() {
-        return searchExchange;
+    public String fdExchangeName() {
+        return fdExchangeName;
+    }
+
+    @Bean
+    public Exchange fdTrackExchange() {
+        return new DirectExchange(fdExchangeName);
     }
 
     public Map<String,Object> getTrackQueueFeatures() {
         Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", trackDlqExchange);
+        params.put("x-dead-letter-exchange", fdExchangeName);
         return params;
     }
 
@@ -152,61 +133,62 @@ public class Exchanges {
     @Bean
     public Queue fdStoreQueue() {
         Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", storeDlqExchange);
+        params.put("x-dead-letter-exchange", fdExchangeName);
         return new Queue(storeQueue, true, false, false, params);
     }
 
     @Bean
     public Queue fdSearchQueue() {
         Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", searchDlqExchange);
+        params.put("x-dead-letter-exchange", fdExchangeName);
         return new Queue(searchQueue, true, false, false, params);
     }
 
     @Bean
     public Queue fdEngineQueue() {
         Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", engineDlqExchange);
+        params.put("x-dead-letter-exchange", fdExchangeName);
         return new Queue(engineQueue, true, false, false, params);
     }
 
     @Bean
-    Binding engineDlqBinding(Queue fdEngineDlq, Exchange fdEngineDlqExchange) {
-        return BindingBuilder.bind(fdEngineDlq).to(fdEngineDlqExchange).with(engineDlq).noargs();
+    Binding engineDlqBinding(Queue fdEngineDlq, Exchange fdExchange) {
+        return BindingBuilder.bind(fdEngineDlq).to(fdExchange).with(engineDlq).noargs();
     }
 
     @Bean
-    Binding engineBinding(Queue fdEngineQueue, Exchange fdEngineExchange) {
-        return BindingBuilder.bind(fdEngineQueue).to(fdEngineExchange).with(engineBinding).noargs();
+    Binding engineBinding(Queue fdEngineQueue, Exchange fdExchange) {
+        return BindingBuilder.bind(fdEngineQueue).to(fdExchange).with(engineBinding).noargs();
     }
 
     @Bean
-    Binding trackBinding(Queue fdTrackQueue, Exchange fdTrackExchange) {
-        return BindingBuilder.bind(fdTrackQueue).to(fdTrackExchange).with(trackBinding).noargs();
-    }
-    @Bean
-    Binding searchBinding(Queue fdSearchQueue, Exchange fdSearchExchange) {
-        return BindingBuilder.bind(fdSearchQueue).to(fdSearchExchange).with(searchBinding).noargs();
+    Binding trackBinding(Queue fdTrackQueue, Exchange fdExchange) {
+        return BindingBuilder.bind(fdTrackQueue).to(fdExchange).with(trackBinding).noargs();
     }
 
     @Bean
-    Binding storeBinding(Queue fdStoreQueue, Exchange fdStoreExchange) {
-        return BindingBuilder.bind(fdStoreQueue).to(fdStoreExchange).with(storeBinding).noargs();
+    Binding searchBinding(Queue fdSearchQueue, Exchange fdExchange) {
+        return BindingBuilder.bind(fdSearchQueue).to(fdExchange).with(searchBinding).noargs();
     }
 
     @Bean
-    Binding trackDlqBinding(Queue fdTrackDlq, Exchange fdTrackDlqExchange) {
-        return BindingBuilder.bind(fdTrackDlq).to(fdTrackDlqExchange).with(trackBinding).noargs();
+    Binding storeBinding(Queue fdStoreQueue, Exchange fdExchange) {
+        return BindingBuilder.bind(fdStoreQueue).to(fdExchange).with(storeBinding).noargs();
     }
 
     @Bean
-    Binding searchDlqBinding(Queue fdSearchDlq, Exchange fdSearchDlqExchange) {
-        return BindingBuilder.bind(fdSearchDlq).to(fdSearchDlqExchange).with(searchBinding).noargs();
+    Binding trackDlqBinding(Queue fdTrackDlq, Exchange fdExchange) {
+        return BindingBuilder.bind(fdTrackDlq).to(fdExchange).with(trackBinding).noargs();
     }
 
     @Bean
-    Binding storeDlqBinding(Queue fdStoreDlq, Exchange fdStoreDlqExchange) {
-        return BindingBuilder.bind(fdStoreDlq).to(fdStoreDlqExchange).with(storeBinding).noargs();
+    Binding searchDlqBinding(Queue fdSearchDlq, Exchange fdExchange) {
+        return BindingBuilder.bind(fdSearchDlq).to(fdExchange).with(searchBinding).noargs();
+    }
+
+    @Bean
+    Binding storeDlqBinding(Queue fdStoreDlq, Exchange fdExchange) {
+        return BindingBuilder.bind(fdStoreDlq).to(fdExchange).with(storeBinding).noargs();
     }
 
     // DLQ
@@ -229,54 +211,9 @@ public class Exchanges {
         return new Queue(storeDlq);
     }
 
-    // Exchanges
-    @Bean
-    public Exchange fdTrackExchange() {
-        return new DirectExchange(trackExchange);
-    }
-
-    @Bean
-    public Exchange fdEngineExchange() {
-        return new DirectExchange(engineExchange);
-    }
-
-    @Bean
-    public Exchange fdSearchExchange() {
-        return new DirectExchange(searchExchange);
-    }
-
-    @Bean
-    public Exchange fdStoreExchange() {
-        return new DirectExchange(storeExchange);
-    }
-
-    @Bean
-    public Exchange fdTrackDlqExchange() {
-        return new DirectExchange(trackDlqExchange);
-    }
-
-    @Bean
-    public Exchange fdEngineDlqExchange() {
-        return new DirectExchange(engineDlqExchange);
-    }
-
-    @Bean
-    public Exchange fdSearchDlqExchange() {
-        return new DirectExchange(searchDlqExchange);
-    }
-
-    @Bean
-    public Exchange fdStoreDlqExchange() {
-        return new DirectExchange(storeDlqExchange);
-    }
-
     // GENERIC BINDINGS
     public String storeBinding() {
         return storeBinding;
-    }
-
-    public String storeExchange() {
-        return storeExchange;
     }
 
     public int enginePreFetchCount() {
@@ -301,10 +238,6 @@ public class Exchanges {
 
     public int storePreFetchCount() {
         return storePreFetchCount;
-    }
-
-    public String engineExchange() {
-        return engineExchange;
     }
 
     public String fdEngineBinding() {

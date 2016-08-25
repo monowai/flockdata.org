@@ -77,7 +77,7 @@ public class StorageWriter {
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
         outbound.setRoutingKey(exchanges.storeBinding());
-        outbound.setExchangeName(exchanges.storeExchange());
+        outbound.setExchangeName(exchanges.fdExchangeName());
         outbound.setExpectReply(false);
         outbound.setConfirmAckChannel(new NullChannel());// NOOP
         //outbound.setConfirmAckChannel();

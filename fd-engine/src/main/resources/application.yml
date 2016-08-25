@@ -44,6 +44,14 @@ spring:
   jackson:
     serialization:
       indent_output: true
+  rabbitmq:
+    password: guest
+    username: guest
+    host: localhost
+    port: 5672
+    virtual-host: /
+
+
 
 logging:
   level:
@@ -78,9 +86,7 @@ org.fd:
     messaging:
       queue: fd.engine.queue
       binding: fd.engine.binding
-      exchange: fd.engine.exchange
       dlq.queue: fd.engine.dlq.queue
-      dlq.exchange: fd.engine.dlq.exchange
       prefetchCount: 1
     executor:
       poolSize: 8-15
@@ -92,28 +98,22 @@ org.fd:
         poolSize: 8-15
         queueCapacity: 3
     messaging:
-      exchange: fd.track.exchange
       binding: fd.track.binding
       queue: fd.track.queue
       response: fd.response.queue
       concurrentConsumers: 2
       queueCapacity: 10
       prefetchCount: 10
-      dlq:
-        queue: fd.track.dlq.queue
-        exchange: fd.track.dlq.exchange
+      dlq.queue: fd.track.dlq.queue
 
   search:
     api: ${org.fd.search.url:http://127.0.0.1:8081}
     messaging:
-      exchange: fd.search.exchange
       binding: fd.search.binding
       concurrentConsumers: 2
       prefetchCount: 10
       queue: fd.search.queue
-      dlq:
-        queue: fd.search.dlq.queue
-        exchange: fd.search.dlq.exchange
+      dlq.queue: fd.search.dlq.queue
     executor:
       poolSize: 20-30
       queueCapacity: 10
@@ -123,14 +123,11 @@ org.fd:
       enabled: false
     # Async hand offs to fd-store
     messaging:
-      exchange: fd.store.exchange
       binding: fd.store.binding
       queue: fd.store.queue
       concurrentConsumers: 2
       prefetchCount: 1
-      dlq:
-        queue: fd.store.dlq.queue
-        exchange: fd.store.dlq.exchange
+      dlq.queue: fd.store.dlq.queue
     executor:
       poolSize: 8-15
       queueCapacity: 3
@@ -180,12 +177,6 @@ org:
     # enable/disable neo4j security (omitting defaults to enabled)
     auth: "true"
 
-
-rabbit:
-  user: guest
-  pass: guest
-  host: localhost
-  port: 5672
 
 
 

@@ -7,6 +7,12 @@ spring:
   profiles:
     active: fd-server
     # include: fd-batch  #Enable this if you want spring batch support in your project
+  rabbitmq:
+    password: guest
+    username: guest
+    host: localhost
+    port: 5672
+    virtual-host: /
 
 org.fd:
   client:
@@ -26,13 +32,7 @@ org.fd:
     messaging:
       binding: fd.track.binding
       queue: fd.track.queue
-      exchange: fd.track.exchange
   engine:
     api: http://localhost:8080
 
-rabbit:
-  pass: guest
-  user: guest
-  host: localhost
-  persistent: true
 

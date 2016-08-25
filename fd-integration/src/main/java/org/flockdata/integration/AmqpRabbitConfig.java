@@ -50,44 +50,38 @@ public class AmqpRabbitConfig {
     private Logger logger = LoggerFactory.getLogger("configuration");
 
 
-    @Value("${rabbit.host:localhost}")
-    String rabbitHost;
+    @Value("${spring.rabbitmq.host:localhost}")
+    private String rabbitHost;
 
-    @Value("${rabbit.virtualHost:/}")
-    String virtualHost;
+    @Value("${spring.rabbitmq.virtual-host:/}")
+    private String virtualHost;
 
-    @Value("${rabbit.port:5672}")
-    Integer rabbitPort;
+    @Value("${spring.rabbitmq.port:5672}")
+    private Integer rabbitPort;
 
     @Value("${persistentDelivery:true}")
-    boolean persistentDelivery;
+    private boolean persistentDelivery;
 
-    @Value("${rabbit.user:guest}")
-    String rabbitUser;
+    @Value("${spring.rabbitmq.username:guest}")
+    private String rabbitUser;
 
-    @Value("${rabbit.pass:guest}")
-    String rabbitPass;
+    @Value("${spring.rabbitmq.password:guest}")
+    private String rabbitPass;
 
-    @Value("${rabbit.publisher.confirms:false}")
-    Boolean publisherConfirms;
+    @Value("${spring.rabbitmq.publisher.confirms:false}")
+    private Boolean publisherConfirms;
 
-    @Value("${rabbit.publisher.returns:false}")
-    Boolean publisherReturns;
+    @Value("${spring.rabbitmq.publisher.returns:false}")
+    private Boolean publisherReturns;
 
-    @Value("${rabbit.publisherCacheSize:22}")
-    Integer publisherCacheSize;
+    @Value("${spring.rabbitmq.publisherCacheSize:20}")
+    private Integer publisherCacheSize;
 
     @Value("${amqp.lazyConnect:false}")
-    Boolean amqpLazyConnect;
+    private Boolean amqpLazyConnect;
 
     @Value("${amqp.channelCacheSize:25}")
     private int channelCacheSize;
-
-    @PostConstruct
-    public void logStatus() {
-        logger.info("**** FlockData AMQP Configuration deployed");
-        logger.info("**** rabbit.host: [{}], rabbit.port [{}], rabbit.user [{}]", rabbitHost, rabbitPort, rabbitUser);
-    }
 
     @Autowired
     Exchanges exchanges;
@@ -98,14 +92,6 @@ public class AmqpRabbitConfig {
 
     public boolean getPersistentDelivery() {
         return persistentDelivery;
-    }
-
-    public boolean isPersistentDelivery() {
-        return persistentDelivery;
-    }
-
-    private void setPersistentDelivery(boolean persistentDelivery) {
-        this.persistentDelivery = persistentDelivery;
     }
 
     public String getHost() {
@@ -124,15 +110,15 @@ public class AmqpRabbitConfig {
         return rabbitPass;
     }
 
-    public Boolean getPublisherConfirms() {
+    private Boolean getPublisherConfirms() {
         return publisherConfirms;
     }
 
-    public Boolean getPublisherReturns() {
+    private Boolean getPublisherReturns() {
         return publisherReturns;
     }
 
-    public int getChannelCacheSize() {
+    private int getChannelCacheSize() {
         return channelCacheSize;
     }
 
@@ -166,7 +152,8 @@ public class AmqpRabbitConfig {
     }
 
     private ConnectionFactory setConnectionProperties(CachingConnectionFactory connectionFactory) {
-        logger.info("Setting Rabbit connection properties");
+        logger.info("**** rabbitmq.host: [{}], rabbitmq.port [{}], rabbitmq.virtual-host [{}], rabbitmq.username [{}]", rabbitHost, rabbitPort, virtualHost, rabbitUser);
+
         // First load or a refresh
         connectionFactory.setHost(getHost());
         connectionFactory.setPort(getPort());
@@ -175,7 +162,12 @@ public class AmqpRabbitConfig {
         connectionFactory.setPublisherConfirms(getPublisherConfirms());
         connectionFactory.setPublisherReturns(getPublisherReturns());
         connectionFactory.setChannelCacheSize(getChannelCacheSize());
-//        connectionFactory.setVirtualHost(getVirtualHost());
+        connectionFactory.setVirtualHost(getVirtualHost());
         return connectionFactory;
+    }
+
+    @PostConstruct
+    public void logStatus() {
+        logger.info("**** FlockData RabbitAMQP configuration deployed");
     }
 }
