@@ -88,17 +88,17 @@ public class Exchanges {
     @Value("${org.fd.track.messaging.concurrentConsumers:2}")
     private int trackConcurrentConsumers;
 
-    @Value("${org.fd.search.messaging.binding:fd.search.binding}")
-    String searchBinding;
-
-    @Value("${org.fd.track.messaging.binding:fd.track.binding}")
-    String trackBinding;
-
-    @Value("${org.fd.engine.messaging.binding:fd.engine.binding}")
-    String engineBinding;
-
-    @Value("${org.fd.store.messaging.binding:fd.store.binding}")
-    String storeBinding;
+//    @Value("${org.fd.search.messaging.binding:fd.search.binding}")
+//    String searchBinding;
+//
+//    @Value("${org.fd.track.messaging.binding:fd.track.binding}")
+//    String trackBinding;
+//
+//    @Value("${org.fd.engine.messaging.binding:fd.engine.binding}")
+//    String engineBinding;
+//
+//    @Value("${org.fd.store.messaging.binding:fd.store.binding}")
+//    String storeBinding;
 
     @Value("${org.fd.store.messaging.concurrentConsumers:2}")
     private int storeConcurrentConsumers;
@@ -107,7 +107,7 @@ public class Exchanges {
     private int storePreFetchCount;
 
     public String searchBinding() {
-        return searchBinding;
+        return searchQueue;
     }
 
     public String fdExchangeName() {
@@ -158,37 +158,37 @@ public class Exchanges {
 
     @Bean
     Binding engineBinding(Queue fdEngineQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdEngineQueue).to(fdExchange).with(engineBinding).noargs();
+        return BindingBuilder.bind(fdEngineQueue).to(fdExchange).with(engineQueue).noargs();
     }
 
     @Bean
     Binding trackBinding(Queue fdTrackQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdTrackQueue).to(fdExchange).with(trackBinding).noargs();
+        return BindingBuilder.bind(fdTrackQueue).to(fdExchange).with(trackQueue).noargs();
     }
 
     @Bean
     Binding searchBinding(Queue fdSearchQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdSearchQueue).to(fdExchange).with(searchBinding).noargs();
+        return BindingBuilder.bind(fdSearchQueue).to(fdExchange).with(searchQueue).noargs();
     }
 
     @Bean
     Binding storeBinding(Queue fdStoreQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdStoreQueue).to(fdExchange).with(storeBinding).noargs();
+        return BindingBuilder.bind(fdStoreQueue).to(fdExchange).with(storeQueue).noargs();
     }
 
     @Bean
     Binding trackDlqBinding(Queue fdTrackDlq, Exchange fdExchange) {
-        return BindingBuilder.bind(fdTrackDlq).to(fdExchange).with(trackBinding).noargs();
+        return BindingBuilder.bind(fdTrackDlq).to(fdExchange).with(trackDlq).noargs();
     }
 
     @Bean
     Binding searchDlqBinding(Queue fdSearchDlq, Exchange fdExchange) {
-        return BindingBuilder.bind(fdSearchDlq).to(fdExchange).with(searchBinding).noargs();
+        return BindingBuilder.bind(fdSearchDlq).to(fdExchange).with(searchDlq).noargs();
     }
 
     @Bean
     Binding storeDlqBinding(Queue fdStoreDlq, Exchange fdExchange) {
-        return BindingBuilder.bind(fdStoreDlq).to(fdExchange).with(storeBinding).noargs();
+        return BindingBuilder.bind(fdStoreDlq).to(fdExchange).with(storeDlq).noargs();
     }
 
     // DLQ
@@ -213,7 +213,7 @@ public class Exchanges {
 
     // GENERIC BINDINGS
     public String storeBinding() {
-        return storeBinding;
+        return storeQueue;
     }
 
     public int enginePreFetchCount() {
@@ -241,7 +241,7 @@ public class Exchanges {
     }
 
     public String fdEngineBinding() {
-        return engineBinding;
+        return engineQueue;
     }
 
     public int searchConcurrentConsumers() {

@@ -59,7 +59,7 @@ public class FdTagProcessor implements ItemProcessor<Map<String, Object>, TagInp
     private ContentModel getContentModel(String name) throws IOException, ClassNotFoundException {
         ContentModel result =batchConfig.getStepConfig(name).getContentModel();
         if ( result == null )
-            throw new ClassNotFoundException(String.format("Unable to resolve the content profile mapping for step %s, %s",name,batchConfig.getStepConfig(name).getModel()));
+            throw new ClassNotFoundException(String.format("Unable to resolve the content model [%s] for step [%s]",name,batchConfig.getStepConfig(name).getModel()));
         return result;
     }
 
