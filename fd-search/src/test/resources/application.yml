@@ -32,11 +32,6 @@ org.fd:
       settings: src/test/resources/fd-default-settings.json
       mappings: '.'
     messaging:
-      exchange: fd.search.exchange
-      binding: fd.search.binding
-      queue: fd.search.queue
-      dlq.queue: fd.search.dlq.queue
-      dlq.exchange: fd.search.dlq.exchange
       concurrentConsumers: 2
       prefetchCount: 3
     executor:

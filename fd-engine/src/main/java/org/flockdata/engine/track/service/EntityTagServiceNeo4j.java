@@ -22,7 +22,6 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.engine.dao.EntityRepo;
 import org.flockdata.engine.dao.EntityTagDaoNeo;
 import org.flockdata.engine.dao.EntityTagInRepo;
 import org.flockdata.engine.dao.EntityTagOutRepo;
@@ -49,31 +48,31 @@ import java.util.*;
  */
 @Service
 @Transactional
-public class EntityTagServiceNeo4j implements EntityTagService {
+class EntityTagServiceNeo4j implements EntityTagService {
 
-    @Autowired
-    TagService tagService;
+    private final TagService tagService;
 
-    @Autowired
-    SecurityHelper securityHelper;
+    private final SecurityHelper securityHelper;
 
-    @Autowired
-    EntityTagDaoNeo entityTagDao;
+    private final EntityTagDaoNeo entityTagDao;
 
-    @Autowired
-    EntityRepo entityRepo;
+    private final EntityTagOutRepo entityTagOutRepo;
 
-    @Autowired
-    EntityTagOutRepo entityTagOutRepo;
+    private final EntityTagInRepo entityTagInRepo;
 
-    @Autowired
-    EntityTagInRepo entityTagInRepo;
-
-
-    @Autowired
-    Neo4jTemplate template;
+    private final Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(EntityTagServiceNeo4j.class);
+
+    @Autowired
+    public EntityTagServiceNeo4j(Neo4jTemplate template, SecurityHelper securityHelper, EntityTagOutRepo entityTagOutRepo, EntityTagInRepo entityTagInRepo, TagService tagService, EntityTagDaoNeo entityTagDao) {
+        this.template = template;
+        this.securityHelper = securityHelper;
+        this.entityTagOutRepo = entityTagOutRepo;
+        this.entityTagInRepo = entityTagInRepo;
+        this.tagService = tagService;
+        this.entityTagDao = entityTagDao;
+    }
 
     @Override
     public void processTag(Entity entity, EntityTagInputBean entityTagInput) {
@@ -112,10 +111,10 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     }
 
     /**
-     * Only returns the tag - ignores the relationship
+     * Find the tag in the Collection of existing Entity Tags
      *
-     * @param entityTags
-     * @return
+     * @param entityTags search this list
+     * @return  the existing tag
      */
     private Tag getTag(Iterable<EntityTag> entityTags, String code, String label) {
         for (EntityTag existingTag : entityTags) {
@@ -156,9 +155,9 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * If this scenario, ClientID123 is created as a single node with two relationships that
      * describe the association - clientKey and prospectKey
      *
-     * @param company
+     * @param company         owner
      * @param entity          Entity to associate userTags with
-     * @param lastLog
+     * @param lastLog         move "removed" tags to this log for archive purposes
      * @param entityInputBean payload
      */
     @Override
@@ -273,7 +272,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * @param propMap          properties to associate with the relationship
      * @return Null or the EntityTag that was created
      */
-    EntityTag getRelationship(Entity entity, Tag tag, String relationshipName,
+    private EntityTag getRelationship(Entity entity, Tag tag, String relationshipName,
                               Boolean isReversed,
                               Map<String, Object> propMap,
                               boolean isSinceRequired) {

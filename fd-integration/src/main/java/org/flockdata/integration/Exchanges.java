@@ -23,10 +23,13 @@ package org.flockdata.integration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
+import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -44,10 +47,13 @@ public class Exchanges {
     private Logger logger = LoggerFactory.getLogger("configuration");
 
     @Value("${org.fd.messaging.exchange:fd}")
-    private String fdExchangeName;
+    public String fdExchangeName;
 
-    @Value("${org.fd.search.messaging.dlq.queue:fd.search.dlq.queue}")
-    private String searchDlq;
+    @Value("${org.fd.messaging.exchange:fd-dlx}")
+    public String fdExchangeDlxName;
+
+    @Value("${org.fd.search.messaging.dlx.queue:fd.search.dlx.queue}")
+    private String searchDlx;
 
     @Value("${org.fd.engine.messaging.queue:fd.engine.queue}")
     private String engineQueue;
@@ -61,14 +67,14 @@ public class Exchanges {
     @Value("${org.fd.search.messaging.queue:fd.search.queue}")
     private String searchQueue;
 
-    @Value("${org.fd.engine.messaging.dlq.queue:fd.engine.dlq.queue}")
-    private String engineDlq;
+    @Value("${org.fd.engine.messaging.dlx.queue:fd.engine.dlx.queue}")
+    private String engineDlx;
 
-    @Value("${org.fd.store.messaging.dlq.queue:fd.store.dlq.queue}")
-    private String storeDlq;
+    @Value("${org.fd.store.messaging.dlx.queue:fd.store.dlx.queue}")
+    private String storeDlx;
 
-    @Value("${org.fd.track.messaging.dlq.queue:fd.track.dlq.queue}")
-    private String trackDlq;
+    @Value("${org.fd.track.messaging.dlx.queue:fd.track.dlx.queue}")
+    private String trackDlx;
 
     @Value("${org.fd.engine.messaging.concurrentConsumers:2}")
     private int engineConcurrentConsumers;
@@ -88,17 +94,17 @@ public class Exchanges {
     @Value("${org.fd.track.messaging.concurrentConsumers:2}")
     private int trackConcurrentConsumers;
 
-//    @Value("${org.fd.search.messaging.binding:fd.search.binding}")
-//    String searchBinding;
-//
-//    @Value("${org.fd.track.messaging.binding:fd.track.binding}")
-//    String trackBinding;
-//
-//    @Value("${org.fd.engine.messaging.binding:fd.engine.binding}")
-//    String engineBinding;
-//
-//    @Value("${org.fd.store.messaging.binding:fd.store.binding}")
-//    String storeBinding;
+    @Value("${org.fd.search.messaging.binding:fd.search.binding}")
+    private String searchBinding;
+
+    @Value("${org.fd.track.messaging.binding:fd.track.binding}")
+    private String trackBinding;
+
+    @Value("${org.fd.engine.messaging.binding:fd.engine.binding}")
+    private String engineBinding;
+
+    @Value("${org.fd.store.messaging.binding:fd.store.binding}")
+    private String storeBinding;
 
     @Value("${org.fd.store.messaging.concurrentConsumers:2}")
     private int storeConcurrentConsumers;
@@ -106,114 +112,21 @@ public class Exchanges {
     @Value("${org.fd.store.messaging.prefetchCount:3}")
     private int storePreFetchCount;
 
-    public String searchBinding() {
-        return searchQueue;
-    }
-
     public String fdExchangeName() {
         return fdExchangeName;
     }
 
-    @Bean
-    public Exchange fdTrackExchange() {
-        return new DirectExchange(fdExchangeName);
+    private String fdExchangeDlxName() {
+        return fdExchangeDlxName;
     }
 
-    public Map<String,Object> getTrackQueueFeatures() {
-        Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", fdExchangeName);
-        return params;
-    }
-
-    @Bean
-    public Queue fdTrackQueue() {
-        return new Queue(trackQueue, true, false, false, getTrackQueueFeatures());
-    }
-
-    @Bean
-    public Queue fdStoreQueue() {
-        Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", fdExchangeName);
-        return new Queue(storeQueue, true, false, false, params);
-    }
-
-    @Bean
-    public Queue fdSearchQueue() {
-        Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", fdExchangeName);
-        return new Queue(searchQueue, true, false, false, params);
-    }
-
-    @Bean
-    public Queue fdEngineQueue() {
-        Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", fdExchangeName);
-        return new Queue(engineQueue, true, false, false, params);
-    }
-
-    @Bean
-    Binding engineDlqBinding(Queue fdEngineDlq, Exchange fdExchange) {
-        return BindingBuilder.bind(fdEngineDlq).to(fdExchange).with(engineDlq).noargs();
-    }
-
-    @Bean
-    Binding engineBinding(Queue fdEngineQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdEngineQueue).to(fdExchange).with(engineQueue).noargs();
-    }
-
-    @Bean
-    Binding trackBinding(Queue fdTrackQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdTrackQueue).to(fdExchange).with(trackQueue).noargs();
-    }
-
-    @Bean
-    Binding searchBinding(Queue fdSearchQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdSearchQueue).to(fdExchange).with(searchQueue).noargs();
-    }
-
-    @Bean
-    Binding storeBinding(Queue fdStoreQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdStoreQueue).to(fdExchange).with(storeQueue).noargs();
-    }
-
-    @Bean
-    Binding trackDlqBinding(Queue fdTrackDlq, Exchange fdExchange) {
-        return BindingBuilder.bind(fdTrackDlq).to(fdExchange).with(trackDlq).noargs();
-    }
-
-    @Bean
-    Binding searchDlqBinding(Queue fdSearchDlq, Exchange fdExchange) {
-        return BindingBuilder.bind(fdSearchDlq).to(fdExchange).with(searchDlq).noargs();
-    }
-
-    @Bean
-    Binding storeDlqBinding(Queue fdStoreDlq, Exchange fdExchange) {
-        return BindingBuilder.bind(fdStoreDlq).to(fdExchange).with(storeDlq).noargs();
-    }
-
-    // DLQ
-    @Bean
-    public Queue fdTrackDlq() {
-        return new Queue(trackDlq);
-    }
-
-    @Bean
-    public Queue fdSearchDlq() {
-        return new Queue(searchDlq);
-    }
-    @Bean
-    public Queue fdEngineDlq() {
-        return new Queue(engineDlq);
-    }
-
-    @Bean
-    public Queue fdStoreDlq() {
-        return new Queue(storeDlq);
+    public String searchBinding() {
+        return searchBinding;
     }
 
     // GENERIC BINDINGS
     public String storeBinding() {
-        return storeQueue;
+        return storeBinding;
     }
 
     public int enginePreFetchCount() {
@@ -241,7 +154,7 @@ public class Exchanges {
     }
 
     public String fdEngineBinding() {
-        return engineQueue;
+        return engineBinding;
     }
 
     public int searchConcurrentConsumers() {
@@ -252,9 +165,135 @@ public class Exchanges {
         return searchPreFetchCount;
     }
 
+    /**
+     * failure to bind with consistent features can create new queues
+     *
+     * @return  standard features used across FlockData work queues
+     */
+    public Map<String,Object> getFdQueueFeatures() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("x-dead-letter-exchange", fdExchangeDlxName);
+        return params;
+    }
+
+    @Bean
+    public Exchange fdExchange() {
+        return new DirectExchange(fdExchangeName());
+    }
+
+    @Bean
+    public Exchange fdExchangeDlx() {
+        return new DirectExchange(fdExchangeDlxName());
+    }
+
+    @Bean
+    public Queue fdTrackQueue() {
+        return new Queue(trackQueue, true, false, false, getFdQueueFeatures());
+    }
+
+    @Bean
+    public Queue fdStoreQueue() {
+        return new Queue(storeQueue, true, false, false, getFdQueueFeatures());
+    }
+
+    @Bean
+    public Queue fdSearchQueue() {
+        return new Queue(searchQueue, true, false, false, getFdQueueFeatures());
+    }
+
+    @Bean
+    public Queue fdEngineQueue() {
+        return new Queue(engineQueue, true, false, false, getFdQueueFeatures());
+    }
+
+    @Bean
+    Binding engineBinding(Queue fdEngineQueue, Exchange fdExchange) {
+        return BindingBuilder.bind(fdEngineQueue).to(fdExchange).with(engineBinding).noargs();
+    }
+
+    @Bean
+    Binding searchBinding(Queue fdSearchQueue, Exchange fdExchange) {
+        return BindingBuilder.bind(fdSearchQueue).to(fdExchange).with(searchBinding).noargs();
+    }
+    @Bean
+    Binding storeBinding(Queue fdStoreQueue, Exchange fdExchange) {
+        return BindingBuilder.bind(fdStoreQueue).to(fdExchange).with(storeBinding).noargs();
+    }
+
+    @Bean
+    Binding trackBinding(Queue fdTrackQueue, Exchange fdExchange) {
+        return BindingBuilder.bind(fdTrackQueue).to(fdExchange).with(trackBinding).noargs();
+    }
+
+    @Bean
+    Binding trackDlxBinding(Queue fdTrackDlx, Exchange fdExchangeDlx) {
+        return BindingBuilder.bind(fdTrackDlx).to(fdExchangeDlx).with(trackQueue).noargs();
+    }
+
+    @Bean
+    Binding engineDlxBinding(Queue fdEngineDlx, Exchange fdExchangeDlx) {
+        return BindingBuilder.bind(fdEngineDlx).to(fdExchangeDlx).with(engineQueue).noargs();
+    }
+
+    @Bean
+    Binding searchDlxBinding(Queue fdSearchDlx, Exchange fdExchangeDlx) {
+        return BindingBuilder.bind(fdSearchDlx).to(fdExchangeDlx).with(searchQueue).noargs();
+    }
+
+    @Bean
+    Binding storeDlxBinding(Queue fdStoreDlx, Exchange fdExchangeDlx) {
+        return BindingBuilder.bind(fdStoreDlx).to(fdExchangeDlx).with(storeQueue).noargs();
+    }
+
+    // Dead Letter Exchange Queues
+    @Bean
+    public Queue fdTrackDlx() {
+        return new Queue(trackDlx);
+    }
+
+    @Bean
+    public Queue fdSearchDlx() {
+        return new Queue(searchDlx);
+    }
+    @Bean
+    public Queue fdEngineDlx() {
+        return new Queue(engineDlx);
+    }
+
+    @Bean
+    public Queue fdStoreDlx() {
+        return new Queue(storeDlx);
+    }
+
+
     @PostConstruct
     void logStatus() {
         logger.info("**** Exchanges (ex.shared) have been initialised");
+    }
+
+    @Bean
+    RetryOperationsInterceptor trackInterceptor(AmqpTemplate amqpTemplate) {
+        return RetryInterceptorBuilder.stateless()
+                .maxAttempts(1)
+                .recoverer(new RepublishMessageRecoverer(amqpTemplate, fdExchangeDlxName(), trackQueue))
+                .build();
+    }
+
+
+    @Bean
+    RetryOperationsInterceptor searchInterceptor(AmqpTemplate amqpTemplate) {
+        return RetryInterceptorBuilder.stateless()
+                .maxAttempts(2)
+                .recoverer(new RepublishMessageRecoverer(amqpTemplate, fdExchangeDlxName(), searchQueue))
+                .build();
+    }
+
+    @Bean
+    RetryOperationsInterceptor storeInterceptor(AmqpTemplate amqpTemplate) {
+        return RetryInterceptorBuilder.stateless()
+                .maxAttempts(2)
+                .recoverer(new RepublishMessageRecoverer(amqpTemplate, fdExchangeDlxName(), storeQueue))
+                .build();
     }
 
 }

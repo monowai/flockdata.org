@@ -36,8 +36,12 @@ import org.springframework.stereotype.Service;
 @Service ("queryServiceEs")
 public class QueryServiceEs implements QueryService {
 
+    private final QueryDao queryDao;
+
     @Autowired
-    private QueryDao queryDao;
+    public QueryServiceEs(QueryDao queryDao) {
+        this.queryDao = queryDao;
+    }
 
     @Override
     public TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException {

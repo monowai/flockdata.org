@@ -35,7 +35,6 @@ import org.flockdata.track.TagPayload;
 import org.flockdata.track.service.TagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
@@ -88,7 +87,7 @@ public class TagServiceNeo4j implements TagService {
         TagResultBean tagResult =   results.iterator().next();
 
         if ( tagResult.getTag() == null  )
-            throw new AmqpRejectAndDontRequeueException(tagResult.getMessage());
+            throw new FlockException(tagResult.getMessage());
         return tagResult;
     }
 

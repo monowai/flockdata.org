@@ -44,8 +44,6 @@ org.fd:
       poolSize: 8-15
       queueCapacity: 3
     messaging:
-      binding: fd.store.binding
-      queue: fd.store.queue
       concurrentConsumers: 2
       prefetchCount: 1
 

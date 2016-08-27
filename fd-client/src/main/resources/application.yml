@@ -28,10 +28,6 @@ org.fd:
       user: demo
     default:
       company: FlockData
-  track:
-    messaging:
-      binding: fd.track.binding
-      queue: fd.track.queue
   engine:
     api: http://localhost:8080
 

@@ -176,7 +176,7 @@ public class FdRabbitClient {
 
         trackChannel = connection.createChannel();
         logger.debug("{}/{}/{}", configuration.getTrackQueue(), configuration.getFdExchange(), configuration.getTrackRoutingKey());
-        logger.debug(trackChannel.queueBind(configuration.getTrackQueue(), configuration.getFdExchange(), configuration.getTrackRoutingKey(), exchanges.getTrackQueueFeatures()).toString());
+        logger.debug(trackChannel.queueBind(configuration.getTrackQueue(), configuration.getFdExchange(), configuration.getTrackRoutingKey(), exchanges.getFdQueueFeatures()).toString());
 
     }
 

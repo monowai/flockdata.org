@@ -44,11 +44,15 @@ import java.util.Map;
 @Repository
 public class TagDaoNeo4j {
 
-    @Autowired
-    TagWrangler tagWrangler;
+    private final TagWrangler tagWrangler;
+
+    private final AliasDaoNeo aliasDaoNeo;
 
     @Autowired
-    AliasDaoNeo aliasDaoNeo;
+    public TagDaoNeo4j(TagWrangler tagWrangler, AliasDaoNeo aliasDaoNeo) {
+        this.tagWrangler = tagWrangler;
+        this.aliasDaoNeo = aliasDaoNeo;
+    }
 
     public Collection<TagResultBean> save(TagPayload payload) {
         return tagWrangler.save(payload);

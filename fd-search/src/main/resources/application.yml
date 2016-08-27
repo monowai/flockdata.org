@@ -51,9 +51,6 @@ org.fd:
   engine:
     api: http://localhost:8080
     messaging:
-      queue: fd.engine.queue
-      binding: fd.engine.binding
-      dlq.queue: fd.engine.dlq.queue
       prefetchCount: 3
       concurrentConsumers: 2
     executor:
@@ -75,9 +72,6 @@ org.fd:
     system:
       api: api
     messaging:
-      binding: fd.search.binding
-      queue: fd.search.queue
-      dlq.queue: fd.search.dlq.queue
       concurrentConsumers: 2
       prefetchCount: 3
     executor:

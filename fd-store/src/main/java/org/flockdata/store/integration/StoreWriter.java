@@ -38,6 +38,7 @@ import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.amqp.Amqp;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 import java.io.IOException;
 
@@ -55,7 +56,7 @@ import static org.flockdata.helper.FdJsonObjectMapper.getObjectMapper;
 public class StoreWriter {
 
     @Autowired
-    StoreService fdStoreManager;
+    private StoreService fdStoreManager;
 
     @Autowired (required = false)
     Exchanges exchanges;
@@ -66,11 +67,11 @@ public class StoreWriter {
     }
 
     @Bean
-    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory) throws Exception {
+    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory, RetryOperationsInterceptor storeInterceptor) throws Exception {
         return IntegrationFlows.from(
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdStoreQueue())
                         .outputChannel(startStoreWrite())
-
+                        .adviceChain(storeInterceptor)
                         .maxConcurrentConsumers(exchanges.storeConcurrentConsumers())
                         .prefetchCount(exchanges.storePreFetchCount())
         )

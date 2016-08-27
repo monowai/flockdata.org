@@ -71,8 +71,8 @@ public class ClientConfiguration {
     @Value("${"+ KEY_TRACK_EXCHANGE +":fd}")
     private String fdExchange = "fd";
 
-    @Value("${"+ KEY_TRACK_BINDING +":fd.track.binding}")
-    private String trackRoutingKey = "fd.track.binding";
+    @Value("${"+ KEY_TRACK_BINDING +":fd.track.queue}")
+    private String trackRoutingKey = "fd.track.queue}";
 
     @Value("${"+ KEY_ENGINE_API +":http://localhost:8080}")
     private

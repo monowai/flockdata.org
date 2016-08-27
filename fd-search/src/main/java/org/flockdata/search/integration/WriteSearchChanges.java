@@ -49,6 +49,7 @@ import org.springframework.integration.dsl.amqp.Amqp;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,21 +71,25 @@ public class WriteSearchChanges {
 
     private Logger logger = LoggerFactory.getLogger(WriteSearchChanges.class);
 
-    @Autowired
-    Exchanges exchanges;
+    private final Exchanges exchanges;
+
+    // We only suppport ElasticSearch
+    private final SearchWriter searchWriter;
+
+    private final SearchAdmin searchAdmin;
+
+    private final AmqpRabbitConfig rabbitConfig;
+
+    private final MessageSupport messageSupport;
 
     @Autowired
-    @Qualifier("esSearchWriter")  // We only suppport ElasticSearch
-    SearchWriter searchWriter;
-
-    @Autowired
-    SearchAdmin searchAdmin;
-
-    @Autowired
-    AmqpRabbitConfig rabbitConfig;
-
-    @Autowired
-    MessageSupport messageSupport;
+    public WriteSearchChanges(AmqpRabbitConfig rabbitConfig, MessageSupport messageSupport, Exchanges exchanges, SearchAdmin searchAdmin, @Qualifier("esSearchWriter") SearchWriter searchWriter) {
+        this.rabbitConfig = rabbitConfig;
+        this.messageSupport = messageSupport;
+        this.exchanges = exchanges;
+        this.searchAdmin = searchAdmin;
+        this.searchWriter = searchWriter;
+    }
 
 //    private static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
@@ -109,11 +114,12 @@ public class WriteSearchChanges {
     }
 
     @Bean
-    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory) {
+    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory, RetryOperationsInterceptor searchInterceptor) {
         return IntegrationFlows.from(
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
                     .outputChannel(writeSearchDoc())
                         .mappedRequestHeaders(ClientConfiguration.KEY_MSG_KEY, ClientConfiguration.KEY_MSG_TYPE)
+                        .adviceChain(searchInterceptor)
                         .maxConcurrentConsumers(exchanges.searchConcurrentConsumers())
                     .prefetchCount(exchanges.searchPreFetchCount())
                 )

@@ -21,6 +21,7 @@
 package org.flockdata.test.engine.services;
 
 import org.flockdata.helper.FlockDataTagException;
+import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.SystemUser;
@@ -30,7 +31,6 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.junit.Test;
-import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -156,7 +156,7 @@ public class TestTags extends EngineBase {
         try {
             tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(true));
             fail("Incorrect exception");
-        } catch (RuntimeException dte) {
+        } catch (FlockException dte) {
             logger.debug("Correct");
         }
 
@@ -175,11 +175,16 @@ public class TestTags extends EngineBase {
         assertNotNull(iSystemUser);
 
         Tag tag;
-        exception.expect(RuntimeException.class);
-        tagService.createTag(iSystemUser.getCompany(),
-                new TagInputBean("FLOPX", "MustExistTest")
-                        .setKeyPrefix("abc")
-                        .setMustExist(true));
+        try {
+            tagService.createTag(iSystemUser.getCompany(),
+                    new TagInputBean("FLOPX", "MustExistTest")
+                            .setKeyPrefix("abc")
+                            .setMustExist(true));
+            fail("Expected tag does not exists");
+        } catch (FlockException fe){
+            assertNotNull(fe);
+            // expected
+        }
 
         tag = tagService.createTag(
                 iSystemUser.getCompany(), new TagInputBean("FLOPX", "MustExistTest")
@@ -218,7 +223,7 @@ public class TestTags extends EngineBase {
 
         newTag = new TagInputBean("NEW-TAG")
                 .setMustExist(true, "");
-        exception.expect(AmqpRejectAndDontRequeueException.class);
+        exception.expect(FlockException.class);
         assertNull("blank code is the same as no code", tagService.createTag(iSystemUser.getCompany(), newTag));
 
     }
@@ -245,7 +250,7 @@ public class TestTags extends EngineBase {
                 .setKeyPrefix("aaa")
                 .setMustExist(true, "");
 
-        exception.expect(AmqpRejectAndDontRequeueException.class);
+        exception.expect(FlockException.class);
         assertNull("blank code is the same as no code", tagService.createTag(iSystemUser.getCompany(), newTag));
 
     }

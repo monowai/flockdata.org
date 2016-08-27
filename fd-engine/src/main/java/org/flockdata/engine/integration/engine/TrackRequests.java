@@ -23,7 +23,6 @@ package org.flockdata.engine.integration.engine;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.Exchanges;
 import org.flockdata.model.Company;
 import org.flockdata.registration.TagInputBean;
@@ -44,14 +43,19 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.amqp.Amqp;
+import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+
+import static org.flockdata.integration.ClientConfiguration.KEY_MSG_KEY;
+import static org.flockdata.integration.ClientConfiguration.KEY_MSG_TYPE;
 
 /**
  * Integration mechanism for message queue input
@@ -102,7 +106,7 @@ public class TrackRequests {
         return message -> {
             try {
 
-                Object oKey = message.getHeaders().get(ClientConfiguration.KEY_MSG_KEY);
+                Object oKey = message.getHeaders().get(KEY_MSG_KEY);
                 if (oKey == null) {
                     throw new AmqpRejectAndDontRequeueException("No api key");
                 }
@@ -112,7 +116,7 @@ public class TrackRequests {
                     throw new AmqpRejectAndDontRequeueException("Illegal api key");
                 }
 
-                Object oType = message.getHeaders().get(ClientConfiguration.KEY_MSG_TYPE);
+                Object oType = message.getHeaders().get(KEY_MSG_TYPE);
                 if ( oType == null || oType.toString().equalsIgnoreCase("E")) {
                     Collection<EntityInputBean> inputBeans = JsonUtils.toCollection((byte[]) message.getPayload(), EntityInputBean.class);
                     mediationFacade.trackEntities(company, inputBeans);
@@ -135,17 +139,38 @@ public class TrackRequests {
     }
 
     @Bean
-    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory) throws InterruptedException, FlockException, ExecutionException, IOException {
+    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory, RetryOperationsInterceptor trackInterceptor) throws InterruptedException, FlockException, ExecutionException, IOException {
         return IntegrationFlows.from(
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdTrackQueue())
                         .maxConcurrentConsumers(exchanges.trackConcurrentConsumers())
-                        .mappedRequestHeaders(ClientConfiguration.KEY_MSG_KEY, ClientConfiguration.KEY_MSG_TYPE)
+                        .mappedRequestHeaders(KEY_MSG_KEY, KEY_MSG_TYPE)
+                        .adviceChain(trackInterceptor)
                         .outputChannel(doTrackEntity())
                         .prefetchCount(exchanges.trackPreFetchCount())
-        )
-                .handle(handler())
-                .get();
+                )
+                    .handle(handler())
+                    .get();
     }
+
+    @Bean
+    public MessageChannel loggingChannel() {
+        return MessageChannels.direct().get();
+    }
+
+    @Bean
+    public MessageChannel errorLoggingChannel() {
+        return MessageChannels.direct().get();
+    }
+
+
+    @Bean
+    public IntegrationFlow integrationLogging() {
+        return IntegrationFlows.from("errorLoggingChannel").handle((p, h) -> {
+            logger.error("Outgoing Request - " + p.toString());
+            return p;
+        }).channel("nullChannel").get();
+    }
+
 
     @ServiceActivator(inputChannel = "doTrackEntity")
     Collection<TagResultBean>  sendResult() {

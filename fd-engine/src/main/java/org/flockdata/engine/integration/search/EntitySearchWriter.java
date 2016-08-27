@@ -41,6 +41,8 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Service;
 
 /**
+ * Outbound requests sent once the search doc is indexed
+ *
  * Created by mike on 12/02/16.
  */
 @Configuration
