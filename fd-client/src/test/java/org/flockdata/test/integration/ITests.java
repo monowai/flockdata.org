@@ -29,6 +29,7 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
+import org.flockdata.search.model.ContentStructure;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.bean.ContentInputBean;
@@ -277,7 +278,7 @@ public class ITests {
         assertEquals("Should be a new Entity", trackEntity.result().isNewEntity(), true);
         assertEquals("Problem creating the Content", trackEntity.result().getLogStatus(), ContentInputBean.LogStatus.OK);
 
-        EntityGet foundEntity = new EntityGet(clientConfiguration, fdTemplate, trackEntity.result().getKey());
+        EntityGet foundEntity = new EntityGet(fdTemplate, trackEntity.result().getKey());
         integrationHelper.waitForEntityKey(logger, "trackEntityOverHttp", foundEntity.exec());
         integrationHelper.assertWorked("Find Entity - ", foundEntity);
         assertNotNull(foundEntity.result().getKey());
@@ -300,7 +301,7 @@ public class ITests {
 
         fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
 
-        EntityGet entityGet = new EntityGet(clientConfiguration, fdTemplate, entityInputBean)
+        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean)
                 .exec();
 
         integrationHelper.waitForEntityKey(logger, "trackEntityOverAmqpThenFindInSearch", entityGet);
@@ -345,7 +346,7 @@ public class ITests {
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
 
         fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
-        EntityGet entityGet = new EntityGet(clientConfiguration, fdTemplate, entityInputBean).exec();
+        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean).exec();
         integrationHelper.waitForEntityKey(logger, "validateEntityLogs", entityGet);
 
         EntityBean entityResult = entityGet.result();
@@ -385,7 +386,7 @@ public class ITests {
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")));
 
         fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
-        EntityGet entityGet = new EntityGet(clientConfiguration, fdTemplate, entityInputBean);
+        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
         integrationHelper.waitForEntityKey(logger, "findByESPassThroughWithUTF8", entityGet);
 
         EntityBean entityResult = entityGet.result();
@@ -513,7 +514,7 @@ public class ITests {
 
         fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
 
-        EntityGet entityGet = new EntityGet(clientConfiguration, fdTemplate, entityInputBean);
+        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
 
         integrationHelper.waitForEntityKey(logger, "purgeFortressRemovesEsIndex", entityGet);
         integrationHelper.waitForSearch(logger, "purgeFortressRemovesEsIndex", entityGet, 1);
@@ -555,7 +556,7 @@ public class ITests {
 
         fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
 
-        EntityGet entityGet = new EntityGet(clientConfiguration, fdTemplate, entityInputBean);
+        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet);
         integrationHelper.waitForSearch(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet, 1);
@@ -569,7 +570,7 @@ public class ITests {
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
 
         fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
-        entityGet = new EntityGet(clientConfiguration, fdTemplate, entityInputBean);
+        entityGet = new EntityGet(fdTemplate, entityInputBean);
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet);
         integrationHelper.waitForSearch(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet, 1);
@@ -659,7 +660,7 @@ public class ITests {
 
         fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
 
-        EntityGet entityGet = new EntityGet(clientConfiguration, fdTemplate, entityInputBean);
+        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentEntitiesWithNoLogs", entityGet);
         integrationHelper.waitForSearch(logger, "purgeSegmentEntitiesWithNoLogs", entityGet, 1);
@@ -673,7 +674,7 @@ public class ITests {
                 .setEntityOnly(true);
 
         fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
-        entityGet = new EntityGet(clientConfiguration, fdTemplate, entityInputBean);
+        entityGet = new EntityGet(fdTemplate, entityInputBean);
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentEntitiesWithNoLogs", entityGet);
         integrationHelper.waitForSearch(logger, "purgeSegmentEntitiesWithNoLogs", entityGet, 1);
@@ -740,36 +741,39 @@ public class ITests {
 
     }
 
-//    @Test
-//    public void esPassThroughWithNoQuery() throws Exception {
-//        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-//        assertNotNull(login);
-//
-//        EntityInputBean entityInputBean = new EntityInputBean()
-//                .setFortress(new FortressInputBean("esPassthroughWithNoQuery")
-//                        .setSearchEnabled(true))
-//                .setCode("Katerina Neumannová")
-//                .setDescription("Katerina Neumannová")
-//                .setDocumentType(new DocumentTypeInputBean("entityamqp"))
-//                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")));
-//
-//        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
-//        EntityGet entityGet = new EntityGet(clientConfiguration, fdTemplate, entityInputBean);
-//        integrationHelper.waitForEntityKey(logger, "esPassthroughWithNoQuery", entityGet);
-//
-//        EntityBean entityResult = entityGet.result();
-//        assertNotNull(entityResult);
-//        assertNotNull(entityResult.getKey());
-//        integrationHelper.waitForSearch(logger, "esPassthroughWithNoQuery", entityGet, 1);
-//        assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityGet.result().getSearch());
-//
-//        QueryParams qp = new QueryParams();
-//        qp.setCompany(login.getCompanyName());
-//        qp.setSearchText("*");
-//        // Searching with no parameters
-//        Map<String, Object> searchResults = fdTemplate.search(qp);
-//        assertNotNull(searchResults);
-//    }
+    @Test
+    public void getEntityFieldStructure() throws Exception {
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull(login);
+
+        EntityInputBean entityInputBean = new EntityInputBean()
+                .setFortress(new FortressInputBean("getEntityFieldStructure")
+                        .setSearchEnabled(true))
+                .setCode("Katerina Neumannová")
+                .setDescription("Katerina Neumannová")
+                .setDocumentType(new DocumentTypeInputBean("entityamqp"))
+                .addTag(new TagInputBean("anyCode", "anyLabel").addEntityTagLink("anyrlx"))
+                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")));
+
+        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
+        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
+        integrationHelper.waitForEntityKey(logger, "getEntityFieldStructure", entityGet);
+
+        EntityBean entityResult = entityGet.result();
+        assertNotNull(entityResult);
+        assertNotNull(entityResult.getKey());
+        integrationHelper.waitForSearch(logger, "getEntityFieldStructure", entityGet, 1);
+        assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityGet.result().getSearch());
+
+        // Searching with no parameters
+        ContentStructure structure = fdTemplate.entityFields(entityInputBean.getFortress().getName(), entityInputBean.getDocumentType().getName());
+
+        assertNotNull(structure);
+
+        assertTrue ("All data columns were un-faceted strings so nothing should be returned", structure.getData().isEmpty());
+        assertFalse (structure.getLinks().isEmpty());
+        assertFalse (structure.getSystem().isEmpty());
+    }
 
     @Test
     public void persistEntityRelationshipModel() throws Exception {

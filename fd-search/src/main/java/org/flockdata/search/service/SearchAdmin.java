@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.integration.VersionHelper;
 import org.flockdata.search.base.EntityChangeWriter;
+import org.flockdata.search.base.IndexMappingService;
 import org.flockdata.search.configure.SearchConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

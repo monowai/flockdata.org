@@ -18,7 +18,7 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.search.service;
+package org.flockdata.search.base;
 
 import org.flockdata.track.bean.SearchChange;
 

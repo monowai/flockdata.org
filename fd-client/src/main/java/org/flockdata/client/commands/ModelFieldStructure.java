@@ -17,8 +17,7 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.client.FdTemplate;
-import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.search.model.ContentStructure;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -27,46 +26,30 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
- * Locate a tag
- * Created by mike on 17/04/16.
+ * Created by mike on 31/08/16.
  */
-public class EntityGet extends AbstractRestCommand  {
+public class ModelFieldStructure extends AbstractRestCommand{
+    private ContentStructure result;
+    private String fortress;
+    private String documentType ;
 
-    private EntityInputBean entityInputBean;
-
-    private EntityBean result;
-
-    private String key;
-
-    public EntityGet(FdTemplate fdTemplate, EntityInputBean entityInputBean) {
+    public ModelFieldStructure(FdTemplate fdTemplate, String fortress, String documentType) {
         super(fdTemplate);
-        this.entityInputBean = entityInputBean;
+        this.fortress = fortress;
+        this.documentType = documentType;
     }
 
-    public EntityGet(FdTemplate fdTemplate, String key) {
-        super(fdTemplate);
-        this.key = key;
-    }
-
-
-    public EntityBean result() {
-        return result;
-    }
 
     @Override
-    public EntityGet exec() {
+    public ModelFieldStructure exec() {
         HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
         result=null;   error =null;
         try {
 
-            ResponseEntity<EntityBean> response ;
-            if (key !=null ) // Locate by FD unique key
-                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityBean.class, key);
-            else
-                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityBean.class,
-                        entityInputBean.getFortress().getName(),
-                        entityInputBean.getDocumentType().getName(),
-                        entityInputBean.getCode());
+            ResponseEntity<ContentStructure> response ;
+                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/model/{fortress}/{docType}/fields", HttpMethod.GET, requestEntity, ContentStructure.class,
+                        fortress,
+                        documentType);
 
             result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
 
@@ -74,5 +57,10 @@ public class EntityGet extends AbstractRestCommand  {
             error= e.getMessage();
         }
         return this;// Everything worked
+    }
+
+    @Override
+    public ContentStructure result() {
+        return result;
     }
 }

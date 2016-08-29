@@ -22,6 +22,7 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.DocumentType;
+import org.flockdata.model.MetaDocument;
 import org.flockdata.track.service.EntityService;
 
 /**
@@ -29,7 +30,7 @@ import org.flockdata.track.service.EntityService;
  * Date: 10/10/14
  * Time: 12:06 PM
  */
-public class DocumentTypeInputBean {
+public class DocumentTypeInputBean implements MetaDocument{
     private String name;
     private String code;
 

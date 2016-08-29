@@ -21,7 +21,6 @@
 package org.flockdata.model;
 
 import org.flockdata.profile.model.ContentModel;
-import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.service.EntityService;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
@@ -47,7 +46,7 @@ import java.util.Set;
  */
 @NodeEntity
 @TypeAlias("DocType")
-public class DocumentType implements Comparable<DocumentType> {
+public class DocumentType implements Comparable<DocumentType>, MetaDocument {
     @GraphId
     Long id;
 
@@ -109,11 +108,11 @@ public class DocumentType implements Comparable<DocumentType> {
     protected DocumentType() {
     }
 
-    public DocumentType(Fortress fortress, DocumentTypeInputBean docType) {
+    public DocumentType(Fortress fortress, MetaDocument docType) {
         this(fortress.getDefaultSegment(), docType);
     }
 
-    public DocumentType(FortressSegment segment, DocumentTypeInputBean docType) {
+    public DocumentType(FortressSegment segment, MetaDocument docType) {
         this(segment.getFortress(), docType.getName());
         this.name = docType.getName();
         this.segments = new HashSet<>();
@@ -286,15 +285,15 @@ public class DocumentType implements Comparable<DocumentType> {
         return segments;
     }
 
-    public Boolean getSearchEnabled() {
+    public Boolean isSearchEnabled() {
         return searchEnabled;
     }
 
-    public Boolean getStoreEnabled() {
+    public Boolean isStoreEnabled() {
         return storeEnabled;
     }
 
-    public Boolean getTrackEnabled() {
+    public Boolean isTrackEnabled() {
         return trackEnabled;
     }
 }

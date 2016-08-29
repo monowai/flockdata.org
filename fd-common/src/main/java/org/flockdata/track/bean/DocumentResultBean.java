@@ -51,10 +51,10 @@ public class DocumentResultBean {
         if ( documentType !=null ) {
             this.name = documentType.getName();
             this.id = documentType.getId();
-            if ( documentType.getSearchEnabled() !=null)
-                this.searchSuppressed = !documentType.getSearchEnabled();
-            if ( documentType.getTrackEnabled() !=null) // Suppressed if it's not enabled
-                this.trackSuppressed = !documentType.getTrackEnabled();
+            if ( documentType.isSearchEnabled() !=null)
+                this.searchSuppressed = !documentType.isSearchEnabled();
+            if ( documentType.isTrackEnabled() !=null) // Suppressed if it's not enabled
+                this.trackSuppressed = !documentType.isTrackEnabled();
 
         }
     }

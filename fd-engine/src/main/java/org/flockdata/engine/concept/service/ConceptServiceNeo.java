@@ -18,17 +18,14 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.meta.service;
+package org.flockdata.engine.concept.service;
 
 import org.flockdata.engine.dao.ConceptDaoNeo;
 import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.FortressSegment;
+import org.flockdata.model.*;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.*;
@@ -279,7 +276,7 @@ public class ConceptServiceNeo implements ConceptService {
         return docTypes;
     }
 
-    private boolean isSystemType(DocumentTypeInputBean documentType) {
+    private boolean isSystemType(MetaDocument documentType) {
         return documentType.getName().equalsIgnoreCase("entity");
     }
 

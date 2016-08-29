@@ -21,7 +21,7 @@
 package org.flockdata.engine.query.endpoint;
 
 import org.flockdata.engine.admin.service.StorageProxy;
-import org.flockdata.engine.meta.service.TxService;
+import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
@@ -53,28 +53,32 @@ import java.util.*;
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/entity")
 public class EntityEP {
-    @Autowired
-    EntityService entityService;
+    private final EntityService entityService;
 
-    @Autowired
-    StorageProxy storageProxy;
+    private final StorageProxy storageProxy;
 
-    @Autowired
-    MediationFacade mediationFacade;
+    private final MediationFacade mediationFacade;
 
-    @Autowired
-    FortressService fortressService;
+    private final FortressService fortressService;
 
-    @Autowired
-    EntityTagService entityTagService;
+    private final EntityTagService entityTagService;
 
-    @Autowired
-    TxService txService;
+    private final TxService txService;
 
-    @Autowired
-    LogService logService;
+    private final LogService logService;
 
     private static Logger logger = LoggerFactory.getLogger(EntityEP.class);
+
+    @Autowired
+    public EntityEP(LogService logService, EntityService entityService, StorageProxy storageProxy, FortressService fortressService, EntityTagService entityTagService, TxService txService, MediationFacade mediationFacade) {
+        this.logService = logService;
+        this.entityService = entityService;
+        this.storageProxy = storageProxy;
+        this.fortressService = fortressService;
+        this.entityTagService = entityTagService;
+        this.txService = txService;
+        this.mediationFacade = mediationFacade;
+    }
 
 
 //    @RequestMapping(value = "/{fortress}/all/{code}", method = RequestMethod.GET)
@@ -132,7 +136,7 @@ public class EntityEP {
      *
      * @param toFind keys to look for
      * @return Matching entities you are authorised to receive
-     * @throws FlockException
+     * @throws FlockException duh - error
      */
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public
@@ -335,7 +339,7 @@ public class EntityEP {
     @RequestMapping(value = "/tx/{txRef}/entities", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> getTransactedEntities(@PathVariable("txRef") String txRef,
                                                                      HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyResolver.resolveCompany(request);
         Set<Entity> headers;
         Map<String, Object> result = new HashMap<>(2);
         headers = txService.findTxEntities(txRef);
@@ -348,7 +352,7 @@ public class EntityEP {
     @RequestMapping(value = "/tx/{txRef}/logs", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<Map> getEntityTxLogs(@PathVariable("txRef") String txRef,
                                                HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyResolver.resolveCompany(request);
         Map<String, Object> result;
         result = txService.findByTXRef(txRef);
         if (result == null) {
@@ -357,7 +361,7 @@ public class EntityEP {
             return new ResponseEntity<>((Map) result, HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<Map>(result, HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /**
@@ -366,7 +370,7 @@ public class EntityEP {
      * @param key  uid to start from
      * @param xRefName relationship name
      * @return all meta headers of xRefName associated with code
-     * @throws FlockException
+     * @throws FlockException  error
      */
     @RequestMapping(value = "/{key}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
     public

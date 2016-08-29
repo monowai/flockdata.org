@@ -32,6 +32,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.integration.IndexManager;
+import org.flockdata.search.base.IndexMappingService;
 import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.track.bean.SearchChange;
 import org.slf4j.Logger;

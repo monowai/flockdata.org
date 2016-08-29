@@ -18,7 +18,7 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.meta.endpoint;
+package org.flockdata.engine.concept.endpoint;
 
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.FortressService;

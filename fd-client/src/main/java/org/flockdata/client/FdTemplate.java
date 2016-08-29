@@ -31,6 +31,7 @@ import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.search.model.ContentStructure;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
@@ -65,12 +66,12 @@ public class FdTemplate implements FdIoInterface {
     private FdRabbitClient fdRabbitClient;
 
     @Autowired
-    void setClientConfiguration (ClientConfiguration clientConfiguration){
+    void setClientConfiguration(ClientConfiguration clientConfiguration) {
         this.clientConfiguration = clientConfiguration;
     }
 
     @Autowired(required = false)
-    void setFdRabbitClient (FdRabbitClient fdRabbitClient){
+    void setFdRabbitClient(FdRabbitClient fdRabbitClient) {
         this.fdRabbitClient = fdRabbitClient;
     }
 
@@ -164,7 +165,7 @@ public class FdTemplate implements FdIoInterface {
 
     private HttpHeaders httpHeaders = null;
 
-    public HttpHeaders getHeaders () {
+    public HttpHeaders getHeaders() {
         return getHeaders(clientConfiguration.getHttpUser(), clientConfiguration.getHttpPass(), clientConfiguration.getApiKey());
     }
 
@@ -215,7 +216,7 @@ public class FdTemplate implements FdIoInterface {
     public SystemUserResultBean login() {
         Login login = new Login(this);
         if (login.exec().error() != null) {
-            logger.error ( "Error logging in as [{}] - {}", getUser(), login.error());
+            logger.error("Error logging in as [{}] - {}", getUser(), login.error());
             return null;
         }
 
@@ -225,7 +226,7 @@ public class FdTemplate implements FdIoInterface {
                 logger.info("Configuring apiKey for user {}", clientConfiguration.getHttpUser());
                 clientConfiguration.setApiKey(suResult.getApiKey());
             } else {
-                logger.debug( "User [{}] authenticated at [{}] but is not a registered data access user", clientConfiguration.getHttpUser(), clientConfiguration.getServiceUrl());
+                logger.debug("User [{}] authenticated at [{}] but is not a registered data access user", clientConfiguration.getHttpUser(), clientConfiguration.getServiceUrl());
             }
 
         }
@@ -316,7 +317,7 @@ public class FdTemplate implements FdIoInterface {
 
     public Map<String, Object> search(QueryParams qp) {
         SearchEsPost postQuery = new SearchEsPost(this, qp);
-        if ( postQuery.exec().error()!=null)
+        if (postQuery.exec().error() != null)
             logger.error(postQuery.error());
         return postQuery.exec().result();
     }
@@ -334,7 +335,18 @@ public class FdTemplate implements FdIoInterface {
     }
 
     public void setServiceUrl(String serviceUrl) {
-        logger.info ("setting service URL to {}", serviceUrl);
+        logger.info("setting service URL to {}", serviceUrl);
         clientConfiguration.setServiceUrl(serviceUrl);
+    }
+
+    public ContentStructure entityFields(String fortress, String documentType) {
+        ModelFieldStructure query = new ModelFieldStructure(this, fortress, documentType);
+        query.exec();
+        if (query.error() == null)
+            return query.result();
+
+        logger.error(query.error());
+        return null;
+
     }
 }

@@ -21,7 +21,9 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.model.FortressUser;
+import org.flockdata.model.MetaDocument;
 import org.flockdata.model.MetaFortress;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
@@ -42,7 +44,8 @@ public class EntityInputBean implements Serializable, UserProperties {
 
     private FortressInputBean fortress;
     private String fortressUser;
-    private DocumentTypeInputBean documentType;
+    @JsonDeserialize(as = DocumentTypeInputBean.class)
+    private MetaDocument documentType;
 
     private Date when = null; // Created Date
 
@@ -100,7 +103,7 @@ public class EntityInputBean implements Serializable, UserProperties {
         this(fortress, fortressUser, documentName, fortressWhen, null);
     }
 
-    public EntityInputBean(MetaFortress fortress, DocumentTypeInputBean documentType) {
+    public EntityInputBean(MetaFortress fortress, MetaDocument documentType) {
         this.fortress = new FortressInputBean(fortress.getName());
         setDocumentType(documentType);
     }
@@ -450,7 +453,7 @@ public class EntityInputBean implements Serializable, UserProperties {
         return user;
     }
 
-    public DocumentTypeInputBean getDocumentType() {
+    public MetaDocument getDocumentType() {
         return documentType;
     }
 
@@ -463,7 +466,7 @@ public class EntityInputBean implements Serializable, UserProperties {
         return segment;
     }
 
-    public EntityInputBean setDocumentType(final DocumentTypeInputBean documentType) {
+    public EntityInputBean setDocumentType(final MetaDocument documentType) {
         this.documentType = documentType;
         return this;
     }

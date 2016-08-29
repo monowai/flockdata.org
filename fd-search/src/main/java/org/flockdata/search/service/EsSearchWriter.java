@@ -21,6 +21,7 @@
 package org.flockdata.search.service;
 
 import org.flockdata.search.base.EntityChangeWriter;
+import org.flockdata.search.base.IndexMappingService;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.base.TagChangeWriter;
 import org.flockdata.search.integration.WriteSearchChanges;
@@ -45,17 +46,25 @@ import java.io.IOException;
 @DependsOn("searchConfig")
 public class EsSearchWriter implements SearchWriter {
 
-    @Autowired
-    private IndexMappingService indexMappingService;
+    private final IndexMappingService indexMappingService;
+
+    private final EntityChangeWriter entityWriter;
+
+    private final TagChangeWriter tagWriter;
+
+    private WriteSearchChanges.EngineResultGateway engineResultGateway;
 
     @Autowired
-    private EntityChangeWriter entityWriter;
-
-    @Autowired
-    private TagChangeWriter tagWriter;
+    public EsSearchWriter(TagChangeWriter tagWriter, EntityChangeWriter entityWriter, IndexMappingService indexMappingService) {
+        this.tagWriter = tagWriter;
+        this.entityWriter = entityWriter;
+        this.indexMappingService = indexMappingService;
+    }
 
     @Autowired(required = false)
-    WriteSearchChanges.EngineResultGateway engineResultGateway;
+    void setEngineResultGateway (WriteSearchChanges.EngineResultGateway engineResultGateway){
+        this.engineResultGateway = engineResultGateway;
+    }
 
     private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
 

@@ -25,8 +25,6 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.service.SchemaService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.neo4j.kernel.api.exceptions.TransactionFailureException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
@@ -45,10 +43,14 @@ import java.util.Collection;
 @Service
 public class IndexRetryService {
 
-    @Autowired
-    private SchemaService schemaService;
+    private final SchemaService schemaService;
 
-    private Logger logger = LoggerFactory.getLogger(IndexRetryService.class);
+    //private Logger logger = LoggerFactory.getLogger(IndexRetryService.class);
+
+    @Autowired
+    public IndexRetryService(SchemaService schemaService) {
+        this.schemaService = schemaService;
+    }
 
     @Retryable(include =  {FlockException.class, DeadlockDetectedException.class, InvalidDataAccessResourceUsageException.class,TransactionFailureException.class},
             maxAttempts = 12, backoff = @Backoff(maxDelay = 300, delay = 20, random = true))

@@ -22,6 +22,7 @@ import org.flockdata.integration.FileProcessor;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
+import org.flockdata.model.MetaDocument;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
@@ -51,7 +52,7 @@ public class TestDocTypes extends AbstractImport  {
         fileProcessor.processFile(new ExtractProfileHandler(contentModel, false), "/data/pac.txt");
 
         for (EntityInputBean entityInputBean : fdBatcher.getEntities()) {
-            DocumentTypeInputBean docType = entityInputBean.getDocumentType();
+            MetaDocument docType = entityInputBean.getDocumentType();
             assertNotNull(entityInputBean.getDocumentType());
             TestCase.assertEquals("TestDocType", docType.getName());
             TestCase.assertEquals("Version Strategy not being handled", DocumentType.VERSION.ENABLE, docType.getVersionStrategy());

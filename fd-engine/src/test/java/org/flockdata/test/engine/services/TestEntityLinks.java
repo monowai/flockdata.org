@@ -313,7 +313,6 @@ public class TestEntityLinks extends EngineBase {
         assertEquals("Should be one tag associated with the search doc", 1, foundTag.size());
     }
 
-
     @Test
     public void parentLinkWhenTrackIsSuppressed() throws Exception{
         // Tests that a child record, with track suppressed, connects to a graph persistent parent relationship
@@ -348,6 +347,34 @@ public class TestEntityLinks extends EngineBase {
         assertNotNull ( "parent flag in the entityKey was not respected",  entitySearchChange.getParent());
         assertEquals ( "The only entityLink was a Parent so it shouldn't be in this collection", 0, entitySearchChange.getEntityLinks().size());
 
+    }
+
+    @Test
+    public void testNestedParentStructure() throws Exception{
+        // Initial setup
+        cleanUpGraph();
+        SystemUser su = registerSystemUser("testNestedParentStructure", mike_admin);
+        Fortress timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
+        Fortress companyFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("company", true));
+
+        EntityInputBean company = new EntityInputBean(companyFortress, "wally", "Company", new DateTime(), "ABC123");
+        company.addTag(new TagInputBean("City", "SomeTag", new EntityTagRelationshipInput("located")));
+        mediationFacade.trackEntity(su.getCompany(), company);
+
+        EntityInputBean staff = new EntityInputBean(timesheetFortress, "wally", "Staff", new DateTime(), "ABC123");
+        staff.addTag(new TagInputBean("Cleaner", "Position", new EntityTagRelationshipInput("role")));
+        staff.addEntityLink("manages", new EntityKeyBean(company).setParent(true));
+        mediationFacade.trackEntity(su.getCompany(), staff);
+
+        DocumentType docTypeWork = new DocumentType(timesheetFortress, "Work");
+        docTypeWork = conceptService.findOrCreate(timesheetFortress, docTypeWork);
+
+        EntityInputBean workRecord = new EntityInputBean(timesheetFortress, docTypeWork);
+        // Checking that the entity is linked when part of the track request
+        workRecord.addEntityLink("worked", new EntityKeyBean("Staff", "timesheet", "ABC123").setParent(true));
+        TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
+//        EntitySearchChange searchDocument = searchService.getEntityChange(workResult);
+  //      validateSearchStaff( searchDocument);
     }
 
     public Map<String,Collection<Entity>>getLinkedEntities(Company company, String fortressName, String docType, String code, String rlxName) throws Exception{

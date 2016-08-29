@@ -33,7 +33,7 @@ public class SearchSchema {
     public static final String NAME = "name";
     public static final String TIMESTAMP = "timestamp";
     public static final String FORTRESS = "fortress";
-    public static final String DOC_TYPE = "docType";
+    public static final String DOC_TYPE = "_type";
     public static final String ATTACHMENT = "attachment";
 
     public static final String TAG = "tag";
@@ -50,9 +50,15 @@ public class SearchSchema {
     public static final String CONTENT_TYPE = "contentType";
     public static final String PROPS = "up";
     public static final String INDEX = "index";
+    public static final String ENTITY = "e";
+    public static final String TAG_PROPS = "properties";
+    public static final String ENTITY_FIELD = "e.";
+    public static final String TAG_UDP = "." + TAG_PROPS;
+    public static final String DATA_FIELD = "data.";
+    public static final String FACET_FIELD = ".facet";
+    public static final String TAG_FIELD = TAG + ".";
 
     /**
-     *
      * @param types unparsed docTypes
      * @return lowercase doc types
      */
@@ -60,7 +66,7 @@ public class SearchSchema {
         String[] results = new String[types.length];
         int i = 0;
         for (String type : types) {
-            results[i]= type.toLowerCase();
+            results[i] = type.toLowerCase();
         }
         return results;
     }

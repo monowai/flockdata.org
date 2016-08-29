@@ -128,7 +128,7 @@ public class EntityDaoNeo {
     }
 
     private Boolean isTrackEnabled(DocumentType documentType, EntityInputBean inputBean) {
-        return (documentType.getTrackEnabled()!=null && documentType.getTrackEnabled()) || !inputBean.isTrackSuppressed() ;
+        return (documentType.isTrackEnabled()!=null && documentType.isTrackEnabled()) || !inputBean.isTrackSuppressed() ;
     }
 
     public Entity save(Entity entity) {

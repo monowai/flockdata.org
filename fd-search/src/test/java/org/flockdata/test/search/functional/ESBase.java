@@ -40,10 +40,11 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.search.base.EntityChangeWriter;
+import org.flockdata.search.base.IndexMappingService;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.base.TagChangeWriter;
 import org.flockdata.search.model.SearchSchema;
-import org.flockdata.search.service.IndexMappingService;
+import org.flockdata.search.service.ContentService;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.test.helper.EntityContentHelper;
@@ -93,6 +94,8 @@ public class ESBase {
     @Autowired
     SearchAdmin searchAdmin;
 
+    @Autowired
+    ContentService contentService;
 
     @Qualifier("esSearchWriter")
     @Autowired

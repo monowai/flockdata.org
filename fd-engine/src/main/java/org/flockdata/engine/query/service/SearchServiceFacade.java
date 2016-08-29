@@ -396,8 +396,8 @@ public class SearchServiceFacade {
     private boolean isSearchSuppressed(DocumentType documentType) {
         if (documentType == null)
             return true; // Can't index a doc with no doc type
-        if (documentType.getSearchEnabled() != null) // no-null doc type may want to suppress search
-            return documentType.getSearchEnabled();
+        if (documentType.isSearchEnabled() != null) // no-null doc type may want to suppress search
+            return documentType.isSearchEnabled();
         return false;
     }
 

@@ -20,6 +20,7 @@
 
 package org.flockdata.track.bean;
 
+import org.flockdata.model.MetaDocument;
 import org.flockdata.registration.FortressInputBean;
 
 import java.util.Collection;
@@ -53,7 +54,7 @@ public class EntityToEntityLinkInput {
      * @param documentName      Parent docType
      * @param code              Parent code reference
      */
-    public EntityToEntityLinkInput(FortressInputBean fortress, DocumentTypeInputBean documentName, String code) {
+    public EntityToEntityLinkInput(FortressInputBean fortress, MetaDocument documentName, String code) {
         this.code = code;
         this.fortress = fortress.getName();
         this.documentType = documentName.getName();

@@ -18,12 +18,14 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.profile.endpoint;
+package org.flockdata.engine.model.endpoint;
 
+import org.flockdata.engine.query.service.ContentService;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
@@ -32,6 +34,7 @@ import org.flockdata.profile.ContentValidationRequest;
 import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
+import org.flockdata.search.model.ContentStructure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,19 +48,20 @@ import java.util.Collection;
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/model")
-public class ContentModelEP {
+public class ModelEP {
 
     private final ContentModelService contentModelService;
-
     private final FortressService fortressService;
-
     private final ConceptService conceptService;
+    private final ContentService contentService;
+
 
     @Autowired
-    public ContentModelEP(ContentModelService contentModelService, FortressService fortressService, ConceptService conceptService) {
+    public ModelEP(ContentService contentService,ContentModelService contentModelService, FortressService fortressService, ConceptService conceptService) {
         this.contentModelService = contentModelService;
         this.fortressService = fortressService;
         this.conceptService = conceptService;
+        this.contentService = contentService;
     }
 
     @RequestMapping(value = "/",
@@ -187,6 +191,21 @@ public class ContentModelEP {
 
         return contentModelService.saveEntityModel(company, fortress, documentType, contentModel);
 
+    }
+
+    @RequestMapping(value = "/{fortress}/{documentType}/fields", produces = "application/json", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    ContentStructure getEntityFields(@PathVariable("fortress") String fortressName,
+                                     @PathVariable("documentType") String documentType,
+                                     HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        Fortress fortress = fortressService.findByCode(company, fortressName);
+        if ( fortress == null )
+            throw new NotFoundException("Unable to locate fortress " + fortressName);
+
+
+        return contentService.getStructure(company, fortress, documentType);
     }
 
     @RequestMapping(value = "/tag/{code}",
