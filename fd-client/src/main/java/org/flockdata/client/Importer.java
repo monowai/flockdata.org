@@ -71,7 +71,7 @@ import java.util.List;
  */
 @Profile("fd-importer")
 @Configuration
-@ComponentScan(basePackages = {"org.flockdata.shared", "org.flockdata.client"})
+@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.client"})
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class Importer  {
 

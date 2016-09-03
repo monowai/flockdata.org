@@ -27,10 +27,10 @@ import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.track.bean.ConceptInputBean;
-import org.flockdata.track.bean.ConceptResultBean;
-import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.bean.RelationshipResultBean;
+import org.flockdata.track.bean.*;
+import org.neo4j.graphalgo.impl.util.PathImpl;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -59,6 +59,7 @@ import java.util.*;
  */
 @Repository
 public class ConceptDaoNeo {
+    public static final String PARENT = "parent";
     private final ConceptTypeRepo conceptTypeRepo;
 
     private final DocumentTypeRepo documentTypeRepo;
@@ -74,10 +75,20 @@ public class ConceptDaoNeo {
         this.template = template;
     }
 
-    public boolean linkEntities(DocumentType fromDoc, DocumentType toDoc, String relationship) {
+    public boolean linkEntities(DocumentType fromDoc, DocumentType toDoc, EntityKeyBean entityKeyBean) {
         Node from = template.getNode(fromDoc.getId());
         Node to = template.getNode(toDoc.getId());
-        return linkNodesWithRelationship(from, to, relationship);
+        if (!relationshipExists(from, to, entityKeyBean.getRelationship())) {
+            Map<String,Object> props = new HashMap<>();
+            Direction direction = Direction.BOTH; // Association
+            props.put(ConceptDaoNeo.PARENT,entityKeyBean.isParent());
+            if ( entityKeyBean.isParent()) {
+                direction = Direction.OUTGOING; // Point to the parent
+            }
+            template.getOrCreateRelationship(from, to, DynamicRelationshipType.withName(entityKeyBean.getRelationship()), direction, props);
+            return true; // Link created
+        }
+        return false;
     }
 
     private boolean linkDocToConcept(DocumentType fromDoc, Concept toConcept, String relationship) {
@@ -94,7 +105,7 @@ public class ConceptDaoNeo {
 
     private boolean linkNodesWithRelationship(Node from, Node to, String relationship) {
         if (!relationshipExists(from, to, relationship)) {
-            template.createRelationshipBetween(from, to, relationship, null);
+            template.getOrCreateRelationship(from, to, DynamicRelationshipType.withName(relationship), Direction.OUTGOING, null);
             return true; // Link created
         }
         return false; // Link already existed
@@ -338,5 +349,31 @@ public class ConceptDaoNeo {
         return new MatrixResults(edgeResults).setNodes(nodes);
 
 
+    }
+
+    public Map<String, DocumentResultBean> getParents(DocumentType documentType) {
+        if (documentType == null )
+            return new HashMap<>();
+        String query = "match p=shortestPath( (d:DocType)-[*]->(o:DocType)) where id(d) = {start}  return p";
+        Map<String,Object>params = new HashMap<>();
+        params.put("start", documentType.getId());
+        Result<Map<String, Object>> results = template.query(query, params);
+        Iterator<Map<String, Object>> rows = results.iterator();
+        Map<String,DocumentResultBean>parents = new HashMap<>();
+        while (rows.hasNext()) {
+            Object o = rows.next().get("p");
+            PathImpl path = (PathImpl)o;
+            for (Relationship relationship : path.relationships()) {
+                boolean parent = false;
+                if ( relationship.hasProperty(PARENT)){
+                    parent = Boolean.parseBoolean(relationship.getProperty(PARENT).toString());
+                }
+                if (parent) {
+                    logger.debug("{}-{}-{}", relationship.getStartNode().getId(), relationship.getType().name(), relationship.getEndNode().getId());
+                    parents.put(relationship.getType().name(), new DocumentResultBean(new DocumentType(relationship.getEndNode().getProperty("name").toString())));
+                }
+            }
+        }
+        return parents;
     }
 }

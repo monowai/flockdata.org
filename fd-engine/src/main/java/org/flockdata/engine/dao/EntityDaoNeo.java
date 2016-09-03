@@ -29,10 +29,7 @@ import org.flockdata.integration.IndexManager;
 import org.flockdata.integration.KeyGenService;
 import org.flockdata.model.*;
 import org.flockdata.store.Store;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntityKeyBean;
-import org.flockdata.track.bean.EntityTXResult;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityTagService;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.*;
@@ -628,4 +625,44 @@ public class EntityDaoNeo {
         return findByCode(fortress.getId(), type, entityKeyBean.getCode());
     }
 
+    /**
+     * Find outbound parents of the source entity
+     *
+     * @param entity
+     * @param docType
+     * @return
+     */
+    public Collection<EntityKeyBean> getNestedParentEntities(Entity entity, DocumentType docType) {
+        Map<String,DocumentResultBean> parents = conceptService.getParents(docType);
+        if ( parents.isEmpty())
+            return new ArrayList<>();
+
+        String query = "match (e:Entity) where id(e) = {entity} with e match (e) ";
+        String cypherReturn =null;
+        for (String relationship : parents.keySet()) {
+            query = query + "-[:"+relationship+"]-("+relationship+":"+parents.get(relationship).getName()+")";
+            if (cypherReturn== null )
+                cypherReturn = " return " + relationship;
+            else
+                cypherReturn = cypherReturn + "," + relationship ;
+        }
+
+        Map<String,Object>params = new HashMap<>();
+        params.put("entity", entity.getId());
+        Result<Map<String, Object>> results = template.query(query + cypherReturn, params);
+        Iterator<Map<String, Object>> rows = results.iterator();
+        Collection<EntityKeyBean> connected = new ArrayList<>();
+
+        while (rows.hasNext()){
+            // Should only be the one row;
+            Map<String, Object> row = rows.next();
+            for (String relationship : parents.keySet()) {
+                Node node = (Node)row.get(relationship);
+                Entity e = getEntity(node.getId());
+                connected.add( new EntityKeyBean(e, entityTagService.findEntityTagsWithGeo(e),indexManager.parseIndex(e))
+                        .setRelationship(relationship));
+            }
+        }
+        return connected;
+    }
 }

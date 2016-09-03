@@ -183,18 +183,9 @@ public class SearchServiceFacade {
      * @param entityLog       Log to work with (usually the "current" log)
      * @return object ready to index
      */
-    private EntitySearchChange getEntityChange(TrackResultBean trackResultBean, EntityLog entityLog) {
-        DocumentType docType = trackResultBean.getDocumentType();
+    public EntitySearchChange getEntityChange(TrackResultBean trackResultBean, EntityLog entityLog) {
         ContentInputBean contentInput = trackResultBean.getContentInput();
         Entity entity = trackResultBean.getEntity();
-
-//        ContentModel contentModel = null;
-//
-//        try {
-//            contentModel = contentModelService.get(entity.getFortress().getCompany(), entity.getFortress(), docType);
-//        } catch (org.flockdata.helper.NotFoundException |FlockException e){
-//            logger.warn("No server side content model");
-//        }
 
         EntitySearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput, indexManager.parseIndex(entity));
 
@@ -218,12 +209,25 @@ public class SearchServiceFacade {
         searchDocument.setName(entity.getName());
         searchDocument.setSearchKey(entity.getSearchKey());
 
-
-        if (trackResultBean.getEntityInputBean() != null)
+        if (trackResultBean.getEntityInputBean() != null) {
+            // Gather all Entities linked directly to this entity
             for (String relationship : trackResultBean.getEntityInputBean().getEntityLinks().keySet()) {
-                List<EntityKeyBean> linkTo = trackResultBean.getEntityInputBean().getEntityLinks().get(relationship);
-                searchDocument.addEntityLinks(entityService.getEntities(trackResultBean.getCompany(), linkTo));
+                List<EntityKeyBean> linkTo = filter(entity, trackResultBean.getEntityInputBean().getEntityLinks().get(relationship));
+                searchDocument.addEntityLinks(entityService.getEntities(trackResultBean.getCompany(), linkTo)); // Root level entities are added
+                for (EntityKeyBean entityKeyBean : linkTo) {
+                    Entity analyzeMe = entityKeyBean.getResolvedEntity();
+                    if ( analyzeMe == null )
+                        analyzeMe = entityService.find(trackResultBean.getCompany(), entityKeyBean);
+                    if ( analyzeMe !=null )
+                        searchDocument.addEntityLinks(entityService.getNestedParentEntities(analyzeMe, entityKeyBean.getResolvedDocument()));
+                }
+
+
+//                searchDocument.addEntityLinks(linkTo);
             }
+
+
+        }
 
         try {
             if (logger.isTraceEnabled())
@@ -248,6 +252,15 @@ public class SearchServiceFacade {
 
 
         return searchDocument;
+    }
+
+    // Don't index a reference document in this Entity unless it is a parent
+    private List<EntityKeyBean> filter(Entity entity, List<EntityKeyBean> entityKeyBeen) {
+        return entityKeyBeen
+                .stream()
+                .filter(
+                        entityKeyBean -> entityKeyBean.isParent() || !entityKeyBean.getDocumentType().equals(entity.getType()))
+                .collect(Collectors.toList());
     }
 
     /**

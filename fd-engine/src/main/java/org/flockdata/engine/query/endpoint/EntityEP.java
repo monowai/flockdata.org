@@ -111,7 +111,7 @@ public class EntityEP {
     public EntityBean getEntity(@PathVariable("key") String key,
                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        // curl -u mike:123 -X GET http://localhost:8081/api/v1/track/{key}
+        // curl -u mike:123 -X GET http://localhost:8081/api/v1/entity/{key}
         Entity result = entityService.getEntity(company, key, true);
         if (result == null)
             throw new NotFoundException("Unable to resolve requested meta key [" + key + "]. Company is " + (company == null ? "Invalid" : "Valid"));
@@ -123,7 +123,7 @@ public class EntityEP {
     public String reindexEntity(@PathVariable("key") String key,
                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        // curl -u mike:123 -X GET http://localhost:8081/api/v1/track/{key}
+        // curl -u mike:123 -X GET http://localhost:8081/api/v1/entity/{key}
         Entity entity = entityService.getEntity(company, key, true);
         if (entity == null)
             throw new NotFoundException("Unable to resolve requested meta key [" + key + "]. Company is " + (company == null ? "Invalid" : "Valid"));
@@ -164,7 +164,7 @@ public class EntityEP {
                                         @RequestParam(value = "withData", required = false ) boolean withData,
                                         HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        // curl -u mike:123 -X GET http://localhost:8081/api/v1/track/{key}/logs
+        // curl -u mike:123 -X GET http://localhost:8081/api/v1/entity/{key}/logs
         return entityService.getEntityLogs(company, key, withData);
     }
 
@@ -250,7 +250,7 @@ public class EntityEP {
 //    public ResponseEntity<DeltaBean> getDelta(@PathVariable("key") String key, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId,
 //                                       HttpServletRequest request) throws FlockException {
 //        Company company = CompanyResolver.resolveCompany(request);
-//        Entity entity = entityService.getEntity(company, key);
+//        Entity entity = entityService.getResolvedEntity(company, key);
 //
 //        if (entity != null) {
 //            EntityLog left = entityService.getLogForEntity(entity, logId);

@@ -30,11 +30,10 @@ EXPOSE 8082 61002
 
 ENTRYPOINT ["java",\
       "-Dfile.encoding=UTF8", \
-#     "-Xdebug", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61002",\
      "-jar",\
      "/opt/flockdata/store.jar", \
      "-XX:-UseParNewGC -XX:-UseConcMarkSweepGC -XX:+UseG1GC -XX:+UseStringDeduplication", \
      "-Dlogging.config=/opt/flockdata/conf/log4j2.yml",\
      "-Djava.security.egd=file:/dev/./urandom"]
 
-CMD -Xmx1g
+CMD -Xmx512m

@@ -20,6 +20,7 @@
 
 package org.flockdata.geography.dao;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.model.Tag;
 import org.flockdata.track.bean.GeoDataBean;
@@ -99,13 +100,21 @@ public class GeoSupportNeo {
                 if ( name.equals(code))
                     name = null;
             }
-            if (node.hasProperty(Tag.NODE_LAT))
-                lat = Double.parseDouble(node.getProperty(Tag.NODE_LAT).toString());
+            if (node.hasProperty(Tag.NODE_LAT)) {
+                String val = node.getProperty(Tag.NODE_LAT).toString();
+                if (NumberUtils.isNumber(val))
+                    lat = Double.parseDouble(val);
+            }
 
-            if (node.hasProperty(Tag.NODE_LON))
-                lon = Double.parseDouble(node.getProperty(Tag.NODE_LON).toString());
+            if (node.hasProperty(Tag.NODE_LON)) {
+                String val = node.getProperty(Tag.NODE_LON).toString();
+                if (NumberUtils.isNumber(val))
+                    lon = Double.parseDouble(val);
+            }
+
             geoData.add(label.toLowerCase(), code, name, lat, lon);
             geoBeans.add(label.toLowerCase(), geoData);
+
             if ( label.equals(sourceTag.getLabel())){
                 geoData.setCode(null);
                 geoData.setName(null);

@@ -39,7 +39,6 @@ EXPOSE 8080 7474 61000
 
 ENTRYPOINT ["java",\
     "-Dfile.encoding=UTF8", \
-#    "-Xdebug", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61000", \
      "-jar",\
      "/opt/flockdata/engine.jar", \
      "-XX:-UseParNewGC -XX:-UseConcMarkSweepGC -XX:+UseG1GC -XX:+UseStringDeduplication", \
@@ -47,4 +46,4 @@ ENTRYPOINT ["java",\
      "-Djava.security.egd=file:/dev/./urandom" \
      ]
 
-#CMD -Xmx2g
+CMD -Xmx512m

@@ -1,0 +1,320 @@
+{
+  "name": "Wrapport Issues",
+  "archiveTags": false,
+  "tagModel": false,
+  "content": {
+    "issueID": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "callerRef": true,
+      "tag": false,
+      "reverse": false
+    },
+    "tradableAmount": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "oddFirstCoupon": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "description": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "title": false,
+      "description": true,
+      "tag": false,
+      "reverse": false
+    },
+    "exercisePrice": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "pieStatus": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ailStatus": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "oddLastCoupon": {
+      "dateFormat": "timestamp",
+      "dataType": "date",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "expiryDate": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "maturityDate": {
+      "dateFormat": "timestamp",
+      "dataType": "date",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "isoCcyCode": {
+      "code": "isoCcyCode",
+      "persistent": true,
+      "storeNull": true,
+      "tag": true,
+      "reverse": false,
+      "label": "Currency",
+      "entityTagLinks": [
+        {
+          "geo": null,
+          "reverse": false,
+          "relationshipName": "cash-risk",
+          "properties": null
+        }
+      ],
+      "$$id": "tag_8"
+    },
+    "issueDate": {
+      "dateFormat": "timestamp",
+      "dataType": "date",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "valuationMethod": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "auditID": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "managedTypeID": {
+      "code": "managedTypeID",
+      "persistent": true,
+      "storeNull": true,
+      "tag": true,
+      "mustExist": true,
+      "reverse": false,
+      "label": "MANAGETYPE",
+      "entityTagLinks": [
+        {
+          "geo": null,
+          "reverse": false,
+          "relationshipName": "managed-as",
+          "properties": null
+        }
+      ],
+      "$$id": "tag_9"
+    },
+    "assetCode": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false,
+      "properties": [
+        {
+          "dataType": "string",
+          "persistent": true,
+          "storeNull": true,
+          "tag": false,
+          "reverse": false
+        }
+      ]
+    },
+    "drp": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "assetTypeID": {
+      "code": "assetTypeID",
+      "persistent": true,
+      "storeNull": true,
+      "tag": true,
+      "mustExist": true,
+      "reverse": false,
+      "label": "AssetType",
+      "entityTagLinks": [
+        {
+          "geo": null,
+          "reverse": false,
+          "relationshipName": "type",
+          "properties": null
+        }
+      ],
+      "$$id": "tag_10"
+    },
+    "incomeType": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "modelID": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "countryID": {
+      "code": "countryID",
+      "persistent": false,
+      "storeNull": true,
+      "tag": false,
+      "mustExist": true,
+      "reverse": false,
+      "label": "Country",
+      "entityTagLinks": [
+        {
+          "geo": true,
+          "reverse": false,
+          "relationshipName": "risk",
+          "properties": null
+        }
+      ]
+    },
+    "industryClassificationID": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "issuerID": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false,
+      "entityLinks": [
+        {
+          "fortress": "wrapport",
+          "documentName": "Issuer",
+          "relationshipName": "parent",
+          "parent": false
+        }
+      ]
+    },
+    "maturityPrice": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "sourceCategoryID": {
+      "dataType": "number",
+      "persistent": false,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "couponRate": {
+      "dataType": "number",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "isoCode": {
+      "code": "isoCode",
+      "persistent": true,
+      "storeNull": true,
+      "tag": true,
+      "mustExist": true,
+      "reverse": false,
+      "label": "Country",
+      "entityTagLinks": [
+        {
+          "geo": true,
+          "reverse": false,
+          "relationshipName": "risk",
+          "properties": null
+        }
+      ],
+      "$$id": "tag_11"
+    },
+    "mandateID": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "title": true,
+      "tag": false,
+      "reverse": false
+    },
+    "currencyID": {
+      "code": "currencyID",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false,
+      "label": "Currency",
+      "entityTagLinks": []
+    },
+    "isin": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false,
+      "properties": [
+        {
+          "target": "isin",
+          "dataType": "string",
+          "persistent": true,
+          "storeNull": true,
+          "tag": false,
+          "reverse": false
+        }
+      ]
+    },
+    "status": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    }
+  }
+}

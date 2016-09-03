@@ -63,9 +63,9 @@ public class ConceptServiceNeo implements ConceptService {
     private static Logger logger = LoggerFactory.getLogger(ConceptServiceNeo.class);
 
     @Autowired
-    public ConceptServiceNeo(FortressService fortressService, ConceptDaoNeo conceptDao) {
+    public ConceptServiceNeo(FortressService fortressService, ConceptDaoNeo conceptDaoNeo) {
         this.fortressService = fortressService;
-        this.conceptDao = conceptDao;
+        this.conceptDao = conceptDaoNeo;
     }
 
     /**
@@ -146,14 +146,13 @@ public class ConceptServiceNeo implements ConceptService {
      * Tracks the fact that the sourceType is connected to the targetType with relationship name.
      * <p>
      * This represents a fact that there is at least one (e:Entity)-[r:relationship]->(oe:Entity) existing
-     *
-     * @param sourceType   node from
-     * @param relationship name
-     * @param targetType   node to
+     * @param sourceType   Existing node
+     * @param targetType   Existing node
+     * @param entityKeyBean properties that describe the relationship
      */
     @Override
-    public void linkEntities(DocumentType sourceType, String relationship, DocumentType targetType) {
-        conceptDao.linkEntities(sourceType, targetType, relationship);
+    public void linkEntities(DocumentType sourceType, DocumentType targetType, EntityKeyBean entityKeyBean) {
+        conceptDao.linkEntities(sourceType, targetType, entityKeyBean);
     }
 
     /**
@@ -253,18 +252,19 @@ public class ConceptServiceNeo implements ConceptService {
                     // need to ensure that both the Fortress and DocumentType are also created
                     for (String relationship : entityInputBean.getEntityLinks().keySet()) {
                         for (EntityKeyBean entityKeyBean : entityInputBean.getEntityLinks().get(relationship)) {
-                            Fortress subFortress;
+                            Fortress fortress;
 
                             if (!segment.getFortress().getName().equals(entityKeyBean.getFortressName()))
-                                subFortress = fortressService.registerFortress(segment.getCompany(), entityKeyBean.getFortressName());
+                                fortress = fortressService.registerFortress(segment.getCompany(), entityKeyBean.getFortressName());
                             else
-                                subFortress = segment.getFortress();
+                                fortress = segment.getFortress();
 
-                            DocumentType linkedDocument = new DocumentType(subFortress, entityKeyBean.getDocumentType());
+                            DocumentType linkedDocument = new DocumentType(fortress, entityKeyBean.getDocumentType());
                             if (!docTypes.contains(linkedDocument)) {
-                                linkedDocument = findOrCreate(subFortress, linkedDocument);
+                                linkedDocument = findOrCreate(fortress, linkedDocument);
                                 docTypes.add(linkedDocument);
-                                linkEntities(master, relationship, linkedDocument);
+                                entityKeyBean.setRelationship(relationship); // ToDo: should be supplied in the EKB
+                                linkEntities(master, linkedDocument, entityKeyBean);
                             }
                         }
                     }
@@ -294,6 +294,11 @@ public class ConceptServiceNeo implements ConceptService {
     public MatrixResults getContentStructure(Company company, String fortress) {
         Fortress f = fortressService.findByCode(company, fortress);
         return conceptDao.getStructure(f)  ;
+    }
+
+    @Override
+    public Map<String, DocumentResultBean> getParents(DocumentType documentType) {
+        return conceptDao.getParents(documentType);
     }
 
     @Override

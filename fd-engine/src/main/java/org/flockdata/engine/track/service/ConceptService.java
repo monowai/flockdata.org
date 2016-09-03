@@ -28,10 +28,12 @@ import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.TrackResultBean;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -51,7 +53,7 @@ public interface ConceptService {
 
     void registerConcepts(Iterable<TrackResultBean> resultBeans);
 
-    void linkEntities(DocumentType sourceType, String relationship, DocumentType targetType);
+    void linkEntities(DocumentType sourceType, DocumentType targetType, EntityKeyBean entityKeyBean);
 
     DocumentType save(DocumentType documentType);
 
@@ -84,4 +86,6 @@ public interface ConceptService {
      * @return edges and nodes
      */
     MatrixResults getContentStructure(Company company, String fortress);
+
+    Map<String,DocumentResultBean> getParents(DocumentType documentType);
 }

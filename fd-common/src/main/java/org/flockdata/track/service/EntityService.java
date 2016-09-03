@@ -45,6 +45,10 @@ public interface EntityService {
 
     Collection<EntityKeyBean> getEntities(Company company, List<EntityKeyBean> linkTo);
 
+    Collection<EntityKeyBean> getNestedParentEntities(Entity company, DocumentType docType);
+
+    Entity find(Company company, EntityKeyBean entityKeyBean);
+
     enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 
     StoredContent getContent(Entity entity, Log change);

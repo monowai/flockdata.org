@@ -62,6 +62,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 2:43 PM
  */
 @Service
+@Transactional
 public class ContentModelServiceNeo implements ContentModelService {
 
     private final ContentModelDaoNeo contentModelDao;
@@ -118,7 +119,6 @@ public class ContentModelServiceNeo implements ContentModelService {
         return contentModel;
     }
 
-    @Transactional
     public ContentModelResult saveTagModel(Company company, String code, ContentModel contentModel) throws FlockException {
         Fortress internalFortress = fortressService.findInternalFortress(company);
 

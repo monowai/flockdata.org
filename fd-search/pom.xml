@@ -11,7 +11,7 @@
     <artifactId>fd-search</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <es.version>2.3.4</es.version>
+        <es.version>2.4.0</es.version>
     </properties>
 
     <dependencies>

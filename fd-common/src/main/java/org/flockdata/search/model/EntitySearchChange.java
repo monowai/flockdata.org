@@ -481,10 +481,11 @@ public class EntitySearchChange implements SearchChange {
 
     public SearchChange addEntityLinks(Collection<EntityKeyBean> inboundEntities) {
         for (EntityKeyBean inboundEntity : inboundEntities) {
-            if ( inboundEntity.isParent()){
-                setParent(inboundEntity);
+            if ( inboundEntity.isParent() && parent == null){
+                setParent(inboundEntity); // SearchDoc can have at most one parent
             } else {
-                this.entityLinks.add(inboundEntity);
+                if ( !inboundEntity.equals(parent)) // Make sure we don't add twice
+                    this.entityLinks.add(inboundEntity);
             }
         }
         return this;

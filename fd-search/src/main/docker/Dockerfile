@@ -27,11 +27,10 @@ EXPOSE 8081 9201 9301 61001
 
 ENTRYPOINT ["java",\
      "-Dfile.encoding=UTF8", \
-#     "-Xdebug", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61001",\
      "-jar",\
      "/opt/flockdata/search.jar", \
      "-XX:-UseParNewGC -XX:-UseConcMarkSweepGC -XX:+UseG1GC -XX:+UseStringDeduplication", \
      "-Dlogging.config=/opt/flockdata/conf/log4j2.yml",\
      "-Djava.security.egd=file:/dev/./urandom"]
 
-#CMD -Xmx2g
+CMD -Xmx512m

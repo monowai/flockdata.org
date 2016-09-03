@@ -106,6 +106,17 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
+    public Collection<EntityKeyBean> getNestedParentEntities(Entity entity, DocumentType docType) {
+        return entityDao.getNestedParentEntities(entity, docType);
+    }
+
+    @Override
+    public Entity find(Company company, EntityKeyBean entityKeyBean) {
+        return findByCode(company, entityKeyBean.getFortressName(), entityKeyBean.getDocumentType(), entityKeyBean.getCode());
+    }
+
+
+    @Override
     public Map<String, Object> getEntityDataLast(Company company, String key) throws FlockException {
         Entity entity = getEntity(company, key);
         if (entity != null) {
@@ -661,13 +672,17 @@ public class EntityServiceNeo4J implements EntityService {
             sourceEntity = entityDao.findByCodeUnique(fortress.getId(), sourceKey.getCode());
         else {
             DocumentType document = conceptService.resolveByDocCode(fortress, sourceKey.getDocumentType(), false);
-            sourceEntity = entityDao.findByCode(fortress.getId(), document, sourceKey.getCode());
+            sourceKey.setResolvedDocument(document);
+            if (sourceKey.getKey() != null)
+                sourceEntity = entityDao.findEntity(sourceKey.getKey(), true);
+            else
+                sourceEntity = entityDao.findByCode(fortress.getId(), document, sourceKey.getCode());
+            sourceKey.setResolvedEntity(sourceEntity);
         }
         if (sourceEntity == null)
             // ToDo: Should we create it??
             throw new FlockException("Unable to locate the source Entity [" + sourceKey + "]");
 
-        //16051954
         Collection<Entity> targets = new ArrayList<>();
         List<EntityKeyBean> ignored = new ArrayList<>();
 
@@ -690,15 +705,19 @@ public class EntityServiceNeo4J implements EntityService {
                         }
                     } else if (targetKey.getMissingAction() == EntityKeyBean.ACTION.IGNORE) {
                         ignored.add(targetKey);
+//                        entityKeys.remove(targetKey);
                     } else {
                         throw new FlockException("Unable to resolve the target entity " + targetKey.toString());
                     }
                 }
                 if (entity != null) {
+                    targetKey.setResolvedEntity(entity);
+                    if (targetKey.getResolvedDocument() == null)
+                        targetKey.setResolvedDocument(conceptService.findDocumentType(entity.getFortress(), targetKey.getDocumentType()));
                     entities.add(entity);
                 }
             }
-            if (entities != null) {
+            if (!entities.isEmpty()) {
                 for (Entity entity : entities) {
                     if (count > 1 || count == 0)
                         ignored.add(targetKey);
@@ -710,8 +729,12 @@ public class EntityServiceNeo4J implements EntityService {
 
         }
         // ToDo: Update search doc?
-        if (!targets.isEmpty())
+        if (!targets.isEmpty()) {
             entityDao.linkEntities(sourceEntity, targets, linkName);
+        }
+
+        ignored.forEach(entityKeys::remove);
+
         return ignored;
     }
 
@@ -833,7 +856,7 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Override
     public Collection<EntityToEntityLinkInput> linkEntities(Company
-                                                                company, Collection<EntityToEntityLinkInput> entityLinks) {
+                                                                    company, Collection<EntityToEntityLinkInput> entityLinks) {
         for (EntityToEntityLinkInput entityLink : entityLinks) {
             Map<String, List<EntityKeyBean>> references = entityLink.getReferences();
             for (String xRefName : references.keySet()) {

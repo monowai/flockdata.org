@@ -48,14 +48,17 @@ public class EntityKeyBean {
 
     private  HashMap<String, Map<String, ArrayList<SearchTag>>>  searchTags = new HashMap<>();
 
-    private String relationship; // Entity to entity relationship
+    private String relationship; // Entity to resolvedEntity relationship
 
-    private ACTION missingAction =ACTION.IGNORE; // default action to take when source entity to link to is missing
+    private ACTION missingAction =ACTION.IGNORE; // default action to take when source resolvedEntity to link to is missing
+    private Entity resolvedEntity;
+    private DocumentType resolvedDocument;
 
     private EntityKeyBean(){}
 
     public EntityKeyBean(DocumentType documentType, String code) {
         this(documentType.getCode(), documentType.getFortress(), code);
+        this.resolvedDocument = documentType;
     }
 
     public EntityKeyBean(String documentType, MetaFortress fortress, String code){
@@ -68,6 +71,7 @@ public class EntityKeyBean {
     public EntityKeyBean(DocumentType documentType, MetaFortress fortress, String code) {
         this.documentType = documentType.getName();
         this.fortressName = fortress.getName();
+        this.resolvedDocument = documentType;
         this.code = code;
     }
 
@@ -91,18 +95,18 @@ public class EntityKeyBean {
         this.code = crossReferenceInputBean.getCode();
     }
 
-    public EntityKeyBean(Entity entity, String index) {
+    public EntityKeyBean(Entity resolvedEntity, String index) {
         this();
-        this.fortressName = entity.getSegment().getFortress().getName();
-        this.code = entity.getCode();
-        this.documentType = entity.getType();
-        this.key = entity.getKey();
+        this.fortressName = resolvedEntity.getSegment().getFortress().getName();
+        this.code = resolvedEntity.getCode();
+        this.documentType = resolvedEntity.getType();
+        this.key = resolvedEntity.getKey();
         this.index = index;
-        this.name = entity.getName();
+        this.name = resolvedEntity.getName();
     }
 
-    public EntityKeyBean(Entity entity, Collection<EntityTag> entityTags, String index) {
-        this(entity, index);
+    public EntityKeyBean(Entity resolvedEntity, Collection<EntityTag> entityTags, String index) {
+        this(resolvedEntity, index);
         for (EntityTag entityTag : entityTags) {
             Map<String, ArrayList<SearchTag>> byRelationship = searchTags.get(entityTag.getRelationship());
             if ( byRelationship == null){
@@ -172,6 +176,11 @@ public class EntityKeyBean {
         return name;
     }
 
+    /**
+     * Flags this EntityKeyBean as a parent of the EntityBean it is being tracked against
+     * @param parent yes - create an outbound relationship
+     * @return this
+     */
     public EntityKeyBean setParent(boolean parent) {
         this.parent = parent;
         return this;
@@ -179,6 +188,27 @@ public class EntityKeyBean {
 
     public boolean isParent() {
         return parent;
+    }
+
+    public EntityKeyBean setRelationship(String relationship) {
+        this.relationship = relationship;
+        return this;
+    }
+
+    public Entity getResolvedEntity() {
+        return resolvedEntity;
+    }
+
+    public DocumentType getResolvedDocument() {
+        return resolvedDocument;
+    }
+
+    public void setResolvedDocument(DocumentType documentType) {
+        this.resolvedDocument = documentType;
+    }
+
+    public void setResolvedEntity(Entity resolvedEntity) {
+        this.resolvedEntity = resolvedEntity;
     }
 
     public enum ACTION {ERROR, IGNORE, CREATE}

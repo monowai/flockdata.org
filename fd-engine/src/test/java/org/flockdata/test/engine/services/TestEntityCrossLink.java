@@ -21,6 +21,7 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
+import org.flockdata.engine.dao.ConceptDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
@@ -45,7 +46,7 @@ import static org.junit.Assert.*;
  */
 public class TestEntityCrossLink extends EngineBase {
 
-    public static final String PARENT = "parent";
+    private static final String PARENT_RLX = ConceptDaoNeo.PARENT;
 
     /**
      * Foundation assumption.
@@ -71,7 +72,7 @@ public class TestEntityCrossLink extends EngineBase {
         conceptService.findOrCreate(fortressA, childDoc);
 
         EntityInputBean child = new EntityInputBean(fortressA, "wally", "DocTypeZ", new DateTime(), "ABC321");
-        child.addEntityLink(PARENT, new EntityKeyBean(parent.getDocumentType().getName(), parentResult.getEntity().getFortress(),parent.getCode())
+        child.addEntityLink(PARENT_RLX, new EntityKeyBean(parent.getDocumentType().getName(), parentResult.getEntity().getFortress(),parent.getCode())
             .setParent(true));
         TrackResultBean childResult = mediationFacade.trackEntity(su.getCompany(), child);
 
@@ -80,10 +81,10 @@ public class TestEntityCrossLink extends EngineBase {
 
         Collection<EntityKeyBean> parents = new ArrayList<>();
         parents.add(parentKey.setParent(true));
-        entityService.linkEntities(su.getCompany(), childKey, parents, PARENT);
+        entityService.linkEntities(su.getCompany(), childKey, parents, PARENT_RLX);
 
 
-        String cypher = "match (parent:Entity)-[p:"+PARENT+"]->(child:Entity) where id(parent)={parentId} return child";
+        String cypher = "match (parent:Entity)-[p:"+ PARENT_RLX +"]->(child:Entity) where id(parent)={parentId} return child";
         Map<String, Object> params = new HashMap<>();
         params.put("parentId", parentResult.getEntity().getId());
         Result<Map<String, Object>> results = neo4jTemplate.query(cypher, params);
@@ -95,9 +96,9 @@ public class TestEntityCrossLink extends EngineBase {
 
         }
         assertTrue("We couldn't find the child connected to the parent", found);
-        Map<String, Collection<Entity>> linked = entityService.getCrossReference(su.getCompany(), parentResult.getKey(), PARENT);
-        assertTrue(linked.containsKey(PARENT));
-        assertEquals(childResult.getEntity().getId(), linked.get(PARENT).iterator().next().getId());
+        Map<String, Collection<Entity>> linked = entityService.getCrossReference(su.getCompany(), parentResult.getKey(), PARENT_RLX);
+        assertTrue(linked.containsKey(PARENT_RLX));
+        assertEquals(childResult.getEntity().getId(), linked.get(PARENT_RLX).iterator().next().getId());
 
         SearchChange searchChange = searchService.getEntityChange(childResult);
         assertNotNull(searchChange.getParent());
@@ -321,14 +322,21 @@ public class TestEntityCrossLink extends EngineBase {
 
         Collection<EntityToEntityLinkInput> notFound = entityService.linkEntities(su.getCompany(), inputs);
         assertEquals(2, notFound.iterator().next().getIgnored().get("cites").size());
+        assertEquals("Ignored entity keys are remove from being candidates", 0, entityKeys.size());
 
         // These are the two records that will cite the previously created entity
         EntityInputBean inputBeanB = new EntityInputBean(fortressA, "wally", "DocTypeZ", new DateTime(), "ABC321");
-        mediationFacade.trackEntity(su.getCompany(), inputBeanB);
+            mediationFacade.trackEntity(su.getCompany(), inputBeanB);
         EntityInputBean inputBeanC = new EntityInputBean(fortressB, "wally", "DocTypeS", new DateTime(), "ABC333");
-        mediationFacade.trackEntity(su.getCompany(), inputBeanC);
+            mediationFacade.trackEntity(su.getCompany(), inputBeanC);
+
+        // Add back in the previously removed entity links for the next process call
+        entityKeys.add(new EntityKeyBean("DocTypeZ", fortressA, "ABC321"));
+        entityKeys.add(new EntityKeyBean("DocTypeS", fortressB, "ABC333"));
+
         notFound = entityService.linkEntities(su.getCompany(), inputs);
         assertEquals(0, notFound.iterator().next().getIgnored().get("cites").size());
+
 
         Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), fortressA.getName(), "ABC123", "cites");
         assertNotNull(results);

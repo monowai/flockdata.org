@@ -33,6 +33,7 @@ import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.bean.SearchChange;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
@@ -328,13 +329,13 @@ public class AdminService implements EngineAdminService {
     public Future<Long> doReindex(Fortress fortress, Entity entity) throws FlockException {
         Collection<Entity> entities = new ArrayList<>();
         entities.add(entity);
-        reindexEntities(entities, 0l);
-        return new AsyncResult<>(1l);
+        reindexEntities(entities, 0L);
+        return new AsyncResult<>(1L);
     }
 
     public void doReindex(Entity entity) throws FlockException {
         try {
-            doReindex(entity.getFortress(), entity).get(3000l, TimeUnit.MILLISECONDS);
+            doReindex(entity.getFortress(), entity).get(3000L, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | TimeoutException | ExecutionException e) {
             logger.error(e.getMessage());
             throw new FlockException(e.getMessage());
@@ -342,8 +343,8 @@ public class AdminService implements EngineAdminService {
     }
 
     long reindex(Fortress fortress) {
-        Long lastEntityId = 0l;
-        Long processed = 0l;
+        Long lastEntityId = 0L;
+        Long processed = 0L;
         Collection<Entity> entities;
         do {
             entities = entityService.getEntities(fortress, lastEntityId);
@@ -357,8 +358,8 @@ public class AdminService implements EngineAdminService {
     }
 
     long reindexByDocType(Fortress fortress, String docType) {
-        Long lastEntityId = 0l;
-        Long processed = 0l;
+        Long lastEntityId = 0L;
+        Long processed = 0L;
 
         Collection<Entity> entities;
         do {
@@ -379,6 +380,12 @@ public class AdminService implements EngineAdminService {
         Collection<SearchChange> searchDocuments = new ArrayList<>(entities.size());
         for (Entity entity : entities) {
             EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
+            DocumentType documentType = conceptService.findDocumentType(entity.getFortress(), entity.getType());
+            TrackResultBean trackResultBean = new TrackResultBean(entity, documentType);
+            // How to get the Linked Entities? From the model
+            //Map<String, List<EntityKeyBean>> linkedEntities = entityService.getLinkedEntities(entity);
+
+//            searchService.getEntityChange(trackResultBean,lastLog);
             EntitySearchChange searchDoc = searchService.rebuild(entity, lastLog);
             lastEntityId = entity.getId();
             if (searchDoc != null && entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed())

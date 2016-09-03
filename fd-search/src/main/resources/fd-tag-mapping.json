@@ -1,5 +1,5 @@
 {
-  "SomeLabel": {
+  "mapping": {
     "numeric_detection": false,
     "date_detection": false,
     "dynamic_templates": [
@@ -30,42 +30,35 @@
       },
       "code": {
         "type": "string",
-        "doc_values": true,
         "boost": "3.0",
-        "mapping": {
-          "type": "multi_field",
-          "fields": {
-            "{name}": {
-              "type": "string",
-              "boost": "3.0",
-              "index": "analyzed"
-            },
-            "facet": {
-              "type": "string",
-              "boost": "5.0",
-              "doc_values": true,
-              "index": "not_analyzed"
-            }
+        "fields": {
+          "{name}": {
+            "type": "string",
+            "boost": "3.0",
+            "index": "analyzed"
+          },
+          "facet": {
+            "type": "string",
+            "boost": "5.0",
+            "doc_values": true,
+            "index": "not_analyzed"
           }
         }
       },
       "name": {
         "type": "string",
         "boost": "4.0",
-        "mapping": {
-          "type": "multi_field",
-          "fields": {
-            "{name}": {
-              "type": "string",
-              "boost": "3.0",
-              "index": "analyzed"
-            },
-            "facet": {
-              "type": "string",
-              "boost": "5.0",
-              "doc_values": true,
-              "index": "not_analyzed"
-            }
+        "fields": {
+          "{name}": {
+            "type": "string",
+            "boost": "3.0",
+            "index": "analyzed"
+          },
+          "facet": {
+            "type": "string",
+            "boost": "5.0",
+            "doc_values": true,
+            "index": "not_analyzed"
           }
         }
       },

@@ -108,7 +108,7 @@ public class EntityInputBean implements Serializable, UserProperties {
         setDocumentType(documentType);
     }
 
-    public EntityInputBean(MetaFortress fortress, DocumentTypeInputBean docType, String entityCode) {
+    public EntityInputBean(MetaFortress fortress, MetaDocument docType, String entityCode) {
         this(fortress, docType);
         this.code = entityCode;
 

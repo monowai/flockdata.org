@@ -25,6 +25,8 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertNotNull;
+
 /**
  * Created by mike on 23/10/15.
  */
@@ -34,6 +36,7 @@ public class TestEntityKeyBean {
     public void nullCompanyIssues() throws Exception{
         EntityKeyBean ekb = new EntityKeyBean("docTypeName", "fortress", "code");
         String json = JsonUtils.toJson(ekb);
+        assertNotNull(json);
         EntityKeyBean otherBean = JsonUtils.toObject(json.getBytes(), EntityKeyBean.class);
         TestCase.assertEquals(ekb.getCode(), otherBean.getCode());
         TestCase.assertEquals(ekb.getFortressName(), otherBean.getFortressName());
