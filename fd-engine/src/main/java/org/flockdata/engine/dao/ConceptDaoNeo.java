@@ -48,6 +48,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import scala.collection.convert.Wrappers;
 
 import javax.transaction.HeuristicRollbackException;
 import java.util.*;
@@ -85,7 +86,7 @@ public class ConceptDaoNeo {
             if ( entityKeyBean.isParent()) {
                 direction = Direction.OUTGOING; // Point to the parent
             }
-            template.getOrCreateRelationship(from, to, DynamicRelationshipType.withName(entityKeyBean.getRelationship()), direction, props);
+            Relationship relationship = template.getOrCreateRelationship(from, to, DynamicRelationshipType.withName(entityKeyBean.getRelationship()), direction, props);
             return true; // Link created
         }
         return false;
@@ -324,7 +325,7 @@ public class ConceptDaoNeo {
     }
 
     public MatrixResults getStructure(Fortress fortress) {
-        String query = "match (f:Fortress)-[]-(d:DocType)-[r]-(c:Concept) where id(f)= {fortress} return c,d,r";
+        String query = "match (f:Fortress)-[]-(d:DocType) where id(f)={fortress} with f,d match (d)-[r*1..3]-(c:Concept) return d,c,r";
         Map<String, Object> params = new HashMap<>();
         params.put("fortress", fortress.getId());
 
@@ -342,8 +343,13 @@ public class ConceptDaoNeo {
                 nodes.add(concept);
             if ( !nodes.contains(doc))
                 nodes.add(doc);
-            Relationship relationship = (Relationship) row.get("r");
-            edgeResults.addResult( new EdgeResult(doc, concept, relationship.getType().name()));
+
+            Relationship relationship = (Relationship)((Wrappers.SeqWrapper)row.get("r")).get(0);
+            EdgeResult er = new EdgeResult(doc, concept, relationship.getType().name());
+            for (String key : relationship.getPropertyKeys()) {
+                er.addProperty(key, relationship.getProperty(key));
+            }
+            edgeResults.addResult( er);
 
         }
         return new MatrixResults(edgeResults).setNodes(nodes);

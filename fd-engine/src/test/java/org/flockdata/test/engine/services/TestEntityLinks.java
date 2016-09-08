@@ -21,7 +21,6 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
-import org.flockdata.engine.dao.ConceptDaoNeo;
 import org.flockdata.model.*;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ContentModelResult;
@@ -208,7 +207,6 @@ public class TestEntityLinks extends EngineBase {
 
         ContentModel params = ContentModelDeserializer.getContentModel("/models/test-entitylinks.json");
         ColumnDefinition colDef = params.getColumnDef("EmployeeNumber");
-        colDef.getEntityLinks().iterator().next().get(rlxName);
         contentModelService.saveEntityModel(su.getCompany(), fortress, timesheet, params );
         batchService.process(su.getCompany(), fortress, timesheet, "/data/test-entitylinks.csv", false);
         // recorded is the relationship type in the content profile definition
@@ -216,7 +214,7 @@ public class TestEntityLinks extends EngineBase {
         assertEquals("This timesheet should have a reference to an existing staff", 1, linkedEntities.get(rlxName).size());
         linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "2", rlxName);
         // Default behaviour is to ignore
-        TestCase.assertEquals("This timesheet should not have an associated staff member as it did not exist", 0, linkedEntities.get(rlxName).size()); ;
+        TestCase.assertEquals("This timesheet should not have an associated staff member as it did not exist", 0, linkedEntities.get(rlxName).size());
 
     }
 
@@ -273,8 +271,8 @@ public class TestEntityLinks extends EngineBase {
 
         ColumnDefinition columnDefinition = model.getContent().get("staffID");
         Assert.assertEquals("didn't find the parent relationship", 1,columnDefinition.getEntityLinks().size() );
-        Map<String, String> entityKey = columnDefinition.getEntityLinks().iterator().next();
-        assertTrue("Parent property was not serialized", Boolean.parseBoolean(entityKey.get(ConceptDaoNeo.PARENT)));
+        EntityKeyBean entityKey = columnDefinition.getEntityLinks().iterator().next();
+        assertTrue("Parent property was not serialized", entityKey.isParent());
 
         Map<String, List<EntityKeyBean>> relationships = new HashMap<>();
         List<EntityKeyBean> entityKeys = new ArrayList<>();

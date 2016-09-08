@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.model.EntityTagRelationshipDefinition;
 import org.flockdata.registration.AliasInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.json.ColumnDeserializer;
 import org.flockdata.transform.json.EntityTagRelationshipDeserializer;
 import org.flockdata.transform.json.GeoDeserializer;
@@ -33,7 +34,6 @@ import org.flockdata.transform.tag.TagProfileDeserializer;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -100,7 +100,7 @@ public class ColumnDefinition implements GeoDefinition {
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> properties; // Properties to add to this object
 
-    private ArrayList<Map<String, String>> entityLinks = new ArrayList<>();
+    private ArrayList<EntityKeyBean> entityLinks = new ArrayList<>();
     @JsonDeserialize(using = EntityTagRelationshipDeserializer.class)
     private Collection<EntityTagRelationshipDefinition> entityTagLinks ;
 
@@ -254,7 +254,7 @@ public class ColumnDefinition implements GeoDefinition {
     }
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public ArrayList<Map<String, String>> getEntityLinks() {
+    public Collection<EntityKeyBean> getEntityLinks() {
         return entityLinks;
     }
 

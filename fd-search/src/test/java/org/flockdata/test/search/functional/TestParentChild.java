@@ -85,8 +85,8 @@ public class TestParentChild extends ESBase {
                 "  \"segment\": null,\n" +
                 "  \"entityLinks\": [\n" +
                 "    {\n" +
-                "      \"fortressName\": \"timesheet\",\n" +
-                "      \"documentType\": \"Staff\",\n" +
+                "      \"fortress\": \"timesheet\",\n" +
+                "      \"documentName\": \"Staff\",\n" +
                 "      \"key\": \"ZnU0EpMaQHKFtUT2eZE9LQ\",\n" +
                 "      \"code\": \"ABC123\",\n" +
                 "      \"index\": \"" + indexManager.getPrefix() + "xref_frominputbeans.timesheet\",\n" +
@@ -99,7 +99,7 @@ public class TestParentChild extends ESBase {
                 "          ]\n" +
                 "        }\n" +
                 "      },\n" +
-                "      \"relationship\": \"\"\n" +
+                "      \"relationshipName\": \"\"\n" +
                 "    }\n" +
                 "  ],\n" +
                 "  \"searchKey\": \"ABC321\"\n" +

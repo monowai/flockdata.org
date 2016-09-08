@@ -21,6 +21,8 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
+import org.flockdata.engine.matrix.EdgeResult;
+import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
@@ -543,7 +545,46 @@ public class TestConcepts extends EngineBase {
         // We should be able to find that a Staff entity has a worked link to a Timesheet
     }
 
+    @Test
+    public void testEntityConceptsLinkProperties() throws Exception {
+        // Initial setup
+        cleanUpGraph();
 
+        engineConfig.setConceptsEnabled(true);
+        engineConfig.setTestMode(true);
+
+        SystemUser su = registerSystemUser("testEntityConceptsLinkProperties", mike_admin);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testEntityConceptsLinkProperties", true));
+
+        EntityInputBean staff = new EntityInputBean(fortress, "wally", "Staff", new DateTime(), "ABC123");
+
+        mediationFacade.trackEntity(su.getCompany(), staff);
+        assertEquals(1, conceptService.getDocumentsInUse(su.getCompany()).size());
+
+        // Checking that the entity is linked when part of the track request
+        EntityInputBean workRecord = new EntityInputBean(fortress, "wally", "Work", new DateTime(), "ABC321")
+                .addTag(new TagInputBean("someTag", "SomeLabel", "somerlx"))
+                .addEntityLink("worked", new EntityKeyBean("Staff", fortress.getName(), "ABC123").setParent(true));
+
+        mediationFacade.trackEntity(su.getCompany(), workRecord);
+        assertEquals(2, conceptService.getDocumentsInUse(su.getCompany()).size());
+
+        Collection<String> docs = new ArrayList<>();
+        docs.add("Staff");
+        docs.add("Work");
+        Set<DocumentResultBean> documentResults = conceptService.findConcepts(su.getCompany(), docs, true);
+        assertEquals(2, documentResults.size());
+        MatrixResults structure = conceptService.getContentStructure(su.getCompany(), fortress.getName());
+        assertEquals(3, structure.getNodes().size());
+        assertEquals(4, structure.getEdges().size());
+        for (EdgeResult edgeResult : structure.getEdges()) {
+            if ( edgeResult.getRelationship().equals("worked")){  // EntityLink relationship
+                assertTrue( "parent property was not set", edgeResult.getData().containsKey("parent"));
+                assertTrue ( "Parent not true", Boolean.parseBoolean(edgeResult.getData().get("parent").toString()));
+            }
+        }
+        // We should be able to find that a Staff entity has a worked link to a Timesheet
+    }
     private Set<DocumentResultBean> validateConcepts(String document, SystemUser su, int expected) throws Exception {
         Collection<String> docs = new ArrayList<>();
 

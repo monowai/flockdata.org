@@ -20,6 +20,7 @@
 
 package org.flockdata.track.bean;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
@@ -37,18 +38,21 @@ import java.util.Map;
  * Time: 5:01 PM
  */
 public class EntityKeyBean {
+    @JsonProperty("relationshipName")
+    private String relationship; // Entity to resolvedEntity relationship
+    @JsonProperty("fortress")
     private String fortressName;
-    private String index;
+    @JsonProperty("documentName")
     private String documentType;
+    private String index;
     private String key;
     private String code;
     private String name;
     private boolean parent;
+
     private String description;
 
     private  HashMap<String, Map<String, ArrayList<SearchTag>>>  searchTags = new HashMap<>();
-
-    private String relationship; // Entity to resolvedEntity relationship
 
     private ACTION missingAction =ACTION.IGNORE; // default action to take when source resolvedEntity to link to is missing
     private Entity resolvedEntity;
@@ -209,6 +213,11 @@ public class EntityKeyBean {
 
     public void setResolvedEntity(Entity resolvedEntity) {
         this.resolvedEntity = resolvedEntity;
+    }
+
+    public EntityKeyBean setCode(String code) {
+        this.code = code;
+        return this;
     }
 
     public enum ACTION {ERROR, IGNORE, CREATE}

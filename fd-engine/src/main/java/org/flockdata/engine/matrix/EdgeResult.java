@@ -129,4 +129,8 @@ public class EdgeResult {
         return result;
     }
 
+    public void addProperty(String key, Object property) {
+        if (!data.containsKey(key))
+            data.put(key, property);
+    }
 }

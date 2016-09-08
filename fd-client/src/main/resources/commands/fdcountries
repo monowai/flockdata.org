@@ -7,7 +7,7 @@
 # fdcountries -u demo:123
 ## You can also run this as a docker or docker-compose command
 
-# docker run flockdata/fd-client fdcountries -u=demo:123 --org.fd.engine.url=http://fd-engine:8080
+# docker run flockdata/fd-client fdcountries -u=demo:123 --org.fd.engine.api=http://fd-engine:8080 --spring.rabbitmq.host=rabbit
 FD_SCRIPT=$( cd "$( dirname "$0" )" && pwd )""
 FD_ARGS="import"
 

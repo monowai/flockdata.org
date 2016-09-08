@@ -34,6 +34,7 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.Transformer;
 import org.junit.Test;
@@ -226,11 +227,11 @@ public class TestContentModel extends MvcBase {
         ColumnDefinition issuer = retrieved.getContent().get("issuerID");
         assertNotNull ( issuer);
         assertFalse("No entity links existed", issuer.getEntityLinks() == null );
-        ArrayList<Map<String, String>> links = retrieved.getContent().get("issuerID").getEntityLinks();
+        Collection<EntityKeyBean> links = retrieved.getContent().get("issuerID").getEntityLinks();
         assertEquals("Only 1 link was expected", 1, links.size());
-        Map<String, String> entitylink = links.iterator().next();
-        assertFalse("value should be false in the model on disk", Boolean.parseBoolean(entitylink.get("parent")));
-        entitylink.put("parent", "true"); // Toggling the value
+        EntityKeyBean entitylink = links.iterator().next();
+        assertFalse("value should be false in the model on disk",entitylink.isParent());
+        entitylink.setParent(true); // Toggling the value
 
         // Update the content model having changed the parent entitylink value from false to true
         makeContentModel(mike(),
@@ -247,7 +248,7 @@ public class TestContentModel extends MvcBase {
         links = retrieved.getContent().get("issuerID").getEntityLinks();
         assertEquals("Only 1 link was expected", 1, links.size());
         entitylink = links.iterator().next();
-        assertTrue("parent property set to true did not persist", Boolean.parseBoolean(entitylink.get("parent")));
+        assertTrue("parent property set to true did not persist",entitylink.isParent());
 
     }
 

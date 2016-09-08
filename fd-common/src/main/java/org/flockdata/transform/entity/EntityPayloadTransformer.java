@@ -168,16 +168,16 @@ public class EntityPayloadTransformer extends EntityInputBean implements Payload
                 }
             }
             if (!colDef.getEntityLinks().isEmpty()) {
-                for (Map<String, String> key : colDef.getEntityLinks()) {
+                for (EntityKeyBean key : colDef.getEntityLinks()) {
                     //
 
-                    Object relationship = ExpressionHelper.getValue(row, key.get("relationshipName"));
+                    Object relationship = ExpressionHelper.getValue(row, key.getRelationship());
 
                     if ( relationship==null)
-                        relationship =  key.get("relationshipName");
+                        relationship =  key.getRelationship();
 
                     if (relationship !=null )
-                        addEntityLink(relationship.toString(), new EntityKeyBean(key.get("documentName"), key.get("fortress"), value));
+                        addEntityLink(relationship.toString(), key.setCode(value));
                 }
             }
 

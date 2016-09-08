@@ -39,8 +39,8 @@ es:
     port: 9300
 
   path:
-    home: ./
-    data: ../data/fd/es
+    home: ./data/
+    data: ${es.path.home}/fd/es
 
 
   # , serparated list of hosts to connect to if transportOnly == true

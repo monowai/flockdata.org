@@ -63,7 +63,8 @@
         {
           "fortress": "Olympic",
           "documentName": "Celebration",
-          "relationshipName": "exposed"
+          "relationshipName": "exposed",
+          "parent": true
         },
         {
           "fortress": "Olympic",

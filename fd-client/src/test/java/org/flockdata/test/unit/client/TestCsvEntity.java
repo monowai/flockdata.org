@@ -26,6 +26,7 @@ import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.Transformer;
@@ -91,6 +92,10 @@ public class TestCsvEntity extends AbstractImport{
         assertFalse("Shouldn't be a callerRef", TransformationHelper.evaluate(colDef.isCallerRef()));
         assertFalse("Doesn't have to exist", TransformationHelper.evaluate(colDef.isMustExist()));
 
+        Collection<EntityKeyBean> entityLinks = params.getColumnDef("xRef").getEntityLinks();
+        Assert.assertEquals(3, entityLinks.size());
+
+
     }
 
     @Test
@@ -100,12 +105,12 @@ public class TestCsvEntity extends AbstractImport{
 
         String[] headers = {"Athlete", "Age", "Country", "Year", "Sport", "Gold Medals", "Silver Medals", "Bronze Medals"};
         String[] values = {"Michael Phelps", "23", "United States", "2008", "Swimming", "8", "0", "0", "8"};
-        EntityInputBean header = Transformer.toEntity(Transformer.convertToMap(headers, values, new ExtractProfileHandler(contentModel)), contentModel);
+        EntityInputBean entityInputBean = Transformer.toEntity(Transformer.convertToMap(headers, values, new ExtractProfileHandler(contentModel)), contentModel);
 
-        assertEquals(values[0] + "." + values[3], header.getCode());
+        assertEquals(values[0] + "." + values[3], entityInputBean.getCode());
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
 //        assertEquals("Silver and Bronze medal values are 0 so should not be included", 5, header.getTags().size());
-        for (TagInputBean tagInputBean : header.getTags()) {
+        for (TagInputBean tagInputBean : entityInputBean.getTags()) {
             if (tagInputBean.getCode().equals("Gold")) {
                 assertEquals("Gold Medals", tagInputBean.getLabel());
                 EntityTagRelationshipInput o = tagInputBean.getEntityTagLinks().get("competed");
@@ -275,13 +280,39 @@ public class TestCsvEntity extends AbstractImport{
     @Test
     public void empty_ColumnWithASpace() throws Exception {
         ContentModel params = ContentModelDeserializer.getContentModel("/model/csvtest.json");
-        EntityPayloadTransformer mapper = EntityPayloadTransformer.newInstance(params);
+        EntityPayloadTransformer transformer = EntityPayloadTransformer.newInstance(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Year"};
         String[] data = new String[]{" ",  "2009" };
-        Map<String, Object> jsonMap = mapper.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)));
+        Map<String, Object> jsonMap = transformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)));
         assertNotNull(jsonMap);
 
+        assertEquals("Expected 2 entityLinks", 2, transformer.getEntityLinks().size() );
+        // Exposed and Blah
+
+        boolean blahFound = false, exposedFound = false;
+        for (String relationship : transformer.getEntityLinks().keySet()) {
+            if ( relationship.equalsIgnoreCase("blah")){
+                blahFound = true;
+                assertEquals(1, transformer.getEntityLinks().get(relationship).size());
+            } else if (relationship.equalsIgnoreCase("exposed")) {
+                exposedFound = true;
+                assertEquals(2, transformer.getEntityLinks().get(relationship).size());
+                for (EntityKeyBean entityKeyBean : transformer.getEntityLinks().get(relationship)) {
+                    if ( entityKeyBean.getDocumentType().equals("Celebration"))
+                        assertTrue(entityKeyBean.isParent());
+                    else
+                        assertFalse(entityKeyBean.isParent());
+                }
+                // 2 EntityKeyBean
+            }
+
+            else
+                throw new RuntimeException("Unexpected EntityLink Relationship"+ relationship);
+        }
+
+        assertTrue(blahFound);
+        assertTrue(exposedFound);
         assertEquals("", jsonMap.get("Title"));
         String json = JsonUtils.toJson(jsonMap);
         jsonMap = JsonUtils.toMap(json);
