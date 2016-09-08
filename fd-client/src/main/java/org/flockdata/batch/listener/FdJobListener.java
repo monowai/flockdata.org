@@ -33,9 +33,7 @@ public class FdJobListener implements JobExecutionListener {
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
-        logger.info("");
         logger.info("Startup of batch {}", jobExecution.getJobInstance().getJobName());
-        logger.info("");
     }
 
     @Override

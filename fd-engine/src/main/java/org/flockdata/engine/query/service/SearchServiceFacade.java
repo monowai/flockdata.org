@@ -213,7 +213,8 @@ public class SearchServiceFacade {
             // Gather all Entities linked directly to this entity
             for (String relationship : trackResultBean.getEntityInputBean().getEntityLinks().keySet()) {
                 List<EntityKeyBean> linkTo = filter(entity, trackResultBean.getEntityInputBean().getEntityLinks().get(relationship));
-                searchDocument.addEntityLinks(entityService.getEntities(trackResultBean.getCompany(), linkTo)); // Root level entities are added
+                Collection<EntityKeyBean> links = entityService.getEntities(trackResultBean.getCompany(), linkTo);
+                searchDocument.addEntityLinks(links); // Root level entities are added
                 for (EntityKeyBean entityKeyBean : linkTo) {
                     Entity analyzeMe = entityKeyBean.getResolvedEntity();
                     if ( analyzeMe == null )

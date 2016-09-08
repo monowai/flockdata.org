@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -77,25 +78,29 @@ public class EsRepo extends AbstractStore {
         QueryParams queryParams = new QueryParams(index, type, id);
 
         ContentInputBean contentInput = new ContentInputBean();
+        EsSearchResult result = null;
+        try {
+            result = gateway.getData(queryParams);
+        } catch ( HttpServerErrorException e){
+            logger.error(e.getMessage());
+        }
 
-        EsSearchResult result = gateway.getData(queryParams);
+            if (result != null)
+                try {
 
-        if (result != null)
-            try {
-
-                result.setIndex (index);
-                result.setEntityType (type);
-                if (result.getJson() != null) {
-                    HashMap map = JsonUtils.toObject(result.getJson(), HashMap.class);
-                    contentInput.setData((Map<String, Object>) map.get(SearchSchema.DATA));
-//                    if( map.get("name")!=null)
-//                        contentInput.getData().put("_name", map.get("name"));
-//                    if ( map.get("description")!=null)
-//                        contentInput.getData().put("_description", map.get("description"));
+                    result.setIndex (index);
+                    result.setEntityType (type);
+                    if (result.getJson() != null) {
+                        HashMap map = JsonUtils.toObject(result.getJson(), HashMap.class);
+                        contentInput.setData((Map<String, Object>) map.get(SearchSchema.DATA));
+    //                    if( map.get("name")!=null)
+    //                        contentInput.getData().put("_name", map.get("name"));
+    //                    if ( map.get("description")!=null)
+    //                        contentInput.getData().put("_description", map.get("description"));
+                    }
+                } catch (FlockException | IOException e) {
+                    logger.error("Json issue", e);
                 }
-            } catch (FlockException | IOException e) {
-                logger.error("Json issue", e);
-            }
         return new StorageBean(id, contentInput);
 
     }

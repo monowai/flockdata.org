@@ -152,7 +152,9 @@ public class TestEntityLinks extends EngineBase {
         workRecord.addEntityLink("worked", new EntityKeyBean("Staff", "timesheet", "ABC123").setParent(true));
         TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
         EntitySearchChange searchDocument = searchService.getEntityChange(workResult);
-        validateSearchStaff( searchDocument);
+        assertEquals("Parent was added, but not found in the entity Links", 1, searchDocument.getEntityLinks().size());
+
+//        validateSearchStaff( searchDocument);
     }
 
     @Test
@@ -341,7 +343,8 @@ public class TestEntityLinks extends EngineBase {
         EntitySearchChange entitySearchChange = searchService.getEntityChange(trackWork);
         assertNotNull ( entitySearchChange);
         assertNotNull ( "parent flag in the entityKey was not respected",  entitySearchChange.getParent());
-        assertEquals ( "The only entityLink was a Parent so it shouldn't be in this collection", 0, entitySearchChange.getEntityLinks().size());
+        // Disabling parent document functionality
+//        assertEquals ( "The only entityLink was a Parent so it shouldn't be in this collection", 0, entitySearchChange.getEntityLinks().size());
 
     }
 
@@ -415,7 +418,7 @@ public class TestEntityLinks extends EngineBase {
         EntitySearchChange searchDocument = searchService.getEntityChange(workResult);
         assertNotNull(searchDocument);
         assertNotNull ( searchDocument.getParent());
-        assertEquals( "Staff is a parent entity, but should not be in EntityLinks", 2, searchDocument.getEntityLinks().size());
+//        assertEquals( "Staff is a parent entity, but should not be in EntityLinks", 2, searchDocument.getEntityLinks().size());
 
     }
 

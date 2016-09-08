@@ -112,7 +112,9 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
         irb.setId(searchChange.getSearchKey());
         if (searchChange.getParent() != null)
-            irb.setParent(searchChange.getParent().getCode());
+            // Disabling parent document functionality
+//            irb.setParent(searchChange.getParent().getCode());
+            irb.setRouting(searchChange.getParent().getCode());
         else
             irb.setRouting(searchChange.getCode());
 
@@ -158,9 +160,9 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
                             searchChange.getDocumentType(),
                             searchChange.getSearchKey());
 
-            if (searchChange.getParent() != null) {
-                request.setParent(searchChange.getParent().getCode());
-            }
+//            if (searchChange.getParent() != null) {
+//                request.setRouting(searchChange.getParent().getCode());
+//            }
 
 
             GetResponse response = request.execute()

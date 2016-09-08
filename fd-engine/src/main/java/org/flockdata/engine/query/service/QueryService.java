@@ -79,16 +79,15 @@ public class QueryService {
         this.entityKeyGateway = entityKeyGateway;
     }
 
-
     @Autowired(required = false)
     void setFdViewQueryGateway(FdViewQueryGateway fdViewQueryGateway){
         this.fdViewQueryGateway = fdViewQueryGateway;
     }
+
     @Autowired(required = false)
     void setContentStoreEs(ContentStoreEs contentStoreEs){
         this.esStore = contentStoreEs;
     }
-
 
     public EsSearchResult search(Company company, QueryParams queryParams) {
 

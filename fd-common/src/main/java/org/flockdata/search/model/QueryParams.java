@@ -36,8 +36,24 @@ import java.util.Map;
  * Time: 9:44 AM
  */
 public class QueryParams implements QueryInterface {
+    private String searchText;
     private String segment;
     private String index;
+    private ArrayList<String> fields;
+    private String key;
+    private String company;
+    private String fortress;
+    private String[] types;
+    private String[] data;
+    private Integer size = null;
+    private Integer from = null;
+    private boolean entityOnly;
+    private String code;
+    private Map<String, Object> query; // Raw query to pass through to ES
+    private Map<String, Object> aggs; // Raw aggs to pass through to ES
+    private Map<String,Object> filter; // Raw filter to pass through to ES
+    private ArrayList<String> tags;
+    private ArrayList<String> relationships = new ArrayList<>();
 
     public QueryParams(String searchText) {
         this.searchText = searchText;
@@ -57,27 +73,6 @@ public class QueryParams implements QueryInterface {
     public ArrayList<String> getTags() {
         return tags;
     }
-
-    private ArrayList<String> tags;
-    private ArrayList<String> relationships = new ArrayList<>();
-    private String searchText;
-
-    private Map<String, Object> query; // Raw query to pass through to ES
-
-    private Map<String, Object> aggs; // Raw aggs to pass through to ES
-
-    private ArrayList<String> fields;
-
-    private String key;
-    private String company;
-    private String fortress;
-    private String[] types;
-    private String[] data;
-    private Integer size = null;
-    private Integer from = null;
-
-    private boolean entityOnly;
-    private String code;
 
     public QueryParams() {
     }
@@ -254,6 +249,11 @@ public class QueryParams implements QueryInterface {
 
     public boolean isSearchTagsOnly() {
         return searchTagsOnly;
+    }
+
+    @Override
+    public Map<String,Object> getFilter() {
+        return filter;
     }
 
     public QueryParams setIndex(String index) {

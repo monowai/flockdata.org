@@ -87,12 +87,14 @@ public class FdBatchWriter implements PayloadBatcher {
         writeEntity(entityInputBean, false);
     }
 
+
     @Override
     public void writeEntity(EntityInputBean entityInputBean, boolean doWrite) throws FlockException {
         if (fdIoInterface == null)
             throw new FlockException("No valid FdIoHandler could be found. Please provide an implementation");
         try {
             entityLock.lock();
+
             if (entityInputBean != null) {
 
                 if (entityInputBean.getFortress() == null)

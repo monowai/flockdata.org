@@ -262,11 +262,11 @@ public class IndexMappingServiceEs implements IndexMappingService {
             Map<String, Object> map = getDefaultMapping(change);
             Map<String, Object> docMap = new HashMap<>();
             Map<String, Object> theMapping = (Map<String, Object>) map.get("mapping");
-            if (change.getParent() != null) {
-                HashMap<String, Object> parentMap = new HashMap<>();
-                parentMap.put("type", indexManager.parseType(change.getParent().getDocumentType()));
-                theMapping.put("_parent", parentMap);
-            }
+//            if (change.getParent() != null) {
+//                HashMap<String, Object> parentMap = new HashMap<>();
+//                parentMap.put("type", indexManager.parseType(change.getParent().getDocumentType()));
+//                theMapping.put("_parent", parentMap);
+//            }
             docMap.put(indexManager.parseType(change.getDocumentType()), theMapping);
             xbMapping = jsonBuilder().map(docMap);
         } catch (IOException e) {

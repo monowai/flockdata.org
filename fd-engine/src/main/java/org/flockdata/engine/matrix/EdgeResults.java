@@ -35,6 +35,7 @@ public class EdgeResults {
             edgeResults.add(edgeResult);
         else {
             EdgeResult edge = edgeResults.get(index);
+
             edge.setCount(edge.getCount().doubleValue() + edgeResult.getCount().doubleValue());
         }
 

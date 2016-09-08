@@ -158,6 +158,7 @@ public class BatchConfig {
 
             }
         }
+        logger.info("Data source {}", getUrl());
     }
 
     private StepConfig loadStepConfig(String stepName) throws IOException, ClassNotFoundException {

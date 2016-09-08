@@ -17,11 +17,11 @@
 package org.flockdata.batch;
 
 import org.flockdata.batch.resources.FdBatchResources;
-import org.flockdata.batch.resources.FdRowMapper;
 import org.flockdata.integration.ClientConfiguration;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -40,7 +40,7 @@ public abstract class FdAbstractSqlStep {
     protected ClientConfiguration clientConfiguration;
 
     @Autowired
-    protected FdRowMapper rowMapper;
+    protected RowMapper fdRowMapper;
 
     protected abstract String getStepName();
 
@@ -48,7 +48,7 @@ public abstract class FdAbstractSqlStep {
         JdbcCursorItemReader itemReader = new JdbcCursorItemReader();
         itemReader.setSql(batchConfig.getStepConfig(getStepName()).getQuery());
         itemReader.setDataSource(batchResources.dataSource());
-        itemReader.setRowMapper(rowMapper);
+        itemReader.setRowMapper(fdRowMapper);
         return itemReader;
 
     }

@@ -91,8 +91,10 @@ public class EdgeResult {
     }
 
     public Number getCount() {
-
-        return (Number) getData().get("count");
+        Number result = (Number) getData().get("count");
+        if (result == null )
+            return 0d;
+        return result;
     }
 
     public void setCount(Number count) {

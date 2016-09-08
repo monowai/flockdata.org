@@ -47,6 +47,7 @@ import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.Transformer;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -260,6 +261,7 @@ public class ContentModelServiceNeo implements ContentModelService {
 
     @Override
     @Transactional
+    @Retryable
     public void delete(Company company, String key) {
         ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
         if (model != null)

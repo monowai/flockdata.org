@@ -61,7 +61,7 @@ public class EntitySearchChange implements SearchChange {
     private String event;
     private String key;
     private Long logId;
-    private HashMap<String, Map<String,ArrayList<SearchTag>>> tagValues = new HashMap<>();
+    private HashMap<String, Map<String, ArrayList<SearchTag>>> tagValues = new HashMap<>();
     private Long id;
 
     private String indexName;
@@ -94,7 +94,7 @@ public class EntitySearchChange implements SearchChange {
         this.key = entity.getKey();
         this.id = entity.getId();
         this.searchKey = entity.getSearchKey();
-        assert entity.getType() !=null;
+        assert entity.getType() != null;
         setDocumentType(entity.getType().toLowerCase());
         setFortress(entity.getSegment().getFortress());
         if (!entity.getSegment().isDefault())
@@ -108,7 +108,7 @@ public class EntitySearchChange implements SearchChange {
         else
             this.who = (entity.getCreatedBy() != null ? entity.getCreatedBy().getCode() : null);
         this.sysWhen = entity.getDateCreated();
-        if ( entity.getProperties()!=null && !entity.getProperties().isEmpty())
+        if (entity.getProperties() != null && !entity.getProperties().isEmpty())
             this.props = entity.getProperties(); // Userdefined entity properties
         this.createdDate = entity.getFortressCreatedTz().toDate(); // UTC When created in the Fortress
         if (entity.getFortressUpdatedTz() != null)
@@ -117,8 +117,8 @@ public class EntitySearchChange implements SearchChange {
     }
 
     public EntitySearchChange(Entity entity, ContentInputBean content, String indexName) {
-        this(entity,indexName);
-        if ( content != null ) {
+        this(entity, indexName);
+        if (content != null) {
             //ToDo: this attachment might be compressed
             this.attachment = content.getAttachment();
             this.data = content.getData();
@@ -128,17 +128,17 @@ public class EntitySearchChange implements SearchChange {
 
     public EntitySearchChange(Entity entity, EntityLog entityLog, ContentInputBean content, String indexName) {
         this(entity, content, indexName);
-        if ( entityLog !=null ) {
-            this.event= entityLog.getLog().getEvent().getCode();
+        if (entityLog != null) {
+            this.event = entityLog.getLog().getEvent().getCode();
             this.fileName = entityLog.getLog().getFileName();
             this.contentType = entityLog.getLog().getContentType();
-            if ( entityLog.getFortressWhen()!=null)
+            if (entityLog.getFortressWhen() != null)
                 this.updatedDate = new Date(entityLog.getFortressWhen());
             this.createdDate = entity.getFortressCreatedTz().toDate();
         } else {
             event = entity.getEvent();
             this.createdDate = entity.getFortressCreatedTz().toDate();
-            if (entity.getFortressUpdatedTz()!=null)
+            if (entity.getFortressUpdatedTz() != null)
                 this.updatedDate = entity.getFortressUpdatedTz().toDate();
         }
     }
@@ -191,10 +191,10 @@ public class EntitySearchChange implements SearchChange {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getIndexName() {
-        if ( parent!=null )
-            return parent.getIndex();
+//        if ( parent!=null )
+//            return parent.getIndex();
 
-        if ( indexName== null )
+        if (indexName == null)
             return indexName;
         return indexName.toLowerCase();
     }
@@ -272,7 +272,7 @@ public class EntitySearchChange implements SearchChange {
     private String parseTagType(EntityTag tag) {
         String code = tag.getTag().getCode();
         String type = tag.getRelationship();
-        if ( code.equals(type))
+        if (code.equals(type))
             return code;
 
         return null;
@@ -331,11 +331,11 @@ public class EntitySearchChange implements SearchChange {
         this.attachment = attachment;
     }
 
-    public boolean hasAttachment(){
-        return this.attachment!=null;
+    public boolean hasAttachment() {
+        return this.attachment != null;
     }
 
-    public String getAttachment () {
+    public String getAttachment() {
         return this.attachment;
     }
 
@@ -432,7 +432,7 @@ public class EntitySearchChange implements SearchChange {
         return Type.ENTITY.name();
     }
 
-    public EntitySearchChange setType(String type){
+    public EntitySearchChange setType(String type) {
         this.type = type;
         return this;
     }
@@ -481,12 +481,13 @@ public class EntitySearchChange implements SearchChange {
 
     public SearchChange addEntityLinks(Collection<EntityKeyBean> inboundEntities) {
         for (EntityKeyBean inboundEntity : inboundEntities) {
-            if ( inboundEntity.isParent() && parent == null){
+            if (inboundEntity.isParent() && parent == null) {
                 setParent(inboundEntity); // SearchDoc can have at most one parent
-            } else {
-                if ( !inboundEntity.equals(parent)) // Make sure we don't add twice
-                    this.entityLinks.add(inboundEntity);
             }
+            // Disabling parent document functionality - this was excluding parent from entity Links
+//                if ( !inboundEntity.equals(parent)) // Make sure we don't add twice
+            this.entityLinks.add(inboundEntity);
+//            }
         }
         return this;
     }

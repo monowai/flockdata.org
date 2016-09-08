@@ -598,8 +598,6 @@ public class EntityServiceNeo4J implements EntityService {
     public Collection<TrackResultBean> trackEntities(DocumentType documentType, FortressSegment segment, Collection<EntityInputBean> entityInputs, Future<Collection<TagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException, IOException {
         Collection<TrackResultBean> arb = new ArrayList<>();
         for (EntityInputBean inputBean : entityInputs) {
-//            if ( documentType == null || documentType.getCode() == null || documentType.getId() == null )
-//                documentType = conceptService.resolveByDocCode(segment.getFortress(), inputBean.getDocumentType().getName());
 
             TrackResultBean result = createEntity(documentType, segment, inputBean, tags);
             if (result.getEntity() != null)

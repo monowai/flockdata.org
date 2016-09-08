@@ -23,6 +23,7 @@ package org.flockdata.search.model;
 import org.flockdata.model.Fortress;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * A POJO that represent a bean that Transit in Spring integration
@@ -117,6 +118,11 @@ public class TagCloudParams implements QueryInterface {
         return false;
     }
 
+    @Override
+    public Map<String,Object> getFilter() {
+        return null;
+    }
+
     public void setSearchText(String query) {
         this.searchText = query;
     }
@@ -134,4 +140,5 @@ public class TagCloudParams implements QueryInterface {
         tags.add(tagLabel);
         return this;
     }
+
 }

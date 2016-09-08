@@ -576,7 +576,7 @@ public class TestConcepts extends EngineBase {
         assertEquals(2, documentResults.size());
         MatrixResults structure = conceptService.getContentStructure(su.getCompany(), fortress.getName());
         assertEquals(3, structure.getNodes().size());
-        assertEquals(4, structure.getEdges().size());
+        assertEquals(2, structure.getEdges().size());
         for (EdgeResult edgeResult : structure.getEdges()) {
             if ( edgeResult.getRelationship().equals("worked")){  // EntityLink relationship
                 assertTrue( "parent property was not set", edgeResult.getData().containsKey("parent"));

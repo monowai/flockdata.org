@@ -325,7 +325,7 @@ public class ConceptDaoNeo {
     }
 
     public MatrixResults getStructure(Fortress fortress) {
-        String query = "match (f:Fortress)-[]-(d:DocType) where id(f)={fortress} with f,d match (d)-[r*1..3]-(c:Concept) return d,c,r";
+        String query = "match (f:Fortress)-[]-(d:DocType) where id(f)={fortress} with f,d match (d)-[r*1..2]-(c) where c:DocType or c:Concept return r";
         Map<String, Object> params = new HashMap<>();
         params.put("fortress", fortress.getId());
 
@@ -335,21 +335,25 @@ public class ConceptDaoNeo {
 
         EdgeResults edgeResults = new EdgeResults();
         Collection<FdNode> nodes = new ArrayList<>();
+        String filter = "Concept DocType";
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            FdNode concept = new FdNode((Node) row.get("c"));
-            FdNode doc = new FdNode((Node) row.get("d"));
-            if ( !nodes.contains(concept))
-                nodes.add(concept);
-            if ( !nodes.contains(doc))
-                nodes.add(doc);
+            Relationship relationship = (Relationship) ((Wrappers.SeqWrapper) row.get("r")).get(0);
 
-            Relationship relationship = (Relationship)((Wrappers.SeqWrapper)row.get("r")).get(0);
-            EdgeResult er = new EdgeResult(doc, concept, relationship.getType().name());
-            for (String key : relationship.getPropertyKeys()) {
-                er.addProperty(key, relationship.getProperty(key));
+            FdNode source = new FdNode(relationship.getStartNode());
+            FdNode target = new FdNode(relationship.getEndNode());
+            if ( filter.contains(source.getLabel()) && filter.contains(target.getLabel())) {
+                if (!nodes.contains(source))
+                    nodes.add(source);
+                if (!nodes.contains(target))
+                    nodes.add(target);
+
+                EdgeResult er = new EdgeResult(target, source, relationship.getType().name());
+                for (String key : relationship.getPropertyKeys()) {
+                    er.addProperty(key, relationship.getProperty(key));
+                }
+                edgeResults.addResult(er);
             }
-            edgeResults.addResult( er);
 
         }
         return new MatrixResults(edgeResults).setNodes(nodes);
