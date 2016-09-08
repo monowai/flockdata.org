@@ -21,6 +21,7 @@
 package org.flockdata.search.model;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by mike on 4/05/15.
@@ -40,4 +41,6 @@ public interface QueryInterface {
 
     // This request is only to be made on tags
     boolean isSearchTagsOnly();
+
+    Map<String,Object> getFilter();
 }

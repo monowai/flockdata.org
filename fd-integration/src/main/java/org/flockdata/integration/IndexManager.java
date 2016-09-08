@@ -198,10 +198,20 @@ public class IndexManager {
      */
     public String[] getIndexesToQuery(String company, String fortress, String[] types, String segment) {
 
+
         Collection<String> results = new ArrayList<>();
+        if ( company == null && fortress == null && types==null &&segment == null ) {
+            results.add(getPrefix() + "*");
+            return results.toArray(new String[0]);
+        }
+
+        if ( fortress == null && types==null &&segment == null ) {
+            results.add(getPrefix() + company.toLowerCase()+".*");
+            return results.toArray(new String[0]);
+        }
 
         String indexPath = getPrefix() + (company != null ? company.toLowerCase() : "*");
-        String segmentFilter = "";
+        String segmentFilter ;
 
         if (segment != null && !isDefaultSegment(segment)) {
             segmentFilter = "." + segment.toLowerCase();

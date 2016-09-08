@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Indexes to query are computed at runtime. This validates the generic functionality that
@@ -155,6 +156,23 @@ public class TestIndexHelper {
         }
 
     }
+
+    @Test
+    public void nullIndexes() throws Exception {
+        QueryParams qp = new QueryParams("*");
+        IndexManager indexManager = new IndexManager("fd.", true);
+        String indexes[] = indexManager.getIndexesToQuery(qp);
+        assertEquals(1, indexes.length);
+        assertEquals("Cross company filter did not work", "fd.*", indexes[0]);
+
+        //
+        qp.setCompany("MyCo") ;
+        indexes = indexManager.getIndexesToQuery(qp);
+        assertEquals(1, indexes.length);
+        assertEquals("fd.myco.*", indexes[0]);
+
+    }
+
     /**
      * Validates that the index matches a valid ElasticSearch structure
      *

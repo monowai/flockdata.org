@@ -68,17 +68,20 @@ public class QueryEP {
 
     }
 
+    @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public EsSearchResult searchQueryParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        EsSearchResult result =  queryService.search(company, queryParams);
+        if (result.getFdSearchError()!=null )
+            throw new FlockException(result.getFdSearchError());
+        return result;
+    }
+
+
     @RequestMapping(value = "/matrix", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public MatrixResults getMatrixResult(@RequestBody MatrixInputBean matrixInput, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return matrixService.getMatrix(company, matrixInput);
-    }
-
-
-    @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public EsSearchResult searchQueryParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
-        return queryService.search(company, queryParams);
     }
 
     @RequestMapping(value = "/es", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
@@ -90,6 +93,10 @@ public class QueryEP {
         EsSearchResult result = queryService.search(company, queryParams);
         if (result.getJson() == null)
             throw new NotFoundException("No search results were found");
+
+        if (result.getFdSearchError()!=null )
+            throw new FlockException(result.getFdSearchError());
+
         return JsonUtils.toMap(result.getJson());
     }
 

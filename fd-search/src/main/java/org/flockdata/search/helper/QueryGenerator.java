@@ -21,6 +21,7 @@
 package org.flockdata.search.helper;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.model.QueryInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,8 @@ public class QueryGenerator {
     private static Logger logger = LoggerFactory.getLogger(QueryGenerator.class);
 
     public static String getSimpleQuery(QueryInterface params, Boolean highlightEnabled) {
+        if ( params.getFilter()!=null )
+            return getFilteredQuery(params, highlightEnabled);
         String queryString = params.getSearchText();
         if ( queryString== null )
             queryString = "*";
@@ -82,7 +85,7 @@ public class QueryGenerator {
         }
         if ( queryString.equals(""))
             queryString="*";
-        String filter = getFilter(queryParams);
+        String filter = getRelationshipFilter(queryParams);
         simpleQuery.append("\n" +
                 " {\"query\": {\n" +
                 "    \"filtered\": {\n" +
@@ -108,7 +111,9 @@ public class QueryGenerator {
         return simpleQuery.toString();
     }
 
-    private static String getFilter(QueryInterface queryParams) {
+    private static String getRelationshipFilter(QueryInterface queryParams) {
+        if ( queryParams.getFilter() != null )
+            return "\"filter\":" +JsonUtils.toJson(queryParams.getFilter());
         if ( queryParams.getRelationships().isEmpty())
             return "";
 
