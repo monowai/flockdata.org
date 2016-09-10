@@ -325,7 +325,7 @@ public class ConceptDaoNeo {
     }
 
     public MatrixResults getStructure(Fortress fortress) {
-        String query = "match (f:Fortress)-[]-(d:DocType) where id(f)={fortress} with f,d match (d)-[r*1..3]-(c:Concept) return d,c,r";
+        String query = "match (f:Fortress)-[]-(d:DocType) where id(f)={fortress} with f,d match (d)-[r*1..2]-(c:Concept) return d,c,r";
         Map<String, Object> params = new HashMap<>();
         params.put("fortress", fortress.getId());
 

@@ -56,6 +56,56 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 public class TestContentModel extends MvcBase {
 
     @Test
+    public void models_ByCompany() throws Exception {
+        // Two companies. Each with an identically named fortress and docName
+        String docName = "models_ByCompany";
+        ContentModel entityModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
+        ContentModel tagModel = ContentModelDeserializer.getContentModel("/models/test-tag-model.json");
+        entityModel.setName("CompanyA");
+        entityModel.setDocumentType(new DocumentTypeInputBean(docName));
+        FortressResultBean companyAFortress = makeFortress(mike(), new FortressInputBean("models_ByCompany"));
+        makeDataAccessProfile(mike(), "byCompanyA", "mike");
+
+        makeDocuments(mike(), companyAFortress, new DocumentTypeInputBean(docName));
+        ContentModelResult modelCompanyA = makeContentModel(mike(),
+                companyAFortress.getCode(),
+                docName,
+                entityModel,
+                MockMvcResultMatchers.status().isOk());
+        assertNotNull(modelCompanyA);
+        assertEquals("Mismatch on name", entityModel.getName(), modelCompanyA.getName());
+
+        makeDataAccessProfile(sally(), "byCompanyB", sally_admin);
+
+        FortressResultBean companyBFortress = makeFortress(sally(), new FortressInputBean("models_ByCompany"));
+        makeDocuments(sally(), companyBFortress, new DocumentTypeInputBean(docName));
+        ContentModelResult modelCompanyB= makeContentModel(sally(),
+                companyBFortress.getCode(),
+                docName,
+                entityModel,
+                MockMvcResultMatchers.status().isOk());
+        assertNotNull(modelCompanyA);
+
+        assertEquals("Mismatch on name", entityModel.getName(), modelCompanyB.getName());
+
+        // Two models in the DB, but for different companies. Only one should be found for each
+        Collection<ContentModelResult> companyAResults = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
+        assertNotNull(companyAResults);
+        assertEquals("Only one Entity model should be found for this users company", 1, companyAResults.size() );
+
+        Collection<ContentModelResult> companyBResults = findContentModels(sally(), MockMvcResultMatchers.status().isOk());
+        assertNotNull(companyBResults);
+        assertEquals("Only one Entity model should be found for this users company", 1, companyBResults.size() );
+
+        makeTagModel(mike(), "Blah", tagModel, OK);
+        companyAResults = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
+        assertEquals("One Entity and one Tag model", 2, companyAResults.size());
+
+        companyBResults = findContentModels(sally(), MockMvcResultMatchers.status().isOk());
+        assertEquals("Tag model should not be associated with this company", 1, companyBResults.size() );
+    }
+
+    @Test
     public void documentTypeFlagChecksFromModel() throws Exception{
         String test = "documentTypeFlagChecksFromModel";
         ContentModel model = new ContentModelHandler();
@@ -152,7 +202,7 @@ public class TestContentModel extends MvcBase {
     }
 
     @Test
-    public void find_CompanyProfiles() throws Exception {
+    public void find_CompanyModels() throws Exception {
         String docName = "find_CompanyProfiles";
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
         contentModel.setName("SettingTheName");
@@ -272,7 +322,7 @@ public class TestContentModel extends MvcBase {
                 dataRow = strings;
             count++;
         }
-        Map<String,Object> dataMap = Transformer.convertToMap(headers, dataRow);;
+        Map<String,Object> dataMap = Transformer.convertToMap(headers, dataRow);
         ContentValidationRequest validationRequest = new ContentValidationRequest(dataMap);
         String json = JsonUtils.toJson(validationRequest);
         assertNotNull(json);
@@ -313,7 +363,7 @@ public class TestContentModel extends MvcBase {
                 dataRow = strings;
             count++;
         }
-        Map<String,Object> dataMap = Transformer.convertToMap(headers, dataRow);;
+        Map<String,Object> dataMap = Transformer.convertToMap(headers, dataRow);
         assertFalse(dataMap.isEmpty());
         ContentValidationRequest validationRequest = new ContentValidationRequest(dataMap);
         String json = JsonUtils.toJson(validationRequest);
@@ -348,7 +398,7 @@ public class TestContentModel extends MvcBase {
                 dataRow = strings;
             count++;
         }
-        Map<String,Object> dataMap = Transformer.convertToMap(headers, dataRow);;
+        Map<String,Object> dataMap = Transformer.convertToMap(headers, dataRow);
         assertFalse(dataMap.isEmpty());
         ContentValidationRequest validationRequest = new ContentValidationRequest(dataMap);
         String json = JsonUtils.toJson(validationRequest);
