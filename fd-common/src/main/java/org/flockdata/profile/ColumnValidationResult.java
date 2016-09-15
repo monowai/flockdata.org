@@ -33,6 +33,7 @@ public class ColumnValidationResult {
     private String sourceColumn;
     private ColumnDefinition column;
     private Collection<String> messages;
+    private String expression;
 
     public ColumnValidationResult() {
 
@@ -67,5 +68,14 @@ public class ColumnValidationResult {
         return "ContentValidationResult{" +
                 "sourceColumn=" + sourceColumn +
                 '}';
+    }
+
+    public ColumnValidationResult setExpression(String expression) {
+        this.expression = expression;
+        return this;
+    }
+
+    public String getExpression() {
+        return expression;
     }
 }

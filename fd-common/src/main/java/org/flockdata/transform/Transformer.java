@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
+import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.profile.model.PayloadTransformer;
@@ -39,10 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamReader;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by mike on 18/12/15.
@@ -179,6 +177,17 @@ public class Transformer {
         }
         return result;
     }
+
+    public static Collection<Map<String,Object>>convertToMap(DataConversionRequest request){
+        ExtractProfile extractProfile = new ExtractProfileHandler(request.getContentModel());
+        Collection<Map<String,Object>> results = new ArrayList<>();
+        Collection<String[]> lines = request.getData();
+        for (String[] line : lines) {
+            results.add(convertToMap(request.getHeader(), line, extractProfile));
+        }
+        return results;
+    }
+
     public static Map<String, Object> convertToMap(String[] headerRow, String[] line, ExtractProfile extractProfile) {
         int col = 0;
         Map<String, Object> row = new HashMap<>();

@@ -328,15 +328,15 @@ public class ContentModelServiceNeo implements ContentModelService {
                 Object oVal = row.get(sourceColumn);
 
                 Object o = ExpressionHelper.getValue(row, column.getValue(), column, oVal);
-                if (o == null)
-                    messages.add("Null was calculated");
+                if (o == null && column.getValue()!=null)
+                    messages.add("Null was calculated for express ["+column.getValue() +"]");
                 if ( !Transformer.isValidForEs(sourceColumn)){
                     messages.add(sourceColumn + " is not valid for ElasticSearch");
                 }
             } catch (Exception e){
-                messages.add( "["+sourceColumn+ "] error - [" +e.getMessage() +"]");
+                messages.add( e.getMessage() );
             }
-            results.add(new ColumnValidationResult(source, columnDefinitionMap.get(source), messages));
+            results.add(new ColumnValidationResult(source, columnDefinitionMap.get(source), messages).setExpression(column.getValue()));
 
         }
         return results;

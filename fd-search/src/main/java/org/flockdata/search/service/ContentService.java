@@ -62,7 +62,7 @@ public class ContentService {
         try {
             String[] indexes = indexManager.getIndexesToQuery(queryParams);
             GetFieldMappingsRequestBuilder fieldMappings = elasticSearchClient.admin().indices().prepareGetFieldMappings(indexes);
-            fieldMappings.setFields("data.*","tag.*", "e.*", SearchSchema.PROPS, SearchSchema.CREATED, SearchSchema.UPDATED, SearchSchema.DOC_TYPE);
+            fieldMappings.setFields("data.*","tag.*", "e.*", "up.*", SearchSchema.PROPS, SearchSchema.CREATED, SearchSchema.UPDATED, SearchSchema.DOC_TYPE);
             ListenableActionFuture<GetFieldMappingsResponse> future = fieldMappings.execute();
             GetFieldMappingsResponse result = future.get();
             ImmutableMap<String, ImmutableMap<String, ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData>>> mappings = result.mappings();
@@ -95,6 +95,9 @@ public class ContentService {
             link = true;
         else if (name.startsWith("data."))
             data = true;
+        else if (name.startsWith("up."))
+            data = true;
+
         else
             fd = true;
 

@@ -56,6 +56,8 @@ public class TestCalculatedColumns extends AbstractImport {
             TestCase.assertNotNull("Calculated column should have been created", entityInputBean.getContent().getData().get("WorkHours"));
             TestCase.assertEquals(10d, entityInputBean.getContent().getData().get("WorkHours"));
             TestCase.assertEquals("Value should have come from the calculated column", 10d, entityInputBean.getProperties().get("value"));
+            TestCase.assertNotNull("Computed column, not in source data, was not added", entityInputBean.getContent().getData().get("computedOnly"));
+            TestCase.assertEquals("Computed column, not in source data, was not computed", 100d, entityInputBean.getContent().getData().get("computedOnly"));
         }
 
         // Check that the payload will serialize

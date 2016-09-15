@@ -35,12 +35,15 @@ import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.search.model.ContentStructure;
+import org.flockdata.transform.DataConversionRequest;
+import org.flockdata.transform.Transformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * User: Mike Holdsworth
@@ -247,6 +250,18 @@ public class ModelEP {
             throws FlockException {
         CompanyResolver.resolveCompany(request);
         return contentModelService.createDefaultContentModel(contentRequest);
+    }
+
+
+    @RequestMapping(value = "/map",
+            produces = "application/json",
+            consumes = "application/json",
+            method = RequestMethod.POST)
+    public Collection<Map<String, Object>> dataMap(HttpServletRequest request,
+                                                   @RequestBody DataConversionRequest conversionRequest)
+            throws FlockException {
+        CompanyResolver.resolveCompany(request);
+        return Transformer.convertToMap(conversionRequest);
     }
 
 

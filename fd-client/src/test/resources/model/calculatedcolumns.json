@@ -15,6 +15,11 @@
     "Hours": {
       "dataType": "double"
     },
+    "computedOnly": {
+      "dataType": "double",
+      "target": "computedOnly",
+      "value": "100"
+    },
     "VarianceHours": {
       "dataType": "double",
       "value": "(#data['ScheduledHours']-(#data['Hours'])+#data['BulkHours'])",
