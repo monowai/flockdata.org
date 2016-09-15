@@ -109,7 +109,7 @@ public class ContentService {
                     Map<String, Object> props = (Map<String, Object>) key;
                     if (props.containsKey("type")) {
                         String dataType = props.get("type").toString();
-                        if (dataType.equals("date") || dataType.equals("long")|| dataType.equals("number"))
+                        if (dataType.equals("date") || dataType.equals("long")|| dataType.equals("number") || dataType.equals("double"))
                             column = new EsColumn(name, dataType);
                     }
 
