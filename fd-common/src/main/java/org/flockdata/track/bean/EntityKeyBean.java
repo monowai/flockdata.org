@@ -38,8 +38,7 @@ import java.util.Map;
  * Time: 5:01 PM
  */
 public class EntityKeyBean {
-    @JsonProperty("relationshipName")
-    private String relationship; // Entity to resolvedEntity relationship
+    private String relationshipName; // Entity to Entity relationship name
     @JsonProperty("fortress")
     private String fortressName;
     @JsonProperty("documentName")
@@ -72,11 +71,12 @@ public class EntityKeyBean {
         this.code = code;
     }
 
-    public EntityKeyBean(DocumentType documentType, MetaFortress fortress, String code) {
+    public EntityKeyBean(DocumentType documentType, MetaFortress fortress, String code, String relationshipName) {
         this.documentType = documentType.getName();
         this.fortressName = fortress.getName();
         this.resolvedDocument = documentType;
         this.code = code;
+        this.relationshipName=relationshipName;
     }
 
     public EntityKeyBean(String documentName, String fortress, String value) {
@@ -163,12 +163,12 @@ public class EntityKeyBean {
         return searchTags;
     }
 
-    public String getRelationship() {
-        return relationship;
+    public String getRelationshipName() {
+        return relationshipName;
     }
 
     public EntityKeyBean addRelationship(String relationship) {
-        this.relationship = relationship;
+        this.relationshipName = relationship;
         return this;
     }
 
@@ -194,8 +194,8 @@ public class EntityKeyBean {
         return parent;
     }
 
-    public EntityKeyBean setRelationship(String relationship) {
-        this.relationship = relationship;
+    public EntityKeyBean setRelationshipName(String relationshipName) {
+        this.relationshipName = relationshipName;
         return this;
     }
 

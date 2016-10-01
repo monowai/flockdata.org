@@ -325,6 +325,8 @@ public class EntityInputBean implements Serializable, UserProperties {
     }
 
     public EntityInputBean addEntityLink(String relationshipName, EntityKeyBean entityKey) {
+        if ( entityKey.getRelationshipName()== null)
+            entityKey.setRelationshipName(relationshipName);
         List<EntityKeyBean> refs = entityLinks.get(relationshipName);
         if (refs == null) {
             refs = new ArrayList<>();

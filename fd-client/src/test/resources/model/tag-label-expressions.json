@@ -5,7 +5,7 @@
       "tag": true,
       "name": "value",
       "code": "code",
-      "label": "#data[label]"
+      "label": "[label]"
     }
   }
 }

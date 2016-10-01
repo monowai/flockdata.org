@@ -2,7 +2,7 @@
   "fortressName": "GovTrack",
   "documentName": "PAC",
   "fortressUser": "mike",
-  "segment": "#data['0']",
+  "segment": "['0']",
   "content": {
     "1": {
       "callerRef": true
@@ -40,8 +40,8 @@
     "8": {
       "tag": true,
       "label": "'Expenditure'",
-      "code": "#data['8']=='ID' ?'I':'D'",
-      "name": "#data['8']=='ID' ?'Indirect':'Direct'",
+      "code": "[8]=='ID' ?'I':'D'",
+      "name": "[8]=='ID' ?'Indirect':'Direct'",
       "relationship": "classified"
     }
   }

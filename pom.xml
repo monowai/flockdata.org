@@ -40,7 +40,6 @@
         <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>
         <neo4j.version>2.3.6</neo4j.version>
         <org.springdata.neo4j>3.4.4.RELEASE</org.springdata.neo4j>
-        <ehcache.version>2.6.10</ehcache.version>
         <org.aspectj.version>1.8.4</org.aspectj.version>
         <surefire.version>2.18.1</surefire.version>
         <slf4j.version>1.7.10</slf4j.version>
@@ -380,7 +379,7 @@
                 <plugin>
                     <groupId>com.spotify</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.4.10</version>
+                    <version>0.4.13</version>
                     <configuration>
                         <serverId>docker-hub</serverId>
                         <registryUrl>https://index.docker.io/v1/</registryUrl>

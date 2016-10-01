@@ -35,7 +35,7 @@
       "tag": true,
       "label": "TroubleShooting",
       "mustExist": true,
-      "code": "#data['TagVal']"
+      "code": "['TagVal']"
     },
     "Gold Medals": {
       "code": "'Gold Medals'",
@@ -47,7 +47,7 @@
           "properties": [
             {
               "target": "value",
-              "value": "#data['Gold Medals']"
+              "value": "['Gold Medals']"
             }
           ]
         }

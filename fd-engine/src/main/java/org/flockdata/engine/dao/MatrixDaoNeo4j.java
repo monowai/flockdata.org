@@ -29,6 +29,7 @@ import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.FlockServiceException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
@@ -43,6 +44,7 @@ import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.*;
 
@@ -91,7 +93,11 @@ public class MatrixDaoNeo4j implements MatrixDao {
         if (input.getSampleSize() > 0) {
             if (input.getSampleSize() > input.getMaxEdges())
                 input.setSampleSize(input.getMaxEdges()); // Neo4j can't handle any more in it's where clause
-            entityKeyResults = entityKeyGateway.keys(getQueryParams(company, input));
+            try {
+                entityKeyResults = entityKeyGateway.keys(getQueryParams(company, input));
+            } catch ( ResourceAccessException e){
+                throw new FlockServiceException("The search service is not currently available so we cannot execute your query");
+            }
         }
 
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
@@ -113,16 +119,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
             entityFilter = (docFilter ? " where " + docIndexes : "");
         else {
 
-            entityFilter = " where entity.key in [";
-            boolean first = true;
-            for (String s : entityKeyResults.getResults()) {
-                if (first) {
-                    entityFilter = entityFilter + "\"" + s + "\"";
-                    first = false;
-                } else
-                    entityFilter = entityFilter + ",\"" + s + "\"";
-            }
-            entityFilter = entityFilter + "]";
+            entityFilter = " where entity.key in {0}";
         }
         String sumCol = ""; // Which user defined column against the entity to sum
         String sumVal = ""; // Where the total will be output
@@ -146,6 +143,10 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
         Map<String, Object> params = new HashMap<>();
 
+        if ( entityKeyResults!=null)
+            params.put("0",entityKeyResults.getResults() );
+        params.put("linkCount", input.getMinCount());
+
         Collection<FdNode> nodes = new ArrayList<>();
 
         String conceptFmCol = "tag1";
@@ -156,7 +157,6 @@ public class MatrixDaoNeo4j implements MatrixDao {
             conceptToCol = "tag2";
         }
 
-        params.put("linkCount", input.getMinCount());
         StopWatch watch = new StopWatch(input.toString());
         watch.start("Execute Matrix Query");
         Iterable<Map<String, Object>> result = template.query(query, params);

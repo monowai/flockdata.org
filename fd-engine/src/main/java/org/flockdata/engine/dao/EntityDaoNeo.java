@@ -608,7 +608,7 @@ public class EntityDaoNeo {
             if (entity!=null ){
                 Collection<EntityTag> entityTags = entityTagService.findEntityTagsWithGeo(entity);
                 results.add(
-                        new EntityKeyBean(  entity, entityTags, indexManager.parseIndex(entity)).addRelationship(entityKey.getRelationship())
+                        new EntityKeyBean(  entity, entityTags, indexManager.parseIndex(entity)).addRelationship(entityKey.getRelationshipName())
                             .setParent(entityKey.isParent()));
 
             }
@@ -660,7 +660,7 @@ public class EntityDaoNeo {
                 Node node = (Node)row.get(relationship);
                 Entity e = getEntity(node.getId());
                 connected.add( new EntityKeyBean(e, entityTagService.findEntityTagsWithGeo(e),indexManager.parseIndex(e))
-                        .setRelationship(relationship));
+                        .setRelationshipName(relationship));
             }
         }
         return connected;

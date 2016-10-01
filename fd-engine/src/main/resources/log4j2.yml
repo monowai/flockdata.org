@@ -62,7 +62,7 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: org.springframework.web
+        - name: org.springframework
           additivity: false
           level: error
           AppenderRef:
@@ -76,8 +76,16 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
+        # Enable debug level logging to examine Cypher queries
+        - name: org.springframework.data.neo4j
+          additivity: false
+          level: debug
+          AppenderRef:
+            - ref: CONSOLE
+            - ref: FILE
+
         - name: com.sun.jersey
-          ## Typically the Neo4j browser
+          ## Neo4j browser
           additivity: false
           level: fatal
           AppenderRef:

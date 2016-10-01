@@ -20,8 +20,6 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.FortressSegment;
@@ -60,12 +58,9 @@ public class EntityRetryService {
 
     private final LogService logService;
 
-    private final PlatformConfig engineConfig;
-
     @Autowired
-    public EntityRetryService(EntityService entityService, EngineConfig engineConfig, LogService logService) {
+    public EntityRetryService(EntityService entityService, LogService logService) {
         this.entityService = entityService;
-        this.engineConfig = engineConfig;
         this.logService = logService;
     }
 
@@ -78,16 +73,9 @@ public class EntityRetryService {
 
         Collection<TrackResultBean>
                 resultBeans = entityService.trackEntities(documentType, segment, entityInputs, tags);
-        // ToDo: DAT-343 - write via a queue
-        boolean processAsync;
 
-
-        if (engineConfig.isTestMode())   // We always run sync in test mode
-            processAsync = false;
-        else if (resultBeans.size() == 1) { // When processing one result, defer to the isNewEntity flag
-            // Existing entities are processed sync, new ones async
-            processAsync = resultBeans.iterator().next().getEntity().isNewEntity();
-        } else { // Could have a mix of new and existing entities, so we need to
+        if (resultBeans.size() > 1) {
+            // Could have a mix of new and existing entities, so we need to
             // Split the batch between new and existing entities
             Collection<TrackResultBean> newEntities = TrackBatchSplitter.getNewEntities(resultBeans);
             Collection<TrackResultBean> existingEntities = TrackBatchSplitter.getExistingEntities(resultBeans);
@@ -103,17 +91,7 @@ public class EntityRetryService {
             logService.processLogs(segment.getFortress(), existingEntities).get();
             return resultBeans;
         }
-        processAsync = false;
-        if (processAsync) {
-            // DAT-342 - we already know what the content log will be so we can end
-            //           this transaction and get on with writing the search results
-            // Occurs async
-            logService.processLogs(segment.getFortress(), resultBeans);
-            return resultBeans;
-
-        } else {
-            return logService.processLogsSync(segment.getFortress(), resultBeans);
-        }
+        return logService.processLogsSync(segment.getFortress(), resultBeans);
 
     }
 

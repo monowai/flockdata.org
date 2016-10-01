@@ -48,7 +48,7 @@
     },
     "c05": {
       "dataType": "number", // Force the datatype so that ElasticSearch indexes it correctly
-      "value": "#data['c05']==null?0:#data['c05']", // If playcount is null, store it as 0
+      "value": "['c05']==null?0:['c05']", // If playcount is null, store it as 0
       "properties": [  // Store as an entity property
         {
           "target":"rating"
@@ -56,7 +56,7 @@
       ]
     },
     "playCount": {
-      "value": "#data['playCount']==null?0:#data['playCount']", // If playcount is null, store it as 0
+      "value": "['playCount']==null?0:['playCount']", // If playcount is null, store it as 0
       "dataType": "number",
       "properties": [  // Make this an entity property called playCount
         {

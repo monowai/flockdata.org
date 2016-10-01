@@ -10,7 +10,7 @@
     "code": {
       "tag": true,
       "label": "Asset",
-      "code": "#data['code']+'.' +#data['exchangeCode']",
+      "code": "['code']+'.' +['exchangeCode']",
       "name": "issueName",
       "labelDescription": "'this is a random description of the Label'",
       "relationship": "key",

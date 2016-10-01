@@ -53,8 +53,6 @@ public class ExpressionHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(ExpressionHelper.class);
 
-    private static StandardEvaluationContext context = new StandardEvaluationContext();
-
     public static Object getValue(Object value, ColumnDefinition colDef) {
 
 //        context.setVariable("colDef",colDef);
@@ -103,9 +101,7 @@ public class ExpressionHelper {
         if (colDef == null)
             return getNullSafeDefault(defaultValue, null);
 
-        if (contentModel != null)
-            context.setVariable("model", contentModel);
-        Object result = (expression==null || expression.length()==0? null:evaluateExpression(row, expression));
+        Object result = (expression==null || expression.length()==0? null:evaluateExpression(contentModel, row, expression));
         if (result == null)
             return getNullSafeDefault(defaultValue, colDef);
         return result.toString().trim();
@@ -128,11 +124,16 @@ public class ExpressionHelper {
     }
 
     static Object evaluateExpression(Map<String, Object> row, String expression) {
+        return evaluateExpression(null, row, expression);
+    }
+
+    private static Object evaluateExpression(ContentModel contentModel, Map<String, Object> row, String expression) {
         if (expression == null)
             return null;
 
-        // set the #Data variable
-        context.setVariable("data", row);
+        StandardEvaluationContext context = new StandardEvaluationContext(row);
+        setContextVariables(contentModel, row, context);
+
         try {
             return parser.parseExpression(expression).getValue(context);
         } catch (Exception e) {
@@ -140,6 +141,15 @@ public class ExpressionHelper {
             throw (e);
         }
     }
+
+    private static void setContextVariables(ContentModel contentModel, Map<String, Object> row, StandardEvaluationContext context) {
+        if ( contentModel !=null )
+            context.setVariable("model",contentModel);
+//        for (String s : row.keySet()) {
+//            context.setVariable(s, row.get(s));
+//        }
+    }
+
 
     private static String getNullSafeDefault(Object defaultValue, ColumnDefinition colDef) {
         if (defaultValue == null || defaultValue.equals("")) {

@@ -36,8 +36,12 @@ import java.util.Collection;
 @Repository
 public class CompanyDaoNeo implements CompanyDao {
 
+    private final CompanyRepository companyRepo;
+
     @Autowired
-    private CompanyRepository companyRepo;
+    public CompanyDaoNeo(CompanyRepository companyRepo) {
+        this.companyRepo = companyRepo;
+    }
 
     @Override
     public Company update(org.flockdata.model.Company company) {

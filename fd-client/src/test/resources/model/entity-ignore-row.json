@@ -3,7 +3,7 @@
   "fortress": {"name":"NZPost", "storeEnabled": false},
   "emptyIgnored": true,
   "delimiter": "|",
-  "condition": "#data['ACTION_INDICATOR'] !='D'",
+  "condition": "[ACTION_INDICATOR] !='D'",
   "header": true,
   "content": {
     "DELIVERY_POINT_ID": {
@@ -12,28 +12,28 @@
       "label": "DeliveryPoint",
       "tag": true,
       "relationship": "geodata",
-      "keyPrefix": "nz",
-      "name": "#data['STREET_NUMBER'].toString()+ (#data['STREET_ALPHA']!=null?#data['STREET_ALPHA']:'')+ ' ' + #data['STREET_NAME'] + ' ' + #data['STREET_TYPE']",
+      "keyPrefix": "'nz'",
+      "name": "[STREET_NUMBER].toString()+ ([STREET_ALPHA]?:'')+ ' ' + ['STREET_NAME'] + ' ' + ['STREET_TYPE']",
       "targets": [
         {
           "code": "SUBURB_ALIAS_ID",
           "relationship": "address",
           "label": "Suburb",
           "name": "SUBURB_NAME",
-          "keyPrefix": "nz",
+          "keyPrefix": "'nz'",
           "targets": [
             {
               "code": "POSTCODE",
               "relationship": "postcode",
               "label": "PostCode",
-              "keyPrefix": "nz",
+              "keyPrefix": "'nz'",
               "targets": [
                 {
                   "code": "TOWN_CITY_MAILTOWN_ALIAS_ID",
                   "name": "TOWN_CITY_MAILTOWN",
                   "label": "City",
                   "relationship": "towncity",
-                  "keyPrefix": "nz",
+                  "keyPrefix": "'nz'",
                   "targets": [
                     {
                       "code": "'NZ'",
@@ -54,7 +54,7 @@
           "target": "building"
         },
         {
-          "value": "#data['UNIT_TYPE']!=null? #data['UNIT_TYPE'].toString()+ ' ' + #data['UNIT_IDENTIFIER'] : null ",
+          "value": "['UNIT_TYPE']!=null? ['UNIT_TYPE'].toString()+ ' ' + ['UNIT_IDENTIFIER'] : null ",
           "target": "unit"
         }
       ]
@@ -72,14 +72,14 @@
     "AddressLine": {
       "title": true,
       "description": true,
-      "value": "#data['STREET_NUMBER'].toString()+ (#data['STREET_ALPHA']!=null?#data['STREET_ALPHA']:'')+ ' ' + #data['STREET_NAME'] + ' ' + #data['STREET_TYPE']"
+      "value": "['STREET_NUMBER'].toString()+ (['STREET_ALPHA']?:'')+ ' ' + ['STREET_NAME'] + ' ' + ['STREET_TYPE']"
     },
     "unit": {
       "target": "unitName",
       "properties": [
         {
           "storeNull": false,
-          "value": "#data['UNIT_TYPE']!=null? #data['UNIT_TYPE'].toString()+ ' ' + #data['UNIT_IDENTIFIER'] : null "
+          "value": "['UNIT_TYPE']!=null? ['UNIT_TYPE'].toString()+ ' ' + ['UNIT_IDENTIFIER'] : null "
         }
       ]
     },

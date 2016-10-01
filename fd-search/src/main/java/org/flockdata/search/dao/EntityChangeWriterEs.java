@@ -365,12 +365,12 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             entity.put(docType, docEntry);
 
             Map<String, Object> leaf;
-            if (linkedEntity.getRelationship() == null || linkedEntity.getRelationship().equals("") || linkedEntity.getRelationship().equalsIgnoreCase(linkedEntity.getDocumentType())) {
+            if (linkedEntity.getRelationshipName() == null || linkedEntity.getRelationshipName().equals("") || linkedEntity.getRelationshipName().equalsIgnoreCase(linkedEntity.getDocumentType())) {
                 leaf = docEntry;
                 //prefix = "e" +QueryDaoES.ES_FIELD_SEP + linkedEntity.getDocumentType().toLowerCase() + QueryDaoES.ES_FIELD_SEP;
             } else {
                 leaf = new HashMap<>();
-                docEntry.put(linkedEntity.getRelationship().toLowerCase(), leaf);
+                docEntry.put(linkedEntity.getRelationshipName().toLowerCase(), leaf);
 
                 //prefix = "e" +QueryDaoES.ES_FIELD_SEP+ linkedEntity.getDocumentType().toLowerCase() + QueryDaoES.ES_FIELD_SEP + linkedEntity.getRelationship() + QueryDaoES.ES_FIELD_SEP;
             }

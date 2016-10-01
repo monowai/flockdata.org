@@ -1,39 +1,45 @@
 {
-    "documentName": "Athlete",
-    "contentType": "csv",
-    "tagOrEntity": "entity",
-    "entityOnly": true,
-    "fortressName": "Olympic",
-    "fortressUser": "mike",
-    "batchSize": -1,
-    "header": true,
-    "content": {
-        "Title": {
-            "callerRef": true,
-            "title": true
-        },
-
-        "TagNumberAsString": {
-            "tag":true,
-            "relationship": "subject"
-        },
-      "TagValueAsNumber": {
-        "tag":true,
-        "dataType": "number",
-        "relationship": "subject"
-      },
-
-      "StringAsNumber": {
-          "relationship": "subject"
-        },
-
-        "created": {
-            "createDate":true,
-            "dateFormat":"epoc"
-        },
-
-        "updated": {
-            "updateDate":true
+  "documentType": {
+    "name": "Athlete",
+    "code": "Athlete"
+  },
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "fortress": {
+    "name": "Olympic"
+  },
+  "content": {
+    "Title": {
+      "callerRef": true,
+      "title": true
+    },
+    "TagNumberAsString": {
+      "tag": true,
+      "relationship": "subject"
+    },
+    "TagValueAsNumber": {
+      "tag": true,
+      "dataType": "number",
+      "relationship": "subject"
+    },
+    "StringAsNumber": {
+      "relationship": "subject"
+    },
+    "created": {
+      "createDate": true,
+      "dateFormat": "epoc"
+    },
+    "updated": {
+      "updateDate": true
+    },
+    "code": {
+      "dataType": "string",
+      "properties": [
+        {
+          "target": "code",
+          "dataType": "string"
         }
+      ]
     }
+  }
 }

@@ -3,8 +3,8 @@
     "NAME": {
       "tag": true,
       "label": "Country",
-      "code": "#data['CODE']",
-      "name": "#data['NAME']"
+      "code": "['CODE']",
+      "name": "['NAME']"
     }
   }
 }

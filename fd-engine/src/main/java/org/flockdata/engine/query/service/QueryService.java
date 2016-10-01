@@ -26,6 +26,7 @@ import org.flockdata.engine.integration.search.FdViewQuery.FdViewQueryGateway;
 import org.flockdata.engine.integration.search.TagCloudRequest.TagCloudGateway;
 import org.flockdata.engine.integration.store.EsStoreRequest.ContentStoreEs;
 import org.flockdata.engine.track.service.FortressService;
+import org.flockdata.helper.FlockServiceException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.model.Company;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
 /**
  * Query parameter support functionality
@@ -105,8 +107,13 @@ public class QueryService {
             if (fdViewQueryGateway == null) {
                 logger.info("fdViewQueryGateway is not available");
                 return null;
-            } else
-                esSearchResult = fdViewQueryGateway.fdSearch(queryParams);
+            } else {
+                try {
+                    esSearchResult = fdViewQueryGateway.fdSearch(queryParams);
+                } catch ( ResourceAccessException e){
+                    throw new FlockServiceException("The search service is not currently available");
+                }
+            }
         }
 
         return esSearchResult;

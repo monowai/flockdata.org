@@ -49,6 +49,7 @@ public class EntityTagIn extends AbstractEntityTag {
     Entity entity;
 
     @RelationshipType
+    @Fetch
     DynamicRelationshipType relationship;
 
     protected EntityTagIn() {

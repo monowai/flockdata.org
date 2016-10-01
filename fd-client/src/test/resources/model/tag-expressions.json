@@ -7,7 +7,7 @@
   "content": {
     "Politician": {
       "tag": true,
-      "name": "#data['last_name']+ ', ' + #data['first_name']",
+      "name": "['last_name']+ ', ' + ['first_name']",
 
       "code": "thomas_id",
       "targets": [

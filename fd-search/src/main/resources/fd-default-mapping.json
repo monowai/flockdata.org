@@ -1,6 +1,5 @@
 {
   "mapping": {
-    "numeric_detection": false,
     "properties": {
       "key": {
         "type": "string",

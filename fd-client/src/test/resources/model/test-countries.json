@@ -25,7 +25,7 @@
           "name": "ISOen_name",
           "label": "City",
           "relationship": "capital",
-          "condition": "#data[HasCapital].equals(1)",
+          "condition": "[HasCapital].equals(1)",
           "properties": [
             {
               "source": "UNc_latitude",

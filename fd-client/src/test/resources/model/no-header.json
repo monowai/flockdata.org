@@ -6,11 +6,11 @@
   "content": {
     "Institution": {
       "tag": true,
-      "name": "#data['2'].replace('|', ' ').trim()",
-      "code": "#data['1'].replace('|', ' ').trim()",
+      "name": "['2'].replace('|', ' ').trim()",
+      "code": "['1'].replace('|', ' ').trim()",
       "targets": [
         {
-          "code": "#data['5'].replace('|', ' ').trim()",
+          "code": "['5'].replace('|', ' ').trim()",
           "label": "OSSector",
           "mustExist": true,
           "relationship": "represents"

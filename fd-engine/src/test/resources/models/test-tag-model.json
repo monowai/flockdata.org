@@ -24,9 +24,9 @@
         {
           "code": "BGN_capital",
           "label": "City",
-          "keyPrefix": "#data['ISO3166A2']",
+          "keyPrefix": "['ISO3166A2']",
           "relationship": "capital",
-          "condition": "#data[HasCapital].trim().equals('1')",
+          "condition": "[HasCapital].trim().equals('1')",
           "properties": [
             {
               "source": "UNc_latitude",

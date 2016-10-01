@@ -22,13 +22,13 @@
     },
     "VarianceHours": {
       "dataType": "double",
-      "value": "(#data['ScheduledHours']-(#data['Hours'])+#data['BulkHours'])",
+      "value": "(['ScheduledHours']-(['Hours'])+['BulkHours'])",
       "target": "VarianceHours"
     },
     "WorkHours": {
       "dataType": "double",
       "target": "WorkHours",
-      "value":  "#data['Hours']+#data['BulkHours']",
+      "value":  "['Hours']+['BulkHours']",
       "properties": [
         {
           "source":  "WorkHours",

@@ -89,7 +89,7 @@
           "targets": [
             {
               "relationship": "city",
-              "code": "#data['12'] != null ? 'US-'+#data['12'] : null",
+              "code": "['12'] != null ? 'US-'+['12'] : null",
               "label": "State",
               "mustExist": true
             }
@@ -136,7 +136,7 @@
       ]
     },
     "99Calc": {
-      "value": "#data['0']",
+      "value": "['0']",
       "properties": [
         {
           "target": "valueCalc"

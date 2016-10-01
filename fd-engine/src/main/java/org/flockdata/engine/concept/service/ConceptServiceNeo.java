@@ -263,7 +263,7 @@ public class ConceptServiceNeo implements ConceptService {
                             if (!docTypes.contains(linkedDocument)) {
                                 linkedDocument = findOrCreate(fortress, linkedDocument);
                                 docTypes.add(linkedDocument);
-                                entityKeyBean.setRelationship(relationship); // ToDo: should be supplied in the EKB
+                                //entityKeyBean.setRelationshipName(relationship); // ToDo: should be supplied in the EKB
                                 linkEntities(master, linkedDocument, entityKeyBean);
                             }
                         }

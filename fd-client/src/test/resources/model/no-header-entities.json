@@ -16,11 +16,11 @@
       "tag": true,
       "target": "institution",
       "label": "Institution",
-      "name": "#data[institution].replace('|', ' ').trim()",
-      "code": "#data['1'].replace('|', ' ').trim()",
+      "name": "[institution].replace('|', ' ').trim()",
+      "code": "['1'].replace('|', ' ').trim()",
       "targets": [
         {
-          "code": "#data['5'].replace('|', ' ').trim()",
+          "code": "['5'].replace('|', ' ').trim()",
           "label": "OSSector",
           "mustExist": true,
           "relationship": "represents"

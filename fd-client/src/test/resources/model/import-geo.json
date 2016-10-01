@@ -3,7 +3,7 @@
   "tagModel": true,
   "header": true,
   "delimiter": "|",
-  "condition": "#data['ACTION_INDICATOR'] !='D'",
+  "condition": "['ACTION_INDICATOR'] !='D'",
   "content": {
     "DELIVERY_POINT_ID": {
       "tag": true,

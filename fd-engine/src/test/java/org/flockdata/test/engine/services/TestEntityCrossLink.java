@@ -72,8 +72,10 @@ public class TestEntityCrossLink extends EngineBase {
         conceptService.findOrCreate(fortressA, childDoc);
 
         EntityInputBean child = new EntityInputBean(fortressA, "wally", "DocTypeZ", new DateTime(), "ABC321");
-        child.addEntityLink(PARENT_RLX, new EntityKeyBean(parent.getDocumentType().getName(), parentResult.getEntity().getFortress(),parent.getCode())
-            .setParent(true));
+        child.addEntityLink(PARENT_RLX,
+                new EntityKeyBean(parent.getDocumentType().getName(), parentResult.getEntity().getFortress(),parent.getCode())
+                        .setRelationshipName(PARENT_RLX)
+                        .setParent(true));
         TrackResultBean childResult = mediationFacade.trackEntity(su.getCompany(), child);
 
         EntityKeyBean parentKey = new EntityKeyBean(parent.getDocumentType().getName(), parent.getFortress(), parent.getCode());

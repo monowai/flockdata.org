@@ -21,13 +21,12 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.dao.EntityTagDao;
-import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.geography.dao.GeoSupportNeo;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
-import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
@@ -49,28 +48,22 @@ import java.util.*;
 @Repository("entityTagDao")
 public class EntityTagDaoNeo {
     @Autowired
-    Neo4jTemplate template;
+    private Neo4jTemplate template;
 
     @Autowired
-    GeoSupportNeo geoSupport;
+    private GeoSupportNeo geoSupport;
 
     @Autowired
-    TagService tagService;
+    private FortressService fortressService;
 
     @Autowired
-    ConceptDaoNeo conceptDao;
+    private EntityTagOutRepo etOut;
 
     @Autowired
-    FortressService fortressService;
+    private EntityTagInRepo etIn;
 
     @Autowired
-    EntityTagOutRepo etOut;
-
-    @Autowired
-    EntityTagInRepo etIn;
-
-    @Autowired
-    PlatformConfig engineConfig;
+    private EngineConfig engineConfig;
 
     private Logger logger = LoggerFactory.getLogger(EntityTagDaoNeo.class);
 
@@ -255,12 +248,32 @@ public class EntityTagDaoNeo {
      * The results are populated by reference
      */
     private void getEntityTagsDefault(Entity entity, Collection<EntityTag> results) {
+//        String cypher = "match (e:Entity)-[r]-(:Tag) where id(e) = {entityId} return r, type(r) as rName";
+//        Map<String,Object>params = new HashMap<>();
+//
+//        params.put("entityId", entity.getId());
+//        Result<Map<String, Object>> query = template.query(cypher, params);
+//        for (Map<String, Object> stringObjectMap : query) {
+//            Relationship r = (Relationship) stringObjectMap.get("r");
+//            String name = (String) stringObjectMap.get("rName");
+//            EntityTag result ;
+//            if ( r.getStartNode().getId()!= entity.getId()) {
+//                result = etIn.findOne(r.getId());
+//                result.setRelationship(name);
+//            } else {
+//                result = etOut.findOne(r.getId());
+//                result.setRelationship(name);
+//            }
+//            results.add(result);
+//        }
+
         results.addAll(etOut.getEntityTags(entity.getId()));
         results.addAll(etIn.getEntityTags(entity.getId()));
 
         for (EntityTag entityTag : results) {
             entityTag.setRelationship(template.getRelationship(entityTag.getId()).getType().name());
         }
+        logger.debug("Found {} relationships", results.size());
     }
 
     public Collection<Long> mergeTags(Long fromTag, Long toTag) {

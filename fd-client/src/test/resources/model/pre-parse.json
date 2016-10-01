@@ -19,7 +19,7 @@
           "relationshipName": "receives",
           "properties": [
             {
-              "value": "#data['4']",
+              "value": "['4']",
               "target": "amount"
             }
           ]
@@ -32,11 +32,11 @@
       "mustExist": true,
       "entityTagLinks": [
         {
-          "relationshipName": "#data['8']=='D' ?'direct':'indirect'",
+          "relationshipName": "['8']=='D' ?'direct':'indirect'",
           "properties": [
             {
               "target": "amount",
-              "value": "#data['4']",
+              "value": "['4']",
               "dataType": "number"
             },
             {

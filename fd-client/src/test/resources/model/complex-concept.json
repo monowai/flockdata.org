@@ -52,7 +52,7 @@
     },
     "Medals": {
       "callerRef": true,
-      "value": "#data['Athlete'] +'.'+#data['Year']"
+      "value": "['Athlete'] +'.'+['Year']"
     },
     "Gold Medals": {
       "tag": true,
@@ -64,7 +64,7 @@
           "properties": [
             {
               "target": "value",
-              "value": "#data['Gold Medals']"
+              "value": "['Gold Medals']"
             }
           ]
         }
@@ -80,7 +80,7 @@
           "properties": [
             {
               "target": "value",
-              "value": "#data['Silver Medals']"
+              "value": "['Silver Medals']"
             }
           ]
         }
@@ -96,7 +96,7 @@
           "properties": [
             {
               "target": "value",
-              "value": "#data['Bronze Medals']"
+              "value": "['Bronze Medals']"
             }
           ]
         }

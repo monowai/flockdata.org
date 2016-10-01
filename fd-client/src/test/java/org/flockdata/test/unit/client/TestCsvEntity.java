@@ -227,10 +227,10 @@ public class TestCsvEntity extends AbstractImport{
     @Test
     public void csv_NumberParsesAsString() throws Exception {
         //
-        String[] headers = new String[]{"Title", "TagValueAsNumber", "TagNumberAsString", "StringAsNumber", "created", "updated"};
-        String[] data = new String[]{"TitleTests", "123", "123", "123", "1235015570", "1235015805"};
+        String[] headers = new String[]{"Title", "TagValueAsNumber", "TagNumberAsString", "StringAsNumber", "created", "updated", "code"};
+        String[] data = new String[]{"TitleTests", "123", "123", "123", "1235015570", "1235015805","123"};
         ContentModel contentModel = getContentModel("/model/csv-entity-data-types.json");
-        assertTrue(contentModel.isEntityOnly());
+//        assertTrue(contentModel.isEntityOnly());
         EntityPayloadTransformer mapper = EntityPayloadTransformer.newInstance(contentModel);
 
         Map<String,Object> json = mapper.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)));
@@ -252,6 +252,10 @@ public class TestCsvEntity extends AbstractImport{
         colDef= contentModel.getColumnDef("created");
         assertTrue ("Created Date Not Found", colDef.isCreateDate());
         assertTrue("Didn't resolve to epoc", colDef.isDateEpoc());
+
+        assertNotNull("Code field was missing",  json.get("code"));
+        assertEquals("123", json.get("code"));
+
     }
 
     private static ContentModel getContentModel(String profile) throws IOException {

@@ -37,5 +37,7 @@ public interface EntityTagOutRepo extends GraphRepository<EntityTagOut> {
     @Query (elementClass = EntityTagOut.class, value = "match (e:Entity)-[r]->(:Tag) where id(e) = {0} return r")
     Collection<EntityTag> getEntityTags(Long entityId);
 
+//    @Query (elementClass = EntityTagOut.class, value = "match (e:Entity)-[r]-(:Tag) where id(e) = {0} return r")
+//    Collection<EntityTag> getBothEntityTags(Long entityId);
 
 }

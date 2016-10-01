@@ -79,14 +79,14 @@ public class ConceptDaoNeo {
     public boolean linkEntities(DocumentType fromDoc, DocumentType toDoc, EntityKeyBean entityKeyBean) {
         Node from = template.getNode(fromDoc.getId());
         Node to = template.getNode(toDoc.getId());
-        if (!relationshipExists(from, to, entityKeyBean.getRelationship())) {
+        if (!relationshipExists(from, to, entityKeyBean.getRelationshipName())) {
             Map<String,Object> props = new HashMap<>();
             Direction direction = Direction.BOTH; // Association
             props.put(ConceptDaoNeo.PARENT,entityKeyBean.isParent());
             if ( entityKeyBean.isParent()) {
                 direction = Direction.OUTGOING; // Point to the parent
             }
-            Relationship relationship = template.getOrCreateRelationship(from, to, DynamicRelationshipType.withName(entityKeyBean.getRelationship()), direction, props);
+            Relationship relationship = template.getOrCreateRelationship(from, to, DynamicRelationshipType.withName(entityKeyBean.getRelationshipName()), direction, props);
             return true; // Link created
         }
         return false;
@@ -113,6 +113,7 @@ public class ConceptDaoNeo {
     }
 
     private boolean relationshipExists(Node from, Node to, String relationship) {
+        assert relationship!=null;
         return template.getRelationshipBetween(from, to, relationship) != null;
     }
 

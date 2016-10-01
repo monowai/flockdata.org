@@ -26,6 +26,7 @@ import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.concept.service.DocTypeRetryService;
+import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.IndexRetryService;
@@ -63,10 +64,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Non transactional coordinator for mediation services
- * <p>
- * User: Mike Holdsworth
- * Since: 28/08/13
+ * @inheritDoc
  */
 @Service
 @Qualifier("mediationFacadeNeo4j")
@@ -109,7 +107,7 @@ public class MediationFacadeNeo implements MediationFacade {
     private static DecimalFormat f = new DecimalFormat();
 
     @Autowired
-    public MediationFacadeNeo(ConceptService conceptService, LogService logService, FortressService fortressService, TrackBatchSplitter batchSplitter, EntityTagService entityTagService, TagRetryService tagRetryService, EntityService entityService, DocTypeRetryService docTypeRetryService, StorageProxy contentReader, EntityRetryService entityRetry, PlatformConfig engineConfig, SecurityHelper securityHelper, ConceptRetryService conceptRetryService, EngineAdminService adminService, IndexRetryService indexRetryService) {
+    public MediationFacadeNeo(ConceptService conceptService, LogService logService, FortressService fortressService, TrackBatchSplitter batchSplitter, EntityTagService entityTagService, TagRetryService tagRetryService, EntityService entityService, DocTypeRetryService docTypeRetryService, StorageProxy contentReader, EntityRetryService entityRetry, EngineConfig engineConfig, SecurityHelper securityHelper, ConceptRetryService conceptRetryService, EngineAdminService adminService, IndexRetryService indexRetryService) {
         this.conceptService = conceptService;
         this.logService = logService;
         this.fortressService = fortressService;
@@ -145,7 +143,7 @@ public class MediationFacadeNeo implements MediationFacade {
         Collection<TrackRequestResult> results = new ArrayList<>();
         for (FortressSegment segment : byFortress.keySet()) {
             Collection<TrackResultBean> tr =
-                    trackEntities(segment, byFortress.get(segment), 2);
+                    trackEntities(segment, byFortress.get(segment), 1);
             for (TrackResultBean result : tr) {
                 results.add(new TrackRequestResult(result));
             }
@@ -321,10 +319,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     /**
-     * Rebuilds all search documents for the supplied fortress
-     *
-     * @param fortressCode name of the fortress to rebuild
-     * @throws org.flockdata.helper.FlockException
+     * @inheritDoc
      */
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
@@ -464,15 +459,8 @@ public class MediationFacadeNeo implements MediationFacade {
         adminService.purge(company, fortress, conceptService.findDocumentTypeWithSegments(documentType), segment);
     }
 
-
     /**
-     * Iterates through all search documents and validates that an existing
-     * Entity can be found for it by the key returned.
-     *
-     * @param company
-     * @param fortressCode
-     * @param docType
-     * @return
+     * @inheritDoc
      */
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)

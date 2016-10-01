@@ -27,7 +27,7 @@
         {
           "fortress": "testing",
           "documentName": "Entity",
-          "relationshipName": "#data['rel_type']"
+          "relationshipName": "['rel_type']"
         }
       ]
     },

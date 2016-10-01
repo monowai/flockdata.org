@@ -17,7 +17,7 @@
       "createUser": false,
       "updateUser": false,
       "reverse": false,
-      "value": "#data['bill_id']",
+      "value": "['bill_id']",
       "entityLinks": [],
       "updateDate": false,
       "merge": false,

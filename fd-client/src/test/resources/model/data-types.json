@@ -28,7 +28,7 @@
     },
     "entityTitle":{
       "title":true,
-      "value": "#data['as-string'] +'-test'"
+      "value": "['as-string'] +'-test'"
     },
     "whenCreated": {
       "createDate": true ,

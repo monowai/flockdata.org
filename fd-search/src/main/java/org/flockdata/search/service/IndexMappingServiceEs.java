@@ -71,7 +71,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     private SearchConfig searchConfig;
 
     private Logger logger = LoggerFactory.getLogger(IndexMappingServiceEs.class);
-    Collection<String>knownIndexes = new ArrayList<>();
+    private Collection<String>knownIndexes = new ArrayList<>();
 
     @Autowired
     public IndexMappingServiceEs(IndexManager indexManager, Client elasticSearchClient, SearchConfig searchConfig) {
@@ -112,8 +112,6 @@ public class IndexMappingServiceEs implements IndexMappingService {
         }
     }
 
-
-
     private synchronized void makeIndex(SearchChange change, String indexName, String documentType) {
         logger.debug("Ensuring index {}, {}", indexName, documentType);
         String key = change.getIndexName() + "/" + change.getDocumentType();
@@ -153,7 +151,6 @@ public class IndexMappingServiceEs implements IndexMappingService {
         knownIndexes.add(key);
 
     }
-
 
     private void ensureMapping(SearchChange change) {
         // Mappings are on a per Index basis. We need to ensure the mapping exists for the
@@ -322,11 +319,10 @@ public class IndexMappingServiceEs implements IndexMappingService {
                 // running from JUnit can only read this as a file input stream
                 file = new FileInputStream(fileName);
             return getMap(file);
+            //return getMap(new URL(fileName));
         } finally {
             if (file != null) {
                 file.close();
-            } else {
-                return getMap(new URL(fileName));
             }
         }
     }

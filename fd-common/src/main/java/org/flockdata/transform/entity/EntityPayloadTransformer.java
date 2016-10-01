@@ -171,10 +171,10 @@ public class EntityPayloadTransformer extends EntityInputBean implements Payload
                 for (EntityKeyBean key : colDef.getEntityLinks()) {
                     //
 
-                    Object relationship = ExpressionHelper.getValue(row, key.getRelationship());
+                    Object relationship = ExpressionHelper.getValue(row, key.getRelationshipName());
 
                     if ( relationship==null)
-                        relationship =  key.getRelationship();
+                        relationship =  key.getRelationshipName();
 
                     if (relationship !=null )
                         addEntityLink(relationship.toString(), key.setCode(value));

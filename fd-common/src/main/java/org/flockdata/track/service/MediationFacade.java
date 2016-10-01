@@ -36,9 +36,10 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * User: mike
- * Date: 6/09/14
- * Time: 2:46 PM
+ * Non transactional coordinator providing mediation functionality between services
+ * <p>
+ * User: Mike Holdsworth
+ * Since: 28/08/13
  */
 public interface MediationFacade {
 
@@ -62,6 +63,12 @@ public interface MediationFacade {
 
     TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
+    /**
+     * Rebuilds all search documents for the supplied fortress
+     *
+     * @param fortressCode name of the fortress to rebuild
+     * @throws org.flockdata.helper.FlockException Business exceptions
+     */
     String reindex(Company company, String fortressCode) throws FlockException;
 
     String reindex(Company company, Entity entity) throws FlockException;
@@ -83,7 +90,19 @@ public interface MediationFacade {
 
     Map<String,Object> getLogContent(Entity entity, Long logId);
 
-    String validateFromSearch(Company company, String fortressName, String docType) throws FlockException;
+    /**
+     * Iterates through all search documents and validates that an existing
+     * Entity can be found for it by the key returned.
+     *
+     * Experimental
+     *
+     * @param company
+     * @param fortressCode
+     * @param docType
+     * @return null - should be a message
+     */
+
+    String validateFromSearch(Company company, String fortressCode, String docType) throws FlockException;
 
     TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws InterruptedException, FlockException, ExecutionException, IOException;
 

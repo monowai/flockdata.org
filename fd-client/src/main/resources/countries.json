@@ -423,11 +423,11 @@
       "targets": [
         {
           "code": "BGN_capital",
-          "keyPrefix": "#data['ISO3166A2']",
+          "keyPrefix": "['ISO3166A2']",
           "reverse": false,
           "relationship": "capital",
           "label": "City",
-          "condition": "#data[HasCapital].trim().equals('1')",
+          "condition": "[HasCapital].trim().equals('1')",
           "properties": [
             {
               "source": "UNc_latitude",
