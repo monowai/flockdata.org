@@ -30,7 +30,8 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 /**
- * Created by mike on 30/07/16.
+ * @author mholdsworth
+ * @since 30/07/2016
  */
 public class TestDateConversion {
 

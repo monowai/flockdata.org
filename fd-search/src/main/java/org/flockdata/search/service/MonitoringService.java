@@ -25,6 +25,9 @@ import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 
+/**
+ * @tag Administration
+ */
 @Service
 @MessageEndpoint
 public class MonitoringService {

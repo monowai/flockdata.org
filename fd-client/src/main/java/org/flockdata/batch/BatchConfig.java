@@ -48,8 +48,9 @@ import java.util.Map;
  * Loads org.fd.client.configs from your fd-batch.properties file that will in-turn read a
  * YAML file for mapping between an SQL query and a ContentProfile
  * <p>
- * <p>
- * Created by mike on 24/01/16.
+ * @tag Batch, Integration, Configuration, FdClient
+ * @author mholdsworth
+ * @since 24/01/2016
  */
 @PropertySources({
         @PropertySource(value = "classpath:/fd-batch.properties"),
@@ -58,18 +59,12 @@ import java.util.Map;
 @Profile( {"fd-batch", "fd-batch-dev"})
 @Service
 public class BatchConfig {
-    private Logger logger = LoggerFactory.getLogger(BatchConfig.class);
-
-    private int batchSize;
-
-    @Value("${org.fd.client.batchsize:1}")
-    void setBatchSize(String batch) {
-        this.batchSize = Integer.parseInt(batch);
-    }
-
+    private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    private final FdIoInterface fdIoInterface;
     @Value("${org.fd.client.amqp:true}")
     Boolean amqp = true;
-
+    private Logger logger = LoggerFactory.getLogger(BatchConfig.class);
+    private int batchSize;
     @Value("${source.datasource.url}")
     private String url;
     @Value("${source.datasource.username}")
@@ -78,7 +73,6 @@ public class BatchConfig {
     private String password;
     @Value("${source.datasource.driver}")
     private String driver;
-
     @Value("${batch.datasource.url:jdbc:hsqldb:mem:sb}")
     private String batchUrl;
     @Value("${batch.datasource.username:'sa'}")
@@ -87,12 +81,21 @@ public class BatchConfig {
     private String batchPassword;
     @Value("${batch.datasource.driver:org.hsqldb.jdbc.JDBCDriver}")
     private String batchDriver;
-
-    private final FdIoInterface fdIoInterface;
+    private Map<String, StepConfig> config = new HashMap<>();
 
     @Autowired
     public BatchConfig(FdIoInterface fdIoInterface) {
         this.fdIoInterface = fdIoInterface;
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
+
+    @Value("${org.fd.client.batchsize:1}")
+    void setBatchSize(String batch) {
+        this.batchSize = Integer.parseInt(batch);
     }
 
     public String getUrl() {
@@ -138,8 +141,6 @@ public class BatchConfig {
     public String getBatchDriver() {
         return batchDriver;
     }
-
-    private Map<String, StepConfig> config = new HashMap<>();
 
     @Autowired
     void loadConfigs(@Value("${org.fd.client.configs:}") final String str) throws Exception {
@@ -220,9 +221,6 @@ public class BatchConfig {
         return contentModel;
     }
 
-
-    private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-
     private StepConfig loadStepConfig(InputStream file) throws IOException {
         return mapper.readValue(file, StepConfig.class);
     }
@@ -230,10 +228,6 @@ public class BatchConfig {
     private StepConfig loadStepConfig(URL url) throws IOException {
         return mapper.readValue(url, StepConfig.class);
 
-    }
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
-        return new PropertySourcesPlaceholderConfigurer();
     }
 
 }

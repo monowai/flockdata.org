@@ -53,8 +53,8 @@ import javax.annotation.PostConstruct;
  * @see org.flockdata.registration.SystemUserResultBean
  * @see ClientConfiguration
  * <p>
- * User: Mike Holdsworth
- * Since: 13/10/13
+ * @author mholdsworth
+ * @since 13/10/2013
  */
 @Profile("fd-health")
 @Configuration
@@ -62,17 +62,13 @@ import javax.annotation.PostConstruct;
 @ComponentScan(basePackages = {"org.flockdata.authentication", "org.flockdata.shared", "org.flockdata.client"})
 public class HealthRunner {
 
+    @Value("${auth.@author #{null}}")
+    String authUser;
     private Logger logger = LoggerFactory.getLogger(HealthRunner.class);
-
-
     @Autowired
     private ClientConfiguration clientConfiguration;
-
     @Autowired
     private FdTemplate fdTemplate;
-
-    @Value("${auth.user:#{null}}")
-    String authUser;
 
     @PostConstruct
     void health() {

@@ -40,9 +40,8 @@ import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
 /**
- * User: mike
- * Date: 8/10/14
- * Time: 8:47 AM
+ * @author mholdsworth
+ * @since 8/10/2014
  */
 @Service
 public class FdServerWriter implements FdIoInterface {

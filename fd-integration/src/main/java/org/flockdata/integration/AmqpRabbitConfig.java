@@ -39,7 +39,9 @@ import javax.annotation.PostConstruct;
 /**
  * Rabbit MQ / AMQP Configuration and channel initialization
  * <p>
- * Created by mike on 3/07/15.
+ * @tag Configuration, Rabbit, Integration
+ * @author mholdsworth
+ * @since 3/07/2015
  */
 
 @Configuration
@@ -47,44 +49,31 @@ import javax.annotation.PostConstruct;
 @Profile({"fd-server"})
 public class AmqpRabbitConfig {
 
-    private Logger logger = LoggerFactory.getLogger("configuration");
-
-
-    @Value("${spring.rabbitmq.host:localhost}")
-    private String rabbitHost;
-
-    @Value("${spring.rabbitmq.virtual-host:/}")
-    private String virtualHost;
-
-    @Value("${spring.rabbitmq.port:5672}")
-    private Integer rabbitPort;
-
-    @Value("${persistentDelivery:true}")
-    private boolean persistentDelivery;
-
-    @Value("${spring.rabbitmq.username:guest}")
-    private String rabbitUser;
-
-    @Value("${spring.rabbitmq.password:guest}")
-    private String rabbitPass;
-
-    @Value("${spring.rabbitmq.publisher.confirms:false}")
-    private Boolean publisherConfirms;
-
-    @Value("${spring.rabbitmq.publisher.returns:false}")
-    private Boolean publisherReturns;
-
-    @Value("${spring.rabbitmq.publisherCacheSize:20}")
-    private Integer publisherCacheSize;
-
-    @Value("${amqp.lazyConnect:false}")
-    private Boolean amqpLazyConnect;
-
-    @Value("${amqp.channelCacheSize:25}")
-    private int channelCacheSize;
-
     @Autowired
     Exchanges exchanges;
+    private Logger logger = LoggerFactory.getLogger("configuration");
+    @Value("${spring.rabbitmq.host:localhost}")
+    private String rabbitHost;
+    @Value("${spring.rabbitmq.virtual-host:/}")
+    private String virtualHost;
+    @Value("${spring.rabbitmq.port:5672}")
+    private Integer rabbitPort;
+    @Value("${persistentDelivery:true}")
+    private boolean persistentDelivery;
+    @Value("${spring.rabbitmq.username:guest}")
+    private String rabbitUser;
+    @Value("${spring.rabbitmq.password:guest}")
+    private String rabbitPass;
+    @Value("${spring.rabbitmq.publisher.confirms:false}")
+    private Boolean publisherConfirms;
+    @Value("${spring.rabbitmq.publisher.returns:false}")
+    private Boolean publisherReturns;
+    @Value("${spring.rabbitmq.publisherCacheSize:20}")
+    private Integer publisherCacheSize;
+    @Value("${amqp.lazyConnect:false}")
+    private Boolean amqpLazyConnect;
+    @Value("${amqp.channelCacheSize:25}")
+    private int channelCacheSize;
 
     public Boolean getAmqpLazyConnect() {
         return amqpLazyConnect;

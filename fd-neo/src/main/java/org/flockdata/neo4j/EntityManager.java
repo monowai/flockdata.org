@@ -46,7 +46,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by mike on 4/07/15.
+ * @author mholdsworth
+ * @since 4/07/2015
  */
 @Path("/entity")
 public class EntityManager {

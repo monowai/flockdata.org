@@ -37,7 +37,8 @@ import java.util.Map;
 /**
  * Result after creating a tag
  *
- * Created by mike on 11/05/15.
+ * @author mholdsworth
+ * @since 11/05/2015
  */
 public class TagResultBean {
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -56,6 +57,7 @@ public class TagResultBean {
     ArrayList<AliasResultBean> aliases = new ArrayList<>();
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     Map<String,Object> properties = new HashMap<>();
+    Map<TagResultBean, Collection<String>> targets = new HashMap<>();
     @JsonIgnore
     private Tag tag =null;
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -70,6 +72,7 @@ public class TagResultBean {
         this.newTag = isNew;
     }
 
+
     public TagResultBean(TagInputBean tagInputBean, Tag tag){
 
         this(tag);
@@ -83,7 +86,6 @@ public class TagResultBean {
         }
 
     }
-
 
     public TagResultBean (Tag tag ) {
         this();
@@ -171,12 +173,12 @@ public class TagResultBean {
                 '}';
     }
 
-    public void setRelationship(String relationship) {
-        this.relationship = relationship;
-    }
-
     public String getRelationship() {
         return relationship;
+    }
+
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
     }
 
     @Override
@@ -201,8 +203,6 @@ public class TagResultBean {
         result = 31 * result + (label != null ? label.hashCode() : 0);
         return result;
     }
-
-    Map<TagResultBean, Collection<String>>targets = new HashMap<>();
 
     public void addTargetResult(String rlxName, TagResultBean targetTag) {
         Collection<String>relationships = targets.get(targetTag);

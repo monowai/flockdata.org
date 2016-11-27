@@ -34,7 +34,8 @@ import static junit.framework.TestCase.assertTrue;
 /**
  * Simple ancestor for encapsulating profile and writer functionality
  *
- * Created by mike on 12/02/15.
+ * @author mholdsworth
+ * @since 12/02/2015
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles({"dev", "fd-batch-dev"})

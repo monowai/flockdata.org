@@ -47,17 +47,19 @@ import java.sql.Driver;
 import java.sql.SQLException;
 
 /**
- * Created by mike on 28/01/16.
+ * @author mholdsworth
+ * @since 28/01/2016
  */
 @EnableBatchProcessing
 @Configuration
 @Profile("!dev")
 public class FdJobFactory {
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
     @Autowired
     BatchConfig batchConfig;
-
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
+    @Value("classpath:org/springframework/batch/core/schema-hsqldb.sql")
+    private Resource schemaScript;
 
     @Bean
     public JobRepository jobRepository() throws Exception {
@@ -100,6 +102,9 @@ public class FdJobFactory {
         return jl;
     }
 
+//    @Value("classpath:org/springframework/batch/core/schema-drop-hsqldb.sql")
+//    private Resource dropScript;
+
     @Bean
     @Qualifier("repoDataSource")
     public DataSource repoDataSource() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -115,12 +120,6 @@ public class FdJobFactory {
         DatabasePopulatorUtils.execute(databasePopulator(), dataSource);
         return dataSource;
     }
-
-//    @Value("classpath:org/springframework/batch/core/schema-drop-hsqldb.sql")
-//    private Resource dropScript;
-
-    @Value("classpath:org/springframework/batch/core/schema-hsqldb.sql")
-    private Resource schemaScript;
 
     @Bean
     public DataSourceInitializer dataSourceInitializer(final DataSource dataSource) {

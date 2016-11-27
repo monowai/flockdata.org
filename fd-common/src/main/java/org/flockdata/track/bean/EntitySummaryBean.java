@@ -28,8 +28,8 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * User: Mike Holdsworth
- * Since: 25/08/13
+ * @author mholdsworth
+ * @since 25/08/2013
  */
 public class EntitySummaryBean {
     private Entity entity;
@@ -65,11 +65,11 @@ public class EntitySummaryBean {
         return type;
     }
 
-    public void setIndex(String index) {
-        this.index = index;
-    }
-
     public String getIndex() {
         return index;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
     }
 }

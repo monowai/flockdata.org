@@ -29,9 +29,8 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 17/11/14
- * Time: 8:47 AM
+ * @author mholdsworth
+ * @since 17/11/2014
  */
 public class EntityBean implements Serializable {
 

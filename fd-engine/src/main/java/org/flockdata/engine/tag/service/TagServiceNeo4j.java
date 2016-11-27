@@ -48,22 +48,19 @@ import java.util.Map;
  * Handles management of a companies tags.
  * All tags belong to the company across their fortresses
  * <p>
- * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 12:53 PM
+ * @author mholdsworth
+ * @since 29/06/2013
  */
 
 @Service
 @Transactional
 public class TagServiceNeo4j implements TagService {
+    final
+    PlatformConfig engineAdmin;
     private final SecurityHelper securityHelper;
-
     private final TagDaoNeo4j tagDaoNeo4j;
-
     private final ConceptDaoNeo conceptDao;
-
     private final Neo4jTemplate template;
-
     private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
 
     @Autowired
@@ -164,9 +161,6 @@ public class TagServiceNeo4j implements TagService {
         }
         return tag;
     }
-
-    final
-    PlatformConfig engineAdmin;
 
     @Override
     public void createAlias(Company company, Tag tag, String forLabel, String aliasKeyValue) {

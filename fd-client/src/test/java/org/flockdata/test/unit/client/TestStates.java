@@ -30,7 +30,8 @@ import static org.junit.Assert.assertNotNull;
 /**
  * General validation of states. Uses the resources from main/resources
  *
- * Created by mike on 9/03/15.
+ * @author mholdsworth
+ * @since 9/03/2015
  */
 public class TestStates extends AbstractImport {
     @Test

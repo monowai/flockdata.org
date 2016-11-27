@@ -48,18 +48,19 @@ import static org.flockdata.helper.FdJsonObjectMapper.getObjectMapper;
  *
  * Inbound handler to write data to a store
  *
- * Created by mike on 17/02/16.
+ * @author mholdsworth
+ * @since 17/02/2016
+ * @tag Integration, Store
  */
 @Configuration
 @IntegrationComponentScan
 @Profile({"fd-server"})
 public class StoreWriter {
 
+    @Autowired (required = false)
+    private Exchanges exchanges;
     @Autowired
     private StoreService fdStoreManager;
-
-    @Autowired (required = false)
-    Exchanges exchanges;
 
     @Bean
     MessageChannel startStoreWrite(){

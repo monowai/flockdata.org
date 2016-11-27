@@ -36,7 +36,8 @@ import java.util.HashMap;
              pass: 123
              roles: FD_USER;FD_ADMIN
  *
- * Created by mike on 11/05/16.
+ * @author mholdsworth
+ * @since 11/05/2016
  */
 @ConfigurationProperties (prefix = "org.fd.auth.simple")
 @Configuration

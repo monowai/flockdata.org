@@ -25,7 +25,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 /**
- * Created by mike on 26/06/15.
+ * @author mholdsworth
+ * @since 26/06/2015
  */
 @Path("/")
 public class PingManager {

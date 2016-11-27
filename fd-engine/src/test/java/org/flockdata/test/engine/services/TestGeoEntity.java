@@ -40,7 +40,8 @@ import static org.junit.Assert.*;
 
 /**
  * Geo Tag tests
- * Created by mike on 6/11/15.
+ * @author mholdsworth
+ * @since 6/11/2015
  */
 public class TestGeoEntity extends EngineBase {
 

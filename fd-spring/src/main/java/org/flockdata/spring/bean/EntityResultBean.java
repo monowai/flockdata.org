@@ -19,10 +19,8 @@ package org.flockdata.spring.bean;
 import org.flockdata.track.bean.ContentInputBean;
 
 /**
- * Created with IntelliJ IDEA.
- * User: nabil
- * Date: 05/09/13
- * Time: 23:18
+ * @author  nabil
+ * @since 05/09/2013
  * To change this template use File | Settings | File Templates.
  */
 class EntityResultBean {

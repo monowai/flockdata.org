@@ -35,17 +35,21 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 3/10/14
- * Time: 4:31 PM
+ * @tag Neo4j, Repository, Alias
+ * @author mholdsworth
+ * @since 3/10/2014
  */
 @Repository
 public class AliasDaoNeo {
-    @Autowired
-    AliasRepo aliasRepo;
+    private final AliasRepo aliasRepo;
+
+    private final Neo4jTemplate template;
 
     @Autowired
-    Neo4jTemplate template;
+    public AliasDaoNeo(AliasRepo aliasRepo, Neo4jTemplate template) {
+        this.aliasRepo = aliasRepo;
+        this.template = template;
+    }
 
 
     public Collection<Alias> findTagAliases ( Tag tag ){

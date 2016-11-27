@@ -20,12 +20,6 @@
 
 package org.flockdata.engine.integration.search;
 
-/**
- * For SDN4 Un-managed Extensions
- * <p/>
- * Created by mike on 21/07/15.
- */
-
 import org.flockdata.engine.PlatformConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,7 +39,9 @@ import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.handler.annotation.Payload;
 
 /**
- * Created by mike on 3/07/15.
+ * @author mholdsworth
+ * @since 3/07/2015
+ * @tag Messaging, Administration, Search, Gateway
  */
 
 @Configuration
@@ -55,7 +51,7 @@ public class SearchPingRequest {
 
     @Autowired
     @Qualifier("engineConfig")
-    PlatformConfig engineConfig;
+    private PlatformConfig engineConfig;
 
     @Bean
     MessageChannel searchPing(){

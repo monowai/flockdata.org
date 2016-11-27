@@ -79,7 +79,7 @@ Configuration:
         # Enable debug level logging to examine Cypher queries
         - name: org.springframework.data.neo4j
           additivity: false
-          level: debug
+          level: error
           AppenderRef:
             - ref: CONSOLE
             - ref: FILE

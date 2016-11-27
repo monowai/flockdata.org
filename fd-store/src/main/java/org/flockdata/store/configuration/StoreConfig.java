@@ -36,29 +36,26 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * User: Mike Holdsworth
- * Since: 29/08/13
+ * @author mholdsworth
+ * @since 29/08/2013
  */
 @Configuration
 class StoreConfig implements FdStoreConfig {
 
 
-    private Logger logger = LoggerFactory.getLogger(StoreConfig.class);
-
-    private Store kvStore = null;
-
-//    @Value("${org.fd.store.system.enabled}")
-//    private Boolean storeEnabled = true;
-
     @Value("${org.fd.search.api:http://localhost:8081}")
     String fdSearchUrl;
+    @Autowired(required = false)
+    VersionHelper versionHelper;
 
+    //    @Value("${org.fd.store.system.enabled}")
+//    private Boolean storeEnabled = true;
+    private Logger logger = LoggerFactory.getLogger(StoreConfig.class);
+    private Store kvStore = null;
     @Value("${riak.hosts:127.0.0.1}")
     private String riakHosts;
-
     @Value ("${redis.port:6379}")
     private int redisPort;
-
     @Value ("${redis.host:localhost}")
     private String redisHost;
 
@@ -75,9 +72,6 @@ class StoreConfig implements FdStoreConfig {
     public InfoEndpoint infoEndpoint() {
         return new InfoEndpoint(health());
     }
-
-    @Autowired (required = false)
-    VersionHelper versionHelper;
 
     /**
      * Only users with a pre-validated api-key should be calling this

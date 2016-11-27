@@ -28,9 +28,10 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
- * User: mike
- * Date: 3/10/14
- * Time: 4:56 PM
+ * ContentModel persistence.
+ * @author mholdsworth
+ * @since 3/10/2014
+ * @tag Node, ContentModel
  */
 @NodeEntity()
 @TypeAlias("Model")
@@ -100,16 +101,16 @@ public class Model {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Fortress getFortress() {
         return fortress;
     }
 
     public DocumentType getDocument() {
         return document;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getCode() {

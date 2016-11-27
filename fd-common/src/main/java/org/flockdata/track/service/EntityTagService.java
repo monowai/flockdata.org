@@ -29,9 +29,9 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * User: mike
- * Date: 6/09/14
- * Time: 5:13 PM
+ * @author mholdsworth
+ * @since 6/09/2014
+ * @tag Entity, Tag, Service
  */
 public interface EntityTagService {
     void processTag(Entity entity, EntityTagInputBean tagInput);

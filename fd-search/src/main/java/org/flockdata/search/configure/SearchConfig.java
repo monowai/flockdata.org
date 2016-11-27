@@ -43,7 +43,9 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * Created by mike on 16/02/16.
+ * @author mholdsworth
+ * @since 16/02/2016
+ * @tag Search, Configuration
  */
 @Configuration
 public class SearchConfig {
@@ -63,13 +65,10 @@ public class SearchConfig {
     Boolean transportOnly;
     @Value("${org.fd.search.es.local:true}")
     Boolean localOnly;
-
-    @Value("${org.fd.search.es.mappings:'.'}")
-    private String esMappingPath;
-
     @Value("${org.fd.search.es.settings:fd-default-settings.json}")
     String esSettings;
-
+    @Value("${org.fd.search.es.mappings:'.'}")
+    private String esMappingPath;
     private InetSocketTransportAddress[] addresses;
     private String urls;
 
@@ -144,6 +143,19 @@ public class SearchConfig {
         return client;
     }
 
+    public String getTransportAddresses() {
+        if (!transportOnly)
+            return null;
+        String result = null;
+        for (InetSocketTransportAddress address : addresses) {
+            if (result != null)
+                result = result + "," + address.toString();
+            else
+                result = address.toString();
+        }
+        return result;
+    }
+
     /**
      * Transport hosts
      * <p>
@@ -167,20 +179,6 @@ public class SearchConfig {
             addresses[i++] = new InetSocketTransportAddress(InetAddress.getByName(serverPort[0]), Integer.parseInt(serverPort[1]));
         }
     }
-
-    public String getTransportAddresses() {
-        if (!transportOnly)
-            return null;
-        String result = null;
-        for (InetSocketTransportAddress address : addresses) {
-            if (result != null)
-                result = result + "," + address.toString();
-            else
-                result = address.toString();
-        }
-        return result;
-    }
-
 
     Node esNode() {
         return org.elasticsearch.node.NodeBuilder

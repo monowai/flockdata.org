@@ -22,10 +22,8 @@ package org.flockdata.helper;
 
 /**
  * Created with IntelliJ IDEA.
- * User: mike
- * Date: 7/03/14
- * Time: 6:51 AM
- * To change this template use File | Settings | File Templates.
+ * @author mholdsworth
+ * @since 7/03/2014
  */
 public class FlockDataTagException extends RuntimeException {
     public FlockDataTagException(String message) {

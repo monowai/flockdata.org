@@ -26,8 +26,8 @@ import org.flockdata.model.TxRef;
 import java.io.Serializable;
 
 /**
- * User: Mike Holdsworth
- * Since: 28/08/13
+ * @author mholdsworth
+ * @since 28/08/2013
  */
 public class LogResultBean implements Serializable {
     public static final String OK = "OK";
@@ -53,14 +53,14 @@ public class LogResultBean implements Serializable {
         return status;
     }
 
-    public void setTxReference(TxRef txReference) {
-        if (txReference != null)
-            this.txReference = txReference.getName();
-    }
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getTxReference() {
         return txReference;
+    }
+
+    public void setTxReference(TxRef txReference) {
+        if (txReference != null)
+            this.txReference = txReference.getName();
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -99,12 +99,12 @@ public class LogResultBean implements Serializable {
         this.documentType = documentType;
     }
 
-    public void setSysWhen(Long sysWhen) {
-        this.sysWhen = sysWhen;
-    }
-
     public Long getSysWhen() {
         return sysWhen;
+    }
+
+    public void setSysWhen(Long sysWhen) {
+        this.sysWhen = sysWhen;
     }
 
 

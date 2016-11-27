@@ -33,9 +33,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 4/05/13
- * Time: 8:23 PM
+ * @author mholdsworth
+ * @since 4/05/2013
+ * @tag Endpoint, Registration, SystemUser
  */
 @RestController
 // Customise a dispatcher in web.xml

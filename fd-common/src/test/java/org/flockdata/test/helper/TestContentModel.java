@@ -30,7 +30,8 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
- * Created by mike on 12/07/16.
+ * @author mholdsworth
+ * @since 12/07/2016
  */
 public class TestContentModel {
 

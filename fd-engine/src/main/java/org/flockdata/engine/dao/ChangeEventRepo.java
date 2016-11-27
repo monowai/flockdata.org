@@ -27,9 +27,9 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import java.util.Set;
 
 /**
- * User: Mike Holdsworth
- * Date: 28/06/13
- * Time: 10:56 PM
+ * @author mholdsworth
+ * @since 28/06/2013
+ * @tag GraphRepository, Query, Neo4j, Event
  */
 public interface ChangeEventRepo extends GraphRepository<ChangeEvent> {
 

@@ -29,7 +29,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 /**
- * Created by mike on 23/06/15.
+ * @author mholdsworth
+ * @since 23/06/2015
  */
 @Path("/schema")
 public class SchemaManager {

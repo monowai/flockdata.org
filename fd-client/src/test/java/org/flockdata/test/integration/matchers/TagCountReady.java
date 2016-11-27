@@ -19,7 +19,8 @@ package org.flockdata.test.integration.matchers;
 import org.flockdata.client.commands.TagsGet;
 
 /**
- * Created by mike on 23/04/16.
+ * @author mholdsworth
+ * @since 23/04/2016
  */
 public class TagCountReady implements ReadyMatcher {
 

@@ -21,7 +21,6 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.dao.TrackEventDao;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.model.ChangeEvent;
 import org.flockdata.model.Company;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,19 +31,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 /**
- * User: Mike Holdsworth
- * Date: 27/06/13
- * Time: 5:07 PM
+ * @author mholdsworth
+ * @since 27/06/2013
  */
 @Transactional
 @Service
 public class TrackEventService {
 
-    @Autowired
-    SecurityHelper securityHelper;
+    private final TrackEventDao trackEventDao;
 
     @Autowired
-    TrackEventDao trackEventDao;
+    public TrackEventService(TrackEventDao trackEventDao) {
+        this.trackEventDao = trackEventDao;
+    }
 
     /**
      * associates the change with the event name for the company. Creates if it does not exist

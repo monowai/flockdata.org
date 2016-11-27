@@ -40,7 +40,8 @@ import static junit.framework.TestCase.*;
  * Data for a given fortress+docType can be segmented for easier management
  * This class tests fundamental assertions about the functionality
  *
- * Created by mike on 13/10/15.
+ * @author mholdsworth
+ * @since 13/10/2015
  */
 public class TestFortressSegments extends EngineBase{
 

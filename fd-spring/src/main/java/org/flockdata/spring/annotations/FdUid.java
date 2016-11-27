@@ -22,11 +22,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created with IntelliJ IDEA.
- * User: nabil
- * Date: 11/08/13
- * Time: 14:17
- * To change this template use File | Settings | File Templates.
+ * @author  nabil
+ * @since 11/08/2013
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

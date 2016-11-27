@@ -36,25 +36,24 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * User: mike
- * Date: 7/10/14
- * Time: 2:33 PM
+ * @author mholdsworth
+ * @since 7/10/2014
+ * @tag FdClient, Batch, Track, Entity, Tag
  */
 @Component
 @Configuration
 @Profile({"fd-batch", "fd-importer"})
 public class FdBatchWriter implements PayloadBatcher {
-    private List<EntityInputBean> entityBatch = new ArrayList<>();
-    private Map<String, TagInputBean> tagBatch = new HashMap<>();
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdBatchWriter.class);
     private final Lock entityLock = new ReentrantLock();
     private final Lock tagLock = new ReentrantLock();
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdBatchWriter.class);
-
+    private List<EntityInputBean> entityBatch = new ArrayList<>();
+    private Map<String, TagInputBean> tagBatch = new HashMap<>();
     @Autowired
     private ClientConfiguration clientConfiguration;
 
     @Autowired(required = false)
-    FdIoInterface fdIoInterface;   // Misc impls provided in fd-client, fd-engine etc.
+    private FdIoInterface fdIoInterface;   // Misc impls provided in fd-client, fd-engine etc.
 
     protected FdBatchWriter () {}
 

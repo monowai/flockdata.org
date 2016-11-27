@@ -43,22 +43,18 @@ import org.springframework.web.client.ResourceAccessException;
  * Query parameter support functionality
  * Centralises methods that will support options to use on MatrixService etc.
  * <p/>
- * User: mike
- * Date: 14/06/14
- * Time: 9:43 AM
+ * @author mholdsworth
+ * @since 14/06/2014
+ * @tag Query
  */
 @Service
 @PreAuthorize(FdRoles.EXP_EITHER)
 public class QueryService {
 
-    private Logger logger = LoggerFactory.getLogger(QueryService.class);
-
     private final FortressService fortressService;
-
-    private TagCloudGateway tagCloudGateway;
-
     private final IndexManager indexManager;
-
+    private Logger logger = LoggerFactory.getLogger(QueryService.class);
+    private TagCloudGateway tagCloudGateway;
     private EntityKeyGateway entityKeyGateway;
 
     private ContentStoreEs esStore;

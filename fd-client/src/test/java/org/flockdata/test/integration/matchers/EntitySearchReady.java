@@ -20,7 +20,8 @@ import org.flockdata.client.commands.EntityGet;
 
 /**
  * Waits for a Search count of the requested value
- * Created by mike on 23/04/16.
+ * @author mholdsworth
+ * @since 23/04/2016
  */
 public class EntitySearchReady implements ReadyMatcher {
 

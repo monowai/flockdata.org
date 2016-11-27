@@ -45,7 +45,9 @@ import org.springframework.messaging.MessageHandler;
 import java.io.IOException;
 
 /**
- * Created by mike on 13/02/16.
+ * @author mholdsworth
+ * @since 13/02/2016
+ *  @tag Messaging, Query, Search, Gateway, Integration, TagCloud
  */
 @Configuration
 @Profile({"fd-server"})
@@ -53,10 +55,10 @@ public class TagCloudRequest {
 
     @Autowired
     @Qualifier("engineConfig")
-    PlatformConfig engineConfig;
+    private PlatformConfig engineConfig;
 
     @Autowired
-    MessageSupport messageSupport;
+    private MessageSupport messageSupport;
 
     @Bean
     MessageChannel tagCloudResult() {

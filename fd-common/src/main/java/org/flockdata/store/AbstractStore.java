@@ -32,7 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by mike on 7/03/15.
+ * @author mholdsworth
+ * @since 7/03/2015
  */
 public abstract class AbstractStore implements FdStoreRepo {
 

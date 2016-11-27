@@ -28,7 +28,8 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertNotNull;
 
 /**
- * Created by mike on 23/10/15.
+ * @author mholdsworth
+ * @since 23/10/2015
  */
 public class TestEntityKeyBean {
 

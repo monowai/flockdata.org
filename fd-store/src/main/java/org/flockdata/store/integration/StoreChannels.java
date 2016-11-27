@@ -27,8 +27,10 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.MessageChannel;
 
 /**
- * Channel defintions
- * Created by mike on 13/02/16.
+ * Channel definitions
+ * @author mholdsworth
+ * @since 13/02/2016
+ * @tag Store, Integration
  */
 
 

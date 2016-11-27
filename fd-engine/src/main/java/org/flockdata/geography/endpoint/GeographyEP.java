@@ -36,19 +36,22 @@ import java.util.Collection;
 /**
  * Geography related functions
  *
- * User: mike
- * Date: 27/04/14
- * Time: 11:41 AM
- * To change this template use File | Settings | File Templates.
+ * @author mholdsworth
+ * @since 27/04/2014
+ * @tag EndPoint, Geo, Country
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/geo")
 public class GeographyEP {
 
+    private final GeographyService geoService;
+    private final RegistrationService regService;
+
     @Autowired
-    GeographyService geoService;
-    @Autowired
-    RegistrationService regService;
+    public GeographyEP(GeographyService geoService, RegistrationService regService) {
+        this.geoService = geoService;
+        this.regService = regService;
+    }
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
     public Collection<TagResultBean> findCountries(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {

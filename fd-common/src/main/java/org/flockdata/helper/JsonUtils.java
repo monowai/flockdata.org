@@ -32,9 +32,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 28/08/14
- * Time: 3:38 PM
+ * @author mholdsworth
+ * @since 28/08/2014
+ * @tag Json, Helper
  */
 public class JsonUtils {
     private static final ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();

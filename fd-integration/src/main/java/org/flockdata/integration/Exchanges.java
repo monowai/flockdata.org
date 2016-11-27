@@ -38,20 +38,18 @@ import java.util.Map;
 /**
  * Centralised queues etc.
  *
- * Created by mike on 12/02/16.
+ * @author mholdsworth
+ * @since 12/02/2016
  */
 @Configuration
 @Profile({"fd-server"})
 public class Exchanges {
 
-    private Logger logger = LoggerFactory.getLogger("configuration");
-
     @Value("${org.fd.messaging.exchange:fd}")
     public String fdExchangeName;
-
     @Value("${org.fd.messaging.exchange:fd-dlx}")
     public String fdExchangeDlxName;
-
+    private Logger logger = LoggerFactory.getLogger("configuration");
     @Value("${org.fd.search.messaging.dlx.queue:fd.search.dlx.queue}")
     private String searchDlx;
 

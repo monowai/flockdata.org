@@ -24,23 +24,22 @@ import org.flockdata.model.EntityLog;
 import org.flockdata.store.StoredContent;
 
 /**
- * User: Mike Holdsworth
- * Since: 4/09/13
+ * @author mholdsworth
+ * @since 4/09/2013
  */
 public class LogDetailBean {
 
+    private EntityLog log;
+    private StoredContent what;
+
     private LogDetailBean() {
     }
-
     public LogDetailBean(EntityLog log, StoredContent what) {
         this();
         this.log = log;
         this.what = what;
 
     }
-
-    private EntityLog log;
-    private StoredContent what;
 
     public EntityLog getLog() {
         return this.log;

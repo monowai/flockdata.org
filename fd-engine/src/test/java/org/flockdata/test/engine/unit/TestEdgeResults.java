@@ -35,7 +35,8 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Matrix result objects are used to render graphs.
- * Created by mike on 29/04/15.
+ * @author mholdsworth
+ * @since 29/04/2015
  */
 public class TestEdgeResults {
     @Test

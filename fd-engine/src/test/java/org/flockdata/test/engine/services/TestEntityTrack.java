@@ -53,12 +53,14 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 15/04/13
- * Time: 6:43 AM
+ * @author mholdsworth
+ * @since 15/04/2013
+ * @tag Test, Entity, Track
  */
 public class TestEntityTrack extends EngineBase {
 
+    @Autowired
+    TrackBatchSplitter batchSplitter;
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
     /**
@@ -1228,9 +1230,6 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull(result.getEntity().getKey());
         assertNotNull(entityService.findByCode(su.getCompany(), fortress.getName(), aib.getDocumentType(), aib.getCode()));
     }
-
-    @Autowired
-    TrackBatchSplitter batchSplitter;
 
     @Test
     public void split_BatchByFortressNoSegment() throws Exception {

@@ -67,17 +67,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * User: mike
- * Date: 15/08/14
- * Time: 12:55 PM
+ * @author mholdsworth
+ * @since 15/08/2014
  */
 @Component
 @ActiveProfiles({"dev"})
 public class ESBase {
-    private static Logger logger = LoggerFactory.getLogger(TestMappings.class);
-
     static JestClient esClient;
-
+    private static Logger logger = LoggerFactory.getLogger(TestMappings.class);
     @Autowired
     EntityChangeWriter entityWriter;
 
@@ -104,15 +101,6 @@ public class ESBase {
     @Autowired
     QueryServiceEs queryServiceEs;
 
-    void deleteEsIndex(Entity entity) throws Exception{
-        deleteEsIndex(indexManager.parseIndex(entity));
-    }
-
-    void deleteEsIndex(String indexName) throws Exception {
-        logger.info("%% Delete Index {}", indexName);
-        esClient.execute(new DeleteIndex.Builder(indexName).build());
-    }
-
     @BeforeClass
     @Rollback(false)
     public static void cleanupElasticSearch() throws Exception {
@@ -135,6 +123,28 @@ public class ESBase {
         //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
 
+    }
+
+    static int getNbrResult(JestResult jResult) {
+        int nbrResult;
+        if (jResult.getErrorMessage() == null) {
+            assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
+            assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
+            assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
+            nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        } else {
+            nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
+        }
+        return nbrResult;
+    }
+
+    void deleteEsIndex(Entity entity) throws Exception {
+        deleteEsIndex(indexManager.parseIndex(entity));
+    }
+
+    void deleteEsIndex(String indexName) throws Exception {
+        logger.info("%% Delete Index {}", indexName);
+        esClient.execute(new DeleteIndex.Builder(indexName).build());
     }
 
     /**
@@ -327,19 +337,6 @@ public class ESBase {
 
         return jResult.getJsonString();
 
-    }
-
-    static int getNbrResult(JestResult jResult) {
-        int nbrResult;
-        if (jResult.getErrorMessage() == null) {
-            assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
-            assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
-            assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
-            nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        } else {
-            nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
-        }
-        return nbrResult;
     }
 
     String doFacetQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {

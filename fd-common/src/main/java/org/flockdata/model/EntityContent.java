@@ -23,8 +23,8 @@ package org.flockdata.model;
 import java.util.Map;
 
 /**
- * User: Mike Holdsworth
- * Since: 4/09/13
+ * @author mholdsworth
+ * @since 4/09/2013
  */
 public interface EntityContent {
 

@@ -47,9 +47,8 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * Non transactional tests - these are slower due to cleaning the DB down for each test run
- * User: mike
- * Date: 19/06/14
- * Time: 8:47 AM
+ * @author mholdsworth
+ * @since 19/06/2014
  */
 public class TestConcepts extends EngineBase {
     private Logger logger = LoggerFactory.getLogger(TestConcepts.class);

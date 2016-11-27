@@ -32,10 +32,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Exception handler for Search service
- * User: mike
- * Date: 12/04/14
- * Time: 3:38 PM
- * To change this template use File | Settings | File Templates.
+ * @author mholdsworth
+ * @since 12/04/2014
  */
 public class GlobalExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);

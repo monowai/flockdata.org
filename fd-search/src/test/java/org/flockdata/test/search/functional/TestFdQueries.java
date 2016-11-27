@@ -38,7 +38,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Created by mike on 27/04/15.
+ * @author mholdsworth
+ * @since 27/04/2015
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(FdSearch.class)

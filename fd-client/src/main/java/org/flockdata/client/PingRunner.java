@@ -51,8 +51,8 @@ import javax.annotation.PostConstruct;
  * @see org.flockdata.registration.SystemUserResultBean
  * @see ClientConfiguration
  * <p>
- * User: Mike Holdsworth
- * Since: 13/10/13
+ * @author mholdsworth
+ * @since 13/10/2013
  */
 @Profile("fd-ping")
 @Configuration

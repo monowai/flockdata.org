@@ -31,7 +31,8 @@ import java.util.Map;
 
 /**
  * Returns a view on to a tracked Entity log and it's content
- * Created by mike on 21/04/16.
+ * @author mholdsworth
+ * @since 21/04/2016
  */
 public class EntityLogResult {
 

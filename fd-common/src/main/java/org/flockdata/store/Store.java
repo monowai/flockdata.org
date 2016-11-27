@@ -31,7 +31,8 @@ import java.io.IOException;
 
 /**
  * ENUM and Log preparation helpers
- * Created by mike on 17/02/16.
+ * @author mholdsworth
+ * @since 17/02/2016
  */
 public enum Store {
     REDIS, RIAK, MEMORY, NONE ;

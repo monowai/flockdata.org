@@ -32,11 +32,15 @@ import java.util.Collection;
 /**
  * Mock writer that satisfies the interface for testing purposes
  *
- * Created by mike on 1/03/15.
+ * @author mholdsworth
+ * @since 1/03/2015
  */
 @Service
 @Profile("dev")
 public class MockFdWriter implements FdIoInterface {
+
+    public Collection<EntityInputBean> entities = null;
+    public Collection<TagInputBean> tags = null;
 
     public Collection<EntityInputBean> getEntities() {
         return entities;
@@ -45,9 +49,6 @@ public class MockFdWriter implements FdIoInterface {
     public Collection<TagInputBean> getTags() {
         return tags;
     }
-
-    public Collection<EntityInputBean> entities = null;
-    public Collection<TagInputBean> tags = null;
 
     @Override
     public SystemUserResultBean me() {

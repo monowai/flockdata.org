@@ -27,12 +27,13 @@ import java.util.Collection;
 /**
  * Provides a JSON Serializable view of a Tag
  *
- * Created by mike on 20/05/15.
+ * @author mholdsworth
+ * @since 20/05/2015
  */
 public class ConceptResultBean {
+    public static final String TAG = "T";
     private String name;
     private Collection<RelationshipResultBean> relationships = new ArrayList<>();
-    public static final String TAG = "T";
 
     ConceptResultBean(){}
 

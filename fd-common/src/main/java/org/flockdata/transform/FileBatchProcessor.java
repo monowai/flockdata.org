@@ -32,8 +32,8 @@ import java.util.Date;
 
 /**
  * Lancher of FD Import using spring batch
- * User: Nabil
- * Date: 09/10/2014
+ * @author  Nabil
+ * @since 09/10/2014
  */
 @Component
 public class FileBatchProcessor {

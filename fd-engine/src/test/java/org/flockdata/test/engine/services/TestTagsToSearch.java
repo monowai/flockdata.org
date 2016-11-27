@@ -32,7 +32,8 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by mike on 29/05/16.
+ * @author mholdsworth
+ * @since 29/05/2016
  */
 public class TestTagsToSearch  extends EngineBase  {
     @Test

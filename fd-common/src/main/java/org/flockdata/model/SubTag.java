@@ -23,7 +23,8 @@ package org.flockdata.model;
 import java.util.Map;
 
 /**
- * Created by mike on 22/08/15.
+ * @author mholdsworth
+ * @since 22/08/2015
  */
 public class SubTag extends AbstractEntityTag {
     Long id ;
@@ -58,6 +59,11 @@ public class SubTag extends AbstractEntityTag {
     }
 
     @Override
+    public void setRelationship(String name) {
+        this.relationship = name;
+    }
+
+    @Override
     public boolean isGeo() {
         return false;
     }
@@ -70,10 +76,5 @@ public class SubTag extends AbstractEntityTag {
     @Override
     public Boolean isReversed() {
         return false;
-    }
-
-    @Override
-    public void setRelationship(String name) {
-        this.relationship = name;
     }
 }

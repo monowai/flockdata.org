@@ -37,9 +37,8 @@ import java.util.Collection;
 import java.util.Objects;
 
 /**
- * User: mike
- * Date: 9/05/14
- * Time: 7:44 AM
+ * @author mholdsworth
+ * @since 9/05/2014
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ColumnDefinition implements GeoDefinition {
@@ -55,14 +54,6 @@ public class ColumnDefinition implements GeoDefinition {
 
     private Boolean persistent = true;
     private Boolean storeNull = true;
-
-    public ColumnDefinition setDateFormat(String format) {
-        this.dateFormat = format;
-        return this;
-    }
-
-    public enum ExpressionType {CODE, NAME, RELATIONSHIP, KEY_PREFIX, PROP_EXP, LABEL, CALLER_REF}
-
     // Flags that profile the properties of a column
     private Boolean callerRef=null;
     private Boolean title=null;
@@ -76,36 +67,29 @@ public class ColumnDefinition implements GeoDefinition {
     private Boolean reverse = false;
     private Boolean updateDate=null;
     private Boolean merge=null;
-
     private String fortress = null;
     private String documentType = null;
     private String label;
     private String labelDescription;
     private String type; //datatype
     private String name;
-
     private String value; // User define value
-
     private String valueOnError;// Value to set to if the format causes an exception
-
     private String nullOrEmpty;
-
     private String notFound;
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> rlxProperties;
-
     @JsonDeserialize(using = GeoDeserializer.class)
     private GeoPayload geoData;
-
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> properties; // Properties to add to this object
-
     private ArrayList<EntityKeyBean> entityLinks = new ArrayList<>();
     @JsonDeserialize(using = EntityTagRelationshipDeserializer.class)
     private Collection<EntityTagRelationshipDefinition> entityTagLinks ;
-
     private ArrayList<AliasInputBean> aliases;
     private String delimiter;    // value delimiter
+    @JsonDeserialize(using = TagProfileDeserializer.class)
+    private ArrayList<TagProfile> targets = new ArrayList<>();
 
     public String getLabel() {
         return label;
@@ -118,24 +102,12 @@ public class ColumnDefinition implements GeoDefinition {
         this.label = label;
     }
 
-    @JsonDeserialize(using = TagProfileDeserializer.class)
-    private ArrayList<TagProfile> targets = new ArrayList<>();
-
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
-    }
-
     public Boolean isCallerRef() {
         return callerRef;
     }
 
     public Boolean isTitle() {
         return title;
-    }
-
-    // An expression value to use for a column
-    public void setValue(String value) {
-        this.value = value;
     }
 
     /**
@@ -193,6 +165,10 @@ public class ColumnDefinition implements GeoDefinition {
             return source;
         else
             return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
     public Boolean getReverse() {
@@ -294,6 +270,11 @@ public class ColumnDefinition implements GeoDefinition {
         return value;
     }
 
+    // An expression value to use for a column
+    public void setValue(String value) {
+        this.value = value;
+    }
+
     /**
      * evaluates a system column from an expression and set's it as appropriate
      * code :"row#['mycol']"
@@ -333,6 +314,10 @@ public class ColumnDefinition implements GeoDefinition {
         return source;
     }
 
+    public void setSource(String source) {
+        this.source = source;
+    }
+
     @Override
     public String toString() {
         return "ColumnDefinition{" +
@@ -363,6 +348,10 @@ public class ColumnDefinition implements GeoDefinition {
         return dataType;
     }
 
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
     @JsonIgnore
     public boolean isDate() {
         // DAT-523
@@ -384,6 +373,11 @@ public class ColumnDefinition implements GeoDefinition {
 
     public String getDateFormat() {
         return dateFormat;
+    }
+
+    public ColumnDefinition setDateFormat(String format) {
+        this.dateFormat = format;
+        return this;
     }
 
     public String getTimeZone() {
@@ -408,12 +402,12 @@ public class ColumnDefinition implements GeoDefinition {
         return merge;
     }
 
-    public void setEntityTagLinks(Collection<EntityTagRelationshipDefinition> entityTagLinks) {
-        this.entityTagLinks = entityTagLinks;
-    }
-
     public Collection<EntityTagRelationshipDefinition> getEntityTagLinks() {
         return entityTagLinks;
+    }
+
+    public void setEntityTagLinks(Collection<EntityTagRelationshipDefinition> entityTagLinks) {
+        this.entityTagLinks = entityTagLinks;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -424,14 +418,6 @@ public class ColumnDefinition implements GeoDefinition {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getLabelDescription() {
         return labelDescription;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public void setTarget(String target) {
-        this.target = target;
     }
 
     public ColumnDefinition setTitle(boolean title) {
@@ -465,4 +451,6 @@ public class ColumnDefinition implements GeoDefinition {
                 && Objects.equals(this.name, other.name)
                 && Objects.equals(this.value, other.value);
     }
+
+    public enum ExpressionType {CODE, NAME, RELATIONSHIP, KEY_PREFIX, PROP_EXP, LABEL, CALLER_REF}
 }

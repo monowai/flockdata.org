@@ -26,7 +26,8 @@ import org.flockdata.model.Log;
 
 /**
  * Used to talk with the fd-store about entity content
- * Created by mike on 17/02/16.
+ * @author mholdsworth
+ * @since 17/02/2016
  */
 public class LogRequest {
 

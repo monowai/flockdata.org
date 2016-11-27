@@ -35,9 +35,8 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 /**
- * User: mike
- * Date: 14/11/14
- * Time: 12:21 PM
+ * @author mholdsworth
+ * @since 14/11/2014
  */
 public interface FortressService {
     Fortress getFortress(Long id);

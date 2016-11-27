@@ -34,9 +34,10 @@ import java.util.Collection;
 import java.util.Objects;
 
 /**
- * User: mike
- * Date: 3/10/14
- * Time: 4:31 PM
+ * @tag neo4j, ContentModel
+ * @author mholdsworth
+ * @since 3/10/2014
+ * @tag Neo4j, Repository, ContentModel
  */
 @Repository
 public class ContentModelDaoNeo {

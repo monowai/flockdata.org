@@ -26,7 +26,8 @@ import java.util.Collection;
 /**
  * Centralise node identification
  *
- * Created by mike on 16/08/16.
+ * @author mholdsworth
+ * @since 16/08/2016
  */
 public class NodeHelper {
 

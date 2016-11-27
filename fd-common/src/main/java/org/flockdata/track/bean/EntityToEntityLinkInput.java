@@ -30,9 +30,9 @@ import java.util.Map;
 
 /**
  * Used to handle cross references from a source Entity through to a collection of named references
- * User: mike
- * Date: 2/04/14
- * Time: 12:24 PM
+ * @author mholdsworth
+ * @since 2/04/2014
+ * @tag Payload, Entity, Relationship
  */
 public class EntityToEntityLinkInput {
     Map<String,List<EntityKeyBean>>references;
@@ -103,12 +103,12 @@ public class EntityToEntityLinkInput {
                 '}';
     }
 
-    public void setServiceMessage(String serviceMessage) {
-        this.serviceMessage = serviceMessage;
-    }
-
     public String getServiceMessage() {
         return serviceMessage;
+    }
+
+    public void setServiceMessage(String serviceMessage) {
+        this.serviceMessage = serviceMessage;
     }
 
     public String getDocumentType() {

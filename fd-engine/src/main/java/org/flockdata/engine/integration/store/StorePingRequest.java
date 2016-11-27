@@ -23,7 +23,8 @@ package org.flockdata.engine.integration.store;
 /**
  * For SDN4 Un-managed Extensions
  * <p/>
- * Created by mike on 21/07/15.
+ * @author mholdsworth
+ * @since 21/07/2015
  */
 
 import org.flockdata.engine.configure.EngineConfig;
@@ -46,7 +47,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 /**
  * Ping fd-store
  *
- * Created by mike on 3/07/15.
+ * @author mholdsworth
+ * @since 3/07/2015
  */
 
 @Configuration
@@ -56,14 +58,6 @@ public class StorePingRequest {
 
     @Autowired
     EngineConfig engineConfig;
-
-    @MessagingGateway
-    public interface StorePingGateway {
-        @Payload("new java.util.Date()")
-        @Gateway(requestChannel = "storePing",requestTimeout = 2000)
-        String ping();
-
-    }
 
     @Bean
     MessageChannel storePing(){
@@ -85,6 +79,14 @@ public class StorePingRequest {
         handler.setHttpMethod(HttpMethod.GET);
 
         return handler;
+    }
+
+    @MessagingGateway
+    public interface StorePingGateway {
+        @Payload("new java.util.Date()")
+        @Gateway(requestChannel = "storePing", requestTimeout = 2000)
+        String ping();
+
     }
 
 

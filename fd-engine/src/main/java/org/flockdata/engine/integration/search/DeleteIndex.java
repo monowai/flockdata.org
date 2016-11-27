@@ -45,7 +45,10 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * Created by mike on 12/02/16.
+ * @author mholdsworth
+ * @since 12/02/2016
+ *
+ * @tag Configuration, Integration, Search, Administration
  */
 @Configuration
 @IntegrationComponentScan
@@ -53,25 +56,19 @@ import java.util.Map;
 public class DeleteIndex {
 
     @Autowired
-    AmqpRabbitConfig rabbitConfig;
+    private AmqpRabbitConfig rabbitConfig;
 
     @Autowired
-    Exchanges exchanges;
+    private Exchanges exchanges;
 
     @Autowired
-    MessageSupport messageSupport;
+    private MessageSupport messageSupport;
 
     @Transformer(inputChannel="startIndexDelete", outputChannel="adminHeadersChannel")
     public Message<?> deleteSearchIndex(Message message){
         return messageSupport.toJson(message);
     }
 
-    @MessagingGateway
-    public interface DeleteIndexGateway {
-        @Gateway(requestChannel = "startIndexDelete", requestTimeout = 5000, replyChannel = "nullChannel")
-//        @Async("fd-search")
-        void deleteIndex(AdminRequest adminRequest);
-    }
     @Bean
     @Transformer(inputChannel = "adminHeadersChannel", outputChannel = "writeAdminChanges")
     public HeaderEnricher enrichHeaders() {
@@ -85,7 +82,6 @@ public class DeleteIndex {
     MessageChannel startIndexDelete(){
         return new DirectChannel();
     }
-
 
     @Bean
     @ServiceActivator(inputChannel = "writeAdminChanges")
@@ -102,5 +98,13 @@ public class DeleteIndex {
         //outbound.setConfirmAckChannel();
         return outbound;
 
+    }
+
+
+    @MessagingGateway
+    public interface DeleteIndexGateway {
+        @Gateway(requestChannel = "startIndexDelete", requestTimeout = 5000, replyChannel = "nullChannel")
+//        @Async("fd-search")
+        void deleteIndex(AdminRequest adminRequest);
     }
 }

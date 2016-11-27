@@ -27,7 +27,8 @@ import static org.junit.Assert.assertFalse;
 
 /**
  * Validate File Processor routines - Please add to this as you can
- * Created by mike on 24/03/15.
+ * @author mholdsworth
+ * @since 24/03/2015
  */
 public class TestFileProcessor {
     @Test

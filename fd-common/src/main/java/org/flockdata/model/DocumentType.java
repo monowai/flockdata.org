@@ -40,44 +40,36 @@ import java.util.Set;
  * <p>
  * For example, Invoice, Customer, Person etc.
  * <p>
- * User: Mike Holdsworth
- * Date: 30/06/13
- * Time: 10:06 AM
+ * @author mholdsworth
+ * @since 30/06/2013
+ * @tag Node, DocumentType
  */
 @NodeEntity
 @TypeAlias("DocType")
 public class DocumentType implements Comparable<DocumentType>, MetaDocument {
     @GraphId
     Long id;
-
-    private String name;
-
-    @Indexed
-    private String code;
-
-    @Indexed(unique = true)
-    private String companyKey;
-
-    private Boolean searchEnabled;
-
-    private Boolean storeEnabled;
-
-    private Boolean trackEnabled;
-
-    //@Relationship( type = "FORTRESS_DOC", direction = Relationship.OUTGOING)
-    @RelatedTo(type = "FORTRESS_DOC", direction = Direction.OUTGOING)
-    private Fortress fortress;
-
     //@Relationship(type = "HAS_CONCEPT", direction = Relationship.OUTGOING)
     @RelatedTo(elementClass = Concept.class, type = "HAS_CONCEPT", direction = Direction.OUTGOING)
     Set<Concept> concepts;
-
     @RelatedTo(elementClass = FortressSegment.class, type = "USES_SEGMENT", direction = Direction.OUTGOING)
     Set<FortressSegment> segments;
-
+    private String name;
+    @Indexed
+    private String code;
+    @Indexed(unique = true)
+    private String companyKey;
+    private Boolean searchEnabled;
+    private Boolean storeEnabled;
+    private Boolean trackEnabled;
+    //@Relationship( type = "FORTRESS_DOC", direction = Relationship.OUTGOING)
+    @RelatedTo(type = "FORTRESS_DOC", direction = Direction.OUTGOING)
+    private Fortress fortress;
     private String geoQuery;
 
     private VERSION vstrat = VERSION.FORTRESS;
+    // DAT-498
+    private EntityService.TAG_STRUCTURE tagStructure;
 
     public DocumentType(FortressSegment segment, ContentModel contentModel) {
         this(segment, contentModel.getDocumentType());
@@ -90,20 +82,6 @@ public class DocumentType implements Comparable<DocumentType>, MetaDocument {
     public DocumentType(Fortress fortress, ContentModel contentModel) {
         this(fortress.getDefaultSegment(), contentModel);
     }
-
-    /**
-     * Set the version strategy on a per DocumentType basis
-     * <p>
-     * Enable version control when segment.storeEnabled== false
-     * Suppress when your segment.storeEnabled== true and you don't want to version
-     * Fortress (default) means use whatever the segment default is
-     */
-    public enum VERSION {
-        FORTRESS, ENABLE, DISABLE
-    }
-
-    // DAT-498
-    private EntityService.TAG_STRUCTURE tagStructure;
 
     protected DocumentType() {
     }
@@ -163,8 +141,19 @@ public class DocumentType implements Comparable<DocumentType>, MetaDocument {
         this.tagStructure = tagStructure;
     }
 
-    public void setFortress(Fortress fortress) {
-        this.fortress = fortress;
+    public static String parseCode(Fortress fortress, String documentType) {
+        // Only in testing would the segment be null
+        Long fid;
+        if (fortress == null || fortress.getId() == null)
+            fid = -1L;
+        else
+            fid = fortress.getId();
+        return fid + "." + documentType.toLowerCase().replaceAll("\\s", ".");
+    }
+
+    public static String toKey(Fortress fortress, String docType) {
+        assert fortress.getCompany() != null;
+        return String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parseCode(fortress, docType);
     }
 
     public String getName() {
@@ -194,6 +183,10 @@ public class DocumentType implements Comparable<DocumentType>, MetaDocument {
         return fortress;
     }
 
+    public void setFortress(Fortress fortress) {
+        this.fortress = fortress;
+    }
+
     public void add(Concept concept) {
         if (concepts == null)
             concepts = new HashSet<>();
@@ -208,16 +201,6 @@ public class DocumentType implements Comparable<DocumentType>, MetaDocument {
                 ", code='" + code + '\'' +
                 ", segment=" + fortress +
                 '}';
-    }
-
-    public static String parseCode(Fortress fortress, String documentType) {
-        // Only in testing would the segment be null
-        Long fid;
-        if (fortress == null || fortress.getId() == null)
-            fid = -1L;
-        else
-            fid = fortress.getId();
-        return fid + "." + documentType.toLowerCase().replaceAll("\\s", ".");
     }
 
     public int compareTo(DocumentType o) {
@@ -265,11 +248,6 @@ public class DocumentType implements Comparable<DocumentType>, MetaDocument {
         this.tagStructure = tagFinderClass;
     }
 
-    public static String toKey(Fortress fortress, String docType) {
-        assert fortress.getCompany() != null;
-        return String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parseCode(fortress, docType);
-    }
-
     public VERSION getVersionStrategy() {
         if (vstrat == null)
             vstrat = VERSION.FORTRESS;
@@ -295,5 +273,16 @@ public class DocumentType implements Comparable<DocumentType>, MetaDocument {
 
     public Boolean isTrackEnabled() {
         return trackEnabled;
+    }
+
+    /**
+     * Set the version strategy on a per DocumentType basis
+     * <p>
+     * Enable version control when segment.storeEnabled== false
+     * Suppress when your segment.storeEnabled== true and you don't want to version
+     * Fortress (default) means use whatever the segment default is
+     */
+    public enum VERSION {
+        FORTRESS, ENABLE, DISABLE
     }
 }

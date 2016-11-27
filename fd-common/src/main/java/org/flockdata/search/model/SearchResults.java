@@ -26,9 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * User: mike
- * Date: 28/05/14
- * Time: 8:22 PM
+ * @author mholdsworth
+ * @since 28/05/2014
  */
 public class SearchResults {
 

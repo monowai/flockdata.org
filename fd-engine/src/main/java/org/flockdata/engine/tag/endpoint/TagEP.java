@@ -44,18 +44,23 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * User: Mike Holdsworth
- * Since: 8/11/13
+ * @author mholdsworth
+ * @since 8/11/2013
+ * @tag Endpoint, Tag
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/tag")
 public class TagEP {
 
-    @Autowired
-    TagService tagService;
+    private final TagService tagService;
+
+    private final MediationFacade mediationFacade;
 
     @Autowired
-    MediationFacade mediationFacade;
+    public TagEP(TagService tagService, MediationFacade mediationFacade) {
+        this.tagService = tagService;
+        this.mediationFacade = mediationFacade;
+    }
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.ACCEPTED)

@@ -33,9 +33,9 @@ import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 import java.util.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 15/06/13
- * Time: 9:11 PM
+ * @author mholdsworth
+ * @since 15/06/2013
+ * @tag Node, Tag
  */
 @NodeEntity // Only in place to support projection
 @TypeAlias("Tag")
@@ -52,24 +52,19 @@ public class Tag {
 
     @GraphId
     Long id;
-
+    @Transient
+    Map<String, Collection<Tag>> subTags = new HashMap<>();
     @Indexed
     private String key;
-
     @Indexed
     private String code;
-
     @Labels
     private ArrayList<String> labels = new ArrayList<>();
-
     //@Relationship(type = "HAS_ALIAS")
     @RelatedTo(elementClass = Alias.class, type = "HAS_ALIAS")
     private Set<Alias> aliases = new HashSet<>();
-
     private DynamicProperties props = new DynamicPropertiesContainer();
-
     private String name;
-
     @Transient
     private Boolean isNew = false;
 
@@ -116,6 +111,11 @@ public class Tag {
         return id;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    public void setId(Long id) {
+        this.id = id;
+
+    }
+
     @Override
     public String toString() {
         return "TagNode{" +
@@ -139,22 +139,17 @@ public class Tag {
         return props.asMap();
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getCode() {
         return code;
     }
 
-    public String getLabel() {
-        return TagHelper.getLabel(labels);
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-
+    public String getLabel() {
+        return TagHelper.getLabel(labels);
     }
 
     @Override
@@ -208,14 +203,10 @@ public class Tag {
         return isNew;
     }
 
-
     public void addProperty(String key, Object property) {
         props.setProperty(key, property);
         //getProperties().put(key, property);
     }
-
-    @Transient
-    Map<String, Collection<Tag>> subTags = new HashMap<>();
 
     @JsonIgnore
     public void addSubTag(String key, Collection<Tag> o) {

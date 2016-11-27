@@ -55,8 +55,8 @@ import java.util.concurrent.Future;
 /**
  * Transactional services to support record and working with entities and logs
  * <p/>
- * User: Mike Holdsworth
- * Date: 8/04/13
+ * @author mholdsworth
+ * @since 8/04/2013
  */
 @Service
 @Transactional

@@ -27,7 +27,8 @@ import java.util.Collection;
 /**
  * Encapsulates the result of a single validation run
  * <p>
- * Created by mike on 14/04/16.
+ * @author mholdsworth
+ * @since 14/04/2016
  */
 public class ColumnValidationResult {
     private String sourceColumn;
@@ -70,12 +71,12 @@ public class ColumnValidationResult {
                 '}';
     }
 
+    public String getExpression() {
+        return expression;
+    }
+
     public ColumnValidationResult setExpression(String expression) {
         this.expression = expression;
         return this;
-    }
-
-    public String getExpression() {
-        return expression;
     }
 }

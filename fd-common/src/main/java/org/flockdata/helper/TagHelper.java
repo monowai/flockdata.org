@@ -31,7 +31,8 @@ import java.util.ArrayList;
 /**
  * Tag parsing support
  * <p/>
- * Created by mike on 20/06/15.
+ * @author mholdsworth
+ * @since 20/06/2015
  */
 public class TagHelper {
 

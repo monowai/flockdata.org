@@ -23,8 +23,8 @@ package org.flockdata.store;
 import java.io.IOException;
 
 /**
- * User: Mike Holdsworth
- * Since: 31/01/14
+ * @author mholdsworth
+ * @since 31/01/2014
  */
 public interface FdStoreRepo {
     void add(StoredContent contentBean) throws IOException;

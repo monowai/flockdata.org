@@ -33,7 +33,8 @@ import static junit.framework.TestCase.assertEquals;
 
 /**
  * Hook to test default ContentModel functionality
- * Created by mike on 26/07/16.
+ * @author mholdsworth
+ * @since 26/07/2016
  */
 public class TestDefaultContentModel {
 

@@ -29,8 +29,8 @@ import java.util.Map;
 /**
  * Interface to support transformation of Map data into a target object
  *
- * User: Mike Holdsworth
- * Since: 20/11/13
+ * @author mholdsworth
+ * @since 20/11/2013
  */
 public interface PayloadTransformer
 {

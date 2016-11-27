@@ -22,7 +22,8 @@ package org.flockdata.test.engine.suites;
 
 /**
  * Suite for Web services
- * Created by mike on 2/04/15.
+ * @author mholdsworth
+ * @since 2/04/2015
  */
 
 import org.flockdata.test.engine.mvc.*;

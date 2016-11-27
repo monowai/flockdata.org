@@ -35,9 +35,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * User: mike
- * Date: 9/12/14
- * Time: 6:15 PM
+ * @author mholdsworth
+ * @since 9/12/2014
  */
 public class JsonEntityTransformer extends EntityInputBean  {
 

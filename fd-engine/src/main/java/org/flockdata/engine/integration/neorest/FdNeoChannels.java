@@ -30,7 +30,8 @@ import org.springframework.messaging.MessageChannel;
 
 
 /**
- * Created by mike on 3/07/15.
+ * @author mholdsworth
+ * @since 3/07/2015
  */
 @Configuration
 @IntegrationComponentScan
@@ -38,16 +39,16 @@ import org.springframework.messaging.MessageChannel;
 public class FdNeoChannels {
     String neoUrl;
 
+    public String getNeoUrl() {
+        return neoUrl;
+    }
+
     @Value("${neo4j.url:@null}")
     public void setNeoUrl(String neoUrl) {
         if ("@null".equals(neoUrl))
             this.neoUrl = "http://localhost:7474";
         else
             this.neoUrl = neoUrl;
-    }
-
-    public String getNeoUrl() {
-        return neoUrl;
     }
 
     public String getUriRoot() {

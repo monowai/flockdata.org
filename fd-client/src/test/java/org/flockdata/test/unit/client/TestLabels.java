@@ -37,7 +37,8 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * Various import profiles
- * Created by mike on 1/03/15.
+ * @author mholdsworth
+ * @since 1/03/2015
  */
 public class TestLabels extends AbstractImport {
     @Test

@@ -17,7 +17,8 @@
 package org.flockdata.client.commands;
 
 /**
- * Created by mike on 4/04/16.
+ * @author mholdsworth
+ * @since 4/04/2016
  */
 public interface Command<T> {
 

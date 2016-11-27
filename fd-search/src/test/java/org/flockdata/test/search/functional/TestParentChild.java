@@ -40,7 +40,8 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * ES Parent/Child structures
- * Created by mike on 10/09/15.
+ * @author mholdsworth
+ * @since 10/09/2015
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(FdSearch.class)

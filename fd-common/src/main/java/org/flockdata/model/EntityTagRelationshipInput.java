@@ -26,7 +26,9 @@ import java.util.Map;
 /**
  * Properties to create a relationship
  * <p>
- * Created by mike on 9/07/16.
+ * @author mholdsworth
+ * @since 9/07/2016
+ * @tag RelationshipTag
  */
 public class EntityTagRelationshipInput {
     private Boolean geo;
@@ -68,20 +70,20 @@ public class EntityTagRelationshipInput {
         return relationshipName;
     }
 
-    public void setGeo(Boolean geo) {
-        this.geo = geo;
-    }
-
     public void setRelationshipName(String relationshipName) {
         this.relationshipName = relationshipName;
     }
 
-    public void setProperties(Map<String, Object> properties) {
-        this.properties = properties;
+    public void setGeo(Boolean geo) {
+        this.geo = geo;
     }
 
     public Map<String, Object> getProperties() {
         return properties;
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
     }
 
     public boolean getReverse() {

@@ -40,9 +40,8 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 15/06/13
- * Time: 10:41 AM
+ * @author mholdsworth
+ * @since 15/06/2013
  */
 public class TestTxReference extends EngineBase {
 

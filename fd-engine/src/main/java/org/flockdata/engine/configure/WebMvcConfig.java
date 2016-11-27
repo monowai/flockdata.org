@@ -30,27 +30,25 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
+ * @tag Controller, Configuration, MVC
  * Register any additional Interceptors for fd-engine
- * Created by mike on 18/02/16.
+ * @author mholdsworth
+ * @since 18/02/2016
  */
 @Configuration
 @Controller
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
-    @Autowired
-    private ApiKeyInterceptor apiKeyInterceptor;
-
     @Value("#{'${cors.allowOrigin:http://127.0.0.1:9000,http://localhost:9000}'.split(',')}")
     String[] origins;
-
     @Value("#{'${cors.supportedHeaders:*}'.split(',')}")
     String[] headers;
-
     @Value("#{'${cors.supportedMethods:GET,POST,HEAD,OPTIONS,PUT,DELETE}'.split(',')}")
     String[] methods;
-
     @Value("${cors.supportsCredentials:true}")
     Boolean allowCredentials;
+    @Autowired
+    private ApiKeyInterceptor apiKeyInterceptor;
 
     public void addInterceptors(InterceptorRegistry registry){
         registry.addInterceptor( apiKeyInterceptor);

@@ -29,8 +29,8 @@ import java.util.Map;
 /**
  * Object to tie the keys between fd-engine and fd-search so that fd-engine can keep the document up-to-date
  * <p/>
- * User: Mike Holdsworth
- * Since: 13/07/13
+ * @author mholdsworth
+ * @since 13/07/2013
  */
 public class SearchResult {
 
@@ -49,37 +49,14 @@ public class SearchResult {
     private String createdBy;
     private Long fdTimestamp;
     private String name;
-
-    public String getLastUser() {
-        return lastUser;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getEvent() {
-        return event;
-    }
-
-    public Long getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public long getWhenCreated() {
-        return whenCreated;
-    }
-
     private String lastUser;
     private String description;
     private String event;
     private Long dateCreated;
     private Long lastUpdate;
     private long whenCreated;
-
     protected SearchResult() {
     }
-
     public SearchResult(SearchChange thisChange) {
         this();
         this.entityId = thisChange.getId();
@@ -94,7 +71,6 @@ public class SearchResult {
 
 
     }
-
     public SearchResult(
                         String searchKey,
                         String key,
@@ -122,6 +98,30 @@ public class SearchResult {
         if ( fdTimestamp !=null )
             this.fdTimestamp = Long.decode(fdTimestamp);
 
+    }
+
+    public String getLastUser() {
+        return lastUser;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    public Long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public long getWhenCreated() {
+        return whenCreated;
     }
 
     /**
@@ -153,6 +153,10 @@ public class SearchResult {
      */
     public String getSearchKey() {
         return searchKey;
+    }
+
+    public void setSearchKey(String searchKey) {
+        this.searchKey = searchKey;
     }
 
     /**
@@ -191,10 +195,6 @@ public class SearchResult {
         this.entityId = entityId;
     }
 
-    public void setSearchKey(String searchKey) {
-        this.searchKey = searchKey;
-    }
-
     public Map<String, String[]> getFragments() {
         return fragments;
     }
@@ -203,20 +203,16 @@ public class SearchResult {
         return code;
     }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public String getCreatedBy() {
         return createdBy;
     }
 
     public Long getFdTimestamp() {
         return fdTimestamp;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     public void addFieldValue(String field, Object value) {
@@ -231,11 +227,11 @@ public class SearchResult {
         return data;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

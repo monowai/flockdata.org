@@ -24,7 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by mike on 29/04/15.
+ * @author mholdsworth
+ * @since 29/04/2015
  */
 public class EdgeResults {
     private List<EdgeResult> edgeResults = new ArrayList<>();

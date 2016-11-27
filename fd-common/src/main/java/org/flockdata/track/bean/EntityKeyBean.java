@@ -33,9 +33,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 9/07/14
- * Time: 5:01 PM
+ * @author mholdsworth
+ * @since 9/07/2014
  */
 public class EntityKeyBean {
     private String relationshipName; // Entity to Entity relationship name
@@ -151,6 +150,11 @@ public class EntityKeyBean {
         return code;
     }
 
+    public EntityKeyBean setCode(String code) {
+        this.code = code;
+        return this;
+    }
+
     public String getKey() {
         return key;
     }
@@ -167,6 +171,11 @@ public class EntityKeyBean {
         return relationshipName;
     }
 
+    public EntityKeyBean setRelationshipName(String relationshipName) {
+        this.relationshipName = relationshipName;
+        return this;
+    }
+
     public EntityKeyBean addRelationship(String relationship) {
         this.relationshipName = relationship;
         return this;
@@ -180,6 +189,10 @@ public class EntityKeyBean {
         return name;
     }
 
+    public boolean isParent() {
+        return parent;
+    }
+
     /**
      * Flags this EntityKeyBean as a parent of the EntityBean it is being tracked against
      * @param parent yes - create an outbound relationship
@@ -190,17 +203,12 @@ public class EntityKeyBean {
         return this;
     }
 
-    public boolean isParent() {
-        return parent;
-    }
-
-    public EntityKeyBean setRelationshipName(String relationshipName) {
-        this.relationshipName = relationshipName;
-        return this;
-    }
-
     public Entity getResolvedEntity() {
         return resolvedEntity;
+    }
+
+    public void setResolvedEntity(Entity resolvedEntity) {
+        this.resolvedEntity = resolvedEntity;
     }
 
     public DocumentType getResolvedDocument() {
@@ -210,17 +218,6 @@ public class EntityKeyBean {
     public void setResolvedDocument(DocumentType documentType) {
         this.resolvedDocument = documentType;
     }
-
-    public void setResolvedEntity(Entity resolvedEntity) {
-        this.resolvedEntity = resolvedEntity;
-    }
-
-    public EntityKeyBean setCode(String code) {
-        this.code = code;
-        return this;
-    }
-
-    public enum ACTION {ERROR, IGNORE, CREATE}
 
     public ACTION getMissingAction() {
         return missingAction;
@@ -261,5 +258,7 @@ public class EntityKeyBean {
                 ", code='" + code + '\'' +
                 '}';
     }
+
+    public enum ACTION {ERROR, IGNORE, CREATE}
 
 }

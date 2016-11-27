@@ -23,7 +23,8 @@ package org.flockdata.model;
 import org.flockdata.track.service.EntityService;
 
 /**
- * Created by mike on 29/08/16.
+ * @author mholdsworth
+ * @since 29/08/2016
  */
 public interface MetaDocument {
     String getName();

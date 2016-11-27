@@ -32,16 +32,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * ElasticSearch input end-point
- * User: Mike Holdsworth
- * Date: 7/07/13
- * Time: 10:03 PM
+ * @author mholdsworth
+ * @since 7/07/2013
+ * @tag Search, Endpoint, Query
  */
 @RequestMapping("${org.fd.search.system.api:api}/v1/query")
 @RestController
 public class FdQueryEP {
+    private final QueryService searchService;
+
     @Autowired
-    @Qualifier("queryServiceEs")
-    QueryService searchService;
+    public FdQueryEP(@Qualifier("queryServiceEs") QueryService searchService) {
+        this.searchService = searchService;
+    }
 
     @RequestMapping(value = "/", consumes = "application/json", produces = "application/json",
             method = RequestMethod.POST)

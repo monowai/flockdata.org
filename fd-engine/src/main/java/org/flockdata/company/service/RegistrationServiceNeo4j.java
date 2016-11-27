@@ -40,30 +40,31 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * @tag Service, Company, Registration, Security
+ */
 @Service
 public class RegistrationServiceNeo4j implements RegistrationService {
 
-    @Autowired
-    private CompanyService companyService;
+    private final CompanyService companyService;
 
-    @Autowired
-    private SystemUserService systemUserService;
+    private final SystemUserService systemUserService;
 
-    @Autowired
+    private final
     KeyGenService keyGenService;
 
-    @Autowired
-    SchemaService schemaService;
-
-    @Autowired
-    @Qualifier("engineConfig")
-    PlatformConfig engineConfig;
-
-    @Autowired
-    private SecurityHelper securityHelper;
+    private final SecurityHelper securityHelper;
 
     public static SystemUser GUEST = new SystemUser("Guest", null, null, false);
     private Logger logger = LoggerFactory.getLogger(RegistrationServiceNeo4j.class);
+
+    @Autowired
+    public RegistrationServiceNeo4j(CompanyService companyService, SystemUserService systemUserService, KeyGenService keyGenService, SchemaService schemaService, @Qualifier("engineConfig") PlatformConfig engineConfig, SecurityHelper securityHelper) {
+        this.companyService = companyService;
+        this.systemUserService = systemUserService;
+        this.keyGenService = keyGenService;
+        this.securityHelper = securityHelper;
+    }
 
     @Override
     @Transactional

@@ -20,17 +20,15 @@
 
 package org.flockdata.store.endpoints;
 
-/**
- * Created by mike on 6/04/16.
- */
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Root level controller
- * Created by mike on 4/04/16.
+ * @author mholdsworth
+ * @since 4/04/2016
+ * @tag Store, Security
  */
 @RestController
 @RequestMapping("${org.fd.store.system.api:api}/")

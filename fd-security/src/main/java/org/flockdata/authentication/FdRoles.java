@@ -17,7 +17,8 @@
 package org.flockdata.authentication;
 
 /**
- * Created by mike on 17/02/16.
+ * @author mholdsworth
+ * @since 17/02/2016
  */
 public class FdRoles {
     public static final String FD_USER ="FD_USER";

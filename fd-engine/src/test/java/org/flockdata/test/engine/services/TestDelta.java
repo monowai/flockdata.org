@@ -37,9 +37,8 @@ import java.util.Map;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * User: Mike Holdsworth
- * Date: 15/04/13
- * Time: 6:43 AM
+ * @author mholdsworth
+ * @since 15/04/2013
  */
 public class TestDelta extends EngineBase {
 

@@ -28,7 +28,9 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import java.util.Collection;
 
 /**
- * Created by mike on 6/04/15.
+ * @author mholdsworth
+ * @since 6/04/2015
+ * @tag Neo4j, GraphRepository, Relationship, EntityTag
  */
 public interface EntityTagInRepo extends GraphRepository<EntityTagIn> {
 

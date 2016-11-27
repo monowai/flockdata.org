@@ -23,7 +23,8 @@ package org.flockdata.test.engine;
 /**
  * in-memory test database for Neo4j testing
  * <p>
- * Created by mike on 31/03/15.
+ * @author mholdsworth
+ * @since 31/03/2015
  */
 
 import org.flockdata.engine.configure.WrappingCommunityNeoServer;
@@ -56,6 +57,7 @@ import java.util.Map;
 @Profile({"dev"})
 public class Neo4jConfigTest extends Neo4jConfiguration {
 
+    GraphDatabaseService graphdb = null;
     private Logger logger = LoggerFactory.getLogger("configuration");
 
     String getNeoStoreDir() {
@@ -66,8 +68,6 @@ public class Neo4jConfigTest extends Neo4jConfiguration {
     public void logFdNeoConfig() {
         logger.info("**** Neo4j Test configuration deployed");
     }
-
-    GraphDatabaseService graphdb = null;
 
     @Bean
     public GraphDatabaseService graphDatabaseService(

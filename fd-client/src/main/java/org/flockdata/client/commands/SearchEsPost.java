@@ -31,7 +31,8 @@ import java.util.Map;
 
 /**
  * Passthrough query to ES
- * Created by mike on 17/04/16.
+ * @author mholdsworth
+ * @since 17/04/2016
  */
 public class SearchEsPost extends AbstractRestCommand {
 

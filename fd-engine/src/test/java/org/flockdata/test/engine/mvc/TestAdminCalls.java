@@ -31,9 +31,9 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 /**
- * User: mike
- * Date: 19/05/14
- * Time: 3:46 PM
+ * @author mholdsworth
+ * @since 19/05/2014
+ * @tag Test,Administration,MVC
  */
 public class TestAdminCalls extends MvcBase {
 

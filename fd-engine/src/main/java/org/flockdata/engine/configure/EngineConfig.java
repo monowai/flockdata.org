@@ -46,59 +46,55 @@ import static org.flockdata.authentication.FdRoles.FD_ROLE_ADMIN;
 import static org.flockdata.authentication.FdRoles.FD_ROLE_USER;
 
 /**
- * User: Mike Holdsworth
- * Since: 29/08/13
+ * @tag Engine, Configuration, Service
+ * @author mholdsworth
+ * @since 29/08/2013
  */
 @Service(value = "engineConfig")
 @Transactional
 @Configuration
 public class EngineConfig implements PlatformConfig {
 
-    @Value("${org.fd.engine.system.storage:RIAK}")
-    private String storeEngine; // The default store to write to IF a fortress allows it
-                                // By default, storage engine services are not disabled
-                                // and current state content is retrieved from ElasticSearch
-
-    @Value("${org.fd.engine.fortress.store:false}")
-    private Boolean storeEnabled;
-
-    @Value("${org.fd.engine.system.api:api}")
-    private String apiBase ;
-
     @Value("${spring.cloud.config.discovery.enabled:false}")
     Boolean discoveryEnabled;
-
+                                // By default, storage engine services are not disabled
+                                // and current state content is retrieved from ElasticSearch
+                                // By default, we only require a reply if this is being indexed for the first time
+                                @Value("${org.fd.engine.search.update:true}")
+                                Boolean requireSearchToConfirm = false;
+    @Value("${org.fd.engine.system.storage:RIAK}")
+    private String storeEngine; // The default store to write to IF a fortress allows it
+    @Value("${org.fd.engine.fortress.store:false}")
+    private Boolean storeEnabled;
+    @Value("${org.fd.engine.system.api:api}")
+    private String apiBase ;
     @Autowired (required = false)
+    private
     PingGateway pingSearchGateway;
-
     @Autowired (required = false)
-    SearchPingRequest searchPingRequest;
-
+    private SearchPingRequest searchPingRequest;
     @Autowired
-    StorePingRequest.StorePingGateway storePingGateway;
-
+    private StorePingRequest.StorePingGateway storePingGateway;
     @Autowired (required = false)
-    AmqpRabbitConfig rabbitConfig;
-
-
+    private AmqpRabbitConfig rabbitConfig;
     @Value("${org.fd.engine.system.multiTenanted:false}")
     private Boolean multiTenanted = false;
     private boolean conceptsEnabled = true;
     @Value("${org.fd.engine.system.constraints:true}")
     private boolean systemConstraints = true;
     private boolean testMode;
-
     @Value("${org.fd.engine.fortress.search:true}")
     private boolean searchEnabled = true;
-
     @Value("${org.fd.search.api:http://localhost:8081}")
     private String fdSearch;
-
     @Value("${org.fd.store.api:http://localhost:8082}")
     private String fdStoreUrl;
-
     @Value ("${eureka.client.serviceUrl.defaultZone}")
     private String eurekaUrl;
+    @Value("${org.fd.engine.system.timings:false}")
+    private boolean timing = false;
+    @Autowired(required = false)
+    private VersionHelper versionHelper;
 
     @Override
     public String getFdStore() {
@@ -112,13 +108,6 @@ public class EngineConfig implements PlatformConfig {
         return this;
     }
 
-    @Value("${org.fd.engine.system.timings:false}")
-    private boolean timing = false;
-
-    // By default, we only require a reply if this is being indexed for the first time
-    @Value("${org.fd.engine.search.update:true}")
-    Boolean requireSearchToConfirm = false;
-
     public void setStoreEnabled(boolean storeEnabled) {
         this.storeEnabled = storeEnabled;
     }
@@ -126,7 +115,6 @@ public class EngineConfig implements PlatformConfig {
     public void setSearchEnabled(String searchEnabled) {
         this.searchEnabled =Boolean.parseBoolean(searchEnabled);
     }
-
 
     public Boolean isSearchRequiredToConfirm() {
         return requireSearchToConfirm;
@@ -185,8 +173,6 @@ public class EngineConfig implements PlatformConfig {
         return new InfoEndpoint(getHealth());
     }
 
-    @Autowired (required = false)
-    VersionHelper versionHelper;
     /**
      * Only users with a pre-validated api-key should be calling this
      *
@@ -257,14 +243,14 @@ public class EngineConfig implements PlatformConfig {
     }
 
     @Override
-    @PreAuthorize(FdRoles.EXP_EITHER)
-    public String authPing() {
-        return "pong";
+    public void setTestMode(boolean testMode) {
+        this.testMode = testMode;
     }
 
     @Override
-    public void setTestMode(boolean testMode) {
-        this.testMode = testMode;
+    @PreAuthorize(FdRoles.EXP_EITHER)
+    public String authPing() {
+        return "pong";
     }
 
     public String getFdSearch() {

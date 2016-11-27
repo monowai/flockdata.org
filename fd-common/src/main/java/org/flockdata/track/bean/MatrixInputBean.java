@@ -23,9 +23,9 @@ package org.flockdata.track.bean;
 import java.util.ArrayList;
 
 /**
- * User: mike
- * Date: 12/06/14
- * Time: 11:15 AM
+ * @author mholdsworth
+ * @since 12/06/2014
+ * @tag Payload, Matrix, Query
  */
 public class MatrixInputBean {
     private ArrayList<String> documents = null;
@@ -96,6 +96,9 @@ public class MatrixInputBean {
         return byKey;
     }
 
+    public void setByKey(boolean byKey) {
+        this.byKey = byKey;
+    }
 
     public boolean isReciprocalExcluded() {
         return reciprocalExcluded;
@@ -127,10 +130,13 @@ public class MatrixInputBean {
         return sampleSize;
     }
 
+    public void setSampleSize(int sampleSize) {
+        this.sampleSize = sampleSize;
+    }
+
     public int getMaxEdges() {
         return maxEdges;
     }
-
 
     @Override
     public String toString() {
@@ -141,10 +147,6 @@ public class MatrixInputBean {
                 ", queryString='" + queryString + '\'' +
                 ", sampleSize=" + sampleSize +
                 '}';
-    }
-
-    public void setSampleSize(int sampleSize) {
-        this.sampleSize = sampleSize;
     }
 
     public String getSumCol() {
@@ -161,10 +163,6 @@ public class MatrixInputBean {
 
     public void setSumByCol(boolean sumByCol) {
         this.sumByCol = sumByCol;
-    }
-
-    public void setByKey(boolean byKey) {
-        this.byKey = byKey;
     }
 
     public String getSumColumn() {

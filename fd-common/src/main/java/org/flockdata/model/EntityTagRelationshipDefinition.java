@@ -25,7 +25,9 @@ import org.flockdata.transform.ColumnDefinition;
 import java.util.Collection;
 
 /**
- * Created by mike on 19/07/16.
+ * @author mholdsworth
+ * @since 19/07/2016
+ * @tag Relationship, EntityTag
  */
 public class EntityTagRelationshipDefinition {
     private Boolean geo ;

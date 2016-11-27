@@ -30,9 +30,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- * User: mike
- * Date: 19/11/14
- * Time: 3:19 PM
+ * @author mholdsworth
+ * @since 19/11/2014
+ * @Tag Store, Integration, Json
  */
 @Component("jsonToKvContentConverter")
 public class JsonKvContentConverter extends SimpleMessageConverter {

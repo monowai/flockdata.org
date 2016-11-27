@@ -21,7 +21,8 @@
 package org.flockdata.engine.admin;
 
 /**
- * Created by mike on 12/06/16.
+ * @author mholdsworth
+ * @since 12/06/2016
  */
 public class AdminResponse {
 

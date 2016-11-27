@@ -33,8 +33,9 @@ import java.util.TimeZone;
  * not to accumulate each change as a separate document
  * index document changes in the search engine
  * <p>
- * Date: 15/06/13
- * Time: 12:04 PM
+ *
+ * @since 15/06/2013
+ * @tag Payload, Fortress
  */
 public class FortressInputBean implements Serializable, MetaFortress {
     private String name;
@@ -75,16 +76,16 @@ public class FortressInputBean implements Serializable, MetaFortress {
         return name;
     }
 
-    @Override
-    public String getCode() {
-        return code;
-    }
-
     public FortressInputBean setName(String name) {
         this.name = name;
         if ( this.code ==null )
             this.code = name;
         return this;
+    }
+
+    @Override
+    public String getCode() {
+        return code;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

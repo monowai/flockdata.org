@@ -22,7 +22,8 @@ import org.flockdata.client.FdTemplate;
  * Commands are immutable and re-usable. Ensure your clientConfiguration has been configured prior
  * to object creation
  *
- * Created by mike on 13/04/16.
+ * @author mholdsworth
+ * @since 13/04/2016
  */
 abstract class AbstractRestCommand implements Command {
 

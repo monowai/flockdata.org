@@ -30,15 +30,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 
 /**
- * User: mike
- * Date: 27/04/14
- * Time: 11:47 AM
+ * @author mholdsworth
+ * @since 27/04/2014
  */
 @Service
 @Transactional
 public class GeographyService {
+    private final TagService tagService;
+
     @Autowired
-    TagService tagService;
+    public GeographyService(TagService tagService) {
+        this.tagService = tagService;
+    }
+
     public Collection<TagResultBean> findCountries(Company company) {
         return tagService.findTagResults(company, "Country");
 

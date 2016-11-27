@@ -29,7 +29,8 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * HTTP login
  * <p>
- * Created by mike on 4/04/16.
+ * @author mholdsworth
+ * @since 4/04/2016
  */
 
 public class Login extends AbstractRestCommand {

@@ -30,42 +30,33 @@ import org.springframework.context.annotation.PropertySource;
 import javax.annotation.PostConstruct;
 
 /**
- * User: Mike Holdsworth
- * Since: 29/08/13
+ * @tag Configuration, Version, GIT
+ * @author mholdsworth
+ * @since 29/08/2013
  */
 @Configuration
 @Profile("fd-server")
 @PropertySource(value = {"version.properties","git.properties"},ignoreResourceNotFound = true)
 public class VersionHelper {
 
-    private Logger logger = LoggerFactory.getLogger("configuration");
-
     @Value("${git.build.version:na}")
     String version;
-
     @Value("${info.build.plan:na}")
     String plan;
-
-//    @Value("${info.build.number:na}")
-//    String build;
-
-//    @Value("${info.bamboo.build}:na")
-//    String bamboo;
-
     @Value("${git.commit.id.abbrev}")
     String gitCommit;
-
     @Value("${git.branch:na}")
     String branch;
-
     @Value("${git.commit.message.short}")
     String commitMessage;
+    private Logger logger = LoggerFactory.getLogger("configuration");
 
     @PostConstruct
     public void logVersion(){
         logger.info("**** " + getFdVersion());
         logger.debug (commitMessage);
     }
+
     public  String getFdVersion() {
         return version + " (" + branch + "/" + gitCommit +")" ;
     }

@@ -38,7 +38,8 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by mike on 13/07/16.
+ * @author mholdsworth
+ * @since 13/07/2016
  */
 public class TestEntityTagRelationships extends EngineBase {
 

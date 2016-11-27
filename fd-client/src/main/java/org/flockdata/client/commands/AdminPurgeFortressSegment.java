@@ -26,7 +26,8 @@ import org.springframework.web.client.ResourceAccessException;
 
 /**
  * HealthCheck to a service to see if it can see other services
- * Created by mike on 4/04/16.
+ * @author mholdsworth
+ * @since 4/04/2016
  */
 
 public class AdminPurgeFortressSegment extends AbstractRestCommand {

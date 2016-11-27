@@ -32,7 +32,8 @@ import java.util.Map;
 import static junit.framework.TestCase.assertEquals;
 
 /**
- * Created by mike on 18/06/15.
+ * @author mholdsworth
+ * @since 18/06/2015
  */
 public class TestSchemaManager {
 

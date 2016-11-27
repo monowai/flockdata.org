@@ -42,9 +42,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * User: mike
- * Date: 28/08/14
- * Time: 2:23 PM
+ * @author mholdsworth
+ * @since 28/08/2014
+ * @tag Test,SystemUser, MVC
  */
 public class TestSystemUserRegistration extends MvcBase {
 
@@ -126,6 +126,29 @@ public class TestSystemUserRegistration extends MvcBase {
 
     }
 
+    SystemUserResultBean registerSystemUser(RequestPostProcessor user, RegistrationBean register) throws Exception {
+
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.post(MvcBase.apiPath + "/profiles/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(register)
+                )
+                .with(user)
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+
+        return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), SystemUserResultBean.class);
+    }
+
+    SystemUserResultBean getMe(RequestPostProcessor user) throws Exception {
+
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath + "/profiles/me/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user)
+
+        ).andReturn();
+
+        return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), SystemUserResultBean.class);
+    }
+
     class DataAccessRunner implements Runnable {
         boolean worked = true;
         int runCount = 10;
@@ -160,29 +183,6 @@ public class TestSystemUserRegistration extends MvcBase {
             }
             finished =true;
         }
-    }
-
-    SystemUserResultBean registerSystemUser(RequestPostProcessor user, RegistrationBean register) throws Exception {
-
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.post(MvcBase.apiPath + "/profiles/")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(register)
-                )
-                .with(user)
-        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
-
-        return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), SystemUserResultBean.class);
-    }
-
-    SystemUserResultBean getMe(RequestPostProcessor user) throws Exception {
-
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath + "/profiles/me/")
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(user)
-
-        ).andReturn();
-
-        return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), SystemUserResultBean.class);
     }
 
 }

@@ -36,9 +36,8 @@ import java.util.Date;
 import static org.junit.Assert.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 22/06/13
- * Time: 5:02 AM
+ * @author mholdsworth
+ * @since 22/06/2013
  */
 public class TestInputBeans {
     //private Logger log = LoggerFactory.getLogger(TestInputBeans.class);

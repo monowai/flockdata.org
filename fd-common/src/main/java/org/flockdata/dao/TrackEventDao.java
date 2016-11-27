@@ -26,9 +26,8 @@ import org.flockdata.model.Company;
 import java.util.Set;
 
 /**
- * User: Mike Holdsworth
- * Date: 28/06/13
- * Time: 9:55 PM
+ * @author mholdsworth
+ * @since 28/06/2013
  */
 public interface TrackEventDao {
 

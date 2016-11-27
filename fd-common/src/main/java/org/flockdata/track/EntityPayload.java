@@ -30,7 +30,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Created by mike on 19/06/15.
+ * @author mholdsworth
+ * @since 19/06/2015
  */
 public class EntityPayload {
 
@@ -67,22 +68,22 @@ public class EntityPayload {
         return entity;
     }
 
+    public String getTenant() {
+        return tenant;
+    }
+
     public EntityPayload setTenant(String tenant) {
         this.tenant = tenant;
         return this;
     }
 
+    public Collection<EntityInputBean> getEntities() {
+        return entities;
+    }
+
     public EntityPayload setEntities(Collection<EntityInputBean> entities) {
         this.entities = entities;
         return this;
-    }
-
-    public String getTenant() {
-        return tenant;
-    }
-
-    public Collection<EntityInputBean> getEntities() {
-        return entities;
     }
 
     public Fortress getFortress() {
@@ -101,11 +102,11 @@ public class EntityPayload {
         this.documentType = documentType;
     }
 
-    public void setCreatedBy(FortressUser createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public FortressUser getCreatedBy() {
         return createdBy;
+    }
+
+    public void setCreatedBy(FortressUser createdBy) {
+        this.createdBy = createdBy;
     }
 }

@@ -22,9 +22,8 @@ import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
- * User: nabil
- * Date: 13/08/13
- * Time: 01:26
+ * @author  nabil
+ * @since 13/08/2013
  * To change this template use File | Settings | File Templates.
  */
 public interface FlockDataEPGateway {

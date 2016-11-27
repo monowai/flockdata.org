@@ -30,18 +30,17 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 /**
- * User: mike
- * Date: 29/08/14
- * Time: 12:28 PM
+ * @author mholdsworth
+ * @since 29/08/2014
  */
 public class DocumentResultBean {
 
+    ArrayList<ConceptResultBean> concepts = new ArrayList<>();
+    ArrayList<String> segments = null;
     private Long id;
     private String name;
     private Boolean searchSuppressed;
     private Boolean trackSuppressed;
-    ArrayList<ConceptResultBean> concepts = new ArrayList<>();
-    ArrayList<String> segments = null;
 
     DocumentResultBean() {
     }

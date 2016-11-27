@@ -50,8 +50,8 @@ import java.util.Map;
  *
  *
  * <p/>
- * User: Mike Holdsworth
- * Since: 4/09/13
+ * @author mholdsworth
+ * @since 4/09/2013
  */
 @Service
 @Transactional

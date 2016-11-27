@@ -30,15 +30,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
- * User: Mike Holdsworth
- * Date: 17/04/13
- * Time: 10:11 PM
+ * @tag Helper, Security, Service, APIKey
+ * @author mholdsworth
+ * @since 17/04/2013
  */
 @Service
 public class SecurityHelper {
 
+    private final SystemUserService sysUserService;
+
     @Autowired
-    private SystemUserService sysUserService;
+    public SecurityHelper(SystemUserService sysUserService) {
+        this.sysUserService = sysUserService;
+    }
 
     public String isValidUser() {
         return getUserName(true, true);

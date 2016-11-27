@@ -38,8 +38,8 @@ import java.util.concurrent.ExecutionException;
 /**
  * Non transactional coordinator providing mediation functionality between services
  * <p>
- * User: Mike Holdsworth
- * Since: 28/08/13
+ * @author mholdsworth
+ * @since 28/08/2013
  */
 public interface MediationFacade {
 

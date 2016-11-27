@@ -29,7 +29,8 @@ import org.springframework.messaging.MessageHandler;
 
 /**
  * Not sure we need this.
- * Created by mike on 13/02/16.
+ * @author mholdsworth
+ * @since 13/02/2016
  */
 @Configuration
 @IntegrationComponentScan

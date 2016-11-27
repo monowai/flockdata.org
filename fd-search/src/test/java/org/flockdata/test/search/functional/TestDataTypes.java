@@ -49,7 +49,8 @@ import static org.springframework.test.util.AssertionErrors.fail;
 /**
  * DAT-359
  *
- * Created by mike on 27/03/15.
+ * @author mholdsworth
+ * @since 27/03/2015
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(FdSearch.class)

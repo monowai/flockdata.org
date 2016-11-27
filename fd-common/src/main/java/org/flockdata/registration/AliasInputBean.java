@@ -24,7 +24,8 @@ package org.flockdata.registration;
  * Payload representing alias attributes for a tag.
  * The AliasInput can be set in to a ColumnDefinitionInputBean or TagInputBean
  *
- * Created by mike on 12/02/15.
+ * @author mholdsworth
+ * @since 12/02/2015
  */
 public class AliasInputBean {
     private String code;

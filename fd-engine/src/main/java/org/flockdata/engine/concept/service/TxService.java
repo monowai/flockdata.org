@@ -37,26 +37,21 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * User: mike
- * Date: 4/09/14
- * Time: 4:23 PM
+ * @author mholdsworth
+ * @since 4/09/2014
  */
 @Service
 @Transactional
 public class TxService {
 
     @Autowired
-    private KeyGenService keyGenService;
-
-
-    @Autowired
     SystemUserService sysUserService;
-
-    @Autowired
-    private SecurityHelper securityHelper;
-
     @Autowired
     EntityDaoNeo trackDao;
+    @Autowired
+    private KeyGenService keyGenService;
+    @Autowired
+    private SecurityHelper securityHelper;
 
     TxRef beginTransaction(Company company) {
         return beginTransaction(keyGenService.getUniqueKey(), company);

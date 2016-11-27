@@ -45,7 +45,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Created by mike on 24/05/16.
+ * @author mholdsworth
+ * @since 24/05/2016
  */
 @Service
 class BatchServiceRunner implements BatchService {

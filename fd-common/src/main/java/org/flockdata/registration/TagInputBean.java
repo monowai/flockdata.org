@@ -33,9 +33,9 @@ import java.util.Map;
 /**
  * All data necessary to create a simple Tag. If no tagLabel is provided then the tag is
  * created under the default tagLabel of _Tag
- * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 1:20 PM
+ * @author mholdsworth
+ * @since 29/06/2013
+ * @tag Payload, Tag
  */
 public class TagInputBean implements org.flockdata.transform.UserProperties {
 
@@ -477,7 +477,6 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      * @param label     case-sensitive - mandatory
      * @param keyPrefix case-insensitive - optional
      * @return  TagInputBean if found
-     * @since DAT-491
      */
     public TagInputBean findTargetTag(String code, String label, String keyPrefix) {
         if (!hasTargets())

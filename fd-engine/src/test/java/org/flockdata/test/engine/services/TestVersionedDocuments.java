@@ -37,7 +37,8 @@ import static junit.framework.TestCase.assertTrue;
 
 /**
  * Version strategies
- * Created by mike on 16/01/16.
+ * @author mholdsworth
+ * @since 16/01/2016
  */
 public class TestVersionedDocuments extends EngineBase {
 

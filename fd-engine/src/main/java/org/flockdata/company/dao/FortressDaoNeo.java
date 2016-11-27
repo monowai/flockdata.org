@@ -38,30 +38,23 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * User: Mike Holdsworth
- * Date: 20/04/13
- * Time: 10:29 PM
+ * @author mholdsworth
+ * @since 20/04/2013
  */
 @Repository
 public class FortressDaoNeo  {
     @Autowired
+    Neo4jTemplate template;
+    @Autowired
     private FortressRepository fortressRepo;
-
     @Autowired
     private FortressSegmentRepository fortressSegmentRepo;
-
     @Autowired
     private FortressUserRepository fortressUserRepo;
-
     @Autowired
     private IndexManager indexManager;
-
     @Autowired
     private EngineConfig engineConfig;
-
-    @Autowired
-    Neo4jTemplate template;
-
     private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
 
     public Fortress save(Company company, FortressInputBean fortressInput) {

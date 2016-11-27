@@ -26,9 +26,8 @@ import org.flockdata.model.Company;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * User: mike
- * Date: 28/08/14
- * Time: 10:27 AM
+ * @author mholdsworth
+ * @since 28/08/2014
  */
 public class CompanyResolver {
     public static Company resolveCompany(HttpServletRequest request) throws FlockException {

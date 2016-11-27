@@ -38,9 +38,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
- * User: mike
- * Date: 12/06/14
- * Time: 1:16 PM
+ * @author mholdsworth
+ * @since 12/06/2014
  */
 public class TestQueryResults extends EngineBase {
     public static final String VEGETABLE = "Vegetable";

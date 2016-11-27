@@ -39,7 +39,8 @@ import static org.flockdata.helper.TagHelper.isSystemKey;
  * Creates a representation of a tag, plug it's geo content, suitable for representation
  * in fd-search
  * <p>
- * Created by mike on 7/02/15.
+ * @author mholdsworth
+ * @since 7/02/2015
  */
 public class SearchTag {
     String code;

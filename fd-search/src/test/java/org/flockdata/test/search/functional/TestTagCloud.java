@@ -46,9 +46,8 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 /**
- * User: mike
- * Date: 15/08/14
- * Time: 12:53 PM
+ * @author mholdsworth
+ * @since 15/08/2014
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(FdSearch.class)

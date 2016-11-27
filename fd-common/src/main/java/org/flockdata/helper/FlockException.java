@@ -21,8 +21,8 @@
 package org.flockdata.helper;
 
 /**
- * User: Mike Holdsworth
- * Since: 27/09/13
+ * @author mholdsworth
+ * @since 27/09/2013
  */
 public class FlockException extends Exception {
     public FlockException(String message) {

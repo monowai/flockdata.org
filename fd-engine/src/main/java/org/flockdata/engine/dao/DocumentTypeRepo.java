@@ -30,9 +30,9 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * User: Mike Holdsworth
- * Date: 30/06/13
- * Time: 10:20 AM
+ * @tag neo4j, DocumentType, Interface, GraphRepository
+ * @author mholdsworth
+ * @since 30/06/2013
  */
 public interface DocumentTypeRepo extends GraphRepository<DocumentType> {
     @Query( value =

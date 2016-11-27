@@ -28,7 +28,8 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by mike on 8/07/16.
+ * @author mholdsworth
+ * @since 8/07/2016
  */
 public class TestBlankTag extends AbstractImport {
 

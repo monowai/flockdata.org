@@ -38,7 +38,8 @@ import static org.junit.Assert.assertFalse;
  *
  * Neither name nor description are mandatory
  *
- * Created by mike on 21/08/16.
+ * @author mholdsworth
+ * @since 21/08/2016
  */
 public class TestNameHandler {
 

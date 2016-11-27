@@ -29,11 +29,8 @@ import static org.junit.Assert.assertFalse;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mike
- * Date: 04/08/2014
- * Time: 15:31
- * To change this template use File | Settings | File Templates.
+ * @author mholdsworth
+ * @since 04/08/2014
  */
 
 public class TestPojos {

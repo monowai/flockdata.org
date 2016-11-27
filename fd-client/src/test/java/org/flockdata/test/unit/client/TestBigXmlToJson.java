@@ -19,9 +19,8 @@ package org.flockdata.test.unit.client;
 import org.junit.Test;
 
 /**
- * User: mike
- * Date: 22/09/14
- * Time: 2:36 PM
+ * @author mholdsworth
+ * @since 22/09/2014
  */
 public class TestBigXmlToJson {
     @Test

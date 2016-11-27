@@ -28,7 +28,8 @@ import java.util.Collection;
 import static org.junit.Assert.*;
 
 /**
- * Created by mike on 16/02/15.
+ * @author mholdsworth
+ * @since 16/02/2015
  */
 public class TestCompanyEP extends MvcBase {
 

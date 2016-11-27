@@ -34,29 +34,24 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 11/05/13
- * Time: 9:19 AM
+ * @author mholdsworth
+ * @since 11/05/2013
+ * @tag Payload, Entity
  */
 public class EntityInputBean implements Serializable, UserProperties {
+    Map<String, Object> properties = new HashMap<>();  // Set into the Entity
     private String key;
     private String code;
-
     private FortressInputBean fortress;
     private String fortressUser;
     @JsonDeserialize(as = DocumentTypeInputBean.class)
     private MetaDocument documentType;
-
     private Date when = null; // Created Date
-
     private Date lastChange = null;
     private ContentInputBean content;
     private transient List<TagInputBean> tags = new ArrayList<>();
-
     // String is the relationship name
     private transient Map<String, List<EntityKeyBean>> entityLinks = new HashMap<>();
-    Map<String, Object> properties = new HashMap<>();  // Set into the Entity
-
     private String event = null;
     private String description;
     private String name;
@@ -114,14 +109,14 @@ public class EntityInputBean implements Serializable, UserProperties {
 
     }
 
-    public EntityInputBean setKey(final String key) {
-        this.key = key;
-        return this;
-    }
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getKey() {
         return this.key;
+    }
+
+    public EntityInputBean setKey(final String key) {
+        this.key = key;
+        return this;
     }
 
     /**
@@ -139,17 +134,26 @@ public class EntityInputBean implements Serializable, UserProperties {
         return null;
     }
 
+    /**
+     * This date is ignored if a valid one is in the Content
+     *
+     * @param when when the caller says this occurred
+     */
+    public EntityInputBean setWhen(final Date when) {
+        this.when = when;
+        return this;
+    }
+
+    public FortressInputBean getFortress() {
+        return fortress;
+    }
+
     public EntityInputBean setFortress(FortressInputBean fortress) {
         if ( fortress!=null && fortress.getName().equals(""))
             throw new IllegalArgumentException("Fortress name cannot be blank or null");
         this.fortress = fortress;
         return this;
     }
-
-    public FortressInputBean getFortress (){
-        return fortress;
-    }
-
 
     /**
      * @return name
@@ -200,6 +204,11 @@ public class EntityInputBean implements Serializable, UserProperties {
         setContent(content);
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public ContentInputBean getContent() {
+        return content;
+    }
+
     public EntityInputBean setContent(ContentInputBean content) {
         this.content = content;
         if (content != null) {
@@ -207,11 +216,6 @@ public class EntityInputBean implements Serializable, UserProperties {
             //this.when = content.getWhen();
         }
         return this;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public ContentInputBean getContent() {
-        return content;
     }
 
     @Override
@@ -224,6 +228,11 @@ public class EntityInputBean implements Serializable, UserProperties {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, Object> getProperties() {
         return properties;
+    }
+
+    public EntityInputBean setProperties(final Map<String, Object> properties) {
+        this.properties = properties;
+        return this;
     }
 
     public EntityInputBean setProperty(String key, Object value) {
@@ -324,6 +333,16 @@ public class EntityInputBean implements Serializable, UserProperties {
         return trackSuppressed;
     }
 
+    /**
+     * Write the change as a search event only. Do not write to the graph service
+     *
+     * @param trackSuppressed true/false
+     */
+    public EntityInputBean setTrackSuppressed(final boolean trackSuppressed) {
+        this.trackSuppressed = trackSuppressed;
+        return this;
+    }
+
     public EntityInputBean addEntityLink(String relationshipName, EntityKeyBean entityKey) {
         if ( entityKey.getRelationshipName()== null)
             entityKey.setRelationshipName(relationshipName);
@@ -347,6 +366,11 @@ public class EntityInputBean implements Serializable, UserProperties {
         return entityLinks;
     }
 
+    public EntityInputBean setEntityLinks(final Map<String, List<EntityKeyBean>> entityLinks) {
+        this.entityLinks = entityLinks;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "EntityInputBean{" +
@@ -368,6 +392,10 @@ public class EntityInputBean implements Serializable, UserProperties {
         return this;
     }
 
+    public boolean isEntityOnly() {
+        return entityOnly;
+    }
+
     /**
      * Flags that this Entity will never have a content. It will still be tracked through
      * in to the Search Service.
@@ -376,15 +404,6 @@ public class EntityInputBean implements Serializable, UserProperties {
      */
     public EntityInputBean setEntityOnly(boolean entityOnly) {
         this.entityOnly = entityOnly;
-        return this;
-    }
-
-    public boolean isEntityOnly() {
-        return entityOnly;
-    }
-
-    public EntityInputBean setTimezone(String timezone) {
-        this.timezone = timezone;
         return this;
     }
 
@@ -400,8 +419,31 @@ public class EntityInputBean implements Serializable, UserProperties {
         return TimeZone.getDefault().getID();
     }
 
+    public EntityInputBean setTimezone(String timezone) {
+        this.timezone = timezone;
+        return this;
+    }
+
     public boolean isArchiveTags() {
         return archiveTags;
+    }
+
+    /**
+     * Instructs FlockData to Move tags already associated with an entity to the content
+     * if they are NOT present in this track request.
+     * <p/>
+     * Only applies to updating existing entities.
+     *
+     * @param archiveTags default False - tags not present in this request but are recorded
+     *                    against the entity will be MOVED to the content
+     */
+    public EntityInputBean setArchiveTags(final boolean archiveTags) {
+        this.archiveTags = archiveTags;
+        return this;
+    }
+
+    public String getUpdateUser() {
+        return updateUser;
     }
 
     /**
@@ -415,12 +457,13 @@ public class EntityInputBean implements Serializable, UserProperties {
         return this;
     }
 
-    public String getUpdateUser() {
-        return updateUser;
-    }
-
     public Date getLastChange() {
         return lastChange;
+    }
+
+    public EntityInputBean setLastChange(final Date lastChange) {
+        this.lastChange = lastChange;
+        return this;
     }
 
     @Override
@@ -446,26 +489,17 @@ public class EntityInputBean implements Serializable, UserProperties {
         return result;
     }
 
+    public FortressUser getUser() {
+        return user;
+    }
+
     public EntityInputBean setUser(final FortressUser user) {
         this.user = user;
         return this;
     }
 
-    public FortressUser getUser() {
-        return user;
-    }
-
     public MetaDocument getDocumentType() {
         return documentType;
-    }
-
-    public EntityInputBean setSegment(String segment) {
-        this.segment = segment;
-        return this;
-    }
-
-    public String getSegment() {
-        return segment;
     }
 
     public EntityInputBean setDocumentType(final MetaDocument documentType) {
@@ -473,53 +507,12 @@ public class EntityInputBean implements Serializable, UserProperties {
         return this;
     }
 
-    /**
-     * This date is ignored if a valid one is in the Content
-     *
-     * @param when when the caller says this occurred
-     */
-    public EntityInputBean setWhen(final Date when) {
-        this.when = when;
-        return this;
+    public String getSegment() {
+        return segment;
     }
 
-    public EntityInputBean setLastChange(final Date lastChange) {
-        this.lastChange = lastChange;
-        return this;
-    }
-
-    public EntityInputBean setEntityLinks(final Map<String, List<EntityKeyBean>> entityLinks) {
-        this.entityLinks = entityLinks;
-        return this;
-    }
-
-    public EntityInputBean setProperties(final Map<String, Object> properties) {
-        this.properties = properties;
-        return this;
-    }
-
-
-    /**
-     * Write the change as a search event only. Do not write to the graph service
-     *
-     * @param trackSuppressed true/false
-     */
-    public EntityInputBean setTrackSuppressed(final boolean trackSuppressed) {
-        this.trackSuppressed = trackSuppressed;
-        return this;
-    }
-
-    /**
-     * Instructs FlockData to Move tags already associated with an entity to the content
-     * if they are NOT present in this track request.
-     * <p/>
-     * Only applies to updating existing entities.
-     *
-     * @param archiveTags default False - tags not present in this request but are recorded
-     *                    against the entity will be MOVED to the content
-     */
-    public EntityInputBean setArchiveTags(final boolean archiveTags) {
-        this.archiveTags = archiveTags;
+    public EntityInputBean setSegment(String segment) {
+        this.segment = segment;
         return this;
     }
 

@@ -32,7 +32,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Created by mike on 19/03/15.
+ * @author mholdsworth
+ * @since 19/03/2015
  */
 public class GeoEvaluator implements Evaluator {
     static final Label countryLabel = DynamicLabel.label("Country");

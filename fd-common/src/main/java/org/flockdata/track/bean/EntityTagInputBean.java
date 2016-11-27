@@ -27,9 +27,9 @@ import org.flockdata.model.Tag;
 /**
  * Associates a Tag with an Entity
  * <p/>
- * User: Mike Holdsworth
- * Date: 28/06/13
- * Time: 9:58 PM
+ * @author mholdsworth
+ * @since 28/06/2013
+ * @tag Payload, Tag, Entity
  */
 public class EntityTagInputBean{
     private String tagCode;
@@ -84,6 +84,14 @@ public class EntityTagInputBean{
             return index;
     }
 
+    public void setIndex(String index) {
+        this.index = index;
+    }
+
+    public boolean isSince() {
+        return since;
+    }
+
     /**
      * When connecting the tag to the entity, tell FD to record a timestamp as a user defined property
      * @param since yes/no
@@ -92,14 +100,6 @@ public class EntityTagInputBean{
     public EntityTagInputBean setSince(boolean since) {
         this.since = since;
         return this;
-    }
-
-    public boolean isSince() {
-        return since;
-    }
-
-    public void setIndex(String index) {
-        this.index = index;
     }
 
     public String getTagKeyPrefix() {

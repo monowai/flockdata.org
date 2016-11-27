@@ -38,13 +38,42 @@ import javax.annotation.PostConstruct;
  * <p>
  * You should include the configuration to use this implementation
  * <p>
- * Created by mike on 16/02/16.
+ * @author mholdsworth
+ * @since 16/02/2016
  */
 
 @Profile({"fd-auth-test"}) //
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SimpleAuth extends WebSecurityConfigurerAdapter {
+
+    private static Logger logger = LoggerFactory.getLogger("configuration");
+    @Autowired
+    SimpleUsers simpleUsers;
+
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> ima = auth.inMemoryAuthentication();
+        if (simpleUsers == null || simpleUsers.getUsers() == null) {
+            logger.info("**** [fd-auth-test] - attempting to use fd-auth-test but no users have been configured. Consider starting the service with -P fd-no-auth");
+            logger.info("**** [fd-auth-test] - a default user of mike will be created");
+            simpleUsers.createDefault();
+        }
+        for (String login : simpleUsers.getUsers().keySet()) {
+            SimpleUsers.UserEntry user = simpleUsers.getUsers().get(login);
+            ima.withUser(login)
+                    .password(user.getPass())
+                    .roles(user.getRoles().toArray(new String[0]));
+
+            logger.info("**** [fd-auth-test] - Added {}", login);
+        }
+
+    }
+
+    @PostConstruct
+    void dumpConfig() {
+        logger.info("**** [fd-auth-test] - Limited authorization (for testing) is being used");
+    }
 
     @Configuration
     @Order(10) // Preventing clash with AuthTesting deployment (100)
@@ -81,35 +110,6 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
                 http.formLogin().loginPage(loginForm).permitAll();
             }
         }
-    }
-
-    @Autowired
-    SimpleUsers simpleUsers;
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> ima = auth.inMemoryAuthentication();
-        if (simpleUsers == null || simpleUsers.getUsers() == null) {
-            logger.info("**** [fd-auth-test] - attempting to use fd-auth-test but no users have been configured. Consider starting the service with -P fd-no-auth");
-            logger.info("**** [fd-auth-test] - a default user of mike will be created");
-            simpleUsers.createDefault();
-        }
-        for (String login : simpleUsers.getUsers().keySet()) {
-            SimpleUsers.UserEntry user = simpleUsers.getUsers().get(login);
-            ima.withUser(login)
-                    .password(user.getPass())
-                    .roles(user.getRoles().toArray(new String[0]));
-
-            logger.info("**** [fd-auth-test] - Added {}", login);
-        }
-
-    }
-
-    private static Logger logger = LoggerFactory.getLogger("configuration");
-
-    @PostConstruct
-    void dumpConfig() {
-        logger.info("**** [fd-auth-test] - Limited authorization (for testing) is being used");
     }
 
 }

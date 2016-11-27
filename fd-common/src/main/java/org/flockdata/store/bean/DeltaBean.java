@@ -24,13 +24,15 @@ import org.flockdata.model.Log;
 import org.flockdata.store.LogRequest;
 
 /**
- * Created by mike on 17/02/16.
+ * @author mholdsworth
+ * @since 17/02/2016
  */
 public class DeltaBean {
-    DeltaBean(){}
-
     private LogRequest logRequest;
     private Log preparedLog;
+
+    DeltaBean() {
+    }
 
     public DeltaBean(LogRequest logRequest, Log preparedLog) {
         this();

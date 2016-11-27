@@ -30,9 +30,9 @@ import java.io.IOException;
 import java.util.Collection;
 
 /**
- * User: mike
- * Date: 7/10/14
- * Time: 12:18 PM
+ * @tag Integration, FdClient
+ * @author mholdsworth
+ * @since 7/10/2014
  */
 public interface FdIoInterface {
     /**

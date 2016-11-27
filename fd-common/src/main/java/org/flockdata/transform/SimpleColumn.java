@@ -21,7 +21,8 @@
 package org.flockdata.transform;
 
 /**
- * Created by mike on 21/01/15.
+ * @author mholdsworth
+ * @since 21/01/2015
  */
 public class SimpleColumn {
     private String expression;

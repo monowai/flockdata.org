@@ -25,7 +25,8 @@ import java.util.Objects;
 /**
  * A single column that can be reported on
  * <p>
- * Created by mike on 31/08/16.
+ * @author mholdsworth
+ * @since 31/08/2016
  */
 public class EsColumn {
     private String name;

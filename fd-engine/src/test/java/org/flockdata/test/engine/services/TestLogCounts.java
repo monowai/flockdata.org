@@ -38,9 +38,8 @@ import static org.junit.Assert.assertEquals;
 /**
  * Tests that deal with log changes - correct number, detecting changes etc
  *
- * User: mike
- * Date: 30/10/14
- * Time: 9:51 AM
+ * @author mholdsworth
+ * @since 30/10/2014
  */
 public class TestLogCounts extends EngineBase {
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);

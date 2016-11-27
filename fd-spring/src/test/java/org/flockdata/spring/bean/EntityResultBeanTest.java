@@ -26,9 +26,8 @@ import org.junit.Test;
 
 /**
  * Created with IntelliJ IDEA.
- * User: nabil
- * Date: 05/09/13
- * Time: 23:25
+ * @author  nabil
+ * @since 05/09/2013
  * To change this template use File | Settings | File Templates.
  */
 public class EntityResultBeanTest {

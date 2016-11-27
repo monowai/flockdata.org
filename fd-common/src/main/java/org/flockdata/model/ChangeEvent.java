@@ -29,9 +29,9 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
- * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 12:52 PM
+ * @author mholdsworth
+ * @since 29/06/2013
+ * @tag Node, ChangeEvent
  */
 @NodeEntity
 @TypeAlias("Event")
@@ -42,15 +42,6 @@ public class ChangeEvent {
     @Indexed(unique = true)
     private String code;
     private String name;
-
-    @Override
-    public String toString() {
-        return "ChangeEventNode{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
-                '}';
-    }
-
     //@Relationship(type = "COMPANY_EVENT", direction = Relationship.INCOMING)
     @RelatedTo(type = "COMPANY_EVENT", direction = Direction.INCOMING)
     private Iterable<Company> companies;
@@ -63,6 +54,14 @@ public class ChangeEvent {
         this.code = name;
     }
 
+    @Override
+    public String toString() {
+        return "ChangeEventNode{" +
+                "id=" + id +
+                ", code='" + code + '\'' +
+                '}';
+    }
+
     @JsonIgnore
     public Long getId() {
         return id;
@@ -73,11 +72,11 @@ public class ChangeEvent {
         return code;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getName() {
+        return name;
     }
 }

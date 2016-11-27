@@ -26,7 +26,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
- * Created by mike on 31/08/16.
+ * @author mholdsworth
+ * @since 31/08/2016
  */
 public class ModelFieldStructure extends AbstractRestCommand{
     private ContentStructure result;

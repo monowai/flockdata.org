@@ -34,15 +34,15 @@ import java.util.Collection;
 /**
  * Invoked when a results are returned from fd-search. Extracted to support unit testing
  *
- * Created by mike on 12/02/16.
+ * @author mholdsworth
+ * @since 12/02/2016
  */
 @Service
 public class SearchHandler {
 
-    private Logger logger = LoggerFactory.getLogger(SearchHandler.class);
-
     @Autowired
     EntityService entityService;
+    private Logger logger = LoggerFactory.getLogger(SearchHandler.class);
 
     public void handleResults(SearchResults searchResults) {
         Collection<SearchResult> theResults = searchResults.getSearchResults();

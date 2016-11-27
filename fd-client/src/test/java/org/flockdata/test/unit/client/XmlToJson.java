@@ -23,9 +23,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- * User: mike
- * Date: 22/09/14
- * Time: 2:36 PM
+ * @author mholdsworth
+ * @since 22/09/2014
  */
 public class XmlToJson {
     @Test

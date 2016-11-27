@@ -47,7 +47,8 @@ import java.util.Map;
 
 /**
  * Handles reading content from fd-store
- * Created by mike on 17/02/16.
+ * @author mholdsworth
+ * @since 17/02/2016
  */
 @IntegrationComponentScan
 @Configuration
@@ -56,13 +57,6 @@ public class StorageReader {
 
     @Autowired
     EngineConfig engineConfig;
-
-    @MessagingGateway
-    public interface StorageReaderGateway {
-        @Payload("#args")
-        @Gateway(requestChannel = "startStoreRead", requestTimeout = 5000, replyChannel = "storeReadResult")
-        StoredContent read(Store store, String index, String type, String key);
-    }
 
     @Bean
     MessageChannel startStoreRead(){
@@ -100,6 +94,13 @@ public class StorageReader {
         handler.setUriVariableExpressions(vars);
         handler.setExpectedResponseType(StorageBean.class);
         return handler;
+    }
+
+    @MessagingGateway
+    public interface StorageReaderGateway {
+        @Payload("#args")
+        @Gateway(requestChannel = "startStoreRead", requestTimeout = 5000, replyChannel = "storeReadResult")
+        StoredContent read(Store store, String index, String type, String key);
     }
 
 

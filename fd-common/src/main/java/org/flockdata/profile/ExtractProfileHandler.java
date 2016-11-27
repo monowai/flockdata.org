@@ -30,9 +30,8 @@ import org.flockdata.profile.model.ExtractProfile;
  * Handles extraction configurations for converting Mappable objects via a ContentProfile
  * This is the default deserialized Pojo
  *
- * User: mike
- * Date: 28/04/14
- * Time: 8:47 AM
+ * @author mholdsworth
+ * @since 28/04/2014
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExtractProfileHandler implements ExtractProfile {
@@ -90,9 +89,18 @@ public class ExtractProfileHandler implements ExtractProfile {
         return handler;
     }
 
+    // Custom java class name to handle "XML" type transformations
+    public void setHandler(String handler) {
+        this.handler = handler;
+    }
+
     @Override
     public String getPreParseRowExp() {
         return preParseRowExp;
+    }
+
+    public void setPreParseRowExp(String preParseRowExp) {
+        this.preParseRowExp = preParseRowExp;
     }
 
     @Override
@@ -134,10 +142,6 @@ public class ExtractProfileHandler implements ExtractProfile {
         return header;
     }
 
-    public void setPreParseRowExp(String preParseRowExp) {
-        this.preParseRowExp = preParseRowExp;
-    }
-
     public ExtractProfile setCondition(String condition) {
         this.condition = condition;
         return this;
@@ -170,10 +174,5 @@ public class ExtractProfileHandler implements ExtractProfile {
         int result =  (preParseRowExp != null ? preParseRowExp.hashCode() : 0);
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
         return result;
-    }
-
-    // Custom java class name to handle "XML" type transformations
-    public void setHandler(String handler) {
-        this.handler = handler;
     }
 }

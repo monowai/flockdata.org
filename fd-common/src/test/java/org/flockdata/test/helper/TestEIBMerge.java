@@ -30,7 +30,8 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * Verifies that EntityInputBeans can be merged into each other
  *
- * Created by mike on 23/01/16.
+ * @author mholdsworth
+ * @since 23/01/2016
  */
 public class TestEIBMerge {
 

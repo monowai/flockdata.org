@@ -21,7 +21,6 @@
 package org.flockdata.geography.dao;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.model.Tag;
 import org.flockdata.track.bean.GeoDataBean;
 import org.flockdata.track.bean.GeoDataBeans;
@@ -37,15 +36,20 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @tag Geo, Service, Neo4j
+ */
 @Service
 public class GeoSupportNeo {
-    @Autowired
+    private final
     Neo4jTemplate template;
 
-    @Autowired
-    FortressService fortressService;
-
     private Logger logger = LoggerFactory.getLogger(GeoSupportNeo.class);
+
+    @Autowired
+    public GeoSupportNeo(Neo4jTemplate template) {
+        this.template = template;
+    }
 
     @Cacheable(value = "geoData", key = "#loc.id")
     public GeoDataBeans getGeoData(String query, Tag loc) {

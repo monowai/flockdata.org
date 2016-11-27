@@ -39,8 +39,8 @@ import static org.junit.Assert.assertTrue;
 
 
 /**
- * User: Mike Holdsworth
- * Since: 18/07/13
+ * @author mholdsworth
+ * @since 18/07/2013
  */
 public class TestCompression {
 

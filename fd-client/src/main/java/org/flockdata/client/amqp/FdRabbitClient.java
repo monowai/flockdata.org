@@ -38,23 +38,18 @@ import java.util.concurrent.TimeoutException;
 /**
  * Writes entity and tag payloads to FlockData over AMQP
  * <p>
- * User: mike
- * Date: 27/11/14
- * Time: 8:17 AM
+ * @author mholdsworth
+ * @since 27/11/2014
  */
 @Service
 public class FdRabbitClient {
 
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdRabbitClient.class);
+    private final ClientConfiguration configuration;
+    private final AmqpRabbitConfig rabbitConfig;
+    private final Exchanges exchanges;
     private AMQP.BasicProperties entityProps;
     private AMQP.BasicProperties tagProps;
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdRabbitClient.class);
-
-    private final ClientConfiguration configuration;
-
-    private final AmqpRabbitConfig rabbitConfig;
-
-    private final Exchanges exchanges;
-
     private Connection connection;
 
     private ConnectionFactory connectionFactory = null;

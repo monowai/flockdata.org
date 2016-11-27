@@ -26,8 +26,8 @@ import org.flockdata.model.MetaFortress;
 import java.io.Serializable;
 
 /**
- * User: Mike Holdsworth
- * Since: 21/12/13
+ * @author mholdsworth
+ * @since 21/12/2013
  */
 public class FortressResultBean implements MetaFortress, Serializable{
     private String code;

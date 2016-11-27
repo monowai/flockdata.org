@@ -28,7 +28,8 @@ import org.springframework.retry.annotation.EnableRetry;
 /**
  * The periodic failing of TestEntityDeadlock. Batching tests in to a suite for convenience
  *
- * Created by mike on 2/04/15.
+ * @author mholdsworth
+ * @since 2/04/2015
  */
 
 

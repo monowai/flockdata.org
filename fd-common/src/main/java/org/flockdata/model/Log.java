@@ -32,9 +32,8 @@ import org.springframework.data.neo4j.annotation.*;
 
 /**
  * Tracks metadata about the Log event that is occurring against the Entity
- * User: Mike Holdsworth
- * Date: 15/04/13
- * Time: 5:57 PM
+ * @author mholdsworth
+ * @since 15/04/2013
  */
 @NodeEntity(useShortNames = true)
 @TypeAlias("Log")
@@ -44,69 +43,34 @@ public class Log  {
     public static final String UPDATE = "Update";
 
     private static final String COLON = ":";
+    @Transient
+    boolean mocked = false;
     @GraphId
     private Long id;
-
     //@Relationship(type = "CHANGED", direction = Relationship.INCOMING)
     @RelatedTo(type = "CHANGED", direction = Direction.INCOMING, enforceTargetType = true)
     @Fetch
     private FortressUser madeBy;
-
     //@Relationship(type = "AFFECTED", direction = Relationship.INCOMING)
     @RelatedTo(type = "AFFECTED", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
-
     @RelatedToVia(type = "LOGGED", direction = Direction.INCOMING)
     private EntityLog entityLog;
-
     private String event;
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String comment;
     private String storage;  // ENUMS are not serializable
     private String checkSum=null;
     private Double profileVersion = 1d;
-
     @Indexed (unique =  true)
     private String logKey;
     private String contentType ;
     private String fileName;
-
     private boolean compressed = false;
-
     @RelatedTo(type = "PREVIOUS_LOG", direction = Direction.OUTGOING)
     private Log previousLog;
-
     @Transient
-    boolean mocked = false;
-
-    public String getContentType() {
-        if ( contentType == null )
-            contentType = "json";
-        return contentType;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    @Override
-    public String toString() {
-        return "Log{" +
-                "id=" + id +
-                ", madeBy=" + madeBy +
-                ", event=" + event +
-                '}';
-    }
+    private StoredContent content = null;
 
     protected Log() {
         this.contentType = "json";
@@ -137,6 +101,34 @@ public class Log  {
         this.comment = contentBean.getComment();
     }
 
+    public String getContentType() {
+        if (contentType == null)
+            contentType = "json";
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    @Override
+    public String toString() {
+        return "Log{" +
+                "id=" + id +
+                ", madeBy=" + madeBy +
+                ", event=" + event +
+                '}';
+    }
+
     @JsonIgnore
     public Long getId() {
         return id;
@@ -156,6 +148,10 @@ public class Log  {
         return madeBy;
     }
 
+    public void setMadeBy(FortressUser madeBy) {
+        this.madeBy = madeBy;
+    }
+
     public String getComment() {
         return comment;
     }
@@ -164,13 +160,13 @@ public class Log  {
         this.comment = comment;
     }
 
-    public void setPreviousLog(Log previousLog) {
-        this.previousLog = previousLog;
-    }
-
     @JsonIgnore
     public Log getPreviousLog() {
         return previousLog;
+    }
+
+    public void setPreviousLog(Log previousLog) {
+        this.previousLog = previousLog;
     }
 
     public void setTxRef(TxRef txRef) {
@@ -185,8 +181,18 @@ public class Log  {
         return new ChangeEvent(event);
     }
 
+    public void setEvent(ChangeEvent event) {
+        // DAT-344
+        //this.event = (ChangeEventNode) event;
+        this.event = event.getName();
+    }
+
     public boolean isCompressed() {
         return compressed;
+    }
+
+    public void setCompressed(Boolean compressed) {
+        this.compressed = compressed;
     }
 
     @JsonIgnore
@@ -196,12 +202,6 @@ public class Log  {
 
     public void setStorage(String storage) {
         this.storage = storage;
-    }
-
-    public void setEvent(ChangeEvent event) {
-        // DAT-344
-        //this.event = (ChangeEventNode) event;
-        this.event = event.getName();
     }
 
     public boolean equals(Object other) {
@@ -215,25 +215,16 @@ public class Log  {
         return id == null ? System.identityHashCode(this) : id.hashCode();
     }
 
-    public void setCompressed(Boolean compressed) {
-        this.compressed = compressed;
-    }
-
     @JsonIgnore
     public EntityLog getEntityLog() {
         return entityLog;
     }
 
-    @Transient
-    private StoredContent content = null;
-
-    @JsonIgnore
-    public void setContent(StoredContent storedContent) {
-        this.content = storedContent;
-        if ( storedContent.getContent()!=null ){
-            this.profileVersion = storedContent.getContent().getpVer();
-        }
-
+    public void setEntityLog(EntityLog entityLog) {
+        // DAT-288 DAT-465
+        // logKey assumes that an entity will have exactly one change on the FortressWhen date
+        this.logKey = ""+entityLog.getEntity().getId() +"."+ entityLog.getFortressWhen();
+        //this.entityLog = entityLog;
     }
 
     public Double getProfileVersion() {
@@ -245,15 +236,13 @@ public class Log  {
         return content;
     }
 
-    public void setEntityLog(EntityLog entityLog) {
-        // DAT-288 DAT-465
-        // logKey assumes that an entity will have exactly one change on the FortressWhen date
-        this.logKey = ""+entityLog.getEntity().getId() +"."+ entityLog.getFortressWhen();
-        //this.entityLog = entityLog;
-    }
+    @JsonIgnore
+    public void setContent(StoredContent storedContent) {
+        this.content = storedContent;
+        if (storedContent.getContent() != null) {
+            this.profileVersion = storedContent.getContent().getpVer();
+        }
 
-    public void setMadeBy(FortressUser madeBy) {
-        this.madeBy = madeBy;
     }
 
     /**

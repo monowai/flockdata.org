@@ -31,9 +31,9 @@ import org.flockdata.transform.json.GeoDeserializer;
 import java.util.ArrayList;
 
 /**
- * User: mike
- * Date: 27/05/14
- * Time: 3:51 PM
+ * @author mholdsworth
+ * @since 27/05/2014
+ * @tag Tag, ContentModel, Geo
  */
 public class TagProfile implements GeoDefinition {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -128,10 +128,6 @@ public class TagProfile implements GeoDefinition {
                 '}';
     }
 
-    public void setMustExist(boolean mustExist) {
-        this.mustExist = mustExist;
-    }
-
     public String getCode() {
         return code;
     }
@@ -168,16 +164,20 @@ public class TagProfile implements GeoDefinition {
         return mustExist;
     }
 
-    public boolean hasProperites() {
-        return properties!=null && properties.size()>0;
+    public void setMustExist(boolean mustExist) {
+        this.mustExist = mustExist;
     }
 
-    public void setAliases(ArrayList<AliasInputBean> aliases) {
-        this.aliases = aliases;
+    public boolean hasProperties() {
+        return properties!=null && properties.size()>0;
     }
 
     public ArrayList<AliasInputBean> getAliases() {
         return aliases;
+    }
+
+    public void setAliases(ArrayList<AliasInputBean> aliases) {
+        this.aliases = aliases;
     }
 
     public boolean hasAliases (){

@@ -28,7 +28,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Created by mike on 5/03/16.
+ * @author mholdsworth
+ * @since 5/03/2016
  */
 public interface PayloadBatcher {
 

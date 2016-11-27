@@ -32,9 +32,8 @@ import org.flockdata.profile.model.ContentModel;
 import java.util.Collection;
 
 /**
- * User: mike
- * Date: 3/10/14
- * Time: 2:45 PM
+ * @author mholdsworth
+ * @since 3/10/2014
  */
 public interface ContentModelService {
 

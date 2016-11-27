@@ -30,8 +30,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * User: Mike Holdsworth
- * Since: 20/07/13
+ * @author mholdsworth
+ * @since 20/07/2013
  */
 public class ObjectHelper {
     public static final String PROP_COMPRESSION = "disableCompression";

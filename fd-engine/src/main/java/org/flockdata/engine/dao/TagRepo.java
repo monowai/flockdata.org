@@ -27,7 +27,9 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import java.util.Collection;
 
 /**
- * Created by mike on 1/04/15.
+ * @author mholdsworth
+ * @since 1/04/2015
+ * @tag Neo4j, GraphRepository, Tag
  */
 public interface TagRepo  extends GraphRepository<Tag>{
     @Query(value = "match (t:Tag) where t.key = {0} return t")

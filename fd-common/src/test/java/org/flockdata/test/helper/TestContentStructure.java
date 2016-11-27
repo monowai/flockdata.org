@@ -32,7 +32,8 @@ import static junit.framework.TestCase.assertNotNull;
 /**
  * Sanity tests for ContentStructure
  *
- * Created by mike on 31/08/16.
+ * @author mholdsworth
+ * @since 31/08/2016
  */
 public class TestContentStructure {
 

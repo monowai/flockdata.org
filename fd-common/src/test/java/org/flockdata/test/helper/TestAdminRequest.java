@@ -28,7 +28,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Created by mike on 12/05/16.
+ * @author mholdsworth
+ * @since 12/05/2016
  */
 public class TestAdminRequest {
 

@@ -29,9 +29,8 @@ import org.flockdata.transform.ColumnDefinition;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 3/10/14
- * Time: 2:51 PM
+ * @author mholdsworth
+ * @since 3/10/2014
  */
 
 @JsonDeserialize(using =ContentModelDeserializer.class)
@@ -39,13 +38,19 @@ public interface ContentModel {
 
     DocumentTypeInputBean getDocumentType();
 
+    ContentModel setDocumentType(DocumentTypeInputBean documentType);
+
     String getName();
 
-    void setContent(Map<String, ColumnDefinition> columns);
+    ContentModel setName(String name);
 
     Map<String, ColumnDefinition> getContent();
 
+    void setContent(Map<String, ColumnDefinition> columns);
+
     FortressInputBean getFortress() ;
+
+    ContentModel setFortress(FortressInputBean fortress);
 
     String getFortressUser();
 
@@ -55,29 +60,23 @@ public interface ContentModel {
 
     String getEvent();
 
+    void setEvent(String event);
+
     ColumnDefinition getColumnDef(String column);
 
     void setFortressName(String fortressName);
-
-    ContentModel setFortress(FortressInputBean fortress);
 
     void setDocumentName(String name);
 
     String getSegmentExpression();
 
-    ContentModel setDocumentType(DocumentTypeInputBean documentType);
+    void setSegmentExpression(String segmentExpression);
 
     Map<String, Object> getProperties();
 
     void setEntityOnly(boolean b);
 
-    ContentModel setName(String name);
-
     void setArchiveTags(boolean archiveTags);
-
-    void setSegmentExpression(String segmentExpression);
-
-    void setEvent(String event);
 
     String getHandler();
 

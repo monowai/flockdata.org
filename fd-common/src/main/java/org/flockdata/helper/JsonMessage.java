@@ -26,10 +26,8 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import java.util.HashMap;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mike
- * Date: 31/01/14
- * Time: 6:27 PM
+ * @author mholdsworth
+ * @since 31/01/2014
  * http://www.asyncdev.net/2011/12/spring-restful-controllers-and-error-handling/
  */
 public class JsonMessage {

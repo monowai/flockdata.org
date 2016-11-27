@@ -26,7 +26,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by mike on 7/07/15.
+ * @author mholdsworth
+ * @since 7/07/2015
  */
 public class EntityLogs {
 

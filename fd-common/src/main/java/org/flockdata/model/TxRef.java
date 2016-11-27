@@ -28,9 +28,8 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 15/06/13
- * Time: 9:11 AM
+ * @author mholdsworth
+ * @since 15/06/2013
  */
 @NodeEntity
 @TypeAlias("TxRef")
@@ -54,14 +53,6 @@ public class TxRef {
 
     private long txDate;
 
-    public TxRef.TxStatus getTxStatus() {
-        return txStatus;
-    }
-
-    public long getTxDate() {
-        return txDate;
-    }
-
     protected TxRef() {
     }
 
@@ -70,6 +61,14 @@ public class TxRef {
         this.company = company;
         setStatus(TxStatus.TX_CREATED);
 
+    }
+
+    public TxRef.TxStatus getTxStatus() {
+        return txStatus;
+    }
+
+    public long getTxDate() {
+        return txDate;
     }
 
     public String getName() {

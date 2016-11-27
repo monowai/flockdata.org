@@ -29,7 +29,8 @@ import org.springframework.context.annotation.Profile;
 import javax.annotation.PostConstruct;
 
 /**
- * Created by mike on 7/05/16.
+ * @author mholdsworth
+ * @since 7/05/2016
  */
 @EnableDiscoveryClient
 @Configuration

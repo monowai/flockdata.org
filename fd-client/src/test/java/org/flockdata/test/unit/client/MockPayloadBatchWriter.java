@@ -26,7 +26,8 @@ import org.springframework.stereotype.Service;
  *
  * User must call reset() to clear down any cached data
  *
- * Created by mike on 13/04/16.
+ * @author mholdsworth
+ * @since 13/04/2016
  */
 @Profile("fd-batch-dev")
 @Service

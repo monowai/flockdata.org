@@ -41,7 +41,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * SPeL tests and custom properties for tags
  *
- * Created by mike on 17/01/15.
+ * @author mholdsworth
+ * @since 17/01/2015
  */
 public class TestGeography extends AbstractImport{
 

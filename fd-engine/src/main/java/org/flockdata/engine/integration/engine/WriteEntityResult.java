@@ -47,21 +47,26 @@ import java.io.IOException;
 
 /**
  * fd-search -->> fd-engine (inbound)
- *
- * Created by mike on 21/07/15.
+ * @tag Track, Messaging, Search
+ * @author mholdsworth
+ * @since 21/07/2015
  */
 @Service
 @Profile({"fd-server"})
 public class WriteEntityResult {
 
-    @Autowired
-    SearchHandler searchHandler;
-
-    @Autowired
-    Exchanges exchanges;
-
     private static final com.fasterxml.jackson.databind.ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
+    private final
+    SearchHandler searchHandler;
+    private final
+    Exchanges exchanges;
     private ObjectToJsonTransformer transformer;
+
+    @Autowired
+    public WriteEntityResult(SearchHandler searchHandler, Exchanges exchanges) {
+        this.searchHandler = searchHandler;
+        this.exchanges = exchanges;
+    }
 
     @PostConstruct
     public void createTransformer() {

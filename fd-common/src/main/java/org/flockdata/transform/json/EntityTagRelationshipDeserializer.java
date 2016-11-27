@@ -34,7 +34,8 @@ import java.util.Collection;
 
 /**
  * JSON
- * Created by mike on 29/07/15.
+ * @author mholdsworth
+ * @since 29/07/2015
  */
 public class EntityTagRelationshipDeserializer extends JsonDeserializer<Collection<EntityTagRelationshipDefinition>> {
 

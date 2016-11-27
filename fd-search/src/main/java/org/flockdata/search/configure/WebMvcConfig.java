@@ -27,7 +27,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 /**
  * Spring MVC configuration
- * Created by mike on 18/02/16.
+ * @author mholdsworth
+ * @since 18/02/2016
  */
 @Configuration
 @Controller

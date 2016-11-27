@@ -40,15 +40,14 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 27/04/14
- * Time: 4:34 PM
+ * @author mholdsworth
+ * @since 27/04/2014
  */
 public class EntityPayloadTransformer extends EntityInputBean implements PayloadTransformer {
 
+    private static final ColumnDefinition EMPTY_COLDEF = new ColumnDefinition();
 //    private static final Logger logger = LoggerFactory.getLogger(EntityMapper.class);
     private final ContentModel contentModel ;
-    private static final ColumnDefinition EMPTY_COLDEF = new ColumnDefinition();
 
     private EntityPayloadTransformer(ContentModel contentModel) {
         this.contentModel = contentModel;
@@ -57,6 +56,11 @@ public class EntityPayloadTransformer extends EntityInputBean implements Payload
         setFortressUser(contentModel.getFortressUser());
 
     }
+
+    public static EntityPayloadTransformer newInstance(ContentModel importProfile) {
+        return new EntityPayloadTransformer(importProfile);
+    }
+
     public Map<String, Object> transform(Map<String, Object> row) throws FlockException{
         return transform(row, contentModel);
     }
@@ -222,10 +226,6 @@ public class EntityPayloadTransformer extends EntityInputBean implements Payload
         if (o != null)
             value = o.toString().trim();
         return value;
-    }
-
-    public static EntityPayloadTransformer newInstance(ContentModel importProfile) {
-        return new EntityPayloadTransformer(importProfile);
     }
 
 }

@@ -42,25 +42,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * User: Mike Holdsworth
- * Since: 29/08/13
+ * @author mholdsworth
+ * @since 29/08/2013
+ * @tag Search, Administration
  */
 @Service
 @Configuration
 public class SearchAdmin {
     @Autowired
-    EntityChangeWriter engineDao;
+    private EntityChangeWriter engineDao;
 
     @Autowired
-    IndexMappingService indexMappingService;
+    private IndexMappingService indexMappingService;
 
     @Autowired
-    SearchConfig searchConfig;
-
+    private SearchConfig searchConfig;
+    @Autowired (required = false)
+    private VersionHelper versionHelper;
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Autowired (required = false)
-    VersionHelper versionHelper;
     public Map<String, Object> getHealth() {
 
         String version = "";

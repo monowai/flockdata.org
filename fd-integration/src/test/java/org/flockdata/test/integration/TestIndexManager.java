@@ -33,7 +33,8 @@ import org.flockdata.search.model.QueryParams;
 import org.junit.Test;
 
 /**
- * Created by mike on 29/02/16.
+ * @author mholdsworth
+ * @since 29/02/2016
  */
 public class TestIndexManager {
 

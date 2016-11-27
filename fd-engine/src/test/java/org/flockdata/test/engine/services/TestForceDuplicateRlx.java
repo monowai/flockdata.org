@@ -40,8 +40,8 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 /**
- * User: Mike Holdsworth
- * Since: 1/12/13
+ * @author mholdsworth
+ * @since 1/12/2013
  */
 public class TestForceDuplicateRlx extends EngineBase {
 

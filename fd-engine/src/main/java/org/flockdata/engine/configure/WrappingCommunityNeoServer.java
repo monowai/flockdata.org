@@ -27,7 +27,8 @@ import org.neo4j.server.configuration.Configurator;
 /**
  * Used to satisfy the neo4j browser app checking for the DB version
  *
- * Created by mike on 28/03/16.
+ * @author mholdsworth
+ * @since 28/03/2016
  */
 public class WrappingCommunityNeoServer extends WrappingNeoServer {
 

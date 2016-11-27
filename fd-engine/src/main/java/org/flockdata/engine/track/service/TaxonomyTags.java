@@ -50,7 +50,8 @@ import java.util.Map;
  * figuring out how to allow deployment outside of org.flockdata and ability to customize the
  * path being looked for
  * <p>
- * Created by mike on 20/08/15.
+ * @author mholdsworth
+ * @since 20/08/2015
  */
 @Repository
 public class TaxonomyTags implements EntityTagFinder {

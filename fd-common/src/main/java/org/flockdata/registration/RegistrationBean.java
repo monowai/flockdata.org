@@ -24,9 +24,8 @@ package org.flockdata.registration;
 import org.flockdata.model.Company;
 
 /**
- * User: Mike Holdsworth
- * Date: 14/05/13
- * Time: 5:53 PM
+ * @author mholdsworth
+ * @since 14/05/2013
  */
 public class RegistrationBean {
     private String name;
@@ -60,16 +59,39 @@ public class RegistrationBean {
         return companyName;
     }
 
+    public RegistrationBean setCompanyName(final String companyName) {
+        this.companyName = companyName;
+        return this;
+    }
+
     public String getLogin() {
         return login;
+    }
+
+    public RegistrationBean setLogin(final String login) {
+        this.login = login;
+        return this;
     }
 
     public String getName() {
         return name;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    public RegistrationBean setName(final String name) {
+        this.name = name;
+        return this;
+    }
+
     public Company getCompany() {
         return this.company;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public RegistrationBean setCompany(final Company company) {
+        this.company = company;
+        if (company != null)
+            this.companyName = company.getName();
+
+        return this;
     }
 
     public RegistrationBean setIsUnique(boolean mustBeUnique) {
@@ -79,6 +101,11 @@ public class RegistrationBean {
 
     public boolean isUnique() {
         return unique;
+    }
+
+    public RegistrationBean setUnique(final boolean unique) {
+        this.unique = unique;
+        return this;
     }
 
     @Override
@@ -93,34 +120,6 @@ public class RegistrationBean {
 
     public String getEmail() {
         return email;
-    }
-
-    public RegistrationBean setName(final String name) {
-        this.name = name;
-        return this;
-    }
-
-    public RegistrationBean setLogin(final String login) {
-        this.login = login;
-        return this;
-    }
-
-    public RegistrationBean setCompanyName(final String companyName) {
-        this.companyName = companyName;
-        return this;
-    }
-
-    public RegistrationBean setCompany(final Company company) {
-        this.company = company;
-        if ( company != null )
-            this.companyName = company.getName();
-
-        return this;
-    }
-
-    public RegistrationBean setUnique(final boolean unique) {
-        this.unique = unique;
-        return this;
     }
 
     public RegistrationBean setEmail(final String email) {

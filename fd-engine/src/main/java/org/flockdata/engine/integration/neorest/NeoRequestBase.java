@@ -30,13 +30,15 @@ import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import javax.annotation.PostConstruct;
 
 /**
- * Created by mike on 15/07/15.
+ * @author mholdsworth
+ * @since 15/07/2015
  */
 @Profile("neorest")
 public class NeoRequestBase {
 
     @Autowired
     FdNeoChannels channels;
+    private ObjectToJsonTransformer transformer;
 
     public String getEntityUrl() {
         return channels.getUriRoot() +"/entity";
@@ -97,8 +99,6 @@ public class NeoRequestBase {
     public String getEntityTags() {
         return getEntityTagUrl() +"/{entityId}";
     }
-
-    private ObjectToJsonTransformer transformer;
 
     @PostConstruct
     public void createTransformer() {

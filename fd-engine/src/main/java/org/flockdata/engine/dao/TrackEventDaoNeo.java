@@ -33,19 +33,25 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * User: Mike Holdsworth
- * Date: 28/06/13
- * Time: 11:07 PM
+ * @author mholdsworth
+ * @since 28/06/2013
+ * @tag Repository, Track, Neo4j, Event
  */
 @Repository
 public class TrackEventDaoNeo implements TrackEventDao {
-    @Autowired
-    Neo4jTemplate template;
+    final
+    private Neo4jTemplate template;
+
+    final
+    private ChangeEventRepo eventRepo;
 
     @Autowired
-    ChangeEventRepo eventRepo;
+    public TrackEventDaoNeo(Neo4jTemplate template, ChangeEventRepo eventRepo) {
+        this.template = template;
+        this.eventRepo = eventRepo;
+    }
 
-//    @Cacheable(value = "companyEvent", unless = "#result == null")
+    //    @Cacheable(value = "companyEvent", unless = "#result == null")
     private org.flockdata.model.ChangeEvent findEvent(Company company, String eventCode) {
         return eventRepo.findCompanyEvent(company.getId(), eventCode.toLowerCase());
     }

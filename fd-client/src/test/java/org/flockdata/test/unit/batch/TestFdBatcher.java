@@ -27,7 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by mike on 6/03/16.
+ * @author mholdsworth
+ * @since 6/03/2016
  */
 public class TestFdBatcher extends AbstractImport{
 

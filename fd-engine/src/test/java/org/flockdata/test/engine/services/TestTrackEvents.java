@@ -33,8 +33,8 @@ import static org.junit.Assert.*;
 
 
 /**
- * User: Mike Holdsworth
- * Since: 6/09/13
+ * @author mholdsworth
+ * @since 6/09/2013
  */
 public class TestTrackEvents extends EngineBase {
 

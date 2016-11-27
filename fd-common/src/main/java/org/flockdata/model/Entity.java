@@ -40,90 +40,62 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
+/**
+ * @tag Entity, Node, Segment
+ */
 @NodeEntity
 @TypeAlias("Entity")
 public class Entity implements Serializable {
 
+    public static final String UUID_KEY = "key";
+    DynamicProperties props = new DynamicPropertiesContainer();
+    @Transient
+    boolean newEntity = false;
     @Indexed
     private String key;
-
     //@Relationship(type = "TRACKS", direction = Relationship.INCOMING)
     @RelatedTo(type = "TRACKS", direction = Direction.INCOMING)
     @Fetch
     private FortressSegment segment;
-
     @Labels
     private ArrayList<String> labels = new ArrayList<>();
-
     @Indexed(unique = true)
     private String extKey;   // Calculated field defining a unique external key
-
     @Indexed
     private String code;
-
     private String name;
-
     // By the Fortress
     private long dateCreated = 0;
-
     // should only be set if this is an immutable entity and no log events will be recorded
     private String event = null;
-
     // By FlockData, set in UTC
     private long lastUpdate = 0;
-
     // Fortress in fortress timezone
     private Long fortressLastWhen = null;
-
     private long fortressCreate;
-
     @GraphId
     private Long id;
 
+    //@Relationship(type = "LOGGED")
+    //Set<EntityLog> logs = new HashSet<>();
     //@Relationship(type = "CREATED_BY", direction = Relationship.OUTGOING)
     @RelatedTo(type = "CREATED_BY", direction = Direction.OUTGOING, enforceTargetType = true)
     private FortressUser createdBy;
-
     //@Relationship(type = "LASTCHANGED_BY", direction = Relationship.OUTGOING)
     @RelatedTo(type = "LASTCHANGED_BY", direction = Direction.OUTGOING)
     private FortressUser lastWho;
-
     //@Relationship(type = "LAST_CHANGE", direction = Relationship.OUTGOING)
     @RelatedTo(type = "LAST_CHANGE", direction = Direction.OUTGOING)
     private Log lastChange;
-
-    //@Relationship(type = "LOGGED")
-    //Set<EntityLog> logs = new HashSet<>();
-
-    public static final String UUID_KEY = "key";
-
     private String searchKey = null;
-
     private boolean searchSuppressed;
-
     private boolean noLogs = false;
-
-    DynamicProperties props = new DynamicPropertiesContainer();
-
     @Transient
     private String indexName;
-
-    @Transient
-    boolean newEntity = false;
-
     private Integer search = 0;
 
     public Entity(String key, Fortress fortress, EntityInputBean eib, DocumentType doc) throws FlockException {
         this(key, fortress.getDefaultSegment(), eib, doc);
-    }
-
-    /**
-     * Flags the entity as having been affected by search. Used for Integration testing
-     *
-     * @return current search count
-     */
-    public Integer getSearch() {
-        return search;
     }
 
     Entity() {
@@ -199,6 +171,15 @@ public class Entity implements Serializable {
         setCreatedBy(user);
     }
 
+    /**
+     * Flags the entity as having been affected by search. Used for Integration testing
+     *
+     * @return current search count
+     */
+    public Integer getSearch() {
+        return search;
+    }
+
     public Long getId() {
         return id;
     }
@@ -211,12 +192,20 @@ public class Entity implements Serializable {
         return segment;
     }
 
+    public void setSegment(FortressSegment segment) {
+        this.segment = segment;
+    }
+
     public String getExtKey() {
         return this.extKey;
     }
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -232,16 +221,20 @@ public class Entity implements Serializable {
         return lastWho;
     }
 
-    public Long getLastUpdate() {
-        return lastUpdate;
-    }
-
     public void setLastUser(org.flockdata.model.FortressUser user) {
         lastWho = user;
     }
 
+    public Long getLastUpdate() {
+        return lastUpdate;
+    }
+
     public FortressUser getCreatedBy() {
         return createdBy;
+    }
+
+    public void setCreatedBy(FortressUser createdBy) {
+        this.createdBy = createdBy;
     }
 
     public Object getProperty(String name) {
@@ -252,7 +245,6 @@ public class Entity implements Serializable {
         return props.asMap();
     }
 
-
     /**
      * should only be set if this is an immutable entity and no log events will ever be recorded
      *
@@ -261,10 +253,6 @@ public class Entity implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public String getEvent() {
         return event;
-    }
-
-    public void setLastChange(Log newChange) {
-        this.lastChange = newChange;
     }
 
     public void setFortressLastWhen(Long fortressWhen) {
@@ -300,19 +288,19 @@ public class Entity implements Serializable {
         return searchSuppressed;
     }
 
+    public String getSearchKey() {
+//        if ( search  == 0) // No search reply received so searchKey is not yet valid
+//            return null;
+        return (searchKey == null ? code : searchKey);
+
+    }
+
     public void setSearchKey(String searchKey) {
         // By default the searchkey is the code. Let's save disk space
         if (searchKey != null && searchKey.equals(code))
             this.searchKey = null;
         else
             this.searchKey = searchKey;
-    }
-
-    public String getSearchKey() {
-//        if ( search  == 0) // No search reply received so searchKey is not yet valid
-//            return null;
-        return (searchKey == null ? code : searchKey);
-
     }
 
     public String getCode() {
@@ -355,12 +343,12 @@ public class Entity implements Serializable {
         return key != null ? key.hashCode() : 0;
     }
 
-    public void setCreatedBy(FortressUser createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public Log getLastChange() {
         return lastChange;
+    }
+
+    public void setLastChange(Log newChange) {
+        this.lastChange = newChange;
     }
 
     public void addLabel(String label) {
@@ -369,10 +357,6 @@ public class Entity implements Serializable {
 
     public void setNew() {
         setNewEntity(true);
-    }
-
-    public void setNewEntity(boolean status) {
-        this.newEntity = status;
     }
 
     public boolean setProperties(Map<String, Object> properties) {
@@ -391,12 +375,12 @@ public class Entity implements Serializable {
         return modified;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public boolean isNewEntity() {
         return newEntity;
+    }
+
+    public void setNewEntity(boolean status) {
+        this.newEntity = status;
     }
 
     // Stores the EntityInputBean entityOnly value
@@ -407,10 +391,6 @@ public class Entity implements Serializable {
     @JsonIgnore
     public Fortress getFortress() {
         return segment.getFortress();
-    }
-
-    public void setSegment(FortressSegment segment) {
-        this.segment = segment;
     }
 
     public Entity setIndexName(String indexName) {

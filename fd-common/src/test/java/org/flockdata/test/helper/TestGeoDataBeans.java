@@ -28,7 +28,8 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertNotNull;
 
 /**
- * Created by mike on 4/08/15.
+ * @author mholdsworth
+ * @since 4/08/2015
  */
 public class TestGeoDataBeans {
 

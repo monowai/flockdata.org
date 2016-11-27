@@ -29,9 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * User: mike
- * Date: 15/09/14
- * Time: 3:26 PM
+ * @author mholdsworth
+ * @since 15/09/2014
  */
 public class AttachmentTests extends ESBase {
 
@@ -41,7 +40,7 @@ public class AttachmentTests extends ESBase {
 //    @Test  DAT-521
     public void attachment_PdfIndexedAndFound() throws Exception {
         // ToDo: FixMe Not working since ES 1.6
-        // https://github.com/elastic/elasticsearch-mapper-attachments/issues/131
+        // https://github.com/elastic/elasticsearch-mapper-attachments/issues/20131
 //        if ( true==true )
 //            return ;
         Entity entity = getEntity("cust", "fort", "anyuser", "fort");

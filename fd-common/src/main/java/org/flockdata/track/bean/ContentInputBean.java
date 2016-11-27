@@ -35,9 +35,8 @@ import java.util.Map;
 /**
  * Tracked in the KV Store this object tracks meta data and the actual content being tracked
  * <p>
- * User: Mike Holdsworth
- * Date: 8/05/13
- * Time: 7:41 PM
+ * @author mholdsworth
+ * @since 8/05/2013
  */
 public class ContentInputBean implements EntityContent, Serializable {
     private LogStatus fdStatus;
@@ -65,7 +64,7 @@ public class ContentInputBean implements EntityContent, Serializable {
     private boolean status;
     private String contentType = "json";
     private String fileName;
-
+    private transient ChangeEvent changeEvent;
 
     public ContentInputBean() {
     }
@@ -239,11 +238,6 @@ public class ContentInputBean implements EntityContent, Serializable {
         return isTransactional;
     }
 
-    public void setStatus(LogStatus logStatus) {
-        this.fdStatus = logStatus;
-
-    }
-
     public String getDocumentType() {
         return documentType;
     }
@@ -260,8 +254,6 @@ public class ContentInputBean implements EntityContent, Serializable {
         this.forceReindex = forceReindex;
     }
 
-    private transient ChangeEvent changeEvent;
-
     @JsonIgnore
     public ChangeEvent getChangeEvent() {
         return changeEvent;
@@ -273,6 +265,11 @@ public class ContentInputBean implements EntityContent, Serializable {
 
     public LogStatus getStatus() {
         return fdStatus;
+    }
+
+    public void setStatus(LogStatus logStatus) {
+        this.fdStatus = logStatus;
+
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -312,13 +309,6 @@ public class ContentInputBean implements EntityContent, Serializable {
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
-    }
-
-    /**
-     * TRACK_ONLY == Don't store in the graph but do write to the search service
-     */
-    public enum LogStatus {
-        IGNORE, OK, FORBIDDEN, NOT_FOUND, REINDEX, ILLEGAL_ARGUMENT, TRACK_ONLY
     }
 
     /**
@@ -366,5 +356,12 @@ public class ContentInputBean implements EntityContent, Serializable {
         result = 31 * result + (when != null ? when.hashCode() : 0);
         result = 31 * result + (contentType != null ? contentType.hashCode() : 0);
         return result;
+    }
+
+    /**
+     * TRACK_ONLY == Don't store in the graph but do write to the search service
+     */
+    public enum LogStatus {
+        IGNORE, OK, FORBIDDEN, NOT_FOUND, REINDEX, ILLEGAL_ARGUMENT, TRACK_ONLY
     }
 }

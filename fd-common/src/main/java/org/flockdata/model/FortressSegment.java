@@ -26,26 +26,25 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 /**
- * Created by mike on 13/10/15.
+ * @tag Fortress, Segment, Entity
+ * @author mholdsworth
+ * @since 13/10/2015
  */
 
 @NodeEntity
 @TypeAlias("FortressSegment")
 public class FortressSegment {
+    public static final String DEFAULT = "Default";
     @GraphId
     Long id;
-
-    @Indexed
-    private String code;
-
-    @Indexed(unique = true)
-    private String key;
-
-    public static final String DEFAULT = "Default";
-
     @RelatedTo(type = "DEFINES", direction = Direction.INCOMING)
     @Fetch
+    private
     Fortress fortress;
+    @Indexed
+    private String code;
+    @Indexed(unique = true)
+    private String key;
 
     FortressSegment () {}
 

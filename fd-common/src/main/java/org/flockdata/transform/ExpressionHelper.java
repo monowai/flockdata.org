@@ -45,7 +45,8 @@ import java.util.TimeZone;
 /**
  * Encapsulate methods to evaluate transformational expressions
  * <p>
- * Created by mike on 30/07/15.
+ * @author mholdsworth
+ * @since 30/07/2015
  */
 public class ExpressionHelper {
 

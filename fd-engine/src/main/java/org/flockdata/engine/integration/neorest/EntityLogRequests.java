@@ -43,7 +43,8 @@ import java.util.Map;
 /**
  * SDN4 UMX Log requests
  *
- * Created by mike on 6/07/15.
+ * @author mholdsworth
+ * @since 6/07/2015
  */
 @Configuration
 @IntegrationComponentScan

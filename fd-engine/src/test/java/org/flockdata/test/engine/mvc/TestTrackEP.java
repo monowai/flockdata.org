@@ -36,9 +36,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * User: mike
- * Date: 29/10/14
- * Time: 11:59 AM
+ * @author mholdsworth
+ * @since 29/10/2014
+ * @tag Test,Track,MVC
  */
 public class TestTrackEP extends MvcBase {
 

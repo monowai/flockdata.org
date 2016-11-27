@@ -42,9 +42,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 27/06/13
- * Time: 5:07 PM
+ * @author mholdsworth
+ * @since 27/06/2013
  */
 @Service
 @Transactional

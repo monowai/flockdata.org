@@ -59,8 +59,11 @@ import static org.flockdata.integration.ClientConfiguration.KEY_MSG_TYPE;
 
 /**
  * Integration mechanism for message queue input
- * <p>
- * Created by mike on 27/12/15.
+ *
+ * @tag Track, Messaging, Security
+ *
+ * @author mholdsworth
+ * @since 27/12/2015
  */
 @Service
 @Profile({"fd-server"})
@@ -72,6 +75,7 @@ public class TrackRequests {
 
 
     private Exchanges exchanges;
+    private Logger logger = LoggerFactory.getLogger(TrackRequests.class);
 
     @Autowired
     public TrackRequests(MediationFacade mediationFacade, SecurityHelper securityHelper) {
@@ -98,8 +102,6 @@ public class TrackRequests {
     MessageChannel trackResult() {
         return new DirectChannel();
     }
-
-    private Logger logger = LoggerFactory.getLogger(TrackRequests.class);
 
     public MessageHandler handler() throws FlockException, ExecutionException, InterruptedException {
 

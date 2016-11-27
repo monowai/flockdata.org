@@ -26,9 +26,8 @@ import org.flockdata.store.Store;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 14/11/14
- * Time: 1:22 PM
+ * @author mholdsworth
+ * @since 14/11/2014
  */
 public interface PlatformConfig {
 
@@ -50,9 +49,9 @@ public interface PlatformConfig {
 
     Boolean setConceptsEnabled(boolean conceptsEnabled);
 
-    void setTestMode(boolean testMode);
-
     boolean isTestMode();
+
+    void setTestMode(boolean testMode);
 
     String authPing();
 

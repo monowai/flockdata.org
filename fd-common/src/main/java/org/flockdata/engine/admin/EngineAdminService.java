@@ -30,7 +30,8 @@ import java.util.Collection;
 import java.util.concurrent.Future;
 
 /**
- * Created by mike on 25/03/15.
+ * @author mholdsworth
+ * @since 25/03/2015
  */
 public interface EngineAdminService {
     Future<Long> doReindex(Fortress fortress) throws FlockException;

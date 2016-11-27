@@ -27,9 +27,8 @@ import org.flockdata.registration.TagInputBean;
 import java.util.Collection;
 
 /**
- * User: mike
- * Date: 5/09/14
- * Time: 4:17 PM
+ * @author mholdsworth
+ * @since 5/09/2014
  */
 public interface SchemaService {
 

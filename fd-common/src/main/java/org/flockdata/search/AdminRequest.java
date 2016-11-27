@@ -29,7 +29,8 @@ import java.util.Collection;
  * Encapsulate as yet not totally defined functionality.
  * Currently supports deleting collection of indexes between fd-engine and fd-search
  * <p>
- * Created by mike on 12/05/16.
+ * @author mholdsworth
+ * @since 12/05/2016
  */
 //@JsonDeserialize(using = AdminRequestDeserializer.class)
 public class AdminRequest {
@@ -49,15 +50,15 @@ public class AdminRequest {
         return indexesToDelete;
     }
 
+    public void setIndexesToDelete(Collection<String> delete) {
+        this.indexesToDelete = delete;
+    }
+
     @JsonIgnore
     private void setIndexToDelete(String indexToDelete) {
         indexesToDelete = new ArrayList<>();
         indexesToDelete.add(indexToDelete);
 
-    }
-
-    public void setIndexesToDelete(Collection<String>delete) {
-        this.indexesToDelete = delete;
     }
 
     public void addIndexToDelete(String searchIndexToDelete) {

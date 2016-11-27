@@ -27,12 +27,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * @tag Service, User, Registration, Security
+ */
 @Service
 @Transactional
 public class SystemUserServiceNeo4j implements org.flockdata.registration.service.SystemUserService {
 
-    @Autowired
+    private final
     RegistrationDao regDao;
+
+    @Autowired
+    public SystemUserServiceNeo4j(RegistrationDao regDao) {
+        this.regDao = regDao;
+    }
 
     // TODO DAT-184 Gives error while enabling caching 
 //    @Cacheable(value = "systemUsers", unless = "#result == null")

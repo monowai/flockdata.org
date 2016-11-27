@@ -32,9 +32,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 5/09/14
- * Time: 4:30 PM
+ * @author mholdsworth
+ * @since 5/09/2014
  */
 public interface TagService {
 

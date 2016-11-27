@@ -36,9 +36,8 @@ import static org.junit.Assert.*;
 
 /**
  * Schema related tests
- * User: mike
- * Date: 3/04/14
- * Time: 9:54 AM
+ * @author mholdsworth
+ * @since 3/04/2014
  */
 public class TestSchemaManagement extends EngineBase {
 

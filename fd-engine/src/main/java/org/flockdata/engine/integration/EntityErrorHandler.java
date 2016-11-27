@@ -34,9 +34,9 @@ import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.MessageHandlingException;
 
 /**
- * User: mike
- * Date: 11/11/14
- * Time: 2:14 PM
+ * @author mholdsworth
+ * @since 11/11/2014
+ * @tag Track, Integration, ExceptionHandler
  */
 @IntegrationComponentScan
 @Configuration

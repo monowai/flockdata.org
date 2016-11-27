@@ -43,10 +43,13 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
 /**
+ *
  * Finds Keys for a given set of query parameters. This can be used to drive queries in the Graph as
  * the key will give you a starting point
  *
- * Created by mike on 14/02/16.
+ * @tag Messaging, Search, Entity, Query, Gateway
+ * @author mholdsworth
+ * @since 14/02/2016
  */
 
 @Configuration
@@ -56,10 +59,10 @@ public class EntityKeyQuery {
 
     @Autowired
     @Qualifier("engineConfig")
-    PlatformConfig engineConfig;
+    private PlatformConfig engineConfig;
 
     @Autowired
-    MessageSupport messageSupport;
+    private MessageSupport messageSupport;
 
     @Bean
     MessageChannel receiveKeyReply(){

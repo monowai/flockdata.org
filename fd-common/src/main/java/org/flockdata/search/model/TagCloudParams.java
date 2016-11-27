@@ -27,9 +27,8 @@ import java.util.Map;
 
 /**
  * A POJO that represent a bean that Transit in Spring integration
- * User: Nabil
- * Date: 12/10/2014
- * Time: 17:49
+ * @author  Nabil
+ * @since 12/10/2014
  */
 public class TagCloudParams implements QueryInterface {
 

@@ -25,7 +25,8 @@ import org.flockdata.registration.TagInputBean;
 import org.junit.Test;
 
 /**
- * Created by mike on 5/08/15.
+ * @author mholdsworth
+ * @since 5/08/2015
  */
 public class TestTagInputBean {
     @Test

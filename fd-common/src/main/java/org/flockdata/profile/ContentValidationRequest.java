@@ -30,7 +30,8 @@ import java.util.Map;
 /**
  * Payload required to validate Content with a selection of data
  *
- * Created by mike on 14/04/16.
+ * @author mholdsworth
+ * @since 14/04/2016
  */
 public class ContentValidationRequest {
 
@@ -64,6 +65,11 @@ public class ContentValidationRequest {
         return contentModel;
     }
 
+    public ContentValidationRequest setContentModel(ContentModel contentModel) {
+        this.contentModel = contentModel;
+        return this;
+    }
+
     public Collection<Map<String, Object>> getRows() {
         return rows;
     }
@@ -80,10 +86,5 @@ public class ContentValidationRequest {
             messages.put(rowCount, existingMessages);
         }
         existingMessages.add(message);
-    }
-
-    public ContentValidationRequest setContentModel(ContentModel contentModel) {
-        this.contentModel = contentModel;
-        return this;
     }
 }

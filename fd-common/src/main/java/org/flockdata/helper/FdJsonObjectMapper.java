@@ -32,9 +32,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * User: mike
- * Date: 28/10/14
- * Time: 9:30 AM
+ * @author mholdsworth
+ * @since 28/10/2014
+ * @tag Json, Serialization
  */
 public class FdJsonObjectMapper extends JsonFactory {
     private static ObjectMapper objectMapper = null;

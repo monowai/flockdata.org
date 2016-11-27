@@ -25,13 +25,15 @@ package org.flockdata.track.bean;
  *
  * Encapsulates a relationship name that is the connection between a DocType and a Concept
  *
- * Created by mike on 20/05/15.
+ * @author mholdsworth
+ * @since 20/05/2015
  */
 public class RelationshipResultBean  {
 
-    RelationshipResultBean () {}
-
     private String name ;
+
+    RelationshipResultBean() {
+    }
 
     public RelationshipResultBean(String relationship) {
         this();

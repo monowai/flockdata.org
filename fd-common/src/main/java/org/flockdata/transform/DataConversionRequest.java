@@ -27,7 +27,8 @@ import java.util.Collection;
 /**
  * Transforms raw data to typed data via ContentModel column definition
  *
- * Created by mike on 19/09/16.
+ * @author mholdsworth
+ * @since 19/09/2016
  */
 public class DataConversionRequest {
     private ContentModel contentModel;

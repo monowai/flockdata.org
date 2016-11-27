@@ -51,7 +51,8 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 /**
  * Content Model storage and retrieval
- * Created by mike on 14/04/16.
+ * @author mholdsworth
+ * @since 14/04/2016
  */
 public class TestContentModel extends MvcBase {
 
@@ -550,7 +551,7 @@ public class TestContentModel extends MvcBase {
 
         ContentModelResult foundResult = findContentModelByKey(mike(), result.getKey(), MockMvcResultMatchers.status().isOk());
         assertNotNull (foundResult);
-        purgeFortress(mike(), fortressResultBean.getName(), MockMvcResultMatchers.status().isAccepted());
+        deleteFortress(mike(), fortressResultBean.getName(), MockMvcResultMatchers.status().isAccepted());
         Thread.sleep(500); // Purge is async
         Collection<ContentModelResult> contentModels = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
         assertFalse(contentModels.isEmpty());

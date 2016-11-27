@@ -43,7 +43,8 @@ import javax.xml.stream.XMLStreamReader;
 import java.util.*;
 
 /**
- * Created by mike on 18/12/15.
+ * @author mholdsworth
+ * @since 18/12/2015
  */
 public class Transformer {
 

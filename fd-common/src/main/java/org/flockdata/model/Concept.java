@@ -29,11 +29,11 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 
 
 /**
- * A simple node that represents a Tag that exists in the Graph.
+ * A structural node that represents a type of Tag that exists in the Graph.
  *
- * User: mike
- * Date: 16/06/14
- * Time: 10:16 AM
+ * @author mholdsworth
+ * @since 16/06/2014
+ * @tag Node, Concept, Tag
  */
 @NodeEntity
 @TypeAlias("Concept")

@@ -30,7 +30,9 @@ import org.springframework.messaging.MessageChannel;
 
 /**
  * Search integration objects
- * Created by mike on 3/07/15.
+ * @author mholdsworth
+ * @since 3/07/2015
+ *  @tag Configuration, Messaging, Channels
  */
 @Configuration
 @IntegrationComponentScan

@@ -26,9 +26,8 @@ import org.flockdata.search.model.SearchResults;
 import java.io.IOException;
 
 /**
- * User: mike
- * Date: 8/09/14
- * Time: 10:57 AM
+ * @author mholdsworth
+ * @since 8/09/2014
  */
 public interface SearchWriter {
 

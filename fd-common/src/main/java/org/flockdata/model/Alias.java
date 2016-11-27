@@ -31,7 +31,9 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 import java.util.ArrayList;
 
 /**
- * Created by mike on 1/04/15.
+ * @author mholdsworth
+ * @since 1/04/2015
+ * @tag Node, Alias
  */
 @NodeEntity // Only in place to support projection
 @TypeAlias("Alias")
@@ -95,6 +97,10 @@ public class Alias {
         return tag;
     }
 
+    public void setTag(Tag tag) {
+        this.tag = tag;
+    }
+
     @Override
     public String toString() {
         return "AliasNode{" +
@@ -106,9 +112,5 @@ public class Alias {
 
     public String getKey() {
         return key;
-    }
-
-    public void setTag(Tag tag) {
-        this.tag = tag;
     }
 }

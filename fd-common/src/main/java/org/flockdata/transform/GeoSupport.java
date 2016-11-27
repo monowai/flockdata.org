@@ -34,11 +34,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * Wraps a call to transform points to a WGS84 geo format
  *
- * Created by mike on 29/07/15.
+ * @author mholdsworth
+ * @since 29/07/2015
  */
 public class GeoSupport {
-    private static final Logger logger = getLogger(GeoSupport.class);
     static final CoordinateReferenceSystem targetCrs = DefaultGeographicCRS.WGS84;
+    private static final Logger logger = getLogger(GeoSupport.class);
 
     public static double[] convert(String sourceFormat, double x, double y) throws FlockException {
 

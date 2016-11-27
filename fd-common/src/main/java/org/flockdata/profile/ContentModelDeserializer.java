@@ -38,13 +38,39 @@ import java.util.Map;
 /**
  * JSON deserializer
  *
- * Created by mike on 24/06/16.
+ * @author mholdsworth
+ * @since 24/06/2016
  */
 public class ContentModelDeserializer extends JsonDeserializer<ContentModel> {
     private static final ObjectMapper mapper = new ObjectMapper( new FdJsonObjectMapper())
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .enable(JsonParser.Feature.ALLOW_COMMENTS);
 
+    /**
+     * Resolves a content model from disk
+     *
+     * @param fileName file
+     * @return null if not found otherwise the model content
+     * @throws IOException
+     */
+    public static ContentModel getContentModel(String fileName) throws IOException {
+        ContentModel contentModel = null;
+        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
+
+        File fileIO = new File(fileName);
+        if (fileIO.exists()) {
+            contentModel = om.readValue(fileIO, ContentModelHandler.class);
+
+        } else {
+            InputStream stream = ClassLoader.class.getResourceAsStream(fileName);
+            if (stream != null) {
+                contentModel = om.readValue(stream, ContentModelHandler.class);
+
+            }
+
+        }
+        return contentModel;
+    }
 
     @Override
     public ContentModel deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
@@ -138,33 +164,9 @@ public class ContentModelDeserializer extends JsonDeserializer<ContentModel> {
 
         return contentModel;
     }
+
     private boolean isNull(JsonNode nodeValue) {
         return nodeValue == null || nodeValue.isNull() || nodeValue.asText().equals("null");
-    }
-
-    /**
-     * Resolves a content model from disk
-     * @param fileName file
-     * @return null if not found otherwise the model content
-     * @throws IOException
-     */
-    public static ContentModel getContentModel(String fileName) throws IOException {
-        ContentModel contentModel = null;
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-
-        File fileIO = new File(fileName);
-        if (fileIO.exists()) {
-            contentModel = om.readValue(fileIO, ContentModelHandler.class);
-
-        } else {
-            InputStream stream = ClassLoader.class.getResourceAsStream(fileName);
-            if (stream != null) {
-                contentModel = om.readValue(stream, ContentModelHandler.class);
-
-            }
-
-        }
-        return contentModel;
     }
 
 }

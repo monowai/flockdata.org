@@ -36,10 +36,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * User: Mike Holdsworth
- * Date: 15/06/13
- * Time: 12:38 PM
- *
+ * @author mholdsworth
+ * @since 15/06/2013
+ * @tag ExceptionHandler
  * http://www.asyncdev.net/2011/12/spring-restful-controllers-and-error-handling/
  *
  */

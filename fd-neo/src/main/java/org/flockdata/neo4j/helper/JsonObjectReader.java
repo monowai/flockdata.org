@@ -36,7 +36,8 @@ import java.lang.reflect.Type;
 /**
  * Inbound JSON serialization
  *
- * Created by mike on 30/06/15.
+ * @author mholdsworth
+ * @since 30/06/2015
  */
 @Provider
 @Consumes("application/json")

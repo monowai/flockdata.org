@@ -46,11 +46,14 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 /**
- * User: mike
- * Date: 8/05/14
- * Time: 11:29 AM
+ * @author mholdsworth
+ * @since 8/05/2014
  */
 public class TestCsvEntity extends AbstractImport{
+
+    private static ContentModel getContentModel(String profile) throws IOException {
+        return ContentModelDeserializer.getContentModel(profile);
+    }
 
     @Test
     public void validate_ColumnHelper() throws Exception {
@@ -198,6 +201,7 @@ public class TestCsvEntity extends AbstractImport{
         assertEquals(true, countryTag.isMustExist());
 
     }
+
     @Test
     public void csv_DelmitedTagsInColumn() throws Exception {
         //
@@ -256,10 +260,6 @@ public class TestCsvEntity extends AbstractImport{
         assertNotNull("Code field was missing",  json.get("code"));
         assertEquals("123", json.get("code"));
 
-    }
-
-    private static ContentModel getContentModel(String profile) throws IOException {
-        return ContentModelDeserializer.getContentModel(profile);
     }
 
     @Test

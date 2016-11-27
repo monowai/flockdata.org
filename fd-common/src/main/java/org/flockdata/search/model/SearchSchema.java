@@ -21,8 +21,8 @@
 package org.flockdata.search.model;
 
 /**
- * User: Mike Holdsworth
- * Since: 5/09/13
+ * @author mholdsworth
+ * @since 5/09/2013
  */
 public class SearchSchema {
     // Storage schema used in a Search Document

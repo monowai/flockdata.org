@@ -32,7 +32,8 @@ import static org.flockdata.test.integration.IntegrationHelper.*;
  * We want to be able to run the stack either for a single test method or as a suite.
  * Easier to centralise the container config in this class to accomplish that
  * <p>
- * Created by mike on 6/05/16.
+ * @author mholdsworth
+ * @since 6/05/2016
  */
 public class FdDocker extends ExternalResource {
 
@@ -49,6 +50,11 @@ public class FdDocker extends ExternalResource {
 
     private static Logger logger = LoggerFactory.getLogger(FdDocker.class);
 
+    static DockerComposeContainer getStack() {
+        logger.debug("Stack started from FdDocker = {}", stack != null);
+        return stack;
+    }
+
     @Override
     protected void before() throws Throwable {
         if (stack != null)
@@ -60,10 +66,5 @@ public class FdDocker extends ExternalResource {
         logger.debug("Stopping FD full docker stack");
         if (stack != null)
             stack.finished(Description.EMPTY);
-    }
-
-    static DockerComposeContainer getStack() {
-        logger.debug("Stack started from FdDocker = {}", stack!=null);
-        return stack;
     }
 }

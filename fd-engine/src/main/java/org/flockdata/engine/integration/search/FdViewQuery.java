@@ -47,8 +47,9 @@ import java.io.IOException;
 
 /**
  * Striped down search support. Designed for fd-view. ToDo: Move to a "Backend for Frontend" module
- *
- * Created by mike on 14/02/16.
+ * @tag Query, Search, Gateway, Messaging
+ * @author mholdsworth
+ * @since 14/02/2016
  */
 
 @Configuration
@@ -58,10 +59,10 @@ public class FdViewQuery {
 
     @Autowired
     @Qualifier("engineConfig")
-    PlatformConfig engineConfig;
+    private PlatformConfig engineConfig;
 
     @Autowired
-    MessageSupport messageSupport;
+    private MessageSupport messageSupport;
 
     @Bean
     MessageChannel receiveFdViewReply(){

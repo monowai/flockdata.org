@@ -24,9 +24,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * User: mike
- * Date: 25/08/14
- * Time: 11:33 AM
+ * @author mholdsworth
+ * @since 25/08/2014
  */
 @ResponseStatus(value= HttpStatus.NOT_FOUND, reason="Resource not found ")  // 404
 public class NotFoundException extends RuntimeException {

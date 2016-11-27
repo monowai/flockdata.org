@@ -33,7 +33,8 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Handling columns from content profile
- * Created by mike on 27/01/15.
+ * @author mholdsworth
+ * @since 27/01/2015
  */
 public class TestCSVColumnParsing extends AbstractImport {
 

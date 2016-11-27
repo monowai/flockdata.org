@@ -29,9 +29,9 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * User: Mike Holdsworth
- * Date: 14/04/13
- * Time: 8:00 PM
+ * @author mholdsworth
+ * @since 14/04/2013
+ * @tag GraphRepository, Neo4j, Log
  */
 public interface TrackLogRepo extends GraphRepository<Log> {
 

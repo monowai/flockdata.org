@@ -27,9 +27,8 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * User: Mike Holdsworth
- * Date: 26/04/13
- * Time: 12:26 PM
+ * @author mholdsworth
+ * @since 26/04/2013
  */
 public interface EntityChangeWriter {
 

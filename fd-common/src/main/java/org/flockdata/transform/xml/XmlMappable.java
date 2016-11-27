@@ -33,8 +33,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 /**
- * User: Mike Holdsworth
- * Since: 20/11/13
+ * @author mholdsworth
+ * @since 20/11/2013
  */
 public interface XmlMappable extends PayloadTransformer {
     /**

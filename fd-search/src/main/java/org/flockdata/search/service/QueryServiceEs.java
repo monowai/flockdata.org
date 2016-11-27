@@ -29,9 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * User: Mike Holdsworth
- * Date: 18/06/13
- * Time: 9:03 PM
+ * @author mholdsworth
+ * @since 18/06/2013
+ * @tag Query, Search, Service
  */
 @Service ("queryServiceEs")
 public class QueryServiceEs implements QueryService {

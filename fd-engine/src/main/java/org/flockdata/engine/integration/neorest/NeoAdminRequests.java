@@ -24,7 +24,8 @@ package org.flockdata.engine.integration.neorest;
  *
  * For SDN4 Un-managed Extensions
  *
- * Created by mike on 21/07/15.
+ * @author mholdsworth
+ * @since 21/07/2015
  */
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,8 @@ import org.springframework.messaging.MessageHandler;
  * Not currently used. Waiting for binary driver to Neo4j before taking the next step
  * this approach was designed to call webservices deployed into Neo4j.
  *
- * Created by mike on 3/07/15.
+ * @author mholdsworth
+ * @since 3/07/2015
  */
 
 @Configuration

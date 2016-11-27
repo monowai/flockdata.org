@@ -26,7 +26,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
- * Created by mike on 4/04/16.
+ * @author mholdsworth
+ * @since 4/04/2016
  */
 
 public class Ping extends AbstractRestCommand {

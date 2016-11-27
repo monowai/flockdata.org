@@ -24,7 +24,6 @@ import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
-import org.flockdata.registration.service.CompanyService;
 import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -44,32 +43,23 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
- * User: mike
- * Date: 21/06/14
- * Time: 12:56 PM
+ * @author mholdsworth
+ * @since 21/06/2014
  */
 @Service
 @Transactional
 public class LogServiceNeo4j implements LogService {
+    private final StorageProxy storageProxy;
+    private final EntityDaoNeo entityDao;
+    private final LogRetryService logRetryService;
     private Logger logger = LoggerFactory.getLogger(LogServiceNeo4j.class);
 
     @Autowired
-    StorageProxy storageProxy;
-
-    @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    CompanyService companyService;
-
-    @Autowired
-    ConceptService conceptService;
-
-    @Autowired
-    EntityDaoNeo entityDao;
-
-    @Autowired
-    LogRetryService logRetryService;
+    public LogServiceNeo4j(StorageProxy storageProxy, EntityDaoNeo entityDao, LogRetryService logRetryService) {
+        this.storageProxy = storageProxy;
+        this.entityDao = entityDao;
+        this.logRetryService = logRetryService;
+    }
 
     @Override
     @Async("fd-log")

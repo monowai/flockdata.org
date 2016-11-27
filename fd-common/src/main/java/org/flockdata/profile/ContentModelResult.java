@@ -25,7 +25,8 @@ import org.flockdata.model.Model;
 import org.flockdata.profile.model.ContentModel;
 
 /**
- * Created by mike on 14/04/16.
+ * @author mholdsworth
+ * @since 14/04/2016
  */
 public class ContentModelResult {
 
@@ -91,13 +92,13 @@ public class ContentModelResult {
         return fortress;
     }
 
-    public void setContentModel(ContentModel contentModel) {
-        this.contentModel = contentModel;
-    }
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public ContentModel getContentModel() {
         return contentModel;
+    }
+
+    public void setContentModel(ContentModel contentModel) {
+        this.contentModel = contentModel;
     }
 
     @Override

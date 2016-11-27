@@ -26,9 +26,8 @@ import org.flockdata.model.MetaDocument;
 import org.flockdata.track.service.EntityService;
 
 /**
- * User: mike
- * Date: 10/10/14
- * Time: 12:06 PM
+ * @author mholdsworth
+ * @since 10/10/2014
  */
 public class DocumentTypeInputBean implements MetaDocument{
     private String name;
@@ -84,8 +83,8 @@ public class DocumentTypeInputBean implements MetaDocument{
         return geoQuery;
     }
 
-    public DocumentTypeInputBean setVersionStrategy(DocumentType.VERSION versionStrategy) {
-        this.versionStrategy = versionStrategy;
+    public DocumentTypeInputBean setGeoQuery(final String geoQuery) {
+        this.geoQuery = geoQuery;
         return this;
     }
 
@@ -93,8 +92,18 @@ public class DocumentTypeInputBean implements MetaDocument{
         return versionStrategy;
     }
 
+    public DocumentTypeInputBean setVersionStrategy(DocumentType.VERSION versionStrategy) {
+        this.versionStrategy = versionStrategy;
+        return this;
+    }
+
     public EntityService.TAG_STRUCTURE getTagStructure() {
         return tagStructure;
+    }
+
+    public DocumentTypeInputBean setTagStructure(EntityService.TAG_STRUCTURE tagStructure) {
+        this.tagStructure = tagStructure;
+        return this;
     }
 
     public DocumentTypeInputBean getName(final String name) {
@@ -104,11 +113,6 @@ public class DocumentTypeInputBean implements MetaDocument{
 
     public DocumentTypeInputBean getCode(final String code) {
         this.code = code;
-        return this;
-    }
-
-    public DocumentTypeInputBean setGeoQuery(final String geoQuery) {
-        this.geoQuery = geoQuery;
         return this;
     }
 
@@ -131,11 +135,6 @@ public class DocumentTypeInputBean implements MetaDocument{
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Boolean isTrackEnabled() {
         return trackEnabled;
-    }
-
-    public DocumentTypeInputBean setTagStructure(EntityService.TAG_STRUCTURE tagStructure) {
-        this.tagStructure = tagStructure;
-        return this;
     }
 
     @Override

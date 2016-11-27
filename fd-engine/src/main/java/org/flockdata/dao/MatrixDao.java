@@ -26,11 +26,9 @@ import org.flockdata.model.Company;
 import org.flockdata.track.bean.MatrixInputBean;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mike
- * Date: 5/04/14
- * Time: 9:38 AM
- * To change this template use File | Settings | File Templates.
+ * @author mholdsworth
+ * @since 5/04/2014
+ * @tag Matrix, Query, Interface
  */
 public interface MatrixDao {
 

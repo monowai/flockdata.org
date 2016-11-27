@@ -26,7 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Created by mike on 15/07/15.
+ * @author mholdsworth
+ * @since 15/07/2015
  */
 public class EntityTagPayload {
     Collection<EntityTagInputBean>entityTags = new ArrayList<>();

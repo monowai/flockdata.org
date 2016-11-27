@@ -27,7 +27,8 @@ import java.util.Map;
 /**
  * Object has support for nested properties
  *
- * Created by mike on 30/07/15.
+ * @author mholdsworth
+ * @since 30/07/2015
  */
 public interface UserProperties {
     @JsonInclude(JsonInclude.Include.NON_NULL)

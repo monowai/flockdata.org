@@ -35,7 +35,8 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 /**
- * Created by mike on 21/03/15.
+ * @author mholdsworth
+ * @since 21/03/2015
  */
 public class TestBatchSplitter {
     @Test

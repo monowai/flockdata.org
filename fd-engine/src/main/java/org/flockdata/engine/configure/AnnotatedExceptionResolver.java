@@ -23,6 +23,9 @@ package org.flockdata.engine.configure;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 
+/**
+ * @tag ExceptionHandler
+ */
 @Component
 public class AnnotatedExceptionResolver extends ExceptionHandlerExceptionResolver
 {

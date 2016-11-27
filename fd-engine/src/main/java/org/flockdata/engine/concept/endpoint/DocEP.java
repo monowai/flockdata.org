@@ -33,7 +33,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
 /**
- * Created by mike on 20/05/15.
+ * @tag Endpoint, Concept, DocumentType
+ * @author mholdsworth
+ * @since 20/05/2015
  */
 
 @RestController

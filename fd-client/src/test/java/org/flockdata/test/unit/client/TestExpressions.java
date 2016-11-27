@@ -35,7 +35,8 @@ import static org.junit.Assert.assertNotNull;
 /**
  * SPeL tests and custom properties for tags
  * <p>
- * Created by mike on 17/01/15.
+ * @author mholdsworth
+ * @since 17/01/2015
  */
 public class TestExpressions extends AbstractImport {
     @Test

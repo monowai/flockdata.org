@@ -23,8 +23,8 @@ package org.flockdata.helper;
 import java.io.UnsupportedEncodingException;
 
 /**
- * User: Mike Holdsworth
- * Since: 20/07/13
+ * @author mholdsworth
+ * @since 20/07/2013
  */
 public class CompressionResult {
     private Method method;
@@ -42,18 +42,6 @@ public class CompressionResult {
         this.bytes = value.getBytes(ObjectHelper.charSet);// DAT-75
     }
 
-    public int length() {
-        return bytes.length;
-    }
-
-    public byte[] getAsBytes() {
-        return bytes;
-    }
-
-    public enum Method {
-        NONE, GZIP
-    }
-
     private CompressionResult() {
     }
 
@@ -63,6 +51,13 @@ public class CompressionResult {
         this.bytes = bytes;
     }
 
+    public int length() {
+        return bytes.length;
+    }
+
+    public byte[] getAsBytes() {
+        return bytes;
+    }
 
     public byte[] getBytes() {
         return bytes;
@@ -70,6 +65,10 @@ public class CompressionResult {
 
     public Method getMethod() {
         return method;
+    }
+
+    public enum Method {
+        NONE, GZIP
     }
 
 }

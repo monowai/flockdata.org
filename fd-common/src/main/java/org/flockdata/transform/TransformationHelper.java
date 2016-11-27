@@ -40,9 +40,8 @@ import java.util.*;
 /**
  * Helper functions for interpreting ColumnDefinitions and setting values
  * <p/>
- * User: mike
- * Date: 27/08/14
- * Time: 7:53 AM
+ * @author mholdsworth
+ * @since 27/08/2014
  */
 public class TransformationHelper {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
@@ -258,7 +257,7 @@ public class TransformationHelper {
                     setInTo.setTargets(tagProfile.getRelationship(), newTag);
 
                 }
-                if (tagProfile.hasProperites()) {
+                if (tagProfile.hasProperties()) {
                     for (ColumnDefinition propertyColumn : tagProfile.getProperties()) {
                         if (propertyColumn.isPersistent()) {
                             // Code Smell - this code is duplicated from getTagInputBean

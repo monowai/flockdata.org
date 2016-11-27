@@ -35,17 +35,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * User: mike
- * Date: 16/06/14
- * Time: 7:43 AM
+ * @author mholdsworth
+ * @since 16/06/2014
+ * @tag Administration, Neo4j, Index
  */
 @Service
 public class SchemaServiceNeo4j implements SchemaService {
+
+    private static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
+    private final SchemaDaoNeo4j schemaDao;
+
     @Autowired
-    SchemaDaoNeo4j schemaDao;
-
-
-    static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
+    public SchemaServiceNeo4j(SchemaDaoNeo4j schemaDao) {
+        this.schemaDao = schemaDao;
+    }
 
     public Boolean ensureSystemIndexes(Company company) {
         return schemaDao.ensureSystemConstraints(company);

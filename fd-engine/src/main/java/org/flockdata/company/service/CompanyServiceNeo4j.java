@@ -36,6 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
+/**
+ * @tag Service, Company, Security
+ */
 @Service
 @Transactional
 public class CompanyServiceNeo4j implements CompanyService {

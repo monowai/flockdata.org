@@ -25,6 +25,12 @@ import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
+/**
+ * Unique to a given fortress, the FortressUser is not a SystemUser. It is a foreign account in a
+ * fortress
+ *
+ * @tag FortressUser, Node, Fortress
+ */
 @NodeEntity
 @TypeAlias("FortressUser")
 public class FortressUser {

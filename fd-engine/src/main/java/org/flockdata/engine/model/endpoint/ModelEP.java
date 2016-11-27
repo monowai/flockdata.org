@@ -46,8 +46,9 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * User: Mike Holdsworth
- * Since: 8/11/13
+ * @author mholdsworth
+ * @since 8/11/2013
+ * @tag Endpoint, ContentModel
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/model")

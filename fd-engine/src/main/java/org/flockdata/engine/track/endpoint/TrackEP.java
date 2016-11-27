@@ -43,18 +43,22 @@ import java.util.concurrent.ExecutionException;
 /**
  * Write operations for Entities and Tags
  *
- * User: Mike Holdsworth
- * Date: 4/05/13
- * Time: 8:23 PM
+ * @author mholdsworth
+ * @since 4/05/2013
+ * @tag Track, Endpoint
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/track")
 public class TrackEP {
-    @Autowired
-    private EntityService entityService;
+    private final EntityService entityService;
+
+    private final MediationFacade mediationFacade;
 
     @Autowired
-    private MediationFacade mediationFacade;
+    public TrackEP(EntityService entityService, MediationFacade mediationFacade) {
+        this.entityService = entityService;
+        this.mediationFacade = mediationFacade;
+    }
 
 
     @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.PUT)

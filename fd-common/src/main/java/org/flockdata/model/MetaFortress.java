@@ -21,7 +21,9 @@
 package org.flockdata.model;
 
 /**
- * Created by mike on 19/02/16.
+ * Simple interface to allow us to use multiple implementations in a generic manner
+ * @author mholdsworth
+ * @since 19/02/2016
  */
 public interface MetaFortress {
     String getName();

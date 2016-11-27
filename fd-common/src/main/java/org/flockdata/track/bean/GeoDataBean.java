@@ -27,9 +27,9 @@ import java.util.Map;
 
 /**
  * Geographic type data
- * User: mike
- * Date: 28/02/14
- * Time: 4:00 PM
+ * @author mholdsworth
+ * @since 28/02/2014
+ * @tag Payload, Geo
  */
 public class GeoDataBean {
 

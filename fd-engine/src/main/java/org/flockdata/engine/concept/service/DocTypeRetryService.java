@@ -21,6 +21,7 @@
 package org.flockdata.engine.concept.service;
 
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.helper.FlockException;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.EntityInputBean;
@@ -42,9 +43,9 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 /**
- * User: mike
- * Date: 2/12/14
- * Time: 7:48 AM
+ * @author mholdsworth
+ * @since 2/12/2014
+ * @tag Track, DocumentType
  */
 @Service
 @Async("fd-engine")
@@ -67,7 +68,7 @@ public class DocTypeRetryService {
      * @return Collection of DocumentType objects that were created
      */
     @Retryable(include = {TransactionFailureException.class, HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public Future<Collection<DocumentType>> createDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans) {
+    public Future<Collection<DocumentType>> createDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans) throws FlockException {
 
         return new AsyncResult<>(conceptService.makeDocTypes(segment, inputBeans));
     }

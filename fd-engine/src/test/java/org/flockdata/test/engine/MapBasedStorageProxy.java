@@ -34,7 +34,8 @@ import org.springframework.stereotype.Service;
  *
  * Simple map based storage proxy for testing. Overrides methods and imports the basic MapRepo from kv-store
  *
- * Created by mike on 18/02/16.
+ * @author mholdsworth
+ * @since 18/02/2016
  */
 @Service
 @Profile({"dev"})

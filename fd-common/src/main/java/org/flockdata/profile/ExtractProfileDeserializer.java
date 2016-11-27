@@ -34,11 +34,31 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * User: mike
- * Date: 9/05/14
- * Time: 8:45 AM
+ * @author mholdsworth
+ * @since 9/05/2014
  */
 public class ExtractProfileDeserializer extends JsonDeserializer<ExtractProfile> {
+
+    public static ExtractProfile getImportProfile(String name, ContentModel contentModel) throws IOException {
+        ExtractProfileHandler importProfile;
+        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
+
+        File fileIO = new File(name);
+        if (fileIO.exists()) {
+            importProfile = om.readValue(fileIO, ExtractProfileHandler.class);
+            importProfile.setContentModel(contentModel);
+        } else {
+            InputStream stream = ClassLoader.class.getResourceAsStream(name);
+            if (stream != null) {
+                importProfile = om.readValue(stream, ExtractProfileHandler.class);
+                importProfile.setContentModel(contentModel);
+            } else
+                // Defaults??
+                importProfile = new ExtractProfileHandler(contentModel);
+        }
+
+        return importProfile;
+    }
 
     @Override
     public ExtractProfile deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
@@ -92,27 +112,6 @@ public class ExtractProfileDeserializer extends JsonDeserializer<ExtractProfile>
 
     private boolean isNull(JsonNode nodeValue) {
         return nodeValue == null || nodeValue.isNull() || nodeValue.asText().equals("null");
-    }
-
-    public static ExtractProfile getImportProfile(String name, ContentModel contentModel) throws IOException {
-        ExtractProfileHandler importProfile;
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-
-        File fileIO = new File(name);
-        if (fileIO.exists()) {
-            importProfile = om.readValue(fileIO, ExtractProfileHandler.class);
-            importProfile.setContentModel(contentModel);
-        } else {
-            InputStream stream = ClassLoader.class.getResourceAsStream(name);
-            if (stream != null) {
-                importProfile = om.readValue(stream, ExtractProfileHandler.class);
-                importProfile.setContentModel(contentModel);
-            } else
-                // Defaults??
-                importProfile = new ExtractProfileHandler(contentModel);
-        }
-
-        return importProfile;
     }
 
 }

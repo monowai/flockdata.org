@@ -25,8 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -44,18 +42,26 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 20/09/14
- * Time: 8:57 AM
+ * @author mholdsworth
+ * @since 20/09/2014
+ * @tag Test,Neo4j
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:root-context-neo-rest.xml" })
 public class TestNeoRestInterface {
 
-    static Logger logger = LoggerFactory.getLogger(TestNeoRestInterface.class);
-
     @Rule
     public final ExpectedException exception = ExpectedException.none();
+
+    public static HttpHeaders getHttpHeaders() {
+
+        return new HttpHeaders() {
+            {
+                setContentType(MediaType.APPLICATION_JSON);
+                set("charset", "UTF-8");
+            }
+        };
+    }
 
     @Test
     public void neo4j_EnsureRestAPIWorks() throws Exception {
@@ -78,16 +84,6 @@ public class TestNeoRestInterface {
         Collection values = (Collection) result.get("results");
         TestCase.assertFalse("No results returned from the REST call", values.size() == 0);
 
-    }
-
-    public static HttpHeaders getHttpHeaders() {
-
-        return new HttpHeaders() {
-            {
-                setContentType(MediaType.APPLICATION_JSON);
-                set("charset", "UTF-8");
-            }
-        };
     }
 
 }

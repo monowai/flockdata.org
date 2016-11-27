@@ -26,7 +26,8 @@ import org.flockdata.track.bean.GeoDataBeans;
 import java.util.Map;
 
 /**
- * Created by mike on 13/07/16.
+ * @author mholdsworth
+ * @since 13/07/2016
  */
 public interface EntityTag {
     // Key value indicating when, in the fortress, this relationship was established
@@ -42,7 +43,11 @@ public interface EntityTag {
 
     String getRelationship() ;
 
+    void setRelationship(String name);
+
     boolean isGeo();
+
+    void setGeo(Boolean geo);
 
     Map<String, Object> getTagProperties() ;
 
@@ -56,8 +61,4 @@ public interface EntityTag {
     AbstractEntityTag setGeoData(GeoDataBeans geoBeans);
 
     Map<String, Object> getProperties();
-
-    void setRelationship(String name);
-
-    void setGeo(Boolean geo);
 }

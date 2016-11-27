@@ -49,9 +49,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
- * User: mike
- * Date: 26/09/14
- * Time: 6:43 PM
+ * @author mholdsworth
+ * @since 26/09/2014
+ * @tag Tag, Track
  */
 
 @Service
@@ -62,6 +62,7 @@ public class TagRetryService {
     private final IndexRetryService indexRetryService;
 
     private SearchServiceFacade searchService;
+    private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
 
     @Autowired
     public TagRetryService(TagService tagService, IndexRetryService indexRetryService) {
@@ -73,8 +74,6 @@ public class TagRetryService {
     void setSearchServiceFacade (SearchServiceFacade searchService){
         this.searchService = searchService;
     }
-
-    private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
 
     @Retryable(include = {FlockException.class,
             HeuristicRollbackException.class,

@@ -27,7 +27,8 @@ import java.util.Map;
 
 /**
  * A relationship that once existed between and Entity and a Tag
- * Created by mike on 4/04/15.
+ * @author mholdsworth
+ * @since 4/04/2015
  */
 @RelationshipEntity(type = "ARCHIVED_RLX")
 public class LogTag extends AbstractEntityTag {

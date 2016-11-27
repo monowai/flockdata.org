@@ -39,7 +39,8 @@ import static org.junit.Assert.assertNotEquals;
 
 /**
  * nested tags
- * Created by mike on 6/05/15.
+ * @author mholdsworth
+ * @since 6/05/2015
  */
 public class TestEntityProperties extends AbstractImport {
     @Test

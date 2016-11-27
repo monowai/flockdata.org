@@ -27,20 +27,21 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 
 import java.io.Serializable;
 
+/**
+ * @author mholdsworth
+ * @tag Node, Company
+ */
 @NodeEntity
 @TypeAlias(value ="FDCompany")
 public class Company implements Serializable {
     @GraphId
     Long id;
-
-    @Indexed
-    private String name;
-
-    @Indexed(unique = true)
-    private String code;
-
     @Indexed
     String apiKey;
+    @Indexed
+    private String name;
+    @Indexed(unique = true)
+    private String code;
 
     protected Company() {
     }
@@ -57,6 +58,10 @@ public class Company implements Serializable {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -85,10 +90,6 @@ public class Company implements Serializable {
     // Lower case, no spaces
     public String getCode() {
         return code;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     @Override

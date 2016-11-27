@@ -41,20 +41,21 @@ import java.util.Map;
  * Maintains company specific Schema details. Structure of the nodes that FD has established
  * based on Entities, DocumentTypes, Tags and Relationships
  * <p>
- * User: mike
- * Date: 3/04/14
- * Time: 7:30 AM
+ * @author mholdsworth
+ * @since 3/04/2014
+ * @tag neo4j, Repository, Schema
  */
 @Repository
 public class SchemaDaoNeo4j {
 
-    @Autowired
-    ConceptDaoNeo conceptDaoNeo4j;
-
-    @Autowired
-    Neo4jTemplate template;
+    private final Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
+
+    @Autowired
+    public SchemaDaoNeo4j(Neo4jTemplate template) {
+        this.template = template;
+    }
 
     Result<Map<String, Object>> runQuery(String statement) {
         return runQuery(statement, null);

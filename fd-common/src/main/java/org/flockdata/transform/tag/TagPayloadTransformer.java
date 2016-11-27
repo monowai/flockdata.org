@@ -35,9 +35,9 @@ import java.util.Map;
 /**
  * Transforms the Map in to a suitable TagInput payload
  *
- * User: mike
- * Date: 27/04/14
- * Time: 4:36 PM
+ * @author mholdsworth
+ * @since 27/04/2014
+ * @tag Tag, ContentModel, Transformer, Helper
  */
 public class TagPayloadTransformer implements PayloadTransformer {
 
@@ -46,6 +46,10 @@ public class TagPayloadTransformer implements PayloadTransformer {
 
     public TagPayloadTransformer(ContentModel contentModel) {
         this.contentModel = contentModel;
+    }
+
+    public static TagPayloadTransformer newInstance(ContentModel contentModel) {
+        return new TagPayloadTransformer(contentModel);
     }
 
     public Map<String, Object> transform(Map<String, Object> row) throws FlockException {
@@ -99,10 +103,6 @@ public class TagPayloadTransformer implements PayloadTransformer {
             } // ignoreMe
         }
         return row;
-    }
-
-    public static TagPayloadTransformer newInstance(ContentModel contentModel) {
-        return new TagPayloadTransformer(contentModel);
     }
 
     public Collection<TagInputBean> getTags() {

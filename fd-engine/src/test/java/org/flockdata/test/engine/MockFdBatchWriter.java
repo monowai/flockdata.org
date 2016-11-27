@@ -32,7 +32,8 @@ import org.springframework.stereotype.Service;
  * This class is to signal that fd-engine can use the FdBatcher in all its glory
  *
  *
- * Created by mike on 13/04/16.
+ * @author mholdsworth
+ * @since 13/04/2016
  */
 @Profile("fd-batch-dev")
 @Service

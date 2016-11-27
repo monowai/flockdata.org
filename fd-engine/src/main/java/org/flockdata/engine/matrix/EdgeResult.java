@@ -29,9 +29,9 @@ import java.util.Map;
 /**
  * Carries details about an edge between 2 nodes
  *
- * User: mike
- * Date: 19/04/14
- * Time: 6:52 AM
+ * @author mholdsworth
+ * @since 19/04/2014
+ * @tag Matrix, Query
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EdgeResult {

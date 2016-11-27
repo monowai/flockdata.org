@@ -35,9 +35,9 @@ import java.util.zip.Checksum;
 
 /**
  * Encapsulate KV Content properties
- * User: mike
- * Date: 19/11/14
- * Time: 2:41 PM
+ * @author mholdsworth
+ * @since 19/11/2014
+ * @tag Payload, Store
  */
 public class StorageBean implements StoredContent, Serializable {
     private Entity entity;

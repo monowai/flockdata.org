@@ -58,29 +58,23 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * User: mike
- * Date: 3/10/14
- * Time: 2:43 PM
+ * @author mholdsworth
+ * @since 3/10/2014
+ * @tag Service, ContentModel
  */
 @Service
 @Transactional
 public class ContentModelServiceNeo implements ContentModelService {
 
-    private final ContentModelDaoNeo contentModelDao;
-
-    private final FortressService fortressService;
-
-    private final EntityService entityService;
-
-    private final ConceptService conceptService;
-
-    private final MediationFacade mediationFacade;
-
-    private final SecurityHelper securityHelper;
-
     private static final ObjectMapper objectMapper = new ObjectMapper(new FdJsonObjectMapper())
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .enable(JsonParser.Feature.ALLOW_COMMENTS);
+    private final ContentModelDaoNeo contentModelDao;
+    private final FortressService fortressService;
+    private final EntityService entityService;
+    private final ConceptService conceptService;
+    private final MediationFacade mediationFacade;
+    private final SecurityHelper securityHelper;
 
     @Autowired
     public ContentModelServiceNeo(MediationFacade mediationFacade, ContentModelDaoNeo contentModelDao, FortressService fortressService, SecurityHelper securityHelper, ConceptService conceptService, EntityService entityService) {

@@ -19,7 +19,8 @@ package org.flockdata.batch;
 import org.flockdata.profile.model.ContentModel;
 
 /**
- * Created by mike on 25/02/16.
+ * @author mholdsworth
+ * @since 25/02/2016
  */
 public class StepConfig {
     private String query;
@@ -58,13 +59,13 @@ public class StepConfig {
         return modelKey;
     }
 
+    public ContentModel getContentModel() {
+        return contentModel;
+    }
+
     public StepConfig setContentModel(ContentModel contentModel){
         this.contentModel = contentModel;
         return this;
-    }
-
-    public ContentModel getContentModel() {
-        return contentModel;
     }
 
     @Override

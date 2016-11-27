@@ -27,9 +27,10 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import java.util.Collection;
 
 /**
- * User: mike
- * Date: 3/10/14
- * Time: 4:51 PM
+ *
+ * Neo4j, ContentModel, GraphRepository
+ * @author mholdsworth
+ * @since 3/10/2014
  */
 public interface ContentModelRepo extends GraphRepository<Model> {
 

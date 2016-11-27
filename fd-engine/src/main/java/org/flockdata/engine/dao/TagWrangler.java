@@ -21,7 +21,6 @@
 package org.flockdata.engine.dao;
 
 import org.apache.commons.lang.StringUtils;
-import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.engine.tag.service.TagManager;
 import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.helper.TagHelper;
@@ -50,28 +49,30 @@ import java.util.stream.Collectors;
 /**
  * Move to Neo4j server extension
  * <p>
- * Created by mike on 20/06/15.
+ * @author mholdsworth
+ * @since 20/06/2015
+ * @tag Repository, Tag, Neo4j
  */
 
 @Repository
 public class TagWrangler {
 
+    private final Neo4jTemplate template;
+
+    private final AliasDaoNeo aliasDao;
+    private final TagManager tagManager;
+
+    private final ConceptTypeRepo conceptTypeRepo;
+
     private Logger logger = LoggerFactory.getLogger(TagWrangler.class);
 
     @Autowired
-    Neo4jTemplate template;
-
-    @Autowired
-    IndexRetryService indexRetryService;
-
-    @Autowired
-    AliasDaoNeo aliasDao;
-
-    @Autowired
-    TagManager tagManager;
-
-    @Autowired
-    TagRepo tagRepo;
+    public TagWrangler(Neo4jTemplate template, AliasDaoNeo aliasDao, TagManager tagManager, ConceptTypeRepo conceptTypeRepo) {
+        this.template = template;
+        this.aliasDao = aliasDao;
+        this.tagManager = tagManager;
+        this.conceptTypeRepo = conceptTypeRepo;
+    }
 
     public Collection<TagResultBean> save(TagPayload payload) {
         Collection<TagResultBean> results = new ArrayList<>(payload.getTags().size());
@@ -284,7 +285,6 @@ public class TagWrangler {
         return tag;
     }
 
-
     /**
      * Create unique relationship between the tag and the node
      *
@@ -317,7 +317,6 @@ public class TagWrangler {
         startTag.addTargetResult(rlxName, endTag);
     }
 
-
     private String createRelationship(String rlxName, Tag startTag, Tag endTag, String key) {
 //        if ((template.getRelationshipBetween(startTag, endTag, rlxName) == null))
 //            template.createRelationshipBetween(template.getNode(startTag.getId()), template.getNode(endTag.getId()), rlxName, null);
@@ -329,7 +328,6 @@ public class TagWrangler {
 
         return key;
     }
-
 
     public void createAlias(String suffix, Tag tag, String label, AliasInputBean aliasInput) {
         String theLabel = TagHelper.suffixLabel(label, suffix);
@@ -361,9 +359,6 @@ public class TagWrangler {
         }
         return tagResults;
     }
-
-    @Autowired
-    ConceptTypeRepo conceptTypeRepo;
 
     public Collection<TagResultBean> findTags() {
         Collection<TagResultBean> tagResults = new ArrayList<>();

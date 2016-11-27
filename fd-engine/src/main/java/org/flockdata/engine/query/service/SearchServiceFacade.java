@@ -64,35 +64,23 @@ import java.util.stream.Collectors;
 
 /**
  * Search Service interactions
- * User: mike
- * Date: 4/04/14
- * Time: 9:18 AM
+ * @author mholdsworth
+ * @since 4/04/2014
  */
 @Service
 @Transactional
 public class SearchServiceFacade {
-    private Logger logger = LoggerFactory.getLogger(SearchServiceFacade.class);
-
     private final EntityService entityService;
-
     private final StorageProxy storageProxy;
-
-    private EntitySearchWriterGateway searchWriterGateway;
-
-    private EntitySearchWriter entitySearchWriter;
-
     private final DeleteIndex.DeleteIndexGateway deleteIndexGateway;
-
     private final IndexManager indexManager;
-
     private final FortressService fortressService;
-
     private final EntityTagFinder taxonomyTags;
-
     private final EntityTagFinder defaultTagFinder;
-
     private final PlatformConfig engineConfig;
-
+    private Logger logger = LoggerFactory.getLogger(SearchServiceFacade.class);
+    private EntitySearchWriterGateway searchWriterGateway;
+    private EntitySearchWriter entitySearchWriter;
     private FdViewQueryGateway fdViewQueryGateway;
 
 

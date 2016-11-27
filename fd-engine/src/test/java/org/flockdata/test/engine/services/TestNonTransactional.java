@@ -43,9 +43,8 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 
 /**
- * User: mike
- * Date: 2/05/14
- * Time: 8:26 AM
+ * @author mholdsworth
+ * @since 2/05/2014
  */
 public class TestNonTransactional extends EngineBase {
 

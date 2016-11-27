@@ -42,9 +42,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Created by mike on 16/05/16.
+ * @author mholdsworth
+ * @since 16/05/2016
  */
 public class TestTagChanges {
+    public static TagSearchChange getSimpleTagInput(String indexName, String companyName, String fortressName, String code, String label) {
+        Company company = new Company(companyName);
+        Fortress fortress = new Fortress(new FortressInputBean(fortressName), company);
+        TagInputBean tagInputBean = new TagInputBean(code, label);
+        Tag tag = new Tag(tagInputBean);
+        String key = TagHelper.parseKey(code + "Alias");
+        Alias alias = new Alias(tagInputBean.getLabel(), new AliasInputBean(code + "Alias", "someAliasDescription"), key, tag);
+        tag.addAlias(alias);
+        return new TagSearchChange(indexName, tag);
+    }
+
     @Test
     public void serializationTagSearchChange () throws Exception {
         TagSearchChange searchChange = getSimpleTagInput("testIndex", "TheCompany", "TheFortress", "TheCode", "TheLabel");
@@ -66,15 +78,5 @@ public class TestTagChanges {
         assertTrue (deserializedChanges.getChanges().iterator().next() instanceof TagSearchChange);
 
 
-    }
-    public static TagSearchChange getSimpleTagInput (String indexName, String companyName, String fortressName, String code, String label){
-        Company company = new Company(companyName);
-        Fortress fortress = new Fortress(new FortressInputBean(fortressName), company);
-        TagInputBean tagInputBean = new TagInputBean(code, label);
-        Tag tag = new Tag(tagInputBean);
-        String key = TagHelper.parseKey(code+"Alias");
-        Alias alias = new Alias(tagInputBean.getLabel(), new AliasInputBean(code+"Alias", "someAliasDescription"),key, tag);
-        tag.addAlias( alias);
-        return new TagSearchChange(indexName, tag);
     }
 }

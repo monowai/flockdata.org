@@ -29,9 +29,8 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 17/09/14
- * Time: 1:01 PM
+ * @author mholdsworth
+ * @since 17/09/2014
  */
 @JsonDeserialize(as=StorageBean.class)
 public interface StoredContent {
@@ -50,9 +49,9 @@ public interface StoredContent {
 
     ContentInputBean getContent();
 
-    void setStore(String store);
-
     String getStore();
+
+    void setStore(String store);
 
     String getType();
 

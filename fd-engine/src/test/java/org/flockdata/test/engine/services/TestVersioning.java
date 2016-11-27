@@ -40,7 +40,8 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * Fortress
- * Created by mike on 22/03/15.
+ * @author mholdsworth
+ * @since 22/03/2015
  */
 public class TestVersioning extends EngineBase {
     @Test

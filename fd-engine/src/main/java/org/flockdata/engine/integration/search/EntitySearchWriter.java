@@ -42,8 +42,9 @@ import org.springframework.stereotype.Service;
 
 /**
  * Outbound requests sent once the search doc is indexed
- *
- * Created by mike on 12/02/16.
+ * @tag Messaging, Search, Entity, Configuration, Service
+ * @author mholdsworth
+ * @since 12/02/2016
  */
 @Configuration
 @Service
@@ -58,13 +59,6 @@ public class EntitySearchWriter {
 
     @Autowired
     private MessageSupport messageSupport;
-
-    @MessagingGateway
-    public interface EntitySearchWriterGateway {
-        @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel")
-        void makeSearchChanges(SearchChanges searchChanges);
-    }
-
 
     // ToDo: Can we handle this more via the flow or handler?
     @Transformer(inputChannel="sendEntityIndexRequest", outputChannel="writeSearchChanges")
@@ -89,6 +83,12 @@ public class EntitySearchWriter {
         //outbound.setConfirmAckChannel();
         return outbound;
 
+    }
+
+    @MessagingGateway
+    public interface EntitySearchWriterGateway {
+        @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel")
+        void makeSearchChanges(SearchChanges searchChanges);
     }
 
 

@@ -39,9 +39,8 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 /**
- * User: mike
- * Date: 30/09/14
- * Time: 9:39 AM
+ * @author mholdsworth
+ * @since 30/09/2014
  */
 public class TestEntityUsers extends EngineBase {
 

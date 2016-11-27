@@ -26,9 +26,8 @@ import org.flockdata.model.SystemUser;
 import java.util.Collection;
 
 /**
- * User: mike
- * Date: 22/08/14
- * Time: 10:17 AM
+ * @author mholdsworth
+ * @since 22/08/2014
  */
 public interface CompanyService {
     Company findByName(String companyName);

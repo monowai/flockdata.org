@@ -29,7 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by mike on 14/07/15.
+ * @author mholdsworth
+ * @since 14/07/2015
  */
 public class EntityTagNode extends EntityTag {
     Long id;

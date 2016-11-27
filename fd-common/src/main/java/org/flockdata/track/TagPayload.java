@@ -26,7 +26,8 @@ import org.flockdata.registration.TagInputBean;
 import java.util.Collection;
 
 /**
- * Created by mike on 19/06/15.
+ * @author mholdsworth
+ * @since 19/06/2015
  */
 public class TagPayload {
 
@@ -48,9 +49,17 @@ public class TagPayload {
         this.tags = tags;
     }
 
+    public String getTenant() {
+        return tenant;
+    }
+
     public TagPayload setTenant(String tenant) {
         this.tenant = tenant;
         return this;
+    }
+
+    public boolean isIgnoreRelationships() {
+        return ignoreRelationships;
     }
 
     public TagPayload setIgnoreRelationships(boolean ignoreRelationships) {
@@ -58,21 +67,13 @@ public class TagPayload {
         return this;
     }
 
+    public Collection<TagInputBean> getTags() {
+        return tags;
+    }
+
     public TagPayload setTags(Collection<TagInputBean> tags) {
         this.tags = tags;
         return this;
-    }
-
-    public String getTenant() {
-        return tenant;
-    }
-
-    public boolean isIgnoreRelationships() {
-        return ignoreRelationships;
-    }
-
-    public Collection<TagInputBean> getTags() {
-        return tags;
     }
 
     public Company getCompany() {

@@ -27,7 +27,8 @@ import java.util.Collection;
 /**
  * Deals with Mapping and Settings for indexes
  *
- * Created by mike on 10/09/15.
+ * @author mholdsworth
+ * @since 10/09/2015
  */
 public interface IndexMappingService {
 

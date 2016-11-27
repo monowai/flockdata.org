@@ -52,8 +52,8 @@ import javax.annotation.PostConstruct;
  * @see org.flockdata.registration.SystemUserResultBean
  * @see org.flockdata.integration.ClientConfiguration
  * <p>
- * User: Mike Holdsworth
- * Since: 13/10/13
+ * @author mholdsworth
+ * @since 13/10/2013
  */
 @Profile("fd-register")
 @Configuration
@@ -61,14 +61,11 @@ import javax.annotation.PostConstruct;
 @ComponentScan(basePackages = {"org.flockdata.authentication", "org.flockdata.shared", "org.flockdata.client"})
 public class Register {
 
-    private Logger logger = LoggerFactory.getLogger(Register.class);
-
-    @Value("${auth.user:#{null}}")
+    @Value("${auth.@author #{null}}")
     String authUser;
-
     @Value("${register.login:#{null}}")
     String login;
-
+    private Logger logger = LoggerFactory.getLogger(Register.class);
     @Autowired
     private ClientConfiguration clientConfiguration;
 

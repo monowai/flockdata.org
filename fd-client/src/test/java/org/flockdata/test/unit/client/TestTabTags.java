@@ -32,7 +32,8 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * Tag targets are handled
- * Created by mike on 27/01/15.
+ * @author mholdsworth
+ * @since 27/01/2015
  */
 public class TestTabTags {
     @Test

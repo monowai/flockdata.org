@@ -45,7 +45,8 @@ import java.util.concurrent.ExecutionException;
 /**
  * Serverside Tag routines to support FlockData
  * <p>
- * Created by mike on 18/06/15.
+ * @author mholdsworth
+ * @since 18/06/2015
  */
 @Path("/tag")
 public class TagManager {

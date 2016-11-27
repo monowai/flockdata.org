@@ -25,7 +25,8 @@ import org.flockdata.registration.AliasInputBean;
 /**
  * Data necessary to create a single Alias for a tag
  *
- * Created by mike on 3/07/15.
+ * @author mholdsworth
+ * @since 3/07/2015
  */
 public class AliasPayload {
     String label;

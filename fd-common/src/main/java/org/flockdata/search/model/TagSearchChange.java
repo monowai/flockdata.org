@@ -36,7 +36,8 @@ import java.util.stream.Collectors;
 /**
  * Represents data about a tag that requires indexing
  * <p>
- * Created by mike on 15/05/16.
+ * @author mholdsworth
+ * @since 15/05/2016
  */
 public class TagSearchChange implements SearchChange {
 
@@ -94,6 +95,11 @@ public class TagSearchChange implements SearchChange {
     }
 
     @Override
+    public void setSearchKey(String key) {
+        this.searchKey = key;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -106,11 +112,6 @@ public class TagSearchChange implements SearchChange {
     @Override
     public Long getLogId() {
         return logId;
-    }
-
-    @Override
-    public void setSearchKey(String key) {
-        this.searchKey = key;
     }
 
     @Override
@@ -145,24 +146,24 @@ public class TagSearchChange implements SearchChange {
     }
 
     @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
     public TagSearchChange setDescription(String description) {
         this.description = description;
         return this;
     }
 
     @Override
-    public String getDescription() {
-        return description;
+    public boolean isReplyRequired() {
+        return replyRequired;
     }
 
     @Override
     public void setReplyRequired(boolean required) {
 
-    }
-
-    @Override
-    public boolean isReplyRequired() {
-        return replyRequired;
     }
 
     @Override

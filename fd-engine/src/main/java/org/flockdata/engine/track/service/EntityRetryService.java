@@ -47,9 +47,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
- * User: mike
- * Date: 20/09/14
- * Time: 3:38 PM
+ * @author mholdsworth
+ * @since 20/09/2014
  */
 @Service
 public class EntityRetryService {

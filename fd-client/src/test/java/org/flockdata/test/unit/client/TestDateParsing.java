@@ -31,7 +31,8 @@ import static junit.framework.TestCase.assertNotNull;
 /**
  * Date helper functional tests
  *
- * Created by mike on 27/06/16.
+ * @author mholdsworth
+ * @since 27/06/2016
  */
 public class TestDateParsing extends AbstractImport {
 

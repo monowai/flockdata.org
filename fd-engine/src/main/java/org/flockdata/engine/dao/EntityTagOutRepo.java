@@ -31,7 +31,9 @@ import java.util.Collection;
  * There is an EntityTagIn and EntityTagOut class because of the way SDN handles inbound and outbound relationships
  * This repo should be the central place to work on queries for EntityTag objects, but don't use it for persistence
  *
- * Created by mike on 6/04/15.
+ * @author mholdsworth
+ * @since 6/04/2015
+ * @tag Neo4j, GraphRepository, Relationship, EntityTag
  */
 public interface EntityTagOutRepo extends GraphRepository<EntityTagOut> {
     @Query (elementClass = EntityTagOut.class, value = "match (e:Entity)-[r]->(:Tag) where id(e) = {0} return r")

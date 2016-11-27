@@ -47,16 +47,16 @@ import java.util.Collection;
 import static org.junit.Assert.*;
 
 /**
- * User: mike
- * Date: 3/10/14
- * Time: 8:35 PM
+ * @author mholdsworth
+ * @since 3/10/2014
  */
 public class TestProfiles extends EngineBase {
 
-    private Logger logger = LoggerFactory.getLogger(TestProfiles.class);
     @Autowired
     ContentModelService profileService;
-
+    @Autowired
+    FileProcessor fileProcessor;
+    private Logger logger = LoggerFactory.getLogger(TestProfiles.class);
 
     @Test
     @Transactional
@@ -83,9 +83,6 @@ public class TestProfiles extends EngineBase {
         assertNull(savedProfile.getHandler());
         assertFalse("Updating the mustExist attribute did not persist", savedProfile.getContent().get("TagVal").isMustExist());
     }
-
-    @Autowired
-    FileProcessor fileProcessor;
 
     @Test
     public void serverSideModelAndTagsLinkToExistingDocumentType() throws Exception {

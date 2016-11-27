@@ -37,7 +37,9 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Created by mike on 28/12/15.
+ * @author mholdsworth
+ * @since 28/12/2015
+ * @tag Endpoint, Tag
  */
 
 @RestController

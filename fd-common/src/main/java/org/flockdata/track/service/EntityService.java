@@ -35,9 +35,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
- * User: mike
- * Date: 5/09/14
- * Time: 4:22 PM
+ * @author mholdsworth
+ * @since 5/09/2014
  */
 public interface EntityService {
 
@@ -48,8 +47,6 @@ public interface EntityService {
     Collection<EntityKeyBean> getNestedParentEntities(Entity company, DocumentType docType);
 
     Entity find(Company company, EntityKeyBean entityKeyBean);
-
-    enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 
     StoredContent getContent(Entity entity, Log change);
 
@@ -161,5 +158,7 @@ public interface EntityService {
     Collection<String> getEntityBatch(Fortress fortress, int count);
 
     Collection<String> getEntityBatch(Fortress fortress, DocumentType documentType, FortressSegment fortressSegment, int count);
+
+    enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 
 }

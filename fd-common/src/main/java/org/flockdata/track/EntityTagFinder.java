@@ -28,7 +28,8 @@ import org.flockdata.track.service.EntityService;
  * Classes that implement this can find and massage the EntityTag objects that will be
  * sent for indexing in fd-search
  *
- * Created by mike on 20/08/15.
+ * @author mholdsworth
+ * @since 20/08/2015
  */
 public interface EntityTagFinder {
 

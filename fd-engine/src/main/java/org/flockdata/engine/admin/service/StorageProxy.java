@@ -27,7 +27,8 @@ import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.TrackResultBean;
 
 /**
- * Created by mike on 17/02/16.
+ * @author mholdsworth
+ * @since 17/02/2016
  */
 public interface StorageProxy {
 

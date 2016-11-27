@@ -38,7 +38,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * Created by mike on 15/07/15.
+ * @author mholdsworth
+ * @since 15/07/2015
  */
 @Path("/entitytag")
 public class EntityTagManager {

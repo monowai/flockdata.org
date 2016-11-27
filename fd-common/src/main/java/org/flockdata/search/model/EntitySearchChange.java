@@ -40,9 +40,8 @@ import java.util.*;
  * <p/>
  * This object becomes the payload dispatch to fd-search for indexing.
  * <p/>
- * User: Mike Holdsworth
- * Date: 25/04/13
- * Time: 9:33 PM
+ * @author mholdsworth
+ * @since 25/04/2013
  */
 public class EntitySearchChange implements SearchChange {
 
@@ -79,6 +78,7 @@ public class EntitySearchChange implements SearchChange {
     private EntityKeyBean parent;
     private String segment;
     private Collection<EntityKeyBean> entityLinks = new ArrayList<>();
+    private String searchKey;
 
     public EntitySearchChange() {
         this.sysWhen = System.currentTimeMillis();
@@ -152,14 +152,12 @@ public class EntitySearchChange implements SearchChange {
         return this;
     }
 
-    private String searchKey;
+    public String getSearchKey() {
+        return searchKey;
+    }
 
     public void setSearchKey(String searchKey) {
         this.searchKey = searchKey;
-    }
-
-    public String getSearchKey() {
-        return searchKey;
     }
 
     private void setFortress(Fortress fortress) {
@@ -172,6 +170,10 @@ public class EntitySearchChange implements SearchChange {
         return this.who;
     }
 
+    public void setWho(String name) {
+        this.who = name;
+    }
+
     public String getEvent() {
         return event;
     }
@@ -181,12 +183,12 @@ public class EntitySearchChange implements SearchChange {
             this.when = when.toDate();
     }
 
-    public void setWho(String name) {
-        this.who = name;
-    }
-
     public String getFortressName() {
         return fortressName;
+    }
+
+    void setFortressName(String fortressName) {
+        this.fortressName = fortressName;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -197,10 +199,6 @@ public class EntitySearchChange implements SearchChange {
         if (indexName == null)
             return indexName;
         return indexName.toLowerCase();
-    }
-
-    void setFortressName(String fortressName) {
-        this.fortressName = fortressName;
     }
 
     @JsonIgnore
@@ -296,11 +294,9 @@ public class EntitySearchChange implements SearchChange {
         return code;
     }
 
-    /**
-     * When this log file was created in FlockData graph
-     */
-    public void setSysWhen(Long sysWhen) {
-        this.sysWhen = sysWhen;
+    @Override
+    public Long getLogId() {
+        return logId;
     }
 
     public void setLogId(Long id) {
@@ -308,27 +304,8 @@ public class EntitySearchChange implements SearchChange {
 
     }
 
-    @Override
-    public Long getLogId() {
-        return logId;
-    }
-
     public Long getId() {
         return id;
-    }
-
-    @Override
-    public EntitySearchChange setDescription(String description) {
-        this.description = description;
-        return this;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setAttachment(String attachment) {
-        this.attachment = attachment;
     }
 
     public boolean hasAttachment() {
@@ -339,13 +316,30 @@ public class EntitySearchChange implements SearchChange {
         return this.attachment;
     }
 
+    public void setAttachment(String attachment) {
+        this.attachment = attachment;
+    }
+
     @Override
     public String getDescription() {
         return description;
     }
 
+    @Override
+    public EntitySearchChange setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
     public Long getSysWhen() {
         return sysWhen;
+    }
+
+    /**
+     * When this log file was created in FlockData graph
+     */
+    public void setSysWhen(Long sysWhen) {
+        this.sysWhen = sysWhen;
     }
 
     public Date getCreatedDate() {
@@ -365,6 +359,10 @@ public class EntitySearchChange implements SearchChange {
                 '}';
     }
 
+    public boolean isReplyRequired() {
+        return replyRequired;
+    }
+
     /**
      * @param replyRequired do we require the search service to acknowledge this request
      */
@@ -372,16 +370,12 @@ public class EntitySearchChange implements SearchChange {
         this.replyRequired = replyRequired;
     }
 
-    public boolean isReplyRequired() {
-        return replyRequired;
+    public boolean isForceReindex() {
+        return forceReindex;
     }
 
     public void setForceReindex(boolean forceReindex) {
         this.forceReindex = forceReindex;
-    }
-
-    public boolean isForceReindex() {
-        return forceReindex;
     }
 
     /**
@@ -412,13 +406,13 @@ public class EntitySearchChange implements SearchChange {
         return tagStructure;
     }
 
+    public EntityKeyBean getParent() {
+        return parent;
+    }
+
     public EntitySearchChange setParent(EntityKeyBean parent) {
         this.parent = parent;
         return this;
-    }
-
-    public EntityKeyBean getParent() {
-        return parent;
     }
 
     @Override
@@ -498,5 +492,9 @@ public class EntitySearchChange implements SearchChange {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

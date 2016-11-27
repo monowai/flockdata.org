@@ -27,7 +27,8 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import java.util.Collection;
 
 /**
- * Created by mike on 13/10/15.
+ * @author mholdsworth
+ * @since 13/10/2015
  */
 public interface FortressSegmentRepository extends GraphRepository<FortressSegment> {
 

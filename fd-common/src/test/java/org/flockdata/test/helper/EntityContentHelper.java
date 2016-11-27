@@ -31,9 +31,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 10/08/14
- * Time: 7:56 PM
+ * @author mholdsworth
+ * @since 10/08/2014
  */
 public class EntityContentHelper {
     public static EntityInputBean getEntityInputBean(String docType, Fortress fortress, String fortressUser, String code, DateTime now) {

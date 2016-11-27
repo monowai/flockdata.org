@@ -40,7 +40,8 @@ import java.util.Map;
 import static junit.framework.TestCase.assertNull;
 
 /**
- * Created by mike on 19/01/16.
+ * @author mholdsworth
+ * @since 19/01/2016
  */
 public class TestKvPojos {
 

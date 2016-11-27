@@ -30,9 +30,9 @@ import javax.annotation.PostConstruct;
 /**
  * Java configuration of fd-engines graphWriting services
  * <p>
- * User: mike
- * Date: 15/12/14
- * Time: 3:49 PM
+ * @author mholdsworth
+ * @since 15/12/2014
+ * @tag Application
  */
 // test and store are required for functional testing only. not sure how to scan for them
 @SpringBootApplication(
@@ -41,6 +41,9 @@ import javax.annotation.PostConstruct;
                 "org.flockdata.authentication", "org.flockdata.engine.configure", "org.flockdata.integration"})
 
 public class FdEngine {
+    @Autowired
+    SchemaService schemaService;
+
     public static void main(String[] args) {
         try {
             SpringApplication.run(FdEngine.class, args);
@@ -49,9 +52,6 @@ public class FdEngine {
         }
 
     }
-
-    @Autowired
-    SchemaService schemaService;
 
     @PostConstruct
     public void ensureSystemIndexes() {

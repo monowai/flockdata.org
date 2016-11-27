@@ -26,7 +26,8 @@ import java.io.Serializable;
 import java.util.Collection;
 
 /**
- * Created by mike on 20/07/15.
+ * @author mholdsworth
+ * @since 20/07/2015
  */
 public class TrackRequestResult implements Serializable {
 

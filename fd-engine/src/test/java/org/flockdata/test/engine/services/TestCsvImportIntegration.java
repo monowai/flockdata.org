@@ -45,13 +45,14 @@ import static org.junit.Assert.assertNotNull;
  * This is a useful test to demonstrate how you can emulate the CSV import functionality
  * in a functional test
  * <p/>
- * User: mike
- * Date: 10/10/14
- * Time: 9:37 AM
+ * @author mholdsworth
+ * @since 10/10/2014
+ * @tag Test,Track,DelimitedFile
  */
 public class TestCsvImportIntegration extends EngineBase {
 
     @Autowired
+    private
     FileProcessor fileProcessor;
 
     @Override

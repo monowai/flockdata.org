@@ -26,7 +26,8 @@ import java.util.Map;
 /**
  * Helpers for working with cypher
  *
- * Created by mike on 6/07/15.
+ * @author mholdsworth
+ * @since 6/07/2015
  */
 public class CypherUtils {
 

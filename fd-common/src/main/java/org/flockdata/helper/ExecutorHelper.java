@@ -27,7 +27,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * Created by mike on 15/02/16.
+ * @author mholdsworth
+ * @since 15/02/2016
  */
 public class ExecutorHelper {
     public static Executor getExecutor(String name, String poolSize, int  qCapacity) {

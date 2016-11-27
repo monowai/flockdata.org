@@ -30,9 +30,8 @@ import java.util.Collection;
  * Company represents a unique organisation who interacts with the system
  * API To abstract interactions with underlying implementations
  *
- * User: Mike Holdsworth
- * Date: 20/04/13
- * Time: 6:31 PM
+ * @author mholdsworth
+ * @since 20/04/2013
  */
 public interface CompanyDao {
     Company update(Company systemUser);

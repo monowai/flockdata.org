@@ -36,15 +36,21 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * Created by mike on 28/12/15.
+ * @author mholdsworth
+ * @since 28/12/2015
+ * @tag Tag, Neo4j
  */
 @Service
 public class TagPathDao {
-    @Autowired
-    Neo4jTemplate template;
+    private final Neo4jTemplate template;
 
 
     private Logger logger = LoggerFactory.getLogger(TagPathDao.class);
+
+    @Autowired
+    public TagPathDao(Neo4jTemplate template) {
+        this.template = template;
+    }
 
     public Collection<Map<String, Object>> getPaths(Tag tag, int length, String label) {
         String query = "match p=(t) -[*.."+length+"]->(targetTag:`"+label+"`) where id(t)= {0}   return p";

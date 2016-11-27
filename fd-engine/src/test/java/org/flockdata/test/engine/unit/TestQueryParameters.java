@@ -35,9 +35,9 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 
 /**
- * User: mike
- * Date: 12/06/14
- * Time: 11:35 AM
+ * @author mholdsworth
+ * @since 12/06/2014
+ * @tag Test, Query
  */
 public class TestQueryParameters {
     @Test

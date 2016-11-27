@@ -46,9 +46,9 @@ import java.util.Set;
 
 /**
  * Query track services
- * User: mike
- * Date: 5/04/14
- * Time: 9:31 AM
+ * @author mholdsworth
+ * @since 5/04/2014
+ * @tag Query, Matrix
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/query")

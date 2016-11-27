@@ -29,7 +29,8 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 
 /**
- * Created by mike on 28/01/16.
+ * @author mholdsworth
+ * @since 28/01/2016
  */
 @Configuration
 @Profile("dev")

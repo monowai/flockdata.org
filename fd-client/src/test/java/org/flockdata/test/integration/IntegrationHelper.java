@@ -45,7 +45,9 @@ import static org.springframework.test.util.AssertionErrors.fail;
 /**
  * Integration utils. Keeps generic functionality out of the IT class
  * <p>
- * Created by mike on 20/04/16.
+ * @author mholdsworth
+ * @since 20/04/2016
+ * @tag Test, Docker, Configuration
  */
 @Service
 @Configuration
@@ -54,39 +56,45 @@ class IntegrationHelper {
     // These are defined in docker-compose.yml
     static final String ADMIN_REGRESSION_USER = "integration";
     static final String ADMIN_REGRESSION_PASS = "123";
+    static final int DEBUG_ENGINE = 61000;
+    static final int DEBUG_SEARCH = 61001;
+    static final int DEBUG_STORE = 61002;
+    static final int SERVICE_ENGINE = 8090;
+    static final int SERVICE_SEARCH = 8091;
+    static final int SERVICE_STORE = 8092;
+    public static DockerComposeContainer stack = FdDocker.getStack();
     private static Logger logger = LoggerFactory.getLogger(IntegrationHelper.class);
-
-
+    private static boolean setupComplete = false;
+    // If any one of FD's services fail to come up we can't perform integration testing
+    private static boolean stackFailed = false;
     private FdTemplate fdTemplate;
-
     @Value("${org.fd.test.sleep.short:1500}")
     private int shortSleep;
-
     @Value("${org.fd.test.sleep.long:4000}")
     private int longSleep;
-
     @Value("${org.fd.test.attempts:100}")
     private int attempts;
-
     @Value("${org.fd.test.pause:150}")
     private
     int waitSeconds;
 
-    public static DockerComposeContainer stack = FdDocker.getStack();
+    private static String getUrl() {
 
-    static final int DEBUG_ENGINE = 61000;
-    static final int DEBUG_SEARCH = 61001;
-    static final int DEBUG_STORE = 61002;
+        return "http://" + getIpAddress();
+    }
 
-    static final int SERVICE_ENGINE = 8090;
-    static final int SERVICE_SEARCH = 8091;
-    static final int SERVICE_STORE = 8092;
+    static String getEngine() throws IllegalStateException {
+        return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdengine_1", SERVICE_ENGINE) : SERVICE_ENGINE);
+    }
 
-    private static boolean setupComplete = false;
+    private static String getIpAddress() {
+        if (stack == null)
+            return "192.168.99.100";
+        else
+            return stack.getServiceHost("fdengine_1", SERVICE_ENGINE);
 
-    // If any one of FD's services fail to come up we can't perform integration testing
-    private static boolean stackFailed = false;
-
+        //return DockerClientFactory.instance().dockerHostIpAddress();
+    }
 
     @Autowired
     void setFdTemplate(FdTemplate fdTemplate) {
@@ -280,11 +288,6 @@ class IntegrationHelper {
 
     }
 
-    private static String getUrl() {
-
-        return "http://" + getIpAddress();
-    }
-
     private Integer getRabbitAdmin() throws IllegalStateException{
         return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("rabbit_1", 15672) : 15672);
     }
@@ -295,20 +298,12 @@ class IntegrationHelper {
         return getIpAddress();
     }
 
-    static String getEngine() throws IllegalStateException{
-        return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdengine_1", SERVICE_ENGINE) : SERVICE_ENGINE);
-    }
-
     private Integer getRabbitPort() throws IllegalStateException{
         return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("rabbit_1", 5672) : 5672);
     }
 
     String getSearch() throws IllegalStateException{
         return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdsearch_1", SERVICE_SEARCH) : SERVICE_SEARCH);
-    }
-
-    String getStore() throws IllegalStateException{
-        return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", SERVICE_STORE) : SERVICE_STORE);
     }
 
 //    private Integer getEngineDebug() {
@@ -332,13 +327,8 @@ class IntegrationHelper {
 //        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", DEBUG_STORE) : DEBUG_STORE);
 //    }
 
-    private static String getIpAddress() {
-        if (stack == null)
-            return "192.168.99.100";
-        else
-            return stack.getServiceHost("fdengine_1", SERVICE_ENGINE);
-
-        //return DockerClientFactory.instance().dockerHostIpAddress();
+    String getStore() throws IllegalStateException {
+        return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", SERVICE_STORE) : SERVICE_STORE);
     }
 
     /**

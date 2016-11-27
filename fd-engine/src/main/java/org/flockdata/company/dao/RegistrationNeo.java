@@ -29,9 +29,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 /**
- * User: Mike Holdsworth
- * Date: 20/04/13
- * Time: 6:40 PM
+ * @author mholdsworth
+ * @since 20/04/2013
  */
 @Repository
 public class RegistrationNeo implements RegistrationDao {

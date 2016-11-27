@@ -37,7 +37,8 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
 /**
- * Created by mike on 20/01/16.
+ * @author mholdsworth
+ * @since 20/01/2016
  */
 public class TestDocTypes extends AbstractImport  {
     @Autowired

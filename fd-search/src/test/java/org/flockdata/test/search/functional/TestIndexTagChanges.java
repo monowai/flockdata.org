@@ -39,7 +39,8 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Created by mike on 16/05/16.
+ * @author mholdsworth
+ * @since 16/05/2016
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(FdSearch.class)

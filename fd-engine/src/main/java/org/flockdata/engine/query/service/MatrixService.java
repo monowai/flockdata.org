@@ -32,15 +32,19 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Query support for visualization frameworks
  *
- * User: mike
- * Date: 5/04/14
- * Time: 9:09 AM
+ * @author mholdsworth
+ * @since 5/04/2014
+ * @tag Matrix, Service
  */
 @Service
 @Transactional
 public class MatrixService {
+    private final MatrixDao matrixDao;
+
     @Autowired
-    MatrixDao matrixDao;
+    public MatrixService(MatrixDao matrixDao) {
+        this.matrixDao = matrixDao;
+    }
 
     public MatrixResults getMatrix(Company company, MatrixInputBean matrixInput) throws FlockException {
         return matrixDao.buildMatrix(company, matrixInput);

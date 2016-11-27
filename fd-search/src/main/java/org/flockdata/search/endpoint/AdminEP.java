@@ -29,9 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 5/05/14
- * Time: 9:25 AM
+ * @author mholdsworth
+ * @since 5/05/2014
+ * @tag Endpoint, Administration, Search
  */
 @RequestMapping("${org.fd.search.system.api:api}/v1/admin")
 @RestController

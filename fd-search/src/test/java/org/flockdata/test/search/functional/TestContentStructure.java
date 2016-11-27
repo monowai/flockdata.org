@@ -38,7 +38,8 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by mike on 31/08/16.
+ * @author mholdsworth
+ * @since 31/08/2016
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(FdSearch.class)

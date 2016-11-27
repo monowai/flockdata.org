@@ -32,7 +32,8 @@ import java.util.Map;
 /**
  * How data is transformed
  *
- * Created by mike on 24/06/16.
+ * @author mholdsworth
+ * @since 24/06/2016
  */
 
 @JsonDeserialize(using =ContentModelDeserializer.class)
@@ -101,6 +102,18 @@ public class ContentModelHandler implements ContentModel {
     }
 
     @Override
+    public void setContent(Map<String, ColumnDefinition> columns) {
+        if (content == null)
+            content = columns;
+        else
+            // Adding in only the new ColumnDefinition
+            columns.keySet().stream().filter(
+                    column -> !content.containsKey(column))
+                    .forEachOrdered(column -> content.put(column, columns.get(column)
+                    ));
+    }
+
+    @Override
     public String getName(){
         return name;
     }
@@ -114,25 +127,13 @@ public class ContentModelHandler implements ContentModel {
         return code;
     }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     @Override
     public String getFortressUser() {
         return fortressUser;
-    }
-
-    @Override
-    public void setContent(Map<String, ColumnDefinition> columns) {
-        if ( content == null )
-            content = columns;
-        else
-            // Adding in only the new ColumnDefinition
-            columns.keySet().stream().filter(
-                    column -> !content.containsKey(column))
-                        .forEachOrdered(column -> content.put(column, columns.get(column)
-                                ));
-    }
-
-    public void setSegmentExpression(String segmentExpression) {
-        this.segmentExpression = segmentExpression;
     }
 
     @Override
@@ -174,19 +175,23 @@ public class ContentModelHandler implements ContentModel {
         return segmentExpression;
     }
 
+    public void setSegmentExpression(String segmentExpression) {
+        this.segmentExpression = segmentExpression;
+    }
+
     @Override
     public ContentModel setDocumentType(DocumentTypeInputBean documentType) {
         this.documentType = documentType;
         return this;
     }
 
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
     // Entity properties
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
-    }
-
-    public Map<String, Object> getProperties() {
-        return properties;
     }
 
     @Override
@@ -237,7 +242,6 @@ public class ContentModelHandler implements ContentModel {
         return this;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -268,9 +272,5 @@ public class ContentModelHandler implements ContentModel {
         result = 31 * result + (handler != null ? handler.hashCode() : 0);
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
         return result;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 }

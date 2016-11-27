@@ -32,9 +32,10 @@ import java.util.Collection;
 import static org.junit.Assert.*;
 
 /**
- * User: mike
- * Date: 7/11/14
- * Time: 11:42 AM
+ * @author mholdsworth
+ * @since 7/11/2014
+ * @tag Test, Tag, Alias, Merge
+
  */
 public class TestTagMerge extends EngineBase {
 

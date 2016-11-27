@@ -23,7 +23,8 @@ package org.flockdata.track.bean;
 import org.flockdata.model.Alias;
 
 /**
- * Created by mike on 20/05/15.
+ * @author mholdsworth
+ * @since 20/05/2015
  */
 public class AliasResultBean {
     private String name;

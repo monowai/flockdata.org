@@ -35,9 +35,9 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 
 /**
- * User: mike
- * Date: 2/12/14
- * Time: 7:48 AM
+ * @author mholdsworth
+ * @since 2/12/2014
+ * @tag Administration, Neo4j, Index
  */
 @EnableRetry
 @Service

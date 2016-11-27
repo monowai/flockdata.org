@@ -19,13 +19,6 @@
  */
 
 package org.flockdata.engine.configure;
-
-/**
- * Neo4j embedded database
- * <p>
- * Created by mike on 31/03/15.
- */
-
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -42,6 +35,9 @@ import org.springframework.data.neo4j.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+/**
+ * @tag Neo4j, Configuration
+ */
 @EnableTransactionManagement
 @EnableNeo4jRepositories(basePackages = {"org.flockdata.company.dao",
         "org.flockdata.geography.dao",

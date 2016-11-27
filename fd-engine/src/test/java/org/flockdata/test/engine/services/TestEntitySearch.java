@@ -38,7 +38,8 @@ import java.util.Collection;
 import static junit.framework.TestCase.assertEquals;
 
 /**
- * Created by mike on 20/04/15.
+ * @author mholdsworth
+ * @since 20/04/2015
  */
 public class TestEntitySearch extends EngineBase {
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);

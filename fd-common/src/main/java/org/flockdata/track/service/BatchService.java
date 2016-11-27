@@ -30,7 +30,8 @@ import org.flockdata.profile.ContentValidationRequest;
 import java.io.IOException;
 
 /**
- * Created by mike on 24/05/16.
+ * @author mholdsworth
+ * @since 24/05/2016
  */
 public interface BatchService {
     void process(Company company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException;

@@ -28,9 +28,8 @@ import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
 
 /**
- * User: mike
- * Date: 6/09/14
- * Time: 12:07 PM
+ * @author mholdsworth
+ * @since 6/09/2014
  */
 public interface StoreService {
     String ping(Store store);

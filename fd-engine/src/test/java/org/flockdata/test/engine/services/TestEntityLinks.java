@@ -50,7 +50,8 @@ import static org.junit.Assert.assertTrue;
 /**
  * Entities can be connected to other entities. This checks some of the behaviour
  *
- * Created by mike on 19/12/15.
+ * @author mholdsworth
+ * @since 19/12/2015
  */
 public class TestEntityLinks extends EngineBase {
 
@@ -187,7 +188,7 @@ public class TestEntityLinks extends EngineBase {
         assertEquals("This timesheet should have a reference to an existing staff", 1, linkedEntities.get(rlxName).size());
         linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "2", rlxName);
         // Default behaviour is to ignore
-        TestCase.assertEquals("This timesheet should not have an associated staff member as it did not exist", 0, linkedEntities.get(rlxName).size()); ;
+        TestCase.assertEquals("This timesheet should not have an associated staff member as it did not exist", 0, linkedEntities.get(rlxName).size());
 
     }
 

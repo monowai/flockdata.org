@@ -40,7 +40,8 @@ import javax.transaction.HeuristicRollbackException;
 import java.util.*;
 
 /**
- * Created by mike on 21/03/15.
+ * @author mholdsworth
+ * @since 21/03/2015
  */
 @Service
 public class TrackBatchSplitter {

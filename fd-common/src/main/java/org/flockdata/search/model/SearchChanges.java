@@ -28,9 +28,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * User: mike
- * Date: 23/05/14
- * Time: 12:10 PM
+ * @author mholdsworth
+ * @since 23/05/2014
  */
 @JsonDeserialize(using = SearchChangesDeserializer.class)
 public class SearchChanges {

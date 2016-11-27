@@ -27,9 +27,9 @@ import java.util.Collection;
 
 
 /**
- * User: mike
- * Date: 12/06/14
- * Time: 11:37 AM
+ * @author mholdsworth
+ * @since 12/06/2014
+ * @tag Neo4j, Helper
  */
 public class CypherHelper {
 

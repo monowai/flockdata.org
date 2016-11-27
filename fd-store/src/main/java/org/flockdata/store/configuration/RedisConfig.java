@@ -30,7 +30,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 /**
  * Java config for Redis
  *
- * Created by mike on 17/02/16.
+ * @author mholdsworth
+ * @since 17/02/2016
  */
 @Configuration
 public class RedisConfig {

@@ -28,7 +28,8 @@ import java.util.Map;
 
 /**
  * Helper class for Spring Expression to extract portions of a date
- * Created by mike on 27/06/16.
+ * @author mholdsworth
+ * @since 27/06/2016
  */
 public class Dates {
 

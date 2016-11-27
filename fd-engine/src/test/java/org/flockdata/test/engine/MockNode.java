@@ -26,7 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by mike on 16/08/16.
+ * @author mholdsworth
+ * @since 16/08/2016
  */
 public class MockNode implements Node {
     long id;

@@ -36,13 +36,16 @@ import java.util.Properties;
 /**
  * Configures fd-client from properties source from a configuration file
  *
- * User: mike
- * Date: 30/04/14
- * Time: 12:38 PM
+ * @author mholdsworth
+ * @since 30/04/2014
+ * @tag Configuration, FdClient
  */
 @Configuration
 public class ClientConfiguration {
 
+    public static final String AMQP = "org.fd.client.amqp";
+    public static final String KEY_MSG_KEY = "fd-apiKey";
+    public static final String KEY_MSG_TYPE = "fd-type";
     private static final String KEY_ENGINE_API = "org.fd.engine.api";
     private static final String KEY_COMPANY = "org.fd.client.default.company";
     private static final String KEY_FORTRESS = "org.fd.client.default.fortress";
@@ -50,15 +53,9 @@ public class ClientConfiguration {
     private static final String KEY_HTTP_USER = "org.fd.client.http.user";
     private static final String KEY_HTTP_PASS = "org.fd.client.http.pass";
     private static final String KEY_BATCH_SIZE = "org.fd.client.batchsize";
-    public static final String AMQP = "org.fd.client.amqp";
-
     private static final String KEY_TRACK_QUEUE = "org.fd.track.messaging.queue";
     private static final String KEY_TRACK_EXCHANGE = "org.fd.messaging.exchange";
     private static final String KEY_TRACK_BINDING = "org.fd.track.messaging.binding";
-    public static final String KEY_MSG_KEY = "fd-apiKey";
-    public static final String KEY_MSG_TYPE = "fd-type";
-
-
     @Value ("${"+ KEY_COMPANY +":flockdata}")
     private String company;
 
@@ -100,7 +97,7 @@ public class ClientConfiguration {
     private int stopRowProcessCount =0;
     private int skipCount=0;
     private File file;
-
+    private Collection<String> filesToImport = new ArrayList<>();
 
     public ClientConfiguration() {
 //        defConfig = true;
@@ -137,10 +134,20 @@ public class ClientConfiguration {
 
     }
 
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
+
     public String getServiceUrl() {
         if ( engineUrl !=null && !engineUrl.equals("") && !engineUrl.startsWith("http"))
             engineUrl =  "http://" + engineUrl;
         return engineUrl;
+    }
+
+    public ClientConfiguration setServiceUrl(String engineUrl) {
+        this.engineUrl = engineUrl;
+        return this;
     }
 
     public String getApiKey() {
@@ -174,16 +181,16 @@ public class ClientConfiguration {
         return company;
     }
 
+    private void setCompany(String company) {
+        this.company = company;
+    }
+
     /**
      *
      * @return optionally defined default fortress
      */
     public String getFortress() {
         return fortress;
-    }
-
-    private void setCompany(String company) {
-        this.company = company;
     }
 
     public boolean isAsync() {
@@ -218,10 +225,6 @@ public class ClientConfiguration {
         this.trackRoutingKey = trackRoutingKey;
     }
 
-    public void setStopRowProcessCount(int stopRowProcessCount) {
-        this.stopRowProcessCount = stopRowProcessCount;
-    }
-
     /**
      * stop count
      * @return stop processing after this row is reached
@@ -230,23 +233,25 @@ public class ClientConfiguration {
         return stopRowProcessCount;
     }
 
-    public void setSkipCount(int skipCount) {
-        this.skipCount = skipCount;
+    public void setStopRowProcessCount(int stopRowProcessCount) {
+        this.stopRowProcessCount = stopRowProcessCount;
     }
 
     public int getSkipCount() {
         return skipCount;
     }
 
-    public void setFile(File file) {
-        this.file = file;
+    public void setSkipCount(int skipCount) {
+        this.skipCount = skipCount;
     }
 
     public File getFile() {
         return file;
     }
 
-    private Collection<String> filesToImport = new ArrayList<>();
+    public void setFile(File file) {
+        this.file = file;
+    }
 
     @Autowired
     void loadConfigs(@Value("${fd.client.import:}") final String str) throws Exception {
@@ -260,27 +265,17 @@ public class ClientConfiguration {
         return filesToImport;
     }
 
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
-        return new PropertySourcesPlaceholderConfigurer();
-    }
-
     public String getHttpUser() {
         return httpUser;
-    }
-
-    public String getHttpPass() {
-        return httpPass;
-    }
-
-    public ClientConfiguration setServiceUrl(String engineUrl) {
-        this.engineUrl = engineUrl;
-        return this;
     }
 
     public ClientConfiguration setHttpUser(String httpUser) {
         this.httpUser = httpUser;
         return this;
+    }
+
+    public String getHttpPass() {
+        return httpPass;
     }
 
     public ClientConfiguration setHttpPass(String httpPass) {

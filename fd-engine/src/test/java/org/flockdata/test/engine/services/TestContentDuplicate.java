@@ -39,9 +39,8 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * User: mike
- * Date: 12/11/14
- * Time: 1:44 PM
+ * @author mholdsworth
+ * @since 12/11/2014
  */
 public class TestContentDuplicate  extends  EngineBase{
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);

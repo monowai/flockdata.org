@@ -48,10 +48,9 @@ import java.util.*;
 
 /**
  * Access to Entity objects stored in Neo4j
- * <p>
- * User: Mike Holdsworth
- * Date: 21/04/13
- * Time: 8:00 PM
+ * @tag neo4j, Entity, Repository, Track
+ * @author mholdsworth
+ * @since 21/04/2013
  */
 @Repository("entityDao")
 public class EntityDaoNeo {
@@ -73,11 +72,8 @@ public class EntityDaoNeo {
     private final EntityTagService entityTagService;
 
     private final IndexManager indexManager;
-
-    private FortressService fortressService;
-
     private final Neo4jTemplate template;
-
+    private FortressService fortressService;
     private ConceptService conceptService;
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);

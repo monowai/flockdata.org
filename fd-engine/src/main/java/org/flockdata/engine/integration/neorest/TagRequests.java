@@ -41,7 +41,8 @@ import java.util.Map;
 /**
  * SDN4 UMX requests
  *
- * Created by mike on 28/06/15.
+ * @author mholdsworth
+ * @since 28/06/2015
  */
 
 @Configuration

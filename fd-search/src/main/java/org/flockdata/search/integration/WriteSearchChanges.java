@@ -58,9 +58,9 @@ import java.io.IOException;
 
 /**
  * Services ENTITY requests from the Engine
- * User: mike
- * Date: 12/04/14
- * Time: 6:23 AM
+ * @author mholdsworth
+ * @since 12/04/2014
+ * @tag Search, Entity, Messaging
  */
 @Service
 @Transactional
@@ -69,18 +69,13 @@ import java.io.IOException;
 @Profile({"fd-server"})
 public class WriteSearchChanges {
 
-    private Logger logger = LoggerFactory.getLogger(WriteSearchChanges.class);
-
     private final Exchanges exchanges;
-
     // We only suppport ElasticSearch
     private final SearchWriter searchWriter;
-
     private final SearchAdmin searchAdmin;
-
     private final AmqpRabbitConfig rabbitConfig;
-
     private final MessageSupport messageSupport;
+    private Logger logger = LoggerFactory.getLogger(WriteSearchChanges.class);
 
     @Autowired
     public WriteSearchChanges(AmqpRabbitConfig rabbitConfig, MessageSupport messageSupport, Exchanges exchanges, SearchAdmin searchAdmin, @Qualifier("esSearchWriter") SearchWriter searchWriter) {
@@ -148,15 +143,6 @@ public class WriteSearchChanges {
         };
     }
 
-
-    @MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
-    public interface EngineResultGateway {
-        @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
-        @Async("fd-search")
-        void writeEntitySearchResult(SearchResults searchResult);
-
-    }
-
     @Transformer(inputChannel = "searchReply", outputChannel = "searchDocSyncResult")
     public Message<?> transformSearchResults( Message message) {
         return messageSupport.toJson(message);
@@ -171,6 +157,14 @@ public class WriteSearchChanges {
         outbound.setRoutingKey(exchanges.fdEngineBinding());
         outbound.setExpectReply(false);
         return outbound;
+
+    }
+
+    @MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
+    public interface EngineResultGateway {
+        @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
+        @Async("fd-search")
+        void writeEntitySearchResult(SearchResults searchResult);
 
     }
 

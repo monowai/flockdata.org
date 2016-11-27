@@ -38,8 +38,8 @@ import java.util.concurrent.CountDownLatch;
 import static org.junit.Assert.assertEquals;
 
 /**
- * User: Mike Holdsworth
- * Since: 1/12/13
+ * @author mholdsworth
+ * @since 1/12/2013
  */
 @EnableRetry
 public class TestTagDeadlock extends EngineBase {
@@ -130,9 +130,8 @@ public class TestTagDeadlock extends EngineBase {
         CountDownLatch startSignal;
         int maxRun = 30;
         List<TagInputBean> tags;
-        private int myThread;
-
         boolean worked = false;
+        private int myThread;
 
         public TagRunner(int myThread, Fortress fortress, List<TagInputBean> tags, int maxRun, CountDownLatch latch, CountDownLatch startSignal) {
             this.fortress = fortress;

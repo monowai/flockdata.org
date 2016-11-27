@@ -25,9 +25,9 @@ import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 /**
- * User: mike
- * Date: 16/06/14
- * Time: 10:33 AM
+ * @author mholdsworth
+ * @since 16/06/2014
+ * @tag GraphRepository, Query, Neo4j, Tag
  */
 public interface ConceptTypeRepo extends GraphRepository<Concept> {
 

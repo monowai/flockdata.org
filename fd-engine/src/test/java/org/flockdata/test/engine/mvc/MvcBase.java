@@ -75,7 +75,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 /**
  * Base class for Web App context driven classes
- * Created by mike on 12/02/16.
+ * @author mholdsworth
+ * @since 12/02/2016
  */
 @WebAppConfiguration(value = "src/main/resources")
 @ActiveProfiles({"dev", "web-dev", "fd-auth-test"})
@@ -86,37 +87,39 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @RunWith(SpringJUnit4ClassRunner.class)
 public abstract class MvcBase {
 
+    static final String ANYCO = "anyco";
     private static final String apiRoot = "/api";
-    private static final String OTHERCO = "otherco";
     static final String LOGIN_PATH = apiRoot + "/login";
     static final String apiPath = apiRoot + "/v1";
-    static final String ANYCO = "anyco";
-
+    private static final String OTHERCO = "otherco";
     public static String harry = "harry";
     public static String mike_admin = "mike";
     static String sally_admin = "sally"; // admin in a different company
-    ResultMatcher OK = MockMvcResultMatchers.status().isOk();
     static Logger logger = LoggerFactory.getLogger(MvcBase.class);
-
     @Rule
     public final ExpectedException exception = ExpectedException.none();
-
+    @Autowired
+    public WebApplicationContext wac;
+    ResultMatcher OK = MockMvcResultMatchers.status().isOk();
+    ResultMatcher ACCEPTED = MockMvcResultMatchers.status().isAccepted();
     SystemUserResultBean suHarry;
     SystemUserResultBean suMike;
     SystemUserResultBean suSally;
     SystemUserResultBean suIllegal;
-
-    @Autowired
-    public WebApplicationContext wac;
-
     @Autowired
     Neo4jTemplate neo4jTemplate;
-
-    private MockMvc mockMvc;
-
     @Autowired
     @Qualifier("engineConfig")
     PlatformConfig engineConfig;
+    private MockMvc mockMvc;
+
+    static void setSecurityEmpty() {
+        SecurityContextHolder.clearContext();
+    }
+
+    static RequestPostProcessor noUser() {
+        return user("noone");
+    }
 
     public void cleanUpGraph() throws Exception {
         // DAT-348 - override this if you're running a multi-threaded tests where multiple transactions
@@ -154,10 +157,6 @@ public abstract class MvcBase {
         return mockMvc;
     }
 
-    static void setSecurityEmpty() {
-        SecurityContextHolder.clearContext();
-    }
-
     /**
      * @return mike - works for AnyCo
      */
@@ -174,10 +173,6 @@ public abstract class MvcBase {
 
     public RequestPostProcessor harry() {
         return user(harry).password("123").roles(FdRoles.FD_USER);
-    }
-
-    static RequestPostProcessor noUser() {
-        return user("noone");
     }
 
     public void setSecurity() throws Exception {
@@ -444,13 +439,32 @@ public abstract class MvcBase {
 
     }
 
-    public void purgeFortress(RequestPostProcessor user, String fortressName, ResultMatcher expectedResult) throws Exception {
+    public void deleteFortress(RequestPostProcessor user, String fortressName, ResultMatcher expectedResult) throws Exception {
 
         mvc()
                 .perform(
                         MockMvcRequestBuilders.delete(apiPath + "/admin/{fortressName}", fortressName)
                                 .with(user)
                 ).andExpect(expectedResult);
+
+    }
+
+    public Collection<DocumentResultBean> getFortressDocs(RequestPostProcessor user, String code) throws Exception {
+        MvcResult response = mvc()
+                .perform(
+                        MockMvcRequestBuilders
+                                .get(apiPath + "/fortress/{code}/docs", code)
+                                .with(user)
+                                .contentType(MediaType.APPLICATION_JSON)
+                ).andReturn();
+
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toCollection(json.getBytes(), DocumentResultBean.class);
+        }
+        throw response.getResolvedException();
+
 
     }
 

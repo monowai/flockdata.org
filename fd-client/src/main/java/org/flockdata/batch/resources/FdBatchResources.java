@@ -40,14 +40,15 @@ import java.sql.SQLException;
 /**
  * Encapsulates basic DataSource functionality
  * Kept here for reference only
- * Created by mike on 28/01/16.
+ * @author mholdsworth
+ * @since 28/01/2016
  */
 @Component
 @Profile({"fd-batch", "fd-batch-dev"})
 public class FdBatchResources {
 
-    private final BatchConfig batchConfig;
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
+    private final BatchConfig batchConfig;
 
     @Autowired
     public FdBatchResources(BatchConfig batchConfig) {

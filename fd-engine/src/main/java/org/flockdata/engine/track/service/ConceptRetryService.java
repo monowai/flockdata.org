@@ -24,8 +24,6 @@ import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.LogService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,29 +44,23 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
- * User: mike
- * Date: 20/09/14
- * Time: 3:38 PM
+ * @author mholdsworth
+ * @since 20/09/2014
  */
 @Service
 public class ConceptRetryService {
 
-    @Autowired
-    EntityService entityService;
+    private final ConceptService conceptService;
 
-    @Autowired
-    LogService logService;
-
-    @Autowired
-    LogRetryService logRetryService;
-
-    @Autowired
-    ConceptService conceptService;
-
-    @Autowired
-    PlatformConfig engineConfig;
+    private final PlatformConfig engineConfig;
 
     private Logger logger = LoggerFactory.getLogger(ConceptRetryService.class);
+
+    @Autowired
+    public ConceptRetryService(ConceptService conceptService, PlatformConfig engineConfig) {
+        this.conceptService = conceptService;
+        this.engineConfig = engineConfig;
+    }
 
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20,
             backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))

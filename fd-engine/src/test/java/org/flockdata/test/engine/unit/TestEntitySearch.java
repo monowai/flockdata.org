@@ -38,9 +38,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * User: mike
- * Date: 1/10/14
- * Time: 9:44 AM
+ * @author mholdsworth
+ * @since 1/10/2014
  */
 public class TestEntitySearch {
     @Test
@@ -63,7 +62,7 @@ public class TestEntitySearch {
         Map<String, ArrayList<SearchTag>> values = entitySearchChange.getTagValues().get(relationship);
         //assertTrue (values.get("code") instanceof Collection);
 
-        Collection mValues = (Collection) values.get("tag");
+        Collection mValues = values.get("tag");
         // Each entry has a Name and Code value
         assertNotNull("Could not find the Tag in the result set", mValues);
         assertEquals("Incorrect Values found for the relationship. Not ignoring case?", 3, mValues.size() );

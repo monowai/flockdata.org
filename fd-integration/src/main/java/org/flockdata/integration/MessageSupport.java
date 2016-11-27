@@ -32,7 +32,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 /**
- * Created by mike on 14/02/16.
+ * @author mholdsworth
+ * @since 14/02/2016
  */
 @Component
 @Profile({"fd-server"})

@@ -24,7 +24,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * Created by mike on 4/05/15.
+ * @author mholdsworth
+ * @since 4/05/2015
  */
 public interface QueryInterface {
 

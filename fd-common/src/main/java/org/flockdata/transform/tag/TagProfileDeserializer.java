@@ -28,9 +28,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * User: mike
- * Date: 27/05/14
- * Time: 4:25 PM
+ * @author mholdsworth
+ * @since 27/05/2014
+ * @tag Tag, ContentModel, Json, Serialization
  */
 public class TagProfileDeserializer extends JsonDeserializer<ArrayList<TagProfile>> {
 

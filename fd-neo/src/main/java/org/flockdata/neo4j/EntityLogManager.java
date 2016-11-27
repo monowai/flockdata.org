@@ -42,7 +42,8 @@ import java.util.Collection;
 /**
  * Managed FlockData EntityLog and Log access requests
  *
- * Created by mike on 6/07/15.
+ * @author mholdsworth
+ * @since 6/07/2015
  */
 
 @Path("/log")

@@ -21,14 +21,12 @@
 package org.flockdata.company.endpoint;
 
 import org.flockdata.engine.configure.ApiKeyInterceptor;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.registration.service.CompanyService;
-import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +39,9 @@ import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
 /**
- * User: Mike Holdsworth
- * Date: 4/05/13
- * Time: 8:23 PM
+ * @author mholdsworth
+ * @since 4/05/2013
+ * @tag Endpoint, Company
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/company")
@@ -52,17 +50,16 @@ public class CompanyEP {
 	private static final Logger logger = LoggerFactory
 			.getLogger(CompanyEP.class);
 
-    @Autowired
-    CompanyService companyService;
+    private final CompanyService companyService;
+
+    private final ConceptService conceptService;
 
     @Autowired
-    ConceptService conceptService;
+    public CompanyEP(CompanyService companyService, ConceptService conceptService) {
+        this.companyService = companyService;
+        this.conceptService = conceptService;
+    }
 
-    @Autowired
-    SecurityHelper securityHelper;
-
-    @Autowired
-    RegistrationService registrationService;
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
 

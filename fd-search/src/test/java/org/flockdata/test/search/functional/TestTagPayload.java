@@ -27,7 +27,8 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- * Created by mike on 19/08/15.
+ * @author mholdsworth
+ * @since 19/08/2015
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)

@@ -29,9 +29,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Collection;
 
 /**
- * User: Mike Holdsworth
- * Date: 20/04/13
- * Time: 10:05 PM
+ * @author mholdsworth
+ * @since 20/04/2013
  */
 @Repository
 public class CompanyDaoNeo implements CompanyDao {

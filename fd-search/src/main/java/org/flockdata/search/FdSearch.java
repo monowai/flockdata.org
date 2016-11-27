@@ -24,9 +24,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  *
- * User: mike
- * Date: 16/12/14
- * Time: 7:36 AM
+ * @author mholdsworth
+ * @since 16/12/2014
+ * @tag Application, Search
  */
 @SpringBootApplication (scanBasePackages = {"org.flockdata.search", "org.flockdata.integration", "org.flockdata.authentication"})
 public class FdSearch {

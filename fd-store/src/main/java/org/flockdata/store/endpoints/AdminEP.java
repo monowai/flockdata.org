@@ -21,7 +21,6 @@
 package org.flockdata.store.endpoints;
 
 import org.flockdata.store.Store;
-import org.flockdata.store.service.FdStoreConfig;
 import org.flockdata.store.service.StoreManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,17 +31,20 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * Created by mike on 19/02/16.
+ * @author mholdsworth
+ * @since 19/02/2016
+ * @tag Store, Endpoint, Administration
  */
 @RequestMapping("${org.fd.store.system.api:api}/v1/admin")
 @RestController
 
 public class AdminEP {
-    @Autowired
-    StoreManager storeManager;
+    private final StoreManager storeManager;
 
     @Autowired
-    FdStoreConfig storeConfig;
+    public AdminEP(StoreManager storeManager) {
+        this.storeManager = storeManager;
+    }
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = "text/plain")
     String ping() throws Exception {

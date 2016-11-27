@@ -19,10 +19,6 @@
 
 package org.flockdata.neo4j.helper;
 
-/**
- * Created by mike on 30/06/15.
- */
-
 import org.flockdata.helper.JsonUtils;
 
 import javax.ws.rs.Produces;
@@ -36,8 +32,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 /**
- * @author Lorenzo Speranzoni
- * @since Apr 29, 2014
+ * @tag Json
+ * @author mholdsworth
+ * @since 29/04/2014
  */
 @Provider
 @Produces("application/json")

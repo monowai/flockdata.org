@@ -31,7 +31,8 @@ import javax.annotation.PostConstruct;
 /**
  * Useful handlers for integration classes
  *
- * Created by mike on 13/02/16.
+ * @author mholdsworth
+ * @since 13/02/2016
  */
 public class AbstractIntegrationRequest {
 

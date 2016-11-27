@@ -27,7 +27,8 @@ import org.flockdata.registration.TagResultBean;
 import java.util.Map;
 
 /**
- * Created by mike on 19/02/16.
+ * @author mholdsworth
+ * @since 19/02/2016
  */
 public class EntityTagResult {
 

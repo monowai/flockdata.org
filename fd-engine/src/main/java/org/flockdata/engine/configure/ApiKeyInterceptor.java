@@ -34,13 +34,17 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * @author mholdsworth
+ * @since 15/03/2014
+ * @tag Configuration, Security, APIKey
+ */
 @Configuration
 public class ApiKeyInterceptor implements HandlerInterceptor {
-    private static final Logger logger = LoggerFactory
-            .getLogger(ApiKeyInterceptor.class);
     public static final String COMPANY = "company";
     public static final String API_KEY = "api-key";
-
+    private static final Logger logger = LoggerFactory
+            .getLogger(ApiKeyInterceptor.class);
     @Autowired
     private SecurityHelper securityHelper;
 
@@ -135,9 +139,8 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     /**
      * API key precedence
      * <p>
-     * User: mike
-     * Date: 15/03/14
-     * Time: 11:51 AM
+     * @author mholdsworth
+
      */
     public static class ApiKeyHelper {
         /**

@@ -20,12 +20,6 @@
 
 package org.flockdata.test.engine.services;
 
-/**
- * User: Mike Holdsworth
- * Date: 27/06/13
- * Time: 4:49 PM
- */
-
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.JsonUtils;
@@ -50,11 +44,14 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 8:11 AM
+ * @author mholdsworth
+ * @since 29/06/2013
+ * @tag Test, Entity, Tag
  */
 public class TestEntityTags extends EngineBase {
+
+    @Autowired
+    SearchHandler searchHandler;
 
     @Override
     @Before
@@ -1163,9 +1160,6 @@ public class TestEntityTags extends EngineBase {
         assertNotNull(searchService.getEntityChange(result));
 
     }
-
-    @Autowired
-    SearchHandler searchHandler;
 
     @Test
     public void search_separateLogEventUpdatesSameSearchObject() throws Exception {

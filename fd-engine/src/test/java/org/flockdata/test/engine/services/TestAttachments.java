@@ -34,9 +34,8 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 /**
- * User: mike
- * Date: 17/09/14
- * Time: 5:03 PM
+ * @author mholdsworth
+ * @since 17/09/2014
  */
 
 public class TestAttachments extends EngineBase {

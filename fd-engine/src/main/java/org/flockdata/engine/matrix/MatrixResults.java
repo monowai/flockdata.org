@@ -27,9 +27,9 @@ import java.util.Collection;
 /**
  * Encapsulates edges and nodes that make up a result suitable for matrix analysis
  *
- * User: mike
- * Date: 12/06/14
- * Time: 2:17 PM
+ * @author mholdsworth
+ * @since 12/06/2014
+ * @tag Matrix, Query
  */
 public class MatrixResults {
     private long sampleSize;
@@ -57,13 +57,13 @@ public class MatrixResults {
         return edges;
     }
 
+    public void setEdges(Collection<EdgeResult> edges) {
+        this.edges = edges;
+    }
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Collection<FdNode> getNodes() {
         return nodes;
-    }
-
-    public void setEdges(Collection<EdgeResult> edges) {
-        this.edges = edges;
     }
 
     public MatrixResults setNodes(Collection<FdNode> nodes) {
@@ -71,20 +71,20 @@ public class MatrixResults {
         return this;
     }
 
+    public long getSampleSize() {
+        return sampleSize;
+    }
+
     public MatrixResults setSampleSize(long sampleSize) {
         this.sampleSize = sampleSize;
         return this;
     }
 
-    public long getSampleSize() {
-        return sampleSize;
+    public long getTotalHits() {
+        return totalHits;
     }
 
     public void setTotalHits(long matchingResults) {
         this.totalHits = matchingResults;
-    }
-
-    public long getTotalHits() {
-        return totalHits;
     }
 }

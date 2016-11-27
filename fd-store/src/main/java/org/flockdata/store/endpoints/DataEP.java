@@ -30,13 +30,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Created by mike on 18/02/16.
+ * @author mholdsworth
+ * @since 18/02/2016
+ * @tag Endpoint, Store, Query
  */
 @RestController
 @RequestMapping("${org.fd.store.system.api:api}/v1/data")
 public class DataEP {
+    private final StoreService storeService;
+
     @Autowired
-    StoreService storeService;
+    public DataEP(StoreService storeService) {
+        this.storeService = storeService;
+    }
 
     @RequestMapping(value = "/{repo}/{index}/{type}/{key}", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
     StoredContent getData(@PathVariable("repo") String repo,

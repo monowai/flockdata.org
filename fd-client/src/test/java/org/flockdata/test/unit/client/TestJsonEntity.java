@@ -38,9 +38,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * User: mike
- * Date: 10/12/14
- * Time: 1:43 PM
+ * @author mholdsworth
+ * @since 10/12/2014
  */
 public class TestJsonEntity extends AbstractImport{
 

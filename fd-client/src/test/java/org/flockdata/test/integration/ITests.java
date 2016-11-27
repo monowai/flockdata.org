@@ -61,8 +61,10 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 /**
  * Establishes the integration test environment. Descendant classes use @Test functions against
  * this established stack
- * <p>
- * Created by mike on 3/04/16.
+ *
+ * @tag Test, Docker
+ * @author mholdsworth
+ * @since 3/04/2016
  */
 @SpringApplicationConfiguration({
         ClientConfiguration.class,
@@ -100,21 +102,17 @@ public class ITests {
 //                stack.stop();
 //        }
 //    };
-
+private static Logger logger = LoggerFactory.getLogger(ITests.class);
     /**
      * Contains properties used by rabbitConfig and fdRestWriter
      */
     @Autowired
     private ClientConfiguration clientConfiguration;
-
     @Autowired
     private FileProcessor fileProcessor;
-
     @Autowired
     private IntegrationHelper integrationHelper;
-
     private SearchHelper searchHelper = new SearchHelper();
-
     /**
      * Contains a RestTemplate configured to talk to FlockData. By default this is fd-engine
      * but by calling clientConfiguration.setServiceUrl(...) it can be used to talk to
@@ -122,8 +120,6 @@ public class ITests {
      */
     @Autowired
     private FdTemplate fdTemplate;
-
-    private static Logger logger = LoggerFactory.getLogger(ITests.class);
 
     @Before
     public void setupServices() {

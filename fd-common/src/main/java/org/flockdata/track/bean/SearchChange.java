@@ -26,16 +26,13 @@ import org.flockdata.track.service.EntityService;
 import java.util.Map;
 
 /**
- * User: Mike Holdsworth
- * Date: 21/04/13
- * Time: 7:44 PM
+ * @author mholdsworth
+ * @since 21/04/2013
  */
 public interface SearchChange<T> {
 
     @JsonIgnore
     boolean isType(Type type);
-
-    enum Type { ENTITY, TAG }
 
     /**
      *
@@ -48,13 +45,13 @@ public interface SearchChange<T> {
      */
     String getSearchKey();
 
+    void setSearchKey(String key);
+
     String getName();
 
     void setName(String name);
 
     Long getLogId();
-
-    void setSearchKey(String key);
 
     /**
      * primary key of the Item that this document belongs to
@@ -81,6 +78,8 @@ public interface SearchChange<T> {
 
     String getDescription();
 
+    boolean isReplyRequired();
+
     /**
      * Hint to determine if a reply from the search service is expected
      * by the caller
@@ -88,8 +87,6 @@ public interface SearchChange<T> {
      * default to true
      */
     void setReplyRequired(boolean required);
-
-    boolean isReplyRequired();
 
     /**
      * Forces the search engine to ignore date checks and force an update of the document.
@@ -108,8 +105,10 @@ public interface SearchChange<T> {
 
     EntityService.TAG_STRUCTURE getTagStructure();
 
-
     EntityKeyBean getParent();
+
+
+    enum Type {ENTITY, TAG}
 
 
 }

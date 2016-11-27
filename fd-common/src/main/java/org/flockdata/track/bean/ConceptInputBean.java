@@ -27,15 +27,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * User: mike
- * Date: 19/06/14
- * Time: 4:46 PM
+ * @author mholdsworth
+ * @since 19/06/2014
  */
 public class ConceptInputBean {
+    Collection<String> relationships = new HashSet<>();
     private String name;
     private boolean tag = true;
-
-    Collection<String> relationships = new HashSet<>();
     private String description;
 
     private ConceptInputBean() {}

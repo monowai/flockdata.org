@@ -43,7 +43,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
- * Created by mike on 16/02/15.
+ * @author mholdsworth
+ * @since 16/02/2015
  */
 public class TestFortressEP extends MvcBase {
 
@@ -265,4 +266,18 @@ public class TestFortressEP extends MvcBase {
         assertNotNull(defaults.getTimeZone());
 
     }
+
+    @Test
+    public void find_withDotInCode() throws Exception {
+        String name = "name.with.init";
+        FortressResultBean fortress = makeFortress(mike(), name);
+        assertNotNull(getFortress(mike(), name));
+        makeDocuments(mike(), fortress, new DocumentTypeInputBean("TestingWithDots"));
+        Collection<DocumentResultBean> docs = getFortressDocs(mike(), name);
+        assertEquals(1, docs.size());
+        deleteFortress(mike(), name, ACCEPTED);
+//        deleteFortress()
+
+    }
+
 }

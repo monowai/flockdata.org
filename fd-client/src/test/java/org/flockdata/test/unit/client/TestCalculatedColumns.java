@@ -30,7 +30,8 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by mike on 17/12/15.
+ * @author mholdsworth
+ * @since 17/12/2015
  */
 public class TestCalculatedColumns extends AbstractImport {
     @Test

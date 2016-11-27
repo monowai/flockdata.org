@@ -32,9 +32,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
- * User: mike
- * Date: 5/09/14
- * Time: 4:23 PM
+ * @author mholdsworth
+ * @since 5/09/2014
  */
 public interface LogService {
 

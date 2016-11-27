@@ -31,21 +31,18 @@ import java.util.Map;
 /**
  * "Normal" non-reversed relationship entity->tag
  *
- * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 12:59 PM
+ * @author mholdsworth
+ * @since 29/06/2013
+ * @tag Relationship, EntityTag
  */
 @RelationshipEntity  (type = "ENTITY-TAG-OUT")
 public class EntityTagOut extends AbstractEntityTag {
 
-    @GraphId
-    Long id;
-
     @StartNode protected Entity entity;
-
     @EndNode
     @Fetch protected Tag tag;
-
+    @GraphId
+    Long id;
     @RelationshipType
     @Fetch
     private DynamicRelationshipType relationship ;

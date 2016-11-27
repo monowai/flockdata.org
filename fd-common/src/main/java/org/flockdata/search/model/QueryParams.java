@@ -31,11 +31,11 @@ import java.util.Map;
 
 /**
  * Encapsulated search parameters
- * User: mike
- * Date: 12/04/14
- * Time: 9:44 AM
+ * @author mholdsworth
+ * @since 12/04/2014
  */
 public class QueryParams implements QueryInterface {
+    boolean searchTagsOnly = false;
     private String searchText;
     private String segment;
     private String index;
@@ -70,10 +70,6 @@ public class QueryParams implements QueryInterface {
         setCode(code);
     }
 
-    public ArrayList<String> getTags() {
-        return tags;
-    }
-
     public QueryParams() {
     }
 
@@ -102,6 +98,10 @@ public class QueryParams implements QueryInterface {
                 this.types[i++] = s.toLowerCase();
             }
         }
+    }
+
+    public ArrayList<String> getTags() {
+        return tags;
     }
 
     public String getSearchText() {
@@ -135,13 +135,13 @@ public class QueryParams implements QueryInterface {
         return types;
     }
 
-    public String[] getData() {
-        return data;
-    }
-
     public QueryParams setTypes(String... types) {
         this.types = types;
         return this;
+    }
+
+    public String[] getData() {
+        return data;
     }
 
     public Integer getSize() {
@@ -171,12 +171,12 @@ public class QueryParams implements QueryInterface {
                 '}';
     }
 
-    public void setEntityOnly(boolean entityOnly) {
-        this.entityOnly = entityOnly;
-    }
-
     public boolean isEntityOnly() {
         return entityOnly;
+    }
+
+    public void setEntityOnly(boolean entityOnly) {
+        this.entityOnly = entityOnly;
     }
 
     public String getKey() {
@@ -187,14 +187,13 @@ public class QueryParams implements QueryInterface {
         this.key = key;
     }
 
+    public String getCode() {
+        return code;
+    }
 
     public QueryParams setCode(String code) {
         this.code = code;
         return this;
-    }
-
-    public String getCode() {
-        return code;
     }
 
     public ArrayList<String> getRelationships() {
@@ -217,15 +216,14 @@ public class QueryParams implements QueryInterface {
         return aggs;
     }
 
-    public QueryParams setFields(ArrayList<String> fields) {
-        this.fields = fields;
-        return this;
-    }
-
     public ArrayList<String> getFields() {
         return fields;
     }
 
+    public QueryParams setFields(ArrayList<String> fields) {
+        this.fields = fields;
+        return this;
+    }
 
     public String getSegment() {
         return segment;
@@ -240,7 +238,10 @@ public class QueryParams implements QueryInterface {
         return index;
     }
 
-    boolean searchTagsOnly = false;
+    public QueryParams setIndex(String index) {
+        this.index = index;
+        return this;
+    }
 
     public QueryParams searchTags() {
         this.searchTagsOnly = true;
@@ -254,10 +255,5 @@ public class QueryParams implements QueryInterface {
     @Override
     public Map<String,Object> getFilter() {
         return filter;
-    }
-
-    public QueryParams setIndex(String index) {
-        this.index = index;
-        return this;
     }
 }

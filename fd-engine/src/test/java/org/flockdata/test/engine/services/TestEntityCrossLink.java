@@ -40,9 +40,9 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 /**
- * User: mike
- * Date: 1/04/14
- * Time: 4:12 PM
+ * @author mholdsworth
+ * @since 1/04/2014
+ * @tag Test, Entity, Relationship
  */
 public class TestEntityCrossLink extends EngineBase {
 

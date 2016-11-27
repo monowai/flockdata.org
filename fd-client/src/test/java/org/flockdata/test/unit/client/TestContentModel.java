@@ -31,7 +31,8 @@ import static junit.framework.TestCase.*;
 
 /**
  * Basic deserialization checks
- * Created by mike on 26/01/16.
+ * @author mholdsworth
+ * @since 26/01/2016
  */
 public class TestContentModel {
 

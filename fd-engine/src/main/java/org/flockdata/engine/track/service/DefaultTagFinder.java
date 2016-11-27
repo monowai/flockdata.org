@@ -31,7 +31,8 @@ import org.springframework.stereotype.Repository;
 /**
  * Encapsulates the functionality to return default entity tags
  *
- * Created by mike on 24/08/15.
+ * @author mholdsworth
+ * @since 24/08/2015
  */
 @Repository
 public class DefaultTagFinder implements EntityTagFinder {

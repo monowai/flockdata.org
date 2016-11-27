@@ -26,9 +26,9 @@ import org.junit.Test;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 /**
- * User: mike
- * Date: 28/07/14
- * Time: 1:52 PM
+ * @author mholdsworth
+ * @since 28/07/2014
+ * @tag Test, Entity
  */
 public class TestEntityKeys {
 

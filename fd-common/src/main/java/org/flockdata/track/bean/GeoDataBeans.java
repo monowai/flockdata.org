@@ -29,8 +29,9 @@ import java.util.Map;
  * Collection of geo data
  * Collection of points
  * A description for the collection of GeoDataBean indexed objects
- *
- * Created by mike on 4/08/15.
+ * @tag Geo, Pojo
+ * @author mholdsworth
+ * @since 4/08/2015
  */
 public class GeoDataBeans {
     Map<String,GeoDataBean> geoBeans = null;

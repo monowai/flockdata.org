@@ -66,8 +66,8 @@ import java.util.List;
  * @see TagInputBean
  * @see org.flockdata.track.bean.EntityInputBean
  * <p>
- * User: Mike Holdsworth
- * Since: 13/10/13
+ * @author mholdsworth
+ * @since 13/10/2013
  */
 @Profile("fd-importer")
 @Configuration
@@ -75,25 +75,19 @@ import java.util.List;
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class Importer  {
 
+    @Value("${auth.@author #{null}}")
+    String authUser;
+    @Value("${fd.client.delimiter:,}")
+    String delimiter;
+    @Value("${fd.content.model:#{null}}")
+    String serverSideContentModel; // tag:{typeCode} or {fortress}:{doctype}
     private Logger logger = LoggerFactory.getLogger(Importer.class);
-
     private ClientConfiguration clientConfiguration;
-
     private FdTemplate fdTemplate;
-
     private FileProcessor fileProcessor;
 
     public Importer() {
     }
-
-    @Value("${auth.user:#{null}}")
-    String authUser;
-
-    @Value("${fd.client.delimiter:,}")
-    String delimiter;
-
-    @Value("${fd.content.model:#{null}}")
-    String serverSideContentModel; // tag:{typeCode} or {fortress}:{doctype}
 
     @Autowired
     public Importer(FileProcessor fileProcessor, FdTemplate fdTemplate, ClientConfiguration clientConfiguration) {

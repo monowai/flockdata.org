@@ -28,9 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Access to content structures stored on ElasticSearch
+ * Access to content model structures stored in ElasticSearch
  *
- * Created by mike on 31/08/16.
+ * @author mholdsworth
+ * @since 31/08/2016
+ * @tag Search, Endpoint, ContentModel
  */
 @RequestMapping("${org.fd.search.system.api:api}/v1/content")
 @RestController

@@ -28,7 +28,8 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 /**
  * Support functions for interacting with ElasticSearch during integration testing
  *
- * Created by mike on 31/05/16.
+ * @author mholdsworth
+ * @since 31/05/2016
  */
 public class SearchHelper {
 

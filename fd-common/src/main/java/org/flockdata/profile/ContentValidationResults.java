@@ -31,7 +31,8 @@ import java.util.Map;
 /**
  * All the validation results. Maps are indexed from 0
  *
- * Created by mike on 14/04/16.
+ * @author mholdsworth
+ * @since 14/04/2016
  */
 public class ContentValidationResults {
 

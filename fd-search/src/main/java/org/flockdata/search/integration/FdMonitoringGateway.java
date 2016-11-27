@@ -23,6 +23,9 @@ package org.flockdata.search.integration;
 import org.flockdata.search.model.PingResult;
 import org.springframework.integration.annotation.Gateway;
 
+/**
+ * @tag Messaging, Administration
+ */
 public interface FdMonitoringGateway {
     /**
      * A required Payload must be declared due to spring Integration constraint

@@ -42,7 +42,8 @@ import java.util.Map;
 /**
  * Encapsulates EntityTag access functionality
  *
- * Created by mike on 14/07/15.
+ * @author mholdsworth
+ * @since 14/07/2015
  */
 public class EntityTagService {
     private Logger logger = LoggerFactory.getLogger(EntityTagService.class);

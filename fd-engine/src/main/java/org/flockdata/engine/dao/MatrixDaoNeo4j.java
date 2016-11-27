@@ -50,14 +50,16 @@ import java.util.*;
 
 /**
  * Neo4j matrix queries
+ * @author mholdsworth
+ * @tag Neo4j, Repository, Matrix, Query
  */
 @Repository
 public class MatrixDaoNeo4j implements MatrixDao {
 
     private final Neo4jTemplate template;
+    private final FortressService fortressService;
     private Logger logger = LoggerFactory.getLogger(MatrixDaoNeo4j.class);
     private EntityKeyGateway entityKeyGateway;
-    private final FortressService fortressService;
 
     @Autowired
     public MatrixDaoNeo4j(Neo4jTemplate template, FortressService fortressService) {
@@ -65,11 +67,19 @@ public class MatrixDaoNeo4j implements MatrixDao {
         this.fortressService = fortressService;
     }
 
+    public static Collection<? extends FdNode> setTargetTags(Collection<FdNode> fdNodes, Collection<Object> neoNodes) {
+        for (Object neoNode : neoNodes) {
+            FdNode fdNode = new FdNode((Node) neoNode);
+            if (!fdNodes.contains(fdNode))
+                fdNodes.add(fdNode);
+        }
+        return fdNodes;
+    }
+
     @Autowired(required = false) // Functional tests don't require gateways
     void setEntityKeyGateway (EntityKeyGateway entityKeyGateway){
         this.entityKeyGateway = entityKeyGateway;
     }
-
 
     @Override
     public MatrixResults buildMatrix(Company company, MatrixInputBean input) throws FlockException {
@@ -257,15 +267,6 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
         return new MatrixResults(edgeResults);
 
-    }
-
-    public static Collection<? extends FdNode> setTargetTags(Collection<FdNode> fdNodes, Collection<Object> neoNodes) {
-        for (Object neoNode : neoNodes) {
-            FdNode fdNode = new FdNode((Node)neoNode);
-            if (!fdNodes.contains(fdNode))
-                fdNodes.add(fdNode);
-        }
-        return fdNodes;
     }
 
     private QueryParams getQueryParams(Company company, MatrixInputBean input) throws FlockException {

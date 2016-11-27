@@ -49,16 +49,15 @@ import java.util.Map;
 
 /**
  * Creates search docs based on Tag content
- * Created by mike on 16/05/16.
+ * @author mholdsworth
+ * @since 16/05/2016
  */
 @Service
 public class TagChangeWriterEs implements TagChangeWriter {
 
-    private Logger logger = LoggerFactory.getLogger(TagChangeWriterEs.class);
-
     private final Client elasticSearchClient;
-
     private final IndexManager indexManager;
+    private Logger logger = LoggerFactory.getLogger(TagChangeWriterEs.class);
 
     @Autowired
     public TagChangeWriterEs(IndexManager indexManager, Client elasticSearchClient) {

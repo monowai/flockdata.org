@@ -30,9 +30,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- * User: mike
- * Date: 25/11/14
- * Time: 2:21 PM
+ * @author mholdsworth
+ * @since 25/11/2014
+ * @tag Json, Integration
  */
 @Component("jsonToEntityInput")
 public class JsonEntityInputConverter  extends SimpleMessageConverter {

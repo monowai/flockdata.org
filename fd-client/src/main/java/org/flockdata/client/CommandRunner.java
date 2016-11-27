@@ -26,7 +26,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 /**
  * Wrapper that determines which functionality to inject to respond to the callers request
  * <p>
- * Created by mike on 27/05/16.
+ * @author mholdsworth
+ * @since 27/05/2016
  */
 public class CommandRunner {
     public static void main(String[] args) {

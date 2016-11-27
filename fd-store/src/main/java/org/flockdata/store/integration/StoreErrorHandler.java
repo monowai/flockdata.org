@@ -36,9 +36,9 @@ import org.springframework.messaging.MessageHandlingException;
  * The message will stay on the q as unacknowledged and redelivery will be attempted
  * and the process will begin again.
  *
- * User: mike
- * Date: 11/11/14
- * Time: 2:14 PM
+ * @author mholdsworth
+ * @since 11/11/2014
+ * @tag Store, ExceptionHandler
  */
 @IntegrationComponentScan
 public class StoreErrorHandler {

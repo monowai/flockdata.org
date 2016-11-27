@@ -25,9 +25,8 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.search.model.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 28/04/13
- * Time: 8:44 PM
+ * @author mholdsworth
+ * @since 28/04/2013
  */
 public interface QueryDao {
     TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException;

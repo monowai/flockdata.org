@@ -44,7 +44,8 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Autocomplete type tests
  *
- * Created by mike on 28/05/15.
+ * @author mholdsworth
+ * @since 28/05/2015
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(FdSearch.class)

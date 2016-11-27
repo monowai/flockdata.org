@@ -44,9 +44,9 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 /**
- * User: Mike Holdsworth
- * Date: 4/05/13
- * Time: 8:23 PM
+ * @author mholdsworth
+ * @since 4/05/2013
+ * @tag EndPoint, Fortress
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/fortress")
@@ -108,7 +108,7 @@ public class FortressEP {
 
     }
 
-    @RequestMapping(value = "/{code}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{code:.*}", method = RequestMethod.GET)
     public FortressResultBean getFortress(@PathVariable("code") String fortressCode, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByCode(company, fortressCode);
@@ -121,19 +121,19 @@ public class FortressEP {
         return new FortressResultBean(fortress);
     }
 
-    @RequestMapping(value = "/{code}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{code:.*}", method = RequestMethod.DELETE)
     public String delete(@PathVariable("code") String fortressCode, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return fortressService.delete(company, fortressCode);
     }
 
-    @RequestMapping(value = "/{code}/docs", method = RequestMethod.GET)
+    @RequestMapping(value = "/{code:.*}/docs", method = RequestMethod.GET)
     public Collection<DocumentResultBean> getDocumentTypes(@PathVariable("code") String code, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return fortressService.getFortressDocumentsInUse(company, code);
     }
 
-    @RequestMapping(value = "/{fortress}/segments", method = RequestMethod.GET)
+    @RequestMapping(value = "/{fortress:.*}/segments", method = RequestMethod.GET)
     public Collection<FortressSegment> getFortressSegments(@PathVariable("fortress") String code, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress f = fortressService.findByCode(company, code);
@@ -148,7 +148,7 @@ public class FortressEP {
      * @return Collection of DocumentResultBeans with Segment data
      * @throws FlockException
      */
-    @RequestMapping(value = "/{fortress}/{doc}/segments", method = RequestMethod.GET)
+    @RequestMapping(value = "/{fortress:.*}/{doc}/segments", method = RequestMethod.GET)
     public Collection<DocumentResultBean> getFortressDocSegments(
             @PathVariable("fortress") String code,
             @PathVariable("doc") String doc,

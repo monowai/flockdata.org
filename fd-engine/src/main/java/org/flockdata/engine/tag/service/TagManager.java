@@ -41,7 +41,8 @@ import java.util.Map;
 
 /**
  * Put in plaec to enable caching. This could may be serve better as a Neo4j extenstion?
- * Created by mike on 24/03/16.
+ * @author mholdsworth
+ * @since 24/03/2016
  */
 @Repository
 public class TagManager {

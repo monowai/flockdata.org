@@ -52,15 +52,11 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 27/04/13
- * Time: 12:00 PM
+ * @author mholdsworth
+ * @since 27/04/2013
  */
 @Service
 public class EntityChangeWriterEs implements EntityChangeWriter {
-
-//    @Autowired
-//    private SearchConfig elasticSearchClient;
 
     private final Client elasticSearchClient;
 

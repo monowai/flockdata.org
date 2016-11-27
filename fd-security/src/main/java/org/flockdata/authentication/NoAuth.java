@@ -36,7 +36,8 @@ import javax.annotation.PostConstruct;
  * <p>
  * You should include the configuration to use this implementation
  * <p>
- * Created by mike on 16/02/16.
+ * @author mholdsworth
+ * @since 16/02/2016
  */
 
 @Configuration
@@ -44,6 +45,28 @@ import javax.annotation.PostConstruct;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class NoAuth extends WebSecurityConfigurerAdapter {
+
+    private static Logger logger = LoggerFactory.getLogger("configuration");
+
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> ima = auth.inMemoryAuthentication();
+        ima.withUser("mike")
+                .password("123")
+                .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN);
+        ima.withUser("sally")
+                .password("123")
+                .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN);
+        ima.withUser("harry")
+                .password("123")
+                .roles("USER", FdRoles.FD_USER);
+
+    }
+
+    @PostConstruct
+    void dumpConfig() {
+        logger.info("**** [NoAuth] - requests to endpoints are not secured");
+    }
 
     @Configuration
     @Order(10) // Preventing clash with AuthTesting deployment (100)
@@ -67,28 +90,6 @@ public class NoAuth extends WebSecurityConfigurerAdapter {
             http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
             http.httpBasic();
         }
-    }
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> ima = auth.inMemoryAuthentication();
-        ima.withUser("mike")
-                .password("123")
-                .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN);
-        ima.withUser("sally")
-                .password("123")
-                .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN);
-        ima.withUser("harry")
-                .password("123")
-                .roles("USER", FdRoles.FD_USER);
-
-    }
-
-    private static Logger logger = LoggerFactory.getLogger("configuration");
-
-    @PostConstruct
-    void dumpConfig() {
-        logger.info("**** [NoAuth] - requests to endpoints are not secured");
     }
 
 }

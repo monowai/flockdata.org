@@ -29,7 +29,8 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * Handles the RegistrationInputBean through to Flockdata
  *
- * Created by mike on 13/04/16.
+ * @author mholdsworth
+ * @since 13/04/2016
  */
 public class RegistrationPost extends AbstractRestCommand {
     /**

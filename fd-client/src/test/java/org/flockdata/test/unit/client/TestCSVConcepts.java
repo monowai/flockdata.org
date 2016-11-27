@@ -30,9 +30,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * User: mike
- * Date: 20/06/14
- * Time: 10:19 AM
+ * @author mholdsworth
+ * @since 20/06/2014
  */
 public class TestCSVConcepts {
     @org.junit.Test

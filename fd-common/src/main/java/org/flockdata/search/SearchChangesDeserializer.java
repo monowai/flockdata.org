@@ -37,9 +37,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * User: mike
- * Date: 23/05/14
- * Time: 12:29 PM
+ * @author mholdsworth
+ * @since 23/05/2014
  */
 public class SearchChangesDeserializer extends JsonDeserializer<SearchChanges> {
     @Override

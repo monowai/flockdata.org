@@ -32,9 +32,10 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * User: mike
- * Date: 16/06/14
- * Time: 4:00 PM
+ * Meta data - stores a representation of a Relationship
+ * @author mholdsworth
+ * @since 16/06/2014
+ * @tag Schema, Entity
  */
 @NodeEntity
 @TypeAlias("Relationship")
@@ -44,6 +45,7 @@ public class Relationship implements Comparable<Relationship> {
 
     @RelatedTo(elementClass = DocumentType.class, type="DOC_RELATIONSHIP", direction = Direction.OUTGOING)
     Collection<DocumentType> documentTypes;
+    private String name;
 
     Relationship(){}
 
@@ -95,7 +97,6 @@ public class Relationship implements Comparable<Relationship> {
     public Collection<DocumentType> getDocumentTypes(){
         return documentTypes;
     }
-    private String name;
 
     @Override
     public int compareTo(Relationship o) {

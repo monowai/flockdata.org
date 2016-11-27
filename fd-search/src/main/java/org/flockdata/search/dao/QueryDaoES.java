@@ -58,9 +58,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * User: Mike Holdsworth
- * Date: 28/04/13
- * Time: 2:23 PM
+ * @author mholdsworth
+ * @since 28/04/2013
+ * @tag Query,Search
  */
 @Repository
 public class QueryDaoES implements QueryDao {
@@ -68,14 +68,11 @@ public class QueryDaoES implements QueryDao {
     public static final String ES_FIELD_SEP = ".";
     public static final String CODE_FACET = ".code.facet";
     public static final String NAME_FACET = ".name.facet";
-
+    private static Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
     private final Client elasticSearchClient;
     private final IndexManager indexManager;
-
     @Value("${highlight.enabled:true}")
     Boolean highlightEnabled;
-
-    private static Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
 
     @Autowired
     public QueryDaoES(IndexManager indexManager, Client elasticSearchClient) {

@@ -37,9 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.Assert.*;
 
 /**
- * User: mike
- * Date: 8/10/14
- * Time: 5:30 PM
+ * @author mholdsworth
+ * @since 8/10/2014
  */
 public class TestBatch extends EngineBase {
     @Autowired

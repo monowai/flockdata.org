@@ -34,7 +34,8 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.*;
 
 /**
- * Created by mike on 16/02/15.
+ * @author mholdsworth
+ * @since 16/02/2015
  */
 public class TestDocEP extends MvcBase {
 

@@ -32,9 +32,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * User: mike
- * Date: 14/06/14
- * Time: 10:40 AM
+ * @author mholdsworth
+ * @since 14/06/2014
  */
 public class TestQuery extends EngineBase {
 

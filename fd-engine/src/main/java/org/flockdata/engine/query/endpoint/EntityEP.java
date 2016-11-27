@@ -46,28 +46,21 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 4/05/13
- * Time: 8:23 PM
+ * @author mholdsworth
+ * @since 4/05/2013
+ * @tag Endpoint, Entity, Query
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/entity")
 public class EntityEP {
-    private final EntityService entityService;
-
-    private final StorageProxy storageProxy;
-
-    private final MediationFacade mediationFacade;
-
-    private final FortressService fortressService;
-
-    private final EntityTagService entityTagService;
-
-    private final TxService txService;
-
-    private final LogService logService;
-
     private static Logger logger = LoggerFactory.getLogger(EntityEP.class);
+    private final EntityService entityService;
+    private final StorageProxy storageProxy;
+    private final MediationFacade mediationFacade;
+    private final FortressService fortressService;
+    private final EntityTagService entityTagService;
+    private final TxService txService;
+    private final LogService logService;
 
     @Autowired
     public EntityEP(LogService logService, EntityService entityService, StorageProxy storageProxy, FortressService fortressService, EntityTagService entityTagService, TxService txService, MediationFacade mediationFacade) {
@@ -358,7 +351,7 @@ public class EntityEP {
         if (result == null) {
             result = new HashMap<>(1);
             result.put("txRef", "Not a valid transaction identifier");
-            return new ResponseEntity<>((Map) result, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(result, HttpStatus.OK);

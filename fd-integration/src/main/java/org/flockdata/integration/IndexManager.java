@@ -40,7 +40,8 @@ import java.util.Collection;
  * Provides centralized access to the way that FD handles Entity data for different
  * databases
  * <p/>
- * Created by mike on 23/07/15.
+ * @author mholdsworth
+ * @since 23/07/2015
  */
 @Configuration
 public class IndexManager {
@@ -63,6 +64,11 @@ public class IndexManager {
     public IndexManager(String prefix, boolean typeSuffix) {
         this.prefix = prefix;
         this.typeSuffix = typeSuffix;
+    }
+
+    // Determines if the segment is a regular default
+    private static boolean isDefaultSegment(String segment) {
+        return segment == null || segment.equals(FortressSegment.DEFAULT);
     }
 
     @PostConstruct
@@ -252,11 +258,6 @@ public class IndexManager {
 
     public String parseType(String type) {
         return type.toLowerCase();
-    }
-
-    // Determines if the segment is a regular default
-    private static boolean isDefaultSegment(String segment) {
-        return segment == null || segment.equals(FortressSegment.DEFAULT);
     }
 
     public String resolveKey(LogRequest logRequest) throws NotFoundException {

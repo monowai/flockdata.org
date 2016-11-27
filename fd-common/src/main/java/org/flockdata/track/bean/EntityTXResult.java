@@ -26,9 +26,8 @@ import org.flockdata.model.Log;
 
 
 /**
- * User: Mike Holdsworth
- * Date: 16/06/13
- * Time: 6:12 PM
+ * @author mholdsworth
+ * @since 16/06/2013
  */
 public class EntityTXResult {
 

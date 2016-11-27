@@ -23,7 +23,8 @@ package org.flockdata.track;
 import org.flockdata.helper.NodeHelper;
 
 /**
- * Created by mike on 5/07/15.
+ * @author mholdsworth
+ * @since 5/07/2015
  */
 public class EntityHelper {
     public static String parseKey(Long fortressId, Long documentId, String code) {

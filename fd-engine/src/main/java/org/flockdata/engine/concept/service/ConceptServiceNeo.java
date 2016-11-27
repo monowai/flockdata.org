@@ -49,18 +49,19 @@ import java.util.*;
  * Tags are also called Concepts. These are also indexed uniquely withing a Label that identifies
  * their type and a generic"Tags" Label.
  * <p/>
- * Created by mike on 19/06/15.
+ *
+ * @tag Service, Concepts, Tag, Entity, DocumentType
+ * @author mholdsworth
+ * @since 19/06/2015
  */
 
 @Service
 @Transactional
 public class ConceptServiceNeo implements ConceptService {
 
-    private final ConceptDaoNeo conceptDao;
-
-    private final FortressService fortressService;
-
     private static Logger logger = LoggerFactory.getLogger(ConceptServiceNeo.class);
+    private final ConceptDaoNeo conceptDao;
+    private final FortressService fortressService;
 
     @Autowired
     public ConceptServiceNeo(FortressService fortressService, ConceptDaoNeo conceptDaoNeo) {
@@ -151,7 +152,10 @@ public class ConceptServiceNeo implements ConceptService {
      * @param entityKeyBean properties that describe the relationship
      */
     @Override
-    public void linkEntities(DocumentType sourceType, DocumentType targetType, EntityKeyBean entityKeyBean) {
+    public void linkEntities(DocumentType sourceType, DocumentType targetType, EntityKeyBean entityKeyBean) throws FlockException {
+        if (entityKeyBean.getRelationshipName()== null )
+            throw new FlockException(String.format("Relationship name not defined from %s to %s for %s",sourceType, targetType,entityKeyBean));
+
         conceptDao.linkEntities(sourceType, targetType, entityKeyBean);
     }
 
@@ -232,7 +236,7 @@ public class ConceptServiceNeo implements ConceptService {
     }
 
     @Override
-    public Collection<DocumentType> makeDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans) {
+    public Collection<DocumentType> makeDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans) throws FlockException {
         Collection<DocumentType> docTypes = new ArrayList<>();
         DocumentType master;
         for (EntityInputBean entityInputBean : inputBeans) {

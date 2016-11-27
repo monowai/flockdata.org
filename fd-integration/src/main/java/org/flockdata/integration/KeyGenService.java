@@ -28,16 +28,14 @@ import java.util.UUID;
 /**
  * Generates unique keys based on various algorithms.
  *
- * User: Mike Holdsworth
- * Since: 11/09/13
+ * @author mholdsworth
+ * @since 11/09/2013
  */
 @Service
 public class KeyGenService {
-    private enum METHOD {
-        UUID, SNOWFLAKE, BASE64
-    }
     @Autowired
     Base64 base64;
+
     public String getUniqueKey() {
         return getUniqueKey(METHOD.BASE64);
     }
@@ -60,6 +58,10 @@ public class KeyGenService {
 
     private String getUUID() {
         return UUID.randomUUID().toString();
+    }
+
+    private enum METHOD {
+        UUID, SNOWFLAKE, BASE64
     }
 
 

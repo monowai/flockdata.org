@@ -31,9 +31,8 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 
 /**
- * User: mike
- * Date: 4/08/14
- * Time: 4:34 PM
+ * @author mholdsworth
+ * @since 4/08/2014
  */
 public class TestHashcodeAndEquality {
     public TestHashcodeAndEquality() {

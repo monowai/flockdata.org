@@ -21,6 +21,7 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.dao.EntityTagDao;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.geography.dao.GeoSupportNeo;
@@ -39,33 +40,38 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 /**
+ *
  * Data Access Object that manipulates tag nodes against track headers
  * <p>
- * User: Mike Holdsworth
- * Date: 28/06/13
- * Time: 11:07 PM
+ * @author mholdsworth
+ * @since 28/06/2013
+ * @tag neo4j, Entity, Tag, Repository, Track, EntityTag, Geo
  */
 @Repository("entityTagDao")
 public class EntityTagDaoNeo {
-    @Autowired
-    private Neo4jTemplate template;
+    private final Neo4jTemplate template;
 
-    @Autowired
-    private GeoSupportNeo geoSupport;
+    private final GeoSupportNeo geoSupport;
 
-    @Autowired
-    private FortressService fortressService;
+    private final FortressService fortressService;
 
-    @Autowired
-    private EntityTagOutRepo etOut;
+    private final EntityTagOutRepo etOut;
 
-    @Autowired
-    private EntityTagInRepo etIn;
+    private final EntityTagInRepo etIn;
 
-    @Autowired
-    private EngineConfig engineConfig;
+    private final PlatformConfig engineConfig;
 
     private Logger logger = LoggerFactory.getLogger(EntityTagDaoNeo.class);
+
+    @Autowired
+    public EntityTagDaoNeo(Neo4jTemplate template, GeoSupportNeo geoSupport, FortressService fortressService, EntityTagOutRepo etOut, EntityTagInRepo etIn, EngineConfig engineConfig) {
+        this.template = template;
+        this.geoSupport = geoSupport;
+        this.fortressService = fortressService;
+        this.etOut = etOut;
+        this.etIn = etIn;
+        this.engineConfig = engineConfig;
+    }
 
     public void deleteEntityTags(Collection<EntityTag> entityTags) throws FlockException {
 

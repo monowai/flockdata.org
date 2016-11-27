@@ -67,9 +67,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * User: mike
- * Date: 7/10/14
- * Time: 2:29 PM
+ * @author mholdsworth
+ * @since 7/10/2014
+ * @tag Integration, File, DelimitedFile, FdClient
  */
 @Configuration
 public class FileProcessor {
@@ -77,10 +77,10 @@ public class FileProcessor {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FileProcessor.class);
 
     private static final DecimalFormat formatter = new DecimalFormat();
-
+    private static final ExpressionParser parser = new SpelExpressionParser();
+    static StandardEvaluationContext context = new StandardEvaluationContext();
     @Autowired (required = false)
     private PayloadBatcher payloadBatcher;
-
     private long skipCount, rowsToProcess = 0;
 
     public FileProcessor() {
@@ -90,6 +90,53 @@ public class FileProcessor {
     public FileProcessor(int skipCount, int rowsToProcess) {
         this.skipCount = skipCount;
         this.rowsToProcess = rowsToProcess;
+    }
+
+    private static String[] preProcess(String[] row, ExtractProfile extractProfile) {
+        String[] result = new String[row.length];
+        String exp = extractProfile.getPreParseRowExp();
+        if ((exp == null || exp.equals("")))
+            return row;
+        int i = 0;
+        for (String column : row) {
+
+            Object value = evaluateExpression(column, exp);
+            result[i] = value.toString();
+            i++;
+
+
+        }
+        return result;
+    }
+
+    private static Object evaluateExpression(Object value, String expression) {
+        context.setVariable("value", value);
+        return parser.parseExpression(expression).getValue(context);
+    }
+
+    public static Reader getReader(String file) throws NotFoundException {
+        InputStream stream = ClassLoader.class.getResourceAsStream(file);
+
+        Reader fileObject = null;
+        try {
+            fileObject = new FileReader(file);
+        } catch (FileNotFoundException e) {
+            if (stream != null)
+                fileObject = new InputStreamReader(stream);
+
+        }
+        if (fileObject == null) {
+            logger.error("Unable to resolve the source [{}]", file);
+            throw new NotFoundException("Unable to resolve the source " + file);
+        }
+        return fileObject;
+    }
+
+    public static boolean validateArgs(String pathToBatch) throws NotFoundException, IOException {
+        Reader reader = getReader(pathToBatch);
+        if (reader != null)
+            reader.close();
+        return true;
     }
 
     public Collection<String> resolveFiles(String source) throws IOException, NotFoundException {
@@ -443,50 +490,6 @@ public class FileProcessor {
         return nextLine[0].startsWith("#");
     }
 
-    static StandardEvaluationContext context = new StandardEvaluationContext();
-
-    private static String[] preProcess(String[] row, ExtractProfile extractProfile) {
-        String[] result = new String[row.length];
-        String exp = extractProfile.getPreParseRowExp();
-        if ((exp == null || exp.equals("")))
-            return row;
-        int i = 0;
-        for (String column : row) {
-
-            Object value = evaluateExpression(column, exp);
-            result[i] = value.toString();
-            i++;
-
-
-        }
-        return result;
-    }
-
-    private static final ExpressionParser parser = new SpelExpressionParser();
-
-    private static Object evaluateExpression(Object value, String expression) {
-        context.setVariable("value", value);
-        return parser.parseExpression(expression).getValue(context);
-    }
-
-    public static Reader getReader(String file) throws NotFoundException {
-        InputStream stream = ClassLoader.class.getResourceAsStream(file);
-
-        Reader fileObject = null;
-        try {
-            fileObject = new FileReader(file);
-        } catch (FileNotFoundException e) {
-            if (stream != null)
-                fileObject = new InputStreamReader(stream);
-
-        }
-        if (fileObject == null) {
-            logger.error("Unable to resolve the source [{}]", file);
-            throw new NotFoundException("Unable to resolve the source " + file);
-        }
-        return fileObject;
-    }
-
     public int endProcess(StopWatch watch, int rows, int ignoreCount) {
         watch.stop();
         double mins = watch.getTotalTimeSeconds() / 60;
@@ -496,13 +499,6 @@ public class FileProcessor {
         else
             logger.info("Completed [{}] rows in [{}] secs. rpm [{}] Finished on row [{}], ignored [{}] rows.", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), rows, ignoreCount);
         return rows;
-    }
-
-    public static boolean validateArgs(String pathToBatch) throws NotFoundException, IOException {
-        Reader reader = getReader(pathToBatch);
-        if (reader != null)
-            reader.close();
-        return true;
     }
 
     private PayloadBatcher getPayloadBatcher() {

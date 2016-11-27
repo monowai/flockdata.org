@@ -36,7 +36,8 @@ import java.util.Collection;
 
 /**
  * Search tests related to data stored in data segments
- * Created by mike on 23/10/15.
+ * @author mholdsworth
+ * @since 23/10/2015
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)

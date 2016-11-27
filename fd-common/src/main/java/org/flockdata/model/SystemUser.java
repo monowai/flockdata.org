@@ -25,6 +25,11 @@ import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
+/**
+ * Authorised user acting on behalf of fortress
+ *
+ * @tag SystemUser, Node
+ */
 @NodeEntity
 @TypeAlias(value = "SystemUser")
 public class SystemUser  {
@@ -37,7 +42,7 @@ public class SystemUser  {
     @Indexed(unique = true)
     private String login;
 
-//    @Indexed(unique = true)
+    //    @Indexed(unique = true)
     private String email;
 
     @Indexed

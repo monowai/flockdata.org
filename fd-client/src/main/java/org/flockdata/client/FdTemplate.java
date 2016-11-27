@@ -54,20 +54,25 @@ import java.util.Map;
  * over various transport mechanisms - RabbitMQ & Http
  *
  * @see org.flockdata.client.Importer
- * <p>
- * User: Mike Holdsworth
- * Since: 13/10/13
+ * @tag Integration, FdClient
+ * @author mholdsworth
+ * @since 13/10/2013
  */
 @Service
 public class FdTemplate implements FdIoInterface {
 
     private static boolean compress = true;
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdTemplate.class);
     private ClientConfiguration clientConfiguration;
     private FdRabbitClient fdRabbitClient;
+    private RestTemplate restTemplate = null;
+    private HttpHeaders httpHeaders = null;
 
-    @Autowired
-    void setClientConfiguration(ClientConfiguration clientConfiguration) {
-        this.clientConfiguration = clientConfiguration;
+    @SuppressWarnings("unused")
+    public static Map<String, Object> getWeightedMap(int weight) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("weight", weight);
+        return properties;
     }
 
     @Autowired(required = false)
@@ -82,6 +87,11 @@ public class FdTemplate implements FdIoInterface {
 
     private ClientConfiguration getClientConfiguration() {
         return clientConfiguration;
+    }
+
+    @Autowired
+    void setClientConfiguration(ClientConfiguration clientConfiguration) {
+        this.clientConfiguration = clientConfiguration;
     }
 
     /**
@@ -110,8 +120,6 @@ public class FdTemplate implements FdIoInterface {
             clientConfiguration.setApiKey(result.getApiKey());
         return result;
     }
-
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdTemplate.class);
 
     private String writeEntitiesAmqp(Collection<EntityInputBean> entityInputs) throws FlockException {
         try {
@@ -145,8 +153,6 @@ public class FdTemplate implements FdIoInterface {
 
     }
 
-    private RestTemplate restTemplate = null;
-
     public RestTemplate getRestTemplate() {
         if (restTemplate == null) {
             restTemplate = new RestTemplate();
@@ -162,8 +168,6 @@ public class FdTemplate implements FdIoInterface {
         return writeTagsAmqp(tagInputs);
 
     }
-
-    private HttpHeaders httpHeaders = null;
 
     public HttpHeaders getHeaders() {
         return getHeaders(clientConfiguration.getHttpUser(), clientConfiguration.getHttpPass(), clientConfiguration.getApiKey());
@@ -196,13 +200,6 @@ public class FdTemplate implements FdIoInterface {
         };
 
         return httpHeaders;
-    }
-
-    @SuppressWarnings("unused")
-    public static Map<String, Object> getWeightedMap(int weight) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("weight", weight);
-        return properties;
     }
 
     @Override

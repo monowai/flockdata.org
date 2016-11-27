@@ -24,9 +24,8 @@ import org.flockdata.model.SystemUser;
 import org.flockdata.registration.RegistrationBean;
 
 /**
- * User: mike
- * Date: 22/08/14
- * Time: 9:46 AM
+ * @author mholdsworth
+ * @since 22/08/2014
  */
 public interface SystemUserService {
     SystemUser findByLogin(String userEmail);

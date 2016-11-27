@@ -26,7 +26,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Created by mike on 31/08/16.
+ * Meta structure of a search index
+ * Groups fields in to FlockData tags, data elements and ElasticSearch internal types
+ * @author mholdsworth
+ * @since 31/08/2016
+ * @tag Search
  */
 public class ContentStructure {
     @JsonProperty

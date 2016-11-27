@@ -20,7 +20,6 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.dao.EntityDaoNeo;
@@ -29,7 +28,6 @@ import org.flockdata.model.*;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.LogResultBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -48,30 +46,24 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * User: mike
- * Date: 20/09/14
- * Time: 3:38 PM
+ * @author mholdsworth
+ * @since 20/09/2014
  */
 @Service
 public class LogRetryService {
+    private final StorageProxy storage;
+    private final FortressService fortressService;
+    private final TxService txService;
+    private final EntityDaoNeo entityDao;
     private Logger logger = LoggerFactory.getLogger(LogRetryService.class);
-    @Autowired
-    EntityService entityService;
 
     @Autowired
-    StorageProxy storage;
-
-    @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    TxService txService;
-
-    @Autowired
-    EntityDaoNeo entityDao;
-
-    @Autowired
-    PlatformConfig platformConfig;
+    public LogRetryService( StorageProxy storage, FortressService fortressService, TxService txService, EntityDaoNeo entityDao) {
+        this.storage = storage;
+        this.fortressService = fortressService;
+        this.txService = txService;
+        this.entityDao = entityDao;
+    }
 
     /**
      * Attempts to gracefully handle deadlock conditions

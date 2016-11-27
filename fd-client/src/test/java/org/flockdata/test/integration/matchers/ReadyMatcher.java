@@ -17,7 +17,8 @@
 package org.flockdata.test.integration.matchers;
 
 /**
- * Created by mike on 23/04/16.
+ * @author mholdsworth
+ * @since 23/04/2016
  */
 public interface ReadyMatcher {
 

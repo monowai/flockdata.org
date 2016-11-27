@@ -37,9 +37,11 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 /**
- * Service endpoint to write incoming search requests via an ElasticSaerch implementation
+ * Service endpoint to write incoming search requests via an ElasticSearch implementation
  * <p>
- * Created by mike on 15/02/16.
+ * @author mholdsworth
+ * @since 15/02/2016
+ * @tag ElasticSearch, Entity, Search
  */
 @Service
 @Qualifier("esSearchWriter")
@@ -53,6 +55,7 @@ public class EsSearchWriter implements SearchWriter {
     private final TagChangeWriter tagWriter;
 
     private WriteSearchChanges.EngineResultGateway engineResultGateway;
+    private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
 
     @Autowired
     public EsSearchWriter(TagChangeWriter tagWriter, EntityChangeWriter entityWriter, IndexMappingService indexMappingService) {
@@ -65,8 +68,6 @@ public class EsSearchWriter implements SearchWriter {
     void setEngineResultGateway (WriteSearchChanges.EngineResultGateway engineResultGateway){
         this.engineResultGateway = engineResultGateway;
     }
-
-    private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
 
     /**
      * Triggered by the Engine, this is the payload that is required to be indexed

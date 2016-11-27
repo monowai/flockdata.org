@@ -31,7 +31,8 @@ import java.util.Collection;
 import static junit.framework.TestCase.assertEquals;
 
 /**
- * Created by mike on 28/12/15.
+ * @author mholdsworth
+ * @since 28/12/2015
  */
 public class TestPathEP extends MvcBase {
 

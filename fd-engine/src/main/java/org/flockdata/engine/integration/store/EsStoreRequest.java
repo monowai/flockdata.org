@@ -44,7 +44,8 @@ import org.springframework.messaging.MessageHandler;
 
 /**
  * Pulls the "data" block from ElasticSearch
- * Created by mike on 13/02/16.
+ * @author mholdsworth
+ * @since 13/02/2016
  */
 
 @Configuration
@@ -54,14 +55,6 @@ public class EsStoreRequest extends AbstractIntegrationRequest {
     @Autowired
             @Qualifier("engineConfig")
     PlatformConfig platformConfig;
-
-    @MessagingGateway
-    public interface ContentStoreEs {
-//        @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
-        @Gateway(requestChannel = "doDataQuery", replyChannel = "receiveContentReply")
-        EsSearchResult getData(QueryParams queryParams);
-    }
-
 
     @Bean
     MessageChannel receiveContentReply() {
@@ -103,6 +96,13 @@ public class EsStoreRequest extends AbstractIntegrationRequest {
     @Transformer(inputChannel = "doDataQuery", outputChannel = "sendDataQuery")
     public Message<?> transformRequest(Message theObject) {
         return objectToJson().transform(theObject);
+    }
+
+    @MessagingGateway
+    public interface ContentStoreEs {
+        //        @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
+        @Gateway(requestChannel = "doDataQuery", replyChannel = "receiveContentReply")
+        EsSearchResult getData(QueryParams queryParams);
     }
 
 }

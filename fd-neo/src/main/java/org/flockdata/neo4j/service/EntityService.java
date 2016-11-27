@@ -42,7 +42,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by mike on 10/07/15.
+ * @author mholdsworth
+ * @since 10/07/2015
  */
 public class EntityService {
 

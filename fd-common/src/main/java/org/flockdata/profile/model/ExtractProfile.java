@@ -24,14 +24,19 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.profile.ExtractProfileDeserializer;
 
 /**
- * Created by mike on 28/01/16.
+ * @author mholdsworth
+ * @since 28/01/2016
  */
 @JsonDeserialize(using = ExtractProfileDeserializer.class)
 public interface ExtractProfile {
 
     ContentType getContentType();
 
+    ExtractProfile setContentType(ContentType contentType);
+
     char getDelimiter();
+
+    ExtractProfile setDelimiter(String delimiter);
 
     Boolean hasHeader();
 
@@ -39,17 +44,13 @@ public interface ExtractProfile {
 
     String getPreParseRowExp();
 
-    String getQuoteCharacter();
-
-    ExtractProfile setHeader(boolean header);
-
-    ExtractProfile setContentType(ContentType contentType);
-
     void setPreParseRowExp(String expression);
 
-    ExtractProfile setDelimiter(String delimiter);
+    String getQuoteCharacter();
 
     ExtractProfile setQuoteCharacter(String quoteCharacter);
+
+    ExtractProfile setHeader(boolean header);
 
     ContentModel getContentModel();
 

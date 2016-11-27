@@ -45,7 +45,8 @@ import org.springframework.web.client.HttpClientErrorException;
 /**
  * Functional service point for interactions between fd-engine and fd-store
  *
- * Created by mike on 17/02/16.
+ * @author mholdsworth
+ * @since 17/02/2016
  */
 @Service
 @Profile({"fd-server"})
@@ -56,14 +57,11 @@ public class FdStorageProxy implements StorageProxy {
 
     @Autowired (required = false)
     StorageWriter.StorageWriterGateway writeGateway;
-
-    private Logger logger = LoggerFactory.getLogger(FdStorageProxy.class);
-
     @Autowired
     IndexManager indexManager;
-
     @Autowired   (required = false)
     EsRepo esRepo;
+    private Logger logger = LoggerFactory.getLogger(FdStorageProxy.class);
 
     @Override
     @Retryable

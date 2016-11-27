@@ -35,7 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by mike on 19/04/16.
+ * @author mholdsworth
+ * @since 19/04/2016
  */
 public class Helper {
     //    static Authentication AUTH_MIKE = new UsernamePasswordAuthenticationToken("mike", "123");

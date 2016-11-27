@@ -36,30 +36,26 @@ import java.util.Collection;
  * TrackResultBean is not persisted and it's state is only guaranteed within FlockData
  * @see org.flockdata.track.bean.TrackRequestResult for user represetned results
  * <p/>
- * User: Mike Holdsworth
- * Since: 11/05/13
+ * @author mholdsworth
+ * @since 11/05/2013
  */
 public class TrackResultBean implements Serializable {
+    boolean entityExisted = false;
+    boolean logIgnored = false;
     private Collection<String> serviceMessages = new ArrayList<>();
-
     private Entity entity;        // Resolved entity
     private EntityLog currentLog; // Log that was created
     private EntityLog deletedLog; // Log that was removed in response to a cancel request
-
     private Collection<EntityTag> tags; // Tags connected to the entity
-
     private EntityInputBean entityInputBean;// User payload
     private ContentInputBean contentInput;  // User content payload
-
     private DocumentType documentType;
     private String index;       // Which index is this indexed in
     private Boolean newEntity = false; // Flags that the Entity was created for the first time
     private ContentInputBean.LogStatus logStatus; // What status
-
     private TxRef txReference = null; // Reference used to track the transaction
     private String tenant = "";
     private Company company;
-
 
     protected TrackResultBean() {
     }
@@ -128,24 +124,22 @@ public class TrackResultBean implements Serializable {
         return entity;
     }
 
-    public void setCurrentLog(EntityLog currentLog) {
-        this.currentLog = currentLog;
-    }
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public EntityLog getCurrentLog() {
         return currentLog;
     }
 
-    public void setDeletedLog(EntityLog entityLog) {
-        this.deletedLog = entityLog;
+    public void setCurrentLog(EntityLog currentLog) {
+        this.currentLog = currentLog;
     }
 
     public EntityLog getDeletedLog() {
         return deletedLog;
     }
 
-    boolean entityExisted = false;
+    public void setDeletedLog(EntityLog entityLog) {
+        this.deletedLog = entityLog;
+    }
 
     public void entityExisted() {
         this.entityExisted = true;
@@ -153,10 +147,6 @@ public class TrackResultBean implements Serializable {
 
     public boolean entityExists() {
         return entityExisted;
-    }
-
-    public void setTags(Collection<EntityTag> tags) {
-        this.tags = tags;
     }
 
     @JsonIgnore
@@ -170,6 +160,10 @@ public class TrackResultBean implements Serializable {
      */
     public Collection<EntityTag> getTags() {
         return tags;
+    }
+
+    public void setTags(Collection<EntityTag> tags) {
+        this.tags = tags;
     }
 
     public ContentInputBean getContentInput() {
@@ -201,14 +195,14 @@ public class TrackResultBean implements Serializable {
         return (getContentInput() != null && logStatus != ContentInputBean.LogStatus.IGNORE);
     }
 
-    public TrackResultBean setDocumentType(DocumentType documentType) {
-        this.documentType = documentType;
-        return this;
-    }
-
     @JsonIgnore
     public DocumentType getDocumentType() {
         return documentType;
+    }
+
+    public TrackResultBean setDocumentType(DocumentType documentType) {
+        this.documentType = documentType;
+        return this;
     }
 
     public String getIndex() {
@@ -242,8 +236,6 @@ public class TrackResultBean implements Serializable {
         return this;
     }
 
-    boolean logIgnored = false;
-
     public void setLogIgnored() {
         this.logIgnored = true;
     }
@@ -255,12 +247,12 @@ public class TrackResultBean implements Serializable {
                 getLogStatus() == ContentInputBean.LogStatus.TRACK_ONLY;
     }
 
-    public void setTxReference(TxRef txReference) {
-        this.txReference = txReference;
-    }
-
     public TxRef getTxReference() {
         return txReference;
+    }
+
+    public void setTxReference(TxRef txReference) {
+        this.txReference = txReference;
     }
 
     public String getTenant() {

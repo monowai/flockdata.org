@@ -41,9 +41,9 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 /**
- * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 8:11 AM
+ * @author mholdsworth
+ * @since 29/06/2013
+ * @tag Test, Tag
  */
 public class TestTags extends EngineBase {
 

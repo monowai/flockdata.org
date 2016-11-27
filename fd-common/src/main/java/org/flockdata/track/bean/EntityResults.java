@@ -24,7 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Created by mike on 29/06/15.
+ * @author mholdsworth
+ * @since 29/06/2015
  */
 public class EntityResults {
 

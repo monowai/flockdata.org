@@ -29,9 +29,9 @@ import org.springframework.data.neo4j.annotation.*;
 import java.util.TimeZone;
 
 /**
- * User: Mike Holdsworth
- * Date: 21/06/13
- * Time: 1:21 PM
+ * @author mholdsworth
+ * @since 21/06/2013
+ * @tag Relationship, Log
  */
 @RelationshipEntity(type = "LOGGED")
 public class EntityLog {
@@ -87,6 +87,10 @@ public class EntityLog {
         return sysWhen;
     }
 
+    void setSysWhen(Long sysWhen) {
+        this.sysWhen = sysWhen;
+    }
+
     public DateTime getFortressWhen(DateTimeZone tz) {
         return new DateTime(fortressWhen, tz);
     }
@@ -97,10 +101,6 @@ public class EntityLog {
 
     void setFortressWhen(DateTime fortressWhen){
         this.fortressWhen = fortressWhen.getMillis();
-    }
-
-    void setSysWhen(Long sysWhen) {
-        this.sysWhen = sysWhen;
     }
 
     public Log getLog() {

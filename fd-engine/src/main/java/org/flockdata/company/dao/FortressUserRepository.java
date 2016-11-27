@@ -27,11 +27,11 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 
 public interface FortressUserRepository extends GraphRepository<FortressUser> {
 
-    @Query(value = "match (fortress:Fortress)<-[r:BELONGS_TO]-(fUser:FortressUser) where id(fortress)={0} match fUser.name ={1} return fUser")
+    @Query(value = "match (fortress:Fortress)<-[r:BELONGS_TO]-(f@author FortressUser) where id(fortress)={0} match fUser.name ={1} return fUser")
     SystemUser getAdminUser(long fortressId, String userName);
     
     @Query(
-            value = "match (sysUser:SystemUser {name: {0}}-[:ACCESSES]->(company:FDCompany)-[:OWNS]->(fortress:Fortress)<-[:BELONGS_TO]-(fortressUser:FortressUser) " +
+            value = "match (sys@author SystemUser {name: {0}}-[:ACCESSES]->(company:FDCompany)-[:OWNS]->(fortress:Fortress)<-[:BELONGS_TO]-(fortress@author FortressUser) " +
                     "where fortressUser.name ={2} and fortress.name={1} return fortressUser")
     org.flockdata.model.FortressUser getFortressUser(String userName, String fortressName, String fortressUser);
 

@@ -56,7 +56,9 @@ import java.util.*;
 /**
  * IO routines to handle registration of concepts in Neo4j
  * <p/>
- * Created by mike on 19/06/15.
+ * @author mholdsworth
+ * @since 19/06/2015
+ * @tag Neo4j, Repository, Concept
  */
 @Repository
 public class ConceptDaoNeo {
@@ -76,7 +78,7 @@ public class ConceptDaoNeo {
         this.template = template;
     }
 
-    public boolean linkEntities(DocumentType fromDoc, DocumentType toDoc, EntityKeyBean entityKeyBean) {
+    public boolean linkEntities(DocumentType fromDoc, DocumentType toDoc, EntityKeyBean entityKeyBean)  {
         Node from = template.getNode(fromDoc.getId());
         Node to = template.getNode(toDoc.getId());
         if (!relationshipExists(from, to, entityKeyBean.getRelationshipName())) {
@@ -86,7 +88,7 @@ public class ConceptDaoNeo {
             if ( entityKeyBean.isParent()) {
                 direction = Direction.OUTGOING; // Point to the parent
             }
-            Relationship relationship = template.getOrCreateRelationship(from, to, DynamicRelationshipType.withName(entityKeyBean.getRelationshipName()), direction, props);
+            template.getOrCreateRelationship(from, to, DynamicRelationshipType.withName(entityKeyBean.getRelationshipName()), direction, props);
             return true; // Link created
         }
         return false;

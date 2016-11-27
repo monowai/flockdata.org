@@ -38,7 +38,8 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.scheduling.annotation.Async;
 
 /**
- * Created by mike on 20/02/16.
+ * @author mholdsworth
+ * @since 20/02/2016
  */
 @Configuration
 @IntegrationComponentScan
@@ -53,13 +54,6 @@ public class StorageWriter {
 
     @Autowired
     MessageSupport messageSupport;
-
-    @MessagingGateway
-    public interface StorageWriterGateway {
-        @Gateway(requestChannel = "startStoreWrite", requestTimeout = 5000, replyChannel = "nullChannel")
-        @Async("fd-store")
-        void write(StorageBean resultBean);
-    }
 
     @Bean
     MessageChannel storeWrite(){
@@ -88,6 +82,13 @@ public class StorageWriter {
     @Transformer(inputChannel= "startStoreWrite", outputChannel="storeWrite")
     public Message<?> transformMkPayload(Message message){
         return messageSupport.toJson(message);
+    }
+
+    @MessagingGateway
+    public interface StorageWriterGateway {
+        @Gateway(requestChannel = "startStoreWrite", requestTimeout = 5000, replyChannel = "nullChannel")
+        @Async("fd-store")
+        void write(StorageBean resultBean);
     }
 
 }

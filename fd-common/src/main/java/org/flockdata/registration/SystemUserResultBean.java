@@ -25,9 +25,8 @@ import org.flockdata.model.SystemUser;
 import java.util.Arrays;
 
 /**
- * User: mike
- * Date: 30/04/14
- * Time: 2:53 PM
+ * @author mholdsworth
+ * @since 30/04/2014
  */
 public class SystemUserResultBean {
 

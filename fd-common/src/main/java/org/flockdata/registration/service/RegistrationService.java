@@ -27,9 +27,8 @@ import org.flockdata.model.SystemUser;
 import org.flockdata.registration.RegistrationBean;
 
 /**
- * User: mike
- * Date: 22/08/14
- * Time: 9:43 AM
+ * @author mholdsworth
+ * @since 22/08/2014
  */
 public interface RegistrationService {
     SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException;

@@ -25,9 +25,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.profile.ContentValidationRequest;
-import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.track.service.BatchService;
-import org.flockdata.track.service.MediationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -38,21 +36,19 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * User: mike
- * Date: 7/10/14
- * Time: 2:05 PM
+ * @author mholdsworth
+ * @since 7/10/2014
+ * @tag Batch, EndPoint, Track
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/batch")
 public class BatchEP {
-    @Autowired
-    MediationFacade mediationFacade;
+    private final BatchService batchService;
 
     @Autowired
-    ContentModelService profileService;
-
-    @Autowired
-    BatchService batchService;
+    public BatchEP(BatchService batchService) {
+        this.batchService = batchService;
+    }
 
     @RequestMapping(value = "/{fortress}/{document}/import", consumes = "application/json", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.ACCEPTED)

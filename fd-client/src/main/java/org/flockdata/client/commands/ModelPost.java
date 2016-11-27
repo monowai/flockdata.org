@@ -31,7 +31,8 @@ import java.util.Collection;
 
 /**
  * Locate a tag
- * Created by mike on 17/04/16.
+ * @author mholdsworth
+ * @since 17/04/2016
  */
 public class ModelPost extends AbstractRestCommand {
 

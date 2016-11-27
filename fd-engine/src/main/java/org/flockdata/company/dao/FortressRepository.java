@@ -28,7 +28,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import java.util.List;
 public interface FortressRepository extends GraphRepository<Fortress> {
 
-	@Query(value = " match (fortress:Fortress)<-[:BELONGS_TO]-(fortressUser:FortressUser) where id(fortress)={0}"
+	@Query(value = " match (fortress:Fortress)<-[:BELONGS_TO]-(fortress@author FortressUser) where id(fortress)={0}"
 			+ " and fortressUser.code ={1} return fortressUser")
 	FortressUser getFortressUser(Long fortressId, String userName);
 

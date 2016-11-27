@@ -32,7 +32,8 @@ import static org.junit.Assert.assertFalse;
 /**
  * Alias tags
  *
- * Created by mike on 27/01/15.
+ * @author mholdsworth
+ * @since 27/01/2015
  */
 public class TestTagAliases extends AbstractImport {
     @Test

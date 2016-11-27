@@ -25,9 +25,8 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.search.model.*;
 
 /**
- * User: mike
- * Date: 8/09/14
- * Time: 10:55 AM
+ * @author mholdsworth
+ * @since 8/09/2014
  */
 public interface QueryService {
     TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException;

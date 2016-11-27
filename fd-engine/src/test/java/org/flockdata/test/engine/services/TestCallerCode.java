@@ -43,8 +43,8 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.Assert.*;
 
 /**
- * User: Mike Holdsworth
- * Since: 1/12/13
+ * @author mholdsworth
+ * @since 1/12/2013
  */
 public class TestCallerCode extends EngineBase {
 

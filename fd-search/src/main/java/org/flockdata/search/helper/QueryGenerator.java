@@ -27,11 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created with IntelliJ IDEA.
- * User: macpro
- * Date: 04/08/2014
- * Time: 15:28
- * To change this template use File | Settings | File Templates.
+ * @author  mholdsworth
+ * @since 04/08/2014
  */
 public class QueryGenerator {
     private static Logger logger = LoggerFactory.getLogger(QueryGenerator.class);

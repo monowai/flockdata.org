@@ -29,8 +29,8 @@ import java.util.Map;
 /**
  * POJO representing a TagCloud .
  * Example : {"colera":12,"Cancer":1};
- * User: Mike
- * Date: 12/10/2014
+ * @author mholdsworth
+ * @since 12/10/2014
  */
 public class TagCloud {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

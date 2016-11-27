@@ -57,7 +57,9 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 /**
  * Maintenance routines for FD
  * <p>
- * Created by mike on 10/09/15.
+ * @author mholdsworth
+ * @since 10/09/2015
+ * @tag ElasticSearch
  */
 @Service
 @DependsOn("elasticSearchClient")
@@ -72,6 +74,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     private Logger logger = LoggerFactory.getLogger(IndexMappingServiceEs.class);
     private Collection<String>knownIndexes = new ArrayList<>();
+    private Map<String, Object> defaultSettings = null;
 
     @Autowired
     public IndexMappingServiceEs(IndexManager indexManager, Client elasticSearchClient, SearchConfig searchConfig) {
@@ -207,8 +210,6 @@ public class IndexMappingServiceEs implements IndexMappingService {
         }
         return false;
     }
-
-    private Map<String, Object> defaultSettings = null;
 
     private Map<String, Object> getSettings() {
         InputStream file;

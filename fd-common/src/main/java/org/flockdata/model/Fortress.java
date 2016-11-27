@@ -30,6 +30,10 @@ import java.io.Serializable;
 import java.util.Locale;
 import java.util.TimeZone;
 
+/**
+ * @author mholdsworth
+ * @tag Entity, Fortress
+ */
 @NodeEntity
 @TypeAlias("Fortress")
 public class Fortress implements MetaFortress, Serializable {
@@ -77,8 +81,18 @@ public class Fortress implements MetaFortress, Serializable {
 
     }
 
+    public static String code(String name) {
+        if (name == null)
+            return null;
+        return name.toLowerCase().replaceAll("\\s+", "");
+    }
+
     public String getRootIndex() {
         return rootIndex;
+    }
+
+    public void setRootIndex(String rootIndex) {
+        this.rootIndex = rootIndex;
     }
 
     Fortress setFortressInput(FortressInputBean fortressInputBean) {
@@ -114,11 +128,6 @@ public class Fortress implements MetaFortress, Serializable {
         this.code = code(name);
     }
 
-    public static String code(String name){
-        if ( name == null )
-            return null;
-        return name.toLowerCase().replaceAll("\\s+", "");
-    }
     @JsonIgnore
     public Company getCompany() {
         return company;
@@ -184,14 +193,14 @@ public class Fortress implements MetaFortress, Serializable {
         return timeZone;
     }
 
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
+
     public String getLanguageTag() {
         if (this.languageTag == null)
             this.languageTag = Locale.getDefault().toLanguageTag();
         return this.languageTag;
-    }
-
-    public void setTimeZone(String timeZone) {
-        this.timeZone = timeZone;
     }
 
     public String getCode() {
@@ -232,10 +241,6 @@ public class Fortress implements MetaFortress, Serializable {
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (company != null ? company.hashCode() : 0);
         return result;
-    }
-
-    public void setRootIndex(String rootIndex) {
-        this.rootIndex = rootIndex;
     }
 
     public void setSystem(Boolean system) {

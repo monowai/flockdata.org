@@ -29,9 +29,8 @@ import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 import java.util.Map;
 
 /**
- * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 12:52 PM
+ * @author mholdsworth
+ * @since 29/06/2013
  */
 public abstract class AbstractEntityTag implements Comparable<AbstractEntityTag>, EntityTag {
 
@@ -61,18 +60,17 @@ public abstract class AbstractEntityTag implements Comparable<AbstractEntityTag>
         return geo;
     }
 
-    private Object getProperty(String key) {
-        if (properties == null)
-            return null;
-        return properties.getProperty(key);
-    }
-
     @Override
     public AbstractEntityTag setGeoData(GeoDataBeans geoBeans) {
         this.geo = geoBeans;
         return this;
     }
 
+    private Object getProperty(String key) {
+        if (properties == null)
+            return null;
+        return properties.getProperty(key);
+    }
 
     @Override
     public Map<String, Object> getProperties() {

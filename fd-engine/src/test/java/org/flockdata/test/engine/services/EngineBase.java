@@ -72,7 +72,9 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 /**
- * User: mike Date: 16/06/14 Time: 7:54 AM
+ * Base test class for Neo4j functional testing
+ * @author mholdsworth
+ * @since 16/06/2014
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration({FdEngine.class,
@@ -83,127 +85,75 @@ import static org.junit.Assert.*;
 @ActiveProfiles({"dev", "fd-auth-test", "fd-batch"})
 public abstract class EngineBase {
 
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
-
-    @Autowired
-    protected RegistrationService regService;
-
-    @Autowired
-    SchemaService schemaService;
-
-    @Autowired
-    ConceptService conceptService;
-
-    @Autowired
-    protected
-    FortressService fortressService;
-
-    @Autowired
-    protected
-    EntityService entityService;
-
-    @Autowired
-    protected
-    EntityTagService entityTagService;
-
-    @Autowired
-    GeographyService geoService;
-
-    @Autowired
-    IndexManager indexManager;
-
-    @Autowired
-    protected MediationFacade mediationFacade;
-
-    @Autowired
-    TxService txService;
-
-    @Autowired
-    protected LogService logService;
-
-    @Autowired
-    TrackEventService trackEventService;
-
-    @Autowired
-    SystemUserService systemUserService;
-
-    @Autowired
-    TagService tagService;
-
-    @Autowired
-    @Qualifier("engineConfig")
-    public PlatformConfig engineConfig;
-
-    @Autowired
-    QueryService queryService;
-
-    @Autowired
-    public CompanyService companyService;
-
-    @Autowired
-    MatrixService matrixService;
-
-    @Autowired
-    @Deprecated // Use companyService instead
-    CompanyEP companyEP;
-
-    @Autowired
-    SearchServiceFacade searchService ;
-
-    @Autowired
-    StorageProxy storageService;
-
-    @Autowired
-    AdminService adminService;
-
-    @Autowired
-    Neo4jTemplate neo4jTemplate;
-
-    @Autowired
-    SecurityHelper securityHelper;
-
-    @Autowired
-    ContentModelService contentModelService;
-
-    static Logger logger = LoggerFactory.getLogger(EngineBase.class);
-
-    // These have to be in test-security.xml in order to create SysUserRegistrations
-    static final String sally_admin = "sally";
     protected static final String mike_admin = "mike"; // Admin role
     protected static final String harry = "harry";
-
-    Authentication authDefault = new UsernamePasswordAuthenticationToken(
-            mike_admin, "123");
-
-    public org.flockdata.model.Fortress createFortress(SystemUser su) throws Exception {
-        return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis(), true));
-    }
+    // These have to be in test-security.xml in order to create SysUserRegistrations
+    static final String sally_admin = "sally";
+    static Logger logger = LoggerFactory.getLogger(EngineBase.class);
 
     static {
         System.setProperty("neo4j.datastore", "./target/data/neo/");
     }
 
-    @Rollback(false)
-    @BeforeTransaction
-    public void cleanUpGraph() {
-        // DAT-348 - override this if you're running a multi-threaded tests where multiple transactions
-        //           might be started giving you sporadic failures.
-        // DAT-493 Function removed
-        // https://github.com/spring-projects/spring-data-neo4j/issues/308
-        //Neo4jHelper.cleanDb(neo4jTemplate);
-        neo4jTemplate.query("match (n)-[r]-() delete r,n", null);
-        neo4jTemplate.query("match (n) delete n", null);
-    }
-
-    @Before
-    public void setSecurity() throws Exception {
-        engineConfig.setMultiTenanted(false);
-        engineConfig.setTestMode(true); // prevents Async log processing from occurring
-        engineConfig.setStoreEnabled(true);
-        engineConfig.setConceptsEnabled(false);
-        SecurityContextHolder.getContext().setAuthentication(authDefault);
-    }
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
+    @Autowired
+    @Qualifier("engineConfig")
+    public PlatformConfig engineConfig;
+    @Autowired
+    public CompanyService companyService;
+    @Autowired
+    protected
+    FortressService fortressService;
+    @Autowired
+    protected
+    EntityService entityService;
+    @Autowired
+    protected
+    EntityTagService entityTagService;
+    @Autowired
+    protected MediationFacade mediationFacade;
+    @Autowired
+    protected LogService logService;
+    @Autowired
+    RegistrationService regService;
+    @Autowired
+    SchemaService schemaService;
+    @Autowired
+    ConceptService conceptService;
+    @Autowired
+    GeographyService geoService;
+    @Autowired
+    IndexManager indexManager;
+    @Autowired
+    TxService txService;
+    @Autowired
+    TrackEventService trackEventService;
+    @Autowired
+    SystemUserService systemUserService;
+    @Autowired
+    TagService tagService;
+    @Autowired
+    QueryService queryService;
+    @Autowired
+    MatrixService matrixService;
+    @Autowired
+    @Deprecated // Use companyService instead
+    CompanyEP companyEP;
+    @Autowired
+    SearchServiceFacade searchService ;
+    @Autowired
+    StorageProxy storageService;
+    @Autowired
+    AdminService adminService;
+    @Autowired
+    Neo4jTemplate neo4jTemplate;
+    @Autowired
+    SecurityHelper securityHelper;
+    @Autowired
+    ContentModelService contentModelService;
+    Authentication authDefault = new UsernamePasswordAuthenticationToken(
+            mike_admin, "123");
 
     public static void setSecurity(Authentication auth) {
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -218,37 +168,6 @@ public abstract class EngineBase {
     public static void setUnauthorized() {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
-
-    Transaction beginManualTransaction() {
-        return neo4jTemplate.getGraphDatabase().beginTx();
-    }
-
-    void commitManualTransaction(Transaction t) {
-        t.success();
-        t.close();
-    }
-
-    public SystemUser registerSystemUser() throws Exception {
-        return registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
-
-    }
-
-    public SystemUser registerSystemUser(String companyName) throws Exception {
-        return registerSystemUser(companyName, Long.toHexString(System.currentTimeMillis()));
-    }
-
-    public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception {
-        //org.flockdata.model.Company company = companyService.findByName(companyName);
-        //if ( company == null ) {
-        logger.debug("Creating company {}", companyName);
-        Company company = companyService.create(companyName);
-        //}
-        SystemUser su = regService.registerSystemUser(company, new RegistrationBean(accessUser).setIsUnique(false));
-//        SystemUser su = regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
-        logger.debug("Returning SU {}", su);
-        return su;
-    }
-
 
     public static void waitAWhile() throws Exception {
         waitAWhile(null, 1500);
@@ -282,6 +201,61 @@ public abstract class EngineBase {
             throws Exception {
         Thread.sleep(milliseconds);
         logger.trace(message, milliseconds / 1000d);
+    }
+
+    public org.flockdata.model.Fortress createFortress(SystemUser su) throws Exception {
+        return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis(), true));
+    }
+
+    @Rollback(false)
+    @BeforeTransaction
+    public void cleanUpGraph() {
+        // DAT-348 - override this if you're running a multi-threaded tests where multiple transactions
+        //           might be started giving you sporadic failures.
+        // DAT-493 Function removed
+        // https://github.com/spring-projects/spring-data-neo4j/issues/308
+        //Neo4jHelper.cleanDb(neo4jTemplate);
+        neo4jTemplate.query("match (n)-[r]-() delete r,n", null);
+        neo4jTemplate.query("match (n) delete n", null);
+    }
+
+    @Before
+    public void setSecurity() throws Exception {
+        engineConfig.setMultiTenanted(false);
+        engineConfig.setTestMode(true); // prevents Async log processing from occurring
+        engineConfig.setStoreEnabled(true);
+        engineConfig.setConceptsEnabled(false);
+        SecurityContextHolder.getContext().setAuthentication(authDefault);
+    }
+
+    Transaction beginManualTransaction() {
+        return neo4jTemplate.getGraphDatabase().beginTx();
+    }
+
+    void commitManualTransaction(Transaction t) {
+        t.success();
+        t.close();
+    }
+
+    public SystemUser registerSystemUser() throws Exception {
+        return registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
+
+    }
+
+    public SystemUser registerSystemUser(String companyName) throws Exception {
+        return registerSystemUser(companyName, Long.toHexString(System.currentTimeMillis()));
+    }
+
+    public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception {
+        //org.flockdata.model.Company company = companyService.findByName(companyName);
+        //if ( company == null ) {
+        logger.debug("Creating company {}", companyName);
+        Company company = companyService.create(companyName);
+        //}
+        SystemUser su = regService.registerSystemUser(company, new RegistrationBean(accessUser).setIsUnique(false));
+//        SystemUser su = regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
+        logger.debug("Returning SU {}", su);
+        return su;
     }
 
     EntityLog waitForLogCount(org.flockdata.model.Company company, Entity entity, int expectedCount) throws Exception {

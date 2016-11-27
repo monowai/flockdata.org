@@ -33,6 +33,7 @@ import java.io.IOException;
 /**
  * Convert incoming bytes to an ArrayList<SearchChange>
  *
+ *  @tag Messaging, Json
  */
 @Component("jsonToSearchChangeConverter")
 public class JsonSearchChangeConverter extends SimpleMessageConverter {

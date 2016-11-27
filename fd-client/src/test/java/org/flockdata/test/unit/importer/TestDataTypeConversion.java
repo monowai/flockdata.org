@@ -37,7 +37,8 @@ import static org.springframework.test.util.AssertionErrors.fail;
 
 /**
  * Datatypes
- * Created by mike on 27/02/15.
+ * @author mholdsworth
+ * @since 27/02/2015
  */
 
 public class TestDataTypeConversion  extends AbstractImport {

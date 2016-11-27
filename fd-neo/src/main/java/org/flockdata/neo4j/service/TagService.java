@@ -38,7 +38,8 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
- * Created by mike on 12/07/15.
+ * @author mholdsworth
+ * @since 12/07/2015
  */
 public class TagService {
 

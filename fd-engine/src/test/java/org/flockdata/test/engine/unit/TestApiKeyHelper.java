@@ -26,9 +26,10 @@ import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 
 /**
- * User: mike
- * Date: 28/07/14
- * Time: 11:44 AM
+ * @author mholdsworth
+ * @since 28/07/2014
+ * @tag Test, APIKey
+
  */
 public class TestApiKeyHelper {
     @org.junit.Test

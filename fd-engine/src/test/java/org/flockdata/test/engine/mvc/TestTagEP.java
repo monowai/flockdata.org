@@ -37,7 +37,8 @@ import java.util.Map;
 import static junit.framework.TestCase.*;
 
 /**
- * Created by mike on 31/05/15.
+ * @author mholdsworth
+ * @since 31/05/2015
  */
 public class TestTagEP extends MvcBase {
 

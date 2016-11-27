@@ -37,7 +37,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by mike on 20/06/15.
+ * @author mholdsworth
+ * @since 20/06/2015
  */
 public interface ConceptService {
 
@@ -53,7 +54,7 @@ public interface ConceptService {
 
     void registerConcepts(Iterable<TrackResultBean> resultBeans);
 
-    void linkEntities(DocumentType sourceType, DocumentType targetType, EntityKeyBean entityKeyBean);
+    void linkEntities(DocumentType sourceType, DocumentType targetType, EntityKeyBean entityKeyBean) throws FlockException;
 
     DocumentType save(DocumentType documentType);
 
@@ -69,7 +70,7 @@ public interface ConceptService {
 
     Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, String fortress) throws FlockException;
 
-    Collection<DocumentType> makeDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans);
+    Collection<DocumentType> makeDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans) throws FlockException;
 
     void delete(DocumentType documentType);
 

@@ -28,9 +28,9 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * User: Mike Holdsworth
- * Date: 14/04/13
- * Time: 8:00 PM
+ * @tag neo4j, Entity, GraphRepository, Query
+ * @author mholdsworth
+ * @since 14/04/2013
  */
 public interface EntityRepo extends GraphRepository<Entity> {
 

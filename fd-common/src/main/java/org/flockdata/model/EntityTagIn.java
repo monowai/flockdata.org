@@ -31,9 +31,9 @@ import java.util.Map;
 /**
  * "Reversed" relationship
  *
- * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 12:59 PM
+ * @author mholdsworth
+ * @since 29/06/2013
+ * @tag Relationship, EntityTag
  */
 @RelationshipEntity (type = "ENTITY-TAG-IN")
 public class EntityTagIn extends AbstractEntityTag {
@@ -114,15 +114,15 @@ public class EntityTagIn extends AbstractEntityTag {
         return "ENTITY-TAG-IN";
     }
 
+    public void setRelationship(String relationship) {
+        if (relationship != null)
+            this.relationship = DynamicRelationshipType.withName(relationship);
+    }
+
     @Override
     @JsonIgnore
     public boolean isGeo() {
         return geoRelationship;
-    }
-
-    public void setRelationship(String relationship){
-        if ( relationship != null )
-            this.relationship = DynamicRelationshipType.withName(relationship);
     }
 
     @Override

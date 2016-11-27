@@ -26,7 +26,8 @@ import org.flockdata.model.Tag;
  * Used in the location and caching of a Tag.
  * The properties that can are used to uniquely identify a tag
  *
- * Created by mike on 25/03/16.
+ * @author mholdsworth
+ * @since 25/03/2016
  */
 public class TagKey {
     String label;

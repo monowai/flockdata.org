@@ -30,7 +30,8 @@ import java.util.Map;
 /**
  * Represents a node structure used by Cytoscape to visualise graphs
  *
- * Created by mike on 2/05/16.
+ * @author mholdsworth
+ * @since 2/05/2016
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FdNode {

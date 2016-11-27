@@ -37,7 +37,8 @@ import java.util.concurrent.Executor;
 /**
  * FlockData TaskExecutors
  *
- * Created by mike on 13/07/15.
+ * @author mholdsworth
+ * @since 13/07/2015
  */
 @Configuration
 @EnableAsync(mode = AdviceMode.PROXY)
