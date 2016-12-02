@@ -112,6 +112,47 @@ public class TestEntityTags extends EngineBase {
     }
 
     @Test
+    public void tagsRemovedFromExistingEntityOnUpdate() throws Exception {
+        cleanUpGraph();
+        SystemUser su = registerSystemUser("tagsRemovedFromExistingEntityOnUpdate", mike_admin);
+        assertNotNull(su);
+
+        FortressInputBean fib = new FortressInputBean("ABC", true);
+
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        assertNotNull(fortress);
+
+        TagInputBean firstTag = new TagInputBean("firstTag", null, "demo");
+
+        EntityInputBean entityBean = new EntityInputBean(fortress, "mtest", "aTest", new DateTime(), "abc");
+        entityBean.addTag(firstTag);
+        entityBean.setArchiveTags(false);
+        ContentInputBean contentBean = new ContentInputBean();
+        Map<String, Object> jsonMap = EntityContentHelper.getRandomMap();
+        contentBean.setData(jsonMap);
+        entityBean.setContent(contentBean);
+
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
+        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+
+        Assert.assertEquals(1, entityService.getLogCount(su.getCompany(), entity.getKey()));
+        Assert.assertEquals(1, entityTagService.findEntityTags(entity).size());
+
+        // Scenario 2: We have an existing entity with content logged - it has one existing tag
+        //           we now have a second tag added but no content.
+        TagInputBean replaceTag = new TagInputBean("secondTag", null, "demo");
+        entityBean.addTag(replaceTag);
+        entityBean.setReplaceExistingTags(true);
+
+        entity = mediationFacade.trackEntity(su.getCompany(), entityBean).getEntity();
+
+        Assert.assertEquals(1, entityTagService.findEntityTags(entity).size());
+
+
+    }
+
+
+    @Test
     public void simpleTagAgainstEntity() throws Exception {
         SystemUser su = registerSystemUser("simpleTagAgainstEntity", mike_admin);
         assertNotNull(su);

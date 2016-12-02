@@ -63,6 +63,7 @@ public class EntityInputBean implements Serializable, UserProperties {
     private String updateUser;
     private FortressUser user;
     private String segment;
+    private boolean replaceExistingTags;
 
     public EntityInputBean() {
         setEntityOnly(true);
@@ -549,5 +550,18 @@ public class EntityInputBean implements Serializable, UserProperties {
         }
 
         return this;
+    }
+
+    /**
+     * If caller wants existing tags, if any, to be replaced by the incoming ones
+     *
+     * @return default false (accumulate instead) true to remove
+     */
+    public boolean isReplaceExistingTags() {
+        return replaceExistingTags;
+    }
+
+    public void setReplaceExistingTags(boolean replaceExistingTags) {
+        this.replaceExistingTags = replaceExistingTags;
     }
 }

@@ -20,6 +20,7 @@
 
 package org.flockdata.test.helper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
@@ -30,8 +31,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.*;
 
 /**
  * Verifies that EntityInputBeans can be merged into each other
@@ -39,7 +39,7 @@ import static junit.framework.TestCase.assertNotNull;
  * @author mholdsworth
  * @since 23/01/2016
  */
-public class TestEntityInputBean {
+public class EntityInputBeanTest {
 
     @Test
     public void testMerge() throws Exception {
@@ -83,5 +83,18 @@ public class TestEntityInputBean {
         DocumentType documentType = new DocumentType(segment, new DocumentTypeInputBean("Blah"));
         docTypes.put(documentType, "OK");
         assertNotNull ( docTypes.get(documentType));
+    }
+
+    @Test
+    public void serialization() throws Exception {
+        MetaFortress fortress = new FortressInputBean("blah", true);
+        EntityInputBean bean = new EntityInputBean(fortress, new DocumentTypeInputBean("Testing"));
+        bean.setReplaceExistingTags(true);
+        ObjectMapper objectMapper = new ObjectMapper();
+        byte[] bytes = objectMapper.writeValueAsBytes(bean);
+
+        EntityInputBean other = objectMapper.readValue(bytes, EntityInputBean.class);
+        assertNotNull(other);
+        assertTrue(other.isReplaceExistingTags());
     }
 }

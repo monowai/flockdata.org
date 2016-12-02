@@ -39,6 +39,7 @@ public class FdDocker extends ExternalResource {
 
     static DockerComposeContainer stack =
             new DockerComposeContainer(new File("src/test/resources/int/docker-compose.yml"))
+                    .withPull(false)
                     .withExposedService("rabbit_1", 5672)
                     .withExposedService("rabbit_1", 15672)
                     .withExposedService("fdengine_1", SERVICE_ENGINE)

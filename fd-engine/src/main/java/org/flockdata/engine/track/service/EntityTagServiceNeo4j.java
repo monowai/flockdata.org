@@ -139,21 +139,21 @@ class EntityTagServiceNeo4j implements EntityTagService {
     }
 
     /**
-     * Associates the supplied userTags with the EntityNode
-     * <p/>
-     * in JSON terms....
-     * "ClientID123" :{"clientKey","prospectKey"}
-     * <p/>
+     * Associates the Tags within the EntityInputBean with the Entity Node
      * <p/>
      * The value can be null which will create a simple tag for the Entity such as
      * ClientID123
-     * <p/>
-     * They type can be Null, String or a Collection<String> that describes the relationship
-     * types to create.
-     * <p/>
-     * If this scenario, ClientID123 is created as a single node with two relationships that
-     * describe the association - clientKey and prospectKey
+     * Based on the EntityInputBean, support is offered for multiple usecases:
+     *      archived - move to a new log (only when content is being tracked, i.e. multiple logs)
+     *      accumulated - add new tags to existing (default)
+     *      replaced - remove all existing tags and use these ones instead
      *
+     * EntityInputBean.isReplaceExistingTags
+     * EntityInputBean.isArchiveTags
+     *
+     * Tags that are archived are move to to the new log record for this entity
+     *
+     * @see EntityInputBean
      * @param company         owner
      * @param entity          Entity to associate userTags with
      * @param lastLog         move "removed" tags to this log for archive purposes
@@ -192,7 +192,7 @@ class EntityTagServiceNeo4j implements EntityTagService {
                 if (!newEntityTags.contains(entityTag))
                     tagsToMove.add(entityTag);
             }
-            if (entityInputBean.isArchiveTags())
+            if (entityInputBean.isArchiveTags()) {
                 if (lastLog != null) {
                     if (lastLog.isMocked()) {
                         for (EntityTag entityTag : tagsToMove) {
@@ -202,6 +202,13 @@ class EntityTagServiceNeo4j implements EntityTagService {
                     } else
                         moveTags(lastLog, tagsToMove);
                 }
+            } else if (entityInputBean.isReplaceExistingTags()) {
+                for (EntityTag entityTag : existingTags) {
+                    template.delete(entityTag);
+                }
+
+            }
+
         }
         if (!entityInputBean.isTrackSuppressed())
             for (EntityTag entityTag : newEntityTags) {

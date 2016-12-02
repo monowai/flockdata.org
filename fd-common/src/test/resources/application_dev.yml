@@ -1,4 +1,4 @@
-### Default configuration properties for fd-engine
+  ### Default configuration properties for fd-engine
 
 ## You can override these settings by placing a application.properties
 ## in the flockdata classpath. This file, deployed with fd-engine and fd-search
