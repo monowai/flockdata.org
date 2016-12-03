@@ -27,6 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
+/**
+ * Encapsulates a user account mastered in StormPath
+ *
+ * @tag SystemUser, Security
+ */
+
 public class StormPathUser implements UserProfileService {
 
     private static final Logger logger = LoggerFactory

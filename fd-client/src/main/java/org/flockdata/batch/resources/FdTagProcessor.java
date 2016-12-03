@@ -33,6 +33,7 @@ import java.util.Map;
 
 /**
  * @author nabil
+ * @tag Batch, Tag
  */
 @Component
 @Profile({"fd-batch", "fd-batch-dev"})

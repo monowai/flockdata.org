@@ -28,6 +28,7 @@ import java.io.Serializable;
 /**
  * @author mholdsworth
  * @since 28/08/2013
+ * @tag Contract, Log, Query
  */
 public class LogResultBean implements Serializable {
     public static final String OK = "OK";

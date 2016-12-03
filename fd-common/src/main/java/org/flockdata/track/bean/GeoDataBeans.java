@@ -29,7 +29,7 @@ import java.util.Map;
  * Collection of geo data
  * Collection of points
  * A description for the collection of GeoDataBean indexed objects
- * @tag Geo, Pojo
+ * @tag Geo, Contract
  * @author mholdsworth
  * @since 4/08/2015
  */

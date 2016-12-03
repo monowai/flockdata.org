@@ -31,7 +31,7 @@ import java.util.Set;
 /**
  * @author mholdsworth
  * @since 6/09/2014
- * @tag Entity, Tag, Service
+ * @tag Entity, Tag, EntityTag
  */
 public interface EntityTagService {
     void processTag(Entity entity, EntityTagInputBean tagInput);

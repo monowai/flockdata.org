@@ -30,7 +30,8 @@ import org.springframework.web.client.ResourceAccessException;
 import java.util.Collection;
 
 /**
- * Locate a tag
+ * Store a ContentModel in the service
+ * @tag Command, ContentModel
  * @author mholdsworth
  * @since 17/04/2016
  */

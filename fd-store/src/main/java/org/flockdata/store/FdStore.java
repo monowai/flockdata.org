@@ -24,15 +24,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 
 /**
- * Starts fd-store
+ * Starts fd-store KV store service
+ *
+ * @tag Application
  * @author mholdsworth
  * @since 17/02/2016
  */
 @SpringBootApplication(scanBasePackages = {
         "org.flockdata.integration",
         "org.flockdata.store",
-        "org.flockdata.authentication",
-        "org.flockdata.shared"})
+        "org.flockdata.authentication"})
 public class FdStore {
     public static void main(String[] args) {
         try {

@@ -26,6 +26,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
+ * Returns metadata about the field structures from ElasticSearch.
+ *
+ * @tag Command, Fortress, Search, ElasticSearch
  * @author mholdsworth
  * @since 31/08/2016
  */

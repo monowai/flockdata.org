@@ -17,6 +17,9 @@
 package org.flockdata.client.commands;
 
 /**
+ * Interface for running commands against a Client
+ *
+ * @tag FdClient
  * @author mholdsworth
  * @since 4/04/2016
  */

@@ -40,6 +40,7 @@ import java.util.concurrent.TimeoutException;
  * <p>
  * @author mholdsworth
  * @since 27/11/2014
+ * @tag FdClient, Rabbit, Messaging
  */
 @Service
 public class FdRabbitClient {
@@ -65,7 +66,7 @@ public class FdRabbitClient {
 
     @PostConstruct
     public void logStatus() {
-        logger.info("** FlockData AmqpServices Configuration deployed");
+        logger.info("** Configured for Rabbit on {}", rabbitConfig.getHost());
     }
 
     @PreDestroy

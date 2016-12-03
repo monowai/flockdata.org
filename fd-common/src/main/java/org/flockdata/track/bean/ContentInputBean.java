@@ -33,10 +33,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Tracked in the KV Store this object tracks meta data and the actual content being tracked
+ * This object tracks source system content data to be tracked
  * <p>
  * @author mholdsworth
  * @since 8/05/2013
+ * @tag Contract, Content, Track
  */
 public class ContentInputBean implements EntityContent, Serializable {
     private LogStatus fdStatus;

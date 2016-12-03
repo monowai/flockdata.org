@@ -44,7 +44,7 @@ import java.util.Map;
 /**
  * @author mholdsworth
  * @since 29/08/2013
- * @tag Search, Administration
+ * @tag Search, Administration, ElasticSearch
  */
 @Service
 @Configuration

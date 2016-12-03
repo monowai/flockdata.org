@@ -35,7 +35,7 @@ import java.util.*;
 /**
  * @author mholdsworth
  * @since 15/06/2013
- * @tag Node, Tag
+ * @tag Node, Tag, EntityTag
  */
 @NodeEntity // Only in place to support projection
 @TypeAlias("Tag")

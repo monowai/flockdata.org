@@ -27,6 +27,7 @@ package org.flockdata.track.bean;
  *
  * @author mholdsworth
  * @since 20/05/2015
+ * @tag Contract, Relationship, Query
  */
 public class RelationshipResultBean  {
 

@@ -33,6 +33,7 @@ import java.util.Map;
  * Returns a view on to a tracked Entity log and it's content
  * @author mholdsworth
  * @since 21/04/2016
+ * @tag Contract, EntityLog, Query
  */
 public class EntityLogResult {
 

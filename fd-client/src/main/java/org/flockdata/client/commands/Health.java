@@ -30,6 +30,8 @@ import java.util.Map;
 
 /**
  * HealthCheck to a service to see if it can see other services
+ *
+ * @tag Command, Administration
  * @author mholdsworth
  * @since 4/04/2016
  */

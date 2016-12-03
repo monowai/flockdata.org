@@ -35,7 +35,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * @tag Neo4j, Repository, Alias
+ * @tag Neo4j, Alias
  * @author mholdsworth
  * @since 3/10/2014
  */

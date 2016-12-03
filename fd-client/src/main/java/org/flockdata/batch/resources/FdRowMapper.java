@@ -26,7 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by nabil on 18/01/2016.
+ * @author nabil
+ * @since 18/01/2016.
+ * @tag Batch
  */
 @Component
 public class FdRowMapper implements RowMapper<Map<String,Object>>{

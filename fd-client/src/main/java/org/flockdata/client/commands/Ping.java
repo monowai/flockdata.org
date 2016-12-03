@@ -26,6 +26,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
+ * Simple ping which replies with pong
+ *
+ * @tag Command, Administration
  * @author mholdsworth
  * @since 4/04/2016
  */
@@ -33,7 +36,7 @@ import org.springframework.web.client.ResourceAccessException;
 public class Ping extends AbstractRestCommand {
 
     String result;
-    HttpHeaders httpHeaders;
+    private HttpHeaders httpHeaders;
 
     private String url = null;
 

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -38,9 +38,9 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author mholdsworth
  * @since 7/10/2014
- * @tag FdClient, Batch, Track, Entity, Tag
+ * @tag FdClient, Batch, Track
  */
-@Component
+@Service
 @Configuration
 @Profile({"fd-batch", "fd-importer"})
 public class FdBatchWriter implements PayloadBatcher {

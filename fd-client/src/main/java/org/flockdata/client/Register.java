@@ -31,37 +31,28 @@ import org.springframework.context.annotation.Profile;
 import javax.annotation.PostConstruct;
 
 /**
- * General importer with support for CSV and XML parsing. Interacts with AbRestClient to send
- * information via a RESTful interface
- * <p>
- * Will send information to FlockData as either tags or track information.
- * <p>
- * You should extend EntityInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
- * to massage your data prior to dispatch to FD.
- * <p>
- * Parameters:
- * -s=http://localhost:8080
- * <p>
- * quoted string containing "file,DelimitedClass,BatchSize"
- * "./path/to/file/cow.csv,org.flockdata.health.Countries,200"
- * <p>
- * if BatchSize is set to -1, then a simulation only is run; information is not dispatched to the server.
- * This is useful to debug the class implementing Delimited
+ * Command that allows an authorised user to create an FD system user. This is an account that can access
+ * data associated with a company
  *
- * @see org.flockdata.registration.RegistrationBean
- * @see org.flockdata.registration.SystemUserResultBean
- * @see org.flockdata.integration.ClientConfiguration
- * <p>
+ * You will normally run this via the CommandRunner with properties such as
+ *  --auth.user=mike:123 --register.login=mike
+ *
+ *  auth.user is an FD_ADMIN account and --register.login is the data access account to create. Data access
+ *  user will be associated with the same company that the auth.user belongs to.
+ *
+ *  In this scenario, the authorised user is being granted data reading rights.
+ *
  * @author mholdsworth
  * @since 13/10/2013
+ * @tag Command, SystemUser, FdClient
  */
 @Profile("fd-register")
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"org.flockdata.authentication", "org.flockdata.shared", "org.flockdata.client"})
+@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.authentication", "org.flockdata.client"})
 public class Register {
 
-    @Value("${auth.@author #{null}}")
+    @Value("${auth.user:#{null}}")
     String authUser;
     @Value("${register.login:#{null}}")
     String login;

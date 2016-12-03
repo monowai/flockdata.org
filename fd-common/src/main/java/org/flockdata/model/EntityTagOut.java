@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @author mholdsworth
  * @since 29/06/2013
- * @tag Relationship, EntityTag
+ * @tag Relationship, EntityTag, Tag, Entity
  */
 @RelationshipEntity  (type = "ENTITY-TAG-OUT")
 public class EntityTagOut extends AbstractEntityTag {

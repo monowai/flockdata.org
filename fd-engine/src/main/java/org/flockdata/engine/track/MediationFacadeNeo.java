@@ -67,17 +67,13 @@ import java.util.concurrent.TimeoutException;
  * @inheritDoc
  */
 @Service
-@Qualifier("mediationFacadeNeo4j")
+@Qualifier("mediationFacadeNeo")
 public class MediationFacadeNeo implements MediationFacade {
 
+    private static DecimalFormat f = new DecimalFormat();
     private final EntityService entityService;
-
     private final EntityTagService entityTagService;
-
     private final FortressService fortressService;
-
-    private SearchServiceFacade searchServiceFacade;
-
     private final DocTypeRetryService docTypeRetryService;
 
     private final StorageProxy contentReader;
@@ -101,10 +97,8 @@ public class MediationFacadeNeo implements MediationFacade {
     private final TrackBatchSplitter batchSplitter;
 
     private final ConceptService conceptService;
-
+    private SearchServiceFacade searchServiceFacade;
     private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo.class);
-
-    private static DecimalFormat f = new DecimalFormat();
 
     @Autowired
     public MediationFacadeNeo(ConceptService conceptService, LogService logService, FortressService fortressService, TrackBatchSplitter batchSplitter, EntityTagService entityTagService, TagRetryService tagRetryService, EntityService entityService, DocTypeRetryService docTypeRetryService, StorageProxy contentReader, EntityRetryService entityRetry, EngineConfig engineConfig, SecurityHelper securityHelper, ConceptRetryService conceptRetryService, EngineAdminService adminService, IndexRetryService indexRetryService) {

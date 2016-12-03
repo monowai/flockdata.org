@@ -31,6 +31,7 @@ import java.util.Collection;
 /**
  * @author mholdsworth
  * @since 20/04/2013
+ * @tag Company, Neo4j,
  */
 @Repository
 public class CompanyDaoNeo implements CompanyDao {

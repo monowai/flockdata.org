@@ -30,7 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
- * @tag Helper, Security, Service, APIKey
+ * @tag Helper, Security, APIKey
  * @author mholdsworth
  * @since 17/04/2013
  */

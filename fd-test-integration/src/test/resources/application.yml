@@ -1,11 +1,12 @@
 
 
 ### Integration test configuration
+# Most of these settings are overridden in docker-compose.yml
 
 application:
-  title: fd-engine for integration testing
+  title: FlockData Integration Testing
 banner:
-  location: int/banner.txt
+  location: banner.txt
 
 spring:
   profiles:
@@ -16,7 +17,7 @@ logging:
     org.flockdata.client: info
 
 # Message queues - Balance against ack/nack rate throughput
-# Threadpools
+# Thread-pools
 org.fd:
   client:
     http:
@@ -51,4 +52,4 @@ org:
 rabbit:
   user: guest
   pass: guest
-  host: 127.0.0.1
+  host: localhost

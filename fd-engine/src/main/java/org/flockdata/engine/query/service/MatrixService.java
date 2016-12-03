@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author mholdsworth
  * @since 5/04/2014
- * @tag Matrix, Service
+ * @tag Matrix, Query
  */
 @Service
 @Transactional

@@ -30,7 +30,7 @@ import org.springframework.messaging.MessageChannel;
  * Channel definitions
  * @author mholdsworth
  * @since 13/02/2016
- * @tag Store, Integration
+ * @tag Store, Messaging
  */
 
 

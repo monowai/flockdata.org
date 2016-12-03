@@ -28,6 +28,7 @@ import java.util.UUID;
 
 /**
  * https://github.com/RestExpress/RepoExpress/blob/master/common/src/java/com/strategicgains/repoexpress/util/UuidConverter.java
+ * @tag APIKey
  */
 @Component
 public class Base64 {

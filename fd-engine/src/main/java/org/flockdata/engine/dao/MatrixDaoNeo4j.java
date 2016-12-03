@@ -51,7 +51,7 @@ import java.util.*;
 /**
  * Neo4j matrix queries
  * @author mholdsworth
- * @tag Neo4j, Repository, Matrix, Query
+ * @tag Neo4j, Matrix, Query
  */
 @Repository
 public class MatrixDaoNeo4j implements MatrixDao {

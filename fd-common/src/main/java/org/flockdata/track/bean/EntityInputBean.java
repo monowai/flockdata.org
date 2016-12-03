@@ -36,7 +36,7 @@ import java.util.*;
 /**
  * @author mholdsworth
  * @since 11/05/2013
- * @tag Payload, Entity
+ * @tag Contract, Entity, Track
  */
 public class EntityInputBean implements Serializable, UserProperties {
     Map<String, Object> properties = new HashMap<>();  // Set into the Entity

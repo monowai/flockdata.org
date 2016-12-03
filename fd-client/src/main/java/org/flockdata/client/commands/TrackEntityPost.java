@@ -27,7 +27,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
- * Locate a tag
+ * Track an EntityInputBean into FlockData
+ *
+ * @tag Command, Entity, Track
  * @author mholdsworth
  * @since 17/04/2016
  */

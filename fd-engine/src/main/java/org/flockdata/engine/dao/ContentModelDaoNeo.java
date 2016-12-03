@@ -37,7 +37,7 @@ import java.util.Objects;
  * @tag neo4j, ContentModel
  * @author mholdsworth
  * @since 3/10/2014
- * @tag Neo4j, Repository, ContentModel
+ * @tag Neo4j, ContentModel
  */
 @Repository
 public class ContentModelDaoNeo {

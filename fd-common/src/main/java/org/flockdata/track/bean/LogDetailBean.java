@@ -26,6 +26,7 @@ import org.flockdata.store.StoredContent;
 /**
  * @author mholdsworth
  * @since 4/09/2013
+ * @tag Contract, Log
  */
 public class LogDetailBean {
 

@@ -28,14 +28,19 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
+/**
+ * Encapsulates a user account mastered in a configuration file
+ *
+ * @tag SystemUser, Security
+ */
 @Component
 public class SimpleUser implements UserProfileService{
-	@Autowired  (required = false)
-	private SystemUserService systemUserService;
 
     private static Logger logger = LoggerFactory.getLogger("configuration");
+    @Autowired(required = false)
+    private SystemUserService systemUserService = null;
 
-	public UserProfile getUser(Authentication authentication) {
+    public UserProfile getUser(Authentication authentication) {
         Object userName = authentication.getPrincipal();
         String login;
         User auth = null;
@@ -47,14 +52,14 @@ public class SimpleUser implements UserProfileService{
         }
 
         UserProfile userProfile = new UserProfile();
-		userProfile.setUserId(login);
-		userProfile.setStatus("ENABLED");
+        userProfile.setUserId(login);
+        userProfile.setStatus("ENABLED");
 
-		if (auth!=null && !auth.getAuthorities().isEmpty()) {
+        if (auth!=null && !auth.getAuthorities().isEmpty()) {
             for (GrantedAuthority grantedAuthority : auth.getAuthorities()) {
                 userProfile.addUserRole(grantedAuthority.getAuthority());
             }
-		}
+        }
         if ( auth!=null && systemUserService !=null ) {
             SystemUser sysUser = systemUserService.findByLogin(login);
             if (sysUser != null) {
@@ -63,8 +68,8 @@ public class SimpleUser implements UserProfileService{
             }
         }
 
-		return userProfile;
-	}
+        return userProfile;
+    }
 
     public String getProvider() {
         return "Simple SimpleUser-Security";

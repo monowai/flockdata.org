@@ -24,6 +24,9 @@ import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+/**
+ * @tag Batch
+ */
 @Component
 @Profile("fd-batch")
 public class FdSkipListener implements SkipListener<Object, Object> {

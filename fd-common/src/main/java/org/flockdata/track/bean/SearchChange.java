@@ -28,6 +28,7 @@ import java.util.Map;
 /**
  * @author mholdsworth
  * @since 21/04/2013
+ * @tag Search, Contract, Entity
  */
 public interface SearchChange<T> {
 

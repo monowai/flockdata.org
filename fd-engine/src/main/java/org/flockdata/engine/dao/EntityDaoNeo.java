@@ -48,7 +48,7 @@ import java.util.*;
 
 /**
  * Access to Entity objects stored in Neo4j
- * @tag neo4j, Entity, Repository, Track
+ * @tag neo4j, Entity, Track
  * @author mholdsworth
  * @since 21/04/2013
  */

@@ -75,6 +75,7 @@ import static org.junit.Assert.*;
  * Base test class for Neo4j functional testing
  * @author mholdsworth
  * @since 16/06/2014
+ * @tag Test, Neo4j, Engine
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration({FdEngine.class,

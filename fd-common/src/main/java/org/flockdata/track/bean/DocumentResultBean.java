@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 /**
  * @author mholdsworth
  * @since 29/08/2014
+ * @tag Contract, DocumentType, Query
  */
 public class DocumentResultBean {
 

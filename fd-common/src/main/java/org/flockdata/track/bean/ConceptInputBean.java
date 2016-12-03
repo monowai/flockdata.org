@@ -29,6 +29,7 @@ import java.util.Set;
 /**
  * @author mholdsworth
  * @since 19/06/2014
+ * @tag Contract, Concept
  */
 public class ConceptInputBean {
     Collection<String> relationships = new HashSet<>();

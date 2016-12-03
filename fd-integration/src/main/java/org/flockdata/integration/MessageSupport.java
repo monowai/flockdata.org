@@ -34,6 +34,7 @@ import javax.annotation.PostConstruct;
 /**
  * @author mholdsworth
  * @since 14/02/2016
+ * @tag Json
  */
 @Component
 @Profile({"fd-server"})

@@ -50,11 +50,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Template to support writing Entity and Tag information to a remote FlockData service
- * over various transport mechanisms - RabbitMQ & Http
+ * Functionality for writing Entity and Tag data to a FlockData service
+ * over various transport mechanisms - RabbitMQ & Http are predominately used
  *
  * @see org.flockdata.client.Importer
- * @tag Integration, FdClient
+ * @tag Messaging, FdClient
  * @author mholdsworth
  * @since 13/10/2013
  */
@@ -296,7 +296,7 @@ public class FdTemplate implements FdIoInterface {
 
         }
         if (error) {
-            throw new FlockException(String.format("Failed to validate connectivity to %s for user %s - apiKey set == %b", clientConfiguration.getServiceUrl(), clientConfiguration.getHttpUser(), clientConfiguration.getApiKey() != null));
+            throw new FlockException(String.format("Connectivity failed to %s for user %s - apiKey set == [%b] Without a key track requests will fail", clientConfiguration.getServiceUrl(), clientConfiguration.getHttpUser(), clientConfiguration.isApiKeyValid()));
         }
         return me;
     }

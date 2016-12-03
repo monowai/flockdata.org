@@ -28,6 +28,7 @@ import java.util.Collection;
 /**
  * @author mholdsworth
  * @since 20/07/2015
+ * @tag Contract, Track, Content
  */
 public class TrackRequestResult implements Serializable {
 

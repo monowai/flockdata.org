@@ -42,6 +42,7 @@ import java.sql.SQLException;
  * Kept here for reference only
  * @author mholdsworth
  * @since 28/01/2016
+ * @tag Batch
  */
 @Component
 @Profile({"fd-batch", "fd-batch-dev"})

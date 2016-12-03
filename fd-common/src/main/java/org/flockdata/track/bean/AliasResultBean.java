@@ -25,6 +25,7 @@ import org.flockdata.model.Alias;
 /**
  * @author mholdsworth
  * @since 20/05/2015
+ * @tag Alias, Contract
  */
 public class AliasResultBean {
     private String name;

@@ -38,7 +38,7 @@ import static org.flockdata.test.integration.IntegrationHelper.*;
 public class FdDocker extends ExternalResource {
 
     static DockerComposeContainer stack =
-            new DockerComposeContainer(new File("src/test/resources/int/docker-compose.yml"))
+            new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"))
                     .withPull(false)
                     .withExposedService("rabbit_1", 5672)
                     .withExposedService("rabbit_1", 15672)

@@ -32,7 +32,7 @@ import java.io.IOException;
 /**
  * @author mholdsworth
  * @since 25/11/2014
- * @tag Json, Integration
+ * @tag Json, Messaging
  */
 @Component("jsonToEntityInput")
 public class JsonEntityInputConverter  extends SimpleMessageConverter {

@@ -33,8 +33,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Links an Entity to another Entity with user supplied keys
+ *
  * @author mholdsworth
  * @since 9/07/2014
+ * @tag Track, Contract, EntityKey
  */
 public class EntityKeyBean {
     private String relationshipName; // Entity to Entity relationship name

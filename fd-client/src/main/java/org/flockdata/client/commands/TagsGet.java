@@ -26,7 +26,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
- * Locate a tag
+ * Locate Tags of a specified Label
+ *
+ * @tag Command, Tag, Query
  * @author mholdsworth
  * @since 17/04/2016
  */

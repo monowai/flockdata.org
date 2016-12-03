@@ -26,6 +26,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 /**
  * Wrapper that determines which functionality to inject to respond to the callers request
  * <p>
+ * @tag Command, FdClient, Application
  * @author mholdsworth
  * @since 27/05/2016
  */

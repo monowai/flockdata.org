@@ -12,11 +12,13 @@
         <module>fd-common</module>
         <module>fd-integration</module>
         <module>fd-security</module>
+        <module>fd-client</module>
         <module>fd-engine</module>
         <module>fd-store</module>
         <module>fd-search</module>
-        <module>fd-client</module>
+        <!-- At the end because it contains integration tests -->
         <module>fd-spring</module>
+        <module>fd-test-integration</module>
     </modules>
 
     <properties>
@@ -503,37 +505,11 @@
                             </items>
                         </configuration>
                     </plugin>
-                    <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-scm-plugin</artifactId>-->
-                    <!--<version>1.9.4</version>-->
-                    <!--<dependencies>-->
-                    <!--<dependency>-->
-                    <!--<groupId>org.apache.maven.scm</groupId>-->
-                    <!--<artifactId>maven-scm-provider-gitexe</artifactId>-->
-                    <!--<version>1.9.4</version>-->
-                    <!--</dependency>-->
-                    <!--</dependencies>-->
-                    <!--<configuration>-->
-                    <!--&lt;!&ndash;git describe will error if there is no tag&ndash;&gt;-->
-                    <!--<tag>v${project.version}-${buildNumber}</tag>-->
-                    <!--<connectionType>connection</connectionType>-->
-                    <!--</configuration>-->
-                    <!--<executions>-->
-                    <!--<execution>-->
-                    <!--<id>tag</id>-->
-                    <!--&lt;!&ndash;Binding to install caused it to tag sub-modules&ndash;&gt;-->
-                    <!--&lt;!&ndash;<phase>install</phase>&ndash;&gt;-->
-                    <!--<goals>-->
-                    <!--<goal>tag</goal>-->
-                    <!--</goals>-->
-                    <!--</execution>-->
-                    <!--</executions>-->
-                    <!--</plugin>-->
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>

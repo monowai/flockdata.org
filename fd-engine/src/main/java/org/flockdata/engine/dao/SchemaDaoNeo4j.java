@@ -43,7 +43,7 @@ import java.util.Map;
  * <p>
  * @author mholdsworth
  * @since 3/04/2014
- * @tag neo4j, Repository, Schema
+ * @tag neo4j, Schema, Administration
  */
 @Repository
 public class SchemaDaoNeo4j {

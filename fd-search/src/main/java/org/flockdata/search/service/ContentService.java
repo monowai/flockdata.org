@@ -43,6 +43,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * @author mholdsworth
  * @since 31/08/2016
+ * @tag Structure
  */
 @Service
 public class ContentService {

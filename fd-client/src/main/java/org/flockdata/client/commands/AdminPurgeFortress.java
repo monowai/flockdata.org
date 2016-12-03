@@ -25,9 +25,11 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
- * HealthCheck to a service to see if it can see other services
+ * Purges data in a fortress
+ *
  * @author mholdsworth
  * @since 4/04/2016
+ * @tag Command, Fortress, Administration
  */
 
 public class AdminPurgeFortress extends AbstractRestCommand {

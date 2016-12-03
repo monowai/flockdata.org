@@ -58,7 +58,7 @@ public class AmqpRabbitConfig {
     private String virtualHost;
     @Value("${spring.rabbitmq.port:5672}")
     private Integer rabbitPort;
-    @Value("${persistentDelivery:true}")
+    @Value("${spring.rabbitmq.persistentDelivery:true}")
     private boolean persistentDelivery;
     @Value("${spring.rabbitmq.username:guest}")
     private String rabbitUser;
@@ -157,6 +157,6 @@ public class AmqpRabbitConfig {
 
     @PostConstruct
     public void logStatus() {
-        logger.info("**** FlockData RabbitAMQP configuration deployed");
+        logger.info("**** FlockData RabbitAMQP configuration deployed. rabbit.host set to {}", getHost());
     }
 }

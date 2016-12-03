@@ -27,6 +27,7 @@ import org.flockdata.registration.AliasInputBean;
  *
  * @author mholdsworth
  * @since 3/07/2015
+ * @tag Alias, Contract
  */
 public class AliasPayload {
     String label;

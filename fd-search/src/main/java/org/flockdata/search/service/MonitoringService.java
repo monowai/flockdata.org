@@ -23,12 +23,10 @@ package org.flockdata.search.service;
 import org.flockdata.search.model.PingResult;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.stereotype.Service;
 
 /**
- * @tag Administration
+ * @tag Administration, Messaging
  */
-@Service
 @MessageEndpoint
 public class MonitoringService {
 

@@ -28,6 +28,7 @@ import org.flockdata.track.service.EntityService;
 /**
  * @author mholdsworth
  * @since 10/10/2014
+ * @tag Contract, DocumentType
  */
 public class DocumentTypeInputBean implements MetaDocument{
     private String name;

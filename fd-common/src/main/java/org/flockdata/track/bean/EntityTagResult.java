@@ -29,6 +29,7 @@ import java.util.Map;
 /**
  * @author mholdsworth
  * @since 19/02/2016
+ * @tag Contract, EntityTag, Query
  */
 public class EntityTagResult {
 

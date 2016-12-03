@@ -31,6 +31,7 @@ import org.springframework.stereotype.Repository;
 /**
  * @author mholdsworth
  * @since 20/04/2013
+ * @tag SystemUser, Neo4j,
  */
 @Repository
 public class RegistrationNeo implements RegistrationDao {

@@ -60,7 +60,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author mholdsworth
  * @since 28/04/2013
- * @tag Query,Search
+ * @tag Query, Search, ElasticSearch
  */
 @Repository
 public class QueryDaoES implements QueryDao {

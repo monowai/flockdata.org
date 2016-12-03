@@ -38,7 +38,7 @@ import java.util.Collection;
  *
  * @author mholdsworth
  * @since 27/04/2014
- * @tag EndPoint, Geo, Country
+ * @tag Geo, Country
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/geo")

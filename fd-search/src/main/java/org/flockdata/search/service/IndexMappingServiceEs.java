@@ -59,7 +59,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * <p>
  * @author mholdsworth
  * @since 10/09/2015
- * @tag ElasticSearch
+ * @tag ElasticSearch, Search
  */
 @Service
 @DependsOn("elasticSearchClient")

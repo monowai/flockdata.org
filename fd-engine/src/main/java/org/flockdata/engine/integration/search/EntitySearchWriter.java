@@ -42,7 +42,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Outbound requests sent once the search doc is indexed
- * @tag Messaging, Search, Entity, Configuration, Service
+ * @tag Messaging, Search, Entity
  * @author mholdsworth
  * @since 12/02/2016
  */

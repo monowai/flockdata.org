@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  * <p>
  * @author mholdsworth
  * @since 20/06/2015
- * @tag Repository, Tag, Neo4j
+ * @tag Tag, Neo4j
  */
 
 @Repository

@@ -32,7 +32,7 @@ import java.io.IOException;
 /**
  * @author mholdsworth
  * @since 19/11/2014
- * @Tag Store, Integration, Json
+ * @Tag Store, Messaging, Json
  */
 @Component("jsonToKvContentConverter")
 public class JsonKvContentConverter extends SimpleMessageConverter {

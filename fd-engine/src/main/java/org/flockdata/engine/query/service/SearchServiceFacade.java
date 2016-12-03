@@ -51,6 +51,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
@@ -68,6 +69,7 @@ import java.util.stream.Collectors;
  * @since 4/04/2014
  */
 @Service
+@IntegrationComponentScan
 @Transactional
 public class SearchServiceFacade {
     private final EntityService entityService;

@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author mholdsworth
  * @since 18/06/2013
- * @tag Query, Search, Service
+ * @tag Query, Search, ElasticSearch
  */
 @Service ("queryServiceEs")
 public class QueryServiceEs implements QueryService {

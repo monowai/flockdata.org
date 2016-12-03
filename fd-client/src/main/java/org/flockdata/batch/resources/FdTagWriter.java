@@ -33,14 +33,15 @@ import java.util.List;
  * Batches the item to the payload ready for transmission
  *
  * @author nabil
+ * @tag Tag, Batch, FdClient
  */
 @Component
 @Profile({"fd-batch", "fd-batch-dev"})
 @Service
 public class FdTagWriter implements ItemWriter<TagInputBean> {
 
-    private final PayloadBatcher payloadBatcher;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdTagWriter.class);
+    private final PayloadBatcher payloadBatcher;
 
     @Autowired
     public FdTagWriter(FdIoInterface fdIoInterface, PayloadBatcher payloadBatcher) {

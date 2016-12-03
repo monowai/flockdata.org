@@ -21,7 +21,7 @@ import org.flockdata.client.FdTemplate;
 /**
  * Commands are immutable and re-usable. Ensure your clientConfiguration has been configured prior
  * to object creation
- *
+ * @tag Command, Endpoint
  * @author mholdsworth
  * @since 13/04/2016
  */

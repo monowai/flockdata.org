@@ -45,7 +45,7 @@ import java.util.*;
  * <p>
  * @author mholdsworth
  * @since 28/06/2013
- * @tag neo4j, Entity, Tag, Repository, Track, EntityTag, Geo
+ * @tag neo4j, Entity, Tag, Track, EntityTag, Geo
  */
 @Repository("entityTagDao")
 public class EntityTagDaoNeo {

@@ -40,7 +40,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Put in plaec to enable caching. This could may be serve better as a Neo4j extenstion?
+ * Put in place to enable caching. This could may be serve better as a Neo4j extenstion?
  * @author mholdsworth
  * @since 24/03/2016
  */

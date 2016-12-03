@@ -51,7 +51,6 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -62,7 +61,6 @@ import java.io.IOException;
  * @since 12/04/2014
  * @tag Search, Entity, Messaging
  */
-@Service
 @Transactional
 @MessageEndpoint
 @Configurable
@@ -70,7 +68,7 @@ import java.io.IOException;
 public class WriteSearchChanges {
 
     private final Exchanges exchanges;
-    // We only suppport ElasticSearch
+    // We only support ElasticSearch
     private final SearchWriter searchWriter;
     private final SearchAdmin searchAdmin;
     private final AmqpRabbitConfig rabbitConfig;

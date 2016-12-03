@@ -46,7 +46,7 @@ import static org.flockdata.authentication.FdRoles.FD_ROLE_ADMIN;
 import static org.flockdata.authentication.FdRoles.FD_ROLE_USER;
 
 /**
- * @tag Engine, Configuration, Service
+ * @tag Engine
  * @author mholdsworth
  * @since 29/08/2013
  */

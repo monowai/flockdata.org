@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -51,16 +51,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-@Component
+/**
+ * @tag Riak, Store
+ */
+@Service
 @Profile("riak")
 public class RiakRepo extends AbstractStore {
 
+    static final String bucketType = "default";
     private static Logger logger = LoggerFactory.getLogger(RiakRepo.class);
+    private final IndexManager indexManager;
+    private final FdStoreConfig kvConfig;
     private RiakClient client = null;
+
     @Autowired
-    IndexManager indexManager;
-    @Autowired
-    FdStoreConfig kvConfig;
+    public RiakRepo(IndexManager indexManager, FdStoreConfig kvConfig) {
+        this.indexManager = indexManager;
+        this.kvConfig = kvConfig;
+    }
 
     private RiakClient getClient() throws RiakException, UnknownHostException {
         if (client != null)
@@ -125,8 +133,6 @@ public class RiakRepo extends AbstractStore {
         }
         return null;
     }
-
-    static final String bucketType = "default";
 
     public StoredContent read(LogRequest logRequest) {
         String index = indexManager.toStoreIndex(logRequest.getEntity());

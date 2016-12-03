@@ -25,9 +25,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Provides a JSON Serializable view of a Tag
+ * Provides a JSON Serializable conceptual view of a Tag
  *
  * @author mholdsworth
+ * @tag Contract, Concept, Query
  * @since 20/05/2015
  */
 public class ConceptResultBean {
@@ -35,7 +36,8 @@ public class ConceptResultBean {
     private String name;
     private Collection<RelationshipResultBean> relationships = new ArrayList<>();
 
-    ConceptResultBean(){}
+    ConceptResultBean() {
+    }
 
     public ConceptResultBean(String name) {
         this();
@@ -51,8 +53,8 @@ public class ConceptResultBean {
     }
 
     public ConceptResultBean addRelationship(RelationshipResultBean relationship) {
-        if ( !relationships.contains(relationship))
-            relationships.add( relationship);
+        if (!relationships.contains(relationship))
+            relationships.add(relationship);
         return this;
     }
 

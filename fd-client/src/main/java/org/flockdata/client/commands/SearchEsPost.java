@@ -31,6 +31,8 @@ import java.util.Map;
 
 /**
  * Passthrough query to ES
+ *
+ * @tag Command, Search, Query
  * @author mholdsworth
  * @since 17/04/2016
  */

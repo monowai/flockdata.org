@@ -27,7 +27,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
- * Locate a tag
+ * Locate an Entity by either it's key or the fortress/type/code strategy
+ *
+ * @tag Command, Entity, Track
  * @author mholdsworth
  * @since 17/04/2016
  */

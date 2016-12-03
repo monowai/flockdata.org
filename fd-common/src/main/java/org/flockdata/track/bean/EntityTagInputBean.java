@@ -29,7 +29,7 @@ import org.flockdata.model.Tag;
  * <p/>
  * @author mholdsworth
  * @since 28/06/2013
- * @tag Payload, Tag, Entity
+ * @tag Contract, Tag, Entity, Geo
  */
 public class EntityTagInputBean{
     private String tagCode;

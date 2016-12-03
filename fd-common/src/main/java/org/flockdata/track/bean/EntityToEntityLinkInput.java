@@ -32,7 +32,7 @@ import java.util.Map;
  * Used to handle cross references from a source Entity through to a collection of named references
  * @author mholdsworth
  * @since 2/04/2014
- * @tag Payload, Entity, Relationship
+ * @tag Contract, Entity, Relationship
  */
 public class EntityToEntityLinkInput {
     Map<String,List<EntityKeyBean>>references;

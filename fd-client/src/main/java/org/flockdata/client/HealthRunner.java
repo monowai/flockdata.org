@@ -19,7 +19,6 @@ package org.flockdata.client;
 import org.flockdata.client.commands.Health;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.registration.RegistrationBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,24 +31,16 @@ import org.springframework.context.annotation.Profile;
 import javax.annotation.PostConstruct;
 
 /**
- * General importer with support for CSV and XML parsing. Interacts with AbRestClient to send
- * information via a RESTful interface
- * <p>
- * Will send information to FlockData as either tags or track information.
- * <p>
- * You should extend EntityInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
- * to massage your data prior to dispatch to FD.
- * <p>
- * Parameters:
- * -s=http://localhost:8080
- * <p>
- * quoted string containing "file,DelimitedClass,BatchSize"
- * "./path/to/file/cow.csv,org.flockdata.health.Countries,200"
- * <p>
- * if BatchSize is set to -1, then a simulation only is run; information is not dispatched to the server.
- * This is useful to debug the class implementing Delimited
+ * Dispatches a Health command to verify inter-service connectivity based on requested
+ * settings
  *
- * @see RegistrationBean
+ * User must be a SystemUser. Key env variables are:
+ *  auth.user - who:password, i.e demo:123
+ *  org.fd.engine.api = e.g. http://localhost:8080
+ *
+ *
+ *
+ * @tag Command, FdClient, Administration
  * @see org.flockdata.registration.SystemUserResultBean
  * @see ClientConfiguration
  * <p>
@@ -59,10 +50,10 @@ import javax.annotation.PostConstruct;
 @Profile("fd-health")
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"org.flockdata.authentication", "org.flockdata.shared", "org.flockdata.client"})
+@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.authentication", "org.flockdata.client"})
 public class HealthRunner {
 
-    @Value("${auth.@author #{null}}")
+    @Value("${auth.user:#{null}}")
     String authUser;
     private Logger logger = LoggerFactory.getLogger(HealthRunner.class);
     @Autowired

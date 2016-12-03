@@ -27,8 +27,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
- * HTTP login
+ * Logs the user into the FlockData service in order to make authorised calls
  * <p>
+ * @tag Command, Security
  * @author mholdsworth
  * @since 4/04/2016
  */

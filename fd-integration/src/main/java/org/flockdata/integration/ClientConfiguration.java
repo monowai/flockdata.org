@@ -282,4 +282,8 @@ public class ClientConfiguration {
         this.httpPass = httpPass;
         return this;
     }
+
+    public boolean isApiKeyValid() {
+        return !(apiKey == null || apiKey.isEmpty());
+    }
 }

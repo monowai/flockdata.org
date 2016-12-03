@@ -26,6 +26,7 @@ import java.util.Collection;
 /**
  * @author mholdsworth
  * @since 29/06/2015
+ * @tag Contract, Query, Entity
  */
 public class EntityResults {
 

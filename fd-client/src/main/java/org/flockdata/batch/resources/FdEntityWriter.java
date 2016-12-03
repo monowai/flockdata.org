@@ -33,6 +33,7 @@ import java.util.List;
  * Batches the item to the payload ready for transmission
  *
  * @author nabil
+ * @tag FdClient, Batch, Entity
  */
 @Component
 @Profile({"fd-batch", "fd-batch-dev"})
@@ -40,9 +41,8 @@ import java.util.List;
 public class FdEntityWriter implements ItemWriter<EntityInputBean> {
 
 
-    private PayloadBatcher payloadBatcher;
-
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdEntityWriter.class);
+    private PayloadBatcher payloadBatcher;
 
     private FdEntityWriter() {
     }

@@ -75,7 +75,7 @@ import java.util.List;
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class Importer  {
 
-    @Value("${auth.@author #{null}}")
+    @Value("${auth.user:#{null}}")
     String authUser;
     @Value("${fd.client.delimiter:,}")
     String delimiter;

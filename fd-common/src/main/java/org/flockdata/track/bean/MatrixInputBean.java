@@ -25,7 +25,7 @@ import java.util.ArrayList;
 /**
  * @author mholdsworth
  * @since 12/06/2014
- * @tag Payload, Matrix, Query
+ * @tag Contract, Matrix, Query
  */
 public class MatrixInputBean {
     private ArrayList<String> documents = null;

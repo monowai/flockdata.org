@@ -18,7 +18,6 @@ package org.flockdata.client;
 
 import org.flockdata.client.commands.Ping;
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.registration.RegistrationBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,26 +29,10 @@ import org.springframework.context.annotation.Profile;
 import javax.annotation.PostConstruct;
 
 /**
- * General importer with support for CSV and XML parsing. Interacts with AbRestClient to send
- * information via a RESTful interface
- * <p>
- * Will send information to FlockData as either tags or track information.
- * <p>
- * You should extend EntityInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
- * to massage your data prior to dispatch to FD.
- * <p>
- * Parameters:
- * -s=http://localhost:8080
- * <p>
- * quoted string containing "file,DelimitedClass,BatchSize"
- * "./path/to/file/cow.csv,org.flockdata.health.Countries,200"
- * <p>
- * if BatchSize is set to -1, then a simulation only is run; information is not dispatched to the server.
- * This is useful to debug the class implementing Delimited
+ * Pings the service and outputs the connectivity results
  *
- * @see RegistrationBean
- * @see org.flockdata.registration.SystemUserResultBean
- * @see ClientConfiguration
+ * @tag Command, FdClient
+ * @see org.flockdata.integration.ClientConfiguration
  * <p>
  * @author mholdsworth
  * @since 13/10/2013
@@ -57,7 +40,7 @@ import javax.annotation.PostConstruct;
 @Profile("fd-ping")
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"org.flockdata.authentication", "org.flockdata.shared", "org.flockdata.client"})
+@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.authentication", "org.flockdata.client"})
 public class PingRunner {
 
     private Logger logger = LoggerFactory.getLogger(PingRunner.class);

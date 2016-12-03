@@ -67,6 +67,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
+ * @tag Test, ElasticSearch, Search
  * @author mholdsworth
  * @since 15/08/2014
  */

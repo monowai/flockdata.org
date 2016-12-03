@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @tag Geo, Service, Neo4j
+ * @tag Geo, Neo4j
  */
 @Service
 public class GeoSupportNeo {

@@ -58,7 +58,7 @@ import java.util.*;
  * <p/>
  * @author mholdsworth
  * @since 19/06/2015
- * @tag Neo4j, Repository, Concept
+ * @tag Neo4j, Concept, Tag
  */
 @Repository
 public class ConceptDaoNeo {

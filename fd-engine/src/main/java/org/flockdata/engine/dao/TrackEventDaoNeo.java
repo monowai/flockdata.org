@@ -35,7 +35,7 @@ import java.util.Set;
 /**
  * @author mholdsworth
  * @since 28/06/2013
- * @tag Repository, Track, Neo4j, Event
+ * @tag Neo4j, Event
  */
 @Repository
 public class TrackEventDaoNeo implements TrackEventDao {

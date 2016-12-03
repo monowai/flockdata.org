@@ -26,7 +26,6 @@ import org.flockdata.search.model.QueryParams;
 import org.flockdata.store.service.FdStoreConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.integration.annotation.Gateway;
@@ -42,6 +41,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
 
 /**
  * Pulls the "data" block from ElasticSearch
@@ -49,13 +49,17 @@ import org.springframework.retry.annotation.Retryable;
  * @since 13/02/2016
  */
 
-@Configuration
 @IntegrationComponentScan
+@Service
 @Profile({"fd-server"})
 public class EsStoreRequest extends AbstractIntegrationRequest {
 
+    private final FdStoreConfig kvConfig;
+
     @Autowired
-    FdStoreConfig kvConfig;
+    public EsStoreRequest(FdStoreConfig kvConfig) {
+        this.kvConfig = kvConfig;
+    }
 
     @Bean
     MessageChannel receiveContentReply() {

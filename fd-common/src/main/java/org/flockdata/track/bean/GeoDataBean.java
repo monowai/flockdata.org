@@ -29,7 +29,7 @@ import java.util.Map;
  * Geographic type data
  * @author mholdsworth
  * @since 28/02/2014
- * @tag Payload, Geo
+ * @tag Contract, Geo
  */
 public class GeoDataBean {
 

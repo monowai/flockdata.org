@@ -21,11 +21,11 @@
 package org.flockdata.engine.admin.service;
 
 import org.flockdata.search.model.PingResult;
+import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.stereotype.Service;
 
-@Service
+@IntegrationComponentScan
 @MessageEndpoint
 public class MonitoringService {
 

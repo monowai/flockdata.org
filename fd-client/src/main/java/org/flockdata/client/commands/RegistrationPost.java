@@ -29,6 +29,7 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * Handles the RegistrationInputBean through to Flockdata
  *
+ * @tag Command, SystemUser, Security, Administration
  * @author mholdsworth
  * @since 13/04/2016
  */

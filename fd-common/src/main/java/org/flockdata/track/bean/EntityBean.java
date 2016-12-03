@@ -31,6 +31,7 @@ import java.util.Map;
 /**
  * @author mholdsworth
  * @since 17/11/2014
+ * @tag Contract, Track, Entity
  */
 public class EntityBean implements Serializable {
 

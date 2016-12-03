@@ -38,6 +38,7 @@ import java.util.Collection;
  * <p/>
  * @author mholdsworth
  * @since 11/05/2013
+ * @tag Contract, Track, Entity
  */
 public class TrackResultBean implements Serializable {
     boolean entityExisted = false;

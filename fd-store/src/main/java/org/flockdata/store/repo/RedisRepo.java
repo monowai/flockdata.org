@@ -29,19 +29,27 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.Date;
 
-@Component
+/**
+ * @tag Redis, Store
+ */
+
+@Service
 @Profile("redis")
 public class RedisRepo extends AbstractStore {
 
-    @Autowired
-    private RedisTemplate<Object, byte[]> template;
     private static Logger logger = LoggerFactory.getLogger(AbstractStore.class);
+    private final RedisTemplate<Object, byte[]> template;
+
+    @Autowired
+    public RedisRepo(RedisTemplate<Object, byte[]> template) {
+        this.template = template;
+    }
 
     public void add(StoredContent storedContent) throws IOException {
 

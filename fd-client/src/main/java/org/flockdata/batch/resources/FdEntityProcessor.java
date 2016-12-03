@@ -32,6 +32,7 @@ import java.util.Map;
 
 /**
  * @author nabil
+ * @tag Entity, Batch
  */
 @Component
 @Profile({"fd-batch", "fd-batch-dev"})

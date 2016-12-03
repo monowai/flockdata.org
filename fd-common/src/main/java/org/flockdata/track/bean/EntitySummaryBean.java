@@ -30,6 +30,7 @@ import java.util.Set;
 /**
  * @author mholdsworth
  * @since 25/08/2013
+ * @tag Contract, Track, Entity, Query
  */
 public class EntitySummaryBean {
     private Entity entity;
