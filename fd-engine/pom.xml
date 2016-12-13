@@ -342,14 +342,14 @@
                             <goal>test-jar</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>make-engine-jar</id>
-                        <!-- ToDo package? -->
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
+                    <!--<execution>-->
+                    <!--<id>make-engine-jar</id>-->
+                    <!--&lt;!&ndash; ToDo package? &ndash;&gt;-->
+                    <!--<phase>compile</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>jar</goal>-->
+                    <!--</goals>-->
+                    <!--</execution>-->
 
                 </executions>
             </plugin>

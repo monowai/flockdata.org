@@ -198,10 +198,16 @@
                     </execution>
                     <execution>
                         <id>make-client-jar</id>
-                        <phase>compile</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                        <configuration>
+                            <classifier>client</classifier>
+                            <includes>
+                                <include>org/flockdata/**</include>
+                            </includes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
