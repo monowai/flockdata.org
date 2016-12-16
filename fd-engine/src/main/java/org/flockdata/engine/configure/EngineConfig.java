@@ -31,8 +31,6 @@ import org.flockdata.model.Company;
 import org.flockdata.store.Store;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.endpoint.InfoEndpoint;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -166,11 +164,6 @@ public class EngineConfig implements PlatformConfig {
     @Secured({FD_ROLE_ADMIN, FD_ROLE_USER})
     public Map<String, String> getHealthAuth() {
         return getHealth();
-    }
-
-    @Bean
-    public InfoEndpoint infoEndpoint() {
-        return new InfoEndpoint(getHealth());
     }
 
     /**

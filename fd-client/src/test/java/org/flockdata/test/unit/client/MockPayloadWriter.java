@@ -16,7 +16,10 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.integration.FdBatchWriter;
+import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.FdPayloadWriter;
+import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -24,15 +27,20 @@ import org.springframework.stereotype.Service;
  * To support unit testing. The entities and tags are not flushed so that the
  * transformed results can be validated by a test
  *
- * User must call reset() to clear down any cached data
+ * User can call reset() to clear down cached data
  *
  * @tag Rest, Test, Integration
  * @author mholdsworth
  * @since 13/04/2016
  */
-@Profile("fd-batch-dev")
+@Profile("dev")
 @Service
-public class MockPayloadBatchWriter extends FdBatchWriter{
+public class MockPayloadWriter extends FdPayloadWriter {
+
+    @Autowired
+    public MockPayloadWriter(ClientConfiguration clientConfiguration, FdIoInterface fdIoInterface) {
+        super(clientConfiguration, fdIoInterface);
+    }
 
     @Override
     public void flush(){

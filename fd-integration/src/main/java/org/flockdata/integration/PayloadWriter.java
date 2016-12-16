@@ -18,7 +18,7 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform;
+package org.flockdata.integration;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.TagInputBean;
@@ -37,7 +37,7 @@ import java.util.List;
  * @since 5/03/2016
  * @see FdPayloadWriter
  */
-public interface PayloadBatcher {
+public interface PayloadWriter {
 
     /**
      * @param tagInputBean payload

@@ -31,8 +31,6 @@ import org.flockdata.search.configure.SearchConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.InfoEndpoint;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
@@ -82,11 +80,6 @@ public class SearchAdmin {
 
         return healthResults;
 
-    }
-
-    @Bean
-    public InfoEndpoint infoEndpoint() {
-        return new InfoEndpoint(getHealth());
     }
 
     public void deleteIndexes (Collection<String>indexesToDelete){

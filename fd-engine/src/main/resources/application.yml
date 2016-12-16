@@ -21,11 +21,9 @@ security:
 
 eureka:
   client:
-    healthcheck:
-      enabled: false
     serviceUrl:
       defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
-    enabled: false
+#    enabled: false
 spring:
   application:
     name: fd-engine
@@ -36,9 +34,10 @@ spring:
   profiles:
     active: fd-auth-test
     include: fd-server,fd-batch
-  cloud:
-    discovery:
-      enabled: false
+#  Run with the "discovery" profile active to connect
+#  cloud:
+#    discovery:
+#      enabled: false
   messages:
     encoding: UTF-8
   jackson:

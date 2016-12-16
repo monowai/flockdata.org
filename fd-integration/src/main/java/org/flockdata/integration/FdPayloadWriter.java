@@ -24,7 +24,6 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
-import org.flockdata.transform.PayloadBatcher;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -42,33 +41,25 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Service
 @Configuration
-@Profile({"fd-batch", "fd-importer"})
-public class FdBatchWriter implements PayloadBatcher {
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdBatchWriter.class);
+@Profile({"fd-batch", "fd-client"})
+public class FdPayloadWriter implements PayloadWriter {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdPayloadWriter.class);
     private final Lock entityLock = new ReentrantLock();
     private final Lock tagLock = new ReentrantLock();
     private List<EntityInputBean> entityBatch = new ArrayList<>();
     private Map<String, TagInputBean> tagBatch = new HashMap<>();
-    @Autowired
     private ClientConfiguration clientConfiguration;
 
-    @Autowired(required = false)
-    private FdIoInterface fdIoInterface;   // Misc impls provided in fd-client, fd-engine etc.
+    private FdIoInterface fdIoInterface;
 
-    protected FdBatchWriter () {}
+    protected FdPayloadWriter() {
+    }
 
-    /**
-     * POJO configuration approach
-     *
-     * @param writer        writer to send payloads to
-     * @param configuration configuration properties
-     */
-    public FdBatchWriter(FdIoInterface writer, ClientConfiguration configuration) {
-        this();
-        this.clientConfiguration = configuration;
-        this.fdIoInterface = writer;
+    @Autowired
+    public FdPayloadWriter(ClientConfiguration clientConfiguration, FdIoInterface fdIoInterface) {
+        this.clientConfiguration = clientConfiguration;
+        this.fdIoInterface = fdIoInterface;
         logger.info("Configuration {}", clientConfiguration);
-
     }
 
     @Override
@@ -85,7 +76,6 @@ public class FdBatchWriter implements PayloadBatcher {
     public void writeEntity(EntityInputBean entityInputBean) throws FlockException {
         writeEntity(entityInputBean, false);
     }
-
 
     @Override
     public void writeEntity(EntityInputBean entityInputBean, boolean doWrite) throws FlockException {

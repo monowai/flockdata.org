@@ -20,8 +20,12 @@
 
 package org.flockdata.search.configure;
 
+import org.flockdata.search.service.SearchAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.info.Info;
+import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -35,13 +39,26 @@ import javax.annotation.PostConstruct;
 @EnableDiscoveryClient
 @Configuration
 @Profile("discovery")
-public class DiscoveryConfiguration {
+public class DiscoveryConfiguration implements InfoContributor {
 
+    private final SearchAdmin searchAdmin;
     private Logger logger = LoggerFactory.getLogger("configuration");
+
+    @Autowired
+    public DiscoveryConfiguration(SearchAdmin searchAdmin) {
+        this.searchAdmin = searchAdmin;
+    }
 
     @PostConstruct
     public void logStatus() {
         logger.info("**** Discovery Configuration Client configuration deployed");
+    }
+
+    @Override
+    public void contribute(Info.Builder builder) {
+        builder.withDetail("health",
+                searchAdmin.getHealth());
+
     }
 
 }

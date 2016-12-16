@@ -37,7 +37,6 @@ import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityToEntityLinkInput;
-import org.flockdata.transform.PayloadBatcher;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.Transformer;
 import org.flockdata.transform.xml.XmlMappable;
@@ -79,8 +78,7 @@ public class FileProcessor {
     private static final DecimalFormat formatter = new DecimalFormat();
     private static final ExpressionParser parser = new SpelExpressionParser();
     static StandardEvaluationContext context = new StandardEvaluationContext();
-    @Autowired (required = false)
-    private PayloadBatcher payloadBatcher;
+    private PayloadWriter payloadWriter;
     private long skipCount, rowsToProcess = 0;
 
     public FileProcessor() {
@@ -90,6 +88,11 @@ public class FileProcessor {
     public FileProcessor(int skipCount, int rowsToProcess) {
         this.skipCount = skipCount;
         this.rowsToProcess = rowsToProcess;
+    }
+
+    @Autowired(required = false)
+    public FileProcessor(PayloadWriter payloadWriter) {
+        this.payloadWriter = payloadWriter;
     }
 
     private static String[] preProcess(String[] row, ExtractProfile extractProfile) {
@@ -210,7 +213,7 @@ public class FileProcessor {
             }
         } finally {
             if (result > 0) {
-                getPayloadBatcher().flush();
+                getPayloadWriter().flush();
             }
         }
 
@@ -241,7 +244,7 @@ public class FileProcessor {
             else
                 tags = mapper.readValue(stream, collType);
             for (TagInputBean tag : tags) {
-                getPayloadBatcher().writeTag(tag, "JSON Tag Importer");
+                getPayloadWriter().writeTag(tag, "JSON Tag Importer");
                 processed++;
             }
 
@@ -250,7 +253,7 @@ public class FileProcessor {
             throw new RuntimeException("IO Exception ", e);
         } finally {
             if (processed > 0L)
-                getPayloadBatcher().flush();
+                getPayloadWriter().flush();
 
         }
         return tags.size();
@@ -319,7 +322,7 @@ public class FileProcessor {
 
 
         } finally {
-            getPayloadBatcher().flush();
+            getPayloadWriter().flush();
         }
 
         return endProcess(watch, rows, 0);
@@ -332,7 +335,7 @@ public class FileProcessor {
             entityInputBean.getEntityLinks().size();
         }
 
-        getPayloadBatcher().writeEntity(entityInputBean);
+        getPayloadWriter().writeEntity(entityInputBean);
 
     }
 
@@ -355,7 +358,7 @@ public class FileProcessor {
                     EntityInputBean entityInputBean = Transformer.toEntity(mappable, xsr, extractProfile.getContentModel());
                     rows++;
                     xsr.nextTag();
-                    getPayloadBatcher().writeEntity(entityInputBean);
+                    getPayloadWriter().writeEntity(entityInputBean);
 
                     if (stopProcessing(rows, then)) {
                         break;
@@ -363,7 +366,7 @@ public class FileProcessor {
 
                 }
             } finally {
-                getPayloadBatcher().flush();
+                getPayloadWriter().flush();
             }
             return endProcess(watch, rows, 0);
 
@@ -426,13 +429,13 @@ public class FileProcessor {
                             if (extractProfile.getContentModel().isTagModel() ) {
                                 Collection<TagInputBean> tagInputBean = Transformer.toTags(map, extractProfile.getContentModel());
                                 if (tagInputBean != null) {
-                                    getPayloadBatcher().writeTags(tagInputBean, "TagInputBean");
+                                    getPayloadWriter().writeTags(tagInputBean, "TagInputBean");
                                 }
                             } else {
                                 EntityInputBean entityInputBean = Transformer.toEntity(map, extractProfile.getContentModel());
                                 // Dispatch/load mechanism
                                 if (entityInputBean != null)
-                                    getPayloadBatcher().writeEntity(entityInputBean);
+                                    getPayloadWriter().writeEntity(entityInputBean);
                             }
                             if (stopProcessing(currentRow, then)) {
                                 break;
@@ -445,7 +448,7 @@ public class FileProcessor {
             }
         } finally {
 
-            getPayloadBatcher().flush();
+            getPayloadWriter().flush();
             br.close();
         }
 
@@ -501,11 +504,11 @@ public class FileProcessor {
         return rows;
     }
 
-    private PayloadBatcher getPayloadBatcher() {
-        if (payloadBatcher == null ){
+    private PayloadWriter getPayloadWriter() {
+        if (payloadWriter == null) {
             logger.error("You are trying to use the FileProcessor but no FdBatcher has been configured for this service");
             throw new RuntimeException("Attempted use of the FileProcessor with no FdBatcher");
         }
-        return payloadBatcher;
+        return payloadWriter;
     }
 }

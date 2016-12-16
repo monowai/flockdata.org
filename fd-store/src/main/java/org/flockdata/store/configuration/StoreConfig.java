@@ -27,10 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.endpoint.InfoEndpoint;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -65,12 +62,6 @@ class StoreConfig implements FdStoreConfig {
 
     public String riakHosts() {
         return riakHosts;
-    }
-
-    @Bean
-    @Profile("eureka")
-    public InfoEndpoint infoEndpoint() {
-        return new InfoEndpoint(health());
     }
 
     /**
