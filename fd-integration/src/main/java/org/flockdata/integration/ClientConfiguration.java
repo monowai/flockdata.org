@@ -170,9 +170,15 @@ public class ClientConfiguration {
     @Override
     @PostConstruct
     public String toString() {
-        return "ConfigProperties{" +
+        String auth;
+        if (apiKey != null && !apiKey.isEmpty())
+            auth = KEY_API_KEY + "='" + "** set **";
+        else
+            auth = KEY_HTTP_USER + "='" + httpUser;
+
+        return "ClientConfiguration{" +
                 ""+ KEY_ENGINE_API +"='" + engineUrl + '\'' +
-                ", "+ KEY_API_KEY +"='" + ( !(apiKey!=null && apiKey.equals("")) ?"** set **": "!! not set !!")+ '\'' +
+                ", " + auth + '\'' +
                 ", "+ KEY_BATCH_SIZE +"=" + batchSize +
                 '}';
     }

@@ -27,7 +27,6 @@ import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +34,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Rabbit MQ / AMQP Configuration and channel initialization
@@ -46,11 +47,11 @@ import javax.annotation.PostConstruct;
 
 @Configuration
 @IntegrationComponentScan
-@Profile({"fd-server"})
+@Profile({"fd-server", "fd-client"})
 public class AmqpRabbitConfig {
 
-    @Autowired
-    Exchanges exchanges;
+    @Value("${org.fd.messaging.exchange:fd-dlx}")
+    public String fdExchangeDlxName;
     private Logger logger = LoggerFactory.getLogger("configuration");
     @Value("${spring.rabbitmq.host:localhost}")
     private String rabbitHost;
@@ -74,6 +75,33 @@ public class AmqpRabbitConfig {
     private Boolean amqpLazyConnect;
     @Value("${amqp.channelCacheSize:25}")
     private int channelCacheSize;
+
+    /**
+     * failure to bind with consistent features can create new queues
+     *
+     * @return standard features used across FlockData work queues
+     */
+    public Map<String, Object> getFdQueueFeatures() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("x-dead-letter-exchange", fdExchangeDlxName());
+        return params;
+    }
+
+
+    private ConnectionFactory setConnectionProperties(CachingConnectionFactory connectionFactory) {
+        logger.info("**** rabbitmq.host: [{}], rabbitmq.port [{}], rabbitmq.virtual-host [{}], rabbitmq.username [{}]", rabbitHost, rabbitPort, virtualHost, rabbitUser);
+
+        // First load or a refresh
+        connectionFactory.setHost(getHost());
+        connectionFactory.setPort(getPort());
+        connectionFactory.setUsername(getUser());
+        connectionFactory.setPassword(getPass());
+        connectionFactory.setPublisherConfirms(getPublisherConfirms());
+        connectionFactory.setPublisherReturns(getPublisherReturns());
+        connectionFactory.setChannelCacheSize(getChannelCacheSize());
+        connectionFactory.setVirtualHost(getVirtualHost());
+        return connectionFactory;
+    }
 
     public Boolean getAmqpLazyConnect() {
         return amqpLazyConnect;
@@ -140,20 +168,10 @@ public class AmqpRabbitConfig {
         return setConnectionProperties(new CachingConnectionFactory());
     }
 
-    private ConnectionFactory setConnectionProperties(CachingConnectionFactory connectionFactory) {
-        logger.info("**** rabbitmq.host: [{}], rabbitmq.port [{}], rabbitmq.virtual-host [{}], rabbitmq.username [{}]", rabbitHost, rabbitPort, virtualHost, rabbitUser);
-
-        // First load or a refresh
-        connectionFactory.setHost(getHost());
-        connectionFactory.setPort(getPort());
-        connectionFactory.setUsername(getUser());
-        connectionFactory.setPassword(getPass());
-        connectionFactory.setPublisherConfirms(getPublisherConfirms());
-        connectionFactory.setPublisherReturns(getPublisherReturns());
-        connectionFactory.setChannelCacheSize(getChannelCacheSize());
-        connectionFactory.setVirtualHost(getVirtualHost());
-        return connectionFactory;
+    public String fdExchangeDlxName() {
+        return fdExchangeDlxName;
     }
+
 
     @PostConstruct
     public void logStatus() {

@@ -40,7 +40,7 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
 
@@ -52,13 +52,13 @@ import static org.springframework.test.util.AssertionErrors.fail;
  * @author mholdsworth
  * @since 27/03/2015
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringApplicationConfiguration(FdSearch.class)
 @ActiveProfiles({"dev"})
 public class TestDataTypes extends ESBase {
 
     @Autowired
-    EntityChangeWriter searchRepo;
+    private EntityChangeWriter searchRepo;
 
     @Test (expected =AmqpRejectAndDontRequeueException.class )
     public void validate_MismatchSubsequentValue() throws Exception{

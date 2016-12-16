@@ -29,7 +29,7 @@ import org.flockdata.search.model.SearchChanges;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,7 +40,7 @@ import java.util.Collection;
  * @since 23/10/2015
  */
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringApplicationConfiguration(FdSearch.class)
 public class TestSegmentIndexes extends ESBase {
     /**

@@ -37,6 +37,7 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -50,15 +51,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Functionality for writing Entity and Tag data to a FlockData service
+ * Encapsulates Entity and Tag data requests to a FlockData service
  * over various transport mechanisms - RabbitMQ & Http are predominately used
  *
- * @see org.flockdata.client.Importer
  * @tag Messaging, FdClient
  * @author mholdsworth
  * @since 13/10/2013
  */
 @Service
+@Profile("fd-client")
 public class FdTemplate implements FdIoInterface {
 
     private static boolean compress = true;

@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,11 +33,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * Centralised queues etc.
+ * Centralised integration configurations for serverside services
  *
  * @author mholdsworth
  * @since 12/02/2016
@@ -47,8 +46,6 @@ public class Exchanges {
 
     @Value("${org.fd.messaging.exchange:fd}")
     public String fdExchangeName;
-    @Value("${org.fd.messaging.exchange:fd-dlx}")
-    public String fdExchangeDlxName;
     private Logger logger = LoggerFactory.getLogger("configuration");
     @Value("${org.fd.search.messaging.dlx.queue:fd.search.dlx.queue}")
     private String searchDlx;
@@ -110,12 +107,15 @@ public class Exchanges {
     @Value("${org.fd.store.messaging.prefetchCount:3}")
     private int storePreFetchCount;
 
-    public String fdExchangeName() {
-        return fdExchangeName;
+    private AmqpRabbitConfig rabbitConfig;
+
+    @Autowired
+    void setAmqpRabbitConfig(AmqpRabbitConfig rabbitConfig) {
+        this.rabbitConfig = rabbitConfig;
     }
 
-    private String fdExchangeDlxName() {
-        return fdExchangeDlxName;
+    public String fdExchangeName() {
+        return fdExchangeName;
     }
 
     public String searchBinding() {
@@ -163,17 +163,6 @@ public class Exchanges {
         return searchPreFetchCount;
     }
 
-    /**
-     * failure to bind with consistent features can create new queues
-     *
-     * @return  standard features used across FlockData work queues
-     */
-    public Map<String,Object> getFdQueueFeatures() {
-        Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", fdExchangeDlxName);
-        return params;
-    }
-
     @Bean
     public Exchange fdExchange() {
         return new DirectExchange(fdExchangeName());
@@ -181,27 +170,27 @@ public class Exchanges {
 
     @Bean
     public Exchange fdExchangeDlx() {
-        return new DirectExchange(fdExchangeDlxName());
+        return new DirectExchange(rabbitConfig.fdExchangeDlxName());
     }
 
     @Bean
     public Queue fdTrackQueue() {
-        return new Queue(trackQueue, true, false, false, getFdQueueFeatures());
+        return new Queue(trackQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
     }
 
     @Bean
     public Queue fdStoreQueue() {
-        return new Queue(storeQueue, true, false, false, getFdQueueFeatures());
+        return new Queue(storeQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
     }
 
     @Bean
     public Queue fdSearchQueue() {
-        return new Queue(searchQueue, true, false, false, getFdQueueFeatures());
+        return new Queue(searchQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
     }
 
     @Bean
     public Queue fdEngineQueue() {
-        return new Queue(engineQueue, true, false, false, getFdQueueFeatures());
+        return new Queue(engineQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
     }
 
     @Bean
@@ -273,7 +262,7 @@ public class Exchanges {
     RetryOperationsInterceptor trackInterceptor(AmqpTemplate amqpTemplate) {
         return RetryInterceptorBuilder.stateless()
                 .maxAttempts(1)
-                .recoverer(new RepublishMessageRecoverer(amqpTemplate, fdExchangeDlxName(), trackQueue))
+                .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), trackQueue))
                 .build();
     }
 
@@ -282,7 +271,7 @@ public class Exchanges {
     RetryOperationsInterceptor searchInterceptor(AmqpTemplate amqpTemplate) {
         return RetryInterceptorBuilder.stateless()
                 .maxAttempts(2)
-                .recoverer(new RepublishMessageRecoverer(amqpTemplate, fdExchangeDlxName(), searchQueue))
+                .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), searchQueue))
                 .build();
     }
 
@@ -290,7 +279,7 @@ public class Exchanges {
     RetryOperationsInterceptor storeInterceptor(AmqpTemplate amqpTemplate) {
         return RetryInterceptorBuilder.stateless()
                 .maxAttempts(2)
-                .recoverer(new RepublishMessageRecoverer(amqpTemplate, fdExchangeDlxName(), storeQueue))
+                .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), storeQueue))
                 .build();
     }
 

@@ -33,5 +33,5 @@ java  "-Dfile.encoding=UTF8" \
     -jar $FD_JAR \
     $FD_ARGS \
     "-Dlogging.config=$FD_BASE/conf/log4j2.yml" \
-    --fd.client.import="/fd-cow.txt,/countries.json;/states.csv,/states.json"
+    --fd.client.import="/opt/flockdata/data/fd-cow.txt,/opt/flockdata/model/countries.json;/opt/flockdata/data/states.csv,/opt/flockdata/model/states.json"
 

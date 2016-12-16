@@ -51,6 +51,13 @@
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
+            <artifactId>fd-client</artifactId>
+            <type>test-jar</type>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.flockdata</groupId>
             <artifactId>fd-integration</artifactId>
             <version>${project.version}</version>
         </dependency>

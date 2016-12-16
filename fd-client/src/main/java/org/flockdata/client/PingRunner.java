@@ -43,14 +43,15 @@ import javax.annotation.PostConstruct;
 @ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.authentication", "org.flockdata.client"})
 public class PingRunner {
 
+    private final ClientConfiguration clientConfiguration;
+    private final FdTemplate fdTemplate;
     private Logger logger = LoggerFactory.getLogger(PingRunner.class);
 
-
     @Autowired
-    private ClientConfiguration clientConfiguration;
-
-    @Autowired
-    private FdTemplate fdTemplate;
+    public PingRunner(ClientConfiguration clientConfiguration, FdTemplate fdTemplate) {
+        this.clientConfiguration = clientConfiguration;
+        this.fdTemplate = fdTemplate;
+    }
 
     @PostConstruct
     void register() {

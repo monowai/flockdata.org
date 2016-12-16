@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,7 +47,7 @@ import static org.junit.Assert.assertNotNull;
  * @author mholdsworth
  * @since 28/05/2015
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringApplicationConfiguration(FdSearch.class)
 public class TestAutoComplete extends ESBase{
 

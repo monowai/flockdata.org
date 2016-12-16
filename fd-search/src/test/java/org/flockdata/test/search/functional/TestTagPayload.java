@@ -24,14 +24,14 @@ import org.flockdata.search.FdSearch;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author mholdsworth
  * @since 19/08/2015
  */
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringApplicationConfiguration(FdSearch.class)
 public class TestTagPayload extends ESBase {
 

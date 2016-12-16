@@ -5,7 +5,7 @@ server:
 
 spring:
   profiles:
-    active: fd-server
+    active: fd-client
     # include: fd-batch  #Enable this if you want spring batch support in your project
   rabbitmq:
     password: guest

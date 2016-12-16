@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
@@ -37,7 +38,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.util.StopWatch;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Arrays;
@@ -73,7 +73,7 @@ import java.util.List;
 @Configuration
 @ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.client"})
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
-public class Importer  {
+public class Importer implements CommandLineRunner {
 
     @Value("${auth.user:#{null}}")
     String authUser;
@@ -111,8 +111,9 @@ public class Importer  {
         this.fdTemplate = fdTemplate;
     }
 
-    @PostConstruct
-    void importFiles() {
+
+    @Override
+    public void run(String... args) throws Exception {
         logger.info("Looking for Flockdata on {}", clientConfiguration.getServiceUrl());
         CommandRunner.configureAuth(logger, authUser, fdTemplate);
 

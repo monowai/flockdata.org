@@ -20,7 +20,9 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.integration.FdPayloadWriter;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
@@ -30,9 +32,15 @@ import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
+import org.flockdata.test.engine.MapBasedStorageProxy;
+import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.track.service.BatchService;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.*;
 
@@ -40,15 +48,20 @@ import static org.junit.Assert.*;
  * @author mholdsworth
  * @since 8/10/2014
  */
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {
+        Neo4jConfigTest.class,
+        FdPayloadWriter.class,
+        FdServerWriter.class,
+        MapBasedStorageProxy.class})
+@ActiveProfiles({"dev", "fd-auth-test", "fd-client"})
 public class TestBatch extends EngineBase {
     @Autowired
-    ContentModelService contentModelService;
-
-    @Autowired
-    BatchService batchService;
-
-    @Autowired
     FileProcessor fileProcessor;
+    @Autowired
+    private ContentModelService contentModelService;
+    @Autowired
+    private BatchService batchService;
 
     @Test
     public void doBatchTest() throws Exception {

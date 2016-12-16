@@ -367,7 +367,7 @@ public class TestCsvEntity extends AbstractImport{
         ids.add("520");
         ids.add("724");
 
-        List<EntityInputBean> entities = getFdBatcher().getEntities();
+        List<EntityInputBean> entities = getFdWriter().getEntities();
         TestCase.assertEquals(ids.size(), entities.size());
         for (EntityInputBean entity : entities) {
             switch (entity.getCode()){

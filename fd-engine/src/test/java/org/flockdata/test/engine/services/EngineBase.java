@@ -44,7 +44,6 @@ import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.test.engine.MapBasedStorageProxy;
-import org.flockdata.test.engine.MockFdBatchWriter;
 import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.track.service.*;
 import org.junit.Before;
@@ -64,7 +63,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 
 import java.util.Map;
@@ -77,13 +76,12 @@ import static org.junit.Assert.*;
  * @since 16/06/2014
  * @tag Test, Neo4j, Engine
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringApplicationConfiguration({FdEngine.class,
         Neo4jConfigTest.class,
-        MockFdBatchWriter.class,
         MapBasedStorageProxy.class})
 
-@ActiveProfiles({"dev", "fd-auth-test", "fd-batch"})
+@ActiveProfiles({"dev", "fd-auth-test"})
 public abstract class EngineBase {
 
     protected static final String mike_admin = "mike"; // Admin role

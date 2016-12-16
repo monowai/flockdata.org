@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
  *
  * User must call reset() to clear down any cached data
  *
+ * @tag Rest, Test, Integration
  * @author mholdsworth
  * @since 13/04/2016
  */
@@ -35,7 +36,8 @@ public class MockPayloadBatchWriter extends FdBatchWriter{
 
     @Override
     public void flush(){
-        // Noop
+        // Noop. Client can call reset() to clear cached data but otherwise we want to return
+        //       transformed results
     }
 
 }

@@ -52,7 +52,7 @@ public class TestDocTypes extends AbstractImport  {
 
         fileProcessor.processFile(new ExtractProfileHandler(contentModel, false), "/data/pac.txt");
 
-        for (EntityInputBean entityInputBean : fdBatcher.getEntities()) {
+        for (EntityInputBean entityInputBean : fdWriter.getEntities()) {
             MetaDocument docType = entityInputBean.getDocumentType();
             assertNotNull(entityInputBean.getDocumentType());
             TestCase.assertEquals("TestDocType", docType.getName());

@@ -36,7 +36,7 @@ import java.util.Collection;
  * @since 1/03/2015
  */
 @Service
-@Profile("dev")
+@Profile({"dev"})
 public class MockFdWriter implements FdIoInterface {
 
     public Collection<EntityInputBean> entities = null;

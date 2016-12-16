@@ -23,12 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Command that allows an authorised user to create an FD system user. This is an account that can access
@@ -50,21 +49,25 @@ import javax.annotation.PostConstruct;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.authentication", "org.flockdata.client"})
-public class Register {
+public class Register implements CommandLineRunner {
 
+    private final ClientConfiguration clientConfiguration;
+    private final FdTemplate fdTemplate;
     @Value("${auth.user:#{null}}")
     String authUser;
     @Value("${register.login:#{null}}")
     String login;
     private Logger logger = LoggerFactory.getLogger(Register.class);
-    @Autowired
-    private ClientConfiguration clientConfiguration;
 
     @Autowired
-    private FdTemplate fdTemplate;
+    public Register(ClientConfiguration clientConfiguration, FdTemplate fdTemplate) {
+        this.clientConfiguration = clientConfiguration;
+        this.fdTemplate = fdTemplate;
+    }
 
-    @PostConstruct
-    void register() {
+    @Override
+    public void run(String... args) throws Exception {
+
         if ( login == null ) {
             logger.error ("To run this command you should supply --register.login=someuser");
             logger.error ("Where someuser is a user in your authentication realm");

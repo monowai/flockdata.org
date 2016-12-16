@@ -20,24 +20,23 @@
 
 package org.flockdata.test.engine.suites;
 
+
+import org.flockdata.test.engine.services.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+
 /**
  * @author mholdsworth
  * @since 2/04/2015
  */
-
-import org.flockdata.test.engine.services.TestConcepts;
-import org.flockdata.test.engine.services.TestEntityTags;
-import org.flockdata.test.engine.services.TestTagMerge;
-import org.flockdata.test.engine.services.TestTags;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         TestConcepts.class,
         TestTagMerge.class,
         TestTags.class,
-        TestEntityTags.class
+        TestEntityTags.class,
+        TestEntityTagRelationships.class
 })
 public class Tags {
     Tags(){}

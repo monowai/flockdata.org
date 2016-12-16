@@ -46,7 +46,7 @@ public class TestTagKeyPrefix extends AbstractImport {
 
         fileProcessor.processFile(extractProfile, "/data/tag-key-prefix.csv");
 
-        List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
+        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
         // The profile defines a nested tag but the value is missing in the source
 
         assertEquals(2, tagInputBeans.size());

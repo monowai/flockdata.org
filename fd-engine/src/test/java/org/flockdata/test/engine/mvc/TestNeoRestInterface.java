@@ -20,33 +20,29 @@
 
 package org.flockdata.test.engine.mvc;
 
-import junit.framework.TestCase;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Collection;
 import java.util.Map;
+
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * @author mholdsworth
  * @since 20/09/2014
  * @tag Test,Neo4j
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(locations = { "classpath:root-context-neo-rest.xml" })
 public class TestNeoRestInterface {
 
@@ -71,18 +67,15 @@ public class TestNeoRestInterface {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         // Now find something - anything
-        RestTemplate restTemplate = new RestTemplate();
+        TestRestTemplate restTemplate = new TestRestTemplate();
         HttpHeaders httpHeaders = getHttpHeaders();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String query = "{ \"statements\":[{\"statement\":\"return 1\"}]}";
         HttpEntity<String> requestEntity = new HttpEntity<>(query, httpHeaders);
-        exception.expect(HttpClientErrorException.class);
+        ResponseEntity<Map> result = restTemplate.exchange("http://localhost:7474/db/data/transaction/commit/", HttpMethod.POST, requestEntity, Map.class);
         // ToDo: Auth check. At the moment a 401 is good enough
-        Map result = restTemplate.exchange("http://localhost:7474/db/data/transaction/commit/", HttpMethod.POST, requestEntity, Map.class).getBody();
-
-        TestCase.assertNotNull(result.get("results"));
-        Collection values = (Collection) result.get("results");
-        TestCase.assertFalse("No results returned from the REST call", values.size() == 0);
+        Map response = result.getBody();
+        assertNotNull(response);
+        assertTrue(response.containsKey("errors"));
 
     }
 

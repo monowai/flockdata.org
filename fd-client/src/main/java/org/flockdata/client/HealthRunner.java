@@ -23,12 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Dispatches a Health command to verify inter-service connectivity based on requested
@@ -51,24 +50,30 @@ import javax.annotation.PostConstruct;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.authentication", "org.flockdata.client"})
-public class HealthRunner {
+public class HealthRunner implements CommandLineRunner {
 
+    private final ClientConfiguration clientConfiguration;
+    private final FdTemplate fdTemplate;
     @Value("${auth.user:#{null}}")
     String authUser;
     private Logger logger = LoggerFactory.getLogger(HealthRunner.class);
-    @Autowired
-    private ClientConfiguration clientConfiguration;
-    @Autowired
-    private FdTemplate fdTemplate;
 
-    @PostConstruct
-    void health() {
+    @Autowired
+    public HealthRunner(ClientConfiguration clientConfiguration, FdTemplate fdTemplate) {
+        this.clientConfiguration = clientConfiguration;
+        this.fdTemplate = fdTemplate;
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+
         logger.info("Looking for Flockdata on {}", clientConfiguration.getServiceUrl());
         CommandRunner.configureAuth(logger, authUser, fdTemplate);
 
         Health health = new Health(fdTemplate);
-        health.exec();
-        logger.info(JsonUtils.pretty(health.result()));
+        logger.info(JsonUtils.pretty(health
+                .exec()
+                .result()));
 
     }
 

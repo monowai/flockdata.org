@@ -28,25 +28,67 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * Functions to read and write data to the service. This may involve buffering data for a
+ * batched dispatch. This is the preferred interface to injects into you code to handle
+ * reading and writing of entities and tags
+ *
+ * @tag Rest, Integration, Entity, Tag
  * @author mholdsworth
  * @since 5/03/2016
+ * @see FdPayloadWriter
  */
 public interface PayloadBatcher {
 
+    /**
+     * @param tagInputBean payload
+     * @param message      used in logging. Name of the process
+     * @throws FlockException failure to communicate to the services
+     */
     void writeTag(TagInputBean tagInputBean, String message) throws FlockException;
 
+    /**
+     *
+     * @param tagInputBean   collection of tags
+     * @param message      used in logging. Name of the process
+     * @throws FlockException failure to communicate to the services
+     */
     void writeTags(Collection<TagInputBean> tagInputBean, String message) throws FlockException;
 
+    /**
+     *
+     * @param entityInputBean payload
+     * @throws FlockException failure to communicate to the service
+     */
     void writeEntity(EntityInputBean entityInputBean) throws FlockException;
 
+    /**
+     *
+     * @param entityInputBean payload
+     * @param flush           force a flush of any cached data
+     * @throws FlockException failure to communicate to the service
+     */
     void writeEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException;
 
+    /**
+     * Push all payloads to the service
+     */
     void flush();
 
+    /**
+     * clear down any cached payloads
+     */
     void reset();
 
+    /**
+     *
+     * @return cached entity payloads
+     */
     List<EntityInputBean> getEntities();
 
+    /**
+     *
+     * @return cached tag payloads
+     */
     List<TagInputBean> getTags();
 
 

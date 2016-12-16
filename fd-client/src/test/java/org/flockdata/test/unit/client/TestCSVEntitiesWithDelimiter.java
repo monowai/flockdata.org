@@ -53,7 +53,7 @@ public class TestCSVEntitiesWithDelimiter extends AbstractImport {
         int expectedRows = 6;
         assertEquals(expectedRows, rows);
 
-        List<EntityInputBean>entities = fdBatcher.getEntities();
+        List<EntityInputBean> entities = fdWriter.getEntities();
         for (EntityInputBean entity : entities) {
             assertNotNull ( "Remapping column name to target", entity.getContent().getData().get("institution"));
             // DAT-528

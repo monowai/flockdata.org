@@ -47,11 +47,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -73,35 +73,22 @@ import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.util.AssertionErrors.fail;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration({FdStore.class})
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = {FdStore.class})
 @ActiveProfiles({"dev", "fd-auth-none", "riak", "redis"})
 @WebAppConfiguration (value = "src/main/resources")
 public class TestStoreService {
 
 
+    private static RedisServer redisServer;
     @Autowired
     private IndexManager indexManager;
-
     private MockMvc mockMvc;
-
     @Autowired
     private WebApplicationContext wac;
-
     private Logger logger = LoggerFactory.getLogger(TestStoreService.class);
-
-    private static RedisServer redisServer;
-
     @Autowired
     private StoreManager storeManager;
-
-    @Before
-    public void resetKvStore() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(wac)
-                .apply(SecurityMockMvcConfigurers.springSecurity())
-                .build();
-    }
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -135,6 +122,54 @@ public class TestStoreService {
             redisServer.stop();
     }
 
+    public static String getRandomJson() throws JsonProcessingException {
+        return getRandomJson(null);
+    }
+
+    public static String getRandomJson(String s) throws JsonProcessingException {
+        return getJsonFromObject(getData(s));
+    }
+
+    private static Map<String, Object> getData(String s) {
+        Map<String, Object> o = getData();
+        if (s == null)
+            return o;
+
+        o.put("random", s);
+        return o;
+    }
+
+    public static String getJsonFromObject(Map<String, Object> what) throws JsonProcessingException {
+        ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
+        return mapper.writeValueAsString(what);
+    }
+
+    public static Map<String, Object> getData() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("lval", 123456789012345L);
+        data.put("dval", 1234012345.990012d);
+        // Duplicated to force compression
+        data.put("sval", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        data.put("sval2", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        data.put("sval3", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        data.put("sval4", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        data.put("ival", 12345);
+        data.put("bval", Boolean.TRUE);
+        data.put("utf-8", "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}");
+        return data;
+    }
+
+    static RequestPostProcessor noUser() {
+        return user("noone");
+    }
+
+    @Before
+    public void resetKvStore() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(wac)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .build();
+    }
 
     @Test
     public void riak_JsonTest() throws Exception {
@@ -151,12 +186,10 @@ public class TestStoreService {
         testStore(Store.MEMORY);
     }
 
-
     @Test
     public void redis_AttachmentTest() throws Exception {
         kvAttachmentTest(Store.REDIS);
     }
-
 
     private void testStore(Store storeToTest) throws Exception {
         if ( redisServer == null || !redisServer.isActive()){
@@ -252,43 +285,6 @@ public class TestStoreService {
         assertEquals(failureMessage, json, contentResult.getData().get("utf-8"));
     }
 
-    public static String getRandomJson() throws JsonProcessingException {
-        return getRandomJson(null);
-    }
-
-    public static String getRandomJson(String s) throws JsonProcessingException {
-        return getJsonFromObject(getData(s));
-    }
-
-    private static Map<String, Object> getData(String s) {
-        Map<String, Object> o = getData();
-        if (s == null)
-            return o;
-
-        o.put("random", s);
-        return o;
-    }
-
-    public static String getJsonFromObject(Map<String, Object> what) throws JsonProcessingException {
-        ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
-        return mapper.writeValueAsString(what);
-    }
-
-    public static Map<String, Object> getData() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("lval", 123456789012345L);
-        data.put("dval", 1234012345.990012d);
-        // Duplicated to force compression
-        data.put("sval", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        data.put("sval2", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        data.put("sval3", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        data.put("sval4", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        data.put("ival", 12345);
-        data.put("bval", Boolean.TRUE);
-        data.put("utf-8", "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}");
-        return data;
-    }
-
     private void kvAttachmentTest(Store storeToTest) throws Exception {
         logger.debug("Registering system user!");
 
@@ -320,10 +316,6 @@ public class TestStoreService {
         } catch (Exception ies) {
             logger.info("KV Stores are configured in application.yml. This test is failing to find the {} server. Is it even installed?", storeToTest);
         }
-    }
-
-    static RequestPostProcessor noUser() {
-        return user("noone");
     }
 
     private StoredContent getContent(RequestPostProcessor user, Store store, String index, String type, Object key, ResultMatcher status) throws Exception {

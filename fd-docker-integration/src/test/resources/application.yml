@@ -1,0 +1,36 @@
+
+
+### Integration test configuration
+# Most of these settings are overridden in docker-compose.yml
+# fd-client is used to communicate to the services
+
+application:
+  title: FlockData Integration Testing
+banner:
+  location: banner.txt
+
+logging:
+  level:
+    org.flockdata.client: info
+
+# Message queues - Balance against ack/nack rate throughput
+# Thread-pools
+org.fd:
+  client:
+    http:
+      user: integration
+      pass: 123
+
+  engine:
+    fortress:  # Defaults on creation of a fortress if not otherwise supplied
+      search: true
+
+    executor:
+      poolSize: 4-10
+      queueCapacity: 3
+
+rabbit:
+  user: guest
+  pass: guest
+#  Host name is reassigned by the Integration tests
+  host: localhost

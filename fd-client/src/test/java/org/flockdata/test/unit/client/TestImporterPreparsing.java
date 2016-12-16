@@ -52,7 +52,7 @@ public class TestImporterPreparsing extends AbstractImport {
         long rows = fileProcessor.processFile(params, "/data/properties-rlx.txt");
         assertEquals(4, rows);
 
-        List<EntityInputBean> entityBatch = fdBatcher.getEntities();
+        List<EntityInputBean> entityBatch = fdWriter.getEntities();
 
         for (EntityInputBean entityInputBean : entityBatch) {
             assertFalse("Expression not parsed for code",entityInputBean.getCode().contains("|"));

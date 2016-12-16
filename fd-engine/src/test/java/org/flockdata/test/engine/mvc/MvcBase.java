@@ -37,6 +37,7 @@ import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.*;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
+import org.flockdata.test.unit.client.MockPayloadWriter;
 import org.flockdata.track.bean.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,7 +54,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -75,16 +76,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 /**
  * Base class for Web App context driven classes
+ *
  * @author mholdsworth
  * @since 12/02/2016
  */
 @WebAppConfiguration(value = "src/main/resources")
-@ActiveProfiles({"dev", "web-dev", "fd-auth-test"})
-@SpringApplicationConfiguration({FdEngine.class,
+@SpringApplicationConfiguration({
+        FdEngine.class,
         Neo4jConfigTest.class,
+        MockPayloadWriter.class,
         MapBasedStorageProxy.class})
-
-@RunWith(SpringJUnit4ClassRunner.class)
+@ActiveProfiles({"dev", "fd-auth-test"})
+@RunWith(SpringRunner.class)
 public abstract class MvcBase {
 
     static final String ANYCO = "anyco";
@@ -98,19 +101,16 @@ public abstract class MvcBase {
     static Logger logger = LoggerFactory.getLogger(MvcBase.class);
     @Rule
     public final ExpectedException exception = ExpectedException.none();
-    @Autowired
-    public WebApplicationContext wac;
     ResultMatcher OK = MockMvcResultMatchers.status().isOk();
     ResultMatcher ACCEPTED = MockMvcResultMatchers.status().isAccepted();
-    SystemUserResultBean suHarry;
     SystemUserResultBean suMike;
-    SystemUserResultBean suSally;
-    SystemUserResultBean suIllegal;
-    @Autowired
-    Neo4jTemplate neo4jTemplate;
     @Autowired
     @Qualifier("engineConfig")
     PlatformConfig engineConfig;
+    @Autowired
+    private WebApplicationContext wac;
+    @Autowired
+    private Neo4jTemplate neo4jTemplate;
     private MockMvc mockMvc;
 
     static void setSecurityEmpty() {
@@ -140,9 +140,9 @@ public abstract class MvcBase {
         }
         cleanUpGraph();
         suMike = makeDataAccessProfile(ANYCO, mike_admin);
-        suHarry = makeDataAccessProfile(mike(), ANYCO, harry);// Harry works at Anyco where Mike is the administrator
-        suSally = makeDataAccessProfile(OTHERCO, sally_admin);
-        suIllegal = new SystemUserResultBean(new SystemUser("illegal", "noone", null, false).setApiKey("blahh"));
+        makeDataAccessProfile(mike(), ANYCO, harry);
+        makeDataAccessProfile(OTHERCO, sally_admin);
+//        new SystemUserResultBean(new SystemUser("illegal", "noone", null, false).setApiKey("blahh"));
 
 
     }
@@ -254,7 +254,7 @@ public abstract class MvcBase {
 
     public DocumentResultBean getDocument(RequestPostProcessor user, String fortress, String docName) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders
-                .get(apiPath + "/doc/{fortress}/{docName}", fortress,docName)
+                .get(apiPath + "/doc/{fortress}/{docName}", fortress, docName)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
                 .content(JsonUtils.toJson(fortress))
@@ -605,7 +605,7 @@ public abstract class MvcBase {
     }
 
     public Collection<ConceptResultBean> getLabelsForDocument(RequestPostProcessor user, String docResultName) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/concept/{doc}/values" , docResultName)
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/concept/{doc}/values", docResultName)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

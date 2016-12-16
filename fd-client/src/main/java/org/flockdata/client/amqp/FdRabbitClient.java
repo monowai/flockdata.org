@@ -20,11 +20,11 @@ import com.rabbitmq.client.*;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.integration.Exchanges;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -43,12 +43,12 @@ import java.util.concurrent.TimeoutException;
  * @tag FdClient, Rabbit, Messaging
  */
 @Service
+@Profile({"fd-server", "fd-client"})
 public class FdRabbitClient {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdRabbitClient.class);
     private final ClientConfiguration configuration;
     private final AmqpRabbitConfig rabbitConfig;
-    private final Exchanges exchanges;
     private AMQP.BasicProperties entityProps;
     private AMQP.BasicProperties tagProps;
     private Connection connection;
@@ -58,10 +58,9 @@ public class FdRabbitClient {
     private Channel trackChannel = null; // Channel is cached but not thread safe
 
     @Autowired
-    public FdRabbitClient(ClientConfiguration clientConfiguration, AmqpRabbitConfig rabbitConfig, Exchanges exchanges) {
+    public FdRabbitClient(ClientConfiguration clientConfiguration, AmqpRabbitConfig rabbitConfig) {
         this.configuration = clientConfiguration;
         this.rabbitConfig = rabbitConfig;
-        this.exchanges = exchanges;
     }
 
     @PostConstruct
@@ -161,10 +160,10 @@ public class FdRabbitClient {
             Method reason = cause.getReason();
             if (cause.isHardError()) {
                 if (!cause.isInitiatedByApplication()) {
-                    logger.error("Hard shutdown initiate - {} {} {}", (reason!=null ? reason.protocolMethodName(): "null protocol method"), cause.getReason(), cause.getMessage());
+                    logger.debug("Hard shutdown initiate - {} {} {}", (reason != null ? reason.protocolMethodName() : "null protocol method"), cause.getReason(), cause.getMessage());
                 }
             } else {
-                logger.error("Shutdown initiated - {} {} {}", (reason!=null ? reason.protocolMethodName(): "null protocol method"), cause.getReason(), cause.getMessage());
+                logger.debug("Shutdown initiated - {} {} {}", (reason != null ? reason.protocolMethodName() : "null protocol method"), cause.getReason(), cause.getMessage());
             }
             connection = null;
             connectionFactory = null;
@@ -172,7 +171,7 @@ public class FdRabbitClient {
 
         trackChannel = connection.createChannel();
         logger.debug("{}/{}/{}", configuration.getTrackQueue(), configuration.getFdExchange(), configuration.getTrackRoutingKey());
-        logger.debug(trackChannel.queueBind(configuration.getTrackQueue(), configuration.getFdExchange(), configuration.getTrackRoutingKey(), exchanges.getFdQueueFeatures()).toString());
+        logger.debug(trackChannel.queueBind(configuration.getTrackQueue(), configuration.getFdExchange(), configuration.getTrackRoutingKey(), rabbitConfig.getFdQueueFeatures()).toString());
 
     }
 

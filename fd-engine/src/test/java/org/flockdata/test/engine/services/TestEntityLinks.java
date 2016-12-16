@@ -21,6 +21,8 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
+import org.flockdata.engine.track.service.FdServerWriter;
+import org.flockdata.integration.FdPayloadWriter;
 import org.flockdata.model.*;
 import org.flockdata.profile.ContentModelDeserializer;
 import org.flockdata.profile.ContentModelResult;
@@ -30,6 +32,8 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchTag;
+import org.flockdata.test.engine.MapBasedStorageProxy;
+import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.BatchService;
 import org.flockdata.transform.ColumnDefinition;
@@ -37,7 +41,11 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
 
@@ -53,6 +61,13 @@ import static org.junit.Assert.assertTrue;
  * @author mholdsworth
  * @since 19/12/2015
  */
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {
+        Neo4jConfigTest.class,
+        FdPayloadWriter.class,
+        FdServerWriter.class,
+        MapBasedStorageProxy.class})
+@ActiveProfiles({"dev", "fd-auth-test", "fd-client"})
 public class TestEntityLinks extends EngineBase {
 
     @Autowired

@@ -20,6 +20,8 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.engine.track.service.FdServerWriter;
+import org.flockdata.integration.FdPayloadWriter;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
@@ -30,8 +32,14 @@ import org.flockdata.profile.model.ContentModel;
 import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.test.engine.MapBasedStorageProxy;
+import org.flockdata.test.engine.Neo4jConfigTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
@@ -41,11 +49,17 @@ import static org.junit.Assert.assertEquals;
  * @author mholdsworth
  * @since 13/07/2016
  */
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {
+        Neo4jConfigTest.class,
+        FdPayloadWriter.class,
+        FdServerWriter.class,
+        MapBasedStorageProxy.class})
+@ActiveProfiles({"dev", "fd-auth-test", "fd-client"})
 public class TestEntityTagRelationships extends EngineBase {
 
     @Autowired
-    FileProcessor fileProcessor;
-
+    private FileProcessor fileProcessor;
 
     @Test
     public void entityTagLinksCreatedWithCorrectDirection() throws Exception {

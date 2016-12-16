@@ -43,7 +43,7 @@ public class TestDateParsing extends AbstractImport {
                 .setDelimiter("\t");
 
         fileProcessor.processFile(importProfile, "/data/date-calculation.txt");
-        List<EntityInputBean> entities = fdBatcher.getEntities();
+        List<EntityInputBean> entities = fdWriter.getEntities();
 
         assertEquals(1, entities.size());
          // Asserts that the Dates helper class is doing its thing

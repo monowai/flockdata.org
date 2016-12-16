@@ -43,7 +43,7 @@ public class TestCalculatedColumns extends AbstractImport {
         long rows = fileProcessor.processFile(new ExtractProfileHandler(params), "/data/calculatedcolumns.csv");
         int expectedRows = 1;
         assertEquals(expectedRows, rows);
-        List<EntityInputBean> entityInputBeans = fdBatcher.getEntities();
+        List<EntityInputBean> entityInputBeans = fdWriter.getEntities();
 
         for (EntityInputBean entityInputBean : entityInputBeans) {
             //BulkHours,ScheduledHours,Hours
