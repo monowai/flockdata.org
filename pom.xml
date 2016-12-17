@@ -5,7 +5,7 @@
     <groupId>org.flockdata</groupId>
     <artifactId>flockdata</artifactId>
     <name>flockdata</name>
-    <version>0.98.2</version>
+    <version>0.98.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -324,24 +324,24 @@
             <name>Spring Milestones</name>
             <url>http://repo.spring.io/milestone</url>
             <snapshots>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
             </snapshots>
         </repository>
     </repositories>
 
     <scm>
-        <connection>scm:git:ssh://github.com/monowai/flockdata.org</connection>
-        <developerConnection>scm:git:ssh://github.com/monowai/flockdata.org</developerConnection>
+        <connection>scm:git:https://github.com/monowai/flockdata.org</connection>
+        <developerConnection>scm:git:https://github.com/monowai/flockdata.org</developerConnection>
         <url>https://github.com/monowai/flockdata.org</url>
-        <tag>v0.98.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
         <repository>
             <uniqueVersion>true</uniqueVersion>
-            <id>sona-releases</id>
+            <id>ossrh</id>
             <name>FlockData Releases</name>
-            <url>https://oss.sonatype.org/content/repositories/releases</url>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
             <layout>default</layout>
         </repository>
         <snapshotRepository>
@@ -429,19 +429,9 @@
                         <useReleaseProfile>false</useReleaseProfile>
                         <releaseProfiles>release</releaseProfiles>
                         <tagNameFormat>v@{project.version}</tagNameFormat>
+                        <arguments>-Prelease</arguments>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <goals>deploy</goals>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.6</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <serverId>ossrh</serverId>
-                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -476,6 +466,7 @@
                         </gitDescribe>
                     </configuration>
                 </plugin>
+
             </plugins>
         </pluginManagement>
     </build>
@@ -483,72 +474,68 @@
     <profiles>
         <profile>
             <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>buildnumber-maven-plugin</artifactId>
-                        <version>1.4</version>
-                        <executions>
-                            <execution>
-                                <phase>initialize</phase>
-                                <goals>
-                                    <goal>create</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <!--<doCheck>false</doCheck>-->
-                            <!--<doUpdate>false</doUpdate>-->
-                            <shortRevisionLength>5</shortRevisionLength>
-                            <format>{0,date,yyyy-MM-dd}</format>
-                            <items>
-                                <item>timestamp</item>
-                            </items>
-                        </configuration>
-                    </plugin>
 
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                    <!--<version>2.10.3</version>-->
-                    <!--<executions>-->
-                    <!--<execution>-->
-                    <!--<id>attach-javadocs</id>-->
-                    <!--<goals>-->
-                    <!--<goal>jar</goal>-->
-                    <!--</goals>-->
-                    <!--</execution>-->
-                    <!--</executions>-->
-                    <!--</plugin>-->
-                    <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-gpg-plugin</artifactId>-->
-                    <!--<version>1.5</version>-->
-                    <!--<executions>-->
-                    <!--<execution>-->
-                    <!--<id>sign-artifacts</id>-->
-                    <!--<phase>verify</phase>-->
-                    <!--<goals>-->
-                    <!--<goal>sign</goal>-->
-                    <!--</goals>-->
-                    <!--</execution>-->
-                    <!--</executions>-->
-                    <!--</plugin>-->
-                </plugins>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>buildnumber-maven-plugin</artifactId>
+                            <version>1.4</version>
+                            <executions>
+                                <execution>
+                                    <phase>initialize</phase>
+                                    <goals>
+                                        <goal>create</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                            <configuration>
+                                <!--<doCheck>false</doCheck>-->
+                                <!--<doUpdate>false</doUpdate>-->
+                                <shortRevisionLength>5</shortRevisionLength>
+                                <format>{0,date,yyyy-MM-dd}</format>
+                                <items>
+                                    <item>timestamp</item>
+                                </items>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.sonatype.plugins</groupId>
+                            <artifactId>nexus-staging-maven-plugin</artifactId>
+                            <version>1.6.7</version>
+                            <extensions>true</extensions>
+                            <configuration>
+                                <serverId>ossrh</serverId>
+                                <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                                <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>default-deploy</id>
+                                    <phase>deploy</phase>
+                                    <goals>
+                                        <goal>deploy</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-source-plugin</artifactId>
+                            <version>3.0.1</version>
+                            <executions>
+                                <execution>
+                                    <id>attach-sources</id>
+                                    <goals>
+                                        <goal>jar-no-fork</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
             </build>
         </profile>
     </profiles>
