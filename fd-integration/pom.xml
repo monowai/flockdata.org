@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.flockdata</groupId>
         <artifactId>flockdata</artifactId>
-        <version>0.98.3-SNAPSHOT</version>
+        <version>0.98.2</version>
     </parent>
 
     <artifactId>fd-integration</artifactId>
