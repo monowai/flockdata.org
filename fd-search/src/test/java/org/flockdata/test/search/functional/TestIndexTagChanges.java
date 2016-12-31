@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,23 +20,27 @@
 
 package org.flockdata.test.search.functional;
 
+import org.flockdata.data.Alias;
+import org.flockdata.data.Company;
+import org.flockdata.data.Tag;
 import org.flockdata.helper.TagHelper;
-import org.flockdata.model.Alias;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.Tag;
 import org.flockdata.registration.AliasInputBean;
-import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.FdSearch;
-import org.flockdata.search.model.TagSearchChange;
+import org.flockdata.search.TagSearchChange;
+import org.flockdata.test.helper.MockDataFactory;
+import org.flockdata.track.bean.CompanyInputBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 /**
  * @author mholdsworth
@@ -47,17 +51,19 @@ import static org.junit.Assert.assertNotNull;
 public class TestIndexTagChanges extends ESBase {
     @Test
     public void testSimpleTagIndexes() throws Exception {
-        Company company = new Company("testCompany");
-        Fortress fortress = new Fortress(new FortressInputBean("testFortress"), company);
+        Company company = new CompanyInputBean("testCompany");
+
         TagInputBean tagInputBean = new TagInputBean("aCode", "SomeLabel");
+        tagInputBean.setName("A Name to Find");
         tagInputBean.setProperty("user property", "UDFValue");
 
-        Tag tag = new Tag(tagInputBean);
-        tag.setName("A Name To Find");
+        Tag tag = MockDataFactory.getTag(tagInputBean);
 
         String key = TagHelper.parseKey(tagInputBean.getCode()+"Alias");
-        Alias alias = new Alias(tagInputBean.getLabel(), new AliasInputBean(tagInputBean.getCode()+"Alias", "someAliasDescription"),key, tag);
-        tag.addAlias( alias);
+        Alias alias = MockDataFactory.getAlias(tagInputBean.getLabel(), new AliasInputBean(tagInputBean.getCode()+"Alias", "someAliasDescription"),key, tag);
+        Set<Alias> aliasSet = new HashSet<>();
+        aliasSet.add(alias);
+        when (tag.getAliases()).thenReturn(aliasSet);
 
         String indexName = indexManager.getIndexRoot(company, tag);
         assertNotNull (indexName);

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,14 +20,12 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.data.Segment;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.FortressSegment;
-import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.LogService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -67,7 +65,7 @@ public class EntityRetryService {
             maxAttempts = 20,
             backoff = @Backoff(delay = 600, multiplier = 5, random = true))
     @Transactional(timeout = 4000)
-    public Iterable<TrackResultBean> track(DocumentType documentType, FortressSegment segment, List<EntityInputBean> entityInputs, Future<Collection<TagResultBean>> tags)
+    public Iterable<TrackResultBean> track(DocumentNode documentType, Segment segment, List<EntityInputBean> entityInputs, Future<Collection<FdTagResultBean>> tags)
             throws InterruptedException, ExecutionException, FlockException, IOException {
 
         Collection<TrackResultBean>

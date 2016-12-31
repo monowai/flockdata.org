@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package org.flockdata.test.integration;
 
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.QueryParams;
 
 import java.io.IOException;
 import java.util.Map;

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,19 +20,21 @@
 
 package org.flockdata.engine.tag.service;
 
-import org.flockdata.engine.PlatformConfig;
+import org.flockdata.data.Company;
+import org.flockdata.data.Tag;
+import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.engine.dao.ConceptDaoNeo;
-import org.flockdata.engine.dao.TagDaoNeo4j;
+import org.flockdata.engine.data.dao.ConceptDaoNeo;
+import org.flockdata.engine.data.dao.TagDaoNeo4j;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.TagNode;
+import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.Company;
-import org.flockdata.model.Tag;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.TagPayload;
-import org.flockdata.track.service.TagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,15 +75,15 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public TagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException {
+    public FdTagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException {
         Collection<TagInputBean>tags = new ArrayList<>();
         tags.add(tagInput);
 
-        Collection<TagResultBean>results = createTags(company, tags);
+        Collection<FdTagResultBean>results = createTags(company, tags);
         if ( results.isEmpty())
             return null;
 
-        TagResultBean tagResult =   results.iterator().next();
+        FdTagResultBean tagResult =   results.iterator().next();
 
         if ( tagResult.getTag() == null  )
             throw new FlockException(tagResult.getMessage());
@@ -89,18 +91,19 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Collection<TagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException{
-        String tenant = engineAdmin.getTagSuffix(company);
+    public Collection<FdTagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException{
+        CompanyNode fdCompany = (CompanyNode)company;
+        String tenant = engineAdmin.getTagSuffix(fdCompany);
 
-        TagPayload payload = new TagPayload(company)
+        TagPayload payload = new TagPayload(fdCompany)
                 .setTags(tagInputs)
                 .setTenant(tenant)
                 .setIgnoreRelationships(false);
 
-        Collection<TagResultBean> results = tagDaoNeo4j.save(payload);
+        Collection<FdTagResultBean> results = tagDaoNeo4j.save(payload);
 
-        for (TagResultBean result : results) {
-            conceptDao.registerTag(company, result);
+        for (FdTagResultBean result : results) {
+            conceptDao.registerTag(fdCompany, result);
         }
         return results;
     }
@@ -118,12 +121,12 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Collection<TagResultBean> findTagResults(Company company, String label) {
+    public Collection<FdTagResultBean> findTagResults(Company company, String label) {
         Collection<Tag> tags = tagDaoNeo4j.findTags(label);
-        Collection<TagResultBean>countries = new ArrayList<>(tags.size());
+        Collection<FdTagResultBean>countries = new ArrayList<>(tags.size());
         for (Tag tag : tags) {
             template.fetch(tag.getAliases());
-            countries.add(new TagResultBean(tag));
+            countries.add(new FdTagResultBean(tag));
         }
 //        countries.addAll(tags.stream().map(TagResultBean::new).collect(Collectors.toList()));
         return countries;
@@ -142,7 +145,7 @@ public class TagServiceNeo4j implements TagService {
     @Override
     public Tag findTag(Company company, String label, String keyPrefix, String tagCode) {
         try {
-            return findTag(company, label, keyPrefix, tagCode, false);
+            return findTag((CompanyNode)company, label, keyPrefix, tagCode, false);
         } catch (NotFoundException e){
             logger.debug("findTag notFound {}, {}", tagCode, label);
         }
@@ -150,7 +153,7 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException {
+    public Tag findTag(CompanyNode company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException {
         String suffix = engineAdmin.getTagSuffix(company);
 
         Tag tag = tagDaoNeo4j.findTagNode(suffix, label, keyPrefix, tagCode, inflate);
@@ -183,7 +186,7 @@ public class TagServiceNeo4j implements TagService {
      * @throws NotFoundException
      */
     @Override
-    public Map<String, Collection<TagResultBean>> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException {
+    public Map<String, Collection<FdTagResultBean>> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException {
         Tag source = findTag(company, sourceLabel,null , sourceCode);
         if (source == null)
             throw new NotFoundException("Unable to find the requested tag " + sourceCode);
@@ -193,10 +196,10 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Collection<Tag> findTag(Company company, String code) {
-        Collection<Tag>results = new ArrayList<>();
+    public Collection<TagNode> findTag(CompanyNode company, String code) {
+        Collection<TagNode>results = new ArrayList<>();
 
-        Tag t = findTag(company, null, code);
+        TagNode t = (TagNode) findTag(company, null, code);
         if ( t !=null )
             results.add(t);
         return results;

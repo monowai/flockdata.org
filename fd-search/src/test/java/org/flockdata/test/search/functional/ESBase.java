@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -32,24 +32,19 @@ import io.searchbox.core.Suggest;
 import io.searchbox.core.SuggestResult;
 import io.searchbox.indices.DeleteIndex;
 import junit.framework.TestCase;
+import org.flockdata.data.Entity;
+import org.flockdata.data.Fortress;
 import org.flockdata.helper.FlockException;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Fortress;
-import org.flockdata.registration.FortressInputBean;
+import org.flockdata.search.SearchSchema;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.IndexMappingService;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.base.TagChangeWriter;
-import org.flockdata.search.model.SearchSchema;
 import org.flockdata.search.service.ContentService;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.search.service.SearchAdmin;
-import org.flockdata.test.helper.EntityContentHelper;
-import org.flockdata.track.bean.EntityInputBean;
-import org.joda.time.DateTime;
+import org.flockdata.test.helper.MockDataFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -65,6 +60,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 /**
  * @tag Test, ElasticSearch, Search
@@ -438,26 +434,25 @@ public class ESBase {
     }
 
     public Entity getEntity(String comp, String fort, String userName, String docType) throws FlockException {
-        String callerRef = new DateTime().toString();
-        return getEntity(comp, fort, userName, docType, callerRef);
+        return getEntity(comp, fort, userName, docType, null);
     }
 
-    public Entity getEntity(String comp, String fort, String userName, String docType, String code) throws FlockException {
+    protected Entity getEntity(String company, String fortress, String user, String invoice, String code) throws FlockException{
+        return getEntity(company, fortress, user, invoice, code,null);
+    }
+
+    public Entity getEntity(String comp, String fort, String userName, String docType, String code, String segment) throws FlockException {
         // These are the minimum objects necessary to create Entity data
+        Entity entity = MockDataFactory.getEntity(comp, fort, userName, docType, code );
+        boolean defaultSegment = segment == null || segment.equals(Fortress.DEFAULT);
 
-        Company mockCompany = new Company(comp);
-        mockCompany.setName(comp);
+        when(entity.getSegment().isDefault()).thenReturn(defaultSegment);
+        if ( !defaultSegment) {
+            when(entity.getSegment().getCode()).thenReturn(segment);
+        }
+        assertEquals(indexManager.getIndexRoot(entity.getFortress()), entity.getFortress().getRootIndex());
 
-        FortressInputBean fib = new FortressInputBean(fort, false);
-        Fortress fortress = new Fortress(fib, mockCompany);
-        String index = indexManager.getIndexRoot(fortress);
-        fortress.setRootIndex(index);
-        DateTime now = new DateTime();
-        EntityInputBean entityInput = EntityContentHelper.getEntityInputBean(docType, fortress, userName, code, now);
-
-        DocumentType doc = new DocumentType(fortress, docType);
-        return new Entity(Long.toString(System.currentTimeMillis()), fortress.getDefaultSegment(), entityInput, doc)
-                .setIndexName(index);
+        return entity;
 
     }
 }

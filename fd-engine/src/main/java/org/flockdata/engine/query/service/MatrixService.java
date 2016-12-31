@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,10 @@
 
 package org.flockdata.engine.query.service;
 
-import org.flockdata.dao.MatrixDao;
+import org.flockdata.data.Company;
+import org.flockdata.engine.data.dao.MatrixDao;
 import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Company;
 import org.flockdata.track.bean.MatrixInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

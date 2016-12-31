@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class PojoToFdPayloadTransformerTest {
         pojo1.email = "email@email.com";
         pojo1.id = 1L;
         pojo1.name = "name";
-        EntityInputBean entityInputBean = PojoToFdTransformer.transformToAbFormat(pojo1);
+        EntityInputBean entityInputBean = PojoToFdTransformer.transformEntity(pojo1);
         //Assert.assertEquals(metaInputBean.getKey(), "1");
         Assert.assertEquals(entityInputBean.getDocumentType().getName(), "pojo1");
         Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
@@ -46,7 +46,7 @@ public class PojoToFdPayloadTransformerTest {
         pojo2.email = "email@email.com";
         pojo2.id = 1L;
         pojo2.name = "name";
-        EntityInputBean entityInputBean = PojoToFdTransformer.transformToAbFormat(pojo2);
+        EntityInputBean entityInputBean = PojoToFdTransformer.transformEntity(pojo2);
         //Assert.assertEquals(metaInputBean.getKey(), "1");
         Assert.assertEquals(entityInputBean.getDocumentType().getName(), "testDocType");
         Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
@@ -58,7 +58,7 @@ public class PojoToFdPayloadTransformerTest {
         pojo3.email = "email@email.com";
         pojo3.id = 1L;
         pojo3.name = "name";
-        EntityInputBean entityInputBean = PojoToFdTransformer.transformToAbFormat(pojo3);
+        EntityInputBean entityInputBean = PojoToFdTransformer.transformEntity(pojo3);
         //Assert.assertEquals(metaInputBean.getKey(), "1");
         Assert.assertEquals(entityInputBean.getDocumentType().getName(), "pojo3");
         Assert.assertEquals(entityInputBean.getCode(), "email@email.com");

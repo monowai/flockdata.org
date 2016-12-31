@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,12 +20,18 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.TxRef;
+import junit.framework.TestCase;
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.TxRef;
+import org.flockdata.engine.data.graph.*;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.integration.IndexManager;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.SearchChanges;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
@@ -44,7 +50,7 @@ public class TestInputBeans {
 
     @Test
     public void testTxStatus() {
-        org.flockdata.model.TxRef tx = new TxRef("abc", new Company(""));
+        TxRefNode tx = new TxRefNode("abc", new CompanyNode(""));
 
         // Current status should be created
         assertEquals(TxRef.TxStatus.TX_CREATED, tx.getTxStatus());
@@ -61,29 +67,29 @@ public class TestInputBeans {
     public void testFortressInputBean() {
 
         FortressInputBean fib = new FortressInputBean("ABC");
-        assertEquals (null, fib.getSearchEnabled());
-        assertEquals (null, fib.getStoreEnabled());
+        assertEquals (null, fib.isSearchEnabled());
+        assertEquals (null, fib.isStoreEnabled());
 
         fib = new FortressInputBean("ABC", false);
-        assertTrue(fib.getSearchEnabled());
+        assertTrue(fib.isSearchEnabled());
 
         fib = new FortressInputBean("ABC", true);
-        assertFalse(fib.getSearchEnabled());
+        assertFalse(fib.isSearchEnabled());
 
         fib = new FortressInputBean("ABC", false);
-        assertTrue(fib.getSearchEnabled());
+        assertTrue(fib.isSearchEnabled());
 
         fib.setStoreEnabled(false);
-        assertFalse(fib.getStoreEnabled());
+        assertFalse(fib.isStoreEnabled());
 
         fib.setStoreEnabled(null);
-        assertEquals (null, fib.getStoreEnabled());
+        assertEquals (null, fib.isStoreEnabled());
     }
 
     @Test
     public void testEntityInputBean() throws Exception {
         DateTime now = DateTime.now();
-        Fortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("blah"));
+        FortressNode fortress = new FortressNode(new FortressInputBean("fortress"), new CompanyNode("blah"));
         EntityInputBean entityBean = new EntityInputBean(fortress, "user", "booking", now, "myRef");
         assertNull(entityBean.getKey());
         entityBean.setKey("AbC");
@@ -91,7 +97,7 @@ public class TestInputBeans {
 
         // NonNull tx ref sets the inputBean to be transactional
         DateTime logNow = DateTime.now();
-        ContentInputBean logBean = new ContentInputBean("user", "aaa", logNow, EntityContentHelper.getSimpleMap("abc", 0), "", "txreftest");
+        ContentInputBean logBean = new ContentInputBean("user", "aaa", logNow, ContentDataHelper.getSimpleMap("abc", 0), "", "txreftest");
         entityBean.setContent(logBean); // Creation dates defer to the Log
         assertTrue(logBean.isTransactional());
         assertEquals(now.getMillis(), entityBean.getWhen().getTime());
@@ -108,7 +114,7 @@ public class TestInputBeans {
         assertNotSame(dateC.getTime(), entityBean.getWhen().getTime());
         assertEquals(now.getMillis(), entityBean.getWhen().getTime());
 
-        logBean = new ContentInputBean("user", "aaa", null, EntityContentHelper.getRandomMap());
+        logBean = new ContentInputBean("user", "aaa", null, ContentDataHelper.getRandomMap());
         assertFalse(logBean.isTransactional());
 
 
@@ -150,6 +156,34 @@ public class TestInputBeans {
         tag.addEntityTagLink("myrlx");
         assertFalse ( tag.getEntityTagLinks().isEmpty());
         assertTrue(tag.getEntityTagLinks().containsKey("myrlx"));
+    }
+
+    @Test
+    public void serialize_SearchChanges () throws Exception {
+        CompanyNode mockCompany = new CompanyNode("company");
+        mockCompany.setName("company");
+
+        FortressInputBean fib = new FortressInputBean("serialize_SearchChanges", false);
+        FortressNode fortress = new FortressNode(fib, mockCompany);
+
+        DateTime now = new DateTime();
+        EntityInputBean eib = new EntityInputBean(fortress,
+                "harry",
+                "docType",
+                now,
+                "abc");
+
+        Document doc = new DocumentNode(fortress, "docType");
+        Entity entity = new EntityNode("abc", fortress, eib, doc);
+
+        EntitySearchChange searchChange = new EntitySearchChange(entity, new IndexManager("fd.", true).parseIndex(entity));
+        SearchChanges changes = new SearchChanges(searchChange);
+        String json = JsonUtils.toJson(changes);
+
+        SearchChanges fromJson = JsonUtils.toObject(json.getBytes(), SearchChanges.class);
+
+        TestCase.assertTrue("", fromJson.getChanges().size()==1);
+
     }
 
 

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,12 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.EntityLog;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.EntityLog;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -47,15 +48,15 @@ public class TestDelta extends EngineBase {
         setSecurity();
         SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("DELTAForce", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("DELTAForce", true));
         assertNotNull(fortress);
 
-        Map<String, Object> jsonA = EntityContentHelper.getSimpleMap("house", "red");
+        Map<String, Object> jsonA = ContentDataHelper.getSimpleMap("house", "red");
         jsonA.put("bedrooms", 2);
         jsonA.put("garage", "Y");
 
         //String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
-        Map<String, Object> jsonB = EntityContentHelper.getSimpleMap("house", "green");
+        Map<String, Object> jsonB = ContentDataHelper.getSimpleMap("house", "green");
         jsonB.put("bedrooms", 2);
         ArrayList<Integer> values = new ArrayList<>();
         values.add(1);
@@ -67,11 +68,11 @@ public class TestDelta extends EngineBase {
         ContentInputBean log = new ContentInputBean("Mike", new DateTime(), jsonA);
         entity.setContent(log);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entity);
-        EntityLog first = logService.getLastLog(result.getEntity());
+        EntityLog first = logService.getLastLog((EntityNode) result.getEntity());
         assertNotNull(first);
         log = new ContentInputBean("Mike", result.getEntity().getKey(), new DateTime(), jsonB);
         mediationFacade.trackLog(su.getCompany(), log);
-        EntityLog second = logService.getLastLog(result.getEntity());
+        EntityLog second = logService.getLastLog((EntityNode) result.getEntity());
         assertNotNull(second);
 
         //ToDo: fd-store - fix me

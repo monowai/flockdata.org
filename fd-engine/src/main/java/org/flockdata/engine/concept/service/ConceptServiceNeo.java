@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,12 +20,18 @@
 
 package org.flockdata.engine.concept.service;
 
-import org.flockdata.engine.dao.ConceptDaoNeo;
+import org.flockdata.data.Company;
+import org.flockdata.data.Document;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
+import org.flockdata.engine.data.dao.ConceptDaoNeo;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.*;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.*;
@@ -79,8 +85,8 @@ public class ConceptServiceNeo implements ConceptService {
     @Transactional
     public Collection<DocumentResultBean> getDocumentsInUse(Company company) {
         Collection<DocumentResultBean> results = new ArrayList<>();
-        Collection<DocumentType> rawDocs = conceptDao.getCompanyDocumentsInUse(company);
-        for (DocumentType rawDoc : rawDocs) {
+        Collection<DocumentNode> rawDocs = conceptDao.getCompanyDocumentsInUse(company);
+        for (DocumentNode rawDoc : rawDocs) {
             DocumentResultBean newDoc = new DocumentResultBean(rawDoc);
             if (!results.contains(newDoc))
                 results.add(newDoc);
@@ -115,12 +121,12 @@ public class ConceptServiceNeo implements ConceptService {
      */
     @Override
     @Deprecated // use resolveDocumentType(Fortress fortress, DocumentType documentType)
-    public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
+    public DocumentNode resolveByDocCode(Fortress fortress, String documentCode) {
         return resolveByDocCode(fortress, documentCode, true);
     }
 
     @Override
-    public DocumentType findOrCreate(Fortress fortress, DocumentType documentType) {
+    public DocumentNode findOrCreate(Fortress fortress, DocumentNode documentType) {
         return conceptDao.findDocumentType(fortress, documentType, true);
     }
 
@@ -134,7 +140,7 @@ public class ConceptServiceNeo implements ConceptService {
      * @return created DocumentType
      */
     @Override
-    public DocumentType resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing) {
+    public DocumentNode resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing) {
         if (documentCode == null) {
             throw new IllegalArgumentException("DocumentType cannot be null");
         }
@@ -152,7 +158,7 @@ public class ConceptServiceNeo implements ConceptService {
      * @param entityKeyBean properties that describe the relationship
      */
     @Override
-    public void linkEntities(DocumentType sourceType, DocumentType targetType, EntityKeyBean entityKeyBean) throws FlockException {
+    public void linkEntities(DocumentNode sourceType, DocumentNode targetType, EntityKeyBean entityKeyBean) throws FlockException {
         if (entityKeyBean.getRelationshipName()== null )
             throw new FlockException(String.format("Relationship name not defined from %s to %s for %s",sourceType, targetType,entityKeyBean));
 
@@ -175,11 +181,11 @@ public class ConceptServiceNeo implements ConceptService {
         // ToDo: This could be established the first time a DocType is encountered. Option to suppress subsequent
         //       registration analysis once the docType exists. This would need to be configurable as
         //       evolving models of connected concepts also exist
-        Map<DocumentType, ArrayList<ConceptInputBean>> docTypeToConcept = new HashMap<>();
+        Map<Document, ArrayList<ConceptInputBean>> docTypeToConcept = new HashMap<>();
 
         for (TrackResultBean resultBean : resultBeans) {
             if (resultBean.getEntity() != null ) {
-                DocumentType docType = resultBean.getDocumentType();
+                Document docType = resultBean.getDocumentType();
                 ArrayList<ConceptInputBean> conceptInputBeans = docTypeToConcept.get(docType);
                 if (conceptInputBeans == null) {
                     conceptInputBeans = new ArrayList<>();
@@ -208,19 +214,19 @@ public class ConceptServiceNeo implements ConceptService {
     }
 
     @Override
-    public DocumentType save(DocumentType documentType) {
+    public DocumentNode save(DocumentNode documentType) {
         if ( documentType.getName().equalsIgnoreCase("Entity"))
             return documentType; // non-persistent??
         return conceptDao.save(documentType);
     }
 
     @Override
-    public DocumentType findDocumentType(Fortress fortress, String documentName) {
+    public DocumentNode findDocumentType(Fortress fortress, String documentName) {
         return findDocumentType(fortress, documentName, false);
     }
 
     @Override
-    public DocumentType findDocumentType(Fortress fortress, String documentName, boolean createIfMissing) {
+    public DocumentNode findDocumentType(Fortress fortress, String documentName, boolean createIfMissing) {
         return conceptDao.findDocumentType(fortress, documentName, createIfMissing);
     }
 
@@ -236,13 +242,13 @@ public class ConceptServiceNeo implements ConceptService {
     }
 
     @Override
-    public Collection<DocumentType> makeDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans) throws FlockException {
-        Collection<DocumentType> docTypes = new ArrayList<>();
-        DocumentType master;
+    public Collection<DocumentNode> makeDocTypes(Segment segment, List<EntityInputBean> inputBeans) throws FlockException {
+        Collection<DocumentNode> docTypes = new ArrayList<>();
+        DocumentNode master;
         for (EntityInputBean entityInputBean : inputBeans) {
             // Entity is a reserved DocType in FD
             if (!isSystemType(entityInputBean.getDocumentType())) {
-                master = new DocumentType(segment, entityInputBean.getDocumentType());
+                master = new DocumentNode(segment, entityInputBean.getDocumentType());
                 master = findOrCreate(segment.getFortress(), master);
                 master = conceptDao.findDocumentTypeWithSegments(master);
                 if (!master.getSegments().contains(segment)) {
@@ -259,11 +265,11 @@ public class ConceptServiceNeo implements ConceptService {
                             Fortress fortress;
 
                             if (!segment.getFortress().getName().equals(entityKeyBean.getFortressName()))
-                                fortress = fortressService.registerFortress(segment.getCompany(), entityKeyBean.getFortressName());
+                                fortress = fortressService.registerFortress((CompanyNode)segment.getCompany(), entityKeyBean.getFortressName());
                             else
                                 fortress = segment.getFortress();
 
-                            DocumentType linkedDocument = new DocumentType(fortress, entityKeyBean.getDocumentType());
+                            DocumentNode linkedDocument = new DocumentNode(fortress, entityKeyBean.getDocumentType());
                             if (!docTypes.contains(linkedDocument)) {
                                 linkedDocument = findOrCreate(fortress, linkedDocument);
                                 docTypes.add(linkedDocument);
@@ -280,38 +286,38 @@ public class ConceptServiceNeo implements ConceptService {
         return docTypes;
     }
 
-    private boolean isSystemType(MetaDocument documentType) {
+    private boolean isSystemType(Document documentType) {
         return documentType.getName().equalsIgnoreCase("entity");
     }
 
     @Override
-    public void delete(DocumentType documentType) {
+    public void delete(Document documentType) {
         conceptDao.delete(documentType.getId());
     }
 
     @Override
-    public void delete(DocumentType documentType, FortressSegment segment) {
-        conceptDao.delete(documentType, segment);
+    public void delete(Document documentType, Segment segment) {
+        conceptDao.delete((DocumentNode)documentType, segment);
     }
 
     @Override
     public MatrixResults getContentStructure(Company company, String fortress) {
-        Fortress f = fortressService.findByCode(company, fortress);
+        FortressNode f = fortressService.findByCode(company, fortress);
         return conceptDao.getStructure(f)  ;
     }
 
     @Override
-    public Map<String, DocumentResultBean> getParents(DocumentType documentType) {
+    public Map<String, DocumentResultBean> getParents(Document documentType) {
         return conceptDao.getParents(documentType);
     }
 
     @Override
-    public DocumentType findDocumentTypeWithSegments(DocumentType documentType) {
+    public DocumentNode findDocumentTypeWithSegments(DocumentNode documentType) {
         return conceptDao.findDocumentTypeWithSegments(documentType);
     }
 
     @Override
-    public DocumentResultBean findDocumentTypeWithSegments(Fortress f, String doc) {
+    public DocumentResultBean findDocumentTypeWithSegments(FortressNode f, String doc) {
         return conceptDao.findDocumentTypeWithSegments(f, doc);
     }
 

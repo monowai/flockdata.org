@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 
 package org.flockdata.registration;
 
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.SystemUser;
 
 import java.util.Arrays;
 

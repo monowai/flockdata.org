@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,9 +22,10 @@ package org.flockdata.store.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.Entity;
+import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityResultBean;
 import org.flockdata.track.bean.TrackResultBean;
 
 import java.io.IOException;
@@ -40,7 +41,7 @@ import java.util.zip.Checksum;
  * @tag Payload, Store
  */
 public class StorageBean implements StoredContent, Serializable {
-    private Entity entity;
+    private EntityResultBean entity;
     private Object id;
     private String checksum;
     private ContentInputBean content = null;
@@ -69,9 +70,10 @@ public class StorageBean implements StoredContent, Serializable {
 
 
     public StorageBean(TrackResultBean trackResultBean) {
-        this.entity = trackResultBean.getEntity();
+
+        this.entity = new EntityResultBean(trackResultBean.getEntity());
         this.type = entity.getType();
-        assert entity.getType()!=null;
+        assert this.type!=null;
 
         if (trackResultBean.getCurrentLog() != null) {
             if (trackResultBean.getCurrentLog().getLog() != null) {
@@ -85,6 +87,11 @@ public class StorageBean implements StoredContent, Serializable {
             content.setKey(trackResultBean.getKey());
         }
 
+    }
+
+    public StorageBean(TrackResultBean trackResultBean, Store storeToTest) {
+        this(trackResultBean);
+        this.setStore(storeToTest.name());
     }
 
     public ContentInputBean getContent() {
@@ -115,7 +122,7 @@ public class StorageBean implements StoredContent, Serializable {
         return content.getpVer();
     }
 
-    public String getChecksum() throws IOException {
+    public String getChecksum() {
 
         assert getData()!=null || getAttachment()!=null;
 
@@ -127,7 +134,11 @@ public class StorageBean implements StoredContent, Serializable {
         if (getAttachment() != null)
             bytes = getAttachment().getBytes();
         else
-            bytes = JsonUtils.toJsonBytes(getData());
+            try {
+                bytes = JsonUtils.toJsonBytes(getData());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         crcChecksum.update(bytes, 0, bytes.length);
         checksum = Long.toHexString(crcChecksum.getValue());
         return checksum;
@@ -153,7 +164,7 @@ public class StorageBean implements StoredContent, Serializable {
     }
 
     @Override
-    public Entity getEntity(){
+    public EntityResultBean getEntity(){
         return entity;
     }
 }

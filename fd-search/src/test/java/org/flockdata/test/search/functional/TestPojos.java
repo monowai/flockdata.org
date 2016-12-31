@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,8 +20,8 @@
 
 package org.flockdata.test.search.functional;
 
+import org.flockdata.search.QueryParams;
 import org.flockdata.search.helper.QueryGenerator;
-import org.flockdata.search.model.QueryParams;
 import org.junit.Assert;
 import org.junit.Test;
 

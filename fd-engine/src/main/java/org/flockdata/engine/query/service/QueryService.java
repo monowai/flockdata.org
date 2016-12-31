@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,6 +21,8 @@
 package org.flockdata.engine.query.service;
 
 import org.flockdata.authentication.FdRoles;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.integration.search.EntityKeyQuery.EntityKeyGateway;
 import org.flockdata.engine.integration.search.FdViewQuery.FdViewQueryGateway;
 import org.flockdata.engine.integration.search.TagCloudRequest.TagCloudGateway;
@@ -29,9 +31,7 @@ import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.FlockServiceException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
-import org.flockdata.search.model.*;
+import org.flockdata.search.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +87,7 @@ public class QueryService {
         this.esStore = contentStoreEs;
     }
 
-    public EsSearchResult search(Company company, QueryParams queryParams) {
+    public EsSearchResult search(CompanyNode company, QueryParams queryParams) {
 
         queryParams.setCompany(company.getName());
         EsSearchResult esSearchResult;
@@ -116,8 +116,8 @@ public class QueryService {
 
     }
 
-    public TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException {
-        Fortress fortress = fortressService.findByCode(company, tagCloudParams.getFortress());
+    public TagCloud getTagCloud(CompanyNode company, TagCloudParams tagCloudParams) throws NotFoundException {
+        FortressNode fortress = fortressService.findByCode(company, tagCloudParams.getFortress());
         if (fortress == null)
             throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
         tagCloudParams.setFortress(fortress.getCode());
@@ -125,7 +125,7 @@ public class QueryService {
         return tagCloudGateway.getTagCloud(tagCloudParams);
     }
 
-    public EntityKeyResults getKeys(Company company, QueryParams queryParams) {
+    public EntityKeyResults getKeys(CompanyNode company, QueryParams queryParams) {
         queryParams.setCompany(company.getName());
         return entityKeyGateway.keys(queryParams);
     }

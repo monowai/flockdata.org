@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package org.flockdata.authentication.simple;
 
+import org.flockdata.authentication.SystemUserService;
 import org.flockdata.authentication.UserProfileService;
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.SystemUser;
 import org.flockdata.registration.UserProfile;
-import org.flockdata.registration.service.SystemUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

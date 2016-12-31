@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,11 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.Entity;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.Entity;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
@@ -50,13 +50,13 @@ public class TestContentDuplicate  extends  EngineBase{
         logger.debug("### reprocess_HistoricContentsNotCreated");
         SystemUser su = registerSystemUser("reprocess_HistoricContentsNotCreated");
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("reprocess_HistoricContentsNotCreated", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("reprocess_HistoricContentsNotCreated", true));
         EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "TestDoc", DateTime.now(), "123");
 
         int max = 5;
         List<ContentInputBean> contentBeans = new ArrayList<>();
         for (int i=0; i<max; i++){
-            ContentInputBean contentBean = new ContentInputBean("poppy", DateTime.now(), EntityContentHelper.getSimpleMap("name", "a" +i));
+            ContentInputBean contentBean = new ContentInputBean("poppy", DateTime.now(), ContentDataHelper.getSimpleMap("name", "a" +i));
             contentBeans.add(contentBean);
             inputBean.setContent(contentBean);
             mediationFacade.trackEntity(su.getCompany(), inputBean);

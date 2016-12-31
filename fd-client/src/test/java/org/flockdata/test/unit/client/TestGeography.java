@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@
 package org.flockdata.test.unit.client;
 
 import junit.framework.TestCase;
-import org.flockdata.model.Tag;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ExtractProfileHandler;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.ExtractProfile;
+import org.flockdata.data.ContentModel;
+import org.flockdata.data.Tag;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.GeoPayload;
 import org.flockdata.transform.GeoSupport;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.Transformer;
+import org.flockdata.transform.json.ContentModelDeserializer;
+import org.flockdata.transform.model.ExtractProfile;
+import org.flockdata.transform.model.ExtractProfileHandler;
 import org.flockdata.transform.tag.TagPayloadTransformer;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -194,14 +194,14 @@ public class TestGeography extends AbstractImport{
         List<TagInputBean> tags = getFdWriter().getTags();
         assertEquals("Condition expression did not evaluate", 1, tags.size());
 
-        TagInputBean tag = tags.iterator().next();
-        assertEquals(2, tag.getProperties().size());
-        logger.info("http://maps.google.com/maps?z=12&t=m&q=loc:{}+{}", tag.getProperty(Tag.LON), tag.getProperty(Tag.LAT));
+        TagInputBean tagInputBean = tags.iterator().next();
+        assertEquals(2, tagInputBean.getProperties().size());
+        logger.info("http://maps.google.com/maps?z=12&t=m&q=loc:{}+{}", tagInputBean.getProperty(Tag.LON), tagInputBean.getProperty(Tag.LAT));
         // Check that geo properties are set on nested tags
-        TagInputBean mesh = tag.getTargets().get("mesh").iterator().next();
+        TagInputBean mesh = tagInputBean.getTargets().get("mesh").iterator().next();
         assertEquals("Geo properties not set in to nested tag", 2, mesh.getProperties().size());
-        assertEquals(tag.getProperty(Tag.LON),mesh.getProperty(Tag.LON));
-        assertEquals(tag.getProperty(Tag.LAT),mesh.getProperty(Tag.LAT));
+        assertEquals(tagInputBean.getProperty(Tag.LON),mesh.getProperty(Tag.LON));
+        assertEquals(tagInputBean.getProperty(Tag.LAT),mesh.getProperty(Tag.LAT));
 
     }
 

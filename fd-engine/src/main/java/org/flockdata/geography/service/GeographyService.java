@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,9 @@
 
 package org.flockdata.geography.service;
 
-import org.flockdata.model.Company;
-import org.flockdata.registration.TagResultBean;
-import org.flockdata.track.service.TagService;
+import org.flockdata.data.Company;
+import org.flockdata.engine.tag.FdTagResultBean;
+import org.flockdata.engine.tag.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +43,7 @@ public class GeographyService {
         this.tagService = tagService;
     }
 
-    public Collection<TagResultBean> findCountries(Company company) {
+    public Collection<FdTagResultBean> findCountries(Company company) {
         return tagService.findTagResults(company, "Country");
 
     }

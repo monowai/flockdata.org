@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -27,10 +27,10 @@ import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRespon
 import org.elasticsearch.client.Client;
 import org.flockdata.helper.FlockException;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.search.model.ContentStructure;
-import org.flockdata.search.model.EsColumn;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.SearchSchema;
+import org.flockdata.search.ContentStructure;
+import org.flockdata.search.EsColumn;
+import org.flockdata.search.QueryParams;
+import org.flockdata.search.SearchSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

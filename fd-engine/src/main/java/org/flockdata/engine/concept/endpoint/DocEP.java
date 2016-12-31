@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,11 @@
 
 package org.flockdata.engine.concept.endpoint;
 
+import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Company;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -53,19 +53,19 @@ public class DocEP {
 
     @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public Collection<DocumentResultBean> getDocumentsInUse(@RequestBody(required = false) Collection<String> fortresses, HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return conceptService.getDocumentsInUse(company, fortresses);
     }
 
     @RequestMapping(value = "/{fortress}", method = RequestMethod.GET)
     public Collection<DocumentResultBean> getFortressDocs(HttpServletRequest request, @PathVariable("fortress") String fortress) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return conceptService.getDocumentsInUse(company, fortress);
     }
 
     @RequestMapping(value = "/{fortress}/{docType}", method = RequestMethod.GET)
     public DocumentResultBean getDocument(HttpServletRequest request, @PathVariable("fortress") String fortress, @PathVariable("docType") String docType) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         return new DocumentResultBean(conceptService.findDocumentType(fortressService.findByName(company, fortress), docType));
     }

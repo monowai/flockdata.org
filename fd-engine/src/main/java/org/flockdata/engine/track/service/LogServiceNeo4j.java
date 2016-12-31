@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,14 +20,20 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.FortressUser;
 import org.flockdata.engine.admin.service.StorageProxy;
-import org.flockdata.engine.dao.EntityDaoNeo;
+import org.flockdata.engine.configure.EngineConfig;
+import org.flockdata.engine.data.dao.EntityDaoNeo;
+import org.flockdata.engine.data.graph.EntityLogRlx;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.LogNode;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.*;
 import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +61,7 @@ public class LogServiceNeo4j implements LogService {
     private Logger logger = LoggerFactory.getLogger(LogServiceNeo4j.class);
 
     @Autowired
-    public LogServiceNeo4j(StorageProxy storageProxy, EntityDaoNeo entityDao, LogRetryService logRetryService) {
+    public LogServiceNeo4j(EngineConfig engineConfig, StorageProxy storageProxy, EntityDaoNeo entityDao, LogRetryService logRetryService) {
         this.storageProxy = storageProxy;
         this.entityDao = entityDao;
         this.logRetryService = logRetryService;
@@ -91,7 +97,7 @@ public class LogServiceNeo4j implements LogService {
 
         ContentInputBean contentInputBean = resultBean.getContentInput();
         logger.debug("writeLog {}", contentInputBean);
-        logRetryService.writeLog(fortress, resultBean);
+        logRetryService.writeLog((FortressNode) fortress, resultBean);
         if (resultBean.getLogStatus() == ContentInputBean.LogStatus.NOT_FOUND)
             throw new FlockException("Unable to find Entity ");
 
@@ -103,7 +109,7 @@ public class LogServiceNeo4j implements LogService {
     }
 
     @Override
-    public TrackResultBean writeLog(DocumentType documentType, Entity entity, ContentInputBean input, FortressUser fu) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean writeLog(Document documentType, Entity entity, ContentInputBean input, FortressUser fu) throws FlockException, IOException, ExecutionException, InterruptedException {
 
         TrackResultBean resultBean = new TrackResultBean(entity, documentType);
 
@@ -117,7 +123,7 @@ public class LogServiceNeo4j implements LogService {
 
     @Override
     @Transactional
-    public EntityLog getLastLog(Entity entity) throws FlockException {
+    public EntityLogRlx getLastLog(Entity entity) throws FlockException {
         if (entity == null || entity.getId() == null)
             return null;
         logger.trace("Getting lastLog MetaID [{}]", entity.getId());
@@ -125,8 +131,10 @@ public class LogServiceNeo4j implements LogService {
     }
 
     @Override
-    public StoredContent getContent(Entity entity, Log log) {
+    public StoredContent getContent(Entity entity, LogNode log) {
         return storageProxy.read(entity, log);
     }
+
+
 
 }

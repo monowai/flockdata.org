@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,10 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.data.Entity;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.matrix.MatrixResults;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -48,7 +48,7 @@ public class TestQueryResults extends EngineBase {
     @Test
     public void matrixQuery() throws Exception {
         SystemUser su = registerSystemUser("matrixQuery", mike_admin);
-        Fortress fortress = createFortress(su);
+        FortressNode fortress = createFortress(su);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "Study", new DateTime(), "StudyA");
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));

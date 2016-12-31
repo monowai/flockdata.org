@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,7 +21,8 @@
 package org.flockdata.geography.dao;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.flockdata.model.Tag;
+import org.flockdata.data.Tag;
+import org.flockdata.engine.data.graph.TagNode;
 import org.flockdata.track.bean.GeoDataBean;
 import org.flockdata.track.bean.GeoDataBeans;
 import org.neo4j.graphdb.Label;
@@ -88,7 +89,7 @@ public class GeoSupportNeo {
         return geoBeans;
     }
 
-    private GeoDataBean setFromNode(Tag sourceTag,GeoDataBeans geoBeans, Node node) {
+    private GeoDataBean setFromNode(Tag sourceTag, GeoDataBeans geoBeans, Node node) {
         GeoDataBean geoData = new GeoDataBean();
         String label = getUserDefinedLabel(node);
         // Check we don't add the same tag twice
@@ -104,14 +105,14 @@ public class GeoSupportNeo {
                 if ( name.equals(code))
                     name = null;
             }
-            if (node.hasProperty(Tag.NODE_LAT)) {
-                String val = node.getProperty(Tag.NODE_LAT).toString();
+            if (node.hasProperty(TagNode.NODE_LAT)) {
+                String val = node.getProperty(TagNode.NODE_LAT).toString();
                 if (NumberUtils.isNumber(val))
                     lat = Double.parseDouble(val);
             }
 
-            if (node.hasProperty(Tag.NODE_LON)) {
-                String val = node.getProperty(Tag.NODE_LON).toString();
+            if (node.hasProperty(TagNode.NODE_LON)) {
+                String val = node.getProperty(TagNode.NODE_LON).toString();
                 if (NumberUtils.isNumber(val))
                     lon = Double.parseDouble(val);
             }

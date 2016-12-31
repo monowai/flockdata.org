@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -34,13 +34,13 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.mapper.MapperParsingException;
+import org.flockdata.data.Entity;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.model.Entity;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.SearchSchema;
+import org.flockdata.search.SearchTag;
 import org.flockdata.search.base.EntityChangeWriter;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.SearchSchema;
-import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -210,7 +210,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
                 logger.debug("Updated [{}] logId=[{}] for [{}] to version [{}]", searchChange.getSearchKey(), searchChange.getLogId(), searchChange, indexResponse.getVersion());
             }
 //        } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
-//            logger.info("Attempt to update non-existent index [{}]. Creating it..", searchChange.getIndexName());
+//            logger.info("Attempt to update non-existent index [{}]. Creating it..", searchChange.getRootIndex());
 //            purgeCache();
 //            return save(searchChange, source);
         } catch (NoShardAvailableActionException e) {
@@ -289,7 +289,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         Map<String, Object> indexMe = new HashMap<>();
         indexMe.put(SearchSchema.FORTRESS, searchChange.getFortressName());
         // MKH - let elasticSearch manage this
-//        indexMe.put(SearchSchema.DOC_TYPE, searchChange.getDocumentType());
+//        indexMe.put(SearchSchema.DOC_TYPE, searchChange.getType());
         if (searchChange.getKey() != null) //DAT-83 No need to track NULL key
             // This occurs if the search doc is not being tracked in fd-engine's graph
             indexMe.put(SearchSchema.KEY, searchChange.getKey());
@@ -363,12 +363,12 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             Map<String, Object> leaf;
             if (linkedEntity.getRelationshipName() == null || linkedEntity.getRelationshipName().equals("") || linkedEntity.getRelationshipName().equalsIgnoreCase(linkedEntity.getDocumentType())) {
                 leaf = docEntry;
-                //prefix = "e" +QueryDaoES.ES_FIELD_SEP + linkedEntity.getDocumentType().toLowerCase() + QueryDaoES.ES_FIELD_SEP;
+                //prefix = "e" +QueryDaoES.ES_FIELD_SEP + linkedEntity.getType().toLowerCase() + QueryDaoES.ES_FIELD_SEP;
             } else {
                 leaf = new HashMap<>();
                 docEntry.put(linkedEntity.getRelationshipName().toLowerCase(), leaf);
 
-                //prefix = "e" +QueryDaoES.ES_FIELD_SEP+ linkedEntity.getDocumentType().toLowerCase() + QueryDaoES.ES_FIELD_SEP + linkedEntity.getRelationship() + QueryDaoES.ES_FIELD_SEP;
+                //prefix = "e" +QueryDaoES.ES_FIELD_SEP+ linkedEntity.getType().toLowerCase() + QueryDaoES.ES_FIELD_SEP + linkedEntity.getRelationship() + QueryDaoES.ES_FIELD_SEP;
             }
             setNonEmptyValue(SearchSchema.CODE, linkedEntity.getCode(), leaf);
             setNonEmptyValue(SearchSchema.INDEX, linkedEntity.getIndex(), leaf);

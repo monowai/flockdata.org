@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,9 +21,9 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.model.ChangeEvent;
-import org.flockdata.model.EntityLog;
-import org.flockdata.model.Log;
+import org.flockdata.data.ChangeEvent;
+import org.flockdata.data.EntityLog;
+import org.flockdata.data.Log;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 
@@ -48,7 +48,7 @@ public class EntityLogResult {
     private String comment;
     private Long when;
 //    private Boolean indexed;
-    private ChangeEvent event;
+    private ChangeEventResultBean event;
     private Map<String, Object> data;
     private boolean versioned;
     private String checksum;
@@ -60,19 +60,17 @@ public class EntityLogResult {
         Log log = entityLog.getLog();
         this.logId = entityLog.getId();
         this.store = Store.valueOf(log.getStorage());
-        //this.entity = new EntityBean(entityLog.getEntity());
         this.entityKey = entityLog.getEntity().getKey();
         this.contentType = log.getContentType();
         this.checkSum = log.getChecksum();
         this.versioned = !log.isMocked();
-        this.event = log.getEvent();
+        this.event = new ChangeEventResultBean(log.getEvent());
         if (log.getContent()!=null )
             this.data = log.getContent().getData();
         if ( log.getMadeBy()!=null)
             this.madeBy = log.getMadeBy().getCode();
         this.comment= log.getComment();
         this.when = entityLog.getFortressWhen();
-//        this.indexed = entityLog.isIndexed();
 
     }
 
@@ -119,10 +117,6 @@ public class EntityLogResult {
     public Long getWhen() {
         return when;
     }
-
-//    public Boolean getIndexed() {
-//        return indexed;
-//    }
 
     public ChangeEvent getEvent() {
         return event;

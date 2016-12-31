@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,11 @@
 
 package org.flockdata.engine.concept.endpoint;
 
+import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Company;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class ConceptEP {
 
     @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public Set<DocumentResultBean> getConceptsAllDocs(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         return conceptService.findConcepts(company, documents, false);
     }
@@ -61,7 +61,7 @@ public class ConceptEP {
 
     @RequestMapping(value = "/{fortress}", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
     public Set<DocumentResultBean> getConceptsSingleDoc(HttpServletRequest request, @PathVariable("fortress") String fortress) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         Collection<String>fortresses = new ArrayList<>();
         fortresses.add(fortress);
         Collection<DocumentResultBean> docs = conceptService.getDocumentsInUse(company, fortresses);
@@ -77,21 +77,21 @@ public class ConceptEP {
     @RequestMapping(value = "/{fortress}/structure", method = RequestMethod.GET)
     public MatrixResults getContentStructure
             (@PathVariable("fortress") String fortress, HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return conceptService.getContentStructure(company, fortress);
     }
 
 
     @RequestMapping(value = "/relationships", method = RequestMethod.POST,consumes = "application/json", produces = "application/json")
     public Set<DocumentResultBean> getRelationships(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         // Todo: DAT-100 Sherry's comment. Should be Concepts, not Doc Types
         return conceptService.findConcepts(company, documents, true);
     }
 
     @RequestMapping(value = "/{docType}/values", method = RequestMethod.GET)
     public Collection<ConceptResultBean> getDocsLabels(HttpServletRequest request, @PathVariable("docType") String docType) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         Collection<String>docNames = new ArrayList<>();
         docNames.add(docType);
         Set<DocumentResultBean> results = conceptService.findConcepts(company, docNames, true);

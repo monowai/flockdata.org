@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,22 +21,26 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
+import org.flockdata.data.Company;
+import org.flockdata.data.ContentModel;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.track.service.BatchService;
+import org.flockdata.engine.track.service.ContentModelService;
 import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.integration.FdPayloadWriter;
-import org.flockdata.model.*;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ContentModelResult;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.service.ContentModelService;
+import org.flockdata.model.ContentModelResult;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.SearchTag;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.SearchTag;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.service.BatchService;
 import org.flockdata.transform.ColumnDefinition;
+import org.flockdata.transform.json.ContentModelDeserializer;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -94,13 +98,13 @@ public class TestEntityLinks extends EngineBase {
         // Initial setup
         cleanUpGraph();
         SystemUser su = registerSystemUser("testLinkedToSearch", mike_admin);
-        Fortress timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
+        FortressNode timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
 
         EntityInputBean staff = new EntityInputBean(timesheetFortress, "wally", "Staff", new DateTime(), "ABC123");
         staff.addTag( new TagInputBean("Cleaner", "Position", new EntityTagRelationshipInput("role")));
         mediationFacade.trackEntity(su.getCompany(), staff);
 
-        DocumentType docTypeWork = new DocumentType(timesheetFortress, "Work");
+        DocumentNode docTypeWork = new DocumentNode(timesheetFortress, "Work");
         docTypeWork = conceptService.findOrCreate(timesheetFortress, docTypeWork);
 
         EntityInputBean workRecord = new EntityInputBean(timesheetFortress, "wally", docTypeWork.getName(), new DateTime(), "ABC321");
@@ -153,14 +157,14 @@ public class TestEntityLinks extends EngineBase {
         // Initial setup
         cleanUpGraph();
         SystemUser su = registerSystemUser("testEntityLinks", mike_admin);
-        Fortress timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
+        FortressNode timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
 
         EntityInputBean staff = new EntityInputBean(timesheetFortress, "wally", "Staff", new DateTime(), "ABC123");
         staff.addTag(new TagInputBean("Cleaner", "Position", new EntityTagRelationshipInput("role")));
 
         mediationFacade.trackEntity(su.getCompany(), staff);
 
-        DocumentType docTypeWork = new DocumentType(timesheetFortress, "Work");
+        DocumentNode docTypeWork = new DocumentNode(timesheetFortress, "Work");
         docTypeWork = conceptService.findOrCreate(timesheetFortress, docTypeWork);
 
         EntityInputBean workRecord = new EntityInputBean(timesheetFortress, "wally", docTypeWork.getName(), new DateTime(), "ABC321");
@@ -183,14 +187,14 @@ public class TestEntityLinks extends EngineBase {
         //  an existing entity to link to
         //  a non-existing entity link requested
         SystemUser su = registerSystemUser("linkedBehaviour", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Staff", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Staff", true));
 
         // One timesheet entry will be assigned to this staff member
         EntityInputBean eStaff = new EntityInputBean(fortress, "wally", "Staff", new DateTime(), "30250");
         eStaff.addTag( new TagInputBean("Cleaner", "Position", new EntityTagRelationshipInput("role")));
         mediationFacade.trackEntity(su.getCompany(), eStaff);
 
-        DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
+        DocumentNode timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
 
         ContentModel params = ContentModelDeserializer.getContentModel("/models/test-entitylinks.json");
         contentModelService.saveEntityModel(su.getCompany(), fortress, timesheet, params );
@@ -199,7 +203,7 @@ public class TestEntityLinks extends EngineBase {
         assertNotNull( "couldn't find the entity we created", entityService.findByCode(su.getCompany(), fortress.getName(), "Timesheet", "1" ));
         // recorded is the relationship type in the content profile definition
         String rlxName = "recorded";
-        Map<String, Collection<Entity>> linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "1", rlxName);
+        Map<String, Collection<EntityNode>> linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "1", rlxName);
         assertEquals("This timesheet should have a reference to an existing staff", 1, linkedEntities.get(rlxName).size());
         linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "2", rlxName);
         // Default behaviour is to ignore
@@ -215,14 +219,14 @@ public class TestEntityLinks extends EngineBase {
         //  an existing entity to link to
         //  a non-existing entity link requested
         SystemUser su = registerSystemUser("work_whenEntityDoesNotExist", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Staff", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Staff", true));
 
         // One timesheet entry will be assigned to this staff member
         EntityInputBean eStaff = new EntityInputBean(fortress, "wally", "Staff", new DateTime(), "30250");
         eStaff.addTag( new TagInputBean("Cleaner", "Position", new EntityTagRelationshipInput("role")));
         mediationFacade.trackEntity(su.getCompany(), eStaff);
 
-        DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
+        DocumentNode timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
         String rlxName = "recorded";
 
         ContentModel params = ContentModelDeserializer.getContentModel("/models/test-entitylinks.json");
@@ -230,7 +234,7 @@ public class TestEntityLinks extends EngineBase {
         contentModelService.saveEntityModel(su.getCompany(), fortress, timesheet, params );
         batchService.process(su.getCompany(), fortress, timesheet, "/data/test-entitylinks.csv", false);
         // recorded is the relationship type in the content profile definition
-        Map<String, Collection<Entity>> linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "1", rlxName);
+        Map<String, Collection<EntityNode>> linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "1", rlxName);
         assertEquals("This timesheet should have a reference to an existing staff", 1, linkedEntities.get(rlxName).size());
         linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "2", rlxName);
         // Default behaviour is to ignore
@@ -241,7 +245,7 @@ public class TestEntityLinks extends EngineBase {
     @Test
     public void entityRelationshipsOnly () throws Exception {
         SystemUser su = registerSystemUser("entityRelationshipsOnly", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entityRelationshipsOnly", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entityRelationshipsOnly", true));
 
 
         EntityInputBean eStaff = new EntityInputBean(fortress, "wally", "Staff", new DateTime(), "30250");
@@ -262,9 +266,9 @@ public class TestEntityLinks extends EngineBase {
         // exist as different DocTypes. fortress is mandatory.
         mediationFacade.trackEntity(su.getCompany(), xRef); // Should create only the relationship
         assertNull ("Entity document type should not exist", conceptService.findDocumentType(fortress, "Entity"));
-        Map<String, Collection<Entity>> crossRefResults = entityService.getCrossReference(su.getCompany(), fortress.getName(), "30251", "manages");
+        Map<String, Collection<EntityNode>> crossRefResults = entityService.getCrossReference(su.getCompany(), fortress.getName(), "30251", "manages");
         assertEquals("Should have found 1 relationship", 1, crossRefResults.size());
-        Entity foundEntity = crossRefResults.get("manages").iterator().next();
+        EntityNode foundEntity = crossRefResults.get("manages").iterator().next();
         assertEquals ("30250", foundEntity.getCode());
 
 
@@ -275,15 +279,15 @@ public class TestEntityLinks extends EngineBase {
         // Tests that a child record, with track suppressed, connects to a graph persistent parent relationship
         cleanUpGraph();
         SystemUser su = registerSystemUser("linkToParentWhenTrackIsSuppressed", mike_admin);
-        Fortress staffFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ParentFortress", true));
+        FortressNode staffFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ParentFortress", true));
 
         EntityInputBean parent = new EntityInputBean(staffFortress, "wally", "Staff", new DateTime(), "ABC123");
         TrackResultBean parentTrack = mediationFacade.trackEntity(su.getCompany(), parent); // Persistent entity
 
         ContentModel model = ContentModelDeserializer.getContentModel("/models/parent-link-track-suppressed.json");
         // Store server side
-        Fortress childFortress = fortressService.registerFortress(su.getCompany(), model.getFortress());
-        DocumentType documentType = conceptService.save(new DocumentType(childFortress.getDefaultSegment(), model.getDocumentType()));
+        FortressNode childFortress = fortressService.registerFortress(su.getCompany(), model.getFortress());
+        DocumentNode documentType = conceptService.save(new DocumentNode(childFortress.getDefaultSegment(), model.getDocumentType()));
         ContentModelResult savedModel = contentModelService.saveEntityModel(su.getCompany(), childFortress, documentType, model);
         assertNotNull( savedModel);
         model= contentModelService.get(su.getCompany(), "WorkData", "WorkRecord");
@@ -334,7 +338,7 @@ public class TestEntityLinks extends EngineBase {
         // Tests that a child record, with track suppressed, connects to a graph persistent parent relationship
         cleanUpGraph();
         SystemUser su = registerSystemUser("parentLinkWhenTrackIsSuppressed", mike_admin);
-        Fortress staffFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ParentFortress", true));
+        FortressNode staffFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ParentFortress", true));
 
         EntityInputBean parent = new EntityInputBean(staffFortress, "wally", "Staff", new DateTime(), "ABC123");
         TrackResultBean parentTrack = mediationFacade.trackEntity(su.getCompany(), parent); // Persistent entity
@@ -379,8 +383,8 @@ public class TestEntityLinks extends EngineBase {
         // Initial setup
         cleanUpGraph();
         SystemUser su = registerSystemUser("testNestedParentStructure", mike_admin);
-        Fortress timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
-        Fortress companyFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("company", true));
+        FortressNode timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
+        FortressNode companyFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("company", true));
 
         EntityInputBean company = new EntityInputBean(companyFortress, new DocumentTypeInputBean("Company"), "ABC123")
                 .addTag(new TagInputBean("City", "SomeTag", new EntityTagRelationshipInput("located")));
@@ -446,8 +450,8 @@ public class TestEntityLinks extends EngineBase {
         // Initial setup
         cleanUpGraph();
         SystemUser su = registerSystemUser("testHierarchicalWithNoParent", mike_admin);
-        Fortress timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
-        Fortress companyFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("company", true));
+        FortressNode timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
+        FortressNode companyFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("company", true));
 
         EntityInputBean company = new EntityInputBean(companyFortress, new DocumentTypeInputBean("Company"), "ABC123")
                 .addTag(new TagInputBean("City", "SomeTag", new EntityTagRelationshipInput("located")));
@@ -504,8 +508,8 @@ public class TestEntityLinks extends EngineBase {
         assertEquals( "Staff is a parent entity, but should not be in EntityLinks", 3, searchDocument.getEntityLinks().size());
 
     }
-    public Map<String,Collection<Entity>>getLinkedEntities(Company company, String fortressName, String docType, String code, String rlxName) throws Exception{
-        Entity entity = entityService.findByCode(company, fortressName, docType, code);
+    public Map<String,Collection<EntityNode>>getLinkedEntities(Company company, String fortressName, String docType, String code, String rlxName) throws Exception{
+        EntityNode entity = (EntityNode)entityService.findByCode(company, fortressName, docType, code);
         assertNotNull (entity);
         return entityService.getCrossReference(company, entity.getKey(), rlxName);
 

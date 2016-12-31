@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.engine.dao.MatrixDaoNeo4j;
+import org.flockdata.engine.data.dao.MatrixDaoNeo4j;
 import org.flockdata.engine.matrix.FdNode;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.test.engine.MockNode;

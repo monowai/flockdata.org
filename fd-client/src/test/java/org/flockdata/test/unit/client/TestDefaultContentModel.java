@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.profile.ContentModelHandler;
-import org.flockdata.profile.ContentValidationRequest;
-import org.flockdata.profile.model.ContentModel;
+import org.flockdata.data.ContentModel;
+import org.flockdata.model.ContentValidationRequest;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.Transformer;
+import org.flockdata.transform.model.ContentModelHandler;
 import org.junit.Test;
 
 import java.util.ArrayList;

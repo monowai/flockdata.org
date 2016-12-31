@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,11 +21,11 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityTag;
-import org.flockdata.model.MetaFortress;
-import org.flockdata.search.model.SearchTag;
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Fortress;
+import org.flockdata.search.SearchTag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,23 +57,23 @@ public class EntityKeyBean {
 
     private ACTION missingAction =ACTION.IGNORE; // default action to take when source resolvedEntity to link to is missing
     private Entity resolvedEntity;
-    private DocumentType resolvedDocument;
+    private Document resolvedDocument;
 
     private EntityKeyBean(){}
 
-    public EntityKeyBean(DocumentType documentType, String code) {
+    public EntityKeyBean(Document documentType, String code) {
         this(documentType.getCode(), documentType.getFortress(), code);
         this.resolvedDocument = documentType;
     }
 
-    public EntityKeyBean(String documentType, MetaFortress fortress, String code){
+    public EntityKeyBean(String documentType, Fortress fortress, String code){
         assert (fortress.getName() !=null );
         this.documentType = documentType;
         this.fortressName = fortress.getName();
         this.code = code;
     }
 
-    public EntityKeyBean(DocumentType documentType, MetaFortress fortress, String code, String relationshipName) {
+    public EntityKeyBean(Document documentType, Fortress fortress, String code, String relationshipName) {
         this.documentType = documentType.getName();
         this.fortressName = fortress.getName();
         this.resolvedDocument = documentType;
@@ -214,11 +214,11 @@ public class EntityKeyBean {
         this.resolvedEntity = resolvedEntity;
     }
 
-    public DocumentType getResolvedDocument() {
+    public Document getResolvedDocument() {
         return resolvedDocument;
     }
 
-    public void setResolvedDocument(DocumentType documentType) {
+    public void setResolvedDocument(Document documentType) {
         this.resolvedDocument = documentType;
     }
 

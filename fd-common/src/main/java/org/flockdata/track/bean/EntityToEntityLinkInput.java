@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.model.MetaDocument;
+import org.flockdata.data.Document;
 import org.flockdata.registration.FortressInputBean;
 
 import java.util.Collection;
@@ -54,7 +54,7 @@ public class EntityToEntityLinkInput {
      * @param documentName      Parent docType
      * @param code              Parent code reference
      */
-    public EntityToEntityLinkInput(FortressInputBean fortress, MetaDocument documentName, String code) {
+    public EntityToEntityLinkInput(FortressInputBean fortress, Document documentName, String code) {
         this.code = code;
         this.fortress = fortress.getName();
         this.documentType = documentName.getName();

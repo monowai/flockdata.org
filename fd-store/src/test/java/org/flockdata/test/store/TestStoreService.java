@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,18 +22,17 @@ package org.flockdata.test.store;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.data.*;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.model.*;
-import org.flockdata.registration.FortressInputBean;
 import org.flockdata.store.FdStore;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
 import org.flockdata.store.service.StoreManager;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.MockDataFactory;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -70,6 +69,8 @@ import java.util.Map;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.util.AssertionErrors.fail;
 
@@ -204,31 +205,38 @@ public class TestStoreService {
         String company = "company";
 
         Map<String, Object> theData = getData();
-        Fortress fort = new Fortress(
-                new FortressInputBean("test", true),
-                new Company("MyName"));
+
+        Fortress fort = MockDataFactory.getFortress("test", MockDataFactory.getCompany("MyName"));
+
         // Represents identifiable entity information
         EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), entityCode)
                 .setContent(new ContentInputBean(theData));
 
-        DocumentType documentType = new DocumentType(fort, docType);
+        Document documentType = MockDataFactory.getDocument(fort,docType);
         // The "Data" content
 
         // Emulate the creation of the entity
-        Entity entity = EntityContentHelper.getEntity(company, fortress, "wally", documentType.getName());
+        Entity entity = MockDataFactory.getEntity(company, fortress, "wally", documentType.getName(), null);
 
         // Wrap the entity in a Track Result
         // TrackResultBean represents the general accumulated payload
         TrackResultBean trackResultBean = new TrackResultBean(fort, entity, documentType, entityInputBean);
+        assertNotNull(trackResultBean.getKey());
+        EntityLog eLog = mock(EntityLog.class);
+        when(eLog.getEntity()).thenReturn(entity);
 
         // Create a log with a random primary key
-        Log graphLog = new Log(entity);
+        Log graphLog = mock(Log.class);
+        when(graphLog.isMocked()).thenReturn(true);
+        when (graphLog.getId()).thenReturn(System.currentTimeMillis());
+        when(graphLog.getStorage()).thenReturn(storeToTest.name());
+        StorageBean storageBean = new StorageBean(trackResultBean, storeToTest);
+        when(graphLog.getContent()).thenReturn(storageBean);
 
-        // Sets some tracking properties in to the Log and wraps the ContentInputBean in a KV wrapping class
-        // This occurs before the service persists the log
-        graphLog = Store.prepareLog(storeToTest, trackResultBean, graphLog);
+//        graphLog = StoreHelper.prepareLog(storeToTest, trackResultBean, graphLog);
         // Graph tracks which KVService is storing this content
-        EntityLog eLog = new EntityLog(entity, graphLog, new DateTime());
+        when(eLog.getLog()).thenReturn(graphLog);
+                //new EntityLog(entity, graphLog, new DateTime());
 
         // Wrap the log result in to the TrackResult
         trackResultBean.setCurrentLog(eLog);
@@ -244,6 +252,7 @@ public class TestStoreService {
             String index = indexManager.toStoreIndex(storeToTest, entity);
             String type = indexManager.parseType(entity);
             String key = indexManager.resolveKey(new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
+            assertNotNull(key);
             StoredContent contentResult = storeManager.doRead(storeToTest,
                     index,
                     type,
@@ -290,15 +299,14 @@ public class TestStoreService {
 
         String docType = "KvTest";
         String entityCode = "ABC123R";
-        Entity entity = EntityContentHelper.getEntity("myco", "myfort", "myuser", docType);
-        DocumentType documentType = new DocumentType(null, entity.getType());
+        Entity entity = MockDataFactory.getEntity("myco", "myfort", "myuser", docType, entityCode);
 
-        EntityInputBean inputBean = EntityContentHelper.getEntityInputBean(docType, entity.getFortress(), "myuser", entityCode, DateTime.now());
+        EntityInputBean inputBean = new EntityInputBean(entity.getFortress(), "myuser", docType, DateTime.now(), entityCode);
         ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime());
         contentInputBean.setAttachment("test-attachment-data", "PDF", "testFile.txt");
 
         try {
-            TrackResultBean trackResultBean = new TrackResultBean(null, entity, documentType, inputBean);
+            TrackResultBean trackResultBean = new TrackResultBean(null, entity, MockDataFactory.getDocument(entity.getFortress(), docType), inputBean);
             StorageBean storeBean = new StorageBean(trackResultBean);
             storeManager.doWrite(storeBean);
             EntityLog entityLog = trackResultBean.getCurrentLog();

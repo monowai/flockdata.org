@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,15 +20,15 @@
 
 package org.flockdata.engine.integration.engine;
 
+import org.flockdata.data.Company;
 import org.flockdata.engine.configure.SecurityHelper;
+import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.Exchanges;
-import org.flockdata.model.Company;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.service.MediationFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;

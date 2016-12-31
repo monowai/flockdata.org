@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,8 +22,8 @@ package org.flockdata.registration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.model.EntityTagRelationshipInput;
-import org.flockdata.model.Tag;
+import org.flockdata.data.Tag;
+import org.flockdata.track.bean.EntityTagRelationshipInput;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -114,7 +114,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      * @param relationshipName Name used to create an EntityTagRelationshipInput
      */
     public TagInputBean(String tagCode, String tagLabel, String relationshipName) {
-        this (tagCode, tagLabel, new EntityTagRelationshipInput((relationshipName==null ?Tag.UNDEFINED:relationshipName)));
+        this (tagCode, tagLabel, new EntityTagRelationshipInput((relationshipName==null ? Tag.UNDEFINED:relationshipName)));
     }
 
     public void setServiceMessage(String getServiceMessage) {

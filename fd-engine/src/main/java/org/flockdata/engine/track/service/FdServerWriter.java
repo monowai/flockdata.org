@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,17 +20,16 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.data.Company;
+import org.flockdata.data.ContentModel;
+import org.flockdata.data.Fortress;
 import org.flockdata.engine.configure.SecurityHelper;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.FdIoInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -106,7 +105,7 @@ public class FdServerWriter implements FdIoInterface {
         if ( args.length == 2){
             Company company = securityHelper.getCompany();
             Fortress fortress = fortressService.getFortress(company, args[0]);
-            DocumentType docType = conceptService.findDocumentType(fortress, args[1]);
+            DocumentNode docType = conceptService.findDocumentType(fortress, args[1]);
             try {
                 return contentModelService.get(company, fortress, docType);
             } catch (FlockException e) {

@@ -20,9 +20,8 @@
 
 package org.flockdata.track;
 
-import org.flockdata.model.EntityTag;
+import org.flockdata.data.EntityTag;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.EntityService;
 
 /**
  * Classes that implement this can find and massage the EntityTag objects that will be
@@ -35,5 +34,6 @@ public interface EntityTagFinder {
 
     Iterable<EntityTag> getEntityTags(TrackResultBean trackResultBean);
 
-    EntityService.TAG_STRUCTURE getTagStructure();
+    EntityTag.TAG_STRUCTURE getTagStructure();
+
 }

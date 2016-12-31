@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,7 +22,7 @@ package org.flockdata.test.search;
 
 import junit.framework.TestCase;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.QueryParams;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertNotNull;

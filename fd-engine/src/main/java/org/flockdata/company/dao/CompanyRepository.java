@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,30 +20,31 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.model.Company;
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.Company;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.SystemUserNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 import java.util.Collection;
 
 
-public interface CompanyRepository extends GraphRepository<Company> {
+public interface CompanyRepository extends GraphRepository<CompanyNode> {
 
-    @Query( value =  "match (company:FDCompany)-[r:ACCESSES]- (systemUser:SystemUser) " +
+    @Query( elementClass = SystemUserNode.class, value =  "match (company:FDCompany)-[r:ACCESSES]- (systemUser:SystemUser) " +
             "where id(company) = {0} and systemUser.login ={1} return systemUser")
-    SystemUser getAdminUser(long companyId, String userName);
+    SystemUserNode getAdminUser(long companyId, String userName);
 
 
-    @Query(elementClass = Company.class,
+    @Query(elementClass = CompanyNode.class,
             value = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) " +
                     "where id(su)={0}" +
                     "return company ")
-    Collection<org.flockdata.model.Company> getCompaniesForUser(Long sysUserId);
+    Collection<Company> getCompaniesForUser(Long sysUserId);
 
-    @Query(elementClass = Company.class,
+    @Query(elementClass = CompanyNode.class,
             value = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) " +
                     "where su.apiKey={0}" +
                     "return company ")
-    Collection<org.flockdata.model.Company> findCompanies(String userApiKey);
+    Collection<Company> findCompanies(String userApiKey);
 }

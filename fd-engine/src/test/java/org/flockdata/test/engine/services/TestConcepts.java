@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,14 +21,19 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.matrix.EdgeResult;
 import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -63,17 +68,17 @@ public class TestConcepts extends EngineBase {
     public void documentType_InputThroughToDb() throws Exception {
         // DAT-540
         DocumentTypeInputBean documentTypeInputBean = new DocumentTypeInputBean("DTIB")
-                .getVersionStrategy(DocumentType.VERSION.DISABLE)
-                .setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY)
+                .getVersionStrategy(Document.VERSION.DISABLE)
+                .setTagStructure(EntityTag.TAG_STRUCTURE.TAXONOMY)
                 .setGeoQuery("Testing GeoQuery");
 
         String json = JsonUtils.toJson(documentTypeInputBean);
         documentTypeInputBean = JsonUtils.toObject(json.getBytes(), DocumentTypeInputBean.class);
 
-        Fortress fortress = new Fortress(new FortressInputBean("DocTypes"), new Company("Testing"));
-        DocumentType documentType = new DocumentType(fortress.getDefaultSegment(), documentTypeInputBean);
-        TestCase.assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, documentType.getTagStructure());
-        TestCase.assertEquals(DocumentType.VERSION.DISABLE, documentType.getVersionStrategy());
+        FortressNode fortress = new FortressNode(new FortressInputBean("DocTypes"), new CompanyNode("Testing"));
+        DocumentNode documentType = new DocumentNode(fortress.getDefaultSegment(), documentTypeInputBean);
+        TestCase.assertEquals(EntityTag.TAG_STRUCTURE.TAXONOMY, documentType.getTagStructure());
+        TestCase.assertEquals(Document.VERSION.DISABLE, documentType.getVersionStrategy());
         TestCase.assertEquals("Testing GeoQuery", documentType.getGeoQuery());
     }
 
@@ -89,8 +94,8 @@ public class TestConcepts extends EngineBase {
             SystemUser su = registerSystemUser("multipleDocsSameFortress", mike_admin);
             assertNotNull(su);
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleDocsSameFortress", true));
-            DocumentType dType = conceptService.resolveByDocCode(fortress, "ABC123", true);
+            FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleDocsSameFortress", true));
+            DocumentNode dType = conceptService.resolveByDocCode(fortress, "ABC123", true);
             commitManualTransaction(t);// Should only be only one docTypes
 
             assertNotNull(dType);
@@ -138,8 +143,8 @@ public class TestConcepts extends EngineBase {
             SystemUser su = registerSystemUser("multipleFortressesSameTag", mike_admin);
             assertNotNull(su);
 
-            Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagA", true));
-            Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagB", true));
+            FortressNode fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagA", true));
+            FortressNode fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagB", true));
             commitManualTransaction(t);
 
             EntityInputBean input = new EntityInputBean(fortressA, "jinks", "DocA", new DateTime());
@@ -159,7 +164,7 @@ public class TestConcepts extends EngineBase {
             documents.add("DocB");
             results = conceptService.findConcepts(su.getCompany(), documents, false);
             assertEquals(2, results.size());
-            adminService.purge(su.getCompany(), fortressB);
+            adminService.purge(fortressB);
             waitAWhile();// Previous call is Async
             results = conceptService.findConcepts(su.getCompany(), documents, false);
             assertEquals(1, results.size());
@@ -185,9 +190,9 @@ public class TestConcepts extends EngineBase {
             engineConfig.setConceptsEnabled(true);
             engineConfig.setTestMode(true);
 
-            Fortress fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortressConcepts", true));
+            FortressNode fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortressConcepts", true));
 
-            DocumentType dType = conceptService.resolveByDocCode(fortA, "ABC123", true);
+            DocumentNode dType = conceptService.resolveByDocCode(fortA, "ABC123", true);
             commitManualTransaction(t);// Should only be only one docTypes
 
             assertNotNull(dType);
@@ -258,9 +263,9 @@ public class TestConcepts extends EngineBase {
             SystemUser su = registerSystemUser("multipleRelationships", mike_admin);
             assertNotNull(su);
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleRelationships", true));
+            FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleRelationships", true));
 
-            DocumentType dType = conceptService.resolveByDocCode(fortress, "ABC123", true);
+            DocumentNode dType = conceptService.resolveByDocCode(fortress, "ABC123", true);
             commitManualTransaction(t);// Should only be only one docTypes
 
             assertNotNull(dType);
@@ -322,10 +327,10 @@ public class TestConcepts extends EngineBase {
             SystemUser su = registerSystemUser("relationshipWorkForMultipleDocuments", mike_admin);
             assertNotNull(su);
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("relationshipWorkForMultipleDocuments", true));
+            FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("relationshipWorkForMultipleDocuments", true));
 
-            DocumentType docA = conceptService.resolveByDocCode(fortress, "DOCA", true);
-            DocumentType docB = conceptService.resolveByDocCode(fortress, "DOCB", true);
+            DocumentNode docA = conceptService.resolveByDocCode(fortress, "DOCA", true);
+            DocumentNode docB = conceptService.resolveByDocCode(fortress, "DOCB", true);
             commitManualTransaction(t);// Should only be only one docTypes
 
             assertNotNull(docA);
@@ -390,12 +395,12 @@ public class TestConcepts extends EngineBase {
             SystemUser su = registerSystemUser("uniqueRelationshipByDocType", mike_admin);
             assertNotNull(su);
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortA", true));
+            FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortA", true));
 
-            DocumentType sale = conceptService.resolveByDocCode(fortress, "Sale", true);
+            DocumentNode sale = conceptService.resolveByDocCode(fortress, "Sale", true);
             commitManualTransaction(t);
             t = beginManualTransaction();
-            DocumentType promo = conceptService.resolveByDocCode(fortress, "Promotion", true);
+            DocumentNode promo = conceptService.resolveByDocCode(fortress, "Promotion", true);
             commitManualTransaction(t);
 
             EntityInputBean promoInput = new EntityInputBean(fortress, "jinks", promo.getName(), new DateTime());
@@ -451,10 +456,10 @@ public class TestConcepts extends EngineBase {
             SystemUser su = registerSystemUser("relationshipWorkForMultipleDocuments", mike_admin);
             assertNotNull(su);
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("relationshipWorkForMultipleDocuments", true));
+            FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("relationshipWorkForMultipleDocuments", true));
 
             t = beginManualTransaction();
-            DocumentType claim = conceptService.resolveByDocCode(fortress, "Claim", true);
+            DocumentNode claim = conceptService.resolveByDocCode(fortress, "Claim", true);
             commitManualTransaction(t);
 
             EntityInputBean promoInput = new EntityInputBean(fortress,
@@ -490,7 +495,7 @@ public class TestConcepts extends EngineBase {
             }
             mediationFacade.purge(fortress);
             waitAWhile("Waiting for Async processing to complete");
-            assertEquals(0, conceptService.getDocumentsInUse(fortress.getCompany()).size());
+            assertEquals(0, conceptService.getDocumentsInUse(su.getCompany()).size());
         } finally {
             cleanUpGraph();
         }
@@ -506,7 +511,7 @@ public class TestConcepts extends EngineBase {
         engineConfig.setTestMode(true);
 
         SystemUser su = registerSystemUser("testEntityConceptsLink", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testEntityConceptsLink", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testEntityConceptsLink", true));
 
         EntityInputBean staff = new EntityInputBean(fortress, "wally", "Staff", new DateTime(), "ABC123");
 
@@ -553,7 +558,7 @@ public class TestConcepts extends EngineBase {
         engineConfig.setTestMode(true);
 
         SystemUser su = registerSystemUser("testEntityConceptsLinkProperties", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testEntityConceptsLinkProperties", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testEntityConceptsLinkProperties", true));
 
         EntityInputBean staff = new EntityInputBean(fortress, "wally", "Staff", new DateTime(), "ABC123");
 

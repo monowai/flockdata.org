@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,13 +20,13 @@
 
 package org.flockdata.transform.tag;
 
+import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.PayloadTransformer;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.TransformationHelper;
+import org.flockdata.transform.model.PayloadTransformer;
 
 import java.util.ArrayList;
 import java.util.Collection;

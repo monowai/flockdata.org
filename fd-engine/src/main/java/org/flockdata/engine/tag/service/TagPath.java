@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,10 @@
 
 package org.flockdata.engine.tag.service;
 
-import org.flockdata.engine.dao.TagPathDao;
+import org.flockdata.data.Tag;
+import org.flockdata.engine.data.dao.TagPathDao;
+import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.Company;
-import org.flockdata.model.Tag;
-import org.flockdata.track.service.TagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,15 +41,19 @@ import java.util.Map;
 @Transactional
 public class TagPath {
 
-    @Autowired
-    private TagPathDao tagPathDao;
+    private final TagPathDao tagPathDao;
 
-    @Autowired
-    private TagService tagService;
+    private final TagService tagService;
 
     private Logger logger = LoggerFactory.getLogger(TagPath.class);
 
-    public Collection<Map<String, Object>> getPaths(Company company, String label, String code, int length, String targetLabel) throws NotFoundException {
+    @Autowired
+    public TagPath(TagPathDao tagPathDao, TagService tagService) {
+        this.tagPathDao = tagPathDao;
+        this.tagService = tagService;
+    }
+
+    public Collection<Map<String, Object>> getPaths(CompanyNode company, String label, String code, int length, String targetLabel) throws NotFoundException {
         Tag tag = tagService.findTag(company, label, null, code, false);
         if ( length <1 )
             length = 4;

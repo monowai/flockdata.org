@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,14 +20,22 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.model.*;
+import junit.framework.TestCase;
+import org.flockdata.data.Company;
+import org.flockdata.data.Document;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Fortress;
+import org.flockdata.engine.data.graph.*;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Test;
 
 import java.util.ArrayList;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -44,19 +52,19 @@ public class TestHashcodeAndEquality {
 
 
         // We don't compare the relationships primary key for a tag
-        Tag tagNode = getTag("Samsung", "plantif", 12345l);
-        Tag tagNodeB =  getTag("Samsung", "plantif", 12345l);
+        TagNode tagNode = getTag("Samsung", "plantif", 12345l);
+        TagNode tagNodeB =  getTag("Samsung", "plantif", 12345l);
 
         assertEquals(tagNode, tagNodeB);
-        ArrayList<Tag> tags = new ArrayList<>();
+        ArrayList<TagNode> tags = new ArrayList<>();
         tags.add(tagNode);
         assertEquals(true, tags.contains(tagNodeB));
 
     }
 
-    private Tag getTag(String name, String relationship, Long l) {
+    private TagNode getTag(String name, String relationship, Long l) {
         TagInputBean tagInputBean = new TagInputBean(name, null, relationship);
-        Tag tagNode = new Tag(tagInputBean);
+        TagNode tagNode = new TagNode(tagInputBean);
         tagNode.setId(l);
         return tagNode;
     }
@@ -64,19 +72,19 @@ public class TestHashcodeAndEquality {
     @Test
     public void entityTags() throws Exception{
 
-        Tag tagNode = getTag("Samsung", "plantif", 12345l);
-        Tag tagNodeB = getTag("Apple", "defendant", 12343l);
+        TagNode tagNode = getTag("Samsung", "plantif", 12345l);
+        TagNode tagNodeB = getTag("Apple", "defendant", 12343l);
 
-        Company company = new Company("TestCo");
+        CompanyNode company = new CompanyNode("TestCo");
         company.setId(12313);
-        Fortress fortress = new Fortress(new FortressInputBean("Testing",true ), company);
-        DocumentType documentTypeNode = new DocumentType(fortress, "DocTest");
+        FortressNode fortress = new FortressNode(new FortressInputBean("Testing",true ), company);
+        DocumentNode documentTypeNode = new DocumentNode(fortress, "DocTest");
         EntityInputBean entityInput = new EntityInputBean();
         entityInput.setCode("abc");
 
-        Entity entityNode = new Entity("123abc", fortress.getDefaultSegment(), entityInput, documentTypeNode);
-        EntityTagOut entityTagA = new EntityTagOut(entityNode, tagNode);
-        EntityTagOut entityTagB = new EntityTagOut(entityNode, tagNodeB);
+        EntityNode entityNode = new EntityNode("123abc", fortress.getDefaultSegment(), entityInput, documentTypeNode);
+        EntityTagOutRlx entityTagA = new EntityTagOutRlx(entityNode, tagNode);
+        EntityTagOutRlx entityTagB = new EntityTagOutRlx(entityNode, tagNodeB);
 
         ArrayList<EntityTag>existingTags = new ArrayList<>();
         existingTags.add(entityTagA);
@@ -84,6 +92,34 @@ public class TestHashcodeAndEquality {
         assertEquals(2, existingTags.size());
         assertEquals(true, existingTags.contains(entityTagA));
         assertEquals(true, existingTags.contains(entityTagB));
+
+    }
+
+    @Test
+    public void defaults_Serialize() throws Exception{
+        // Fundamental assertions are the payload is serialized
+
+        Document dib = new DocumentTypeInputBean("MyDoc")
+                .setTagStructure(EntityTag.TAG_STRUCTURE.TAXONOMY)
+                .setVersionStrategy(Document.VERSION.DISABLE);
+
+        Company company = new CompanyNode("CompanyName");
+        Fortress fortress = new FortressNode(new FortressInputBean("FortressName"),company)
+                .setSearchEnabled(true);
+
+        byte[] bytes = JsonUtils.toJsonBytes(dib);
+        TestCase.assertEquals(dib.getTagStructure(), JsonUtils.toObject(bytes,DocumentTypeInputBean.class).getTagStructure() );
+
+        EntityInputBean compareFrom = new EntityInputBean(fortress, dib);
+        TestCase.assertEquals(dib.getTagStructure(), compareFrom.getDocumentType().getTagStructure());
+
+        EntityInputBean deserialize
+                = JsonUtils.toObject(JsonUtils.toJsonBytes(compareFrom), EntityInputBean.class);
+        assertNotNull (deserialize);
+
+        TestCase.assertEquals(compareFrom.getDocumentType().getCode(), deserialize.getDocumentType().getCode());
+        TestCase.assertEquals(compareFrom.getDocumentType().getTagStructure(), deserialize.getDocumentType().getTagStructure());
+        TestCase.assertEquals(compareFrom.getDocumentType().getVersionStrategy(), deserialize.getDocumentType().getVersionStrategy());
 
     }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,9 @@
 
 package org.flockdata.engine.integration.search;
 
-import org.flockdata.engine.PlatformConfig;
-import org.flockdata.search.model.ContentStructure;
-import org.flockdata.search.model.QueryParams;
+import org.flockdata.engine.admin.PlatformConfig;
+import org.flockdata.search.ContentStructure;
+import org.flockdata.search.QueryParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

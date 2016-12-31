@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,10 @@
 
 package org.flockdata.engine.tag.endpoint;
 
+import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.tag.service.TagPath;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Company;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,7 +52,7 @@ public class PathEP {
     @RequestMapping(value = "/{label}/{code}/{length}/{targetLabel}", produces = "application/json", method = RequestMethod.GET)
     public Collection<Map<String, Object>> getConnectedTags(@PathVariable("label") String label, @PathVariable("code") String code,
                                                             HttpServletRequest request, @PathVariable("targetLabel") String targetLabel, @PathVariable("length") Integer length) throws FlockException, UnsupportedEncodingException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return tagPath.getPaths(company, URLDecoder.decode(label,"UTF-8"), URLDecoder.decode(code,"UTF-8"), length, URLDecoder.decode(targetLabel,"UTF-8"));
 //        return tagService.findTags(company, label, code, relationship, targetLabel);
     }

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -72,7 +72,7 @@ public class Neo4jConfigTest extends Neo4jConfiguration {
     @Bean
     public GraphDatabaseService graphDatabaseService(
             @Value("${org.neo4j.server.webserver.port:0}") Integer port) {
-        setBasePackage("org.flockdata.model");
+        setBasePackage("org.flockdata.engine.data.graph");
         graphdb = graphDatabaseFactory().newEmbeddedDatabase(getNeoStoreDir());
         ServerConfigurator config = new ServerConfigurator((GraphDatabaseAPI) graphdb);
         if ( port > 0 ) {

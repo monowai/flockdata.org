@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,13 +20,12 @@
 
 package org.flockdata.engine.tag.service;
 
+import org.flockdata.data.Company;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.IndexRetryService;
+import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Company;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.registration.TagResultBean;
-import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.neo4j.kernel.api.exceptions.EntityNotFoundException;
@@ -88,7 +87,7 @@ public class TagRetryService {
             backoff = @Backoff(delay = 300, multiplier = 3, random = true))
 
     @Async("fd-tag")
-    public Future<Collection<TagResultBean>> createTags(Company company, Collection<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
+    public Future<Collection<FdTagResultBean>> createTags(Company company, Collection<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
         if (tagInputBeans == null || tagInputBeans.isEmpty())
             return new AsyncResult<>(new ArrayList<>());
@@ -101,7 +100,7 @@ public class TagRetryService {
 
         if (tagInputBeans.isEmpty())
             return new AsyncResult<>(new ArrayList<>());
-        Collection<TagResultBean> tagResults = tagService.createTags(company, tagInputBeans);
+        Collection<FdTagResultBean> tagResults = tagService.createTags(company, tagInputBeans);
         if (searchService!=null){
             searchService.makeTagsSearchable(company, tagResults);
         }

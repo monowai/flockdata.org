@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,13 +21,16 @@
 package org.flockdata.test.engine.mvc;
 
 import au.com.bytecode.opencsv.CSVReader;
+import org.flockdata.data.ContentModel;
 import org.flockdata.engine.matrix.EdgeResult;
 import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.integration.FileProcessor;
-import org.flockdata.profile.*;
-import org.flockdata.profile.model.ContentModel;
+import org.flockdata.model.ColumnValidationResult;
+import org.flockdata.model.ContentModelResult;
+import org.flockdata.model.ContentValidationRequest;
+import org.flockdata.model.ContentValidationResults;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.TagInputBean;
@@ -37,6 +40,9 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.Transformer;
+import org.flockdata.transform.json.ContentModelDeserializer;
+import org.flockdata.transform.model.ContentModelHandler;
+import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 

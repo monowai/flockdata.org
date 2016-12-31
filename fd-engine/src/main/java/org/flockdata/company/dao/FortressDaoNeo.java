@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,12 +20,14 @@
 
 package org.flockdata.company.dao;
 
+import org.flockdata.data.Company;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
 import org.flockdata.engine.configure.EngineConfig;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.FortressSegmentNode;
+import org.flockdata.engine.data.graph.FortressUserNode;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.FortressSegment;
-import org.flockdata.model.FortressUser;
 import org.flockdata.registration.FortressInputBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,67 +60,67 @@ public class FortressDaoNeo  {
     private EngineConfig engineConfig;
     private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
 
-    public Fortress save(Company company, FortressInputBean fortressInput) {
-        if ( fortressInput.getSearchEnabled()==null)
+    public FortressNode save(Company company, FortressInputBean fortressInput) {
+        if ( fortressInput.isSearchEnabled()==null)
             fortressInput.setSearchEnabled(engineConfig.isSearchEnabled());
 
-        Fortress fortress = new Fortress(fortressInput, company);
+        FortressNode fortress = new FortressNode(fortressInput, company);
         fortress.setRootIndex(indexManager.getIndexRoot(fortress));
         return fortressRepo.save(fortress);
     }
 
-    public Fortress findOne(Long fortressId) {
+    public FortressNode findOne(Long fortressId) {
         return fortressRepo.findOne(fortressId);
     }
 
     @Cacheable(value = "fortressUser", unless = "#result==null")
-    public FortressUser getFortressUser(Long fortressId, String name) {
+    public FortressUserNode getFortressUser(Long fortressId, String name) {
         return fortressUserRepo.findBySchemaPropertyValue("key", fortressId + "." + name);
     }
 
-    public List<Fortress> findFortresses(Long companyID) {
+    public List<FortressNode> findFortresses(Long companyID) {
         return fortressRepo.findCompanyFortresses(companyID);
     }
 
-    public FortressUser findOneUser(Long fortressUserId) {
+    public FortressUserNode findOneUser(Long fortressUserId) {
         return fortressUserRepo.findOne(fortressUserId);
     }
 
-    public FortressUser save(Fortress fortress, String fortressUserName) {
-        return fortressUserRepo.save(new FortressUser(fortress, fortressUserName));
+    public FortressUserNode save(FortressNode fortress, String fortressUserName) {
+        return fortressUserRepo.save(new FortressUserNode(fortress, fortressUserName));
     }
 
     public String delete(Fortress fortress) {
-        fortressRepo.delete(fortress);
+        fortressRepo.delete((FortressNode) fortress);
         return "OK";
     }
 
-    public Fortress getFortressByName(Long companyId, String fortressName) {
+    public FortressNode getFortressByName(Long companyId, String fortressName) {
         return fortressRepo.getFortressByName(companyId, fortressName);
     }
 
-    public Fortress getFortressByCode(Long companyId, String fortressCode) {
+    public FortressNode getFortressByCode(Long companyId, String fortressCode) {
         return fortressRepo.getFortressByCode(companyId, fortressCode.toLowerCase());
     }
 
-    public FortressSegment saveSegment(FortressSegment segment){
-        FortressSegment result= findSegment(segment.getFortress(), segment.getKey());
+    public Segment saveSegment(Segment segment){
+        Segment result= findSegment(segment.getFortress(), segment.getKey());
         if ( result == null )
-            result = fortressSegmentRepo.save(segment);
+            result = fortressSegmentRepo.save((FortressSegmentNode)segment);
         return result;
     }
 
-    public FortressSegment getDefaultSegement(Fortress fortress){
-        FortressSegment segment = fortress.getDefaultSegment();
+    public Segment getDefaultSegment(Fortress fortress){
+        FortressSegmentNode segment = (FortressSegmentNode)fortress.getDefaultSegment();
         template.fetch(segment);
         return segment;
     }
 
-    public Collection<FortressSegment> getSegments(Fortress fortress) {
+    public Collection<Segment> getSegments(Fortress fortress) {
         return fortressSegmentRepo.findFortressSegments(fortress.getId()) ;
     }
 
-    FortressSegment findSegment(Fortress fortress, String segmentKey){
+    Segment findSegment(Fortress fortress, String segmentKey){
         return fortressSegmentRepo.findSegment(fortress.getId(),segmentKey);
     }
 
@@ -126,7 +128,7 @@ public class FortressDaoNeo  {
         fortressSegmentRepo.purgeFortressSegments(fortressId);
     }
 
-    public Fortress update(Fortress existing) {
+    public FortressNode update(FortressNode existing) {
         return template.save(existing);
     }
 }

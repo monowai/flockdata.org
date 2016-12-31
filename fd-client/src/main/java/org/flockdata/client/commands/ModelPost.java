@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.client.FdTemplate;
-import org.flockdata.profile.ContentModelResult;
-import org.flockdata.profile.model.ContentModel;
+import org.flockdata.data.ContentModel;
+import org.flockdata.model.ContentModelResult;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;

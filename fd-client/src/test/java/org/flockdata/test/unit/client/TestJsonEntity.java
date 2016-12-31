@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,16 +18,14 @@ package org.flockdata.test.unit.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.model.Company;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ExtractProfileHandler;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.ExtractProfile;
+import org.flockdata.data.ContentModel;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.entity.JsonEntityTransformer;
+import org.flockdata.transform.json.ContentModelDeserializer;
+import org.flockdata.transform.model.ExtractProfile;
+import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -92,8 +90,6 @@ public class TestJsonEntity extends AbstractImport{
 
         model.setFortress(new FortressInputBean("testing"));
 
-        Company company = Mockito.mock(Company.class);
-        company.setName("Testing");
         long rows = fileProcessor.processFile(extractProfile, "/model/object-example.json");
         assertEquals("Should have processed the file as a single JSON object", 1, rows);
     }
@@ -104,10 +100,7 @@ public class TestJsonEntity extends AbstractImport{
         ExtractProfile extractProfile = new ExtractProfileHandler(model);
         extractProfile.setContentType(ExtractProfile.ContentType.JSON);
         model.setFortress(new FortressInputBean("testing"));
-//        profile.setTagOrEntity(ContentModel.DataType.ENTITY);
 
-        Company company = Mockito.mock(Company.class);
-        company.setName("Testing");
         long rows = fileProcessor.processFile(extractProfile, "/model/gov-array-example.json");
         assertEquals("Should have processed the file as an array of JSON objects", 1, rows);
     }

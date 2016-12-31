@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,7 +22,7 @@ package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
-import org.flockdata.model.Company;
+import org.flockdata.engine.data.graph.CompanyNode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +69,7 @@ public class TestApiKeyInterceptor extends EngineBase {
 		boolean status = apiKeyInterceptor.preHandle(request, response, null);
 
 		assertEquals(true, status);
-        Company company = (Company) request.getAttribute("company");
+        CompanyNode company = (CompanyNode) request.getAttribute("company");
         assertNotNull (company);
 
 		assertEquals(companyName, company.getName());

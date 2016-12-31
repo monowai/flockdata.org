@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,12 +20,12 @@
 
 package org.flockdata.test.engine.mvc;
 
+import org.flockdata.data.ContentModel;
 import org.flockdata.helper.TagHelper;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ContentValidationRequest;
-import org.flockdata.profile.model.ContentModel;
+import org.flockdata.model.ContentValidationRequest;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
+import org.flockdata.transform.json.ContentModelDeserializer;
 import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 

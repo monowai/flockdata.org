@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,10 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackRequestResult;
@@ -52,13 +52,13 @@ public class TestEntitySearch extends EngineBase {
         String callerRef = "mk1hz";
         SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
 
         EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
-                new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
+                new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
         EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
-                new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
+                new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
         Collection<EntityInputBean> beans = new ArrayList<>();
         beans.add(beanA);
@@ -75,15 +75,15 @@ public class TestEntitySearch extends EngineBase {
 
         SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
 
         EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
-                new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
+                new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
         mediationFacade.trackEntity(su.getCompany(), beanA); // Handle beanA as an existing entity
         // Now add a new one
         EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
-                new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
+                new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
 
         ArrayList<EntityInputBean> beans = new ArrayList<>();
@@ -99,7 +99,7 @@ public class TestEntitySearch extends EngineBase {
     }
 
 
-    private EntityInputBean getContentBean(Fortress fortress, String fortUserName, String companyName, String callerRef, ContentInputBean contentInputBean) {
+    private EntityInputBean getContentBean(FortressNode fortress, String fortUserName, String companyName, String callerRef, ContentInputBean contentInputBean) {
         EntityInputBean entityBean = new EntityInputBean(fortress, fortUserName, companyName, DateTime.now(), callerRef);
         entityBean.setContent(contentInputBean);
         return entityBean;

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,17 +22,17 @@ package org.flockdata.transform;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ExtractProfileHandler;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.ExtractProfile;
-import org.flockdata.profile.model.PayloadTransformer;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.entity.EntityPayloadTransformer;
 import org.flockdata.transform.entity.JsonEntityTransformer;
+import org.flockdata.transform.model.ExtractProfile;
+import org.flockdata.transform.model.ExtractProfileHandler;
+import org.flockdata.transform.model.PayloadTransformer;
 import org.flockdata.transform.tag.TagPayloadTransformer;
 import org.flockdata.transform.xml.XmlMappable;
 import org.joda.time.DateTime;

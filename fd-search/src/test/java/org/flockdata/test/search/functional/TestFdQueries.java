@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,10 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.model.Entity;
-import org.flockdata.search.FdSearch;
-import org.flockdata.search.model.*;
+import org.flockdata.data.Entity;
+import org.flockdata.search.*;
 import org.flockdata.search.service.QueryServiceEs;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +49,7 @@ public class TestFdQueries extends ESBase{
 
     @Test
     public void query_EndPoints() throws Exception {
-        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
+        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
         String fortress = "query_EndPoints";
         String company = "query_EndPoints";
@@ -104,7 +103,7 @@ public class TestFdQueries extends ESBase{
     }
     @Test
     public void query_EsPassthrough() throws Exception {
-        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
+        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
         String fortress = "query_EsPassthrough";
         String company = "query_EsPassthrough";

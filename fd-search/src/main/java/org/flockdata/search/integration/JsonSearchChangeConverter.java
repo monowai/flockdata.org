@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,7 +22,7 @@ package org.flockdata.search.integration;
 
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.ObjectHelper;
-import org.flockdata.search.model.SearchChanges;
+import org.flockdata.search.SearchChanges;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;

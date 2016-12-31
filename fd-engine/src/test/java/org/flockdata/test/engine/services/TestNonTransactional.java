@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,11 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.EntityTag;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.FortressUser;
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.FortressUserNode;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -59,7 +60,7 @@ public class TestNonTransactional extends EngineBase {
     public void crossReferenceTags() throws Exception {
         SystemUser su = registerSystemUser("crossReferenceTags", mike_admin);
         Thread.sleep(500);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         TagInputBean tag = new TagInputBean("ABC", "Device", "sold");
         ArrayList<TagInputBean> tags = new ArrayList<>();
         tags.add(tag);
@@ -103,7 +104,7 @@ public class TestNonTransactional extends EngineBase {
         SystemUser su = registerSystemUser(company, mike_admin);
         setSecurity();
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressUserRequestsThreaded"));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressUserRequestsThreaded"));
         // This is being done to create the schema index which otherwise errors when the threads kick off
         fortressService.getFortressUser(fortress, "don'tcare");
         fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testThis", true));
@@ -138,7 +139,7 @@ public class TestNonTransactional extends EngineBase {
         }
         // Check we only get one back
         // Not 100% sure this works
-        FortressUser fu = fortressService.getFortressUser(fortress, mike_admin);
+        FortressUserNode fu = fortressService.getFortressUser(fortress, mike_admin);
         assertNotNull(fu);
 
     }
@@ -149,7 +150,7 @@ public class TestNonTransactional extends EngineBase {
         CountDownLatch latch;
         boolean failed;
 
-        public FuAction(Fortress fortress, String id, String uname, CountDownLatch latch) {
+        public FuAction(FortressNode fortress, String id, String uname, CountDownLatch latch) {
             this.fortress = fortress;
             this.uname = uname;
             this.latch = latch;
@@ -168,7 +169,7 @@ public class TestNonTransactional extends EngineBase {
             while (i < runCount) {
                 boolean deadlocked = false;
                 try {
-                    FortressUser fu = fortressService.getFortressUser(this.fortress, uname);
+                    FortressUserNode fu = fortressService.getFortressUser(this.fortress, uname);
                     assertNotNull(fu);
                 } catch (Exception e) {
                     deadLockCount++;

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,10 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.registration.TagResultBean;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class TestTagsToSearch  extends EngineBase  {
         deliveryPoint.addAlias(dpAlias);
         tagInputs.add(deliveryPoint);
 
-        Collection<TagResultBean> tagResults = mediationFacade.createTags(su.getCompany(), tagInputs);
+        Collection<FdTagResultBean> tagResults = mediationFacade.createTags(su.getCompany(), tagInputs);
         assertEquals(true, searchService.makeTagsSearchable(su.getCompany(), tagResults));
 
 //        tagService.findTag(su.getCompany(), deliveryPoint.getLabel(), null, dpAlias.getCode());

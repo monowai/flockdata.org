@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,8 +21,8 @@
 package org.flockdata.test.engine.mvc;
 
 import junit.framework.TestCase;
+import org.flockdata.engine.data.graph.FortressSegmentNode;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.FortressSegment;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
@@ -59,7 +59,7 @@ public class TestFortressEP extends MvcBase {
 
         FortressResultBean fortress = makeFortress(mike(), "make_DocTypes");
 
-        Collection<FortressSegment> segments = getDocumentWithSegments(mike(), fortress.getName());
+        Collection<FortressSegmentNode> segments = getDocumentWithSegments(mike(), fortress.getName());
         assertEquals(1, segments.size());
 
         TestCase.assertTrue("Default segment not found", segments.iterator().next().getCode().equals("Default"));
@@ -153,8 +153,8 @@ public class TestFortressEP extends MvcBase {
 
         FortressResultBean updated = updateFortress(mike(), fortress.getCode(), update, MockMvcResultMatchers.status().isOk());
         assertNotNull(updated);
-        assertEquals("Search active did not change", update.getSearchEnabled().booleanValue(), updated.getSearchEnabled());
-        assertEquals("Store active did not change", update.getStoreEnabled().booleanValue(), updated.isStoreEnabled());
+        assertEquals("Search active did not change", update.isSearchEnabled(), updated.isSearchEnabled());
+        assertEquals("Store active did not change", update.isStoreEnabled(), updated.isStoreEnabled());
         assertEquals(update.getName(), updated.getName());
 
 
@@ -252,7 +252,7 @@ public class TestFortressEP extends MvcBase {
         systemFortress.setSystem(true);
         FortressResultBean fortress = makeFortress(mike(),systemFortress);
         assertTrue ( "Was not created as a system fortress", fortress.isSystem());
-        assertTrue ( "system index prefix was not set ["+fortress.getIndexName()+"]", fortress.getIndexName().startsWith(".testfd."));
+        assertTrue ( "system index prefix was not set ["+fortress.getRootIndex()+"]", fortress.getRootIndex().startsWith(".testfd."));
         fortresses = getFortresses(mike());
         assertEquals("System fortress should not have been returned", fortressCount+1, fortresses.size());
     }
@@ -261,8 +261,8 @@ public class TestFortressEP extends MvcBase {
     public void default_FortressInputWorks() throws Exception {
         FortressInputBean defaults = getDefaultFortress(mike());
         assertNotNull(defaults);
-        assertFalse(defaults.getSearchEnabled());
-        assertFalse(defaults.getStoreEnabled());
+        assertFalse(defaults.isSearchEnabled());
+        assertFalse(defaults.isStoreEnabled());
         assertNotNull(defaults.getTimeZone());
 
     }

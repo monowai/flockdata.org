@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,9 +21,9 @@
 package org.flockdata.company.endpoint;
 
 import org.flockdata.authentication.UserProfileService;
+import org.flockdata.company.service.RegistrationService;
 import org.flockdata.registration.LoginRequest;
 import org.flockdata.registration.SystemUserResultBean;
-import org.flockdata.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;

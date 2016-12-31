@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 
 package org.flockdata.test.engine.mvc;
 
-import org.flockdata.model.Company;
+import org.flockdata.engine.data.graph.CompanyNode;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -36,10 +36,10 @@ public class TestCompanyEP extends MvcBase {
     @Test
     public void companyLocators() throws Exception {
 
-        Collection<Company> companies = findCompanies(mike());
+        Collection<CompanyNode> companies = findCompanies(mike());
         assertEquals(1, companies.size());
-        Company listCompany = companies.iterator().next();
-        Company foundCompany = getCompany(listCompany.getName(), mike());
+        CompanyNode listCompany = companies.iterator().next();
+        CompanyNode foundCompany = getCompany(listCompany.getName(), mike());
         assertNotNull(foundCompany);
         assertEquals(null, listCompany.getId(), foundCompany.getId());
         boolean failed = findCompanyIllegal(foundCompany.getName(), noUser());
@@ -48,10 +48,10 @@ public class TestCompanyEP extends MvcBase {
 
     @Test
     public void locateCompanyByApiKey() throws Exception {
-        Collection<Company> companies = findCompanies(mike());
+        Collection<CompanyNode> companies = findCompanies(mike());
         assertEquals(1, companies.size());
-        Company listCompany = companies.iterator().next();
-        Company foundCompany = getCompany(listCompany.getName(), mike());
+        CompanyNode listCompany = companies.iterator().next();
+        CompanyNode foundCompany = getCompany(listCompany.getName(), mike());
         assertEquals(null, listCompany.getId(), foundCompany.getId());
 
         // ToDo: We have no need to look up a company by name. For this we need a company to company relationship.

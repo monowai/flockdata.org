@@ -17,8 +17,8 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.client.FdTemplate;
-import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityResultBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +37,7 @@ public class EntityGet extends AbstractRestCommand  {
 
     private EntityInputBean entityInputBean;
 
-    private EntityBean result;
+    private EntityResultBean result;
 
     private String key;
 
@@ -52,7 +52,7 @@ public class EntityGet extends AbstractRestCommand  {
     }
 
 
-    public EntityBean result() {
+    public EntityResultBean result() {
         return result;
     }
 
@@ -62,11 +62,11 @@ public class EntityGet extends AbstractRestCommand  {
         result=null;   error =null;
         try {
 
-            ResponseEntity<EntityBean> response ;
+            ResponseEntity<EntityResultBean> response ;
             if (key !=null ) // Locate by FD unique key
-                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityBean.class, key);
+                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityResultBean.class, key);
             else
-                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityBean.class,
+                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityResultBean.class,
                         entityInputBean.getFortress().getName(),
                         entityInputBean.getDocumentType().getName(),
                         entityInputBean.getCode());

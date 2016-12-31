@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 
 package org.flockdata.track;
 
-import org.flockdata.model.Tag;
+import org.flockdata.data.Tag;
 
 /**
  * Used in the location and caching of a Tag.

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,8 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityLog;
-import org.flockdata.model.Log;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityLog;
 
 
 /**
@@ -37,7 +36,7 @@ public class EntityTXResult {
     private String documentType;
     private String code;
     private Long lastSystemChange;
-    private Long fortressWhen = 0l;
+    private Long fortressWhen = 0L;
 
     private EntityLog entityLog;
 
@@ -45,7 +44,7 @@ public class EntityTXResult {
     }
 
 
-    public EntityTXResult(Entity entity, Log change, EntityLog log) {
+    public EntityTXResult(Entity entity, EntityLog log) {
         this();
         this.fortressWhen = log.getFortressWhen();
         this.auditKey = entity.getKey();

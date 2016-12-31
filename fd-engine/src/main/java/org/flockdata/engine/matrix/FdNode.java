@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,7 +21,7 @@
 package org.flockdata.engine.matrix;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.flockdata.helper.TagHelper;
+import org.flockdata.helper.CypherHelper;
 import org.neo4j.graphdb.Node;
 
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public class FdNode {
         } else
             nameValue = node.getProperty("code").toString();
         data.put("name", nameValue);
-        data.put("label", TagHelper.getLabel(node.getLabels()));
+        data.put("label", CypherHelper.getLabel(node.getLabels()));
     }
 
     public Map<String, Object> getData() {

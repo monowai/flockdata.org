@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,32 +20,36 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.authentication.SystemUserService;
 import org.flockdata.company.endpoint.CompanyEP;
+import org.flockdata.company.service.CompanyService;
+import org.flockdata.company.service.RegistrationService;
+import org.flockdata.data.Company;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityLog;
+import org.flockdata.data.SystemUser;
 import org.flockdata.engine.FdEngine;
-import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.admin.service.AdminService;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.configure.SecurityHelper;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
-import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.engine.track.service.FortressService;
-import org.flockdata.engine.track.service.TrackEventService;
+import org.flockdata.engine.tag.MediationFacade;
+import org.flockdata.engine.tag.service.TagService;
+import org.flockdata.engine.track.service.*;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.model.*;
-import org.flockdata.profile.service.ContentModelService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.RegistrationBean;
-import org.flockdata.registration.service.CompanyService;
-import org.flockdata.registration.service.RegistrationService;
-import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
-import org.flockdata.track.service.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -114,6 +118,9 @@ public abstract class EngineBase {
     protected MediationFacade mediationFacade;
     @Autowired
     protected LogService logService;
+    @Autowired
+    protected LogRetryService logRetryService;
+
     @Autowired
     RegistrationService regService;
     @Autowired
@@ -202,7 +209,7 @@ public abstract class EngineBase {
         logger.trace(message, milliseconds / 1000d);
     }
 
-    public org.flockdata.model.Fortress createFortress(SystemUser su) throws Exception {
+    public FortressNode createFortress(SystemUser su) throws Exception {
         return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis(), true));
     }
 
@@ -257,7 +264,7 @@ public abstract class EngineBase {
         return su;
     }
 
-    EntityLog waitForLogCount(org.flockdata.model.Company company, Entity entity, int expectedCount) throws Exception {
+    EntityLog waitForLogCount(Company company, Entity entity, int expectedCount) throws Exception {
         // Looking for the first searchKey to be logged against the entity
         int i = 0;
         int timeout = 100;
@@ -266,7 +273,7 @@ public abstract class EngineBase {
         //logger.debug("Sleep Count {}", sleepCount);
         //Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
         while (i <= timeout) {
-            Entity updateEntity = entityService.getEntity(company, entity.getKey());
+            EntityNode updateEntity = entityService.getEntity(company, entity.getKey());
             count = entityService.getLogCount(company, updateEntity.getKey());
 
             EntityLog log = entityService.getLastEntityLog(company, updateEntity.getKey());
@@ -284,12 +291,12 @@ public abstract class EngineBase {
         throw new Exception(String.format("Timeout waiting for the defined log count of %s. We found %s", expectedCount, count));
     }
 
-    long waitForFirstLog(org.flockdata.model.Company company, Entity source) throws Exception {
+    long waitForFirstLog(Company company, Entity source) throws Exception {
         // Looking for the first searchKey to be logged against the entity
         long thenTime = System.currentTimeMillis();
         int i = 0;
 
-        Entity entity = entityService.getEntity(company, source.getKey());
+        EntityNode entity = entityService.getEntity(company, source.getKey());
 
         int timeout = 100;
         while (i <= timeout) {
@@ -309,10 +316,10 @@ public abstract class EngineBase {
 
 
     public void testJson() throws Exception {
-        Fortress fortressNode = new Fortress(new FortressInputBean(
-                "testing"), new Company("testCompany"));
+        FortressNode fortressNode = new FortressNode(new FortressInputBean(
+                "testing"), new CompanyNode("testCompany"));
         byte[] bytes = JsonUtils.toJsonBytes(fortressNode);
-        org.flockdata.model.Fortress f = JsonUtils.toObject(bytes, Fortress.class);
+        FortressNode f = JsonUtils.toObject(bytes, FortressNode.class);
         assertNotNull(f);
         assertNull(f.getCompany());// JsonIgnored - Discuss!
         assertEquals("testing", f.getName());

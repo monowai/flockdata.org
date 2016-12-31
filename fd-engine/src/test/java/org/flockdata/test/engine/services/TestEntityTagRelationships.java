@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,20 +20,20 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.data.ContentModel;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.SystemUser;
 import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.integration.FdPayloadWriter;
 import org.flockdata.integration.FileProcessor;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityTag;
-import org.flockdata.model.SystemUser;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ExtractProfileHandler;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
+import org.flockdata.transform.json.ContentModelDeserializer;
+import org.flockdata.transform.model.ExtractProfile;
+import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,11 +97,11 @@ public class TestEntityTagRelationships extends EngineBase {
         for (EntityTag entityTag : entityTags) {
             if ( entityTag.getRelationship().equals("located")){
                 count++;
-                assertTrue(entityTag.isGeo());
+                assertTrue(entityTag.isGeoRelationship());
                 assertEquals("located", entityTag.getRelationship());
             } else if (entityTag.getRelationship().equals("jurisdiction")){
                 count++;
-                assertTrue(entityTag.isGeo());
+                assertTrue(entityTag.isGeoRelationship());
             } else if (entityTag.getRelationship().equals("manages")){
                 count++;
             }  else if (entityTag.getRelationship().equals("ibc")){

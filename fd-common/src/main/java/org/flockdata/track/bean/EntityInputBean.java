@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,9 +22,9 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.flockdata.model.FortressUser;
-import org.flockdata.model.MetaDocument;
-import org.flockdata.model.MetaFortress;
+import org.flockdata.data.Document;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.FortressUser;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.UserProperties;
@@ -45,7 +45,7 @@ public class EntityInputBean implements Serializable, UserProperties {
     private FortressInputBean fortress;
     private String fortressUser;
     @JsonDeserialize(as = DocumentTypeInputBean.class)
-    private MetaDocument documentType;
+    private Document documentType;
     private Date when = null; // Created Date
     private Date lastChange = null;
     private ContentInputBean content;
@@ -84,7 +84,7 @@ public class EntityInputBean implements Serializable, UserProperties {
      * @param fortressWhen when did this occur in the fortressName
      * @param code         case sensitive unique key. If not supplied, then the service will generate one
      */
-    public EntityInputBean(MetaFortress fortress, String fortressUser, String documentName, DateTime fortressWhen, String code) {
+    public EntityInputBean(Fortress fortress, String fortressUser, String documentName, DateTime fortressWhen, String code) {
         this();
         if (fortressWhen != null) {
             setWhen(fortressWhen.toDate());
@@ -95,16 +95,16 @@ public class EntityInputBean implements Serializable, UserProperties {
         setCode(code);
     }
 
-    public EntityInputBean(MetaFortress fortress, String fortressUser, String documentName, DateTime fortressWhen) {
+    public EntityInputBean(Fortress fortress, String fortressUser, String documentName, DateTime fortressWhen) {
         this(fortress, fortressUser, documentName, fortressWhen, null);
     }
 
-    public EntityInputBean(MetaFortress fortress, MetaDocument documentType) {
+    public EntityInputBean(Fortress fortress, Document documentType) {
         this.fortress = new FortressInputBean(fortress.getName());
         setDocumentType(documentType);
     }
 
-    public EntityInputBean(MetaFortress fortress, MetaDocument docType, String entityCode) {
+    public EntityInputBean(Fortress fortress, Document docType, String entityCode) {
         this(fortress, docType);
         this.code = entityCode;
 
@@ -499,11 +499,11 @@ public class EntityInputBean implements Serializable, UserProperties {
         return this;
     }
 
-    public MetaDocument getDocumentType() {
+    public Document getDocumentType() {
         return documentType;
     }
 
-    public EntityInputBean setDocumentType(final MetaDocument documentType) {
+    public EntityInputBean setDocumentType(final Document documentType) {
         this.documentType = documentType;
         return this;
     }

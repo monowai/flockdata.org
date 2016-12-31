@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,11 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.Entity;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -52,14 +52,14 @@ public class TestEntityUsers extends EngineBase {
         String entityCode = "mk1hz";
         SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_UserAgainstEntityAndLog", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_UserAgainstEntityAndLog", true));
         EntityInputBean entityBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), entityCode);
 
 
-        entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
+        entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
         mediationFacade.trackEntity(su.getCompany(), entityBean);
 
-        Entity entity = entityService.findByCode(fortress, "CompanyNode", entityCode);
+        EntityNode entity = (EntityNode)entityService.findByCode(fortress, "CompanyNode", entityCode);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
         Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
@@ -67,11 +67,11 @@ public class TestEntityUsers extends EngineBase {
         EntityLogResult log = logs.iterator().next();
         assertEquals("billie", log.getMadeBy().toLowerCase());
 
-        entityBean.setContent(new ContentInputBean("nemo", DateTime.now(), EntityContentHelper.getSimpleMap("name", "b")));
+        entityBean.setContent(new ContentInputBean("nemo", DateTime.now(), ContentDataHelper.getSimpleMap("name", "b")));
         mediationFacade.trackEntity(su.getCompany(), entityBean);
         assertTrue("Event name incorrect", log.getEvent().getCode().equalsIgnoreCase("answer"));
 
-        entity = entityService.findByCode(fortress, "CompanyNode", entityCode);
+        entity = (EntityNode)entityService.findByCode(fortress, "CompanyNode", entityCode);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
         logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
@@ -95,15 +95,15 @@ public class TestEntityUsers extends EngineBase {
         String callerRef = "mk1hz";
         SystemUser su = registerSystemUser("created_EntityWithNoUser");
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_EntityWithNoUser", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_EntityWithNoUser", true));
         EntityInputBean entityBean = new EntityInputBean(fortress, null, "CompanyNode", DateTime.now(), callerRef);
 
         // No fortress user
-        ContentInputBean contentInputBean = new ContentInputBean(null, null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer");
+        ContentInputBean contentInputBean = new ContentInputBean(null, null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer");
         entityBean.setContent(contentInputBean);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
 
-        Entity entity = entityService.findByCode(fortress, "CompanyNode", callerRef);
+        EntityNode entity = (EntityNode)entityService.findByCode(fortress, "CompanyNode", callerRef);
         Assert.assertEquals(null, entity.getCreatedBy());
 
         SearchChange searchChange = searchService.getEntityChange(resultBean);

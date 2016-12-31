@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,16 +20,15 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityTag;
-import org.flockdata.model.EntityTagOut;
-import org.flockdata.model.Tag;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.FdSearch;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.SearchChanges;
-import org.flockdata.search.model.SearchResults;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.search.SearchChanges;
+import org.flockdata.search.SearchResults;
+import org.flockdata.test.helper.ContentDataHelper;
+import org.flockdata.test.helper.MockDataFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -37,6 +36,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.Map;
+
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * @author mholdsworth
@@ -48,7 +49,7 @@ import java.util.Map;
 public class TestSupportFunctions extends ESBase {
     @Test
     public void defaultTagQueryWorks() throws Exception {
-        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
+        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
         String fortress = "fortress";
         String company = "company";
@@ -63,13 +64,12 @@ public class TestSupportFunctions extends ESBase {
         ArrayList<EntityTag> tags = new ArrayList<>();
 
         TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname").setCode("my TAG");
-        Tag tag = new Tag(tagInput);
-        tags.add(new EntityTagOut(entity, tag, "mytag", null));
+        tags.add(MockDataFactory.getEntityTag(entity, tagInput, "mytag"));
         change.setStructuredTags(tags);
 
         SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
         Thread.sleep(1000);
-
+        assertNotNull(searchResults);
         queryServiceEs.getTags(entity.getFortress().getRootIndex());
 
     }

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,13 +22,13 @@ package org.flockdata.test.search.functional;
 
 import io.searchbox.client.JestResult;
 import io.searchbox.core.Search;
+import org.flockdata.data.Entity;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.Entity;
+import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.FdSearch;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.SearchChanges;
-import org.flockdata.search.model.SearchSchema;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.search.SearchChanges;
+import org.flockdata.search.SearchSchema;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.junit.Assert;
 import org.junit.Test;
@@ -137,7 +137,7 @@ public class TestParentChild extends ESBase {
         EntitySearchChange childChange =
                 new EntitySearchChange(childEntity, indexManager.parseIndex(parentEntity))
                         .setParent(new EntityKeyBean(parentEntity, indexManager.parseIndex(parentEntity)))
-                        .setData(EntityContentHelper.getSimpleMap("childKey", "childValue"));
+                        .setData(ContentDataHelper.getSimpleMap("childKey", "childValue"));
 
         esSearchWriter.createSearchableChange(new SearchChanges(childChange));
         // I'm calling Parent/Child mapping broken for the time being. This test fails if the parent already exists

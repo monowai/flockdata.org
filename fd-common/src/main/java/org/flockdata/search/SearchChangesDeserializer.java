@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -27,9 +27,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.SearchChanges;
-import org.flockdata.search.model.TagSearchChange;
 import org.flockdata.track.bean.SearchChange;
 
 import java.io.IOException;

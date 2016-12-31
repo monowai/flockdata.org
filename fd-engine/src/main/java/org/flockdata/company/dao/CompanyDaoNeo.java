@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,9 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.model.Company;
-import org.flockdata.model.SystemUser;
-import org.flockdata.registration.dao.CompanyDao;
+import org.flockdata.data.Company;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.CompanyNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -34,7 +34,7 @@ import java.util.Collection;
  * @tag Company, Neo4j,
  */
 @Repository
-public class CompanyDaoNeo implements CompanyDao {
+public class CompanyDaoNeo {
 
     private final CompanyRepository companyRepo;
 
@@ -43,41 +43,33 @@ public class CompanyDaoNeo implements CompanyDao {
         this.companyRepo = companyRepo;
     }
 
-    @Override
-    public Company update(org.flockdata.model.Company company) {
-        return companyRepo.save(company);
+    public Company update(Company company) {
+        return companyRepo.save((CompanyNode)company);
     }
 
-    @Override
     public Company findByPropertyValue(String property, Object value) {
         return companyRepo.findBySchemaPropertyValue(property, value);
     }
 
-    @Override
-    public Collection<org.flockdata.model.Company> findCompanies(Long sysUserId) {
+    public Collection<Company> findCompanies(Long sysUserId) {
         return companyRepo.getCompaniesForUser(sysUserId);
     }
 
-    @Override
-    public Collection<org.flockdata.model.Company> findCompanies(String userApiKey) {
+    public Collection<Company> findCompanies(String userApiKey) {
         return companyRepo.findCompanies(userApiKey);
     }
 
-    @Override
-    public Company create(org.flockdata.model.Company company) {
+    public Company create(Company company) {
 
-        return companyRepo.save(company);
+        return companyRepo.save((CompanyNode)company);
     }
 
-
-    @Override
     public SystemUser getAdminUser(Long companyId, String name) {
         return companyRepo.getAdminUser(companyId, name);
     }
 
-    @Override
     public Company create(String companyName, String uniqueKey) {
-        return create(new Company(companyName, uniqueKey));
+        return create(new CompanyNode(companyName, uniqueKey));
     }
 
 }

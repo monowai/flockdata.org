@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -23,7 +23,7 @@ package org.flockdata.engine.integration.search;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.Exchanges;
 import org.flockdata.integration.MessageSupport;
-import org.flockdata.search.model.SearchChanges;
+import org.flockdata.search.SearchChanges;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

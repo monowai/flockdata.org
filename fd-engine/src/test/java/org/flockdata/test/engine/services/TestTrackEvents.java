@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,15 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.*;
+import org.flockdata.data.ChangeEvent;
+import org.flockdata.data.Company;
+import org.flockdata.data.EntityLog;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.LogNode;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -41,8 +47,8 @@ public class TestTrackEvents extends EngineBase {
     @Test
     public void noDuplicateEventsForACompany() throws Exception {
         SystemUser su = registerSystemUser("noDuplicateEventsForACompany", mike_admin);
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest"));
-        Company company = fortressA.getCompany();
+        FortressNode fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest"));
+        Company company = su.getCompany();
         assertNotNull(company);
         String eventName = "DuplicateNotAllowed";
         ChangeEvent event = trackEventService.processEvent(eventName);
@@ -68,7 +74,7 @@ public class TestTrackEvents extends EngineBase {
     public void defaultEventTypesAreHandled() throws Exception {
 
         SystemUser su = registerSystemUser("defaultEventTypesAreHandled", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("defaultEventTypes", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("defaultEventTypes", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
 
@@ -76,25 +82,25 @@ public class TestTrackEvents extends EngineBase {
         String key = resultBean.getEntity().getKey();
         assertNotNull(key);
 
-        Entity entity = entityService.getEntity(su.getCompany(), key);
+        EntityNode entity = entityService.getEntity(su.getCompany(), key);
         assertNotNull(entity.getType());
 
         assertNotNull(fortressService.getFortressUser(fortress, "wally", true));
         assertNull(fortressService.getFortressUser(fortress, "wallyz", false));
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", key, new DateTime(), EntityContentHelper.getRandomMap()));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", key, new DateTime(), ContentDataHelper.getRandomMap()));
 
         EntityLog when = entityService.getLastEntityLog(su.getCompany(), key);
         assertNotNull(when);
-        assertEquals(Log.CREATE, when.getLog().getEvent().getName()); // log event default
-        assertEquals(Log.CREATE.toLowerCase(), when.getLog().getEvent().getName().toLowerCase()); // log event default
+        assertEquals(LogNode.CREATE, when.getLog().getEvent().getName()); // log event default
+        assertEquals(LogNode.CREATE.toLowerCase(), when.getLog().getEvent().getName().toLowerCase()); // log event default
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", key, new DateTime(), EntityContentHelper.getRandomMap()));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", key, new DateTime(), ContentDataHelper.getRandomMap()));
         EntityLog whenB = entityService.getLastEntityLog(su.getCompany(), key);
         assertNotNull(whenB);
 
         assertFalse(whenB.equals(when));
         assertNotNull(whenB.getLog().getEvent());
-        assertEquals(Log.UPDATE, whenB.getLog().getEvent().getName());  // log event default
+        assertEquals(LogNode.UPDATE, whenB.getLog().getEvent().getName());  // log event default
     }
 }

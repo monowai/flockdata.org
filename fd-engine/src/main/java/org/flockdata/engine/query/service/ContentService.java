@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,11 @@
 
 package org.flockdata.engine.query.service;
 
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.integration.search.ContentStructureRequest;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
-import org.flockdata.search.model.ContentStructure;
-import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.ContentStructure;
+import org.flockdata.search.QueryParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +41,7 @@ public class ContentService {
     void setGateway(ContentStructureRequest.ContentStructureGateway gateway){
         this.gateway = gateway;
     }
-    public ContentStructure getStructure (Company company, Fortress fortress, String docType){
+    public ContentStructure getStructure (CompanyNode company, FortressNode fortress, String docType){
         QueryParams qp = new QueryParams()
                 .setCompany(company.getName())
                 .setFortress(fortress.getName())

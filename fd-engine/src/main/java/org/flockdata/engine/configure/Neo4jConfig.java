@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -65,7 +65,7 @@ public class Neo4jConfig extends Neo4jConfiguration {
             logger.info("**** Neo4j datafiles will be written to [{}]", dbPath);
 
             this.dbPath = dbPath;
-            setBasePackage("org.flockdata.model");
+            setBasePackage("org.flockdata.engine.data.graph");
             if (pageCache != null && pageCache.equals("@null"))
                 pageCache = null;
             GraphDatabaseBuilder graphdbBuilder = new GraphDatabaseFactory()

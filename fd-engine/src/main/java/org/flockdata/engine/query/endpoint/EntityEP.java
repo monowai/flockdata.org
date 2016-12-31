@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,19 +20,29 @@
 
 package org.flockdata.engine.query.endpoint;
 
+import org.flockdata.data.EntityLog;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.TxRef;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.concept.service.TxService;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.EntityLogRlx;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.tag.EntityTagResult;
+import org.flockdata.engine.tag.MediationFacade;
+import org.flockdata.engine.track.service.EntityService;
+import org.flockdata.engine.track.service.EntityTagService;
 import org.flockdata.engine.track.service.FortressService;
+import org.flockdata.engine.track.service.LogService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.*;
 import org.flockdata.store.StoredContent;
-import org.flockdata.track.bean.*;
-import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.EntityTagService;
-import org.flockdata.track.service.LogService;
-import org.flockdata.track.service.MediationFacade;
+import org.flockdata.track.bean.EntityLogResult;
+import org.flockdata.track.bean.EntityResultBean;
+import org.flockdata.track.bean.EntitySummaryBean;
+import org.flockdata.track.bean.LogDetailBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,41 +95,41 @@ public class EntityEP {
     @RequestMapping(value = "/{fortress}/{documentType}/{code}", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
-    EntityBean findByCode(@PathVariable("fortress") String fortressName,
-                          @PathVariable("documentType") String documentType,
-                          @PathVariable("code") String code,
-                          HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
-        Fortress fortress = fortressService.findByCode(company, fortressName);
+    EntityResultBean findByCode(@PathVariable("fortress") String fortressName,
+                                @PathVariable("documentType") String documentType,
+                                @PathVariable("code") String code,
+                                HttpServletRequest request) throws FlockException {
+        CompanyNode company = CompanyResolver.resolveCompany(request);
+        FortressNode fortress = fortressService.findByCode(company, fortressName);
         if ( fortress == null )
             throw new NotFoundException("Unable to locate fortress " + fortressName);
-        Entity entity = entityService.findByCode(fortress, documentType, code);
+        EntityNode entity = (EntityNode)entityService.findByCode(fortress, documentType, code);
         if ( entity == null )
             throw new NotFoundException("Unable to locate entity " + code);
 
-        return new EntityBean(entity);
+        return new EntityResultBean(entity);
     }
 
     @RequestMapping(value = "/{key}", method = RequestMethod.GET)
-    public EntityBean getEntity(@PathVariable("key") String key,
-                                HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+    public EntityResultBean getEntity(@PathVariable("key") String key,
+                                      HttpServletRequest request) throws FlockException {
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/api/v1/entity/{key}
-        Entity result = entityService.getEntity(company, key, true);
+        EntityNode result = entityService.getEntity(company, key, true);
         if (result == null)
-            throw new NotFoundException("Unable to resolve requested meta key [" + key + "]. Company is " + (company == null ? "Invalid" : "Valid"));
+            throw new NotFoundException("Unable to resolve requested entity key [" + key + "]. Company is " + (company == null ? "Invalid" : "Valid"));
 
-        return new EntityBean(result);
+        return new EntityResultBean(result);
     }
 
     @RequestMapping(value = "/{key}/reindex", method = RequestMethod.GET)
     public String reindexEntity(@PathVariable("key") String key,
                                 HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/api/v1/entity/{key}
-        Entity entity = entityService.getEntity(company, key, true);
+        EntityNode entity = entityService.getEntity(company, key, true);
         if (entity == null)
-            throw new NotFoundException("Unable to resolve requested meta key [" + key + "]. Company is " + (company == null ? "Invalid" : "Valid"));
+            throw new NotFoundException("Unable to resolve requested Entity key [" + key + "]. Company is " + (company == null ? "Invalid" : "Valid"));
 
         return mediationFacade.reindex(company, entity);
     }
@@ -134,9 +144,9 @@ public class EntityEP {
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public
     @ResponseBody
-    Collection<Entity> getEntities(@RequestBody Collection<String> toFind,
-                                   HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+    Collection<EntityNode> getEntities(@RequestBody Collection<String> toFind,
+                                       HttpServletRequest request) throws FlockException {
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return entityService.getEntities(company, toFind).values();
     }
 
@@ -145,7 +155,7 @@ public class EntityEP {
     @ResponseBody
     EntitySummaryBean getEntitySummary(@PathVariable("key") String key,
                                        HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return mediationFacade.getEntitySummary(company, key);
 
     }
@@ -156,7 +166,7 @@ public class EntityEP {
     public Collection<EntityLogResult> getLogs(@PathVariable("key") String key,
                                         @RequestParam(value = "withData", required = false ) boolean withData,
                                         HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/api/v1/entity/{key}/logs
         return entityService.getEntityLogs(company, key, withData);
     }
@@ -164,9 +174,9 @@ public class EntityEP {
     @RequestMapping(value = "/{key}/log/last", produces = "application/json", method = RequestMethod.GET)
     public EntityLogResult getLastLog(@PathVariable("key") String key,
                                       HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/api/v1/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastlog
-        EntityLog changed = entityService.getLastEntityLog(company, key);
+        EntityLogRlx changed = entityService.getLastEntityLog(company, key);
         if (changed != null)
             return new EntityLogResult(changed);
 
@@ -179,8 +189,8 @@ public class EntityEP {
     public
     @ResponseBody
     Collection<EntityTagResult> getLastLogTags(@PathVariable("key") String key,
-                                         HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+                                               HttpServletRequest request) throws FlockException {
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return convertTags(entityService.getLastLogTags(company, key));
     }
 
@@ -190,7 +200,7 @@ public class EntityEP {
     @ResponseBody
     Collection<EntityTagResult> getLogTags(@PathVariable("key") String key, @PathVariable("logId") long logId,
                                      HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/api/v1/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
         EntityLog tl = entityService.getEntityLog(company, key, logId);
         return convertTags(entityService.getLogTags(company, tl));
@@ -209,10 +219,10 @@ public class EntityEP {
     @ResponseBody
     Collection<EntityTagResult> getEntityTags(@PathVariable("key") String key,
                                         HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{key}
-        Entity entity = entityService.getEntity(company, key);
+        EntityNode entity = entityService.getEntity(company, key);
         return convertTags(entityTagService.findEntityTags(entity));
     }
 
@@ -222,8 +232,8 @@ public class EntityEP {
     @ResponseBody
     public byte[] getAttachment(@PathVariable("key") String key,
                          HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
-        Entity entity = entityService.getEntity(company, key);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
+        EntityNode entity = entityService.getEntity(company, key);
         if (entity != null) {
             EntityLog lastLog = logService.getLastLog(entity);
             if (lastLog == null) {
@@ -264,7 +274,7 @@ public class EntityEP {
     @ResponseBody
     public  Map<String, Object> getLastLogWhat(@PathVariable("key") String key,
                                        HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         Map<String, Object> content = entityService.getEntityDataLast(company, key);
         if (content != null) return content;
@@ -279,7 +289,7 @@ public class EntityEP {
     @ResponseBody
     LogDetailBean getFullLog(@PathVariable("key") String key, @PathVariable("logId") Long logId,
                              HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         LogDetailBean change = entityService.getFullDetail(company, key, logId);
 
         if (change != null)
@@ -294,9 +304,9 @@ public class EntityEP {
     Map<String, Object> getLogContent(@PathVariable("key") String key,
                                       @PathVariable("logId") Long logId,
                                       HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
-        Entity entity = entityService.getEntity(company, key);
+        EntityNode entity = entityService.getEntity(company, key);
         if (entity != null) {
             return mediationFacade.getLogContent(entity, logId);
         }
@@ -308,8 +318,8 @@ public class EntityEP {
     @RequestMapping(value = "/{key}/log/last", method = RequestMethod.DELETE)
     public ResponseEntity<String> cancelLastLog(@PathVariable("key") String key,
                                                 HttpServletRequest request) throws FlockException, IOException {
-        Company company = CompanyResolver.resolveCompany(request);
-        Entity result = entityService.getEntity(company, key);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
+        EntityNode result = entityService.getEntity(company, key);
         if (result != null) {
             mediationFacade.cancelLastLog(company, result);
             return new ResponseEntity<>("OK", HttpStatus.OK);
@@ -333,7 +343,7 @@ public class EntityEP {
     public ResponseEntity<Map<String, Object>> getTransactedEntities(@PathVariable("txRef") String txRef,
                                                                      HttpServletRequest request) throws FlockException {
         CompanyResolver.resolveCompany(request);
-        Set<Entity> headers;
+        Set<EntityNode> headers;
         Map<String, Object> result = new HashMap<>(2);
         headers = txService.findTxEntities(txRef);
         result.put("txRef", txRef);
@@ -368,9 +378,9 @@ public class EntityEP {
     @RequestMapping(value = "/{key}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
-    Map<String, Collection<Entity>> getCrossRefence(@PathVariable("key") String key, @PathVariable("xRefName") String xRefName,
-                                                    HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+    Map<String, Collection<EntityNode>> getCrossRefence(@PathVariable("key") String key, @PathVariable("xRefName") String xRefName,
+                                                        HttpServletRequest request) throws FlockException {
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return entityService.getCrossReference(company, key, xRefName);
     }
 
@@ -386,9 +396,9 @@ public class EntityEP {
     @RequestMapping(value = "/{fortress}/all/{code}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
-    Map<String, Collection<Entity>> getCrossReference(@PathVariable("fortress") String fortress, @PathVariable("code") String code, @PathVariable("xRefName") String xRefName,
-                                                      HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+    Map<String, Collection<EntityNode>> getCrossReference(@PathVariable("fortress") String fortress, @PathVariable("code") String code, @PathVariable("xRefName") String xRefName,
+                                                          HttpServletRequest request) throws FlockException {
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return entityService.getCrossReference(company, fortress, code, xRefName);
     }
 

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,19 +21,23 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
+import org.flockdata.data.Entity;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.EntityLogRlx;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.integration.FdPayloadWriter;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.integration.PayloadWriter;
-import org.flockdata.model.*;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ExtractProfileHandler;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.store.Store;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.track.bean.EntityLogResult;
 import org.flockdata.transform.FdIoInterface;
+import org.flockdata.transform.json.ContentModelDeserializer;
+import org.flockdata.transform.model.ExtractProfileHandler;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,8 +99,8 @@ public class TestCsvImportIntegration extends EngineBase {
         setSecurity();
         final SystemUser su = registerSystemUser("importSflow", mike_admin);
 
-        Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("StackOverflow", true));
-        DocumentType docType = conceptService.resolveByDocCode(f, "QuestionEvent");
+        FortressNode f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("StackOverflow", true));
+        DocumentNode docType = conceptService.resolveByDocCode(f, "QuestionEvent");
         int i = 1, maxRuns = 4;
         do {
             fileProcessor.processFile(new ExtractProfileHandler(ContentModelDeserializer.getContentModel("/models/test-sflow.json")), "/data/test-sflow.csv");
@@ -105,7 +109,7 @@ public class TestCsvImportIntegration extends EngineBase {
             assertNotNull(entityA);
             TestCase.assertEquals("563890", entityA.getSegment().getCode());
 
-            EntityLog log = entityService.getLastEntityLog(entityA.getId());
+            EntityLogRlx log = entityService.getLastEntityLog(entityA.getId());
             Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entityA.getKey());
             for (EntityLogResult entityLog : logs) {
                 logger.debug("{}, {}", new DateTime(entityLog.getWhen()), entityLog.getChecksum());

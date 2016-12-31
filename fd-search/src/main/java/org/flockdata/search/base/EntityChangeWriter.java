@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,8 +20,8 @@
 
 package org.flockdata.search.base;
 
-import org.flockdata.model.Entity;
-import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.data.Entity;
+import org.flockdata.search.EntitySearchChange;
 
 import java.io.IOException;
 import java.util.Map;

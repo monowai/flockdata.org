@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,21 +20,23 @@
 
 package org.flockdata.engine.model.endpoint;
 
+import org.flockdata.data.ContentModel;
+import org.flockdata.data.Document;
+import org.flockdata.data.Fortress;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.query.service.ContentService;
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.track.service.ContentModelService;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
-import org.flockdata.profile.ContentModelResult;
-import org.flockdata.profile.ContentValidationRequest;
-import org.flockdata.profile.ContentValidationResults;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.service.ContentModelService;
-import org.flockdata.search.model.ContentStructure;
+import org.flockdata.model.ContentModelResult;
+import org.flockdata.model.ContentValidationRequest;
+import org.flockdata.model.ContentValidationResults;
+import org.flockdata.search.ContentStructure;
 import org.flockdata.transform.DataConversionRequest;
 import org.flockdata.transform.Transformer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +74,7 @@ public class ModelEP {
             produces = "application/json",
             method = RequestMethod.GET)
     public Collection<ContentModelResult> getModels(HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return contentModelService.find(company);
     }
 
@@ -82,15 +84,15 @@ public class ModelEP {
             method = RequestMethod.POST)
     public Collection<ContentModelResult> storeModels(@RequestBody Collection<ContentModel> contentModels, HttpServletRequest request) throws FlockException {
 
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         Collection<ContentModelResult> results = new ArrayList<>();
         for (ContentModel contentModel : contentModels) {
             ContentModelResult result;
             if (contentModel.isTagModel())
                 result = saveContentModel(request, contentModel.getCode(), contentModel);
             else {
-                Fortress fortress = fortressService.registerFortress(company, contentModel.getFortress());
-                conceptService.save(new DocumentType(fortress.getDefaultSegment(), contentModel));
+                FortressNode fortress = fortressService.registerFortress(company, contentModel.getFortress());
+                conceptService.save(new DocumentNode(fortress.getDefaultSegment(), contentModel));
                 result = saveContentModel(request, contentModel.getFortress().getName(), contentModel.getDocumentType().getName(), contentModel);
             }
             results.add(result);
@@ -104,7 +106,7 @@ public class ModelEP {
             method = RequestMethod.POST)
     public Collection<ContentModel> getModels(@RequestBody Collection<String> modelKeys, HttpServletRequest request) throws FlockException {
 
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         Collection<ContentModel> results = new ArrayList<>();
         for (String modelKey : modelKeys) {
             ContentModelResult cmr = contentModelService.find(company, modelKey);
@@ -119,7 +121,7 @@ public class ModelEP {
             produces = "application/json",
             method = RequestMethod.DELETE)
     public void deleteModelKey(HttpServletRequest request, @PathVariable("key") String key) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         contentModelService.delete(company, key);
     }
 
@@ -127,7 +129,7 @@ public class ModelEP {
             produces = "application/json",
             method = RequestMethod.GET)
     public ContentModelResult getContentModelByKey(HttpServletRequest request, @PathVariable("key") String key) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return contentModelService.find(company, key);
     }
 
@@ -139,13 +141,13 @@ public class ModelEP {
             HttpServletRequest request,
             @PathVariable("fortressCode") String fortressCode,
             @PathVariable("docTypeName") String docTypeName) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         Fortress fortress = fortressService.getFortress(company, fortressCode);
         if (fortress == null)
             throw new IllegalArgumentException("Unable to locate the fortress " + fortressCode);
 
-        DocumentType documentType = conceptService.resolveByDocCode(fortress, docTypeName, Boolean.FALSE);
+        Document documentType = conceptService.resolveByDocCode(fortress, docTypeName, Boolean.FALSE);
         if (documentType == null)
             throw new IllegalArgumentException("Unable to locate the document " + docTypeName);
 
@@ -159,7 +161,7 @@ public class ModelEP {
     public ContentModel getContentModel(
             HttpServletRequest request,
             @PathVariable("code") String code) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
 
         return contentModelService.getTagModel(company, code);
@@ -174,9 +176,9 @@ public class ModelEP {
                                                @PathVariable("fortressCode") String fortressCode,
                                                @PathVariable("docTypeName") String docTypeName,
                                                @RequestBody ContentModel contentModel) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
-        Fortress fortress = fortressService.registerFortress(company, contentModel.getFortress(), false);
+        FortressNode fortress = fortressService.registerFortress(company, contentModel.getFortress(), false);
         if (fortress == null && contentModel.getFortress() !=null){
             fortress = fortressService.registerFortress(company, contentModel.getFortress(), true);
         }
@@ -184,10 +186,10 @@ public class ModelEP {
         if (fortress == null)
             throw new IllegalArgumentException("Unable to locate the fortress " + fortressCode);
 
-        DocumentType documentType = conceptService.resolveByDocCode(fortress, docTypeName, false);
+        DocumentNode documentType = conceptService.resolveByDocCode(fortress, docTypeName, false);
 
         if (documentType == null && contentModel.getDocumentType() != null) {
-            documentType = conceptService.findOrCreate(fortress, new DocumentType(fortress, contentModel));
+            documentType = conceptService.findOrCreate(fortress, new DocumentNode(fortress, contentModel));
         }
 
         if (documentType == null)
@@ -203,8 +205,8 @@ public class ModelEP {
     ContentStructure getEntityFields(@PathVariable("fortress") String fortressName,
                                      @PathVariable("documentType") String documentType,
                                      HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
-        Fortress fortress = fortressService.findByCode(company, fortressName);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
+        FortressNode fortress = fortressService.findByCode(company, fortressName);
         if ( fortress == null )
             throw new NotFoundException("Unable to locate fortress " + fortressName);
 
@@ -219,7 +221,7 @@ public class ModelEP {
     public ContentModelResult saveContentModel(HttpServletRequest request,
                                                @PathVariable("code") String code,
                                                @RequestBody ContentModel contentModel) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         if (code == null || code.equals(""))
             throw new IllegalArgumentException("No key code was provided for the model");

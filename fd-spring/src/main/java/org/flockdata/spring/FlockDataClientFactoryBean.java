@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,35 +16,23 @@
 
 package org.flockdata.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.flockdata.client.FdTemplate;
+import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.transform.FdIoInterface;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class FlockDataClientFactoryBean {
 
-    protected final Log logger = LogFactory.getLog(getClass());
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FlockDataClientFactoryBean.class);
+    private final FdIoInterface fdTemplate;
 
-    @Value("${org.fd.client.default.fortress}")
-    private String fortress;
-
-    @Value("${org.fd.client.batchsize:1}")
-    private int batch;
-
-    @Value("${org.fd.engine.api}")
-    private String serverName;
-
-    @Value("${org.fd.client.login.user}")
-    private String userName;
-
-    @Value("${org.fd.client.login.pass}")
-    private String password;
+    private ClientConfiguration clientConfiguration;
 
     @Autowired
-    FdTemplate fdTemplate;
-
-
+    public FlockDataClientFactoryBean(ClientConfiguration clientConfiguration, FdIoInterface fdTemplate) {
+        this.fdTemplate = fdTemplate;
+        this.clientConfiguration = clientConfiguration;
+    }
 }

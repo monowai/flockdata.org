@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,9 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -50,23 +50,23 @@ public class TestSchemaManagement extends EngineBase {
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {
         cleanUpGraph();
-        SystemUser suA = registerSystemUser("documentTypesTrackedPerFortress", mike_admin);
+        SystemUser su = registerSystemUser("documentTypesTrackedPerFortress", mike_admin);
 
-        Fortress fortressA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("auditTestA", true));
-        Fortress fortressB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("auditTestB", true));
+        FortressNode fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTestA", true));
+        FortressNode fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTestB", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortressA, "wally", "DocTypeA", new DateTime(), "ABC123");
-        String keyA = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntity().getKey();
+        String keyA = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
 
         inputBean = new EntityInputBean(fortressB, "wally", "DocTypeA", new DateTime(), "ABC123");
-        String keyB = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntity().getKey();
+        String keyB = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
 
         assertFalse(keyA.equals(keyB));
 
-        Collection<DocumentResultBean> docTypesA = fortressService.getFortressDocumentsInUse(suA.getCompany(), fortressA.getCode());
+        Collection<DocumentResultBean> docTypesA = fortressService.getFortressDocumentsInUse(su.getCompany(), fortressA.getCode());
         assertEquals(1, docTypesA.size());
 
-        Collection<DocumentResultBean> docTypesB = fortressService.getFortressDocumentsInUse(suA.getCompany(), fortressB.getCode());
+        Collection<DocumentResultBean> docTypesB = fortressService.getFortressDocumentsInUse(su.getCompany(), fortressB.getCode());
         assertEquals(1, docTypesB.size());
 
         // Should be different key
@@ -77,10 +77,10 @@ public class TestSchemaManagement extends EngineBase {
     public void documentTypesTrackedPerCompany() throws Exception {
         cleanUpGraph();
         String sharedName = "entityTestB";
-        SystemUser suA = registerSystemUser("OtherCo", harry);
-        Fortress fortress = fortressService.registerFortress(suA.getCompany(), new FortressInputBean(sharedName, true));
+        SystemUser su = registerSystemUser("OtherCo", harry);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(sharedName, true));
         EntityInputBean entityInput = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
-        String keyA = mediationFacade.trackEntity(suA.getCompany(), entityInput).getEntity().getKey();
+        String keyA = mediationFacade.trackEntity(su.getCompany(), entityInput).getEntity().getKey();
 
 
 //        assertFalse(keyA.equals(keyB));
@@ -88,7 +88,7 @@ public class TestSchemaManagement extends EngineBase {
         // Same name different company
         SystemUser suB = registerSystemUser("documentTypesTrackedPerCompany", mike_admin);
         setSecurity(suB.getName());
-        Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean(sharedName, true));
+        FortressNode fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean(sharedName, true));
 
         setSecurity(suB.getName());
         entityInput = new EntityInputBean(fortressB, "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -107,8 +107,8 @@ public class TestSchemaManagement extends EngineBase {
         Collection<DocumentResultBean> documentsInUse = conceptService.getDocumentsInUse(suB.getCompany());
         assertEquals("CompanyB has should have 2 doc types", 2, documentsInUse.size());
         // Companies can't see each other stuff
-        setSecurity(suA.getName());
-        documentsInUse = conceptService.getDocumentsInUse(suA.getCompany());
+        setSecurity(su.getName());
+        documentsInUse = conceptService.getDocumentsInUse(su.getCompany());
         assertEquals(1, documentsInUse.size());
 
 
@@ -118,10 +118,10 @@ public class TestSchemaManagement extends EngineBase {
     public void documentTypesWork() throws Exception {
         cleanUpGraph();
         SystemUser su = registerSystemUser("documentTypesWork", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         String docName = "CamelCaseDoc";
-        DocumentType docType = conceptService.resolveByDocCode(fortress, docName); // Creates if missing
+        DocumentNode docType = conceptService.resolveByDocCode(fortress, docName); // Creates if missing
         assertNotNull(docType);
         assertTrue(docType.getCode().contains(docName.toLowerCase()));
         assertEquals(docName, docType.getName());
@@ -143,16 +143,16 @@ public class TestSchemaManagement extends EngineBase {
         SystemUser su = registerSystemUser("duplicateDocumentTypes", sally_admin);
         assertNotNull(su);
 
-        Fortress fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortA", true));
-        Fortress fortB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortB", true));
+        FortressNode fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortA", true));
+        FortressNode fortB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortB", true));
 
-        DocumentType dType = conceptService.resolveByDocCode(fortA, "ABC123", true);
+        DocumentNode dType = conceptService.resolveByDocCode(fortA, "ABC123", true);
         assertNotNull(dType);
         Long id = dType.getId();
         dType = conceptService.resolveByDocCode(fortA, "ABC123", false);
         assertEquals(id, dType.getId());
 
-        DocumentType nextType = conceptService.resolveByDocCode(fortB, "ABC123", true);
+        DocumentNode nextType = conceptService.resolveByDocCode(fortB, "ABC123", true);
         assertNotSame("Same company + different fortresses = different document types", dType, nextType);
 
         // Company 2 gets a different tag with the same name

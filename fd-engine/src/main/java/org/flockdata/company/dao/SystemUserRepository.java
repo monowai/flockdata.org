@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,12 +20,12 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.model.SystemUser;
+import org.flockdata.engine.data.graph.SystemUserNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
-public interface SystemUserRepository extends GraphRepository<SystemUser> {
+public interface SystemUserRepository extends GraphRepository<SystemUserNode> {
 
     @Query(value = "match (su:SystemUser ) where su.login={0} return su")
-    SystemUser getSystemUser(String name);
+    SystemUserNode getSystemUser(String name);
 }

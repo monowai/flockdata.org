@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,7 +21,7 @@
 package org.flockdata.transform;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.flockdata.profile.model.ContentModel;
+import org.flockdata.data.ContentModel;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 
 package org.flockdata.engine.integration.neorest;
 
-import org.flockdata.model.Entity;
+import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.track.bean.EntityResults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -79,7 +79,7 @@ public class EntityRequests extends NeoRequestBase {
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(getKeyUrl());
 
-        handler.setExpectedResponseType(Entity.class);
+        handler.setExpectedResponseType(EntityNode.class);
         Map<String, Expression> vars = new HashMap<>();
         vars.put("key", expressionParser.parseExpression("payload[0]"));
         handler.setUriVariableExpressions(vars);
@@ -125,7 +125,7 @@ public class EntityRequests extends NeoRequestBase {
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(getCallerRefUrl());
 
-        handler.setExpectedResponseType(Entity.class);
+        handler.setExpectedResponseType(EntityNode.class);
         Map<String, Expression> vars = new HashMap<>();
         vars.put("fortressId", expressionParser.parseExpression("payload[0]"));
         vars.put("docId", expressionParser.parseExpression("payload[1]"));

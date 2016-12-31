@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,23 +22,28 @@ package org.flockdata.test.engine.mvc;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.flockdata.authentication.FdRoles;
+import org.flockdata.data.ContentModel;
+import org.flockdata.data.Fortress;
 import org.flockdata.engine.FdEngine;
-import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.FortressSegmentNode;
+import org.flockdata.engine.data.graph.SystemUserNode;
 import org.flockdata.engine.matrix.MatrixResults;
+import org.flockdata.engine.tag.EntityTagResult;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.*;
-import org.flockdata.profile.ContentModelHandler;
-import org.flockdata.profile.ContentModelResult;
-import org.flockdata.profile.ContentValidationRequest;
-import org.flockdata.profile.ContentValidationResults;
-import org.flockdata.profile.model.ContentModel;
+import org.flockdata.model.ContentModelResult;
+import org.flockdata.model.ContentValidationRequest;
+import org.flockdata.model.ContentValidationResults;
 import org.flockdata.registration.*;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.test.unit.client.MockPayloadWriter;
 import org.flockdata.track.bean.*;
+import org.flockdata.transform.model.ContentModelHandler;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -240,7 +245,7 @@ public abstract class MvcBase {
 
     }
 
-    public Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
+    public Collection<DocumentResultBean> getDocuments(SystemUserNode su, Collection<String> fortresses) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders
                 .post(apiPath + "/doc/")
                 .header("api-key", su.getApiKey())
@@ -264,7 +269,7 @@ public abstract class MvcBase {
         return JsonUtils.toObject(json, DocumentResultBean.class);
     }
 
-    public Collection<DocumentType> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
+    public Collection<DocumentNode> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.post(apiPath + "/query/relationships/")
                 .header("api-key", su.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -272,10 +277,10 @@ public abstract class MvcBase {
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
-        return JsonUtils.toCollection(json, DocumentType.class);
+        return JsonUtils.toCollection(json, DocumentNode.class);
     }
 
-    public MatrixResults getMatrixResult(SystemUser su, MatrixInputBean input) throws Exception {
+    public MatrixResults getMatrixResult(SystemUserNode su, MatrixInputBean input) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.post(apiPath + "/query/matrix/")
                 .header("api-key", su.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -305,11 +310,11 @@ public abstract class MvcBase {
         throw response.getResolvedException();
     }
 
-    public EntityBean getEntity(RequestPostProcessor user, String key) throws Exception {
+    public EntityResultBean getEntity(RequestPostProcessor user, String key) throws Exception {
         return getEntity(user, key, MockMvcResultMatchers.status().isOk());
     }
 
-    public EntityBean getEntity(RequestPostProcessor user, String key, ResultMatcher status) throws Exception {
+    public EntityResultBean getEntity(RequestPostProcessor user, String key, ResultMatcher status) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/entity/{key}", key)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
@@ -319,7 +324,7 @@ public abstract class MvcBase {
             throw response.getResolvedException();
         }
         String json = response.getResponse().getContentAsString();
-        return JsonUtils.toObject(json.getBytes(), EntityBean.class);
+        return JsonUtils.toObject(json.getBytes(), EntityResultBean.class);
     }
 
     public Map<String, Object> getHealth(RequestPostProcessor user) throws Exception {
@@ -396,7 +401,7 @@ public abstract class MvcBase {
         return JsonUtils.toObject(json, TrackRequestResult.class);
     }
 
-    public Company getCompany(String name, RequestPostProcessor user) throws Exception {
+    public CompanyNode getCompany(String name, RequestPostProcessor user) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders
                 .get(apiPath + "/company/" + name)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -404,7 +409,7 @@ public abstract class MvcBase {
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
         byte[] json = response.getResponse().getContentAsByteArray();
-        return JsonUtils.toObject(json, Company.class);
+        return JsonUtils.toObject(json, CompanyNode.class);
     }
 
     public boolean findCompanyIllegal(String name, RequestPostProcessor user) throws Exception {
@@ -416,14 +421,14 @@ public abstract class MvcBase {
         return true;
     }
 
-    public Collection<Company> findCompanies(RequestPostProcessor user) throws Exception {
+    public Collection<CompanyNode> findCompanies(RequestPostProcessor user) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/company/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
 
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
-        return JsonUtils.toCollection(json, Company.class);
+        return JsonUtils.toCollection(json, CompanyNode.class);
 
     }
 
@@ -705,7 +710,7 @@ public abstract class MvcBase {
         return JsonUtils.toCollection(json, EntityTagResult.class);
     }
 
-    public DocumentResultBean makeDocuments(RequestPostProcessor user, MetaFortress fortress, DocumentTypeInputBean docTypes) throws Exception {
+    public DocumentResultBean makeDocuments(RequestPostProcessor user, Fortress fortress, DocumentTypeInputBean docTypes) throws Exception {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
@@ -729,14 +734,14 @@ public abstract class MvcBase {
 
     }
 
-    public Collection<FortressSegment> getDocumentWithSegments(RequestPostProcessor user, String fortressCode) throws Exception {
+    public Collection<FortressSegmentNode> getDocumentWithSegments(RequestPostProcessor user, String fortressCode) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/fortress/{fortressCode}/segments", fortressCode)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
-        return JsonUtils.toCollection(json, FortressSegment.class);
+        return JsonUtils.toCollection(json, FortressSegmentNode.class);
 
     }
 

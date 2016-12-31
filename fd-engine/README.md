@@ -81,7 +81,7 @@ Make sure you have started [fd-search](../fd-search)
 ```
 curl -u myuser:123 -H "Content-Type:application/json" -X POST http://localhost:8080/api/v1/track/ -d '{
   "fortress": {"name":"dataService"},
-  "documentType": {"name":"Debtor"},
+  "type": {"name":"Debtor"},
   "code":"myPrimaryKey",
   "log": { "data": {"BusinessData": "Your Text", "nestedObject": {"someData": "kool for kats"}}
   }

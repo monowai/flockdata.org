@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,14 +20,14 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityTag;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.FdSearch;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
+import org.flockdata.test.helper.MockDataFactory;
 import org.flockdata.track.bean.SearchChange;
-import org.flockdata.track.service.EntityService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ public class TestAutoComplete extends ESBase{
         String comp = "comp4";
         String fort = "fort4";
         String user = "mikey";
-        Map<String, Object> what = EntityContentHelper.getRandomMap();
+        Map<String, Object> what = ContentDataHelper.getRandomMap();
 
         Entity entity = getEntity(comp, fort, user, fort, "AZERTY");
         deleteEsIndex(entity);
@@ -71,13 +71,13 @@ public class TestAutoComplete extends ESBase{
         TagInputBean zipCode = new TagInputBean("70612", "ZipCode");
 
         Collection<EntityTag> tags = new ArrayList<>();
-        tags.add(EntityContentHelper.getEntityTag(entity, noName, "rlxname"));
-        tags.add(EntityContentHelper.getEntityTag(entity, numCodeWithName, "rlxname"));
-        tags.add(EntityContentHelper.getEntityTag(entity, zipCode, "zip"));
+        tags.add(MockDataFactory.getEntityTag(entity, noName, "rlxname"));
+        tags.add(MockDataFactory.getEntityTag(entity, numCodeWithName, "rlxname"));
+        tags.add(MockDataFactory.getEntityTag(entity, zipCode, "zip"));
 
         EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         change.setData(what);
-        change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+        change.setStructuredTags(EntityTag.TAG_STRUCTURE.DEFAULT, tags);
 
         indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = entityWriter.handle(change);
@@ -103,7 +103,7 @@ public class TestAutoComplete extends ESBase{
         String comp = "comp3";
         String fort = "fort3";
         String user = "mikey";
-        Map<String, Object> what = EntityContentHelper.getRandomMap();
+        Map<String, Object> what = ContentDataHelper.getRandomMap();
 
         Entity entity = getEntity(comp, fort, user, fort, "AZERTY");
         deleteEsIndex(entity);
@@ -113,12 +113,12 @@ public class TestAutoComplete extends ESBase{
 
 
         Collection<EntityTag> tags = new ArrayList<>();
-        tags.add(EntityContentHelper.getEntityTag(entity, tagInputA, "rlxname"));
-        tags.add(EntityContentHelper.getEntityTag(entity, tagInputB, "rlxname"));
+        tags.add(MockDataFactory.getEntityTag(entity, tagInputA, "rlxname"));
+        tags.add(MockDataFactory.getEntityTag(entity, tagInputB, "rlxname"));
 
         EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         change.setData(what);
-        change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+        change.setStructuredTags(EntityTag.TAG_STRUCTURE.DEFAULT, tags);
 
         indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = entityWriter.handle(change);
@@ -139,7 +139,7 @@ public class TestAutoComplete extends ESBase{
         String comp = "comp2";
         String fort = "fort2";
         String user = "mikey";
-        Map<String, Object> what = EntityContentHelper.getRandomMap();
+        Map<String, Object> what = ContentDataHelper.getRandomMap();
 
         Entity entity = getEntity(comp, fort, user, fort, "AZERTY");
 //        deleteEsIndex(entity);
@@ -154,17 +154,17 @@ public class TestAutoComplete extends ESBase{
         TagInputBean procedureB = new TagInputBean("Surgical Instruments", "Procedure", "involves");
 
         Collection<EntityTag> tags = new ArrayList<>();
-        tags.add(EntityContentHelper.getEntityTag(entity, tagInputA, "rlxname"));
-        tags.add(EntityContentHelper.getEntityTag(entity, tagInputB, "rlxname"));
-        tags.add(EntityContentHelper.getEntityTag(entity, inst, "abc"));
-        tags.add(EntityContentHelper.getEntityTag(entity, lead, "lead"));
-        tags.add(EntityContentHelper.getEntityTag(entity, writer, "writer"));
-        tags.add(EntityContentHelper.getEntityTag(entity, procedure, "proc"));
-        tags.add(EntityContentHelper.getEntityTag(entity, procedureB, "proc"));
+        tags.add(MockDataFactory.getEntityTag(entity, tagInputA, "rlxname"));
+        tags.add(MockDataFactory.getEntityTag(entity, tagInputB, "rlxname"));
+        tags.add(MockDataFactory.getEntityTag(entity, inst, "abc"));
+        tags.add(MockDataFactory.getEntityTag(entity, lead, "lead"));
+        tags.add(MockDataFactory.getEntityTag(entity, writer, "writer"));
+        tags.add(MockDataFactory.getEntityTag(entity, procedure, "proc"));
+        tags.add(MockDataFactory.getEntityTag(entity, procedureB, "proc"));
 
         EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         change.setData(what);
-        change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+        change.setStructuredTags(EntityTag.TAG_STRUCTURE.DEFAULT, tags);
 
         indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = entityWriter.handle(change);

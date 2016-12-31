@@ -262,7 +262,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
             Map<String, Object> theMapping = (Map<String, Object>) map.get("mapping");
 //            if (change.getParent() != null) {
 //                HashMap<String, Object> parentMap = new HashMap<>();
-//                parentMap.put("type", indexManager.parseType(change.getParent().getDocumentType()));
+//                parentMap.put("type", indexManager.parseType(change.getParent().getType()));
 //                theMapping.put("_parent", parentMap);
 //            }
             docMap.put(indexManager.parseType(change.getDocumentType()), theMapping);

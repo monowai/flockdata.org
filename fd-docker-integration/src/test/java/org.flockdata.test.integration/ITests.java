@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,26 +20,26 @@ import net.jcip.annotations.NotThreadSafe;
 import org.flockdata.client.FdTemplate;
 import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.*;
+import org.flockdata.data.ContentModel;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.FdPayloadWriter;
 import org.flockdata.integration.FileProcessor;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ExtractProfileDeserializer;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.search.model.ContentStructure;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.ContentStructure;
+import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.QueryParams;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
-import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityResultBean;
+import org.flockdata.transform.json.ContentModelDeserializer;
+import org.flockdata.transform.json.ExtractProfileDeserializer;
+import org.flockdata.transform.model.ExtractProfile;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -158,25 +158,6 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         assertTrue(ping.error(), ping.worked());
 
         assertEquals("Couldn't ping fd-search", "pong", ping.result());
-    }
-
-    @Test
-    public void aaStatusChecks() throws Exception {
-        logger.info("HealthChecks");
-        // If the services can't see each other, its not worth proceeding
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertNotNull(login);
-        Health health = new Health(fdTemplate);
-        integrationHelper.assertWorked("Health Check", health.exec());
-
-        Map<String, Object> healthResult = health.result();
-        assertTrue("Should be more than 1 entry in the health results", healthResult.size() > 1);
-        assertNotNull("Could not find an entry for fd-search", healthResult.get("fd-search"));
-        assertTrue("Failure for fd-engine to connect to fd-search in the container " + healthResult.get("fd-search"), healthResult.get("fd-search").toString().toLowerCase().startsWith("ok"));
-        assertNotNull("Could not find an entry for fd-store", healthResult.get("fd-store"));
-        assertTrue("Failure for fd-engine to connect to fd-store in the container", healthResult.get("fd-store").toString().toLowerCase().startsWith("ok"));
-
-
     }
 
     @Test
@@ -309,7 +290,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
 
         integrationHelper.waitForEntityKey(logger, "trackEntityOverAmqpThenFindInSearch", entityGet);
 
-        EntityBean entityResult = entityGet.result();
+        EntityResultBean entityResult = entityGet.result();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
         integrationHelper.waitForSearch(logger, "trackEntityOverAmqpThenFindInSearch", entityGet, 1);
@@ -352,7 +333,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean).exec();
         integrationHelper.waitForEntityKey(logger, "validateEntityLogs", entityGet);
 
-        EntityBean entityResult = entityGet.result();
+        EntityResultBean entityResult = entityGet.result();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
 
@@ -392,7 +373,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
         integrationHelper.waitForEntityKey(logger, "findByESPassThroughWithUTF8", entityGet);
 
-        EntityBean entityResult = entityGet.result();
+        EntityResultBean entityResult = entityGet.result();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
         integrationHelper.waitForSearch(logger, "findByESPassThroughWithUTF8", entityGet, 1);
@@ -486,10 +467,10 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
         assertNotNull(login);
 
-        Collection<TagInputBean> setA = getRandomTags("codea", "Set");
-        Collection<TagInputBean> setB = getRandomTags("codea", "Set");
-        Collection<TagInputBean> setC = getRandomTags("codea", "Set");
-        Collection<TagInputBean> setD = getRandomTags("codea", "Set");
+        Collection<TagInputBean> setA = getRandomTags("Set", "codea");
+        Collection<TagInputBean> setB = getRandomTags("Set", "codea");
+        Collection<TagInputBean> setC = getRandomTags("Set", "codea");
+        Collection<TagInputBean> setD = getRandomTags("Set", "codea");
         fdTemplate.writeTags(setA);
         fdTemplate.writeTags(setB);
         fdTemplate.writeTags(setC);
@@ -762,7 +743,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
         integrationHelper.waitForEntityKey(logger, "getEntityFieldStructure", entityGet);
 
-        EntityBean entityResult = entityGet.result();
+        EntityResultBean entityResult = entityGet.result();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
         integrationHelper.waitForSearch(logger, "getEntityFieldStructure", entityGet, 1);
@@ -794,7 +775,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         assertFalse (found.getContent().isEmpty());
     }
 
-    private Collection<TagInputBean> getRandomTags(String code, String label) {
+    private Collection<TagInputBean> getRandomTags(String label, String code) {
         int i = 0;
         int max = 20;
 

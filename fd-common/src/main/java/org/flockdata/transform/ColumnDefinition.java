@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -23,14 +23,14 @@ package org.flockdata.transform;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.flockdata.model.EntityTagRelationshipDefinition;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.track.bean.EntityTagRelationshipDefinition;
 import org.flockdata.transform.json.ColumnDeserializer;
 import org.flockdata.transform.json.EntityTagRelationshipDeserializer;
 import org.flockdata.transform.json.GeoDeserializer;
+import org.flockdata.transform.json.TagProfileDeserializer;
 import org.flockdata.transform.tag.TagProfile;
-import org.flockdata.transform.tag.TagProfileDeserializer;
 
 import java.util.ArrayList;
 import java.util.Collection;

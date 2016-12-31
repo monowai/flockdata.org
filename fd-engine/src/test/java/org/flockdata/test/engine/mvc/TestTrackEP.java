@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -24,7 +24,7 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -48,17 +48,17 @@ public class TestTrackEP extends MvcBase {
         EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("usera");
         eib.setCode(new DateTime().toString());
-        ContentInputBean cib = new ContentInputBean("userA", EntityContentHelper.getRandomMap());
+        ContentInputBean cib = new ContentInputBean("userA", ContentDataHelper.getRandomMap());
         eib.setContent(cib);
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull(trackResult);
         assertEquals("A new entity should have been created", true, trackResult.isNewEntity());
         assertEquals( "No service message was returned", 1, trackResult.getServiceMessages().size());
-        EntityBean e = getEntity(mike(), trackResult.getKey());
+        EntityResultBean e = getEntity(mike(), trackResult.getKey());
         //Entity e = entityService.getEntity(su.getCompany(), trackResult.getKey());
 
-        assertEquals("usera", e.getLastUser());
-        assertEquals("usera", e.getCreatedUser());
+        assertEquals("usera", e.getLastUser().getCode());
+        assertEquals("usera", e.getCreatedBy().getCode());
         assertNotNull(e.getSearchKey());
 
         trackResult =track(mike(), eib);
@@ -71,14 +71,14 @@ public class TestTrackEP extends MvcBase {
         FortressResultBean f = makeFortress(mike(),  new FortressInputBean("track_MinimalArguments", true));
         EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("userA");
-        ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
+        ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
         eib.setContent(cib);
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull("FortressUser in the Header, but not in Content, should work", trackResult);
-        EntityBean e = getEntity(mike(), trackResult.getKey());
+        EntityResultBean e = getEntity(mike(), trackResult.getKey());
 
-        assertEquals("usera", e.getLastUser());
-        assertEquals("usera", e.getCreatedUser());
+        assertEquals("usera", e.getLastUser().getCode());
+        assertEquals("usera", e.getCreatedBy().getCode());
     }
 
     @Test
@@ -86,7 +86,7 @@ public class TestTrackEP extends MvcBase {
         FortressResultBean f = makeFortress(mike(),  new FortressInputBean("entity_findLogs", true));
         EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("userA");
-        ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
+        ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
         eib.setContent(cib);
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull(trackResult);
@@ -99,7 +99,7 @@ public class TestTrackEP extends MvcBase {
         FortressResultBean f = makeFortress(mike(),  new FortressInputBean("entity_findLogsWithIllegalEntity", true));
         EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("userA");
-        ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
+        ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
         eib.setContent(cib);
         // Test Serialization
         byte[] bytes =JsonUtils.toJsonBytes(eib);
@@ -134,10 +134,10 @@ public class TestTrackEP extends MvcBase {
         result = makeFortress(sally(), fortressInputBean);
         assertEquals(fName, result.getName());
         assertEquals(fName.toLowerCase(), result.getCode());
-        assertNotNull("Index Name not found", result.getIndexName());
+        assertNotNull("Index Name not found", result.getRootIndex());
 
         FortressResultBean fortress = getFortress(sally(), result.getCode());
-        assertEquals(fortress.getIndexName(), result.getIndexName());
+        assertEquals(fortress.getRootIndex(), result.getRootIndex());
         assertEquals("Creation of a fortress should be case insensitive", 1, getFortresses(sally()).size());
 
     }

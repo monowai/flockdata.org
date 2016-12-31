@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,14 +21,12 @@
 package org.flockdata.test.search.functional;
 
 import junit.framework.TestCase;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityTag;
-import org.flockdata.model.EntityTagOut;
-import org.flockdata.model.Tag;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.FdSearch;
-import org.flockdata.search.model.*;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.search.*;
+import org.flockdata.test.helper.ContentDataHelper;
+import org.flockdata.test.helper.MockDataFactory;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.GeoDataBean;
 import org.flockdata.track.bean.GeoDataBeans;
@@ -40,11 +38,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author mholdsworth
@@ -58,14 +59,14 @@ public class TestMappings extends ESBase {
 
     @Test
     public void defaultTagQueryWorks() throws Exception {
-        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
+        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
         String company = "test";
         String fortress = "defaultTagQueryWorks";
         String doc = "doc";
         String user = "mike";
 
-        Entity entity = getEntity(company, fortress, user, doc);
+        Entity entity = MockDataFactory.getEntity(company, fortress, user, doc);
 
         EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         change.setDescription("Test Description");
@@ -76,19 +77,18 @@ public class TestMappings extends ESBase {
         TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname").
                 setCode("my TAG");
 
-        Tag tag = new Tag(tagInput);
-        tags.add(new EntityTagOut(entity, tag, "mytag", null));
+        tags.add(MockDataFactory.getEntityTag(entity, tagInput, "mytag"));
 
         change.setStructuredTags(tags);
 
         deleteEsIndex(entity);
-        //entityWriter.ensureIndex(change.getIndexName(), change.getType());
+        //entityWriter.ensureIndex(change.getRootIndex(), change.getType());
         SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
         SearchResult searchResult = searchResults.getSearchResults().iterator().next();
         Thread.sleep(1000);
         assertNotNull(searchResult);
         assertNotNull(searchResult.getSearchKey());
-        entity.setSearchKey(searchResult.getSearchKey());
+        when(entity.getSearchKey()).thenReturn(searchResult.getSearchKey());
         json = entityWriter.findOne(entity);
 
         doFacetQuery(indexManager.parseIndex(entity), entity.getType(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
@@ -101,7 +101,7 @@ public class TestMappings extends ESBase {
 
     @Test
     public void count_CorrectSearchResults() throws Exception {
-        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
+        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
         String fortress = "fort";
         String company = "test";
@@ -120,9 +120,8 @@ public class TestMappings extends ESBase {
 
         TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname");
         tagInput.setCode("my TAG");
-        Tag tag = new Tag(tagInput);
 
-        tags.add(new EntityTagOut(entity, tag, "mytag", null));
+        tags.add(MockDataFactory.getEntityTag(entity, tagInput, "mytag"));
         change.setStructuredTags(tags);
 
         deleteEsIndex(entity);
@@ -137,7 +136,7 @@ public class TestMappings extends ESBase {
 
     @Test
     public void testCustomMappingWorks() throws Exception {
-        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
+        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
         Entity entityA = getEntity("cust", "fort", "anyuser", "fort");
         Entity entityB = getEntity("cust", "fortb", "anyuser", "fortb");
 
@@ -172,24 +171,28 @@ public class TestMappings extends ESBase {
 
     @Test
     public void sameIndexDifferentDocumentsHaveMappingApplied() throws Exception {
-        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
-        String fortress = new Date().toString();
-//        String fortress = "fort";
+        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
+        String fortress = "fortMapping";
         Entity entityA = getEntity("cust", fortress, "anyuser", "fortdoc");
+        assertNotNull(entityA.getCode());
+        assertNotNull(entityA.getKey());
+        assertSame(entityA.getCode(), entityA.getKey()); // Mock key + code is the same if code not explicit
         Entity entityB = getEntity("cust", fortress, "anyuser", "doctype");
+        assertNotNull(entityB.getCode());
+        assertNotNull(entityB.getKey());
+        assertSame(entityB.getCode(), entityB.getKey()); // Mock key + code is the same if code not explicit
 
 
         EntitySearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json), indexManager.parseIndex(entityA));
         EntitySearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json), indexManager.parseIndex(entityB));
 
-        Tag tag = new Tag(new TagInputBean("myTag", "TheLabel", "rlxname"));
-        tag.setCode("my TAG");// we should be able to find this as lowercase
+        TagInputBean tag = new TagInputBean("my TAG", "TheLabel", "rlxname");
         assertEquals("my TAG", tag.getCode());
         ArrayList<EntityTag> tagsA = new ArrayList<>();
-        tagsA.add(new EntityTagOut(entityA, tag, "mytag", null));
+        tagsA.add(MockDataFactory.getEntityTag(entityA, tag, "mytag"));
 
         ArrayList<EntityTag> tagsB = new ArrayList<>();
-        tagsB.add(new EntityTagOut(entityB, tag, "mytag", null));
+        tagsB.add(MockDataFactory.getEntityTag(entityB, tag, "mytag"));
 
         changeA.setStructuredTags(tagsA);
         changeB.setStructuredTags(tagsB);
@@ -217,16 +220,15 @@ public class TestMappings extends ESBase {
 
     @Test
     public void tagWithRelationshipNamesMatchingNodeNames() throws Exception {
-        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
+        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
         Entity entity = getEntity("cust", "tagWithRelationshipNamesMatchingNodeNames", "anyuser", "fortdoc");
         deleteEsIndex(entity);
         EntitySearchChange changeA = new EntitySearchChange(entity, new ContentInputBean(json), indexManager.parseIndex(entity));
 
-        Tag tag = new Tag(new TagInputBean("aValue", "myTag", "myTag"));
-        tag.setName("myTag");// This will be used as the relationship name between the entity and the tag!
+        TagInputBean tag = new TagInputBean("aValue", "myTag", "myTag");
 
         ArrayList<EntityTag> tags = new ArrayList<>();
-        tags.add(new EntityTagOut(entity, tag, "mytag", null));
+        tags.add(MockDataFactory.getEntityTag(entity, tag, "mytag"));
         changeA.setStructuredTags(tags);
 
         deleteEsIndex(entity);
@@ -254,21 +256,19 @@ public class TestMappings extends ESBase {
         Entity entity = getEntity(comp, fort, user, fort);
         deleteEsIndex(indexManager.parseIndex(entity));
 
-        Map<String, Object> what = EntityContentHelper.getSimpleMap(
+        Map<String, Object> what = ContentDataHelper.getSimpleMap(
                 SearchSchema.WHAT_CODE, "GEO");
         what.put(SearchSchema.WHAT_NAME, "NameText");
         what.put(SearchSchema.WHAT_DESCRIPTION, "This is a description");
 
         TagInputBean tagInput = new TagInputBean("tagcode", "TagLabel", "tag-relationship");
-        Tag tag = new Tag(tagInput);
-
 
         ArrayList<EntityTag> tags = new ArrayList<>();
 
         HashMap<String, Object> tagProps = new HashMap<>();
         tagProps.put("num", 100d);
         tagProps.put("str", "hello");
-        EntityTag entityTag = new EntityTagOut(entity, tag, "entity-relationship", tagProps);
+        EntityTag entityTag = MockDataFactory.getEntityTag(entity, tagInput, "entity-relationship", tagProps);
         // DAT-442 Geo refactoring
         GeoDataBeans geoPayLoad = new GeoDataBeans();
         GeoDataBean geoData = new GeoDataBean();
@@ -279,7 +279,7 @@ public class TestMappings extends ESBase {
         geoPayLoad.add("street", streetData);
         geoData = geoPayLoad.getGeoBeans().get("country");
         TestCase.assertNotNull(geoData);
-        entityTag.setGeoData(geoPayLoad);
+        when(entityTag.getGeoData()).thenReturn(geoPayLoad);
         tags.add(entityTag);
 
         EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));

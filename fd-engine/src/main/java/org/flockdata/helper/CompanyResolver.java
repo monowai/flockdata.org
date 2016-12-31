@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,7 +21,7 @@
 package org.flockdata.helper;
 
 import org.flockdata.engine.configure.ApiKeyInterceptor;
-import org.flockdata.model.Company;
+import org.flockdata.engine.data.graph.CompanyNode;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletRequest;
  * @since 28/08/2014
  */
 public class CompanyResolver {
-    public static Company resolveCompany(HttpServletRequest request) throws FlockException {
-        Company company = (Company) request.getAttribute(ApiKeyInterceptor.COMPANY);
+    public static CompanyNode resolveCompany(HttpServletRequest request) throws FlockException {
+        CompanyNode company = (CompanyNode) request.getAttribute(ApiKeyInterceptor.COMPANY);
         if (company == null )
             // If you're seeing this, then check that ApiKeyInterceptor is configured to handle
             // the endpoint you are requesting

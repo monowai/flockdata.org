@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,11 +21,17 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
-import org.flockdata.model.*;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.SystemUser;
+import org.flockdata.data.Tag;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.TagNode;
+import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityTagRelationshipInput;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -68,9 +74,9 @@ public class TestGeoEntity extends EngineBase {
         SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
         FortressInputBean fib = new FortressInputBean("undefined_Tag", true);
         fib.setStoreEnabled(false);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
 
-        DocumentType documentType = new DocumentType(fortress, "DAT-495");
+        DocumentNode documentType = new DocumentNode(fortress, "DAT-495");
 
         documentType = conceptService.save(documentType);
         assertNull(documentType.getGeoQuery());
@@ -108,9 +114,9 @@ public class TestGeoEntity extends EngineBase {
         SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
         FortressInputBean fib = new FortressInputBean("undefined_Tag", true)
                 .setStoreEnabled(false);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
 
-        DocumentType documentType = new DocumentType(fortress, "DAT-508");
+        DocumentNode documentType = new DocumentNode(fortress, "DAT-508");
 
         documentType = conceptService.save(documentType);
         assertNull(documentType.getGeoQuery());
@@ -155,7 +161,7 @@ public class TestGeoEntity extends EngineBase {
         TestCase.assertEquals("Lender should be connected to one Zip", 1, tagService.findDirectedTags(lenderTag).size());
         TestCase.assertEquals("That zip should be connected to two states", 2, tagService.findDirectedTags(tagService.findDirectedTags(lenderTag).iterator().next()).size());
 
-        Map<String, Collection<TagResultBean>> subTags = tagService.findTags(su.getCompany(), "ZipCode", ZIP, "state", "State");
+        Map<String, Collection<FdTagResultBean>> subTags = tagService.findTags(su.getCompany(), "ZipCode", ZIP, "state", "State");
         assertTrue(subTags.containsKey("state"));
         assertEquals("The zip code should be connected to two states", 2, subTags.get("state").size());
 
@@ -193,9 +199,9 @@ public class TestGeoEntity extends EngineBase {
         SystemUser su = registerSystemUser("geo_Relationship", mike_admin);
         FortressInputBean fib = new FortressInputBean("geo_Relationship", true);
         fib.setStoreEnabled(false);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
 
-        DocumentType documentType = new DocumentType(fortress, "geo_Relationship");
+        DocumentNode documentType = new DocumentNode(fortress, "geo_Relationship");
 
         documentType = conceptService.save(documentType);
         assertNull(documentType.getGeoQuery());
@@ -206,8 +212,8 @@ public class TestGeoEntity extends EngineBase {
 
         TagInputBean atlantis = new TagInputBean("AT", "Country")
                 .setName("Atlantis")
-                .setProperty(Tag.LAT, 24.8236183)
-                .setProperty(Tag.LON, -75.5058183);
+                .setProperty(TagNode.LAT, 24.8236183)
+                .setProperty(TagNode.LON, -75.5058183);
 
         address.setTargets("links-to-country", atlantis);
         address.addEntityTagLink(new EntityTagRelationshipInput("via-address", true));

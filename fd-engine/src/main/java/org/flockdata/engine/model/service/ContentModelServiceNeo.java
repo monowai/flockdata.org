@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -23,28 +23,32 @@ package org.flockdata.engine.model.service;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.data.*;
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.engine.dao.ContentModelDaoNeo;
+import org.flockdata.engine.data.dao.ContentModelDaoNeo;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.ModelNode;
+import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.track.service.ContentModelService;
+import org.flockdata.engine.track.service.EntityService;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.*;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.Model;
-import org.flockdata.profile.*;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.service.ContentModelService;
+import org.flockdata.model.ColumnValidationResult;
+import org.flockdata.model.ContentModelResult;
+import org.flockdata.model.ContentValidationRequest;
+import org.flockdata.model.ContentValidationResults;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.Transformer;
+import org.flockdata.transform.model.ContentModelHandler;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Retryable;
@@ -86,7 +90,7 @@ public class ContentModelServiceNeo implements ContentModelService {
         this.entityService = entityService;
     }
 
-    public ContentModel get(Company company, Fortress fortress, DocumentType documentType) throws FlockException {
+    public ContentModel get(Company company, Fortress fortress, Document documentType) throws FlockException {
         Model model = contentModelDao.find(fortress, documentType);
 
         if (model == null)
@@ -114,15 +118,15 @@ public class ContentModelServiceNeo implements ContentModelService {
         return contentModel;
     }
 
-    public ContentModelResult saveTagModel(Company company, String code, ContentModel contentModel) throws FlockException {
-        Fortress internalFortress = fortressService.findInternalFortress(company);
+    public ContentModelResult saveTagModel(CompanyNode company, String code, ContentModel contentModel) throws FlockException {
+        FortressNode internalFortress = fortressService.findInternalFortress(company);
 
         assert internalFortress != null;
 
         String profileCode = TagHelper.parseKey(code);
         contentModel.setTagModel(true);
 
-        Model existingModel = contentModelDao.findTagProfile(company, profileCode);
+        ModelNode existingModel = contentModelDao.findTagProfile(company, profileCode);
         try {
             if (existingModel == null) {
                 EntityInputBean entityInputBean = new EntityInputBean(internalFortress, new DocumentTypeInputBean("TagModel"));
@@ -134,8 +138,8 @@ public class ContentModelServiceNeo implements ContentModelService {
                 contentInputBean.setData(map);
                 entityInputBean.setContent(contentInputBean);
                 TrackResultBean trackResult = mediationFacade.trackEntity(company, entityInputBean);
-
-                existingModel = new Model(trackResult, profileCode);
+                Document documentType = conceptService.findDocumentType(internalFortress, "TagModel");
+                existingModel = new ModelNode(company, trackResult, profileCode, documentType);
                 contentModelDao.save(existingModel);
             } else {
                 updateProfile(company, contentModel.setTagModel(true), existingModel);
@@ -148,7 +152,7 @@ public class ContentModelServiceNeo implements ContentModelService {
 
     }
 
-    private void updateProfile(Company company, org.flockdata.profile.model.ContentModel contentModelConfig, Model existingModel) throws FlockException, IOException, ExecutionException, InterruptedException {
+    private void updateProfile(Company company, ContentModel contentModelConfig, ModelNode existingModel) throws FlockException, IOException, ExecutionException, InterruptedException {
         ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
         contentInputBean.setKey(existingModel.getKey());
         contentInputBean.setData(JsonUtils.convertToMap(contentModelConfig));
@@ -174,12 +178,12 @@ public class ContentModelServiceNeo implements ContentModelService {
      * @throws IOException
      */
     @Transactional
-    public ContentModelResult saveEntityModel(Company company, Fortress fortress, DocumentType documentType, ContentModel contentModel) throws FlockException {
+    public ContentModelResult saveEntityModel(Company company, Fortress fortress, Document documentType, ContentModel contentModel) throws FlockException {
         // Used for storing internal versionable data
-        Fortress internalFortress = fortressService.findInternalFortress(company);
+        FortressNode internalFortress = fortressService.findInternalFortress(company);
         assert internalFortress != null;
 
-        Model model = contentModelDao.find(fortress, documentType);
+        ModelNode model = contentModelDao.find(fortress, documentType);
         try {
             if (model == null) {
                 EntityInputBean entityInputBean = new EntityInputBean(internalFortress, new DocumentTypeInputBean("FdContentModel"));
@@ -190,7 +194,7 @@ public class ContentModelServiceNeo implements ContentModelService {
                 contentInputBean.setData(map);
                 entityInputBean.setContent(contentInputBean);
                 TrackResultBean trackResult = mediationFacade.trackEntity(company, entityInputBean);
-                model = new Model(trackResult, fortress, documentType);
+                model = new ModelNode(company, trackResult, fortress, documentType);
                 contentModelDao.save(model);
             } else {
                 updateProfile(company, contentModel, model);
@@ -203,11 +207,11 @@ public class ContentModelServiceNeo implements ContentModelService {
     }
 
     @Override
-    public org.flockdata.profile.model.ContentModel get(Company company, String fortressCode, String documentCode) throws FlockException {
-        Fortress fortress = fortressService.findByCode(company, fortressCode);
+    public ContentModel get(Company company, String fortressCode, String documentCode) throws FlockException {
+        FortressNode fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
             throw new NotFoundException("Unable to locate the fortress " + fortressCode);
-        DocumentType documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
+        DocumentNode documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
         if (documentType == null)
             throw new NotFoundException("Unable to resolve document type " + documentCode);
 
@@ -217,13 +221,13 @@ public class ContentModelServiceNeo implements ContentModelService {
 
     @Override
     @Transactional
-    public Collection<ContentModelResult> find(Company company) {
+    public Collection<ContentModelResult> find(CompanyNode company) {
         return contentModelDao.find(company.getId());
     }
 
     @Override
     @Transactional
-    public ContentModelResult find(Company company, String key) throws FlockException {
+    public ContentModelResult find(CompanyNode company, String key) throws FlockException {
         ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
         if (model == null) {
             throw new NotFoundException("Unable to locate Content Model from key " + key);
@@ -237,7 +241,7 @@ public class ContentModelServiceNeo implements ContentModelService {
     }
 
     @Override
-    public ContentModel getTagModel(Company company, String code) throws FlockException {
+    public ContentModel getTagModel(CompanyNode company, String code) throws FlockException {
         Model model = contentModelDao.findTagProfile(company, TagHelper.parseKey(code));
 
         if (model == null)
@@ -256,7 +260,7 @@ public class ContentModelServiceNeo implements ContentModelService {
     @Override
     @Transactional
     @Retryable
-    public void delete(Company company, String key) {
+    public void delete(CompanyNode company, String key) {
         ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
         if (model != null)
             contentModelDao.delete(company, model.getKey());

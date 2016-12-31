@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,26 +21,29 @@
 package org.flockdata.engine.query.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.flockdata.engine.PlatformConfig;
+import org.flockdata.data.*;
+import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.engine.integration.search.DeleteIndex;
 import org.flockdata.engine.integration.search.EntitySearchWriter;
 import org.flockdata.engine.integration.search.EntitySearchWriter.EntitySearchWriterGateway;
 import org.flockdata.engine.integration.search.FdViewQuery.FdViewQueryGateway;
+import org.flockdata.engine.tag.FdTagResultBean;
+import org.flockdata.engine.track.service.EntityService;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.model.*;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.search.AdminRequest;
-import org.flockdata.search.model.*;
+import org.flockdata.search.*;
 import org.flockdata.store.StoredContent;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.EntityService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -156,9 +159,7 @@ public class SearchServiceFacade {
         if (entity.getLastUser() != null && entity.getLastUser().getCode() == null)
             fortressService.getUser(entity.getLastUser().getId());
 
-        EntityLog entityLog = getLog(trackResultBean);
-
-        return getEntityChange(trackResultBean, entityLog);
+        return getEntityChange(trackResultBean, getLog(trackResultBean));
     }
 
     /**
@@ -293,7 +294,7 @@ public class SearchServiceFacade {
                     searchDocument.setWho(entity.getCreatedBy().getCode());
             }
             EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
-            searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(new TrackResultBean(entity, new DocumentType(entity.getType()))));
+            searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(new TrackResultBean(entity, new DocumentNode(entity.getType()))));
 
             if (!engineConfig.isSearchRequiredToConfirm())
                 searchDocument.setReplyRequired(false);
@@ -308,8 +309,8 @@ public class SearchServiceFacade {
         return null;
     }
 
-    private EntityTagFinder getTagFinder(EntityService.TAG_STRUCTURE tagStructureFinder) {
-        if (tagStructureFinder == EntityService.TAG_STRUCTURE.TAXONOMY)
+    private EntityTagFinder getTagFinder(EntityTag.TAG_STRUCTURE tagStructureFinder) {
+        if (tagStructureFinder == EntityTag.TAG_STRUCTURE.TAXONOMY)
             return taxonomyTags;
         else
             return defaultTagFinder;
@@ -397,7 +398,7 @@ public class SearchServiceFacade {
 
     }
 
-    private boolean isSearchSuppressed(DocumentType documentType) {
+    private boolean isSearchSuppressed(Document documentType) {
         if (documentType == null)
             return true; // Can't index a doc with no doc type
         if (documentType.isSearchEnabled() != null) // no-null doc type may want to suppress search
@@ -419,10 +420,10 @@ public class SearchServiceFacade {
 
     public void reIndex(Collection<Long> entities) {
         // To support DAT-279 - not going to work well with massive result sets
-        Collection<Entity> entitiesSet = entityService.getEntities(entities);
+        Collection<EntityNode> entitiesSet = entityService.getEntities(entities);
         Collection<SearchChange> searchChanges = new ArrayList<>();
 
-        for (Entity entity : entitiesSet) {
+        for (EntityNode entity : entitiesSet) {
             SearchChange change = rebuild(entity, entityService.getLastEntityLog(entity.getId()));
             if (change != null && entity.getSegment().getFortress().isSearchEnabled() && !entity.isSearchSuppressed())
                 searchChanges.add(change);
@@ -432,20 +433,21 @@ public class SearchServiceFacade {
 
     public void setTags(Entity entity, EntitySearchChange searchDocument) {
         EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
-        searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(new TrackResultBean(entity, new DocumentType(entity.getType()))));
+        searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(new TrackResultBean(entity, new DocumentNode(entity.getType()))));
 
     }
 
-    public Boolean makeTagsSearchable(Company company, Collection<TagResultBean> tagResults) {
+    public Boolean makeTagsSearchable(Company company, Collection<FdTagResultBean> tagResults) {
+        CompanyNode fdCompany = (CompanyNode)company;
         Collection<SearchChange> tagSearchChanges = tagResults.stream().filter(TagResultBean::isNewTag)
                 .map(tagResult ->
-                        getTagChangeToPublish(company, tagResult))
+                        getTagChangeToPublish(fdCompany, tagResult))
                 .collect(Collectors.toCollection(ArrayList::new));
 
         return makeChangesSearchable(tagSearchChanges);
     }
 
-    private TagSearchChange getTagChangeToPublish(Company company, TagResultBean tagResult) {
+    private TagSearchChange getTagChangeToPublish(CompanyNode company, FdTagResultBean tagResult) {
         String indexName = indexManager.getIndexRoot(company, tagResult.getTag());
         return new TagSearchChange(indexName, tagResult.getTag());
     }

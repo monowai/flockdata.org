@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -38,7 +38,7 @@ public class CypherHelper {
             return ":Entity";
         // create a neo4j label index
         // DAT-109
-        return getNeoString(columnName, ":", values, " or ");
+        return getNeoString(columnName, values, " or ");
     }
 
     public static String getConcepts(String columnName, Collection<String> values) {
@@ -46,17 +46,17 @@ public class CypherHelper {
             return "";
         // Based on neo4j label index, but no default. Filters on Tags
         // DAT-109
-        return getNeoString(columnName, ":", values, " or ");
+        return getNeoString(columnName, values, " or ");
 
     }
 
     public static String getRelationships(Collection<String> values) {
         if (values == null || values.isEmpty())
             return "";
-        return ":" + getNeoString(null, ":", values, " |");
+        return ":" + getNeoString(null, values, " |");
     }
 
-    private static String getNeoString(String columnName, String delimiter, Collection<String> input, String join) {
+    private static String getNeoString(String columnName, Collection<String> input, String join) {
         String result = "";//(delimiter.equals(":")? ":": "");
         for (String field : input) {
             if (field != null) {
@@ -66,13 +66,13 @@ public class CypherHelper {
                 if (requiresQuoting(field))
                     field = "`" + field + "`";
 
-                if (result.equals(delimiter) || result.equals(""))
-                    result = result + (columnName != null ? columnName + delimiter : "") + field + "";
+                if (result.equals(":") || result.equals(""))
+                    result = result + (columnName != null ? columnName + ":" : "") + field + "";
                 else
-                    result = result + join + (columnName != null ? columnName : "") + delimiter + field;
+                    result = result + join + (columnName != null ? columnName : "") + ":" + field;
             }
         }
-        if (result.equals(delimiter))
+        if (result.equals(":"))
             result = "";
         return result;
     }
@@ -95,4 +95,12 @@ public class CypherHelper {
         return false;
     }
 
+    public static String getLabel(Iterable<Label> labels) {
+        if ( labels !=null )
+            for (Label label : labels) {
+                if (!NodeHelper.isInternalLabel(label.name()))
+                    return label.name();
+            }
+        return TagHelper.TAG;
+    }
 }

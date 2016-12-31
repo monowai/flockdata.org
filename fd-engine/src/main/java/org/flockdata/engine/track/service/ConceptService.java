@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,12 +20,14 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.data.Company;
+import org.flockdata.data.Document;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -48,21 +50,21 @@ public interface ConceptService {
 
     Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships);
 
-    DocumentType resolveByDocCode(Fortress fortress, String documentCode);
+    DocumentNode resolveByDocCode(Fortress fortress, String documentCode);
 
-    DocumentType resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing);
+    DocumentNode resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing);
 
     void registerConcepts(Iterable<TrackResultBean> resultBeans);
 
-    void linkEntities(DocumentType sourceType, DocumentType targetType, EntityKeyBean entityKeyBean) throws FlockException;
+    void linkEntities(DocumentNode sourceType, DocumentNode targetType, EntityKeyBean entityKeyBean) throws FlockException;
 
-    DocumentType save(DocumentType documentType);
+    DocumentNode save(DocumentNode documentType);
 
-    DocumentType findDocumentType(Fortress fortress, String documentName);
+    DocumentNode findDocumentType(Fortress fortress, String documentName);
 
-    DocumentType findDocumentType(Fortress fortress, String documentName, boolean createIfMissing);
+    DocumentNode findDocumentType(Fortress fortress, String documentName, boolean createIfMissing);
 
-    DocumentType findOrCreate(Fortress fortress, DocumentType documentType);
+    DocumentNode findOrCreate(Fortress fortress, DocumentNode documentType);
 
     Set<DocumentResultBean> getConceptsWithRelationships(Company company, Collection<String> documents);
 
@@ -70,15 +72,15 @@ public interface ConceptService {
 
     Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, String fortress) throws FlockException;
 
-    Collection<DocumentType> makeDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans) throws FlockException;
+    Collection<DocumentNode> makeDocTypes(Segment segment, List<EntityInputBean> inputBeans) throws FlockException;
 
-    void delete(DocumentType documentType);
+    void delete(Document documentType);
 
-    DocumentType findDocumentTypeWithSegments(DocumentType documentType);
+    DocumentNode findDocumentTypeWithSegments(DocumentNode documentType);
 
-    DocumentResultBean findDocumentTypeWithSegments(Fortress f, String doc);
+    DocumentResultBean findDocumentTypeWithSegments(FortressNode f, String doc);
 
-    void delete(DocumentType documentType, FortressSegment segment);
+    void delete(Document documentType, Segment segment);
 
     /**
      * Concept structure associated to a Fortress. All DocumentTypes and connected concepts
@@ -88,5 +90,5 @@ public interface ConceptService {
      */
     MatrixResults getContentStructure(Company company, String fortress);
 
-    Map<String,DocumentResultBean> getParents(DocumentType documentType);
+    Map<String,DocumentResultBean> getParents(Document documentType);
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,12 @@
 package org.flockdata.spring.service;
 
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.integration.FdPayloadWriter;
+import org.flockdata.integration.PayloadWriter;
+import org.flockdata.spring.FlockDataClientFactoryBean;
+import org.flockdata.spring.utils.PojoToFdTransformer;
+import org.flockdata.spring.xml.ClientBeanDefinitionParser;
+import org.flockdata.test.unit.client.MockFdWriter;
+import org.flockdata.test.unit.client.MockPayloadWriter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +33,22 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("dev")
-@TestPropertySource("/fd-client-config.properties")
+@TestPropertySource("/application_dev.properties")
 @ContextConfiguration(classes = {
         ClientConfiguration.class,
-        FdPayloadWriter.class,
+        MockPayloadWriter.class,
+        FlockDataClientFactoryBean.class,
+        MockFdWriter.class,
+        PojoToFdTransformer.class,
+        ClientBeanDefinitionParser.class,
         SimpleTrackedService.class
 })
 public class SimpleFlockServiceTest {
 
     @Autowired
     private SimpleTrackedService simpleTrackedService;
+    @Autowired
+    private PayloadWriter payloadWriter;
 
     @Test
     public void testCreateEntityAnnotation() {
@@ -46,6 +57,7 @@ public class SimpleFlockServiceTest {
         customer.setName("name");
         customer.setEmail("email@email.com");
         simpleTrackedService.save(customer);
+        payloadWriter.getEntities();
     }
 
     @Test

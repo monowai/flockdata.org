@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,8 +22,7 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.model.*;
-import org.neo4j.graphdb.Node;
+import org.flockdata.data.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class TrackResultBean implements Serializable {
     private Collection<EntityTag> tags; // Tags connected to the entity
     private EntityInputBean entityInputBean;// User payload
     private ContentInputBean contentInput;  // User content payload
-    private DocumentType documentType;
+    private Document documentType;
     private String index;       // Which index is this indexed in
     private Boolean newEntity = false; // Flags that the Entity was created for the first time
     private ContentInputBean.LogStatus logStatus; // What status
@@ -72,11 +71,12 @@ public class TrackResultBean implements Serializable {
     /**
      * Entity is only used internally by fd-engine; it can not be serialized as JSON
      * Callers should rely on entityResultBean
-     *
+     * @param fortress
      * @param entity          internal node
+     * @param documentType
      * @param entityInputBean user supplied content to create entity
      */
-    public TrackResultBean(Fortress fortress, Entity entity, DocumentType documentType, EntityInputBean entityInputBean) {
+    public TrackResultBean(Fortress fortress, Entity entity, Document documentType, EntityInputBean entityInputBean) {
         this(entity);
         this.entityInputBean = entityInputBean;
         this.company = fortress.getCompany();
@@ -91,12 +91,12 @@ public class TrackResultBean implements Serializable {
         this.newEntity = entity.isNewEntity();
     }
 
-    public TrackResultBean(Entity entity, DocumentType documentType) {
+    public TrackResultBean(Entity entity, Document documentType) {
         this(entity);
         this.documentType = documentType;
     }
 
-    public TrackResultBean(Fortress fortress, Node entity, EntityInputBean entityInputBean) {
+    public TrackResultBean(Fortress fortress, EntityInputBean entityInputBean) {
         //this.entityBean = new EntityBean(fortress, entity, null);
         //this.entity = new Entity(fortress, entity);
         this.entityInputBean = entityInputBean;
@@ -197,11 +197,11 @@ public class TrackResultBean implements Serializable {
     }
 
     @JsonIgnore
-    public DocumentType getDocumentType() {
+    public Document getDocumentType() {
         return documentType;
     }
 
-    public TrackResultBean setDocumentType(DocumentType documentType) {
+    public TrackResultBean setDocumentType(Document documentType) {
         this.documentType = documentType;
         return this;
     }
@@ -223,7 +223,7 @@ public class TrackResultBean implements Serializable {
     }
 
     @JsonIgnore
-    // Convenience function to get the Enitty key
+    // Convenience function to get the Entity key
     public String getKey() {
         return entity.getKey();
     }

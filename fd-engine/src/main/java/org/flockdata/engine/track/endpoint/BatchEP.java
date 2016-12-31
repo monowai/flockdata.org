@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,12 +20,12 @@
 
 package org.flockdata.engine.track.endpoint;
 
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.track.service.BatchService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.Company;
-import org.flockdata.profile.ContentValidationRequest;
-import org.flockdata.track.service.BatchService;
+import org.flockdata.model.ContentValidationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +54,7 @@ public class BatchEP {
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public void track(
             HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName, @RequestBody Map file) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         Object filename = file.get("file");
         if (filename == null)
             throw new NotFoundException("No file to process");
@@ -75,7 +75,7 @@ public class BatchEP {
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     public ContentValidationRequest trackData(@RequestBody ContentValidationRequest validationRequest,
                                                     HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return batchService.process(company, validationRequest);
 
     }

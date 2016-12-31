@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 
 package org.flockdata.track;
 
-import org.flockdata.model.Company;
+import org.flockdata.data.Company;
 import org.flockdata.registration.TagInputBean;
 
 import java.util.Collection;
@@ -31,10 +31,10 @@ import java.util.Collection;
  */
 public class TagPayload {
 
-    String tenant = "";
-    boolean ignoreRelationships;
-    Collection<TagInputBean> tags;
-    Company company;
+    private String tenant = "";
+    private boolean ignoreRelationships;
+    private Collection<TagInputBean> tags;
+    private Company company;
 
     TagPayload() {
     }
@@ -42,11 +42,6 @@ public class TagPayload {
     public TagPayload(Company company) {
         this();
         this.company = company;
-    }
-
-    public TagPayload(Collection<TagInputBean> tags) {
-        this();
-        this.tags = tags;
     }
 
     public String getTenant() {
@@ -80,7 +75,4 @@ public class TagPayload {
         return company;
     }
 
-    public void setCompany(Company company) {
-        this.company = company;
-    }
 }

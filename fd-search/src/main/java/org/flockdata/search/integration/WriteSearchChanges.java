@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -26,9 +26,9 @@ import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.Exchanges;
 import org.flockdata.integration.MessageSupport;
 import org.flockdata.search.AdminRequest;
+import org.flockdata.search.SearchChanges;
+import org.flockdata.search.SearchResults;
 import org.flockdata.search.base.SearchWriter;
-import org.flockdata.search.model.SearchChanges;
-import org.flockdata.search.model.SearchResults;
 import org.flockdata.search.service.SearchAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

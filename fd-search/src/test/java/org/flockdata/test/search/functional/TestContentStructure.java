@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,13 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.model.*;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.FdSearch;
-import org.flockdata.search.model.*;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.search.*;
+import org.flockdata.test.helper.ContentDataHelper;
+import org.flockdata.test.helper.MockDataFactory;
+import org.flockdata.track.bean.EntityTagRelationshipInput;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -35,6 +37,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.flockdata.test.helper.MockDataFactory.DEFAULT_ET_NAME;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -47,7 +51,7 @@ public class TestContentStructure extends ESBase {
 
     @Test
     public void contentFieldsReturned() throws Exception{
-        Map<String, Object> json = EntityContentHelper.getBigJsonText(2);
+        Map<String, Object> json = ContentDataHelper.getBigJsonText(2);
 
         String fortress = "contentFieldsReturned";
         String company = "company";
@@ -57,13 +61,20 @@ public class TestContentStructure extends ESBase {
         json.put("numeric", 100);
 
         Entity entity = getEntity(company, fortress, user, doc);
-
+        deleteEsIndex(entity);
         EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
 
         Collection<EntityTag> tags = new ArrayList<>();
-        EntityTag tag = new EntityTagOut(entity, new Tag(new TagInputBean("SomeCode", "SomeLabel", new EntityTagRelationshipInput("blah"))));
-        tag.getTag().addProperty("mynum", 100);
-        tags.add(tag);
+        TagInputBean tagInputBean = new TagInputBean("SomeCode", "SomeLabel", new EntityTagRelationshipInput("blah"))
+            .setProperty("mynum", 100);
+
+        EntityTag entityTag = MockDataFactory.getEntityTag(entity, tagInputBean);
+
+        assertTrue(entityTag.getTag().hasProperties());
+        assertEquals(1, entityTag.getTag().getProperties().size());
+        assertEquals(100, entityTag.getTag().getProperties().get("mynum"));
+
+        tags.add(entityTag);
         change.setStructuredTags(tags);
         change.setDescription("Test Description");
         change.setData(json);
@@ -83,9 +94,9 @@ public class TestContentStructure extends ESBase {
         Collection<EsColumn> linkFields = dataStructure.getLinks();
         for (EsColumn linkField : linkFields) {
             if ( linkField.getName().endsWith(".facet"))
-                assertEquals ("entity-tag-out.somelabel.code", linkField.getDisplayName());
+                assertEquals (DEFAULT_ET_NAME+".somelabel.code", linkField.getDisplayName());
             else
-                assertEquals ("entity-tag-out.somelabel.mynum", linkField.getDisplayName());
+                assertEquals (DEFAULT_ET_NAME+".somelabel.mynum", linkField.getDisplayName());
         }
 
         Collection<EsColumn>fdFields = dataStructure.getSystem();

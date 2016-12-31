@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,8 +20,10 @@
 
 package org.flockdata.registration;
 
-import org.flockdata.model.Fortress;
-import org.flockdata.model.MetaFortress;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.flockdata.data.Company;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
 
 import java.io.Serializable;
 
@@ -29,16 +31,16 @@ import java.io.Serializable;
  * @author mholdsworth
  * @since 21/12/2013
  */
-public class FortressResultBean implements MetaFortress, Serializable{
+public class FortressResultBean implements Fortress, Serializable {
     private String code;
     private String name;
-    private String indexName;
+    private String rootIndex;
     private String timeZone;
     private String message;
-    private Boolean enabled=Boolean.TRUE;
+    private Boolean enabled = Boolean.TRUE;
     private Boolean searchEnabled;
     private Boolean storeEnabled;
-    private String companyName;
+    private CompanyResultBean company;
     private boolean system;
 
     protected FortressResultBean() {
@@ -49,13 +51,12 @@ public class FortressResultBean implements MetaFortress, Serializable{
         this();
         this.name = fortress.getName();
         this.code = fortress.getCode();
-        this.indexName = fortress.getRootIndex();
+        this.rootIndex = fortress.getRootIndex();
         this.timeZone = fortress.getTimeZone();
         this.enabled = fortress.isEnabled();
         this.system = fortress.isSystem();
         this.searchEnabled = fortress.isSearchEnabled();
-        if ( fortress.getCompany()!=null)
-            this.companyName = fortress.getCompany().getName();
+        this.company = new CompanyResultBean(fortress.getCompany());
         this.storeEnabled = fortress.isStoreEnabled();
     }
 
@@ -67,24 +68,28 @@ public class FortressResultBean implements MetaFortress, Serializable{
         return timeZone;
     }
 
-    public boolean getSearchEnabled() {
-        return searchEnabled;
-    }
-
     public boolean isEnabled() {
         return enabled;
     }
 
-    public boolean isStoreEnabled() {
+    public Boolean isStoreEnabled() {
         return storeEnabled;
     }
 
-    public String getCompanyName() {
-        return companyName;
+    @Override
+    public Company getCompany() {
+        return company;
     }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+    @Override
+    public Boolean isSearchEnabled() {
+        return searchEnabled;
+    }
+
+    @Override
+    @JsonIgnore
+    public Long getId() {
+        return null;
     }
 
     public String getCode() {
@@ -95,11 +100,17 @@ public class FortressResultBean implements MetaFortress, Serializable{
         this.code = code;
     }
 
-    public String getIndexName() {
-        return indexName;
+    public String getRootIndex() {
+        return rootIndex;
     }
 
-    public boolean isSystem() {
+    @Override
+    @JsonIgnore
+    public Segment getDefaultSegment() {
+        return null;
+    }
+
+    public Boolean isSystem() {
         return system;
     }
 

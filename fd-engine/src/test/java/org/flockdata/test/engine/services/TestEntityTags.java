@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,18 +20,19 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.dao.EntityTagDao;
+import org.flockdata.data.*;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.model.*;
+import org.flockdata.search.*;
 import org.flockdata.store.Store;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,7 +69,7 @@ public class TestEntityTags extends EngineBase {
 
         FortressInputBean fib = new FortressInputBean("ABC", true);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
         assertNotNull(fortress);
 
         TagInputBean firstTag = new TagInputBean("firstTag", null, "demo");
@@ -78,7 +79,7 @@ public class TestEntityTags extends EngineBase {
         entityBean.setArchiveTags(false);
         ContentInputBean contentBean = new ContentInputBean();
         contentBean.setEvent("Test");
-        Map<String, Object> jsonMap = EntityContentHelper.getRandomMap();
+        Map<String, Object> jsonMap = ContentDataHelper.getRandomMap();
         contentBean.setData(jsonMap);
         entityBean.setContent(contentBean);
 
@@ -103,9 +104,9 @@ public class TestEntityTags extends EngineBase {
         Assert.assertEquals(1, entityService.getLogCount(su.getCompany(), entity.getKey()));
         Assert.assertEquals(2, entityTagService.findEntityTags(entity).size());
 
-        EntityLog lastLog = logService.getLastLog(entity);
+        EntityLog lastLog = logService.getLastLog((EntityNode) entity);
         assertNotNull(lastLog);
-        Map<String, Object> values = mediationFacade.getLogContent(entity, lastLog.getId());
+        Map<String, Object> values = mediationFacade.getLogContent((EntityNode) entity, lastLog.getId());
         assertFalse(values.isEmpty());
         assertEquals(jsonMap.get("Key").toString(), values.get("Key").toString());
 
@@ -119,7 +120,7 @@ public class TestEntityTags extends EngineBase {
 
         FortressInputBean fib = new FortressInputBean("ABC", true);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
         assertNotNull(fortress);
 
         TagInputBean firstTag = new TagInputBean("firstTag", null, "demo");
@@ -128,7 +129,7 @@ public class TestEntityTags extends EngineBase {
         entityBean.addTag(firstTag);
         entityBean.setArchiveTags(false);
         ContentInputBean contentBean = new ContentInputBean();
-        Map<String, Object> jsonMap = EntityContentHelper.getRandomMap();
+        Map<String, Object> jsonMap = ContentDataHelper.getRandomMap();
         contentBean.setData(jsonMap);
         entityBean.setContent(contentBean);
 
@@ -156,7 +157,7 @@ public class TestEntityTags extends EngineBase {
     public void simpleTagAgainstEntity() throws Exception {
         SystemUser su = registerSystemUser("simpleTagAgainstEntity", mike_admin);
         assertNotNull(su);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         TagInputBean flopTag = new TagInputBean("FLOP");
@@ -164,7 +165,7 @@ public class TestEntityTags extends EngineBase {
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
 
         EntityTagInputBean entityTag = new EntityTagInputBean(resultBean.getEntity().getKey(), null, "!!!");
         exception.expect(IllegalArgumentException.class);
@@ -187,7 +188,7 @@ public class TestEntityTags extends EngineBase {
     public void dates_TagRelationshipSinceTests() throws Exception {
         SystemUser su = registerSystemUser("dates_SinceRecorded", mike_admin);
         assertNotNull(su);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("dates_SinceRecorded", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("dates_SinceRecorded", true));
         assertNotNull(fortress);
 
         TagInputBean flopTag = new TagInputBean("FLOP");
@@ -196,7 +197,7 @@ public class TestEntityTags extends EngineBase {
         DateTime fCreated = new DateTime().minus(10000);
         EntityInputBean entityBean = new EntityInputBean(fortress, "anyone", "aTest", fCreated, "abc");
         TrackResultBean resultBean = mediationFacade.trackEntity(fortress.getDefaultSegment(), entityBean);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
 
         assertEquals(fCreated.getMillis(), entity.getFortressCreatedTz().getMillis());
 
@@ -214,7 +215,7 @@ public class TestEntityTags extends EngineBase {
 
         // Creating some content and adding a new Tag to the entity
         DateTime fUpdated = new DateTime().minus(10000);
-        ContentInputBean contentInputBean = new ContentInputBean("harry", fUpdated, EntityContentHelper.getRandomMap());
+        ContentInputBean contentInputBean = new ContentInputBean("harry", fUpdated, ContentDataHelper.getRandomMap());
 
         entityBean.addTag(new TagInputBean("Tag2", null, "second").
                 setSince(true));
@@ -242,7 +243,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("DAT386", mike_admin);
         FortressInputBean fib = new FortressInputBean("DAT386", true);
         fib.setStoreEnabled(false);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         TagInputBean tagInput = new TagInputBean("DAT386");
 
@@ -253,7 +254,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagB", null, "bbbb"));
 
         mediationFacade.trackEntity(su.getCompany(), entityInput);
-        ContentInputBean contentInputBean = new ContentInputBean(EntityContentHelper.getRandomMap());
+        ContentInputBean contentInputBean = new ContentInputBean(ContentDataHelper.getRandomMap());
         entityInput = new EntityInputBean(fortress, "DAT386", "DAT386", new DateTime(), "abc");
         entityInput.addTag(new TagInputBean("TagA", null, "aaaa"));
         entityInput.setContent(contentInputBean);
@@ -267,7 +268,7 @@ public class TestEntityTags extends EngineBase {
     public void renameRelationship() throws Exception {
 
         SystemUser su = registerSystemUser("renameRelationship", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
@@ -279,7 +280,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagC", null, "CCCC"));
         entityInput.addTag(new TagInputBean("TagD", null, "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
 
         assertNotNull(tagSet);
@@ -298,7 +299,7 @@ public class TestEntityTags extends EngineBase {
     public void createAndDeleteEntityTags() throws Exception {
 
         SystemUser su = registerSystemUser("createAndDeleteEntityTags", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
@@ -311,7 +312,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagC", null, "CCCC"));
         entityInput.addTag(new TagInputBean("TagD", null, "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
 
         assertNotNull(tagSet);
@@ -333,7 +334,7 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void nullTagValueCRUD() throws Exception {
         SystemUser su = registerSystemUser("nullTagValueCRUD", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
@@ -345,7 +346,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagC", "TestTag", "rlx"));
         entityInput.addTag(new TagInputBean("TagD", "TestTag", "rlx"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
@@ -355,7 +356,7 @@ public class TestEntityTags extends EngineBase {
         EntitySummaryBean summaryBean = entityService.getEntitySummary(null, entity.getKey());
         tagSet = summaryBean.getTags();
         assertNotNull(tagSet);
-        Set<Entity> entities = entityTagService.findEntityTags(su.getCompany(), "TagA");
+        Set<EntityNode> entities = entityTagService.findEntityTags(su.getCompany(), "TagA");
         assertNotNull(entities);
         assertNotSame(entities.size() + " Entities returned!", 0, entities.size());
 
@@ -371,7 +372,7 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void nullCodeValue() throws Exception {
         SystemUser su = registerSystemUser("nullCodeValue", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
@@ -383,7 +384,7 @@ public class TestEntityTags extends EngineBase {
         tag.setName(null);
         entityInput.addTag(tag);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
         assertNotNull(tagSet);
         assertEquals(1, tagSet.size());
@@ -393,7 +394,7 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void duplicateTagNotCreated() throws Exception {
         SystemUser su = registerSystemUser("duplicateTagNotCreated", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
@@ -405,7 +406,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("taga", null, "lower"));
         entityInput.addTag(new TagInputBean("tAgA", null, "mixed"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         Tag tag = tagService.findTag(su.getCompany(), null, "Taga");
         assertNotNull(tag);
         Collection<EntityTag> entityTags = entityTagService.findEntityTags(entity);
@@ -419,7 +420,7 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void trackSupressed_EntityTagsAreStillReturned() throws Exception {
         SystemUser su = registerSystemUser("noEntityTagsAreReturned", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
@@ -446,12 +447,12 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void createLogForInvalidEntity() throws Exception {
         SystemUser su = registerSystemUser("createLogForInvalidEntity", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         EntityInputBean entity = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
         mediationFacade.trackEntity(su.getCompany(), entity);
-        ContentInputBean contentInputBean = new ContentInputBean("Harry", "InvalidKey", new DateTime(), EntityContentHelper.getRandomMap());
+        ContentInputBean contentInputBean = new ContentInputBean("Harry", "InvalidKey", new DateTime(), ContentDataHelper.getRandomMap());
         exception.expect(NotFoundException.class);
         mediationFacade.trackLog(su.getCompany(), contentInputBean);
 
@@ -460,7 +461,7 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void createLogForValidEntityWithNoContent() throws Exception {
         SystemUser su = registerSystemUser("createLogForValidEntityWithNoContent", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         EntityInputBean entity = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
@@ -472,7 +473,7 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void differentTagTypeSameTagName() throws Exception {
         SystemUser su = registerSystemUser("differentTagTypeSameTagName", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
@@ -487,7 +488,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(tag);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
         assertNotNull(tagSet);
         assertEquals(3, tagSet.size());
@@ -503,7 +504,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("tagListAndSingular", mike_admin);
         assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
@@ -515,7 +516,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagB);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey(), true);
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey(), true);
         Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         EntitySummaryBean summaryBean = entityService.getEntitySummary(null, entity.getKey());
@@ -527,7 +528,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("mapRelationshipsWithNullProperties", mike_admin);
         assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
@@ -538,7 +539,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagB);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey(), true);
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey(), true);
         Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         EntitySummaryBean summaryBean = entityService.getEntitySummary(null, entity.getKey());
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
@@ -550,7 +551,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("mapRelationshipsWithProperties", mike_admin);
         assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
@@ -566,9 +567,9 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagA);
         inputBean.addTag(tagB);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey(), true);
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey(), true);
         Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
-        EntitySummaryBean summaryBean = entityService.getEntitySummary(null, entity.getKey());
+        EntitySummaryBean summaryBean = entityService.getEntitySummary(su.getCompany(), entity.getKey());
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         assertEquals(3, summaryBean.getTags().size());
     }
@@ -578,7 +579,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("duplicateRLXTypesNotStored", mike_admin);
         assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
@@ -590,7 +591,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagInputBean);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey(), true);
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey(), true);
         Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         assertEquals("One for the Generic tag and one for exploration", 1, tagResults.size());
     }
@@ -600,7 +601,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("directedEntityTagsWork", mike_admin);
         assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
@@ -612,7 +613,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagInputBean);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         // By default, tags are inbound to the Entity. This asserts the reverse also works
         Collection<EntityTag> tagResults = entityTagService.findOutboundTags(entity);
         assertEquals("No tag heading out from the Entity could be found", 1, tagResults.size());
@@ -625,7 +626,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("tagsAndValuesWithSpaces", mike_admin);
         assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
@@ -638,7 +639,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagB);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         EntitySummaryBean summaryBean = entityService.getEntitySummary(null, entity.getKey());
@@ -655,7 +656,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("entity_nestedTagStructure", mike_admin);
         assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         EntityInputBean entityInput = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
@@ -693,7 +694,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("usGeographyStructure", mike_admin);
         assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         EntityInputBean entityInput = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
@@ -737,7 +738,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("tagsInSearchDoc", mike_admin);
         assertNotNull(su);
         engineConfig.setTestMode(true);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
@@ -754,7 +755,7 @@ public class TestEntityTags extends EngineBase {
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
         inputBean.addTag(institutionTag);
-        inputBean.setContent(new ContentInputBean(EntityContentHelper.getRandomMap()));
+        inputBean.setContent(new ContentInputBean(ContentDataHelper.getRandomMap()));
 
         // Institution<-city<-state<-country
 
@@ -774,7 +775,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("entity_LocatedGeoData", mike_admin);
         assertNotNull(su);
         engineConfig.setTestMode(true);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entity_LocatedGeoData", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entity_LocatedGeoData", true));
         assertNotNull(fortress);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "geoTracTest", "anyvalue", new DateTime(), "abc");
@@ -791,7 +792,7 @@ public class TestEntityTags extends EngineBase {
         // Institution is in a city
         inputBean.addTag(cityInputTag.addEntityTagLink(new EntityTagRelationshipInput("geodata",true)));
 
-        inputBean.setContent(new ContentInputBean(EntityContentHelper.getRandomMap()));
+        inputBean.setContent(new ContentInputBean(ContentDataHelper.getRandomMap()));
 
         // Institution<-city<-state<-country
         assertEquals(1, inputBean.getTags().iterator().next().getEntityTagLinks().size());
@@ -802,7 +803,7 @@ public class TestEntityTags extends EngineBase {
         for (EntityTag tag : tags) {
             logger.info(tag.toString());
             assertEquals("geodata", tag.getRelationship());
-            assertTrue(tag.isGeo());
+            assertTrue(tag.isGeoRelationship());
             assertNotNull("geo data block not found for a geo flagged relationship connected to an entity",
                     tag.getGeoData());
         }
@@ -822,7 +823,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("targetTagWithAuditRelationship", mike_admin);
         assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
@@ -853,7 +854,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("geoTag", mike_admin);
         assertNotNull(su);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
         EntityInputBean entityInput = new EntityInputBean(fortress, "geoTest", "geoTest", new DateTime(), "abc");
@@ -901,30 +902,30 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void tagsAreUpdatedOnEntityUpdate() throws Exception {
         SystemUser su = registerSystemUser("tagsAreUpdatedOnEntityUpdate", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("TEST-CREATE", null, "rlx-test");
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
-        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), ContentDataHelper.getRandomMap());
         inputBean.setContent(logBean);
 
         inputBean.addTag(tagInput);
         TrackResultBean entityResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity created = entityService.getEntity(su.getCompany(), entityResult.getEntity().getKey());
+        EntityNode created = entityService.getEntity(su.getCompany(), entityResult.getEntity().getKey());
         Log firstLog = entityService.getLastEntityLog(su.getCompany(), created.getKey()).getLog();
         assertNotNull(created);
 
         // Test that a tag is removed
         EntityInputBean updatedEntity = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
         // Force a change to be detected
-        ContentInputBean alb = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
+        ContentInputBean alb = new ContentInputBean("mike", new DateTime(), ContentDataHelper.getRandomMap());
         updatedEntity.setContent(alb);
         // Updating an existing Entity but the tagCollection is minus TEST-CREATE tag
         // The create call should create a new Tag - TEST-UPDATE - and then remove the TEST-CREATE
         updatedEntity.addTag(new TagInputBean("TEST-UPDATE", null, "camel"));
         entityResult = mediationFacade.trackEntity(su.getCompany(), updatedEntity);
-        Entity entity = entityService.getEntity(su.getCompany(), entityResult.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), entityResult.getEntity().getKey());
         assertNotNull(entity);
 
         // Should only be one tag
@@ -943,7 +944,7 @@ public class TestEntityTags extends EngineBase {
 
         // Make sure when we pass NO tags, i.e. just running an update, we don't change ANY tags
 
-        alb = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
+        alb = new ContentInputBean("mike", new DateTime(), ContentDataHelper.getRandomMap());
         updatedEntity.setContent(alb);
         updatedEntity.getTags().clear();
         entityResult = mediationFacade.trackEntity(su.getCompany(), updatedEntity);
@@ -974,19 +975,19 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void oneTagRemovedFromASetOfTwo() throws Exception {
         SystemUser su = registerSystemUser("oneTagRemovedFromASetOfTwo", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("TAG-FIRST", null, "rlx-test");
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
-        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), ContentDataHelper.getRandomMap());
         inputBean.setContent(logBean);
 
         inputBean.addTag(tagInput);
         tagInput = new TagInputBean("TAG-SECOND", null, "rlxb-test");
         inputBean.addTag(tagInput);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity created = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode created = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         entityService.getLastEntityLog(su.getCompany(), created.getKey()).getLog();
         assertNotNull(created);
         validateTag(created, null, 2);
@@ -994,12 +995,12 @@ public class TestEntityTags extends EngineBase {
         // Test that a tag is removed
         EntityInputBean updatedEntity = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
         // Force a change to be detected
-        ContentInputBean alb = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
+        ContentInputBean alb = new ContentInputBean("mike", new DateTime(), ContentDataHelper.getRandomMap());
         updatedEntity.setContent(alb);
         // we are updating an existing entity with two tags and telling it that only one is now valid
         updatedEntity.addTag(new TagInputBean("TAG-FIRST", null, "rlx-test"));
         resultBean = mediationFacade.trackEntity(su.getCompany(), updatedEntity);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         assertNotNull(entity);
 
         // Should be one tag
@@ -1019,18 +1020,18 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void addNewTagToExistingEntity() throws Exception {
         SystemUser su = registerSystemUser("addNewTagToExistingEntity", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         //assertNotNull(result);
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
-        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), ContentDataHelper.getRandomMap());
         inputBean.setContent(logBean);
         // This should create the same Tag object
         inputBean.addTag(new TagInputBean("TagA", "TestTag", "camel"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         assertNotNull(resultBean);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         assertNotNull(entity);
 
         validateTag(entity, "TagA", 1);
@@ -1045,11 +1046,11 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void add_SameTagTwiceToSameEntity() throws Exception {
         SystemUser su = registerSystemUser("addNewTagToExistingEntity", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         //assertNotNull(result);
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
-        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), ContentDataHelper.getRandomMap());
         inputBean.setContent(logBean);
         // This should create the same Tag object
         inputBean.addTag(new TagInputBean("TagA", "TestTag", "camel"));
@@ -1067,10 +1068,10 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void directionalTagsAndRelationshipPropertiesPreserved() throws Exception {
         SystemUser su = registerSystemUser("directionalTagsAndRelationshipPropertiesPreserved", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
-        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), ContentDataHelper.getRandomMap());
         inputBean.setContent(logBean);
 
         Map<String, Object> rlxProperties = new HashMap<>();
@@ -1099,10 +1100,10 @@ public class TestEntityTags extends EngineBase {
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals(99, trackOut.getWeight().intValue());
-        Long currentWhen = (Long) trackOut.getProperties().get(EntityTagDao.FD_WHEN);
+        Long currentWhen = (Long) trackOut.getProperties().get(EntityTag.FD_WHEN);
         assertTrue(currentWhen > 0);
 
-        logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
+        logBean = new ContentInputBean("mike", new DateTime(), ContentDataHelper.getRandomMap());
         inputBean.getTags().clear();
         inputBean.addTag(outBound);
         inputBean.setContent(logBean);
@@ -1129,13 +1130,13 @@ public class TestEntityTags extends EngineBase {
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals(99, trackOut.getWeight().intValue());
-        assertEquals(currentWhen, trackOut.getProperties().get(EntityTagDao.FD_WHEN));
+        assertEquals(currentWhen, trackOut.getProperties().get(EntityTag.FD_WHEN));
     }
 
     @Test
     public void addNewTagToExistingEntityWithNoLog() throws Exception {
         SystemUser su = registerSystemUser("addNewTagToExistingEntityWithNoLog", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         //assertNotNull(result);
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
@@ -1144,7 +1145,7 @@ public class TestEntityTags extends EngineBase {
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         assertNotNull(resultBean);
-        Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         assertNotNull(entity);
 
         validateTag(entity, "TagA", 1);
@@ -1159,9 +1160,9 @@ public class TestEntityTags extends EngineBase {
     @Test
     public void cancel_TagsAreArchived() throws Exception {
         SystemUser su = registerSystemUser("search", mike_admin);
-        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag", true));
+        FortressNode fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag", true));
         EntityInputBean inputBean = new EntityInputBean(fo, "wally", "CancelDoc", new DateTime(), "ABC123");
-        ContentInputBean log = new ContentInputBean("wally", new DateTime(), EntityContentHelper.getRandomMap());
+        ContentInputBean log = new ContentInputBean("wally", new DateTime(), ContentDataHelper.getRandomMap());
         inputBean.addTag(new TagInputBean("Happy").addEntityTagLink("testinga"));
         inputBean.addTag(new TagInputBean("Happy Days").addEntityTagLink("testingb"));
         inputBean.setContent(log);
@@ -1171,7 +1172,7 @@ public class TestEntityTags extends EngineBase {
         // We now have 1 log with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
-        log = new ContentInputBean("wally", new DateTime(), EntityContentHelper.getRandomMap());
+        log = new ContentInputBean("wally", new DateTime(), ContentDataHelper.getRandomMap());
         inputBean.getTags().clear();
         inputBean.addTag(new TagInputBean("Sad Days").addEntityTagLink("testingb"));
         inputBean.addTag(new TagInputBean("Days Bay").addEntityTagLink("testingc"));
@@ -1180,7 +1181,7 @@ public class TestEntityTags extends EngineBase {
         // We now have 2 logs, sad tags, no happy tags
 
         // Cancel Log - this will remove the sad tags and leave us with happy tags
-        mediationFacade.cancelLastLog(su.getCompany(), result.getEntity());
+        mediationFacade.cancelLastLog(su.getCompany(), (EntityNode) result.getEntity());
         Collection<EntityTag> tags = entityTagService.findEntityTags(result.getEntity());
         assertEquals(2, tags.size());
 
@@ -1191,7 +1192,7 @@ public class TestEntityTags extends EngineBase {
         // Validates that you can still get a SearchChange to index from an entity with no log
         logger.info("## track_IgnoreGraphAndCheckSearch started");
         SystemUser su = registerSystemUser("Isabella");
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TrackGraph", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TrackGraph", true));
 
         EntityInputBean entityInput = new EntityInputBean(fortress, "wally", "ignoreGraph", new DateTime(), "ABC123");
         entityInput.setTrackSuppressed(true);
@@ -1206,7 +1207,7 @@ public class TestEntityTags extends EngineBase {
     public void search_separateLogEventUpdatesSameSearchObject() throws Exception {
         logger.info("## search_nGramDefaults");
         SystemUser su = registerSystemUser("Romeo");
-        Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ngram", true));
+        FortressNode iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ngram", true));
         EntityInputBean inputBean = new EntityInputBean(iFortress, "olivia@sunnybell.com", "CompanyNode", new DateTime());
         inputBean.setDescription("This is a description");
 
@@ -1224,7 +1225,7 @@ public class TestEntityTags extends EngineBase {
 
             assertNotNull(searchChange);
 
-            Map<String, Object> what = EntityContentHelper.getSimpleMap(SearchSchema.WHAT_CODE, "AZERTY");
+            Map<String, Object> what = ContentDataHelper.getSimpleMap(SearchSchema.WHAT_CODE, "AZERTY");
             what.put(SearchSchema.WHAT_NAME, "NameText");
             // Logging after the entity has been created
             trackResult = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", trackResult.getEntity().getKey(), new DateTime(), what));
@@ -1249,10 +1250,10 @@ public class TestEntityTags extends EngineBase {
             engineConfig.setStoreEnabled(true);
             logger.info("## count_NoExistingTagsFullTrackRequest");
             SystemUser su = registerSystemUser("Blah");
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_NoExistingTagsFullTrackRequest", true));
+            FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_NoExistingTagsFullTrackRequest", true));
             EntityInputBean inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", new DateTime());
             inputBean.setDescription("This is a description");
-            ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
+            ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
             inputBean.addTag(new TagInputBean("Samsung").setLabel("Law").addEntityTagLink("plaintiff"));
             inputBean.addTag(new TagInputBean("Apple").setLabel("Law").addEntityTagLink("defendant"));
             inputBean.setContent(cib);
@@ -1282,7 +1283,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
         FortressInputBean fib = new FortressInputBean("undefined_Tag", true);
         fib.setStoreEnabled(false);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean(fortress, "DAT386", "DAT386", new DateTime(), "abc");
@@ -1309,10 +1310,10 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("custom_TagPath", mike_admin);
         FortressInputBean fib = new FortressInputBean("custom_TagPath", true);
         fib.setStoreEnabled(false);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
 
-        DocumentType documentType = new DocumentType(fortress, "DAT-498");
-        documentType.setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY);
+        DocumentNode documentType = new DocumentNode(fortress, "DAT-498");
+        documentType.setTagStructure(EntityTag.TAG_STRUCTURE.TAXONOMY);
         conceptService.save(documentType);
         documentType = conceptService.findDocumentType(fortress, documentType.getName());
         assertNotNull(documentType);
@@ -1341,9 +1342,9 @@ public class TestEntityTags extends EngineBase {
         entityInputBean.addTag(term); // Terms are connected to entities
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), entityInputBean);
         assertNotNull(trackResultBean.getEntity());
-        EntityService.TAG_STRUCTURE etFinder = fortressService.getTagStructureFinder(trackResultBean.getEntity());
+        EntityTag.TAG_STRUCTURE etFinder = fortressService.getTagStructureFinder(trackResultBean.getEntity());
         assertNotNull("Unable to create the requested EntityTagFinder implementation ", etFinder);
-        assertNotEquals(EntityService.TAG_STRUCTURE.DEFAULT, etFinder);
+        assertNotEquals(EntityTag.TAG_STRUCTURE.DEFAULT, etFinder);
 
         Collection<EntityTag> entityTags = entityTagService.findEntityTags(trackResultBean.getEntity());
         assertFalse("The custom EntityTag path should have been used to find the tags", entityTags.isEmpty());
@@ -1380,7 +1381,7 @@ public class TestEntityTags extends EngineBase {
         EntitySearchChange deserialized = JsonUtils.toObject(json.getBytes(), EntitySearchChange.class);
         assertNotNull(deserialized);
         assertEquals(searchChange.getTagValues().size(), deserialized.getTagValues().size());
-        assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, searchChange.getTagStructure());
+        assertEquals(EntityTag.TAG_STRUCTURE.TAXONOMY, searchChange.getTagStructure());
     }
 
     @Test

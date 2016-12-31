@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,11 +21,10 @@
 package org.flockdata.test.search.functional;
 
 import junit.framework.TestCase;
-import org.flockdata.model.Entity;
-import org.flockdata.model.FortressSegment;
+import org.flockdata.data.Entity;
+import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.FdSearch;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.SearchChanges;
+import org.flockdata.search.SearchChanges;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -61,9 +60,8 @@ public class TestSegmentIndexes extends ESBase {
         String company = "company";
         String user = "mike";
 
-        Entity entity = getEntity(company, fortress, user, "Invoice", "123");
+        Entity entity = getEntity(company, fortress, user, "Invoice", "123","2014");
         deleteEsIndex(entity);
-        entity.setSegment(new FortressSegment(entity.getFortress(), "2014"));
         TestCase.assertEquals("2014", entity.getSegment().getCode());
 
         EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
@@ -72,9 +70,8 @@ public class TestSegmentIndexes extends ESBase {
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 
         // Each entity will be written to it's own segment
-        Entity entityOtherSegment = getEntity(company, fortress, user, "Invoice", "123");
+        Entity entityOtherSegment = getEntity(company, fortress, user, "Invoice", "123","2015");
         deleteEsIndex(entityOtherSegment);
-        entityOtherSegment.setSegment(new FortressSegment(entity.getFortress(), "2015"));
         TestCase.assertEquals("2015", entityOtherSegment.getSegment().getCode());
 
         change = new EntitySearchChange(entityOtherSegment, indexManager.parseIndex(entityOtherSegment));
@@ -107,10 +104,10 @@ public class TestSegmentIndexes extends ESBase {
         String fortress = "DelSingleSegment";
         String company = "segCompany";
         String user = "mike";
+        String segment = "2014";
 
-        Entity entity = getEntity(company, fortress, user, "Invoice", "123");
+        Entity entity = getEntity(company, fortress, user, "Invoice", "123", segment);
         deleteEsIndex(entity);
-        entity.setSegment(new FortressSegment(entity.getFortress(), "2014"));
         TestCase.assertEquals("2014", entity.getSegment().getCode());
 
         EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
@@ -119,9 +116,8 @@ public class TestSegmentIndexes extends ESBase {
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 
         // Each entity will be written to it's own segment
-        Entity entityOtherSegment = getEntity(company, fortress, user, "Invoice", "123");
+        Entity entityOtherSegment = getEntity(company, fortress, user, "Invoice", "123", "2015");
         deleteEsIndex(entityOtherSegment);
-        entityOtherSegment.setSegment(new FortressSegment(entity.getFortress(), "2015"));
         TestCase.assertEquals("2015", entityOtherSegment.getSegment().getCode());
 
         change = new EntitySearchChange(entityOtherSegment, indexManager.parseIndex(entityOtherSegment));
@@ -154,5 +150,6 @@ public class TestSegmentIndexes extends ESBase {
         doQuery(indexToDelete, "invoice", "*", 0);
 
     }
+
 
 }

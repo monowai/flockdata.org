@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,18 +20,16 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.data.ContentModel;
+import org.flockdata.data.Entity;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.track.service.ContentModelService;
 import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.integration.FdPayloadWriter;
 import org.flockdata.integration.FileProcessor;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ContentModelResult;
-import org.flockdata.profile.ExtractProfileHandler;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.service.ContentModelService;
+import org.flockdata.model.ContentModelResult;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
@@ -39,6 +37,8 @@ import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.transform.ColumnDefinition;
+import org.flockdata.transform.json.ContentModelDeserializer;
+import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -79,8 +79,8 @@ public class TestProfiles extends EngineBase {
         SystemUser su = registerSystemUser("create_Profile", mike_admin);
 
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-model.json");
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("create_profile", true));
-        DocumentType docType = conceptService.resolveByDocCode(fortress, "Olympic");
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("create_profile", true));
+        DocumentNode docType = conceptService.resolveByDocCode(fortress, "Olympic");
         profileService.saveEntityModel(su.getCompany(), fortress, docType, contentModel);
         ContentModel savedProfile = profileService.get(su.getCompany(), fortress, docType);
         assertNotNull(savedProfile);
@@ -107,20 +107,20 @@ public class TestProfiles extends EngineBase {
         ContentModel simpleModel = ContentModelDeserializer.getContentModel("/models/test-sflow.json");
         Collection<ContentModel> contentModels = new ArrayList<>();
         contentModels.add(simpleModel);
-        DocumentType documentType;
+        DocumentNode documentType;
 
 
 
         Collection<TagResultBean> tags = tagService.findTags(su.getCompany());
 
         for (ContentModel contentModel : contentModels) {
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), contentModel.getFortress());
-            conceptService.save(new DocumentType(fortress.getDefaultSegment(), contentModel.getDocumentType()));
+            FortressNode fortress = fortressService.registerFortress(su.getCompany(), contentModel.getFortress());
+            conceptService.save(new DocumentNode(fortress.getDefaultSegment(), contentModel.getDocumentType()));
 
             documentType = conceptService.resolveByDocCode(fortress, contentModel.getDocumentType().getName(), Boolean.FALSE);
 
             if (documentType == null && contentModel.getDocumentType() != null) {
-                documentType = conceptService.findOrCreate(fortress, new DocumentType(fortress, contentModel.getDocumentType()));
+                documentType = conceptService.findOrCreate(fortress, new DocumentNode(fortress, contentModel.getDocumentType()));
             }
 
             assertNotNull(documentType);

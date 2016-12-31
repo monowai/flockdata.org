@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,17 +21,16 @@
 package org.flockdata.company.service;
 
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.engine.PlatformConfig;
+import org.flockdata.authentication.SystemUserService;
+import org.flockdata.data.Company;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.configure.SecurityHelper;
+import org.flockdata.engine.data.graph.SystemUserNode;
+import org.flockdata.engine.track.service.SchemaService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.integration.KeyGenService;
-import org.flockdata.model.Company;
-import org.flockdata.model.SystemUser;
 import org.flockdata.registration.RegistrationBean;
-import org.flockdata.registration.service.CompanyService;
-import org.flockdata.registration.service.RegistrationService;
-import org.flockdata.registration.service.SystemUserService;
-import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,16 +45,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RegistrationServiceNeo4j implements RegistrationService {
 
+    public static SystemUserNode GUEST = new SystemUserNode("Guest", null, null, false);
     private final CompanyService companyService;
-
     private final SystemUserService systemUserService;
-
-    private final
-    KeyGenService keyGenService;
-
+    private final  KeyGenService keyGenService;
     private final SecurityHelper securityHelper;
-
-    public static SystemUser GUEST = new SystemUser("Guest", null, null, false);
     private Logger logger = LoggerFactory.getLogger(RegistrationServiceNeo4j.class);
 
     @Autowired
@@ -71,7 +65,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     @PreAuthorize(FdRoles.EXP_ADMIN)
     public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException {
 
-        SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
+        SystemUserNode systemUser = (SystemUserNode)systemUserService.findByLogin(regBean.getLogin());
 
         if (systemUser != null) {
             if ( systemUser.getApiKey() == null ) {
@@ -122,7 +116,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
         SystemUser iSystemUser = systemUserService.findByLogin(systemUser);
         if (iSystemUser == null) {
             // Authenticated in the security system, but not in the graph
-            return new SystemUser(systemUser, null, null, true);
+            return new SystemUserNode(systemUser, null, null, true);
         } else {
             return iSystemUser;
         }

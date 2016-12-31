@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,22 +20,25 @@
 
 package org.flockdata.engine.admin.service;
 
+import org.flockdata.data.*;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.configure.CacheConfiguration;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.EntityLogRlx;
+import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.track.service.EntityService;
 import org.flockdata.engine.track.service.FortressService;
+import org.flockdata.engine.track.service.SchemaService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.model.*;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.QueryParams;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,18 +98,18 @@ public class AdminService implements EngineAdminService {
         this.searchService= searchService;
     }
     @Async("fd-engine")
-    public Future<Boolean> purge(Company company, Fortress fortress, DocumentType documentType, String segmentToDelete) {
+    public Future<Boolean> purge(Company company, Fortress fortress, Document documentType, String segmentToDelete) {
         NumberFormat nf = NumberFormat.getInstance();
 
         StopWatch watch = new StopWatch("Purge Fortress " + fortress);
         watch.start();
         boolean keepRunning;
 
-        Collection<FortressSegment> segments = fortressService.getSegments(fortress);
-        Collection<FortressSegment> segmentsToDelete = new ArrayList<>();
+        Collection<Segment> segments = fortressService.getSegments(fortress);
+        Collection<Segment> segmentsToDelete = new ArrayList<>();
 
 //        if (segmentToDelete != null) {
-            for (FortressSegment segment : segments) {
+            for (Segment segment : segments) {
                 if (segmentToDelete==null || segment.getCode().equalsIgnoreCase(segmentToDelete.toLowerCase()))
                     segmentsToDelete.add(segment);
             }
@@ -118,14 +121,14 @@ public class AdminService implements EngineAdminService {
         if ( cacheConfiguration!=null)
             cacheConfiguration.resetCache();
 
-        for (FortressSegment segment : segmentsToDelete) {
+        for (Segment segment : segmentsToDelete) {
 
             do {
                 Collection<String> entities = entityService.getEntityBatch(fortress, documentType, segment, 2000);
 
                 if ( searchService !=null && searchIndexToDelete == null && segment.getFortress().isSearchEnabled()){
                     if ( entities.size()> 0) {
-                        Entity entity = entityService.getEntity(company, entities.iterator().next());
+                        EntityNode entity = entityService.getEntity(company, entities.iterator().next());
                         // We need to get an entity to figure out which search index it is in
                         searchIndexToDelete = indexManager.parseIndex(entity);
                     }  else
@@ -158,7 +161,7 @@ public class AdminService implements EngineAdminService {
     }
 
     @Async("fd-engine")
-    public Future<Boolean> purge(Company company, Fortress fortress) throws FlockException {
+    public Future<Boolean> purge(Fortress fortress) throws FlockException {
         // Rename the exiting fortress and flag it as deleted.
         // Batch the entities for deletion. Log Content could be stored across multiple KVstores for a
         // single fortress
@@ -287,10 +290,10 @@ public class AdminService implements EngineAdminService {
     }
 
     private void validateEntities(Company company, Collection<String> errors, Map<String, String> searchKeys) {
-        Map<String, Entity> entities = entityService.getEntities(company, searchKeys.keySet());
+        Map<String, EntityNode> entities = entityService.getEntities(company, searchKeys.keySet());
         if (entities.size() != searchKeys.size()) {
             for (String key : entities.keySet()) {
-                Entity e = entities.get(key);
+                EntityNode e = entities.get(key);
                 if (e == null) {
                     String message = "Didn't find key " + key;
                     errors.add(message);
@@ -380,8 +383,8 @@ public class AdminService implements EngineAdminService {
 
         Collection<SearchChange> searchDocuments = new ArrayList<>(entities.size());
         for (Entity entity : entities) {
-            EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
-            DocumentType documentType = conceptService.findDocumentType(entity.getFortress(), entity.getType());
+            EntityLogRlx lastLog = entityService.getLastEntityLog(entity.getId());
+            DocumentNode documentType = conceptService.findDocumentType(entity.getFortress(), entity.getType());
             TrackResultBean trackResultBean = new TrackResultBean(entity, documentType);
             // How to get the Linked Entities? From the model
             //Map<String, List<EntityKeyBean>> linkedEntities = entityService.getLinkedEntities(entity);

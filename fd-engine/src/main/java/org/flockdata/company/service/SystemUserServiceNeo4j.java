@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,10 @@
 
 package org.flockdata.company.service;
 
-import org.flockdata.model.SystemUser;
+import org.flockdata.authentication.SystemUserService;
+import org.flockdata.company.dao.RegistrationNeo;
+import org.flockdata.data.SystemUser;
 import org.flockdata.registration.RegistrationBean;
-import org.flockdata.registration.dao.RegistrationDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,14 +33,14 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-public class SystemUserServiceNeo4j implements org.flockdata.registration.service.SystemUserService {
+public class SystemUserServiceNeo4j implements SystemUserService {
 
     private final
-    RegistrationDao regDao;
+    RegistrationNeo registrationNeo;
 
     @Autowired
-    public SystemUserServiceNeo4j(RegistrationDao regDao) {
-        this.regDao = regDao;
+    public SystemUserServiceNeo4j(RegistrationNeo registrationNeo) {
+        this.registrationNeo = registrationNeo;
     }
 
     // TODO DAT-184 Gives error while enabling caching 
@@ -48,19 +49,19 @@ public class SystemUserServiceNeo4j implements org.flockdata.registration.servic
         if (name == null) {
             throw new IllegalArgumentException("Login name cannot be null");
         }
-        return regDao.findSysUserByName(name.toLowerCase());
+        return registrationNeo.findSysUserByName(name.toLowerCase());
     }
 
     public SystemUser save(RegistrationBean regBean) {
-        return regDao.save(regBean);
+        return registrationNeo.save(regBean);
     }
 
     @Override
     public void save(SystemUser systemUser) {
-        regDao.save(systemUser);
+        registrationNeo.save(systemUser);
     }
 
     public SystemUser findByApiKey(String apiKey) {
-        return regDao.findByApiKey(apiKey);
+        return registrationNeo.findByApiKey(apiKey);
     }
 }

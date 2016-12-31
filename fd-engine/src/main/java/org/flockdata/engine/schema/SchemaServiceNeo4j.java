@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,12 +20,12 @@
 
 package org.flockdata.engine.schema;
 
-import org.flockdata.engine.dao.SchemaDaoNeo4j;
+import org.flockdata.data.Fortress;
+import org.flockdata.engine.data.dao.SchemaDaoNeo4j;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.track.service.SchemaService;
 import org.flockdata.helper.TagHelper;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class SchemaServiceNeo4j implements SchemaService {
         this.schemaDao = schemaDao;
     }
 
-    public Boolean ensureSystemIndexes(Company company) {
+    public Boolean ensureSystemIndexes(CompanyNode company) {
         return schemaDao.ensureSystemConstraints(company);
     }
 

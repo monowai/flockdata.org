@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,10 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.data.Company;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -78,16 +78,16 @@ public class TrackBatchSplitter {
     @Transactional
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class},
             maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public Map<FortressSegment, List<EntityInputBean>> getEntitiesBySegment(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
-        Map<FortressSegment, List<EntityInputBean>> results = new HashMap<>();
+    public Map<Segment, List<EntityInputBean>> getEntitiesBySegment(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
+        Map<Segment, List<EntityInputBean>> results = new HashMap<>();
 
         // Local cache of segments by name - never very big, usually only 1
-        Map<String, FortressSegment> resolvedSegments = new HashMap<>();
+        Map<String, Segment> resolvedSegments = new HashMap<>();
 
         for (EntityInputBean entityInputBean : entityInputBeans) {
 
-            String segmentKey = FortressSegment.key(Fortress.code(entityInputBean.getFortress().getName()), entityInputBean.getSegment());
-            FortressSegment segment = resolvedSegments.get(segmentKey);
+            String segmentKey = Fortress.key(Fortress.code(entityInputBean.getFortress().getName()), entityInputBean.getSegment());
+            Segment segment = resolvedSegments.get(segmentKey);
             if ( segment == null ) {
                 segment = fortressService.resolveSegment(company, entityInputBean.getFortress(), entityInputBean.getSegment(), entityInputBean.getTimezone());
                 resolvedSegments.put(segmentKey, segment);

@@ -45,7 +45,7 @@ public class ConceptInputBean {
     }
 
     public ConceptInputBean(TagResultBean tagResultBean) {
-        this(tagResultBean.getTag().getLabel());
+        this(tagResultBean.getLabel());
         this.description = tagResultBean.getDescription();
     }
 

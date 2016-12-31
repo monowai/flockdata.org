@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,9 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.PlatformConfig;
+import org.flockdata.data.Fortress;
+import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.TrackResultBean;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
@@ -67,12 +67,12 @@ public class ConceptRetryService {
     @Async("fd-tag")
     public Future<Void> trackConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans)
             throws InterruptedException, ExecutionException, FlockException, IOException {
-        doRegister(fortress, resultBeans);
+        doRegister(resultBeans);
         return new AsyncResult<>(null);
     }
 
     @Transactional
-    void doRegister(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
+    void doRegister(Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
         if (!engineConfig.isConceptsEnabled())
             return;
 

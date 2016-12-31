@@ -20,6 +20,7 @@ import me.tongfei.progressbar.ProgressBar;
 import org.flockdata.client.FdTemplate;
 import org.flockdata.client.commands.*;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.test.integration.matchers.*;
 import org.flockdata.track.bean.EntityInputBean;
@@ -35,6 +36,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 
 import static junit.framework.TestCase.assertNotNull;
@@ -45,9 +47,10 @@ import static org.springframework.test.util.AssertionErrors.fail;
 /**
  * Integration utils. Keeps generic functionality out of the IT class
  * <p>
+ *
  * @author mholdsworth
- * @since 20/04/2016
  * @tag Test, Docker, Configuration
+ * @since 20/04/2016
  */
 @Service
 @Configuration
@@ -280,7 +283,23 @@ class IntegrationHelper {
                 waitForService("fd-engine", enginePing, 30);
                 waitForService("fd-search", searchPing, 30);
                 waitForService("fd-store", storePing, 30);
-            } catch (InterruptedException e) {
+                logger.info("HealthChecks");
+                // If the services can't see each other, its not worth proceeding
+                SystemUserResultBean login = login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+                assertNotNull(login);
+                Health health = new Health(fdTemplate);
+                assertWorked("Health Check", health.exec());
+
+                Map<String, Object> healthResult = health.result();
+                assertTrue("Should be more than 1 entry in the health results", healthResult.size() > 1);
+                assertNotNull("Could not find an entry for fd-search", healthResult.get("fd-search"));
+                assertTrue("Failure for fd-engine to connect to fd-search in the container " + healthResult.get("fd-search"), healthResult.get("fd-search").toString().toLowerCase().startsWith("ok"));
+                assertNotNull("Could not find an entry for fd-store", healthResult.get("fd-store"));
+                assertTrue("Failure for fd-engine to connect to fd-store in the container", healthResult.get("fd-store").toString().toLowerCase().startsWith("ok"));
+                logger.info(JsonUtils.pretty(healthResult));
+
+
+            } catch (InterruptedException | FlockException e) {
                 logger.error(e.getMessage());
                 setupComplete = true;
                 stackFailed = true;
@@ -288,21 +307,21 @@ class IntegrationHelper {
 
     }
 
-    private Integer getRabbitAdmin() throws IllegalStateException{
+    private Integer getRabbitAdmin() throws IllegalStateException {
         return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("rabbit_1", 15672) : 15672);
     }
 
-    String getRabbit() throws IllegalStateException{
+    String getRabbit() throws IllegalStateException {
         if (stack != null)
             return stack.getServiceHost("rabbit_1", 5672);
         return getIpAddress();
     }
 
-    private Integer getRabbitPort() throws IllegalStateException{
+    private Integer getRabbitPort() throws IllegalStateException {
         return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("rabbit_1", 5672) : 5672);
     }
 
-    String getSearch() throws IllegalStateException{
+    String getSearch() throws IllegalStateException {
         return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdsearch_1", SERVICE_SEARCH) : SERVICE_SEARCH);
     }
 

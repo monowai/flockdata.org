@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,13 +21,13 @@
 package org.flockdata.company.service;
 
 
+import org.flockdata.company.dao.CompanyDaoNeo;
+import org.flockdata.data.Company;
+import org.flockdata.data.SystemUser;
 import org.flockdata.engine.configure.SecurityHelper;
+import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.integration.KeyGenService;
-import org.flockdata.model.Company;
-import org.flockdata.model.SystemUser;
-import org.flockdata.registration.dao.CompanyDao;
-import org.flockdata.registration.service.CompanyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,18 +43,14 @@ import java.util.Collection;
 @Transactional
 public class CompanyServiceNeo4j implements CompanyService {
 
-    private final CompanyDao companyDao;
-
+    private static Logger logger = LoggerFactory.getLogger(CompanyServiceNeo4j.class);
+    private final CompanyDaoNeo companyDao;
     private final KeyGenService keyGenService;
-
     private final FortressService fortressService;
-
     private final SecurityHelper securityHelper;
 
-    private static Logger logger = LoggerFactory.getLogger(CompanyServiceNeo4j.class);
-
     @Autowired
-    public CompanyServiceNeo4j(CompanyDao companyDao, SecurityHelper securityHelper, FortressService fortressService, KeyGenService keyGenService ) {
+    public CompanyServiceNeo4j(CompanyDaoNeo companyDao, SecurityHelper securityHelper, FortressService fortressService, KeyGenService keyGenService ) {
         this.companyDao = companyDao;
         this.securityHelper = securityHelper;
         this.fortressService = fortressService;
@@ -77,7 +73,7 @@ public class CompanyServiceNeo4j implements CompanyService {
     }
 
     @Transactional
-    public SystemUser getAdminUser(org.flockdata.model.Company company, String name) {
+    public SystemUser getAdminUser(Company company, String name) {
         return companyDao.getAdminUser(company.getId(), name);
     }
 
@@ -85,10 +81,10 @@ public class CompanyServiceNeo4j implements CompanyService {
     public Company create(String companyName) {
         // Change to async event via spring events
         //schemaService.ensureSystemIndexes(null);
-        Company company = findByName(companyName);
+        CompanyNode company = (CompanyNode)findByName(companyName);
         if ( company == null ) {
             logger.debug("Saving company {}", companyName);
-            company = new Company(companyName, keyGenService.getUniqueKey());
+            company = new CompanyNode(companyName, keyGenService.getUniqueKey());
 
             return create(company);
         }
@@ -108,13 +104,13 @@ public class CompanyServiceNeo4j implements CompanyService {
     @Override
     @Transactional
 //    @Cacheable(value = "companyKeys", unless = "#result == null")
-    public org.flockdata.model.Company findByApiKey(String apiKey) {
+    public Company findByApiKey(String apiKey) {
         return companyDao.findByPropertyValue("apiKey", apiKey);
     }
 
     @Override
     @Transactional
-    public Collection<org.flockdata.model.Company> findCompanies(String userApiKey) {
+    public Collection<Company> findCompanies(String userApiKey) {
         if (userApiKey == null) {
             SystemUser su = securityHelper.getSysUser(true);
             if (su != null)
@@ -129,7 +125,7 @@ public class CompanyServiceNeo4j implements CompanyService {
 
     @Override
     @Transactional
-    public Collection<org.flockdata.model.Company> findCompanies() {
+    public Collection<Company> findCompanies() {
         SystemUser su = securityHelper.getSysUser(true);
         if (su == null)
             return null;

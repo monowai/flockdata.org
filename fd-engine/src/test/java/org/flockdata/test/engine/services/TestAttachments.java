@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,10 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -43,11 +43,11 @@ public class TestAttachments extends EngineBase {
     public void duplicate_sameContentIgnored() throws Exception{
         SystemUser su = registerSystemUser("duplicate_sameContentIgnored", mike_admin);
         FortressInputBean f = new FortressInputBean("attachmentFun", true);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), f);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), f);
 
         EntityInputBean entity = new EntityInputBean(fortress, "zippy", "blag", new DateTime(), "ABC");
         ContentInputBean content = new ContentInputBean("zippy", new DateTime());
-        content.setAttachment(EntityContentHelper.getPdfDoc(), "PdF", "testing.pdf");
+        content.setAttachment(ContentDataHelper.getPdfDoc(), "PdF", "testing.pdf");
         entity.setContent(content);
         TrackResultBean trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), entity);
         assertFalse("This should have been the first entity logged", trackResult.entityExists());

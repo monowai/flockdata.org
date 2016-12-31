@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,11 @@
 
 package org.flockdata.geography.endpoint;
 
+import org.flockdata.company.service.RegistrationService;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
+import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.TagResultBean;
-import org.flockdata.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +54,7 @@ public class GeographyEP {
     }
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-    public Collection<TagResultBean> findCountries(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
+    public Collection<FdTagResultBean> findCountries(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         return geoService.findCountries(regService.resolveCompany(ApiKeyInterceptor.ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)));
     }
 

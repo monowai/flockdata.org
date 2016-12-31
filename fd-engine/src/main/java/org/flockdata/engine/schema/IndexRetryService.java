@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,9 @@
 
 package org.flockdata.engine.schema;
 
+import org.flockdata.engine.track.service.SchemaService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.track.service.SchemaService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.neo4j.kernel.api.exceptions.TransactionFailureException;
 import org.springframework.beans.factory.annotation.Autowired;

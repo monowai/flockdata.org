@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,7 +22,7 @@ package org.flockdata.search.helper;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.search.model.QueryInterface;
+import org.flockdata.search.QueryInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

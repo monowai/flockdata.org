@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,21 +20,21 @@ import com.rabbitmq.client.AlreadyClosedException;
 import org.apache.commons.codec.binary.Base64;
 import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.*;
+import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ExtractProfileDeserializer;
-import org.flockdata.profile.ExtractProfileHandler;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.ExtractProfile;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.model.ContentStructure;
-import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.ContentStructure;
+import org.flockdata.search.QueryParams;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
+import org.flockdata.transform.json.ContentModelDeserializer;
+import org.flockdata.transform.json.ExtractProfileDeserializer;
+import org.flockdata.transform.model.ExtractProfile;
+import org.flockdata.transform.model.ExtractProfileHandler;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;

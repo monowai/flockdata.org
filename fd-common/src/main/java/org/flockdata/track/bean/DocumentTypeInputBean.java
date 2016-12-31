@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,26 +20,28 @@
 
 package org.flockdata.track.bean;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.MetaDocument;
-import org.flockdata.track.service.EntityService;
+import org.flockdata.data.Document;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Fortress;
 
 /**
  * @author mholdsworth
  * @since 10/10/2014
  * @tag Contract, DocumentType
  */
-public class DocumentTypeInputBean implements MetaDocument{
+public class DocumentTypeInputBean implements Document {
     private String name;
     private String code;
 
     private String geoQuery;
-    private DocumentType.VERSION versionStrategy = DocumentType.VERSION.FORTRESS;
-    private EntityService.TAG_STRUCTURE tagStructure = EntityService.TAG_STRUCTURE.DEFAULT;
+    private Document.VERSION versionStrategy = Document.VERSION.FORTRESS;
+    private EntityTag.TAG_STRUCTURE tagStructure = EntityTag.TAG_STRUCTURE.DEFAULT;
     private Boolean searchEnabled; // If null default to fortress
     private Boolean storeEnabled; // If null default to fortress
     private Boolean trackEnabled;
+    private Fortress fortress;
 
     DocumentTypeInputBean(){}
 
@@ -77,6 +79,18 @@ public class DocumentTypeInputBean implements MetaDocument{
         return this;
     }
 
+    @Override
+    @JsonIgnore
+    public Long getId() {
+        return null;
+    }
+
+    @Override
+    @JsonIgnore
+    public Fortress getFortress() {
+        return fortress;
+    }
+
     // MKH - Overrides the default geo query path for this DocumentType. VULNERABLE!
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getGeoQuery() {
@@ -89,20 +103,20 @@ public class DocumentTypeInputBean implements MetaDocument{
         return this;
     }
 
-    public DocumentType.VERSION getVersionStrategy() {
+    public Document.VERSION getVersionStrategy() {
         return versionStrategy;
     }
 
-    public DocumentTypeInputBean setVersionStrategy(DocumentType.VERSION versionStrategy) {
+    public Document setVersionStrategy(Document.VERSION versionStrategy) {
         this.versionStrategy = versionStrategy;
         return this;
     }
 
-    public EntityService.TAG_STRUCTURE getTagStructure() {
+    public EntityTag.TAG_STRUCTURE getTagStructure() {
         return tagStructure;
     }
 
-    public DocumentTypeInputBean setTagStructure(EntityService.TAG_STRUCTURE tagStructure) {
+    public DocumentTypeInputBean setTagStructure(EntityTag.TAG_STRUCTURE tagStructure) {
         this.tagStructure = tagStructure;
         return this;
     }
@@ -118,7 +132,7 @@ public class DocumentTypeInputBean implements MetaDocument{
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public DocumentTypeInputBean getVersionStrategy(final DocumentType.VERSION versionStrategy) {
+    public DocumentTypeInputBean getVersionStrategy(final Document.VERSION versionStrategy) {
         this.versionStrategy = versionStrategy;
         return this;
     }

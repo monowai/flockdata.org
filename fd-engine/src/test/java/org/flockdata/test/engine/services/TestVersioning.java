@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,14 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.*;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityLog;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.store.Store;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.engine.FdNodeHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -51,13 +55,13 @@ public class TestVersioning extends EngineBase {
         assertEquals(Boolean.TRUE, engineConfig.storeEnabled());
         // System default behaviour controlled by configuration.properties
         FortressInputBean fib = new FortressInputBean("vtest");
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
         assertTrue(fortress.isStoreEnabled());
 
         engineConfig.setStoreEnabled(false);
         assertEquals(Boolean.FALSE, engineConfig.storeEnabled());
         fib = new FortressInputBean("disabledTest");
-        assertEquals(null, fib.getStoreEnabled());
+        assertEquals(null, fib.isStoreEnabled());
         fortress = fortressService.registerFortress(su.getCompany(), fib);
         assertFalse("System default should have been returned", fortress.isStoreEnabled());
 
@@ -84,10 +88,10 @@ public class TestVersioning extends EngineBase {
     public void kv_Ignored() throws Exception {
         SystemUser su = registerSystemUser("kv_Ignored", "kv_Ignored");
         engineConfig.setStoreEnabled(false);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("kv_Ignored", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("kv_Ignored", true));
         assertFalse(engineConfig.storeEnabled());
         EntityInputBean eib = new EntityInputBean(fortress, "kv_Ignored", "kv_Ignored", new DateTime());
-        ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
+        ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
         eib.setContent(cib);
         TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), eib);
         assertEquals(Boolean.FALSE, trackResult.getEntity().getFortress().isStoreEnabled());
@@ -100,7 +104,7 @@ public class TestVersioning extends EngineBase {
         assertTrue( "Mocked log has an ID set to current system time", entityLog.getLog().getId()>0);
 
 
-        Entity entity = entityService.getEntity(su.getCompany(), trackResult.getEntity().getKey());
+        EntityNode entity = entityService.getEntity(su.getCompany(), trackResult.getEntity().getKey());
         assertNotNull ( entity);
 
         Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), trackResult.getEntity().getKey());
@@ -115,7 +119,7 @@ public class TestVersioning extends EngineBase {
             assertNotNull(log.getMadeBy());
             assertFalse(log.isVersioned());
         }
-        EntityLog mockLog = entityService.getLogForEntity(entity, 0L);
+        EntityLogRlx mockLog = entityService.getLogForEntity(entity, 0L);
         assertNotNull (mockLog);
         assertNotNull(mockLog.getLog());
         assertTrue( mockLog.isMocked());
@@ -130,12 +134,12 @@ public class TestVersioning extends EngineBase {
     }
     @Test
     public void log_ValidateValues() throws Exception{
-        Map<String, Object> json = EntityContentHelper.getSimpleMap("Athlete", "Katerina Neumannová");
+        Map<String, Object> json = ContentDataHelper.getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("store_Disabled");
 
         FortressInputBean fib= new FortressInputBean("store_Disabled", true);
         fib.setStoreEnabled(false);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         ContentInputBean log = new ContentInputBean("store_Disabled", new DateTime(), json);
         EntityInputBean input = new EntityInputBean(fortress, "mikeTest", "store_Disabled", new DateTime(), "store_Disabled");
@@ -157,22 +161,23 @@ public class TestVersioning extends EngineBase {
         // DAT-353
         engineConfig.setStoreEnabled(true);
         // The system default store is MEMORY
-        ContentInputBean content  = new ContentInputBean(EntityContentHelper.getRandomMap());
+        ContentInputBean content  = new ContentInputBean(ContentDataHelper.getRandomMap());
         // Fortress is not enabled but the overall configuration says the store is enabled
-        Entity entity = EntityContentHelper.getEntity("blah", "abc", "abc", "123");
+        Entity entity = FdNodeHelper.getEntity("blah", "abc", "abc", "123");
 
         // set a default for the fortress
-        entity.getFortress().setStoreEnabled(false);
-        TrackResultBean trackResult = new TrackResultBean(entity, new DocumentType("abc"));
+        FortressNode fortress = (FortressNode) entity.getFortress();
+        fortress.setStoreEnabled(false);
+        TrackResultBean trackResult = new TrackResultBean(entity, new DocumentNode("abc"));
         trackResult.setContentInput(content);
 
-        Log log = new Log(entity);
+        LogNode log = new LogNode(entity);
 
-        log = Store.prepareLog(engineConfig.store(), trackResult, log);
+        log = logRetryService.prepareLog(engineConfig.store(), trackResult, log);
         assertEquals("Store should be set to that of the fortress", Store.NONE.name(), log.getContent().getStore() );
 
-        entity.getFortress().setStoreEnabled(true);
-        log = Store.prepareLog(engineConfig.store(), trackResult, log);
+        fortress.setStoreEnabled(true);
+        log = logRetryService.prepareLog(engineConfig.store(), trackResult, log);
         // Falls back to the system default
         assertEquals("Store should be set to the system default", Store.MEMORY.name(), log.getContent().getStore() );
 

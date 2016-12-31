@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,29 +20,29 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.model.Fortress;
-import org.flockdata.model.FortressUser;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.FortressUserNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 import java.util.List;
-public interface FortressRepository extends GraphRepository<Fortress> {
+public interface FortressRepository extends GraphRepository<FortressNode> {
 
 	@Query(value = " match (fortress:Fortress)<-[:BELONGS_TO]-(fortress@author FortressUser) where id(fortress)={0}"
 			+ " and fortressUser.code ={1} return fortressUser")
-	FortressUser getFortressUser(Long fortressId, String userName);
+	FortressUserNode getFortressUser(Long fortressId, String userName);
 
-	@Query(elementClass = Fortress.class, value = " match (company:FDCompany)-[:OWNS]->f where id(company) ={0} return f")
-	List<Fortress> findCompanyFortresses(Long companyID);
+	@Query(elementClass = FortressNode.class, value = " match (company:FDCompany)-[:OWNS]->f where id(company) ={0} return f")
+	List<FortressNode> findCompanyFortresses(Long companyID);
 
 	@Query( value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
 			+ "where id(company)={0} and fortress.name ={1} "
 			+ "return fortress")
-	Fortress getFortressByName(Long companyId, String fortressName);
+    FortressNode getFortressByName(Long companyId, String fortressName);
 
 	@Query(value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
 			+ "where  id(company)={0}  and fortress.code ={1} "
 			+ "return fortress")
-	Fortress getFortressByCode(Long companyId, String fortressCode);
+    FortressNode getFortressByCode(Long companyId, String fortressCode);
 
 }

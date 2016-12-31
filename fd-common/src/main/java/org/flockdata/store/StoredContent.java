@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,11 +21,10 @@
 package org.flockdata.store;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.flockdata.model.Entity;
 import org.flockdata.store.bean.StorageBean;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityResultBean;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -39,7 +38,7 @@ public interface StoredContent {
 
     Map<String, Object> getData() ;
 
-    String getChecksum() throws IOException;
+    String getChecksum() ;
 
     /**
      *
@@ -55,5 +54,5 @@ public interface StoredContent {
 
     String getType();
 
-    Entity getEntity();
+    EntityResultBean getEntity();
 }

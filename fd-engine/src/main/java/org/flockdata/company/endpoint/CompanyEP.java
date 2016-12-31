@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,13 +20,14 @@
 
 package org.flockdata.company.endpoint;
 
+import org.flockdata.company.service.CompanyService;
+import org.flockdata.data.Company;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
+import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.Company;
-import org.flockdata.registration.service.CompanyService;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,10 +69,10 @@ public class CompanyEP {
     }
 
     @RequestMapping(value = "/{companyName}",  produces = "application/json", method = RequestMethod.GET)
-    public Company getCompany(@PathVariable("companyName") String companyName,
-                                              HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
+    public CompanyNode getCompany(@PathVariable("companyName") String companyName,
+                                  HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
 
-        Company callersCompany = CompanyResolver.resolveCompany(request);
+        CompanyNode callersCompany = CompanyResolver.resolveCompany(request);
         if ( callersCompany == null )
             throw new NotFoundException(companyName);
 
@@ -97,7 +98,7 @@ public class CompanyEP {
     public Collection<DocumentResultBean> getDocumentsInUse(
             HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
 
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return conceptService.getDocumentsInUse(company);
 
     }

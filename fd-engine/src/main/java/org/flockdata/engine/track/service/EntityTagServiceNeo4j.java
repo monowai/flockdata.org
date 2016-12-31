@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,18 +20,18 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.dao.EntityTagDao;
+import org.flockdata.data.*;
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.engine.dao.EntityTagDaoNeo;
-import org.flockdata.engine.dao.EntityTagInRepo;
-import org.flockdata.engine.dao.EntityTagOutRepo;
+import org.flockdata.engine.data.dao.EntityTagDaoNeo;
+import org.flockdata.engine.data.dao.EntityTagInRepo;
+import org.flockdata.engine.data.dao.EntityTagOutRepo;
+import org.flockdata.engine.data.graph.*;
+import org.flockdata.engine.tag.service.TagService;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.*;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityTagInputBean;
-import org.flockdata.track.service.EntityTagService;
-import org.flockdata.track.service.TagService;
+import org.flockdata.track.bean.EntityTagRelationshipInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ class EntityTagServiceNeo4j implements EntityTagService {
     }
 
     @Override
-    public void processTag(Entity entity, EntityTagInputBean entityTagInput) {
+    public void processTag(EntityNode entity, EntityTagInputBean entityTagInput) {
         String relationshipName = entityTagInput.getType();
         if (entityTagInput.getTagCode() == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + entityTagInput.getIndex() + ")");
@@ -90,12 +90,12 @@ class EntityTagServiceNeo4j implements EntityTagService {
     }
 
     @Override
-    public Boolean relationshipExists(Entity entity, String tagCode, String relationshipType) {
+    public Boolean relationshipExists(EntityNode entity, String tagCode, String relationshipType) {
         return relationshipExists(entity, null, tagCode, relationshipType);
     }
 
     @Override
-    public Boolean relationshipExists(Entity entity, String keyPrefix, String tagCode, String relationshipType) {
+    public Boolean relationshipExists(EntityNode entity, String keyPrefix, String tagCode, String relationshipType) {
         Tag tag = tagService.findTag(entity.getFortress().getCompany(), keyPrefix, tagCode);
         if (tag == null)
             return false;
@@ -115,12 +115,12 @@ class EntityTagServiceNeo4j implements EntityTagService {
      * @param entityTags search this list
      * @return  the existing tag
      */
-    private Tag getTag(Iterable<EntityTag> entityTags, String code, String label) {
+    private TagNode getTag(Iterable<EntityTag> entityTags, String code, String label) {
         for (EntityTag existingTag : entityTags) {
             if (existingTag.getTag().getCode().equalsIgnoreCase(code)
                     && existingTag.getTag().getLabel().equalsIgnoreCase(label))
 
-                return existingTag.getTag();
+                return (TagNode) existingTag.getTag();
         }
         return null;
     }
@@ -160,13 +160,13 @@ class EntityTagServiceNeo4j implements EntityTagService {
      * @param entityInputBean payload
      */
     @Override
-    public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, EntityInputBean entityInputBean) throws FlockException {
+    public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLogRlx lastLog, EntityInputBean entityInputBean) throws FlockException {
         Collection<EntityTag> newEntityTags = new ArrayList<>();
         Collection<EntityTag> tagsToMove = new ArrayList<>();
         Collection<EntityTag> existingTags = (entity.isNewEntity() ? new ArrayList<>() : getEntityTags(entity));
         for (TagInputBean tagInputBean : entityInputBean.getTags()) {
 
-            Tag existingTag = getTag(existingTags, tagInputBean.getCode(), tagInputBean.getLabel());
+            TagNode existingTag = getTag(existingTags, tagInputBean.getCode(), tagInputBean.getLabel());
             Tag tag;
             if (existingTag == null) {
                 tag = tagService.createTag(company, tagInputBean).getTag();
@@ -255,7 +255,7 @@ class EntityTagServiceNeo4j implements EntityTagService {
                 propMap = new HashMap<>();
             }
 
-            propMap.put(EntityTagDao.FD_WHEN, when);
+            propMap.put(EntityTag.FD_WHEN, when);
             EntityTag entityTag = getRelationship(entity, tag, key, entityTagRelationship.getReverse(), propMap, tagInputBean.isSince());
             if (entityTag != null) {
                 entityTag.setGeo(entityTagRelationship.isGeo());
@@ -279,9 +279,9 @@ class EntityTagServiceNeo4j implements EntityTagService {
      * @return Null or the EntityTag that was created
      */
     private EntityTag getRelationship(Entity entity, Tag tag, String relationshipName,
-                              Boolean isReversed,
-                              Map<String, Object> propMap,
-                              boolean isSinceRequired) {
+                                      Boolean isReversed,
+                                      Map<String, Object> propMap,
+                                      boolean isSinceRequired) {
 
         if (isSinceRequired) {
             long lastUpdate = (entity.getFortressUpdatedTz() == null ? 0 : entity.getFortressUpdatedTz().getMillis());
@@ -289,9 +289,9 @@ class EntityTagServiceNeo4j implements EntityTagService {
         }
         AbstractEntityTag rel;
         if (isReversed)
-            rel = new EntityTagIn(entity, tag, relationshipName, propMap);
+            rel = new EntityTagInRlx(entity, tag, relationshipName, propMap);
         else
-            rel = new EntityTagOut(entity, tag, relationshipName, propMap);
+            rel = new EntityTagOutRlx(entity, tag, relationshipName, propMap);
 
 
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
@@ -336,7 +336,7 @@ class EntityTagServiceNeo4j implements EntityTagService {
 
     @Override
     public Collection<EntityTag> findLogTags(Company company, Log log) {
-        return entityTagDao.findLogTags(company, log);
+        return entityTagDao.findLogTags((CompanyNode)company, log);
     }
 
     @Override
@@ -353,7 +353,7 @@ class EntityTagServiceNeo4j implements EntityTagService {
     }
 
     @Override
-    public void changeType(Entity entity, EntityTag existingTag, String newType) throws FlockException {
+    public void changeType(EntityNode entity, EntityTag existingTag, String newType) throws FlockException {
         if (entity == null || existingTag == null || newType == null)
             throw new FlockException(("Illegal parameter"));
         entityTagDao.changeType(entity, existingTag, newType);
@@ -361,7 +361,7 @@ class EntityTagServiceNeo4j implements EntityTagService {
 
 
     @Override
-    public Set<Entity> findEntityTags(Company company, String tagCode) throws FlockException {
+    public Set<EntityNode> findEntityTags(Company company, String tagCode) throws FlockException {
         Tag tag = tagService.findTag(company, null, tagCode);
         if (tag == null)
             throw new FlockException("Unable to find the tag [" + tagCode + "]");
@@ -371,8 +371,8 @@ class EntityTagServiceNeo4j implements EntityTagService {
 
 
     @Override
-    public Entity moveTags(Company company, Log previousLog, Entity entity) {
-        entityTagDao.moveTags(company, previousLog, entity);
+    public EntityNode moveTags(Company company, LogNode previousLog, EntityNode entity) {
+        entityTagDao.moveTags((CompanyNode)company, previousLog, entity);
         return entity;
     }
 
@@ -392,7 +392,7 @@ class EntityTagServiceNeo4j implements EntityTagService {
     }
 
     @Override
-    public Collection<EntityTag> findEntityTagsByRelationship(Entity entity, String relationship) {
+    public Collection<EntityTag> findEntityTagsByRelationship(EntityNode entity, String relationship) {
         return new ArrayList<>();//entityTagDao.findEntityTagsByRelationship(entity, relationship);
     }
 }

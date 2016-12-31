@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,14 +20,14 @@
 
 package org.flockdata.engine.concept.service;
 
+import org.flockdata.authentication.SystemUserService;
+import org.flockdata.data.SystemUser;
+import org.flockdata.data.TxRef;
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.engine.dao.EntityDaoNeo;
+import org.flockdata.engine.data.dao.EntityDaoNeo;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.integration.KeyGenService;
-import org.flockdata.model.Company;
-import org.flockdata.model.Entity;
-import org.flockdata.model.SystemUser;
-import org.flockdata.model.TxRef;
-import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,11 +53,11 @@ public class TxService {
     @Autowired
     private SecurityHelper securityHelper;
 
-    TxRef beginTransaction(Company company) {
+    TxRef beginTransaction(CompanyNode company) {
         return beginTransaction(keyGenService.getUniqueKey(), company);
     }
 
-    TxRef beginTransaction(String id, Company company) {
+    TxRef beginTransaction(String id, CompanyNode company) {
         return trackDao.beginTransaction(id, company);
 
     }
@@ -67,7 +67,7 @@ public class TxService {
         return (tx == null ? null : trackDao.findByTransaction(tx));
     }
 
-    public TxRef handleTxRef(ContentInputBean input, Company company) {
+    public TxRef handleTxRef(ContentInputBean input, CompanyNode company) {
         TxRef txRef = null;
         if (input.isTransactional()) {
             if (input.getTxRef() == null) {
@@ -97,7 +97,7 @@ public class TxService {
         return tx;
     }
 
-    public Set<Entity> findTxEntities(String txName) {
+    public Set<EntityNode> findTxEntities(String txName) {
         TxRef txRef = findTx(txName);
         if (txRef == null)
             return null;

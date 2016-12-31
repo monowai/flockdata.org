@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,43 +20,42 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.data.*;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.FortressUserNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.service.EntityService;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Future;
 
 /**
  * @author mholdsworth
  * @since 14/11/2014
  */
 public interface FortressService {
-    Fortress getFortress(Long id);
+    FortressNode getFortress(Long id);
 
-    FortressUser getUser(Long id);
+    FortressUserNode getUser(Long id);
 
     //    @Cacheable(value = "fortressName", unless = "#result == null")
-    Fortress findByName(Company company, String fortressName) throws NotFoundException;
+    FortressNode findByName(Company company, String fortressName) throws NotFoundException;
 
-    Fortress findByName(String fortressName) throws NotFoundException;
+    FortressNode findByName(String fortressName) throws NotFoundException;
 
-    Fortress findByCode(String fortressCode);
+    FortressNode findByCode(Company company, String fortressCode);
 
-    Fortress findByCode(Company company, String fortressCode);
+//    Fortress findByCode(Company company, String fortressCode);
 
-    FortressUser getFortressUser(Company company, String fortressName, String fortressUser) throws NotFoundException;
+    FortressUserNode getFortressUser(Company company, String fortressName, String fortressUser) throws NotFoundException;
 
-    FortressUser getFortressUser(Fortress fortress, String fortressUser);
+    FortressUserNode getFortressUser(Fortress fortress, String fortressUser);
 
-    FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing);
+    FortressUserNode getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing);
 
     Collection<FortressResultBean> findFortresses() throws FlockException;
 
@@ -64,11 +63,11 @@ public interface FortressService {
 
     void purge(Fortress fortress) throws FlockException;
 
-    Fortress registerFortress(Company company, FortressInputBean fortressInputBean);
+    FortressNode registerFortress(Company company, FortressInputBean fortressInputBean);
 
-    Fortress registerFortress(Company company, String fortressName);
+    FortressNode registerFortress(Company company, String fortressName);
 
-    Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing);
+    FortressNode registerFortress(Company company, FortressInputBean fib, boolean createIfMissing);
 
     Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) throws NotFoundException;
 
@@ -76,25 +75,23 @@ public interface FortressService {
 
     String delete(Company company, String fortressName);
 
-    Future<Void> createFortressUsers(Fortress fortress, List<EntityInputBean> inputBeans);
-
-    FortressUser createFortressUser(Fortress fortress, ContentInputBean inputBean);
+    FortressUserNode createFortressUser(Fortress fortress, ContentInputBean inputBean);
 
     String getGeoQuery(Entity entity);
 
-    EntityService.TAG_STRUCTURE getTagStructureFinder(Entity entity);
+    EntityTag.TAG_STRUCTURE getTagStructureFinder(Entity entity);
 
-    FortressSegment getDefaultSegment (Fortress fortress);
+    Segment getDefaultSegment (Fortress fortress);
 
-    FortressSegment addSegment(FortressSegment segment);
+    Segment addSegment(Segment segment);
 
-    Collection<FortressSegment> getSegments(Fortress fortress);
+    Collection<Segment> getSegments(Fortress fortress);
 
-    FortressSegment resolveSegment(Company company, FortressInputBean fortress, String segmentName, String timeZone) throws NotFoundException;
+    Segment resolveSegment(Company company, FortressInputBean fortress, String segmentName, String timeZone) throws NotFoundException;
 
-    Fortress updateFortress(Company company, Fortress existing, FortressInputBean fortressInputBean);
+    FortressNode updateFortress(CompanyNode company, FortressNode existing, FortressInputBean fortressInputBean);
 
-    Fortress findInternalFortress(Company company);
+    FortressNode findInternalFortress(Company company);
 
     FortressInputBean createDefaultFortressInput();
 

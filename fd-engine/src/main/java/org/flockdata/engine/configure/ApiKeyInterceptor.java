@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,8 +20,8 @@
 
 package org.flockdata.engine.configure;
 
-import org.flockdata.model.Company;
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.Company;
+import org.flockdata.data.SystemUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

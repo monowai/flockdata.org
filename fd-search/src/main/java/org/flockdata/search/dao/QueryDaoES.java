@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -36,13 +36,12 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.highlight.HighlightField;
-import org.flockdata.dao.QueryDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.integration.IndexManager;
+import org.flockdata.search.*;
 import org.flockdata.search.helper.QueryGenerator;
-import org.flockdata.search.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +62,7 @@ import java.util.concurrent.TimeoutException;
  * @tag Query, Search, ElasticSearch
  */
 @Repository
-public class QueryDaoES implements QueryDao {
+public class QueryDaoES  {
 
     public static final String ES_FIELD_SEP = ".";
     public static final String CODE_FACET = ".code.facet";
@@ -121,7 +120,6 @@ public class QueryDaoES implements QueryDao {
 
     }
 
-    @Override
     public TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException {
         // Getting all tag and What fields
 
@@ -213,7 +211,6 @@ public class QueryDaoES implements QueryDao {
         return results;
     }
 
-    @Override
     public long getHitCount(String index) {
         SearchResponse response = elasticSearchClient.prepareSearch(index)
                 .execute()
@@ -258,7 +255,6 @@ public class QueryDaoES implements QueryDao {
         return results;
     }
 
-    @Override
     public String doSearch(QueryParams queryParams) throws FlockException {
         SearchResponse result = elasticSearchClient.prepareSearch(indexManager.getIndexesToQuery(queryParams))
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, false))
@@ -268,7 +264,6 @@ public class QueryDaoES implements QueryDao {
         return result.toString();
     }
 
-    @Override
     public void getTags(String indexName) {
 //        GetMappingsResponse fieldMappings = elasticSearchClient
 //                .admin()
@@ -280,7 +275,6 @@ public class QueryDaoES implements QueryDao {
 
     }
 
-    @Override
     public EsSearchResult doEntitySearch(QueryParams queryParams) throws FlockException {
         StopWatch watch = new StopWatch();
 
@@ -405,7 +399,6 @@ public class QueryDaoES implements QueryDao {
         return highlights;
     }
 
-    @Override
     public EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException {
         EsSearchResult result ;
         if (queryParams.getQuery() != null || queryParams.getAggs()!=null) {

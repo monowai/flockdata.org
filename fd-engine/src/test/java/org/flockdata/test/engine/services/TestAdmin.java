@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,17 +20,13 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.EntityTagRelationshipInput;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.test.helper.EntityContentHelper;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.test.helper.ContentDataHelper;
+import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,7 +51,7 @@ public class TestAdmin extends EngineBase {
     public void deleteFortressWithEntitiesAndTagsOnly() throws Exception {
 
         SystemUser su = registerSystemUser("deleteFortressWithEntitiesAndTagsOnly", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
 
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", new EntityTagRelationshipInput("deltest"));
@@ -94,7 +90,7 @@ public class TestAdmin extends EngineBase {
     public void unauthorisedUserCannotDeleteFortress() throws Exception {
         setSecurity();
         SystemUser su = registerSystemUser("unauthorisedUserCannotDeleteFortress", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("deleteFortressPurgesEntitiesAndLogs", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("deleteFortressPurgesEntitiesAndLogs", true));
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "deleteFortressPurgesEntitiesAndLogs", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -113,7 +109,7 @@ public class TestAdmin extends EngineBase {
     public void purgedFortressRemovesEntities() throws Exception {
 
         SystemUser su = registerSystemUser("purgedFortressRemovesEntities", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("deleteFortressPurgesEntitiesAndLogs", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("deleteFortressPurgesEntitiesAndLogs", true));
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "deleteFortressPurgesEntitiesAndLogs", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -122,8 +118,8 @@ public class TestAdmin extends EngineBase {
         assertNotNull(entityKey);
         assertNotNull(entityService.getEntity(su.getCompany(), entityKey));
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", entityKey, new DateTime(), EntityContentHelper.getRandomMap()));
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", entityKey, new DateTime(), EntityContentHelper.getRandomMap()));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", entityKey, new DateTime(), ContentDataHelper.getRandomMap()));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", entityKey, new DateTime(), ContentDataHelper.getRandomMap()));
 
         Assert.assertEquals(2, entityService.getLogCount(su.getCompany(), resultBean.getEntity().getKey()));
 
@@ -141,7 +137,7 @@ public class TestAdmin extends EngineBase {
         assertNotNull(su);
         assertNotNull(su.getCompany());
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         assertNotNull(fortress);
         assertNotNull(fortress.getCompany());
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
@@ -157,11 +153,11 @@ public class TestAdmin extends EngineBase {
         assertNotNull(key);
         assertNotNull(entityService.getEntity(su.getCompany(), key));
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", key, new DateTime(), EntityContentHelper.getRandomMap()));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", key, new DateTime(), ContentDataHelper.getRandomMap()));
 
         inputBean.setCode("123abc");
         inputBean.setKey(null);
-        inputBean.setContent(new ContentInputBean("wally", key, new DateTime(), EntityContentHelper.getRandomMap()));
+        inputBean.setContent(new ContentInputBean("wally", key, new DateTime(), ContentDataHelper.getRandomMap()));
         mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean);
 
         setSecurity(harry);// Harry is not an admin
@@ -185,12 +181,12 @@ public class TestAdmin extends EngineBase {
     public void purgeFortressClearsDown() throws Exception {
         setSecurity();
         SystemUser su = registerSystemUser("purgeFortressClearsDown", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeFortressClearsDown", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeFortressClearsDown", true));
 
         EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc2");
         trackBean.addTag(new TagInputBean("anyName", "TestTag", new EntityTagRelationshipInput("rlx")));
         trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
-        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), ContentDataHelper.getRandomMap());
         trackBean.setContent(logBean);
         String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
 
@@ -199,7 +195,7 @@ public class TestAdmin extends EngineBase {
         trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc3");
         trackBean.addTag(new TagInputBean("anyName", "TestTag", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
-        logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        logBean = new ContentInputBean("me", DateTime.now(), ContentDataHelper.getRandomMap());
         trackBean.setContent(logBean);
 
         String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
@@ -228,12 +224,12 @@ public class TestAdmin extends EngineBase {
         setSecurity();
         SystemUser su = registerSystemUser("conceptsDeleteAndRecreate", mike_admin);
         FortressInputBean fib = new FortressInputBean("purgeFortressClearsDown", true);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc2");
         trackBean.addTag(new TagInputBean("anyName", "TestTag", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
-        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), ContentDataHelper.getRandomMap());
         trackBean.setContent(logBean);
         String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
 
@@ -267,12 +263,12 @@ public class TestAdmin extends EngineBase {
     public void purgeSegmentData() throws Exception {
         setSecurity();
         SystemUser su = registerSystemUser("purgeSegmentData", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSegmentData", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSegmentData", true));
 
         EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc2");
         trackBean.setSegment("SegmentA");
 
-        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), ContentDataHelper.getRandomMap());
         trackBean.setContent(logBean);
         String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
 
@@ -280,7 +276,7 @@ public class TestAdmin extends EngineBase {
 
         trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc3");
         trackBean.setSegment("SegmentB");
-        logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        logBean = new ContentInputBean("me", DateTime.now(), ContentDataHelper.getRandomMap());
         trackBean.setContent(logBean);
 
         String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
@@ -308,13 +304,13 @@ public class TestAdmin extends EngineBase {
     public void purgeSingleSegment() throws Exception {
         setSecurity();
         SystemUser su = registerSystemUser("purgeSingleSegment", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleSegment", true));
-        Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleSegmentB", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleSegment", true));
+        FortressNode fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleSegmentB", true));
 
         EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc2");
         trackBean.setSegment("SegmentA");
 
-        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), ContentDataHelper.getRandomMap());
         trackBean.setContent(logBean);
         String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
 
@@ -322,7 +318,7 @@ public class TestAdmin extends EngineBase {
 
         trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc3");
         trackBean.setSegment("SegmentB");
-        logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        logBean = new ContentInputBean("me", DateTime.now(), ContentDataHelper.getRandomMap());
         trackBean.setContent(logBean);
 
         String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
@@ -330,7 +326,7 @@ public class TestAdmin extends EngineBase {
         // This Entity should not be affected
         trackBean = new EntityInputBean(fortressB, "olivia@ast.com", "CompanyNode", null, "abc3");
         trackBean.setSegment("SegmentB");
-        logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        logBean = new ContentInputBean("me", DateTime.now(), ContentDataHelper.getRandomMap());
         trackBean.setContent(logBean);
 
         String resultC = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
@@ -363,8 +359,8 @@ public class TestAdmin extends EngineBase {
         setSecurity();
         SystemUser su = registerSystemUser("purgeSingleDocTypeOnSharedSegment", mike_admin);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleDocTypeOnSharedSegment", true));
-        Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleDocTypeOnSharedSegmentB", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleDocTypeOnSharedSegment", true));
+        FortressNode fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeSingleDocTypeOnSharedSegmentB", true));
         String docType = "CompanyNode";
         String segment = "SharedSegment";
 

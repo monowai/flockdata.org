@@ -20,7 +20,7 @@
 
 package org.flockdata.engine.integration.neorest;
 
-import org.flockdata.model.AbstractEntityTag;
+import org.flockdata.data.AbstractEntityTag;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

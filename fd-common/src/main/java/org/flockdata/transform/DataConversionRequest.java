@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 
 package org.flockdata.transform;
 
-import org.flockdata.profile.model.ContentModel;
+import org.flockdata.data.ContentModel;
 
 import java.util.Collection;
 

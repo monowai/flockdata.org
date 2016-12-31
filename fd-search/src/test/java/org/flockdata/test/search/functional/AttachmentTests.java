@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,10 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.model.Entity;
+import org.flockdata.data.Entity;
+import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.endpoint.FdQueryEP;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertNotNull;
@@ -46,7 +46,7 @@ public class AttachmentTests extends ESBase {
         Entity entity = getEntity("cust", "fort", "anyuser", "fort");
 
         EntitySearchChange changeA = new EntitySearchChange(entity, indexManager.parseIndex(entity));
-        changeA.setAttachment(EntityContentHelper.getPdfDoc());
+        changeA.setAttachment(ContentDataHelper.getPdfDoc());
 
         deleteEsIndex(entity);
 

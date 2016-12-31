@@ -21,7 +21,7 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.flockdata.track.service.EntityService;
+import org.flockdata.data.EntityTag;
 
 import java.util.Map;
 
@@ -104,7 +104,7 @@ public interface SearchChange<T> {
 
     Map<String,Object> getProps();
 
-    EntityService.TAG_STRUCTURE getTagStructure();
+    EntityTag.TAG_STRUCTURE getTagStructure();
 
     EntityKeyBean getParent();
 

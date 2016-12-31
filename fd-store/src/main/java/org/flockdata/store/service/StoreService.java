@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,9 @@
 
 package org.flockdata.store.service;
 
+import org.flockdata.data.Entity;
+import org.flockdata.data.Log;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Log;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;

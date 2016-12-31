@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,8 +20,8 @@
 
 package org.flockdata.track.bean;
 
+import org.flockdata.data.Tag;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Tag;
 
 
 /**
@@ -37,7 +37,7 @@ public class EntityTagInputBean{
     private String type;
     private String index;
     private boolean since;
-    private Boolean geoRlx;
+    private boolean geoRlx;
     private String tagKeyPrefix;
 
     private EntityTagInputBean() {
@@ -110,7 +110,7 @@ public class EntityTagInputBean{
         this.tagKeyPrefix = tagKeyPrefix;
     }
 
-    public Boolean isGeoRlx() {
+    public boolean isGeoRlx() {
         return geoRlx;
     }
 }

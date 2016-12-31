@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,10 @@
 
 package org.flockdata.company.dao;
 
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.SystemUserNode;
 import org.flockdata.integration.KeyGenService;
-import org.flockdata.model.SystemUser;
 import org.flockdata.registration.RegistrationBean;
-import org.flockdata.registration.dao.RegistrationDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
@@ -34,7 +34,7 @@ import org.springframework.stereotype.Repository;
  * @tag SystemUser, Neo4j,
  */
 @Repository
-public class RegistrationNeo implements RegistrationDao {
+public class RegistrationNeo {
     private final SystemUserRepository suRepo;
 
     private final KeyGenService keyGenService;
@@ -45,8 +45,8 @@ public class RegistrationNeo implements RegistrationDao {
         this.keyGenService = keyGenService;
     }
 
-    public SystemUser save(SystemUser systemUser) {
-        return suRepo.save(systemUser);
+    public SystemUserNode save(SystemUser systemUser) {
+        return suRepo.save((SystemUserNode)systemUser);
     }
 
     @Cacheable(value = "sysUserApiKey", unless = "#result==null")
@@ -56,14 +56,10 @@ public class RegistrationNeo implements RegistrationDao {
         return suRepo.findBySchemaPropertyValue("apiKey", apiKey);
     }
 
-    @Override
-    public SystemUser save(RegistrationBean regBean) {
-        SystemUser su = new SystemUser(regBean);
+    public SystemUserNode save(RegistrationBean regBean) {
+        SystemUserNode su = new SystemUserNode(regBean);
         su.setApiKey(keyGenService.getUniqueKey());
-        su = save(su);
-        return su;
-
-
+        return save(su);
     }
 
     public SystemUser findSysUserByName(String name) {

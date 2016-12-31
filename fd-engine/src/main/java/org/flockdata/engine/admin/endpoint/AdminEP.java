@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,14 +20,14 @@
 
 package org.flockdata.engine.admin.endpoint;
 
-import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.AdminResponse;
+import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.engine.configure.SecurityHelper;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Company;
-import org.flockdata.track.service.MediationFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +92,7 @@ public class AdminEP {
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public AdminResponse rebuildSearch(@PathVariable("fortressCode") String fortressCode,
                                        HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         logger.info("Reindex command received for " + fortressCode + " from [" + securityHelper.getLoggedInUser() + "]");
         String message = mediationFacade.reindex(company, fortressCode);
         return new AdminResponse(message);
@@ -103,7 +103,7 @@ public class AdminEP {
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public AdminResponse rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
                                        HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
         String message = mediationFacade.reindexByDocType(company, fortressName, docType);
@@ -112,7 +112,7 @@ public class AdminEP {
 
     @RequestMapping(value = "/{code:.*}/{docType}", method = RequestMethod.DELETE)
     public AdminResponse deleteDocType(@PathVariable("code") String fortressCode, @PathVariable("docType") String docType, HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         mediationFacade.purge(company, fortressCode, docType);
         return new AdminResponse("Purging " + fortressCode + "... This may take a while");
     }
@@ -121,7 +121,7 @@ public class AdminEP {
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public AdminResponse purgeFortress(@PathVariable("fortressName") String fortressCode,
                                        HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         mediationFacade.purge(company, fortressCode);
         return new AdminResponse("Purging " + fortressCode + "... This may take a while");
@@ -133,7 +133,7 @@ public class AdminEP {
     public AdminResponse deleteDocType(@PathVariable("code") String fortressCode,
                                        @PathVariable("docType") String docType,
                                        @PathVariable("segment") String segment, HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         mediationFacade.purge(company, fortressCode, docType, segment);
         return new AdminResponse("Purging " + fortressCode + "... This may take a while");
     }
@@ -143,7 +143,7 @@ public class AdminEP {
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public AdminResponse validateFromSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
                                             HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         logger.info("Validate command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
         String message = mediationFacade.validateFromSearch(company, fortressName, docType);

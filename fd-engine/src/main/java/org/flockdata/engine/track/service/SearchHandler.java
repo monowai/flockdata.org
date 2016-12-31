@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,9 +21,8 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.search.model.SearchResult;
-import org.flockdata.search.model.SearchResults;
-import org.flockdata.track.service.EntityService;
+import org.flockdata.search.SearchResult;
+import org.flockdata.search.SearchResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

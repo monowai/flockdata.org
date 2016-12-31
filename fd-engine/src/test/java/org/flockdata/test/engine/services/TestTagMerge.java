@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,15 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.*;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.SystemUser;
+import org.flockdata.data.Tag;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityTagRelationshipInput;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -43,7 +48,7 @@ public class TestTagMerge extends EngineBase {
     public void merge_Simple() throws Exception {
         cleanUpGraph();
         SystemUser su = registerSystemUser("merge_Simple");
-        Fortress fortress = fortressService.registerFortress(su.getCompany(),
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("merge_Simple", true));
 
         TagInputBean tagInputA = new TagInputBean("TagA", "MoveTag", new EntityTagRelationshipInput("rlxA").setReverse(true));
@@ -93,7 +98,7 @@ public class TestTagMerge extends EngineBase {
     public void alias_TagsByAlias() throws Exception {
         cleanUpGraph();
         SystemUser su = registerSystemUser("alias_Simple");
-        Fortress fortress = fortressService.registerFortress(su.getCompany(),
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("alias_Simple", true));
 
         TagInputBean tagInput = new TagInputBean("TagA", "AliasTest", "rlxA");

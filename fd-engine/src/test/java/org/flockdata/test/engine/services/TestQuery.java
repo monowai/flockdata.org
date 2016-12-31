@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,8 +20,8 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -50,11 +50,11 @@ public class TestQuery extends EngineBase {
         SystemUser suA = registerSystemUser("CompanyA", "userA");
         SystemUser suB = registerSystemUser("CompanyB", "userB");
 
-        Fortress coAfA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfA", true));
-        Fortress coAfB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfB", true));
+        FortressNode coAfA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfA", true));
+        FortressNode coAfB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfB", true));
 
-        Fortress coBfA = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfA", true));
-        Fortress coBfB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfB", true));
+        FortressNode coBfA = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfA", true));
+        FortressNode coBfB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfB", true));
 
         setSecurity();
         //

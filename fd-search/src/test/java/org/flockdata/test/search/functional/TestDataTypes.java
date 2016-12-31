@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,20 +20,11 @@
 
 package org.flockdata.test.search.functional;
 
-import junit.framework.TestCase;
-import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Fortress;
-import org.flockdata.registration.FortressInputBean;
+import org.flockdata.data.Entity;
+import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.FdSearch;
 import org.flockdata.search.base.EntityChangeWriter;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.SearchChanges;
-import org.flockdata.test.helper.EntityContentHelper;
-import org.flockdata.track.bean.EntityInputBean;
-import org.joda.time.DateTime;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -72,7 +63,7 @@ public class TestDataTypes extends ESBase {
         EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity))
                 .setDescription("Test Description");
 
-        Map<String,Object> numMap = EntityContentHelper.getSimpleMap("num", 100);
+        Map<String,Object> numMap = ContentDataHelper.getSimpleMap("num", 100);
         change.setData(numMap);
 
         indexMappingService.ensureIndexMapping(change);
@@ -82,42 +73,13 @@ public class TestDataTypes extends ESBase {
         doQuery(entity, "*", 1);
 
         Entity entityB = getEntity(fortress, fortress, user, doc);
-        Map<String,Object> strMap = EntityContentHelper.getSimpleMap("num", "NA");
+        Map<String,Object> strMap = ContentDataHelper.getSimpleMap("num", "NA");
         change = new EntitySearchChange(entityB, indexManager.parseIndex(entityB));
         change.setDescription("Test Description");
         change.setData(strMap);
 
         searchRepo.handle(change);
         fail("A mapping exception was not thrown");
-
-    }
-
-    @Test
-    public void serialize_SearchChanges () throws Exception {
-        Company mockCompany = new Company("company");
-        mockCompany.setName("company");
-
-        FortressInputBean fib = new FortressInputBean("serialize_SearchChanges", false);
-        Fortress fortress = new Fortress(fib, mockCompany);
-
-        DateTime now = new DateTime();
-        EntityInputBean eib = new EntityInputBean(fortress,
-                "harry",
-                "docType",
-                now,
-                "abc");
-
-        DocumentType doc = new DocumentType(fortress, "docType");
-        Entity entity = new Entity("abc", fortress, eib, doc);
-        deleteEsIndex(entity);
-
-        EntitySearchChange searchChange = new EntitySearchChange(entity, indexManager.parseIndex(entity));
-        SearchChanges changes = new SearchChanges(searchChange);
-        String json = JsonUtils.toJson(changes);
-
-        SearchChanges fromJson = JsonUtils.toObject(json.getBytes(), SearchChanges.class);
-
-        TestCase.assertTrue("", fromJson.getChanges().size()==1);
 
     }
 }

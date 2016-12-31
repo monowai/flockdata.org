@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,8 +22,8 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.FortressSegment;
+import org.flockdata.data.Document;
+import org.flockdata.data.Segment;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,7 +46,7 @@ public class DocumentResultBean {
     DocumentResultBean() {
     }
 
-    public DocumentResultBean(DocumentType documentType) {
+    public DocumentResultBean(Document documentType) {
         this();
         if ( documentType !=null ) {
             this.name = documentType.getName();
@@ -59,11 +59,11 @@ public class DocumentResultBean {
         }
     }
 
-    public DocumentResultBean(DocumentType documentType, Collection<FortressSegment> segments) {
+    public DocumentResultBean(Document documentType, Collection<Segment> segments) {
         this(documentType);
         if (segments!=null) {
             this.segments = new ArrayList<>(segments.size());
-            this.segments.addAll(segments.stream().map(FortressSegment::getCode).collect(Collectors.toList()));
+            this.segments.addAll(segments.stream().map(Segment::getCode).collect(Collectors.toList()));
         }
     }
 
@@ -123,7 +123,7 @@ public class DocumentResultBean {
         return result;
     }
 
-    public void addSegment(FortressSegment segment) {
+    public void addSegment(Segment segment) {
         if (this.segments == null)
             segments = new ArrayList<>();
         this.segments.add(segment.getCode());

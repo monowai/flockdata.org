@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -23,10 +23,10 @@ package org.flockdata.transform.xml;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.profile.model.PayloadTransformer;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.transform.model.PayloadTransformer;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;

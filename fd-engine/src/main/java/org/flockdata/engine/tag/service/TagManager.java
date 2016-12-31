@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,10 @@
 
 package org.flockdata.engine.tag.service;
 
-import org.flockdata.engine.dao.TagRepo;
+import org.flockdata.data.Tag;
+import org.flockdata.engine.data.dao.TagRepo;
+import org.flockdata.engine.data.graph.TagNode;
 import org.flockdata.helper.TagHelper;
-import org.flockdata.model.Tag;
 import org.flockdata.track.TagKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,16 +69,16 @@ public class TagManager {
      * @return resolved tag
      */
     @Cacheable(value = "tag", unless = "#result== null")
-    public Tag tagByKey(TagKey tagKey) {
+    public TagNode tagByKey(TagKey tagKey) {
         if (tagKey.getPrefix() != null && tagKey.getPrefix().contains(":"))
             throw new AmqpRejectAndDontRequeueException(String.format("Unresolved indirection %s %s for %s", tagKey.getLabel(), tagKey.getCode(), tagKey.getPrefix()));
         String parsedKey = TagHelper.parseKey(tagKey.getPrefix(), tagKey.getCode());
         StopWatch watch = getWatch(tagKey.getLabel()+ " / " + parsedKey);
 
-        Collection<Tag> tags = tagRepo.findByKey(parsedKey);
+        Collection<TagNode> tags = tagRepo.findByKey(parsedKey);
 
         if (tags.size() == 1) {
-            Tag tag = tags.iterator().next();
+            TagNode tag = tags.iterator().next();
             if (tag.getLabel().equals(tagKey.getLabel()) || (tagKey.getLabel().equals(Tag.DEFAULT_TAG) || tagKey.getLabel().equals("_" + Tag.DEFAULT_TAG))) {
                 stopWatch(watch, tagKey.getLabel(), tagKey.getCode());
                 return tag;
@@ -87,8 +88,8 @@ public class TagManager {
       //  logger.trace("{} Not found by key {}", multiTennantedLabel, tagKey);
 
         // See if the tagKey is unique for the requested label
-        Tag tResult = null;
-        for (Tag tag : tags) {
+        TagNode tResult = null;
+        for (TagNode tag : tags) {
             if (tag.getLabel().equalsIgnoreCase(tagKey.getLabel())) {
                 if (tResult == null) {
                     tResult = tag;
@@ -113,14 +114,14 @@ public class TagManager {
         params.put("tagKey", TagHelper.parseKey(tagKey.getCode()));
         Iterable<Map<String, Object>> result = template.query(query, params);
         Iterator<Map<String, Object>> results = result.iterator();
-        Tag tagResult = null;
+        TagNode tagResult = null;
         while (results.hasNext()) {
             Map<String, Object> mapResult = results.next();
 
             if (mapResult != null && tagResult == null) {
                 tagResult = getTag(mapResult);
             } else {
-                Tag toDelete = getTag(mapResult);
+                TagNode toDelete = getTag(mapResult);
                 logger.debug("Deleting duplicate {}", toDelete);
                 if (toDelete != null)
                     template.delete(toDelete);
@@ -153,8 +154,8 @@ public class TagManager {
         logger.info(watch.prettyPrint());
     }
 
-    private Tag getTag(Map<String, Object> mapResult) {
-        Tag tagResult;
+    private TagNode getTag(Map<String, Object> mapResult) {
+        TagNode tagResult;
         Object o = null;
         if (mapResult.get("a") != null)
             o = mapResult.get("a");
@@ -162,16 +163,16 @@ public class TagManager {
             o = mapResult.get("t");
         }
 
-        tagResult = (o == null ? null : template.projectTo(o, Tag.class));
+        tagResult = (o == null ? null : template.projectTo(o, TagNode.class));
         return tagResult;
     }
 
     @CacheEvict(value = "tag", key = "#p0")
-    public Tag save(TagKey tagKey) {
+    public TagNode save(TagKey tagKey) {
         return save(tagKey.getTag());
     }
 
-    public Tag save(Tag startTag) {
-        return template.save(startTag);
+    public TagNode save(Tag startTag) {
+        return template.save((TagNode)startTag);
     }
 }

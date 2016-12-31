@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,8 +20,11 @@
 
 package org.flockdata.registration;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.model.MetaFortress;
+import org.flockdata.data.Company;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
 
 import java.io.Serializable;
 import java.util.Locale;
@@ -37,7 +40,7 @@ import java.util.TimeZone;
  * @since 15/06/2013
  * @tag Payload, Fortress
  */
-public class FortressInputBean implements Serializable, MetaFortress {
+public class FortressInputBean implements Serializable, Fortress {
     private String name;
     private Boolean searchEnabled = null;
     private Boolean storeEnabled = null;
@@ -49,6 +52,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
     private Boolean enabled = true;
     private Boolean system = false;
     private String code = null;
+    private Company company;
 
     protected FortressInputBean() {
     }
@@ -72,6 +76,11 @@ public class FortressInputBean implements Serializable, MetaFortress {
         this.code = name;
     }
 
+    public FortressInputBean(String name, Company company) {
+        this(name);
+        this.company = company;
+    }
+
     public String getName() {
         return name;
     }
@@ -88,9 +97,24 @@ public class FortressInputBean implements Serializable, MetaFortress {
         return code;
     }
 
+    @Override
+    public Company getCompany() {
+        return null; // This is derived from the caller
+    }
+
+    public void setCompany(Company company){
+        this.company = company;
+    }
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Boolean getSearchEnabled() {
+    public Boolean isSearchEnabled() {
         return searchEnabled;
+    }
+
+    @Override
+    @JsonIgnore
+    public Long getId() {
+        return null;
     }
 
     public FortressInputBean setSearchEnabled(Boolean searchEnabled) {
@@ -125,6 +149,11 @@ public class FortressInputBean implements Serializable, MetaFortress {
             this.timeZone = timeZone;
         }
         return this;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
     }
 
     /**
@@ -166,7 +195,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Boolean getSystem() {
+    public Boolean isSystem() {
         return system;
     }
 
@@ -176,8 +205,21 @@ public class FortressInputBean implements Serializable, MetaFortress {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Boolean getStoreEnabled() {
+    @Override
+    public Boolean isStoreEnabled() {
         return storeEnabled;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getRootIndex() {
+        return null;
+    }
+
+    @Override
+    @JsonIgnore
+    public Segment getDefaultSegment() {
+        return null;
     }
 
     public FortressInputBean setStoreEnabled(Boolean enabled) {

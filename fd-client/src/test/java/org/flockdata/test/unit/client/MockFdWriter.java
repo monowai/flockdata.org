@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 package org.flockdata.test.unit.client;
 
+import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.model.ContentModel;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
+import org.flockdata.transform.json.ContentModelDeserializer;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,20 +20,15 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityTag;
-import org.flockdata.model.EntityTagOut;
-import org.flockdata.model.Tag;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.FdSearch;
+import org.flockdata.search.*;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.dao.QueryDaoES;
 import org.flockdata.search.endpoint.FdQueryEP;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.SearchChanges;
-import org.flockdata.search.model.TagCloud;
-import org.flockdata.search.model.TagCloudParams;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
+import org.flockdata.test.helper.MockDataFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +58,7 @@ public class TestTagCloud extends ESBase {
 
     @Test
     public void defaultTagQueryWorks() throws Exception {
-        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
+        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
         String fort = "defaultTagQueryWorks";
         String comp = "comp";
@@ -77,9 +72,9 @@ public class TestTagCloud extends ESBase {
         change.setData(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
 
-        Tag tag = new Tag(new TagInputBean("myTag", "TheLabel", "rlxname"));
-        tag.setCode("my TAG");// we should be able to find this as lowercase
-        tags.add(new EntityTagOut(entity, tag, "rlxname", null));
+        TagInputBean tag = new TagInputBean("my TAG", "TheLabel", "rlxname");
+        assertEquals("my TAG", tag.getCode());// we should be able to find this as lowercase
+        tags.add(MockDataFactory.getEntityTag(entity, tag, "rlxname"));
         change.setStructuredTags(null, tags);
 
         //deleteEsIndex(entity);

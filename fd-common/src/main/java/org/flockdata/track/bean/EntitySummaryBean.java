@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,9 +20,9 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityLog;
-import org.flockdata.model.EntityTag;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityLog;
+import org.flockdata.data.EntityTag;
 
 import java.util.Collection;
 import java.util.Set;
@@ -33,7 +33,7 @@ import java.util.Set;
  * @tag Contract, Track, Entity, Query
  */
 public class EntitySummaryBean {
-    private Entity entity;
+    private EntityResultBean entity;
     private String type;
     private Set<EntityLog> changes;
     private Collection<EntityTag> tags;
@@ -44,7 +44,7 @@ public class EntitySummaryBean {
 
     public EntitySummaryBean(Entity entity, Set<EntityLog> changes, Collection<EntityTag> tags) {
         this();
-        this.entity = entity;
+        this.entity = new EntityResultBean(entity);
         this.type = entity.getType().toLowerCase();
         this.changes = changes;
         this.tags = tags;

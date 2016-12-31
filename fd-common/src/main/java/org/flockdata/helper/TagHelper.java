@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,9 @@
 
 package org.flockdata.helper;
 
-import org.flockdata.dao.EntityTagDao;
-import org.flockdata.model.EntityTag;
-import org.flockdata.model.Tag;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Tag;
 import org.flockdata.registration.TagInputBean;
-import org.neo4j.graphdb.Label;
 
 import java.util.ArrayList;
 
@@ -81,7 +79,7 @@ public class TagHelper {
     public static boolean isSystemKey(String key) {
         boolean systemKey = false;
 
-        if (key.equals(EntityTag.SINCE) || key.equals(EntityTagDao.FD_WHEN) || key.equals(Tag.LAT) || key.equals(Tag.LON))
+        if (key.equals(EntityTag.SINCE) || key.equals(EntityTag.FD_WHEN) || key.equals(Tag.LAT) || key.equals(Tag.LON))
             systemKey = true;
         return systemKey;
 
@@ -90,15 +88,6 @@ public class TagHelper {
 
     public static boolean isSystemLabel(String index) {
         return (index.equals("Country") || index.equals("City"));
-    }
-
-    public static String getLabel(Iterable<Label> labels) {
-        if ( labels !=null )
-            for (Label label : labels) {
-                if (!NodeHelper.isInternalLabel(label.name()))
-                    return label.name();
-            }
-        return TAG;
     }
 
     public static String getLabel(ArrayList<String> labels) {

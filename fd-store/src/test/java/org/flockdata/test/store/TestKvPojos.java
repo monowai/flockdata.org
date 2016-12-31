@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,14 +21,13 @@
 package org.flockdata.test.store;
 
 import junit.framework.TestCase;
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.Fortress;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Fortress;
-import org.flockdata.registration.FortressInputBean;
 import org.flockdata.store.bean.StorageBean;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
+import org.flockdata.test.helper.MockDataFactory;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -38,6 +37,7 @@ import org.junit.Test;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertNull;
+import static org.mockito.Mockito.when;
 
 /**
  * @author mholdsworth
@@ -52,19 +52,19 @@ public class TestKvPojos {
         String entityCode = "ABC123R";
         String company = "company";
 
-        Map<String, Object> what = EntityContentHelper.getRandomMap();
-        Fortress fort = new Fortress(
-                new FortressInputBean("test", true),
-                new Company("MyName"));
+        Map<String, Object> what = ContentDataHelper.getRandomMap();
+        Fortress fort = MockDataFactory.getFortress("test", MockDataFactory.getCompany("MyName"));
+        when(fort.isSearchEnabled()).thenReturn(false);
+
         // Represents identifiable entity information
         EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), entityCode)
                 .setContent(new ContentInputBean(what));
 
-        DocumentType documentType = new DocumentType(fort, docType);
+        Document documentType = MockDataFactory.getDocument(fort,docType);
         // The "What" content
 
         // Emulate the creation of the entity
-        Entity entity = EntityContentHelper.getEntity(company, fortress, "wally", documentType.getName());
+        Entity entity = MockDataFactory.getEntity(company, fortress, "wally", documentType.getName(), null);
 
         // Wrap the entity in a Track Result
         // TrackResultBean represents the general accumulated payload

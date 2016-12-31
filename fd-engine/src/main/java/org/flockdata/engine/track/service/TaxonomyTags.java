@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,14 +20,14 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.helper.TagHelper;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityTag;
-import org.flockdata.model.EntityTagOut;
-import org.flockdata.model.Tag;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Tag;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.EntityTagOutRlx;
+import org.flockdata.engine.data.graph.TagNode;
+import org.flockdata.helper.CypherHelper;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.EntityService;
 import org.neo4j.graphdb.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
@@ -56,13 +56,18 @@ import java.util.Map;
 @Repository
 public class TaxonomyTags implements EntityTagFinder {
 
-    @Autowired
+    private final
     Neo4jTemplate template;
+
+    @Autowired
+    public TaxonomyTags(Neo4jTemplate template) {
+        this.template = template;
+    }
 
     @Override
     public Iterable<EntityTag> getEntityTags(TrackResultBean trackResultBean) {
         String query = getSearchTagQuery();
-        Map<String, Object> params = getParams(trackResultBean.getEntity());
+        Map<String, Object> params = getParams((EntityNode) trackResultBean.getEntity());
         Result<Map<String, Object>> dbResults = template.query(query, params);
         Map<Long, EntityTag> terms = new HashMap<>();
         Collection<EntityTag> results = new ArrayList<>();
@@ -75,30 +80,30 @@ public class TaxonomyTags implements EntityTagFinder {
                 if (o instanceof Node) {
                     Node node = (Node) o;  // Generally we want this one
 
-                    String label = TagHelper.getLabel(node.getLabels());
+                    String label = CypherHelper.getLabel(node.getLabels());
 
                     // The tag connected tot he entity
                     if (label.equals("Term")) {
                         //term = null;
                         term = terms.get(node.getId());
                         if ( term == null ) {
-                            Tag tag = template.projectTo(node, Tag.class);
+                            TagNode tag = template.projectTo(node, TagNode.class);
 
                             // ETO is arbitrary
-                            term = new EntityTagOut(trackResultBean.getEntity(), tag);
+                            term = new EntityTagOutRlx((EntityNode) trackResultBean.getEntity(), tag);
                             String relationship = "viewed";     // ToDo: Dynamic, not static
                             term.setRelationship(relationship);
                             terms.put(tag.getId(), term);
                             results.add(term);
                         }
                     } else if ( term !=null ) {
-                        label = TagHelper.getLabel(node.getLabels());
+                        label = CypherHelper.getLabel(node.getLabels());
 
-                        Tag tag = template.projectTo(node, Tag.class);
+                        TagNode tag = template.projectTo(node, TagNode.class);
                         Collection<Tag> codes = term.getTag().getSubTags( label.toLowerCase());
                         if (codes == null) {
                             codes = new ArrayList<>();
-                            term.getTag().addSubTag( label.toLowerCase(), codes);
+                            ((TagNode)term.getTag()).addSubTag( label.toLowerCase(), codes);
                         }
                         if ( !codes.contains(tag)) {
                             codes.add(tag);
@@ -116,15 +121,15 @@ public class TaxonomyTags implements EntityTagFinder {
     }
 
     @Override
-    public EntityService.TAG_STRUCTURE getTagStructure() {
-        return EntityService.TAG_STRUCTURE.TAXONOMY;
+    public EntityTag.TAG_STRUCTURE getTagStructure() {
+        return EntityTag.TAG_STRUCTURE.TAXONOMY;
     }
 
     private String getSearchTagQuery() {
         return "match (e:Entity) where id(e) = {id} with e match (e)-[]-(et:Tag) with et match path = ((et)-[*1..5]->(o:Interest))  with path unwind nodes(path) as node return node;";
     }
 
-    private Map<String, Object> getParams(Entity entity) {
+    private Map<String, Object> getParams(EntityNode entity) {
         Map<String, Object> args = new HashMap<>();
         args.put("id", entity.getId());
         return args;

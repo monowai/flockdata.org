@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -27,8 +27,8 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.SearchSchema;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.SearchSchema;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -46,8 +46,8 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestElasticSearch extends ESBase {
 
-    private Logger logger = LoggerFactory.getLogger(TestElasticSearch.class);
     ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
+    private Logger logger = LoggerFactory.getLogger(TestElasticSearch.class);
 
     @Test
     public void testMappingJson() throws Exception {
@@ -149,7 +149,7 @@ public class TestElasticSearch extends ESBase {
 //        // Elasticsearch v2
 //
 //        Client client = getNode().client();
-//        String indexKey = change.getIndexName() == null ? "indexkey" : change.getIndexName();
+//        String indexKey = change.getRootIndex() == null ? "indexkey" : change.getRootIndex();
 //
 //        // Write the object to Lucene
 //        IndexResponse ir =

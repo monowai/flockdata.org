@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,9 @@
 
 package org.flockdata.search.base;
 
-import org.flockdata.model.Tag;
-import org.flockdata.search.model.TagSearchChange;
+import org.flockdata.search.TagSearchChange;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * @author mholdsworth
@@ -40,27 +38,6 @@ public interface TagChangeWriter {
     TagSearchChange handle(TagSearchChange searchChange) throws IOException;
 
     /**
-     * locates a document by LogResultBean.searchKey
-     *
-     *
-     * @param entity auditHeader
-     * @return document context as bytes
-     */
-    Map<String, Object> findOne(Tag entity);
-
-    void purgeCache() ;
-
-    /**
-     * Locates a specific key monitored by the entity.
-     * <p/>
-     * If ID is null then the call is the same as findOne(entity)
-     * where the searchKey is taken to be LogResultBean.searchKey
-     *
-     * @return found track change or null if none
-     */
-    Map<String, Object> findOne(Tag entity, String id);
-
-    /**
      * Removes a search document. Most of the time, the searchKey in the entity
      * is sufficient. However if you are tracking EVERY change in the search engine, then you
      * can delete a specific instance
@@ -68,5 +45,4 @@ public interface TagChangeWriter {
      */
     boolean delete(TagSearchChange searchChange);
 
-    void deleteIndex(String index);
 }

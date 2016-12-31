@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,8 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.*;
+import org.flockdata.data.*;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -73,7 +74,7 @@ public class TestEntityDeadlock extends EngineBase {
         setSecurity();
         SystemUser su = registerSystemUser(companyName, "entitiesUnderLoad");
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entitiesUnderLoad", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entitiesUnderLoad", true));
         String docType = "entitiesUnderLoad";
 
         int tagCount = 1; // unique tags per entity - tags are shared across the entities
@@ -82,7 +83,7 @@ public class TestEntityDeadlock extends EngineBase {
         int threadMax = 3; // Each thread will create a unique document type
         ArrayList<TagInputBean> tags = getTags(tagCount, false);
 
-        Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
+        Collection<Tag> createdTags = tagService.findTags(su.getCompany(), tags.get(0).getLabel());
         assertEquals("Database is not in a cleared down state", 0, createdTags.size());
 
         Map<Integer, EntityRunner> runners = new HashMap<>();
@@ -117,8 +118,8 @@ public class TestEntityDeadlock extends EngineBase {
             }
         }
         assertNotNull(tagService.findTag(fortress.getCompany(), "Deadlock",null , tags.get(0).getCode()));
-
-        createdTags = tagService.findTags(fortress.getCompany(), "Deadlock");
+        assertEquals(su.getCompany().getName(), fortress.getCompany().getName());
+        createdTags = tagService.findTags(su.getCompany(), "Deadlock");
         assertEquals(false, createdTags.isEmpty());
         if (createdTags.size() != tagCount){
 

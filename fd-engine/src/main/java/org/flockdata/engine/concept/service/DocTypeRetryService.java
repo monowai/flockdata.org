@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,10 +20,10 @@
 
 package org.flockdata.engine.concept.service;
 
+import org.flockdata.data.Segment;
+import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.EntityInputBean;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.neo4j.kernel.api.exceptions.TransactionFailureException;
@@ -68,7 +68,7 @@ public class DocTypeRetryService {
      * @return Collection of DocumentType objects that were created
      */
     @Retryable(include = {TransactionFailureException.class, HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public Future<Collection<DocumentType>> createDocTypes(FortressSegment segment, List<EntityInputBean> inputBeans) throws FlockException {
+    public Future<Collection<DocumentNode>> createDocTypes(Segment segment, List<EntityInputBean> inputBeans) throws FlockException {
 
         return new AsyncResult<>(conceptService.makeDocTypes(segment, inputBeans));
     }

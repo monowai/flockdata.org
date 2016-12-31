@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,100 +22,49 @@ package org.flockdata.registration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.helper.TagHelper;
-import org.flockdata.model.Alias;
-import org.flockdata.model.Concept;
-import org.flockdata.model.Tag;
+import org.flockdata.data.Concept;
 import org.flockdata.track.bean.AliasResultBean;
-import org.neo4j.graphdb.Node;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Result after creating a tag
+ * Public facing view of a results of a tag track result
  *
+ * @tag Tag, Json
  * @author mholdsworth
  * @since 11/05/2015
  */
 public class TagResultBean {
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    protected
     String code;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    String name;
+    protected String name;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    String key;
-    String label;
+    protected String key;
+    protected String label;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    String message;
+    protected String message;
 
     @JsonIgnore
-    Boolean newTag = false;
+    protected Boolean newTag = false;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    ArrayList<AliasResultBean> aliases = new ArrayList<>();
+    protected ArrayList<AliasResultBean> aliases = new ArrayList<>();
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    Map<String,Object> properties = new HashMap<>();
-    Map<TagResultBean, Collection<String>> targets = new HashMap<>();
-    @JsonIgnore
-    private Tag tag =null;
+    protected Map<String,Object> properties = new HashMap<>();
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    protected String description;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String relationship;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String description;
 
     public TagResultBean(){}
 
-    public TagResultBean(TagInputBean tagInput, Tag startTag, boolean isNew) {
-        this(tagInput, startTag);
-        this.newTag = isNew;
-    }
-
-
-    public TagResultBean(TagInputBean tagInputBean, Tag tag){
-
-        this(tag);
-        if ( tag == null ){
-            this.code = tagInputBean.getCode();
-            this.name = tagInputBean.getName();
-        }
-        if ( tagInputBean != null ) {
-            this.message = tagInputBean.setServiceMessage();
-            this.description = tagInputBean.getDescription();
-        }
-
-    }
-
-    public TagResultBean (Tag tag ) {
-        this();
-        this.tag = tag;
-
-        if (tag != null) {
-            this.newTag = tag.isNew();
-            this.code = tag.getCode();
-            this.key = tag.getKey();
-            this.name = tag.getName();
-            this.label = tag.getLabel();
-            if (code.equals(name))
-                name = null;
-            this.properties = tag.getProperties();
-
-            for (Alias alias : tag.getAliases()) {
-                aliases.add(new AliasResultBean(alias));
-            }
-        }
-    }
-
-    public TagResultBean(TagInputBean tagInput) {
-        this(tagInput, null);
-    }
-
-    public TagResultBean(Node pc) {
-        this.code= pc.getProperty("code").toString();
-        if ( pc.hasProperty("name"))
-            this.name = pc.getProperty("name").toString();
-        this.label = TagHelper.getLabel(pc.getLabels());
+    public TagResultBean(String code, String name, String label) {
+        this.code = code;
+        this.name = name;
+        this.label = label;
     }
 
     public TagResultBean(Concept concept) {
@@ -145,14 +94,6 @@ public class TagResultBean {
 
     public String getLabel() {
         return label;
-    }
-
-    public Tag getTag() {
-        return tag;
-    }
-
-    public void setTag(Tag tag) {
-        this.tag = tag;
     }
 
     public Map<String, Object> getProperties() {
@@ -204,20 +145,10 @@ public class TagResultBean {
         return result;
     }
 
-    public void addTargetResult(String rlxName, TagResultBean targetTag) {
-        Collection<String>relationships = targets.get(targetTag);
-        if ( relationships == null )
-            relationships = new ArrayList<>();
-        relationships.add(rlxName);
-        targets.put(targetTag,relationships);
-    }
-
-    @JsonIgnore
-    public Map<TagResultBean, Collection<String>> getTargets() {
-        return targets;
-    }
 
     public String getDescription() {
         return description;
     }
+
+
 }

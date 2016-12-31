@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,11 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.model.*;
+import org.flockdata.data.EntityLog;
+import org.flockdata.data.Log;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -70,7 +74,7 @@ public class TestTxReference extends EngineBase {
         Authentication authCBA = new UsernamePasswordAuthenticationToken(suCBA.getLogin(), "123");
 
 // ABC Data
-        Fortress fortressABC = fortressService.registerFortress(suABC.getCompany(), new FortressInputBean("abcTest", true));
+        FortressNode fortressABC = fortressService.registerFortress(suABC.getCompany(), new FortressInputBean("abcTest", true));
         EntityInputBean abcEntity = new EntityInputBean(fortressABC, "wally", "TestTrack", new DateTime(), "ABC123");
         abcEntity.setContent(new ContentInputBean("charlie", null, DateTime.now(), escJsonA, true));
 
@@ -83,7 +87,7 @@ public class TestTxReference extends EngineBase {
 
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
-        Fortress fortressCBA = fortressService.registerFortress(suCBA.getCompany(), new FortressInputBean("cbaTest",true));
+        FortressNode fortressCBA = fortressService.registerFortress(suCBA.getCompany(), new FortressInputBean("cbaTest",true));
         EntityInputBean cbaEntity = new EntityInputBean(fortressCBA, "wally", "TestTrack", new DateTime(), "ABC123");
         String cbaKey = mediationFacade.trackEntity(suCBA.getCompany(), cbaEntity).getEntity().getKey();
 
@@ -117,13 +121,13 @@ public class TestTxReference extends EngineBase {
     public void testTxCommits() throws Exception {
         String company = "Monowai";
         SystemUser su = registerSystemUser(company, mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testTxCommits", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testTxCommits", true));
         String tagRef = "MyTXTag";
         EntityInputBean aBean = new EntityInputBean(fortress, "wally", "TestTrack", new DateTime(), "ABC123");
 
         String key = mediationFacade.trackEntity(su.getCompany(), aBean).getEntity().getKey();
         assertNotNull(key);
-        Entity entity = entityService.getEntity(su.getCompany(), key);
+        EntityNode entity = entityService.getEntity(su.getCompany(), key);
         assertNotNull(entity);
         //assertEquals(1, entity.getTxTags().size());
         ContentInputBean alb = new ContentInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
@@ -177,13 +181,13 @@ public class TestTxReference extends EngineBase {
 
         String company = "Monowai";
         SystemUser su = registerSystemUser(company, mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tx_TrackEntities", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tx_TrackEntities", true));
         String tagRef = "MyTXTag";
         EntityInputBean aBean = new EntityInputBean(fortress, "wally", "TestTrackDoc", new DateTime(), "tx_TrackEntities");
 
         String key = mediationFacade.trackEntity(su.getCompany(), aBean).getEntity().getKey();
         assertNotNull(key);
-        Entity entity = entityService.getEntity(su.getCompany(), key);
+        EntityNode entity = entityService.getEntity(su.getCompany(), key);
         assertNotNull(entity);
         ContentInputBean alb = new ContentInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
@@ -195,11 +199,11 @@ public class TestTxReference extends EngineBase {
 
         mediationFacade.trackLog(su.getCompany(), alb);
         // All entities touched by this transaction. ToDo: All changes affected
-        Set<Entity> result = txService.findTxEntities(albTxRef);
+        Set<EntityNode> result = txService.findTxEntities(albTxRef);
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
-        for (Entity entityResult : result) {
+        for (EntityNode entityResult : result) {
             assertNotNull(entityResult.getKey());
         }
 

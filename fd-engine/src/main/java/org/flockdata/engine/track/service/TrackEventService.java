@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,15 +20,12 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.dao.TrackEventDao;
-import org.flockdata.model.ChangeEvent;
-import org.flockdata.model.Company;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.flockdata.data.ChangeEvent;
+import org.flockdata.data.Company;
+import org.flockdata.engine.data.graph.ChangeEventNode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Set;
 
 /**
  * @author mholdsworth
@@ -38,12 +35,6 @@ import java.util.Set;
 @Service
 public class TrackEventService {
 
-    private final TrackEventDao trackEventDao;
-
-    @Autowired
-    public TrackEventService(TrackEventDao trackEventDao) {
-        this.trackEventDao = trackEventDao;
-    }
 
     /**
      * associates the change with the event name for the company. Creates if it does not exist
@@ -52,18 +43,15 @@ public class TrackEventService {
      * @return created ChangeEvent
      */
     @Transactional(propagation =  Propagation.SUPPORTS)
-    public org.flockdata.model.ChangeEvent processEvent(String eventCode) {
+    public ChangeEvent processEvent(String eventCode) {
         //Company company = securityHelper.getCompany();
         return processEvent(null, eventCode);
     }
 
     @Transactional(propagation =  Propagation.SUPPORTS)
-    public org.flockdata.model.ChangeEvent processEvent(Company company, String eventCode) {
+    public ChangeEvent processEvent(Company company, String eventCode) {
         //return trackEventDao.createEvent(company, eventCode);
-        return new ChangeEvent(eventCode);
+        return new ChangeEventNode(eventCode);
     }
 
-    public Set<org.flockdata.model.ChangeEvent> getCompanyEvents(Long id) {
-        return trackEventDao.findCompanyEvents(id);
-    }
 }

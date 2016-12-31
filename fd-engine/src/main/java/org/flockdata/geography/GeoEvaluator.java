@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 
 package org.flockdata.geography;
 
-import org.flockdata.model.Tag;
+import org.flockdata.engine.data.graph.TagNode;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
@@ -59,13 +59,13 @@ public class GeoEvaluator implements Evaluator {
 
     private String getLabel(Node node) {
         for (Label label : node.getLabels()) {
-            if (!(label.name().equals(Tag.DEFAULT_TAG) || label.name().equals("Tag"))) {
+            if (!(label.name().equals(TagNode.DEFAULT_TAG) || label.name().equals("Tag"))) {
                 return label.name();
 
             }
 
         }
 
-        return Tag.DEFAULT_TAG;
+        return TagNode.DEFAULT_TAG;
     }
 }

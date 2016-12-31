@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -23,9 +23,9 @@ package org.flockdata.engine.integration.store;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.SearchSchema;
+import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.QueryParams;
+import org.flockdata.search.SearchSchema;
 import org.flockdata.store.AbstractStore;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;

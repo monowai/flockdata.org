@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,12 +20,13 @@
 
 package org.flockdata.test.engine.unit;
 
+import org.flockdata.data.EntityTag;
+import org.flockdata.engine.data.graph.*;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.SearchTag;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.SearchTag;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -46,13 +47,13 @@ public class TestEntitySearch {
     public void tags_ArrayWork() throws Exception{
         Collection<EntityTag> tags = new ArrayList<>();
 
-        Entity e = getEntity("test", "blah", "asdf", "don'tcare");
+        EntityNode e = getEntity("test", "blah", "asdf", "don'tcare");
         String relationship = "dupe";
 
         // ToDo: What is the diff between these relationships
-        tags.add( new EntityTagOut(e, getTag("NameA", relationship), relationship, null ));
-        tags.add( new EntityTagOut(e, getTag("NameB", "Dupe"), "Dupe", null ));
-        tags.add(new EntityTagOut(e, getTag("NameC", relationship), relationship, null));
+        tags.add( new EntityTagOutRlx(e, getTag("NameA", relationship), relationship, null ));
+        tags.add( new EntityTagOutRlx(e, getTag("NameB", "Dupe"), "Dupe", null ));
+        tags.add(new EntityTagOutRlx(e, getTag("NameC", relationship), relationship, null));
 
         EntitySearchChange entitySearchChange = new EntitySearchChange(e, "");
 
@@ -70,25 +71,25 @@ public class TestEntitySearch {
         System.out.println(entitySearchChange.getTagValues());
     }
 
-    Tag getTag (String tagName, String rlxName){
+    TagNode getTag (String tagName, String rlxName){
         TagInputBean tagInputBean = new TagInputBean(tagName, null, rlxName);
-        return new Tag(tagInputBean);
+        return new TagNode(tagInputBean);
     }
 
-    Entity getEntity(String comp, String fort, String userName, String doctype) throws FlockException {
+    EntityNode getEntity(String comp, String fort, String userName, String doctype) throws FlockException {
         // These are the minimum objects necessary to create Entity data
-        org.flockdata.model.Fortress fortress = new Fortress(new FortressInputBean(fort, false), new Company(comp));
-        org.flockdata.model.FortressUser user = new FortressUser(fortress, userName);
-        DocumentType doc = new DocumentType(fortress, doctype);
+        FortressNode fortress = new FortressNode(new FortressInputBean(fort, false), new CompanyNode(comp));
+        FortressUserNode user = new FortressUserNode(fortress, userName);
+        DocumentNode doc = new DocumentNode(fortress, doctype);
 
         DateTime now = new DateTime();
         EntityInputBean mib = getEntityInputBean(doc, user, now.toString(), now);
 
-        return new Entity(now.toString(), fortress.getDefaultSegment(), mib, doc, user);
+        return new EntityNode(now.toString(), fortress.getDefaultSegment(), mib, doc, user);
 
     }
 
-    EntityInputBean getEntityInputBean(DocumentType docType, org.flockdata.model.FortressUser fortressUser, String code, DateTime now) {
+    EntityInputBean getEntityInputBean(DocumentNode docType, FortressUserNode fortressUser, String code, DateTime now) {
 
         return new EntityInputBean(fortressUser.getFortress(),
                 fortressUser.getCode(),

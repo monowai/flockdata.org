@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,8 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.model.FortressSegment;
+import org.flockdata.data.Segment;
+import org.flockdata.engine.data.graph.FortressSegmentNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
@@ -30,15 +31,15 @@ import java.util.Collection;
  * @author mholdsworth
  * @since 13/10/2015
  */
-public interface FortressSegmentRepository extends GraphRepository<FortressSegment> {
+public interface FortressSegmentRepository extends GraphRepository<FortressSegmentNode> {
 
-    @Query( value =  "match (fortress:Fortress)-[r:DEFINES]- (segments:FortressSegment) " +
+    @Query( elementClass = FortressSegmentNode.class, value =  "match (fortress:Fortress)-[r:DEFINES]- (segments:FortressSegment) " +
             "where id(fortress) = {0} return segments")
-    Collection<FortressSegment> findFortressSegments(Long id);
+    Collection<Segment> findFortressSegments(Long id);
 
     @Query( value =  "match (fortress:Fortress)-[r:DEFINES]- (segment:FortressSegment) " +
             "where id(fortress) = {0} and segment.key = {1} return segment")
-    FortressSegment findSegment(Long id, String segmentName);
+    FortressSegmentNode findSegment(Long id, String segmentName);
 
     @Query( value =  "match (fortress:Fortress)-[r]- (segment:FortressSegment) " +
             "where id(fortress) = {0} delete r,segment")

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,9 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.model.EntityTag;
+import org.flockdata.data.EntityTag;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.EntityTagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -53,7 +51,7 @@ public class DefaultTagFinder implements EntityTagFinder {
     }
 
     @Override
-    public EntityService.TAG_STRUCTURE getTagStructure() {
-        return EntityService.TAG_STRUCTURE.DEFAULT;
+    public EntityTag.TAG_STRUCTURE getTagStructure() {
+        return EntityTag.TAG_STRUCTURE.DEFAULT;
     }
 }

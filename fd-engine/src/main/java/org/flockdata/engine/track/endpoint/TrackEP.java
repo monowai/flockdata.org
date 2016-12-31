@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,15 +20,15 @@
 
 package org.flockdata.engine.track.endpoint;
 
+import org.flockdata.data.EntityLog;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.tag.MediationFacade;
+import org.flockdata.engine.track.service.EntityService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.Company;
-import org.flockdata.model.EntityLog;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.MediationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,7 +64,7 @@ public class TrackEP {
     @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.PUT)
     public Collection<TrackRequestResult> trackEntities(@RequestBody List<EntityInputBean> inputBeans,
                                                         HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         return mediationFacade.trackEntities(company, inputBeans);
     }
@@ -80,7 +80,7 @@ public class TrackEP {
     public
     ResponseEntity<TrackRequestResult> trackEntity(@RequestBody EntityInputBean input,
                                                 HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
         trackResultBean = mediationFacade.trackEntity(company, input);
 
@@ -97,7 +97,7 @@ public class TrackEP {
     @RequestMapping(value = "/log/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     public ResponseEntity<EntityLog> trackLog(@RequestBody ContentInputBean input ,
                                               HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         TrackResultBean resultBean = mediationFacade.trackLog(company, input);
         ContentInputBean.LogStatus ls = resultBean.getLogStatus();
@@ -122,7 +122,7 @@ public class TrackEP {
                                                             @PathVariable("recordType") String recordType,
                                                             @PathVariable("code") String code,
                                                             HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
         input.setFortress(new FortressInputBean(fortress));
         input.setDocumentType(new DocumentTypeInputBean(recordType));
@@ -137,7 +137,7 @@ public class TrackEP {
     @RequestMapping(value = "/{key}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
     public @ResponseBody Collection<String> crossReference(@PathVariable("key") String key, Collection<String> keys, @PathVariable("xRefName") String relationshipName,
                                                            HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return entityService.crossReference(company, key, keys, relationshipName);
     }
 
@@ -158,7 +158,7 @@ public class TrackEP {
                                                                    @RequestBody Collection<EntityKeyBean> entities,
                                                                    @PathVariable("xRefName") String xRefName,
                                                                    HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
         return entityService.linkEntities(company, new EntityKeyBean("*", fortressName, code), entities, xRefName);
     }
 
@@ -166,7 +166,7 @@ public class TrackEP {
     @RequestMapping(value = "/link", produces = "application/json", method = RequestMethod.POST)
     public @ResponseBody Collection<EntityToEntityLinkInput> linkEntities(@RequestBody List<EntityToEntityLinkInput> entityToEntityLinkInputs,
                                                                           HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyNode company = CompanyResolver.resolveCompany(request);
 
         return entityService.linkEntities(company, entityToEntityLinkInputs);
     }

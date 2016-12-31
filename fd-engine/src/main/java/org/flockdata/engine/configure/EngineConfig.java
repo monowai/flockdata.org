@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,20 +21,19 @@
 package org.flockdata.engine.configure;
 
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.engine.PlatformConfig;
+import org.flockdata.data.Company;
+import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.integration.search.SearchPingRequest;
 import org.flockdata.engine.integration.search.SearchPingRequest.PingGateway;
 import org.flockdata.engine.integration.store.StorePingRequest;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.VersionHelper;
-import org.flockdata.model.Company;
 import org.flockdata.store.Store;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
@@ -48,7 +47,6 @@ import static org.flockdata.authentication.FdRoles.FD_ROLE_USER;
  * @author mholdsworth
  * @since 29/08/2013
  */
-@Service(value = "engineConfig")
 @Transactional
 @Configuration
 public class EngineConfig implements PlatformConfig {

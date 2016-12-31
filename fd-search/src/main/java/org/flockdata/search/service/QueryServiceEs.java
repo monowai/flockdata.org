@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,11 @@
 
 package org.flockdata.search.service;
 
-import org.flockdata.dao.QueryDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.search.*;
 import org.flockdata.search.base.QueryService;
-import org.flockdata.search.model.*;
+import org.flockdata.search.dao.QueryDaoES;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,10 +36,10 @@ import org.springframework.stereotype.Service;
 @Service ("queryServiceEs")
 public class QueryServiceEs implements QueryService {
 
-    private final QueryDao queryDao;
+    private final QueryDaoES queryDao;
 
     @Autowired
-    public QueryServiceEs(QueryDao queryDao) {
+    public QueryServiceEs(QueryDaoES queryDao) {
         this.queryDao = queryDao;
     }
 

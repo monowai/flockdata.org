@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -32,10 +32,9 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.index.mapper.MapperParsingException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.model.Tag;
+import org.flockdata.search.SearchSchema;
+import org.flockdata.search.TagSearchChange;
 import org.flockdata.search.base.TagChangeWriter;
-import org.flockdata.search.model.SearchSchema;
-import org.flockdata.search.model.TagSearchChange;
 import org.flockdata.track.bean.AliasResultBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,7 +160,7 @@ public class TagChangeWriterEs implements TagChangeWriter {
     private Map<String, Object> getMapFromChange(TagSearchChange searchChange) {
 
         Map<String, Object> indexMe = new HashMap<>();
-//        indexMe.put(SearchSchema.DOC_TYPE, searchChange.getDocumentType());
+//        indexMe.put(SearchSchema.DOC_TYPE, searchChange.getType());
         indexMe.put(SearchSchema.CODE, searchChange.getCode());
         indexMe.put(SearchSchema.KEY, searchChange.getKey());
         if ( searchChange.getName()!=null)
@@ -186,27 +185,8 @@ public class TagChangeWriterEs implements TagChangeWriter {
     }
 
     @Override
-    public Map<String, Object> findOne(Tag tag) {
-        return null;
-    }
-
-    @Override
-    public void purgeCache() {
-
-    }
-
-    @Override
-    public Map<String, Object> findOne(Tag tag, String id) {
-        return null;
-    }
-
-    @Override
     public boolean delete(TagSearchChange searchChange) {
         return false;
     }
 
-    @Override
-    public void deleteIndex(String index) {
-
-    }
 }

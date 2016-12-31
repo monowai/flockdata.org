@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,23 +17,14 @@
 package org.flockdata.test.unit.client;
 
 import junit.framework.TestCase;
-import org.flockdata.helper.JsonUtils;
-import org.flockdata.integration.FileProcessor;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.MetaDocument;
-import org.flockdata.profile.ContentModelDeserializer;
-import org.flockdata.profile.ExtractProfileHandler;
-import org.flockdata.profile.model.ContentModel;
-import org.flockdata.registration.FortressInputBean;
-import org.flockdata.track.bean.DocumentTypeInputBean;
+import org.flockdata.data.ContentModel;
+import org.flockdata.data.Document;
+import org.flockdata.data.EntityTag;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.service.EntityService;
+import org.flockdata.transform.json.ContentModelDeserializer;
+import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
 /**
@@ -41,9 +32,6 @@ import static junit.framework.TestCase.assertNotNull;
  * @since 20/01/2016
  */
 public class TestDocTypes extends AbstractImport  {
-    @Autowired
-    FileProcessor fileProcessor  ;
-
 
     @Test
     public void testDocType() throws Exception{
@@ -53,40 +41,14 @@ public class TestDocTypes extends AbstractImport  {
         fileProcessor.processFile(new ExtractProfileHandler(contentModel, false), "/data/pac.txt");
 
         for (EntityInputBean entityInputBean : fdWriter.getEntities()) {
-            MetaDocument docType = entityInputBean.getDocumentType();
+            Document docType = entityInputBean.getDocumentType();
             assertNotNull(entityInputBean.getDocumentType());
             TestCase.assertEquals("TestDocType", docType.getName());
-            TestCase.assertEquals("Version Strategy not being handled", DocumentType.VERSION.ENABLE, docType.getVersionStrategy());
-            EntityService.TAG_STRUCTURE tagStructure = docType.getTagStructure();
-            TestCase.assertEquals("Unable to read the custom taxonomy structure", EntityService.TAG_STRUCTURE.TAXONOMY, tagStructure);
+            TestCase.assertEquals("Version Strategy not being handled", Document.VERSION.ENABLE, docType.getVersionStrategy());
+            EntityTag.TAG_STRUCTURE tagStructure = docType.getTagStructure();
+            TestCase.assertEquals("Unable to read the custom taxonomy structure", EntityTag.TAG_STRUCTURE.TAXONOMY, tagStructure);
         }
     }
 
-    @Test
-    public void defaults_Serialize() throws Exception{
-        // Fundamental assertions are the payload is serialized
 
-        DocumentTypeInputBean dib = new DocumentTypeInputBean("MyDoc")
-                .setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY)
-                .setVersionStrategy(DocumentType.VERSION.DISABLE);
-
-        Company company = new Company("CompanyName");
-        Fortress fortress = new Fortress(new FortressInputBean("FortressName"),company)
-                .setSearchEnabled(true);
-
-        byte[] bytes = JsonUtils.toJsonBytes(dib);
-        assertEquals(dib.getTagStructure(), JsonUtils.toObject(bytes,DocumentTypeInputBean.class).getTagStructure() );
-
-        EntityInputBean compareFrom = new EntityInputBean(fortress, dib);
-        assertEquals(dib.getTagStructure(), compareFrom.getDocumentType().getTagStructure());
-
-        EntityInputBean deserialize
-                = JsonUtils.toObject(JsonUtils.toJsonBytes(compareFrom), EntityInputBean.class);
-        assertNotNull (deserialize);
-
-        assertEquals(compareFrom.getDocumentType().getCode(), deserialize.getDocumentType().getCode());
-        assertEquals(compareFrom.getDocumentType().getTagStructure(), deserialize.getDocumentType().getTagStructure());
-        assertEquals(compareFrom.getDocumentType().getVersionStrategy(), deserialize.getDocumentType().getVersionStrategy());
-
-    }
 }

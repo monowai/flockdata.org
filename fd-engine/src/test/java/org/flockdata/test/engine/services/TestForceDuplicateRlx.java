@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,11 +20,11 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.data.Fortress;
+import org.flockdata.data.SystemUser;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.test.helper.EntityContentHelper;
+import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -96,7 +96,7 @@ public class TestForceDuplicateRlx extends EngineBase {
         logger.debug("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
     }
     private void createLog(SystemUser su, TrackResultBean arb, int log) throws FlockException, IOException, ExecutionException, InterruptedException {
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("who cares", arb.getEntity().getKey(), new DateTime(), EntityContentHelper.getSimpleMap("who", log)));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("who cares", arb.getEntity().getKey(), new DateTime(), ContentDataHelper.getSimpleMap("who", log)));
     }
 
 

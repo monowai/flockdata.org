@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,10 +21,12 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
+import org.flockdata.data.Entity;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -61,11 +63,11 @@ public class TestCallerCode extends EngineBase {
     @Test
     public void nullCodeBehaviour() throws Exception {
         try {
-            cleanUpGraph();
+//            cleanUpGraph();
             SystemUser su = registerSystemUser(monowai, "nullCallerRefBehaviour");
-
+            setSecurity(su.getLogin());
             FortressInputBean fib = new FortressInputBean("trackTest" + System.currentTimeMillis(), true);
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+            FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
             // Duplicate null caller ref keys
             EntityInputBean inputBean = new EntityInputBean(fortress, "harry", "TestTrack", new DateTime(), null);
             assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey());
@@ -73,7 +75,7 @@ public class TestCallerCode extends EngineBase {
             String key = mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean).getEntity().getKey();
 
             assertNotNull(key);
-            Entity entity = entityService.getEntity(su.getCompany(), key);
+            EntityNode entity = entityService.getEntity(su.getCompany(), key);
             assertNotNull(entity);
             assertNull(entity.getCode());
 
@@ -89,7 +91,7 @@ public class TestCallerCode extends EngineBase {
         try {
             cleanUpGraph();
             SystemUser su = registerSystemUser(monowai, mike_admin);
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+            FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
             EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
 
@@ -121,7 +123,7 @@ public class TestCallerCode extends EngineBase {
     /**
      * Multi threaded test that tests to make sure duplicate Doc Types and Entities are not created
      *
-     * @throws Exception
+     * @throws Exception test failure
      */
 //    @Test
     //@Repeat(5)
@@ -131,7 +133,7 @@ public class TestCallerCode extends EngineBase {
             SystemUser su = registerSystemUser(monowai, "dupex");
             setSecurity();
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("zCallerRef" + System.currentTimeMillis(), true));
+            FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("zCallerRef" + System.currentTimeMillis(), true));
 
             String docType = "StressDupez";
             String code = "ABC123X";

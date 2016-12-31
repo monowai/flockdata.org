@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,28 +22,26 @@ package org.flockdata.engine.track;
 
 import com.google.common.collect.Lists;
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.engine.PlatformConfig;
+import org.flockdata.data.*;
 import org.flockdata.engine.admin.EngineAdminService;
+import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.concept.service.DocTypeRetryService;
 import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.configure.SecurityHelper;
+import org.flockdata.engine.data.graph.*;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.IndexRetryService;
+import org.flockdata.engine.tag.FdTagResultBean;
+import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.engine.track.service.*;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.TagHelper;
-import org.flockdata.model.*;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.registration.TagResultBean;
-import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.search.EntitySearchChange;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.service.EntityService;
-import org.flockdata.track.service.EntityTagService;
-import org.flockdata.track.service.LogService;
-import org.flockdata.track.service.MediationFacade;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,9 +131,9 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     public Collection<TrackRequestResult> trackEntities(Company company, Collection<EntityInputBean> inputBeans) throws FlockException, InterruptedException, ExecutionException, IOException {
-        Map<FortressSegment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(company, inputBeans);
+        Map<Segment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(company, inputBeans);
         Collection<TrackRequestResult> results = new ArrayList<>();
-        for (FortressSegment segment : byFortress.keySet()) {
+        for (Segment segment : byFortress.keySet()) {
             Collection<TrackResultBean> tr =
                     trackEntities(segment, byFortress.get(segment), 1);
             for (TrackResultBean result : tr) {
@@ -148,7 +146,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public TagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException {
+    public FdTagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException {
         List<TagInputBean> tags = new ArrayList<>();
         tags.add(tagInput);
         return createTags(company, tags).iterator().next();
@@ -156,7 +154,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public Collection<TagResultBean> createTags(String apiKey, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+    public Collection<FdTagResultBean> createTags(String apiKey, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
         Company company = securityHelper.getCompany(apiKey);
         if (company == null )
             throw new RuntimeException( "Illegal company api key");
@@ -164,14 +162,14 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public Collection<TagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
-        Future<Collection<TagResultBean>> tags = createTagsAsync(company, tagInputs);
+    public Collection<FdTagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+        Future<Collection<FdTagResultBean>> tags = createTagsAsync(company, tagInputs);
         if ( tags == null )
             return null;
         return tags.get();
     }
 
-    private Future<Collection<TagResultBean>> createTagsAsync(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+    private Future<Collection<FdTagResultBean>> createTagsAsync(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
 
         if (tagInputs.isEmpty())
             return null;
@@ -181,15 +179,15 @@ public class MediationFacadeNeo implements MediationFacade {
 
     @Override
     public TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
-        Fortress fortress = fortressService.findByName(company, inputBean.getFortress().getName());
+        FortressNode fortress = fortressService.findByName(company, inputBean.getFortress().getName());
         if (fortress == null) {
             logger.debug("Creating new Fortress {}", inputBean.getFortress());
             fortress = fortressService.registerFortress(company, inputBean.getFortress());
         }
         fortress.setCompany(company);
-        FortressSegment segment;
+        Segment segment;
         if ( inputBean.getSegment() != null )
-            segment = fortressService.addSegment(new FortressSegment(fortress, inputBean.getSegment()));
+            segment = fortressService.addSegment(new FortressSegmentNode(fortress, inputBean.getSegment()));
         else
             segment = fortress.getDefaultSegment();
         return trackEntity(segment, inputBean);
@@ -207,7 +205,7 @@ public class MediationFacadeNeo implements MediationFacade {
      * @throws IOException                         json processing exception
      */
     @Override
-    public TrackResultBean trackEntity(final FortressSegment segment, final EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean trackEntity(final Segment segment, final EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
         List<EntityInputBean> inputs = new ArrayList<>(1);
         inputs.add(inputBean);
         Collection<TrackResultBean> results = trackEntities(segment, inputs, 1);
@@ -215,24 +213,24 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws InterruptedException, FlockException, ExecutionException, IOException {
+    public TrackResultBean trackEntity(FortressNode fortress, EntityInputBean inputBean) throws InterruptedException, FlockException, ExecutionException, IOException {
         return trackEntity(fortress.getDefaultSegment(), inputBean);
     }
 
     @Override
-    public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public Collection<TrackResultBean> trackEntities(final FortressNode fortress, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
         return trackEntities(fortress.getDefaultSegment(), inputBeans, splitListInTo);
     }
 
     @Override
-    public Collection<TrackResultBean> trackEntities(final FortressSegment segment, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public Collection<TrackResultBean> trackEntities(final Segment segment, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
         String id = Thread.currentThread().getName() + "/" + DateTime.now().getMillis();
         if (segment == null) {
             throw new FlockException("No fortress supplied. Unable to process work without a valid fortress");
         }
 
-        Future<Collection<DocumentType>> docType = docTypeRetryService.createDocTypes(segment, inputBeans);
-        Future<Collection<TagResultBean>> tagResults = createTagsAsync(segment.getCompany(), getTags(inputBeans));
+        Future<Collection<DocumentNode>> docType = docTypeRetryService.createDocTypes(segment, inputBeans);
+        Future<Collection<FdTagResultBean>> tagResults = createTagsAsync((CompanyNode)segment.getCompany(), getTags(inputBeans));
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
 
@@ -249,10 +247,10 @@ public class MediationFacadeNeo implements MediationFacade {
             logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
             Collection<TrackResultBean> allResults = new ArrayList<>();
             // We have to wait for the docType before proceeding to create entities
-            Collection<DocumentType> docs = docType.get(10, TimeUnit.SECONDS);
+            Collection<DocumentNode> docs = docType.get(10, TimeUnit.SECONDS);
 //            assert docs.size()!=0; //
             for (List<EntityInputBean> entityInputBeans : splitList) {
-                DocumentType documentType = null;
+                DocumentNode documentType = null;
                 if ( docs.iterator().hasNext())
                     documentType = docs.iterator().next();
 
@@ -292,17 +290,17 @@ public class MediationFacadeNeo implements MediationFacade {
     @Override
     public TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
         // Create the basic data within a transaction
-        Entity entity;
+        EntityNode entity;
         if (input.getKey() != null)
             entity = entityService.getEntity(company, input.getKey());
         else
-            entity = entityService.findByCode(company, input.getFortress(), input.getDocumentType(), input.getCode());
+            entity = (EntityNode)entityService.findByCode(company, input.getFortress(), input.getDocumentType(), input.getCode());
         if (entity == null)
             throw new FlockException("Unable to resolve the Entity");
 
-        FortressUser fu = fortressService.createFortressUser(entity.getSegment().getFortress(), input);
+        FortressUserNode fu = fortressService.createFortressUser(entity.getSegment().getFortress(), input);
 
-        DocumentType documentType = conceptService.findDocumentType(entity.getFortress(), entity.getType()) ;
+        DocumentNode documentType = conceptService.findDocumentType(entity.getFortress(), entity.getType()) ;
         TrackResultBean result = logService.writeLog(documentType, entity, input, fu);
 
         Collection<TrackResultBean> results = new ArrayList<>();
@@ -317,8 +315,8 @@ public class MediationFacadeNeo implements MediationFacade {
      */
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
-    public String reindex(Company company, String fortressCode) throws FlockException {
-        Fortress fortress = fortressService.findByCode(company, fortressCode);
+    public String reindex(CompanyNode company, String fortressCode) throws FlockException {
+        FortressNode fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
             throw new NotFoundException(String.format("No fortress to reindex with the name %s could be found", fortressCode));
 
@@ -344,7 +342,7 @@ public class MediationFacadeNeo implements MediationFacade {
 
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
-    public String reindex(Company company, Entity entity) throws FlockException {
+    public String reindex(CompanyNode company, EntityNode entity) throws FlockException {
         Fortress fortress = entity.getSegment().getFortress();
         if (fortress == null)
             throw new NotFoundException(String.format("No fortress to reindex with the name %s could be found", entity.getSegment().getCode()));
@@ -353,7 +351,7 @@ public class MediationFacadeNeo implements MediationFacade {
             throw new FlockException("The fortress does not have search enabled. Nothing to do!");
 
         String message = null;
-        if (fortress.isStoreDisabled()) {
+        if (!fortress.isStoreEnabled()) {
             message = String.format("Content store has been disabled for this Entity %s. \r\nIf your search document has a Content Body then reprocess from source to create it" +
                     "\r\nYou can elect to enable the KV Store for content storage if wish", entity.getKey());
             logger.warn(message);
@@ -377,8 +375,8 @@ public class MediationFacadeNeo implements MediationFacade {
      */
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
-    public String reindexByDocType(Company company, String fortressName, String docType) throws FlockException {
-        Fortress fortress = fortressService.findByCode(company, fortressName);
+    public String reindexByDocType(CompanyNode company, String fortressName, String docType) throws FlockException {
+        FortressNode fortress = fortressService.findByCode(company, fortressName);
         if (fortress == null)
             throw new FlockException("Fortress [" + fortressName + "] could not be found");
 
@@ -397,7 +395,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException {
+    public EntitySummaryBean getEntitySummary(CompanyNode company, String key) throws FlockException {
         return entityService.getEntitySummary(company, key);
     }
 
@@ -412,7 +410,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public Map<String, Object> getLogContent(Entity entity, Long logId) {
+    public Map<String, Object> getLogContent(EntityNode entity, Long logId) {
         EntityLog log = entityService.getLogForEntity(entity, logId);
         if (log != null)
             return contentReader.read(entity, log.getLog()).getData();
@@ -423,12 +421,12 @@ public class MediationFacadeNeo implements MediationFacade {
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
     public void purge(Company company, String fortressCode) throws FlockException {
-        Fortress fortress = fortressService.findByCode(company, fortressCode);
+        FortressNode fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
             throw new NotFoundException("Fortress [" + fortressCode + "] does not exist");
 
         logger.info("Processing request to purge fortress [{}] on behalf of [{}]", fortress, securityHelper.getLoggedInUser());
-        adminService.purge(company, fortress);
+        adminService.purge(fortress);
     }
 
     @Override
@@ -440,12 +438,12 @@ public class MediationFacadeNeo implements MediationFacade {
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
     public void purge(Company company, String fortressCode, String docType, String segment) {
-        Fortress fortress = fortressService.findByCode(company, fortressCode);
+        FortressNode fortress = fortressService.findByCode(company, fortressCode);
 
         if (fortress == null)
             throw new NotFoundException("Not Found " + fortressCode);
 
-        DocumentType documentType = conceptService.findDocumentType(fortress, docType, false);
+        DocumentNode documentType = conceptService.findDocumentType(fortress, docType, false);
         if ( documentType == null )
             throw new NotFoundException("Not Found " + docType);
 
@@ -458,8 +456,8 @@ public class MediationFacadeNeo implements MediationFacade {
      */
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
-    public String validateFromSearch(Company company, String fortressCode, String docType) throws FlockException {
-        Fortress fortress = fortressService.findByCode(company, fortressCode);
+    public String validateFromSearch(CompanyNode company, String fortressCode, String docType) throws FlockException {
+        FortressNode fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
             throw new NotFoundException("Fortress [" + fortressCode + "] does not exist");
 
@@ -471,7 +469,7 @@ public class MediationFacadeNeo implements MediationFacade {
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
     public void purge(Fortress fortress) throws FlockException {
-        adminService.purge(fortress.getCompany(), fortress);
+        adminService.purge(fortress);
     }
 
     @Override
@@ -480,7 +478,7 @@ public class MediationFacadeNeo implements MediationFacade {
         EntitySearchChange searchChange;
         // Refresh the entity
         //entity = entityService.getEntity(entity);
-        searchChange = entityService.cancelLastLog(company, entity);
+        searchChange = entityService.cancelLastLog(company, (EntityNode)entity);
         if (searchChange != null ) {
             if ( searchServiceFacade !=null ) {
                 searchServiceFacade.setTags(entity, searchChange);

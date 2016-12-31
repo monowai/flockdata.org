@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,14 +21,14 @@
 package org.flockdata.engine.admin.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.flockdata.data.Entity;
+import org.flockdata.data.Log;
 import org.flockdata.engine.integration.store.EsRepo;
 import org.flockdata.engine.integration.store.StorageReader;
 import org.flockdata.engine.integration.store.StorageWriter;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Log;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
@@ -53,14 +53,14 @@ import org.springframework.web.client.HttpClientErrorException;
 public class FdStorageProxy implements StorageProxy {
 
     @Autowired (required = false)
-    StorageReader.StorageReaderGateway readGateway;
+    private StorageReader.StorageReaderGateway readGateway;
 
     @Autowired (required = false)
-    StorageWriter.StorageWriterGateway writeGateway;
+    private StorageWriter.StorageWriterGateway writeGateway;
     @Autowired
-    IndexManager indexManager;
+    private IndexManager indexManager;
     @Autowired   (required = false)
-    EsRepo esRepo;
+    private EsRepo esRepo;
     private Logger logger = LoggerFactory.getLogger(FdStorageProxy.class);
 
     @Override
