@@ -238,11 +238,6 @@ public class EntityNode implements Serializable, Entity {
     }
 
     @Override
-    public Object getProperty(String key) {
-        return props.getProperty(key);
-    }
-
-    @Override
     public Map<String, Object> getProperties() {
         return props.asMap();
     }

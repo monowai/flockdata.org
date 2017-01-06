@@ -62,7 +62,7 @@ public class TagManager {
     /**
      * Attempts to find tag.key by prefix.tagcode. If that doesn't exist, then it will
      * attempt to locate the alias based on tagcode
-     * <p>
+     *
      * ToDo: A version to located by user defined AliasLabel
      *
      * @param tagKey   Properties that represent a unique key

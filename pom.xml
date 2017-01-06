@@ -16,7 +16,8 @@
   ~  limitations under the License.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flockdata</groupId>
     <artifactId>flockdata</artifactId>
@@ -474,7 +475,29 @@
                         </gitDescribe>
                     </configuration>
                 </plugin>
-
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.10.4</version>
+                    <configuration>
+                        <tags>
+                            <tag>
+                                <name>tag</name>
+                                <placement>a</placement>
+                                <head>Concepts:</head>
+                            </tag>
+                        </tags>
+                    </configuration>
+                    <!--<executions>-->
+                    <!--<execution>-->
+                    <!--<id>attach-javadocs</id>-->
+                    <!--<phase>deploy</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>jar-no-fork</goal>-->
+                    <!--</goals>-->
+                    <!--</execution>-->
+                    <!--</executions>-->
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -542,6 +565,7 @@
                                 </execution>
                             </executions>
                         </plugin>
+
                     </plugins>
                 </pluginManagement>
             </build>

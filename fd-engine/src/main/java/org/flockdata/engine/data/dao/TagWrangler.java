@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 
 /**
  * Move to Neo4j server extension
- * <p>
+ *
  * @author mholdsworth
  * @since 20/06/2015
  * @tag Tag, Neo4j

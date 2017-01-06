@@ -34,16 +34,20 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
-@NodeEntity(useShortNames = true)
+/**
+ * Captures properties about a track event for an entity
+ *
+ * @tag log, track
+ */
+@NodeEntity
 @TypeAlias("Log")
 public class LogNode implements Log {
 
     public static final String CREATE = "Create";
     public static final String UPDATE = "Update";
 
-    private static final String COLON = ":";
     @Transient
-    boolean mocked = false;
+    private boolean mocked = false;
     @GraphId
     private Long id;
     //@Relationship(type = "CHANGED", direction = Relationship.INCOMING)
@@ -77,7 +81,7 @@ public class LogNode implements Log {
 
     /**
      * Creates a Mock non-persistent node
-     * @param entity
+     * @param entity record log against
      */
     public LogNode(Entity entity){
         //DAT-349 creates a mock node when storage is disabled

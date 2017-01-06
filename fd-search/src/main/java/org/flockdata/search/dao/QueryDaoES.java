@@ -170,10 +170,10 @@ public class QueryDaoES  {
     /**
      * Indexed document tags always have a code but not always a name. Typically a code will
      * be a codified value so we favour human readable names.
-     * <p>
+     *
      * If the code and the name are equal during indexing, then the value is stored
      * only as a code. Entity document tags always have a code value.
-     * <p>
+     *
      * We want to return either the name or the code associated with the document. We don't want to
      * resort to a scripted field to achieve this so the action is being performed here.
      *

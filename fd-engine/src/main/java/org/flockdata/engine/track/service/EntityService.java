@@ -69,7 +69,7 @@ public interface EntityService {
 
     EntityLogRlx getLastEntityLog(Long entityId);
 
-    Set<EntityLog> getEntityLogs(Entity entity);
+    Collection<EntityLog> getEntityLogs(Entity entity);
 
     Collection<EntityLogResult> getEntityLogs(Company company, String key) throws FlockException;
 
@@ -97,7 +97,7 @@ public interface EntityService {
 
     EntityLogRlx getLogForEntity(EntityNode entity, Long logId);
 
-    Collection<TrackResultBean> trackEntities(DocumentNode documentType, Segment segment, Collection<EntityInputBean> inputBeans, Future<Collection<FdTagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException, IOException;
+    Collection<TrackResultBean> trackEntities(DocumentNode documentType, Segment segment, Collection<EntityInputBean> inputBeans, Future<Collection<FdTagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException;
 
     Collection<String> crossReference(Company company, String key, Collection<String> xRef, String relationshipName) throws FlockException;
 

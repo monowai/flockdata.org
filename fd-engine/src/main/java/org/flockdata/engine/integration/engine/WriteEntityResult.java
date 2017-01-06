@@ -46,7 +46,7 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 /**
- * fd-search -->> fd-engine (inbound)
+ * fd-search (outbound) to fd-engine (inbound)
  * @tag Track, Messaging, Search
  * @author mholdsworth
  * @since 21/07/2015
@@ -114,7 +114,7 @@ public class WriteEntityResult {
     /**
      * Callback handler that is invoked from fd-search. This routine ties the generated search document ID
      * to the Entity
-     * <p/>
+     *
      * ToDo: On completion of this, an outbound message should be posted so that the caller can be made aware(?)
      *
      * @param searchResults contains keys to tie the search to the entity

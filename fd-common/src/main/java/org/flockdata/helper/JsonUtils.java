@@ -1,21 +1,17 @@
 /*
+ *  Copyright 2012-2017 the original author or authors.
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This file is part of FlockData.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  FlockData is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  FlockData is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.helper;
@@ -32,9 +28,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Helper functions for converting object to and from Json
+ *
  * @author mholdsworth
- * @since 28/08/2014
  * @tag Json, Helper
+ * @since 28/08/2014
  */
 public class JsonUtils {
     private static final ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
@@ -42,6 +40,7 @@ public class JsonUtils {
     public static ObjectMapper getMapper() {
         return mapper;
     }
+
     public static byte[] toJsonBytes(Object object) throws IOException {
 
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -52,8 +51,8 @@ public class JsonUtils {
         return mapper.readValue(bytes, clazz);
     }
 
-    public static <T> T  toObject(String json, Class<T>  clazz) throws IOException{
-        return toObject(json.getBytes(), clazz );
+    public static <T> T toObject(String json, Class<T> clazz) throws IOException {
+        return toObject(json.getBytes(), clazz);
     }
 
     public static <T> Collection<T> toCollection(String json, Class<T> clazz) throws IOException {
@@ -62,46 +61,45 @@ public class JsonUtils {
 
         CollectionType javaType =
                 mapper.getTypeFactory().constructCollectionType(List.class, clazz);
-        return mapper.readValue(json, javaType );
+        return mapper.readValue(json, javaType);
 
     }
 
     /**
-     * deserialize the JSON string as a collection of clazz
+     * deserialize the JSON string as an Array of clazz
      *
-     * e.g. Collection<EntityInputBean> results = JsonUtils.getAsCollection(message.getBody(), EntityInputBean.class);
+     * e.g. {@literal Collection<EntityInputBean>} results = JsonUtils.getAsCollection(message.getBody(), EntityInputBean.class);
      *
-     * @param bytes  JSON Bytes - usually String.getBytes()
-     * @param clazz  Concrete type
-     * @return   Collection<T>
-     * @throws IOException
+     * @param bytes JSON Bytes - usually String.getBytes()
+     * @param clazz Concrete type
+     * @param <T>   Type
+     * @return Collection of clazz objects
+     * @throws IOException JSON error
      */
     public static <T> Collection<T> toCollection(byte[] bytes, Class<T> clazz) throws IOException {
-        if (bytes == null )
+        if (bytes == null)
             return new ArrayList<>();
 
         CollectionType javaType =
                 mapper.getTypeFactory().constructCollectionType(List.class, clazz);
-        return mapper.readValue(bytes, javaType );
+        return mapper.readValue(bytes, javaType);
 
     }
 
-    public static Map<String,Object> toMap(String json) throws IOException {
-        Map<String,Object> result = mapper.readValue(json, Map.class);
-        return result;
+    public static Map<String, Object> toMap(String json) throws IOException {
+        return mapper.readValue(json, Map.class);
     }
 
-    public static Map<String,Object> toMap(byte[] json) throws IOException {
-        Map result = mapper.readValue(json, Map.class);
-        return result;
+    public static Map<String, Object> toMap(byte[] json) throws IOException {
+        return mapper.readValue(json, Map.class);
     }
 
     public static Map convertToMap(Object o) {
         return mapper.convertValue(o, Map.class);
     }
 
-    public static String pretty(Object json)  {
-        if(json == null )
+    public static String pretty(Object json) {
+        if (json == null)
             return null;
         try {
             return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);

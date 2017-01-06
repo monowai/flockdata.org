@@ -138,7 +138,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
 
     /**
      * API key precedence
-     * <p>
+     *
      * @author mholdsworth
 
      */

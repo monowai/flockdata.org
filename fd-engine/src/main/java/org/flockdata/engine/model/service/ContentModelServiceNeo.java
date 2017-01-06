@@ -167,15 +167,12 @@ public class ContentModelServiceNeo implements ContentModelService {
     /**
      * Identifies the ContentProfile as being a belonging to a specific Fortress/Document combo
      *
-     * @param company
-     * @param fortress
-     * @param documentType
-     * @param contentModel
-     * @return
-     * @throws FlockException
-     * @throws InterruptedException
-     * @throws ExecutionException
-     * @throws IOException
+     * @param company     owner of the model
+     * @param fortress      system the model belongs to
+     * @param documentType type of document
+     * @param contentModel data
+     * @return result of execution
+     * @throws FlockException error
      */
     @Transactional
     public ContentModelResult saveEntityModel(Company company, Fortress fortress, Document documentType, ContentModel contentModel) throws FlockException {

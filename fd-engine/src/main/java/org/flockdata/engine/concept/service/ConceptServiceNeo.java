@@ -47,14 +47,14 @@ import java.util.*;
  * Reporting/Schema monitoring service
  * Whenever an entity is tracked, it's TrackResultBean is sent to this service so that the top
  * down meta data can be logged.
- * <p/>
+ *
  * Concepts represent the Tags and Entities that are being tracked in this service
  * An Entity is represented as a DocumentType. It exists in both it's DocumentType.name index
  * and a generic Entity index
- * <p/>
+ *
  * Tags are also called Concepts. These are also indexed uniquely withing a Label that identifies
  * their type and a generic"Tags" Label.
- * <p/>
+ *
  *
  * @tag Service, Concepts, Tag, Entity, DocumentType
  * @author mholdsworth
@@ -151,8 +151,8 @@ public class ConceptServiceNeo implements ConceptService {
 
     /**
      * Tracks the fact that the sourceType is connected to the targetType with relationship name.
-     * <p>
-     * This represents a fact that there is at least one (e:Entity)-[r:relationship]->(oe:Entity) existing
+     *
+     * This represents a fact that there is at least one (e:Entity)-[r:relationship]-{@literal >}(oe:Entity) existing
      * @param sourceType   Existing node
      * @param targetType   Existing node
      * @param entityKeyBean properties that describe the relationship
@@ -168,10 +168,10 @@ public class ConceptServiceNeo implements ConceptService {
     /**
      * Analyses the TrackResults and builds up a meta analysis of the entities and tags
      * to track the structure of graph data
-     * <p>
+     *
      * Extracts DocTypes, Tags and relationship names. These can be found in the graph with a query
      * such as
-     * <p>
+     *
      * match ( c:DocType)-[r]-(x:Concept) return c,r,x;
      *
      * @param resultBeans payload to analyse

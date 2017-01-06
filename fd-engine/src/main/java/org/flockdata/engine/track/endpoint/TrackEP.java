@@ -74,12 +74,14 @@ public class TrackEP {
      *
      * @param input Entity input
      * @return TrackResultBean
-     * @throws org.flockdata.helper.FlockException
+     * @param request resolves authorised company to work with
+     * @throws InterruptedException server shutting down
+     * @throws FlockException       data errors
+     * @throws ExecutionException   bad stuff
      */
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    public
-    ResponseEntity<TrackRequestResult> trackEntity(@RequestBody EntityInputBean input,
-                                                HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
+    public ResponseEntity<TrackRequestResult> trackEntity(@RequestBody EntityInputBean input,
+                                                HttpServletRequest request) throws InterruptedException, FlockException, ExecutionException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
         trackResultBean = mediationFacade.trackEntity(company, input);
@@ -143,12 +145,13 @@ public class TrackEP {
 
     /**
      * Looks across all document types for the caller ref within the fortress. If the code is not unique or does not
-     * exist then an exception is thown.
+     * exist then an exception is thrown.
      *
      * @param fortressName application
-     * @param code    source
-     * @param entities   targets
-     * @param xRefName     name of the cross reference
+     * @param code      source
+     * @param entities  targets
+     * @param xRefName  name of the cross reference
+     * @param request   used to resolve the company the user is authorised to work with
      * @return unresolvable caller references
      * @throws org.flockdata.helper.FlockException if not exactly one Entity for the code in the fortress
      */

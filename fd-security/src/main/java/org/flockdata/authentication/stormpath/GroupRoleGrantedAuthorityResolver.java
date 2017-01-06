@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import java.util.Set;
  * <h2>Usage</h2>
  * The configured mapping must have href groups as the key of the map. The value of each key is a list of roles that such
  * key will be translated to.
- * <p/>
+ *
  * For stormpath, in code:
  * <pre>
  * Map&lt;String, List&lt;String&gt;&gt; rolesMap = new HashMap&lt;String, List&lt;String&gt;&gt;();
@@ -46,7 +46,7 @@ import java.util.Set;
  * rolesMap.put("https://api.stormpath.com/v1/groups/d8UDkz9QPcn2z73j93m6Z", roles);
  * new GroupRoleGrantedAuthorityResolver(rolesMap);
  * </pre>
- * <p/>
+ *
  * Or maybe in spring.xml:
  * <pre>
  * <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype" >

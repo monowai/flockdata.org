@@ -79,24 +79,19 @@ public class CompanyEP {
         // ToDo Figure out what we need this to do. Currently a caller can only belong to one company
         //   so why bother letting them chose another one?
         return callersCompany;
-        //Company requestedCompany = companyService.findByName(companyName);
-
-//        if (requestedCompany== null ) {
-//            //Not Authorised
-//            throw new FlockException("Company ["+companyName+"] could not be found");
-//        } else {
-//            return requestedCompany;
-//        }
     }
 
 
     /**
      * All documents in use by a company
+     *
+     * @param request used to resolve the company the logged in user represents
+     * @return Documents in use by th company
+     * @throws FlockException business exception
      */
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
-
     public Collection<DocumentResultBean> getDocumentsInUse(
-            HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
+            HttpServletRequest request) throws FlockException {
 
         CompanyNode company = CompanyResolver.resolveCompany(request);
         return conceptService.getDocumentsInUse(company);

@@ -91,7 +91,7 @@ public class LogRetryService {
     @Retryable(include = {HeuristicRollbackException.class, DeadlockDetectedException.class, ConcurrencyFailureException.class, InvalidDataAccessResourceUsageException.class}, maxAttempts = 12,
             backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
     @Transactional
-    TrackResultBean writeLog(FortressNode fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
+    TrackResultBean writeLog(FortressNode fortress, TrackResultBean trackResultBean) throws FlockException {
         ContentInputBean content = trackResultBean.getContentInput();
 
         boolean entityExists = (trackResultBean.getEntityInputBean() != null && !trackResultBean.getEntityInputBean().isTrackSuppressed());
@@ -128,7 +128,7 @@ public class LogRetryService {
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
-    private LogResultBean createLog(TrackResultBean trackResult, FortressUserNode thisFortressUser) throws FlockException, IOException {
+    private LogResultBean createLog(TrackResultBean trackResult, FortressUserNode thisFortressUser) throws FlockException {
         FortressNode fortress = (FortressNode) trackResult.getEntity().getFortress();
         // ToDo: ??? noticed during tracking over AMQP
         if (thisFortressUser != null) {

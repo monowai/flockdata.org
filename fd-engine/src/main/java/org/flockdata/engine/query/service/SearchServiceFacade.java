@@ -164,10 +164,10 @@ public class SearchServiceFacade {
 
     /**
      * Construct a SearchChange for the Entity Content.
-     * <p/>
+     *
      * Applies the appropriate TagStructure to index as well as set any Parent entity -
      * a [p:parent] - relationship to another entity.
-     * <p/>
+     *
      * If you're looking for how the content gets from the Graph to ElasticSearch you're in the right place.
      *
      * @param trackResultBean Payload to index

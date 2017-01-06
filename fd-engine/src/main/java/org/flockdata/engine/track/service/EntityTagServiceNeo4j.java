@@ -140,7 +140,7 @@ class EntityTagServiceNeo4j implements EntityTagService {
 
     /**
      * Associates the Tags within the EntityInputBean with the Entity Node
-     * <p/>
+     *
      * The value can be null which will create a simple tag for the Entity such as
      * ClientID123
      * Based on the EntityInputBean, support is offered for multiple usecases:

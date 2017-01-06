@@ -66,6 +66,7 @@ public class DocTypeRetryService {
      * @param segment   all InputBeans are deemed to belong to this segment
      * @param inputBeans collection of Entities from which to find DocumentTypes and linked Entities
      * @return Collection of DocumentType objects that were created
+     * @exception FlockException business exception
      */
     @Retryable(include = {TransactionFailureException.class, HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Future<Collection<DocumentNode>> createDocTypes(Segment segment, List<EntityInputBean> inputBeans) throws FlockException {

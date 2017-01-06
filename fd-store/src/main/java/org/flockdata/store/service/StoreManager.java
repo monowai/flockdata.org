@@ -49,7 +49,7 @@ import java.util.Map;
  * for various data stores that support put/get semantics.
  *
  *
- * <p/>
+ *
  * @author mholdsworth
  * @since 4/09/2013
  */
@@ -104,7 +104,7 @@ public class StoreManager implements StoreService {
 
     /**
      * Persists the payload
-     * <p/>
+     *
      *
      * @param storeBean          payload to write to a store
      */

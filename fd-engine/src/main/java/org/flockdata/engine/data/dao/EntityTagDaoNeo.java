@@ -42,10 +42,10 @@ import java.util.*;
 /**
  *
  * Data Access Object that manipulates tag nodes against track headers
- * <p>
+ *
  * @author mholdsworth
  * @since 28/06/2013
- * @tag neo4j, Entity, Tag, Track, EntityTag, Geo
+ * @tag Cypher, Entity, Tag, Track, EntityTag, Geo
  */
 @Repository("entityTagDao")
 public class EntityTagDaoNeo {
@@ -104,6 +104,7 @@ public class EntityTagDaoNeo {
      * Purpose is to track at which version of a log the metadata covered2
      *
      * @param log pointer to the node we want to move the relationships to
+     * @param entityTags Tags to move
      */
     public void moveTags(Log log, Collection<EntityTag> entityTags) {
         if (log == null)
@@ -124,8 +125,8 @@ public class EntityTagDaoNeo {
 
     /**
      * This version is used to relocate the tags associated with Log back to the Entity
-     * <p>
-     * This will examine the EntityTagDao.FD_WHEN property and >= fortressDate log when, it will be removed
+     *
+     * This will examine the EntityTagDao.FD_WHEN property and {@literal >}= fortressDate log when, it will be removed
      *
      * @param company       a validated company that the caller is allowed to work with
      * @param logToMoveFrom where the logs are currently associated
@@ -220,7 +221,7 @@ public class EntityTagDaoNeo {
 
     /**
      * Enables the overloading of the cypher query used to identify the geo path from the entity.
-     * <p>
+     *
      * By default it will connect the shortestPath to a Country with up to 4 hops from the starting node.
      * Locates a path to the country via an optional query that can be associated with the entities DocType
      * Query MUST return a nodes(path)

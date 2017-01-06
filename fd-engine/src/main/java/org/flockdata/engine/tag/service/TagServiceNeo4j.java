@@ -22,7 +22,7 @@ package org.flockdata.engine.tag.service;
 
 import org.flockdata.data.Company;
 import org.flockdata.data.Tag;
-import org.flockdata.engine.admin.PlatformConfig;
+import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.data.dao.ConceptDaoNeo;
 import org.flockdata.engine.data.dao.TagDaoNeo4j;
@@ -49,7 +49,7 @@ import java.util.Map;
 /**
  * Handles management of a companies tags.
  * All tags belong to the company across their fortresses
- * <p>
+ *
  * @author mholdsworth
  * @since 29/06/2013
  */
@@ -57,8 +57,7 @@ import java.util.Map;
 @Service
 @Transactional
 public class TagServiceNeo4j implements TagService {
-    final
-    PlatformConfig engineAdmin;
+    private final EngineConfig engineConfig;
     private final SecurityHelper securityHelper;
     private final TagDaoNeo4j tagDaoNeo4j;
     private final ConceptDaoNeo conceptDao;
@@ -66,8 +65,8 @@ public class TagServiceNeo4j implements TagService {
     private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
 
     @Autowired
-    public TagServiceNeo4j(PlatformConfig engineAdmin, ConceptDaoNeo conceptDao, TagDaoNeo4j tagDaoNeo4j, SecurityHelper securityHelper, Neo4jTemplate template) {
-        this.engineAdmin = engineAdmin;
+    public TagServiceNeo4j(EngineConfig engineConfig, ConceptDaoNeo conceptDao, TagDaoNeo4j tagDaoNeo4j, SecurityHelper securityHelper, Neo4jTemplate template) {
+        this.engineConfig = engineConfig;
         this.conceptDao = conceptDao;
         this.tagDaoNeo4j = tagDaoNeo4j;
         this.securityHelper = securityHelper;
@@ -93,7 +92,7 @@ public class TagServiceNeo4j implements TagService {
     @Override
     public Collection<FdTagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException{
         CompanyNode fdCompany = (CompanyNode)company;
-        String tenant = engineAdmin.getTagSuffix(fdCompany);
+        String tenant = engineConfig.getTagSuffix(fdCompany);
 
         TagPayload payload = new TagPayload(fdCompany)
                 .setTags(tagInputs)
@@ -116,7 +115,7 @@ public class TagServiceNeo4j implements TagService {
     @Override
     public Collection<Tag> findDirectedTags(Tag startTag) {
         Company company = securityHelper.getCompany();
-        String suffix = engineAdmin.getTagSuffix(company);
+        String suffix = engineConfig.getTagSuffix(company);
         return tagDaoNeo4j.findDirectedTags(suffix, startTag, company);
     }
 
@@ -154,7 +153,7 @@ public class TagServiceNeo4j implements TagService {
 
     @Override
     public Tag findTag(CompanyNode company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException {
-        String suffix = engineAdmin.getTagSuffix(company);
+        String suffix = engineConfig.getTagSuffix(company);
 
         Tag tag = tagDaoNeo4j.findTagNode(suffix, label, keyPrefix, tagCode, inflate);
 
@@ -172,18 +171,19 @@ public class TagServiceNeo4j implements TagService {
     }
 
     public void createAlias(Company company, Tag tag, String forLabel, AliasInputBean aliasInput) {
-        String suffix = engineAdmin.getTagSuffix(company);
+        String suffix = engineConfig.getTagSuffix(company);
         tagDaoNeo4j.createAlias(suffix, tag, forLabel, aliasInput);
     }
 
     /**
-     * Returns all tags with the
+     * Returns tags connected to the source tag
+     *
      * @param company       callers company
      * @param sourceLabel   label to start search with
      * @param sourceCode    code of a specific tag
      * @param targetLabel   find all tags of this type - no relationship filter
-     * @return
-     * @throws NotFoundException
+     * @return StartTag and collection of connected tags
+     * @throws NotFoundException source tag not found by sourceLabel + sourceCode
      */
     @Override
     public Map<String, Collection<FdTagResultBean>> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException {

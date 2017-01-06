@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Parameter import checks for ImportProfile
- * <p>
+ *
  * @author mholdsworth
  * @since 28/01/2015
  */

@@ -20,7 +20,6 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.data.Fortress;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.track.bean.TrackResultBean;
@@ -39,7 +38,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.HeuristicRollbackException;
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -65,14 +63,14 @@ public class ConceptRetryService {
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20,
             backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
     @Async("fd-tag")
-    public Future<Void> trackConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans)
-            throws InterruptedException, ExecutionException, FlockException, IOException {
+    public Future<Void> trackConcepts(Iterable<TrackResultBean> resultBeans)
+            throws InterruptedException, ExecutionException, FlockException {
         doRegister(resultBeans);
         return new AsyncResult<>(null);
     }
 
     @Transactional
-    void doRegister(Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
+    void doRegister(Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException {
         if (!engineConfig.isConceptsEnabled())
             return;
 

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -22,7 +22,7 @@ package org.flockdata.engine.integration.store;
 
 /**
  * For SDN4 Un-managed Extensions
- * <p/>
+ *
  * @author mholdsworth
  * @since 21/07/2015
  */

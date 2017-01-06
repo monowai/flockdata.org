@@ -38,7 +38,7 @@ import java.io.IOException;
 
 /**
  * Service endpoint to write incoming search requests via an ElasticSearch implementation
- * <p>
+ *
  * @author mholdsworth
  * @since 15/02/2016
  * @tag ElasticSearch, Entity, Search
@@ -71,7 +71,7 @@ public class EsSearchWriter implements SearchWriter {
 
     /**
      * Triggered by the Engine, this is the payload that is required to be indexed
-     * <p/>
+     *
      * Handles scenarios where the content exists or doesn't
      *
      * @param changes to process
@@ -95,9 +95,9 @@ public class EsSearchWriter implements SearchWriter {
                 if (searchChange.isType(SearchChange.Type.ENTITY)) {
                     logger.debug("Delete Entity request");
                     entityWriter.delete((EntitySearchChange) searchChange);
-                } else if (searchChange.isType(SearchChange.Type.TAG)) {
-                    logger.debug("Delete Tag request");
-                    tagWriter.delete((TagSearchChange) searchChange);
+//                } else if (searchChange.isType(SearchChange.Type.TAG)) {
+//                    logger.debug("Delete Tag request");
+//                    tagWriter.delete((TagSearchChange) searchChange);
                 }
                 return results;
             }

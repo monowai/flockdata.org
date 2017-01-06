@@ -48,7 +48,6 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -95,7 +94,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
      * @param source       Json to save
      * @return key value of the child document
      */
-    private EntitySearchChange save(EntitySearchChange searchChange, String source) throws IOException {
+    private EntitySearchChange save(EntitySearchChange searchChange, String source)  {
         String indexName = searchChange.getIndexName();
         String documentType = searchChange.getDocumentType();
         logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getKey(), searchChange.getSearchKey());
@@ -139,7 +138,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
 
     @Override
-    public EntitySearchChange handle(EntitySearchChange searchChange) throws IOException {
+    public EntitySearchChange handle(EntitySearchChange searchChange) {
         String source = getJsonToIndex(searchChange);
 
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {

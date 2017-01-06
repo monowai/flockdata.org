@@ -52,7 +52,7 @@ import java.util.concurrent.Future;
 
 /**
  * Transactional services to support record and working with entities and logs
- * <p/>
+ *
  * @author mholdsworth
  * @since 8/04/2013
  */
@@ -80,13 +80,12 @@ public class EntityServiceNeo4J implements EntityService {
 
     private final PlatformConfig platformConfig;
 
-    @Autowired
-    private LogRetryService logRetryService;
+    private final LogRetryService logRetryService;
 
     private Logger logger = LoggerFactory.getLogger(EntityServiceNeo4J.class);
 
     @Autowired
-    public EntityServiceNeo4J(SecurityHelper securityHelper, StorageProxy storageProxy, @Qualifier("engineConfig") PlatformConfig platformConfig, EntityDaoNeo entityDao, StorageProxy contentReader, IndexManager indexManager, ConceptService conceptService, EntityTagService entityTagService, FortressService fortressService) {
+    public EntityServiceNeo4J(SecurityHelper securityHelper, StorageProxy storageProxy, @Qualifier("engineConfig") PlatformConfig platformConfig, EntityDaoNeo entityDao, StorageProxy contentReader, IndexManager indexManager, ConceptService conceptService, EntityTagService entityTagService, FortressService fortressService, LogRetryService logRetryService) {
         this.securityHelper = securityHelper;
         this.storageProxy = storageProxy;
         this.platformConfig = platformConfig;
@@ -96,6 +95,7 @@ public class EntityServiceNeo4J implements EntityService {
         this.conceptService = conceptService;
         this.entityTagService = entityTagService;
         this.fortressService = fortressService;
+        this.logRetryService = logRetryService;
     }
 
     @Override
@@ -292,24 +292,6 @@ public class EntityServiceNeo4J implements EntityService {
         return entity;
     }
 
-//    /**
-//     * When you have no API key, find if authorised
-//     *
-//     *
-//     * @param company
-//     * @param key known GUID
-//     * @return entity the caller is authorised to view
-//     */
-//    @Override
-//    public Entity getEntity(CompanyInterface company, String key) {
-//        String userName = securityHelper.getLoggedInUser();
-//        SystemUserInterface su = sysUserService.findByLogin(userName);
-//        if (su == null)
-//            throw new SecurityException(String.format("[%s] Not authorised to retrieve keys", userName));
-//
-//        return getEntity(su.getCompany(), key, false);
-//    }
-
     @Override
     public EntityNode getEntity(Company company, String key) {
         if (company == null)
@@ -367,7 +349,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Set<EntityLog> getEntityLogs(Entity entity) {
+    public Collection<EntityLog> getEntityLogs(Entity entity) {
         return entityDao.getLogs(entity);
     }
 
@@ -379,7 +361,7 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public Collection<EntityLogResult> getEntityLogs(Company company, String key, boolean withData) {
         EntityNode entity = getEntity(company, key);
-        Set<EntityLog> entityLogs;
+        Collection<EntityLog> entityLogs;
         Collection<EntityLogResult> results = new ArrayList<>();
         if (entity.getSegment().getFortress().isStoreEnabled()) {
             entityLogs = entityDao.getLogs(entity);
@@ -557,7 +539,7 @@ public class EntityServiceNeo4J implements EntityService {
         Entity entity = getEntity(company, key, true);
         if (entity == null)
             throw new FlockException("Invalid entity key [" + key + "]");
-        Set<EntityLog> changes = getEntityLogs(entity);
+        Collection<EntityLog> changes = getEntityLogs(entity);
         Collection<EntityTag> tags = entityTagService.findEntityTagsWithGeo(entity);
         EntitySummaryBean esb = new EntitySummaryBean(entity, changes, tags);
         esb.setIndex(indexManager.parseIndex(entity));
@@ -592,7 +574,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Collection<TrackResultBean> trackEntities(DocumentNode documentType, Segment segment, Collection<EntityInputBean> entityInputs, Future<Collection<FdTagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException, IOException {
+    public Collection<TrackResultBean> trackEntities(DocumentNode documentType, Segment segment, Collection<EntityInputBean> entityInputs, Future<Collection<FdTagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException{
         Collection<TrackResultBean> arb = new ArrayList<>();
         for (EntityInputBean inputBean : entityInputs) {
 

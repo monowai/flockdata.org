@@ -32,6 +32,12 @@ import java.util.Collection;
  */
 public interface SchemaService {
 
+    /**
+     * Ensures that system indexes are in place for a newly created company
+     *
+     * @param company for who?
+     * @return completed
+     */
     Boolean ensureSystemIndexes(CompanyNode company);
 
     /**
@@ -40,10 +46,17 @@ public interface SchemaService {
      *
      * You probably want to be calling adminService.purge() which in turn calls this
      *
-     * @param fortress
+     * @param fortress computer system to purge
      */
     void purge(Fortress fortress);
 
+    /**
+     * Tags are created dynamically. Codes need to be unique for each Label. Implementations will ensure this
+     * uniqueness is enforced.
+     *
+     * @param tagInputs Tags for which uniqueness is required
+     * @return success/failure
+     */
     Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs);
 
 }

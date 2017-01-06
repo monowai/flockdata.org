@@ -47,7 +47,7 @@ public class TestSegmentIndexes extends ESBase {
      * This approach let's us break up the ElasticSearch indexes in to
      * segmentation boundaries such as 2015-Jan, 2014, "anytext" that is meaningful
      * to the usecase. If you don't supply the data with a segment then the default of "" is used.
-     * <p>
+     *
      * Consider segmenting annual datasets and transactions. Segmenting master data (i.e. Customer) doesn't really
      * make any sense unless you want to break things up by Branch for instance.
      *

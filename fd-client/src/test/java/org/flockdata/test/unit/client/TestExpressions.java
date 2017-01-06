@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * SPeL tests and custom properties for tags
- * <p>
+ *
  * @author mholdsworth
  * @since 17/01/2015
  */

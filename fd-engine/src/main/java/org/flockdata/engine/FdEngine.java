@@ -29,7 +29,7 @@ import javax.annotation.PostConstruct;
 
 /**
  * Java configuration of fd-engines graphWriting services
- * <p>
+ *
  * @author mholdsworth
  * @since 15/12/2014
  * @tag Application

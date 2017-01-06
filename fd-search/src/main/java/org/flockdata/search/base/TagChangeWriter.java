@@ -22,9 +22,10 @@ package org.flockdata.search.base;
 
 import org.flockdata.search.TagSearchChange;
 
-import java.io.IOException;
-
 /**
+ * FD indexes known Tags for searching purposes.
+ *
+ * @tag Search, Tag
  * @author mholdsworth
  * @since 26/04/2013
  */
@@ -34,15 +35,9 @@ public interface TagChangeWriter {
      * Rewrites an existing document
      *
      * @param searchChange values to update from
-     */
-    TagSearchChange handle(TagSearchChange searchChange) throws IOException;
-
-    /**
-     * Removes a search document. Most of the time, the searchKey in the entity
-     * is sufficient. However if you are tracking EVERY change in the search engine, then you
-     * can delete a specific instance
+     * @return TagSearchChange result of the request
      *
      */
-    boolean delete(TagSearchChange searchChange);
+    TagSearchChange handle(TagSearchChange searchChange) ;
 
 }

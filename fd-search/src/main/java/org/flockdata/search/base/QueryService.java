@@ -27,6 +27,7 @@ import org.flockdata.search.*;
 /**
  * @author mholdsworth
  * @since 8/09/2014
+ * @tag Query, Search
  */
 public interface QueryService {
     TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException;
@@ -37,10 +38,12 @@ public interface QueryService {
 
     /**
      * Returns the "data" associated with the entity resolved from the queryParams
+     *
      * @param queryParams key to search for
      * @return searchResult with the what Map populated
-     *
-     * @throws FlockException
+     * @throws FlockException business exception occurred
+     * @see QueryParams
+     * @see EsSearchResult
      */
     EsSearchResult doEntityQuery(QueryParams queryParams) throws FlockException;
 

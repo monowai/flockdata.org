@@ -157,8 +157,9 @@ public class DocumentNode implements Comparable<DocumentNode>, Document {
 
     /**
      * used to create a unique key index for a company+docType combo
+     * @return internal id that links this Document to a Company
      */
-    public String getCompanyKey() {
+    String getCompanyKey() {
         return companyKey;
     }
 

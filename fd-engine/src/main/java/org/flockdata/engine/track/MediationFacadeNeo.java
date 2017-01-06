@@ -61,9 +61,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-/**
- * @inheritDoc
- */
 @Service
 @Qualifier("mediationFacadeNeo")
 public class MediationFacadeNeo implements MediationFacade {
@@ -123,14 +120,14 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, InterruptedException, ExecutionException, IOException {
+    public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, InterruptedException, ExecutionException {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
         return trackEntities(c, inputBeans);
     }
 
-    public Collection<TrackRequestResult> trackEntities(Company company, Collection<EntityInputBean> inputBeans) throws FlockException, InterruptedException, ExecutionException, IOException {
+    public Collection<TrackRequestResult> trackEntities(Company company, Collection<EntityInputBean> inputBeans) throws FlockException, InterruptedException, ExecutionException {
         Map<Segment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(company, inputBeans);
         Collection<TrackRequestResult> results = new ArrayList<>();
         for (Segment segment : byFortress.keySet()) {
@@ -178,7 +175,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, ExecutionException, InterruptedException {
         FortressNode fortress = fortressService.findByName(company, inputBean.getFortress().getName());
         if (fortress == null) {
             logger.debug("Creating new Fortress {}", inputBean.getFortress());
@@ -195,17 +192,16 @@ public class MediationFacadeNeo implements MediationFacade {
 
     /**
      * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
-     * <p>
+     *
      * This is synchronous and blocks until completed
      *
      * @param segment  - system that owns the data
      * @param inputBean - input
-     * @return non-null
+     * @return non-null information about the trackRequest success
      * @throws org.flockdata.helper.FlockException illegal input
-     * @throws IOException                         json processing exception
      */
     @Override
-    public TrackResultBean trackEntity(final Segment segment, final EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean trackEntity(final Segment segment, final EntityInputBean inputBean) throws FlockException, ExecutionException, InterruptedException {
         List<EntityInputBean> inputs = new ArrayList<>(1);
         inputs.add(inputBean);
         Collection<TrackResultBean> results = trackEntities(segment, inputs, 1);
@@ -223,7 +219,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public Collection<TrackResultBean> trackEntities(final Segment segment, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public Collection<TrackResultBean> trackEntities(final Segment segment, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, ExecutionException, InterruptedException {
         String id = Thread.currentThread().getName() + "/" + DateTime.now().getMillis();
         if (segment == null) {
             throw new FlockException("No fortress supplied. Unable to process work without a valid fortress");
@@ -310,9 +306,6 @@ public class MediationFacadeNeo implements MediationFacade {
         return result;
     }
 
-    /**
-     * @inheritDoc
-     */
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
     public String reindex(CompanyNode company, String fortressCode) throws FlockException {
@@ -371,7 +364,7 @@ public class MediationFacadeNeo implements MediationFacade {
      * Rebuilds all search documents for the supplied fortress of the supplied document label
      *
      * @param fortressName name of the fortress to rebuild
-     * @throws org.flockdata.helper.FlockException
+     * @throws org.flockdata.helper.FlockException business data exception
      */
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
@@ -451,9 +444,6 @@ public class MediationFacadeNeo implements MediationFacade {
         adminService.purge(company, fortress, conceptService.findDocumentTypeWithSegments(documentType), segment);
     }
 
-    /**
-     * @inheritDoc
-     */
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
     public String validateFromSearch(CompanyNode company, String fortressCode, String docType) throws FlockException {
@@ -489,16 +479,16 @@ public class MediationFacadeNeo implements MediationFacade {
         }
     }
 
-    void distributeChanges(final Fortress fortress, final Iterable<TrackResultBean> resultBeans) throws IOException, InterruptedException, ExecutionException, FlockException {
+    void distributeChanges(final Fortress fortress, final Iterable<TrackResultBean> resultBeans) throws InterruptedException, ExecutionException, FlockException {
 
         logger.debug("Distributing changes to sub-services");
         if ( searchServiceFacade != null )
             searchServiceFacade.makeChangesSearchable(fortress, resultBeans);
         // ToDo: how to wait for results when running tests
         if (engineConfig.isTestMode())
-            conceptRetryService.trackConcepts(fortress, resultBeans).get();
+            conceptRetryService.trackConcepts(resultBeans).get();
         else
-            conceptRetryService.trackConcepts(fortress, resultBeans);
+            conceptRetryService.trackConcepts(resultBeans);
         logger.debug("Distributed changes");
     }
 

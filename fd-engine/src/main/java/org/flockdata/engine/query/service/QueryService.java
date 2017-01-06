@@ -42,7 +42,7 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * Query parameter support functionality
  * Centralises methods that will support options to use on MatrixService etc.
- * <p/>
+ *
  * @author mholdsworth
  * @since 14/06/2014
  * @tag Query

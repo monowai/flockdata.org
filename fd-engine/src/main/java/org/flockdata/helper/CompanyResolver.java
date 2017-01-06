@@ -28,9 +28,10 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author mholdsworth
  * @since 28/08/2014
+ * @tag Company, Endpoint, Security
  */
 public class CompanyResolver {
-    public static CompanyNode resolveCompany(HttpServletRequest request) throws FlockException {
+    public static CompanyNode resolveCompany(HttpServletRequest request) {
         CompanyNode company = (CompanyNode) request.getAttribute(ApiKeyInterceptor.COMPANY);
         if (company == null )
             // If you're seeing this, then check that ApiKeyInterceptor is configured to handle

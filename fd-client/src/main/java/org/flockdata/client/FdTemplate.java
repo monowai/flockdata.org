@@ -51,8 +51,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Encapsulates Entity and Tag data requests to a FlockData service
- * over various transport mechanisms - RabbitMQ & Http are predominately used
+ * Dispatches Entity and Tag data requests to a FlockData service
+ * over using RabbitMQ + Http
  *
  * @tag Messaging, FdClient
  * @author mholdsworth

@@ -271,7 +271,7 @@ public class EntityDaoNeo {
         return trackLogRepo.getLogs(entityId, from.getTime(), to.getTime());
     }
 
-    public Set<EntityLog> getLogs(Entity entity) {
+    public Collection<EntityLog> getLogs(Entity entity) {
         EntityLogRlx mockLog = getMockLog(entity);
         if (mockLog != null) {
             Set<EntityLog> results = new HashSet<>();
@@ -279,7 +279,7 @@ public class EntityDaoNeo {
             return results;
         }
         Set<EntityLogRlx> found = trackLogRepo.findLogs(entity.getId());
-        Set<EntityLog> results = new HashSet<>();
+        Collection<EntityLog> results = new ArrayList<>();
         for (EntityLogRlx result : found) {
             result.setEntity((EntityNode)entity);
             results.add(result);
@@ -615,11 +615,11 @@ public class EntityDaoNeo {
     }
 
     /**
-     * Find outbound parents of the source entity
+     * Find outbound parents of the source entity across Documents as long as they are registered
      *
-     * @param entity
-     * @param docType
-     * @return
+     * @param entity  parent entity
+     * @param docType registered docType for which potential parent Documents might exist
+     * @return all parents
      */
     public Collection<EntityKeyBean> getNestedParentEntities(Entity entity, Document docType) {
         Map<String, DocumentResultBean> parents = conceptService.getParents(docType);

@@ -60,7 +60,7 @@ import java.util.*;
 
 /**
  * IO routines to handle registration of concepts in Neo4j
- * <p/>
+ *
  * @author mholdsworth
  * @since 19/06/2015
  * @tag Neo4j, Concept, Tag
@@ -246,6 +246,7 @@ public class ConceptDaoNeo {
      * The general Schema is tracked to understand the general structure
      *
      * @param company who owns the tags
+     * @param tagResultBean Internal flockdata payload result class
      * @return true if it was created for the first time
      */
     @Async

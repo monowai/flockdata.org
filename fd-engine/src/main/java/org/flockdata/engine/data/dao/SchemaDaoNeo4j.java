@@ -40,7 +40,7 @@ import java.util.Map;
 /**
  * Maintains company specific Schema details. Structure of the nodes that FD has established
  * based on Entities, DocumentTypes, Tags and Relationships
- * <p>
+ *
  * @author mholdsworth
  * @since 3/04/2014
  * @tag neo4j, Schema, Administration

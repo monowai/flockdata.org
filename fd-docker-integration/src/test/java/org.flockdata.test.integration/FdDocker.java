@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ import static org.flockdata.test.integration.IntegrationHelper.*;
 
 /**
  * see http://testcontainers.viewdocs.io/testcontainers-java/usage/docker_compose/
- * <p>
+ *
  * We want to be able to run the stack either for a single test method or as a suite.
  * Easier to centralise the container config in this class to accomplish that
- * <p>
+ *
  * @author mholdsworth
  * @since 6/05/2016
  */

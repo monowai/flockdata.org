@@ -168,8 +168,8 @@ public class TestEntityTrack extends EngineBase {
         EntityNode entity = entityService.getEntity(su.getCompany(), result.getKey());
         assertNotNull(entity);
         TestCase.assertEquals(2, entity.getProperties().size());
-        assertEquals("Didn't find property key", "H8CT04172", entity.getProperty("value"));
-        assertEquals(".123", entity.getProperty("avg"));
+        assertEquals("Didn't find property key", "H8CT04172", entity.getProperties().get("value"));
+        assertEquals(".123", entity.getProperties().get("avg"));
 
         inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "12xx09");
         inputBean.setProperty("value", 200d);
@@ -177,7 +177,7 @@ public class TestEntityTrack extends EngineBase {
         entity = entityService.getEntity(su.getCompany(), result.getKey());
         assertNotNull(entity);
         TestCase.assertEquals("The Avg property should have been removed", 1, entity.getProperties().size());
-        assertEquals("User-defined property did not change", 200d, entity.getProperty("value"));
+        assertEquals("User-defined property did not change", 200d, entity.getProperties().get("value"));
 
     }
 
@@ -412,9 +412,6 @@ public class TestEntityTrack extends EngineBase {
 
 
         assertNotNull(entity);
-        // Irrespective of the order of the fields, we see it as the same.
-        //String jsonA = "{\"name\": \"8888\", \"thing\": {\"m\": \"happy\"}}";
-        //String jsonB = "{\"thing\": {\"m\": \"happy\"},\"name\": \"8888\"}";
 
         Map<String, Object> jsonA = ContentDataHelper.getSimpleMap("name", "8888");
         jsonA.put("thing", ContentDataHelper.getSimpleMap("m", "happy"));
@@ -444,6 +441,42 @@ public class TestEntityTrack extends EngineBase {
         for (EntityLogResult entityLog : logs) {
             assertNotNull(entityLog.getData());
             assertFalse(entityLog.getData().isEmpty());
+        }
+    }
+
+    /**
+     * Idempotent data
+     * Ensure duplicate logs are not created when content data has not changed
+     */
+    @Test
+    public void orderedLogs() throws Exception {
+        SystemUser su = registerSystemUser("orderedLogs");
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "ndlwcqw2");
+        inputBean.setContent( new ContentInputBean(ContentDataHelper.getSimpleMap("name", "8888")));
+        Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
+
+        assertNotNull(entity);
+
+        inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "ndlwcqw2");
+        inputBean.setContent( new ContentInputBean(ContentDataHelper.getSimpleMap("name", "0000")));
+        mediationFacade.trackEntity(su.getCompany(), inputBean);
+
+        Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey(), true);
+        assertNotNull(logs);
+        assertEquals(2, logs.size());
+        boolean first = true;
+        for (EntityLogResult entityLog : logs) {
+            assertNotNull(entityLog.getData());
+            assertFalse(entityLog.getData().isEmpty());
+
+            if ( first ){
+                first = false;
+                // Newest version is first
+                assertEquals("0000", entityLog.getData().get("name"));
+            } else
+                assertEquals("8888", entityLog.getData().get("name"));
         }
     }
 
@@ -805,7 +838,7 @@ public class TestEntityTrack extends EngineBase {
 
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getKey(), null, ContentDataHelper.getSimpleMap("house", "house2"))).getCurrentLog();
 
-        Set<EntityLog> logs = entityService.getEntityLogs(entity);
+        Collection<EntityLog> logs = entityService.getEntityLogs(entity);
         assertEquals("Logs with missing dates not correctly recorded", 2, logs.size());
 
         // Can only have one log for an entity at a point in time. Passing in the same date would cause the last log to be rejected

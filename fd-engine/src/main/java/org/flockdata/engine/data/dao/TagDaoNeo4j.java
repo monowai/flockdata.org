@@ -37,7 +37,7 @@ import java.util.Map;
 
 /**
  * Wrap calls to Neo4j server extension. Figuring this out....
- * <p>
+ *
  * @author mholdsworth
  * @since 29/06/2013
  * @tag Neo4j, Tag

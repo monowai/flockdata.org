@@ -49,7 +49,7 @@ import java.util.Map;
  * In-progress custom version of how to retrieve a hierarchical structure of tags. Can do with
  * figuring out how to allow deployment outside of org.flockdata and ability to customize the
  * path being looked for
- * <p>
+ *
  * @author mholdsworth
  * @since 20/08/2015
  */

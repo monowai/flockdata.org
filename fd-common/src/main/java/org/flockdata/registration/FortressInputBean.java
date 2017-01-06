@@ -1,21 +1,17 @@
 /*
+ *  Copyright 2012-2017 the original author or authors.
  *
- *  Copyright (c) 2012-2017 "FlockData LLC"
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This file is part of FlockData.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  FlockData is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  FlockData is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.registration;
@@ -35,10 +31,9 @@ import java.util.TimeZone;
  * Default behaviour is
  * not to accumulate each change as a separate document
  * index document changes in the search engine
- * <p>
  *
- * @since 15/06/2013
  * @tag Payload, Fortress
+ * @since 15/06/2013
  */
 public class FortressInputBean implements Serializable, Fortress {
     private String name;
@@ -47,7 +42,7 @@ public class FortressInputBean implements Serializable, Fortress {
 
     private String message = null;
     private String fortressKey = null;
-    private String timeZone =  TimeZone.getDefault().getID();
+    private String timeZone = TimeZone.getDefault().getID();
     private String languageTag;
     private Boolean enabled = true;
     private Boolean system = false;
@@ -87,7 +82,7 @@ public class FortressInputBean implements Serializable, Fortress {
 
     public FortressInputBean setName(String name) {
         this.name = name;
-        if ( this.code ==null )
+        if (this.code == null)
             this.code = name;
         return this;
     }
@@ -102,7 +97,7 @@ public class FortressInputBean implements Serializable, Fortress {
         return null; // This is derived from the caller
     }
 
-    public void setCompany(Company company){
+    public void setCompany(Company company) {
         this.company = company;
     }
 
@@ -141,6 +136,7 @@ public class FortressInputBean implements Serializable, Fortress {
      * setting an illegal timezone will fall back to GMT.
      *
      * @param timeZone timeZone you require
+     * @return this - method chaining
      */
     public FortressInputBean setTimeZone(String timeZone) {
         if (timeZone != null) {

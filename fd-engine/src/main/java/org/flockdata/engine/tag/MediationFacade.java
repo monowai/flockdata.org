@@ -39,15 +39,15 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Non transactional coordinator providing mediation functionality between services
- * <p>
+ *
  * @author mholdsworth
  * @since 28/08/2013
  */
 public interface MediationFacade {
 
-    Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, InterruptedException, ExecutionException, IOException;
+    Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, InterruptedException, ExecutionException;
 
-    Collection<TrackRequestResult> trackEntities(Company company, Collection<EntityInputBean> inputBeans) throws FlockException, InterruptedException, ExecutionException, IOException;
+    Collection<TrackRequestResult> trackEntities(Company company, Collection<EntityInputBean> inputBeans) throws FlockException, InterruptedException, ExecutionException;
 
     FdTagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException;
 
@@ -59,7 +59,7 @@ public interface MediationFacade {
 
     Collection<TrackResultBean> trackEntities(FortressNode fortress, List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
+    TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, ExecutionException, InterruptedException;
 
     TrackResultBean trackEntity(Segment segment, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
@@ -68,7 +68,10 @@ public interface MediationFacade {
     /**
      * Rebuilds all search documents for the supplied fortress
      *
+     * @tag Security, Admin
+     * @param company resolved company the caller is authorised to reindex for
      * @param fortressCode name of the fortress to rebuild
+     * @return System processing message
      * @throws org.flockdata.helper.FlockException Business exceptions
      */
     String reindex(CompanyNode company, String fortressCode) throws FlockException;
@@ -98,9 +101,10 @@ public interface MediationFacade {
      *
      * Experimental
      *
-     * @param company
-     * @param fortressCode
-     * @param docType
+     * @param company resolved company
+     * @param fortressCode code
+     * @param docType and doc-type
+     * @throws FlockException business or system exception
      * @return null - should be a message
      */
 

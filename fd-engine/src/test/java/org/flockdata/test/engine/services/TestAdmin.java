@@ -41,7 +41,7 @@ import static org.junit.Assert.*;
 
 /**
  * Functional tests for AdminServices
- * <p>
+ *
  * @author mholdsworth
  * @since 19/02/2016
  */

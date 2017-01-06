@@ -83,15 +83,6 @@ public class EntityEP {
         this.mediationFacade = mediationFacade;
     }
 
-
-//    @RequestMapping(value = "/{fortress}/all/{code}", method = RequestMethod.GET)
-//    public @ResponseBody Iterable<Entity> findByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("code") String code,
-//                                                          HttpServletRequest request) throws FlockException {
-//        Company company = CompanyResolver.resolveCompany(request);
-//        return entityService.findByCallerRef(company, fortress, code);  //To change body of created methods use File | Settings | File Templates.
-//    }
-
-
     @RequestMapping(value = "/{fortress}/{documentType}/{code}", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
@@ -138,6 +129,7 @@ public class EntityEP {
      * locates a collection of Entity based on incoming collection of Keys
      *
      * @param toFind keys to look for
+     * @param request used to resolve the logged-in users Company
      * @return Matching entities you are authorised to receive
      * @throws FlockException duh - error
      */
@@ -248,28 +240,6 @@ public class EntityEP {
 
     }
 
-//    @RequestMapping(value = "/{key}/log/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
-//    @ResponseBody
-//    public ResponseEntity<DeltaBean> getDelta(@PathVariable("key") String key, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId,
-//                                       HttpServletRequest request) throws FlockException {
-//        Company company = CompanyResolver.resolveCompany(request);
-//        Entity entity = entityService.getResolvedEntity(company, key);
-//
-//        if (entity != null) {
-//            EntityLog left = entityService.getLogForEntity(entity, logId);
-//            EntityLog right = entityService.getLogForEntity(entity, withId);
-//            if (left != null && right != null) {
-//                DeltaBean deltaBean = kvService.getDelta(entity, left.getLog(), right.getLog());
-//
-//                if (deltaBean != null)
-//                    return new ResponseEntity<>(deltaBean, HttpStatus.OK);
-//            }
-//        }
-//
-//        throw new NotFoundException("Unable to find any content for the requested key");
-//
-//    }
-
     @RequestMapping(value = "/{key}/log/last/data", produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
     public  Map<String, Object> getLastLogWhat(@PathVariable("key") String key,
@@ -372,14 +342,15 @@ public class EntityEP {
      *
      * @param key  uid to start from
      * @param xRefName relationship name
+     * @param request used to resolve the logged-in users Company
      * @return all meta headers of xRefName associated with code
      * @throws FlockException  error
      */
     @RequestMapping(value = "/{key}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
-    Map<String, Collection<EntityNode>> getCrossRefence(@PathVariable("key") String key, @PathVariable("xRefName") String xRefName,
-                                                        HttpServletRequest request) throws FlockException {
+    Map<String, Collection<EntityNode>> getCrossReference(@PathVariable("key") String key, @PathVariable("xRefName") String xRefName,
+                                                          HttpServletRequest request) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         return entityService.getCrossReference(company, key, xRefName);
     }
@@ -390,6 +361,7 @@ public class EntityEP {
      * @param fortress  name of the callers application
      * @param code unique key within the fortress
      * @param xRefName  name of the xReference to lookup
+     * @param request used to resolve the logged-in users Company
      * @return xRefName and collection of Entities
      * @throws FlockException if not exactly one CallerRef exists within the fortress
      */
@@ -401,6 +373,4 @@ public class EntityEP {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         return entityService.getCrossReference(company, fortress, code, xRefName);
     }
-
-
 }

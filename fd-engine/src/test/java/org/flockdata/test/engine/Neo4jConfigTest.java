@@ -22,7 +22,7 @@ package org.flockdata.test.engine;
 
 /**
  * in-memory test database for Neo4j testing
- * <p>
+ *
  * @author mholdsworth
  * @since 31/03/2015
  */

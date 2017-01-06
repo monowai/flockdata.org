@@ -55,10 +55,10 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Creates a threaded Entity importer to debug suspicious behaviour identified
  * when importing a particular dataset. Periodically we see extra logs get created
- * <p/>
+ *
  * This is a useful test to demonstrate how you can emulate the CSV import functionality
  * in a functional test
- * <p/>
+ *
  * @author mholdsworth
  * @since 10/10/2014
  * @tag Test,Track,DelimitedFile

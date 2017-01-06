@@ -1,21 +1,17 @@
 /*
+ *  Copyright 2012-2017 the original author or authors.
  *
- *  Copyright (c) 2012-2017 "FlockData LLC"
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This file is part of FlockData.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  FlockData is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  FlockData is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.track.bean;
@@ -31,17 +27,17 @@ import java.util.Collection;
 /**
  * Represents the internal in-memory state of a request to record a change in FlockData
  * This payload is passed around services enriched and returned.
- * <p/>
+ *
  * TrackResultBean is not persisted and it's state is only guaranteed within FlockData
- * @see org.flockdata.track.bean.TrackRequestResult for user represetned results
- * <p/>
+ *
  * @author mholdsworth
- * @since 11/05/2013
  * @tag Contract, Track, Entity
+ * @see org.flockdata.track.bean.TrackRequestResult for user represetned results
+ * @since 11/05/2013
  */
 public class TrackResultBean implements Serializable {
-    boolean entityExisted = false;
-    boolean logIgnored = false;
+    private boolean entityExisted = false;
+    private boolean logIgnored = false;
     private Collection<String> serviceMessages = new ArrayList<>();
     private Entity entity;        // Resolved entity
     private EntityLog currentLog; // Log that was created
@@ -71,9 +67,10 @@ public class TrackResultBean implements Serializable {
     /**
      * Entity is only used internally by fd-engine; it can not be serialized as JSON
      * Callers should rely on entityResultBean
-     * @param fortress
+     *
+     * @param fortress        owner of the entity
      * @param entity          internal node
-     * @param documentType
+     * @param documentType    type of Entity that was tracked
      * @param entityInputBean user supplied content to create entity
      */
     public TrackResultBean(Fortress fortress, Entity entity, Document documentType, EntityInputBean entityInputBean) {
@@ -120,6 +117,7 @@ public class TrackResultBean implements Serializable {
     }
 
     /**
+     * @return details of the created entity
      */
     public Entity getEntity() {
         return entity;
@@ -150,7 +148,6 @@ public class TrackResultBean implements Serializable {
         return entityExisted;
     }
 
-    @JsonIgnore
     /**
      * If trackSuppressed is true, then mock EntityTags are created for the purpose
      * of building a search document. This method returns those mocked entity tags
@@ -158,7 +155,9 @@ public class TrackResultBean implements Serializable {
      * If you want actual EntityTags physically recorded against the Entity then use the
      * EntityTagService
      *
+     * @return Tags that were attached to the Entity by this request
      */
+    @JsonIgnore
     public Collection<EntityTag> getTags() {
         return tags;
     }
@@ -184,6 +183,7 @@ public class TrackResultBean implements Serializable {
 
     /**
      * EntityInput information provided when the track call was made
+     * @return callers input data
      */
     public EntityInputBean getEntityInputBean() {
         return entityInputBean;
@@ -265,6 +265,21 @@ public class TrackResultBean implements Serializable {
     }
 
     @Override
+    public int hashCode() {
+        int result = entityInputBean != null ? entityInputBean.hashCode() : 0;
+        result = 31 * result + (contentInput != null ? contentInput.hashCode() : 0);
+        return result;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+
+    @Override
     public String toString() {
         return "TrackResultBean{" +
                 "entity=" + entity +
@@ -282,20 +297,5 @@ public class TrackResultBean implements Serializable {
             return false;
         return !(contentInput != null ? !contentInput.equals(that.contentInput) : that.contentInput != null);
 
-    }
-
-    @Override
-    public int hashCode() {
-        int result = entityInputBean != null ? entityInputBean.hashCode() : 0;
-        result = 31 * result + (contentInput != null ? contentInput.hashCode() : 0);
-        return result;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
     }
 }

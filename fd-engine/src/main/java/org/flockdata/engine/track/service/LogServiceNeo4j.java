@@ -70,7 +70,7 @@ public class LogServiceNeo4j implements LogService {
     @Override
     @Async("fd-log")
     @Transactional(timeout = 4000)
-    public Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, ExecutionException, InterruptedException {
         // ToDo - ServiceActivator
         //Collection<TrackResultBean> logResults = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
@@ -81,7 +81,7 @@ public class LogServiceNeo4j implements LogService {
 
     @Override
     @Transactional(timeout = 4000)
-    public Collection<TrackResultBean> processLogsSync(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, InterruptedException, ExecutionException, IOException {
+    public Collection<TrackResultBean> processLogsSync(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, InterruptedException, ExecutionException {
         // ToDo - ServiceActivator
         //Collection<TrackResultBean> logResults = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
@@ -90,7 +90,7 @@ public class LogServiceNeo4j implements LogService {
         return resultBeans;
     }
 
-    private void processLogFromResult(Fortress fortress, TrackResultBean resultBean) throws FlockException, IOException, ExecutionException, InterruptedException {
+    private void processLogFromResult(Fortress fortress, TrackResultBean resultBean) throws FlockException, ExecutionException, InterruptedException {
         // ToDo: Service Activator
         if (resultBean.getContentInput() == null)
             return;

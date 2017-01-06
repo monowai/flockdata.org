@@ -121,7 +121,7 @@ public class FortressServiceNeo4j implements FortressService {
     /**
      * Returns an object representing the user in the supplied fortress. User is created
      * if it does not exist
-     * <p/>
+     *
      * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
      * string to enforce this
      *
@@ -140,7 +140,7 @@ public class FortressServiceNeo4j implements FortressService {
     /**
      * Returns an object representing the user in the supplied fortress. User is created
      * if it does not exist
-     * <p/>
+     *
      * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
      * string to enforce this
      *

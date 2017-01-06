@@ -33,7 +33,7 @@ import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 import java.util.Map;
 
 /**
- * "Reversed" relationship
+ * Creates a Reversed directional relationship between an Entity and a Tag
  *
  * @author mholdsworth
  * @since 29/06/2013

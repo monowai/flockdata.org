@@ -42,7 +42,6 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,7 +64,7 @@ public class TagChangeWriterEs implements TagChangeWriter {
     }
 
     @Override
-    public TagSearchChange handle(TagSearchChange searchChange) throws IOException {
+    public TagSearchChange handle(TagSearchChange searchChange) {
 
         String source = getJsonToIndex(searchChange);
 
@@ -184,9 +183,5 @@ public class TagChangeWriterEs implements TagChangeWriter {
 
     }
 
-    @Override
-    public boolean delete(TagSearchChange searchChange) {
-        return false;
-    }
 
 }

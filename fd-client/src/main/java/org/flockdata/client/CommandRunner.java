@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Wrapper that determines which functionality to inject to respond to the callers request
- * <p>
+ *
  * @tag Command, FdClient, Application
  * @author mholdsworth
  * @since 27/05/2016

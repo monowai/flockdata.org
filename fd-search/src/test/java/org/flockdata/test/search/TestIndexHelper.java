@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Indexes to query are computed at runtime. This validates the generic functionality that
  * composes a valid ES index path
- * <p/>
+ *
  * @author mholdsworth
  * @since 23/07/2015
  */

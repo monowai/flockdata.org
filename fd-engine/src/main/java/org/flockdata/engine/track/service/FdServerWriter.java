@@ -92,8 +92,6 @@ public class FdServerWriter implements FdIoInterface {
             throw new FlockException("Interrupted", e);
         } catch (ExecutionException e) {
             throw new FlockException("Execution Problem", e);
-        } catch (IOException e) {
-            throw new FlockException("IO Exception", e);
         }
     }
 

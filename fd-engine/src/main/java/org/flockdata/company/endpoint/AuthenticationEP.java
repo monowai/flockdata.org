@@ -83,10 +83,12 @@ public class AuthenticationEP {
     }
 
     /**
-     * GET  /account -> get the current user.
+     * GET  /account returns current logged in user
+     * @param apiHeaderKey optional, user can be located via an apiKey if you have one
+     * @return view of user associated with the key
+     * @throws Exception error
      */
     @RequestMapping(value = "/account", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-
     public ResponseEntity<SystemUserResultBean> checkUser(@RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
@@ -98,10 +100,11 @@ public class AuthenticationEP {
     }
 
     /**
-     * GET  /logout -> logout the current user.
+     * GET  /logout logout the currently logged in user.
+     * @param request servlet request context
+     * @param response servlet response
      */
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
-
     public void handleLogout(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {

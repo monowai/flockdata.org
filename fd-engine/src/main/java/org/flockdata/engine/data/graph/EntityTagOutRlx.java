@@ -34,7 +34,7 @@ import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 import java.util.Map;
 
 /**
- * "Normal" non-reversed relationship entity->tag
+ * Regular non-reversed relationship between an entity and a tag
  *
  * @author mholdsworth
  * @since 29/06/2013

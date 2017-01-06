@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * Properties to create a relationship
- * <p>
+ *
  * @author mholdsworth
  * @since 9/07/2016
  * @tag RelationshipTag

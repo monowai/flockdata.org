@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -158,7 +158,7 @@ public class SearchConfig {
 
     /**
      * Transport hosts
-     * <p>
+     *
      * HostA:9300,HostB:9300,HostC:9300.....
      *
      * @param urls , separated list of hosts to connect to

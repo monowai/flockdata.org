@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -56,7 +56,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
  * Maintenance routines for FD
- * <p>
+ *
  * @author mholdsworth
  * @since 10/09/2015
  * @tag ElasticSearch, Search

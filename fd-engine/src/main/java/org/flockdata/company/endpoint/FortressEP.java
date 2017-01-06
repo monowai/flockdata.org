@@ -142,12 +142,12 @@ public class FortressEP {
     }
 
     /**
-     *
+     * Fortresses store data in segments. This call returns known segments for the fortress
      * @param code   fortress name or code
      * @param doc    doc type to filter by or * for all
      * @param request internal use
      * @return Collection of DocumentResultBeans with Segment data
-     * @throws FlockException
+     * @throws FlockException business exception, i.e. fortress does not exist
      */
     @RequestMapping(value = "/{fortress:.*}/{doc}/segments", method = RequestMethod.GET)
     public Collection<DocumentResultBean> getFortressDocSegments(
@@ -171,9 +171,13 @@ public class FortressEP {
         return results;
     }
 
-
+    /**
+     *
+     * @param request used to resolve the company the logged in user belongs to
+     * @return Available timezones
+     */
     @RequestMapping(value = "/timezones", method = RequestMethod.GET)
-    public String[] getTimezones(HttpServletRequest request) throws FlockException {
+    public String[] getTimezones(HttpServletRequest request) {
         CompanyResolver.resolveCompany(request);
         return TimeZone.getAvailableIDs();
     }

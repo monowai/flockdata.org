@@ -38,7 +38,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -66,7 +65,7 @@ public class EntityRetryService {
             backoff = @Backoff(delay = 600, multiplier = 5, random = true))
     @Transactional(timeout = 4000)
     public Iterable<TrackResultBean> track(DocumentNode documentType, Segment segment, List<EntityInputBean> entityInputs, Future<Collection<FdTagResultBean>> tags)
-            throws InterruptedException, ExecutionException, FlockException, IOException {
+            throws InterruptedException, ExecutionException, FlockException {
 
         Collection<TrackResultBean>
                 resultBeans = entityService.trackEntities(documentType, segment, entityInputs, tags);

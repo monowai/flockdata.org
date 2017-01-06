@@ -31,9 +31,11 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- * Convert incoming bytes to an ArrayList<SearchChange>
+ * Convert incoming bytes to SearchChanges
  *
- *  @tag Messaging, Json
+ * @tag Json, Search
+ * @see SearchChanges
+ * @see org.flockdata.track.bean.SearchChange
  */
 @Component("jsonToSearchChangeConverter")
 public class JsonSearchChangeConverter extends SimpleMessageConverter {

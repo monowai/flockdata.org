@@ -47,25 +47,25 @@ import java.util.List;
 
 /**
  * General importer with support for Delimited and XML parsing.
- * <p>
+ *
  * Will send information to FlockData as either tags or track information over AMQP
- * <p>
+ *
  * For XML you should extend EntityInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
  * to massage your data prior to dispatch to FD.
- * <p>
+ *
  * Parameters:
  * example command - assumes the server has a Tag model called Countries
  * import --auth.user=demo:123 --fd.client.delimiter=";" --fd.client.import="/fd-cow.txt" --fd.content.model="tag:countries"
  *
  * -or- to parse the file using the local copy of the Content Model,
  * import --auth.user=demo:123 --fd.client.delimiter=";" --fd.client.import="/fd-cow.txt,/countries.json"
- * <p>
+ *
  *
  * @see FdTemplate
  * @see PayloadTransformer
  * @see TagInputBean
  * @see org.flockdata.track.bean.EntityInputBean
- * <p>
+ *
  * @author mholdsworth
  * @since 13/10/2013
  */

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -32,7 +32,7 @@ import java.io.IOException;
 /**
  * @author mholdsworth
  * @since 19/11/2014
- * @Tag Store, Messaging, Json
+ * @tag Store, Messaging, Json
  */
 @Component("jsonToKvContentConverter")
 public class JsonKvContentConverter extends SimpleMessageConverter {

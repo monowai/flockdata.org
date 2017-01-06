@@ -1,21 +1,17 @@
 /*
+ *  Copyright 2012-2017 the original author or authors.
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This file is part of FlockData.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  FlockData is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  FlockData is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.track.bean;
@@ -27,9 +23,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Concept represents either an Entity or a Tag. It is used to record the structure of data passed to the service
+ *
  * @author mholdsworth
  * @since 19/06/2014
- * @tag Contract, Concept
+ * @tag Contract, Concept, Entity, Tag
  */
 public class ConceptInputBean {
     Collection<String> relationships = new HashSet<>();
@@ -73,12 +71,18 @@ public class ConceptInputBean {
     /**
      * If not a Tag then it is an Entity
      *
-     * @return
+     * @return true if it's a tag
      */
     public boolean isTag() {
         return tag;
     }
 
+    /**
+     * Does this concept represent a tag or an entity?
+     *
+     * @param tag true==tag, false==entity
+     * @return this
+     */
     public ConceptInputBean setTag(boolean tag) {
         this.tag = tag;
         return this;

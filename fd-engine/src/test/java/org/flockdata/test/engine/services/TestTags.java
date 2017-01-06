@@ -215,7 +215,8 @@ public class TestTags extends EngineBase {
         assertNull(tagService.findTag(su.getCompany(), "NEW-TAG", null, "Testing"));
         assertNull(tagService.findTag(su.getCompany(), "NotFound", null, "Testing"));
         TagInputBean newTag = new TagInputBean("NEW-TAG")
-                .setMustExist(true, "NotFound")
+                .setMustExist(true)
+                .setNotFoundCode("NotFound")
                 .setLabel("Testing");
 
         Tag tag = tagService.createTag(su.getCompany(), newTag).getTag();
@@ -224,7 +225,8 @@ public class TestTags extends EngineBase {
         assertEquals("Testing", tag.getLabel());
 
         newTag = new TagInputBean("NEW-TAG")
-                .setMustExist(true, "");
+                .setMustExist(true)
+                .setNotFoundCode("");
         exception.expect(FlockException.class);
         assertNull("blank code is the same as no code", tagService.createTag(su.getCompany(), newTag));
 
@@ -239,7 +241,8 @@ public class TestTags extends EngineBase {
         assertNull(tagService.findTag(su.getCompany(), "NEW-TAG", null, "Testing"));
         assertNull(tagService.findTag(su.getCompany(), "NotFound", null, "Testing"));
         TagInputBean newTag = new TagInputBean("NEW-TAG")
-                .setMustExist(true, "NotFound")
+                .setMustExist(true)
+                .setNotFoundCode("NotFound")
                 .setLabel("Testing");
 
         Tag tag = tagService.createTag(su.getCompany(), newTag).getTag();
@@ -250,7 +253,7 @@ public class TestTags extends EngineBase {
 
         newTag = new TagInputBean("NEW-TAG")
                 .setKeyPrefix("aaa")
-                .setMustExist(true, "");
+                .setMustExist(true);
 
         exception.expect(FlockException.class);
         assertNull("blank code is the same as no code", tagService.createTag(su.getCompany(), newTag));

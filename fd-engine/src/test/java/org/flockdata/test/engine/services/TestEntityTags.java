@@ -561,7 +561,7 @@ public class TestEntityTags extends EngineBase {
         propB.put("myValue", 20);
 
         TagInputBean tagA = new TagInputBean("mike@flockdata.com", "Email", new EntityTagRelationshipInput("email-to", propA)).setLabel("Email");
-        tagA.addEntityTagLink("email-cc", propB);
+        tagA.addEntityTagLink(new EntityTagRelationshipInput("email-cc", propB));
         TagInputBean tagB = new TagInputBean("np@flockdata.com", "Email", "email-cc");
 
         inputBean.addTag(tagA);
@@ -1288,7 +1288,8 @@ public class TestEntityTags extends EngineBase {
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean(fortress, "DAT386", "DAT386", new DateTime(), "abc");
         TagInputBean tagInput = new TagInputBean("MissingTag", "TestUndefined", new EntityTagRelationshipInput("rlx"))
-                .setMustExist(true, "Unknown");
+                .setMustExist(true)
+                .setNotFoundCode("Unknown");
         entityInput.addTag(tagInput);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);

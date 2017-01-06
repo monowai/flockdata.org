@@ -23,7 +23,6 @@ package org.flockdata.search.base;
 import org.flockdata.data.Entity;
 import org.flockdata.search.EntitySearchChange;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -36,12 +35,13 @@ public interface EntityChangeWriter {
      * Rewrites an existing document
      *
      * @param searchChange values to update from
+     * @return Result object with any potential error messages
+     * @see EntitySearchChange
      */
-    EntitySearchChange handle(EntitySearchChange searchChange) throws IOException;
+    EntitySearchChange handle(EntitySearchChange searchChange);
 
     /**
-     * locates a document by LogResultBean.searchKey
-     *
+     * locates a document using what is known about the Entity
      *
      * @param entity auditHeader
      * @return document context as bytes
@@ -54,10 +54,12 @@ public interface EntityChangeWriter {
 
     /**
      * Locates a specific key monitored by the entity.
-     * <p/>
+     *
      * If ID is null then the call is the same as findOne(entity)
      * where the searchKey is taken to be LogResultBean.searchKey
      *
+     * @param entity used to resolve the index to search
+     * @param id - if null, this is resolved from the entity
      * @return found track change or null if none
      */
     Map<String, Object> findOne(Entity entity, String id);
