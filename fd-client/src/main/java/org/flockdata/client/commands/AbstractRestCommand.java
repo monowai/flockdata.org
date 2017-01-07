@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 
 /**
  * Commands are immutable and re-usable. Ensure your clientConfiguration has been configured prior
@@ -28,19 +28,19 @@ import org.flockdata.client.FdTemplate;
 abstract class AbstractRestCommand implements Command {
 
     String error = null;
-    FdTemplate fdTemplate;
+    FdClientIo fdClientIo;
 
     /**
      * Set's the basic immutable properties for this command
      *
-     * @param fdTemplate Helper class to access HTTP resources
+     * @param fdClientIo Helper class to access HTTP resources
      */
-    AbstractRestCommand(FdTemplate fdTemplate) {
-        this.fdTemplate = fdTemplate;
+    AbstractRestCommand(FdClientIo fdClientIo) {
+        this.fdClientIo = fdClientIo;
     }
 
     public String getUrl(){
-        return fdTemplate.getUrl();
+        return fdClientIo.getUrl();
     }
 
     // NULL if no error

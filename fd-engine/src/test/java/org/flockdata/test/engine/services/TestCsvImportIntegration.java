@@ -26,16 +26,15 @@ import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.data.graph.EntityLogRlx;
 import org.flockdata.engine.data.graph.FortressNode;
-import org.flockdata.engine.track.service.FdServerWriter;
-import org.flockdata.integration.FdPayloadWriter;
+import org.flockdata.engine.track.service.FdServerIo;
+import org.flockdata.integration.FdTemplate;
 import org.flockdata.integration.FileProcessor;
-import org.flockdata.integration.PayloadWriter;
+import org.flockdata.integration.Template;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.store.Store;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.track.bean.EntityLogResult;
-import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.joda.time.DateTime;
@@ -66,8 +65,8 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {
         Neo4jConfigTest.class,
-        FdPayloadWriter.class,
-        FdServerWriter.class,
+        FdTemplate.class,
+        FdServerIo.class,
         MapBasedStorageProxy.class})
 @ActiveProfiles({"dev", "fd-auth-test", "fd-client"})
 public class TestCsvImportIntegration extends EngineBase {
@@ -76,10 +75,7 @@ public class TestCsvImportIntegration extends EngineBase {
     private FileProcessor fileProcessor;
 
     @Autowired
-    private PayloadWriter payloadWriter;
-
-    @Autowired
-    private FdIoInterface fdServerWriter;
+    private Template fdTemplate;
 
     @Override
     public void cleanUpGraph() {
@@ -88,11 +84,9 @@ public class TestCsvImportIntegration extends EngineBase {
 
     @Test
     public void csvImport_DuplicateLogsNotCreated() throws Exception {
-        assertNotNull(fdServerWriter);
-        assertNotNull(payloadWriter);
+        assertNotNull(fdTemplate);
         cleanUpGraph(); // No transaction so need to clear down the graph
 
-//        engineConfig.setConceptsEnabled(false);
         logger.debug("### csvImport_DuplicateLogsNotCreated");
         engineConfig.setTestMode(true);
         assertTrue(engineConfig.store().equals(Store.MEMORY));

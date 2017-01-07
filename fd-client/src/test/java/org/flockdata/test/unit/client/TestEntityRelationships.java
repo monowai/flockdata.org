@@ -54,7 +54,7 @@ public class TestEntityRelationships extends AbstractImport{
         long rows = fileProcessor.processFile(params, "/data/entity-relationships.txt");
 
         assertEquals("Expected to parse 3 rows", 3, rows);
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        List<EntityInputBean> entities = getTemplate().getEntities();
         assertEquals("Expected to compress all rows into a single entity", 1, entities.size());
         for (EntityInputBean entity : entities) {
             assertEquals(1, entity.getEntityLinks().size());
@@ -75,7 +75,7 @@ public class TestEntityRelationships extends AbstractImport{
         assertEquals(Boolean.FALSE, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/data/properties-rlx.txt");
         assertEquals(4, rows);
-        List<EntityInputBean> entityBatch = fdWriter.getEntities();
+        List<EntityInputBean> entityBatch = fdTemplate.getEntities();
         assertEquals(4, entityBatch.size());
         for (EntityInputBean entityInputBean : entityBatch) {
             assertFalse("Expression not parsed for code",entityInputBean.getCode().contains("|"));

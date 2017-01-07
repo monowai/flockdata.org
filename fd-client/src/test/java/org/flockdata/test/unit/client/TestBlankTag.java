@@ -41,7 +41,7 @@ public class TestBlankTag extends AbstractImport {
 
         fileProcessor.processFile(extractProfile, "/data/blank-tags.txt");
 
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        List<EntityInputBean> entities = getTemplate().getEntities();
         assertEquals(3,entities.size());
 
         // Tags must have a non-null non-blank code value to be valid. Data row 1 is such a scenario

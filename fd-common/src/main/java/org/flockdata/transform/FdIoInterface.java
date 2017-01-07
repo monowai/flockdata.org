@@ -1,21 +1,17 @@
 /*
+ *  Copyright 2012-2017 the original author or authors.
  *
- *  Copyright (c) 2012-2017 "FlockData LLC"
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This file is part of FlockData.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  FlockData is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  FlockData is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.transform;
@@ -30,25 +26,53 @@ import java.io.IOException;
 import java.util.Collection;
 
 /**
- * @tag Integration, FdClient
+ * Interface that deals with the physical communication between client and server
+ *
+ * The
+ *
+ * @tag Integration, FdClient, Contract
  * @author mholdsworth
  * @since 7/10/2014
  */
 public interface FdIoInterface {
     /**
-     * Resolve the currently logged in user
-     * @return su
+     *
+     * @return currently logged in user
      */
     SystemUserResultBean me();
 
+    /**
+     *
+     * @param tagInputBeans tags to send to the service
+     * @return error messages. "OK" if all is good
+     * @throws FlockException communication exception resulting in a permanent failure
+     */
     String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException;
 
+    /**
+     *
+     * @param entityBatch Entities to send to the service
+     * @return error messages. "OK" if all is good
+     * @throws FlockException communication exception resulting in a permanent failure
+
+     */
     String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException;
 
     ContentModel getContentModel(String modelKey) throws IOException;
 
+    /**
+     * used to validate connectivity to the service
+     * @return Currently logged in user
+     * @throws FlockException connectivity exception occurs
+     */
     SystemUserResultBean validateConnectivity() throws FlockException;
 
     SystemUserResultBean register(String userName, String company);
 
+    SystemUserResultBean login(String userName, String password);
+
+    /**
+     * @return URL for service
+     */
+    String getUrl();
 }

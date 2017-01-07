@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.track.bean.EntityLogResult;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -38,8 +38,8 @@ public class EntityLogsGet extends AbstractRestCommand {
 
     private String key;
 
-    public EntityLogsGet(FdTemplate fdTemplate, String key) {
-        super(fdTemplate);
+    public EntityLogsGet(FdClientIo fdClientIo, String key) {
+        super(fdClientIo);
         this.key = key;
     }
 
@@ -51,12 +51,12 @@ public class EntityLogsGet extends AbstractRestCommand {
     @Override
     public EntityLogsGet exec() {
         results=null;   error =null;
-        HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
+        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
 
         try {
 
             ResponseEntity<EntityLogResult[]> response;
-            response = fdTemplate.getRestTemplate().exchange(getUrl() + "/api/v1/entity/{key}/log?withData=true", HttpMethod.GET, requestEntity, EntityLogResult[].class, key);
+            response = fdClientIo.getRestTemplate().exchange(getUrl() + "/api/v1/entity/{key}/log?withData=true", HttpMethod.GET, requestEntity, EntityLogResult[].class, key);
 
 
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);

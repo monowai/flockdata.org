@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.registration.TagResultBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -38,8 +38,8 @@ public class TagsGet extends AbstractRestCommand {
 
     private TagResultBean[] result;
 
-    public TagsGet(FdTemplate fdTemplate, String label) {
-        super(fdTemplate);
+    public TagsGet(FdClientIo fdClientIo, String label) {
+        super(fdClientIo);
         this.label = label;
     }
 
@@ -50,11 +50,11 @@ public class TagsGet extends AbstractRestCommand {
     @Override
     public TagsGet exec() {
         result =null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
+        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
 
         try {
             ResponseEntity<TagResultBean[]> response;
-            response = fdTemplate.getRestTemplate().exchange(getUrl() + "/api/v1/tag/{label}", HttpMethod.GET, requestEntity, TagResultBean[].class, label);
+            response = fdClientIo.getRestTemplate().exchange(getUrl() + "/api/v1/tag/{label}", HttpMethod.GET, requestEntity, TagResultBean[].class, label);
 
             result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         }catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {

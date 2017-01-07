@@ -54,7 +54,7 @@ public class TestSegmentIndexes extends ESBase {
      * @throws Exception
      */
     @Test
-    public void test_segementedIndexes() throws Exception {
+    public void test_segmentedIndexes() throws Exception {
 
         String fortress = "Common";
         String company = "company";
@@ -81,9 +81,9 @@ public class TestSegmentIndexes extends ESBase {
 
         Thread.sleep(2000);
         //"Each doc should be in it's own segmented index"
-        doQuery(entity, entity.getKey(), 1);
+        doQuery(entity, entity.getKey());
         //"Each doc should be in it's own segmented index"
-        doQuery(entityOtherSegment, entityOtherSegment.getKey(), 1);
+        doQuery(entityOtherSegment, entityOtherSegment.getKey());
         // Scanning across segmented indexes
         String index;
         if (indexManager.isSuffixed())
@@ -127,9 +127,9 @@ public class TestSegmentIndexes extends ESBase {
 
         Thread.sleep(2000);
         //"Each doc should be in it's own segmented index"
-        doQuery(entity, entity.getKey(), 1);
+        doQuery(entity, entity.getKey());
         //"Each doc should be in it's own segmented index"
-        doQuery(entityOtherSegment, entityOtherSegment.getKey(), 1);
+        doQuery(entityOtherSegment, entityOtherSegment.getKey());
         // Scanning across segmented indexes
         String indexToKeep;
         indexToKeep = entity.getSegment().getFortress().getRootIndex() + ".invoice.2014";

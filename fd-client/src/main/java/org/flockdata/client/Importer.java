@@ -61,7 +61,7 @@ import java.util.List;
  * import --auth.user=demo:123 --fd.client.delimiter=";" --fd.client.import="/fd-cow.txt,/countries.json"
  *
  *
- * @see FdTemplate
+ * @see FdClientIo
  * @see PayloadTransformer
  * @see TagInputBean
  * @see org.flockdata.track.bean.EntityInputBean
@@ -83,16 +83,16 @@ public class Importer implements CommandLineRunner {
     String serverSideContentModel; // tag:{typeCode} or {fortress}:{doctype}
     private Logger logger = LoggerFactory.getLogger(Importer.class);
     private ClientConfiguration clientConfiguration;
-    private FdTemplate fdTemplate;
+    private FdClientIo fdClientIo;
     private FileProcessor fileProcessor;
 
     public Importer() {
     }
 
     @Autowired
-    public Importer(FileProcessor fileProcessor, FdTemplate fdTemplate, ClientConfiguration clientConfiguration) {
+    public Importer(FileProcessor fileProcessor, FdClientIo fdClientIo, ClientConfiguration clientConfiguration) {
         this.fileProcessor = fileProcessor;
-        this.fdTemplate = fdTemplate;
+        this.fdClientIo = fdClientIo;
         this.clientConfiguration = clientConfiguration;
     }
 
@@ -107,15 +107,15 @@ public class Importer implements CommandLineRunner {
     }
 
     @Autowired
-    void setFdTemplate(FdTemplate fdTemplate){
-        this.fdTemplate = fdTemplate;
+    void setFdClientIo(FdClientIo fdClientIo){
+        this.fdClientIo = fdClientIo;
     }
 
 
     @Override
     public void run(String... args) throws Exception {
         logger.info("Looking for Flockdata on {}", clientConfiguration.getServiceUrl());
-        CommandRunner.configureAuth(logger, authUser, fdTemplate);
+        CommandRunner.configureAuth(logger, authUser, fdClientIo);
 
         if (clientConfiguration.getApiKey() == null) {
             logger.error("No API key is set in the config file. Have you run the fdregister process?");
@@ -136,7 +136,7 @@ public class Importer implements CommandLineRunner {
 
             int skipCount = clientConfiguration.getSkipCount();
 
-            fdTemplate.validateConnectivity();
+            fdClientIo.validateConnectivity();
             watch.start();
 
             for (String thisFile : clientConfiguration.getFilesToImport()) {
@@ -174,7 +174,7 @@ public class Importer implements CommandLineRunner {
                     return;
                 }
 
-                SystemUserResultBean su = fdTemplate.me(); // Use the configured API as the default FU unless another is set
+                SystemUserResultBean su = fdClientIo.me(); // Use the configured API as the default FU unless another is set
                 if (su == null) {
                     if (!clientConfiguration.isAmqp())
                         throw new FlockException("Unable to connect to FlockData. Is the service running at [" + clientConfiguration.getServiceUrl() + "]?");
@@ -204,12 +204,12 @@ public class Importer implements CommandLineRunner {
     }
 
     private ExtractProfile resolveExtractProfile(String fileModel, ContentModel contentModel) {
-        return fdTemplate.getExtractProfile(fileModel, contentModel);
+        return fdClientIo.getExtractProfile(fileModel, contentModel);
     }
 
     // import --auth.user=mike:123 --fd.client.import="/fd-cow.txt" --fd.content.model=tag:countries
     public ContentModel resolveContentModel(String fileModel) throws IOException {
-      return fdTemplate.getContentModel( fileModel);
+      return fdClientIo.getContentModel( fileModel);
     }
 
 

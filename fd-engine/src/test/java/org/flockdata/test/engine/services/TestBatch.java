@@ -26,9 +26,9 @@ import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.track.service.BatchService;
 import org.flockdata.engine.track.service.ContentModelService;
-import org.flockdata.engine.track.service.FdServerWriter;
+import org.flockdata.engine.track.service.FdServerIo;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.integration.FdPayloadWriter;
+import org.flockdata.integration.FdTemplate;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.test.engine.MapBasedStorageProxy;
@@ -50,8 +50,8 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {
         Neo4jConfigTest.class,
-        FdPayloadWriter.class,
-        FdServerWriter.class,
+        FdTemplate.class,
+        FdServerIo.class,
         MapBasedStorageProxy.class})
 @ActiveProfiles({"dev", "fd-auth-test", "fd-client"})
 public class TestBatch extends EngineBase {

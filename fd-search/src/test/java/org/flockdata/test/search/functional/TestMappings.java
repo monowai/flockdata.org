@@ -94,7 +94,7 @@ public class TestMappings extends ESBase {
         doFacetQuery(indexManager.parseIndex(entity), entity.getType(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
         doFieldQuery(entity, "tag.mytag.thelabel.code", "my tag", 1, "Gram match of un-faceted tag code is not working");
         // Assert that the description facet exists
-        doFacetQuery(entity, "name.facet", change.getName(),1);
+        doFacetQuery(entity, "name.facet", change.getName());
         assertNotNull(json);
 
     }
@@ -161,11 +161,11 @@ public class TestMappings extends ESBase {
         assertNotNull(changeB.getSearchKey());
 
         // by default we analyze the @description field
-        doDefaultFieldQuery(entityA, "description", changeA.getDescription(), 1);
+        doDescriptionQuery(entityA, changeA.getDescription(), 1);
 
         // In fortb.json we don't analyze the description (overriding the default) so it shouldn't be found
         // This will fail if the prefix is not fd. - see the README in fd.cust.fortb
-        doDefaultFieldQuery(entityB, "description", changeB.getDescription(), 0);
+        doDescriptionQuery(entityB, changeB.getDescription(), 0);
 
     }
 
@@ -210,8 +210,8 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
         assertNotNull(changeB.getSearchKey());
 
-        doFacetQuery(entityA,  "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        doFacetQuery(entityB,  "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
+        doFacetQuery(entityA,  "tag.mytag.thelabel.code.facet", tag.getCode());
+        doFacetQuery(entityB,  "tag.mytag.thelabel.code.facet", tag.getCode());
         String index = indexManager.getIndexRoot(entityA.getFortress()) +"*";
 
         doFacetQuery(index, "*", "tag.mytag.thelabel.code.facet", tag.getCode(), 2, "Not scanning across indexes");
@@ -242,7 +242,7 @@ public class TestMappings extends ESBase {
 
         // DAT-328
         Thread.sleep(5000);
-        doFacetQuery(entity, "tag.mytag.code.facet", tag.getCode(), 1);
+        doFacetQuery(entity, "tag.mytag.code.facet", tag.getCode());
 //         doFacetQuery(entity, "tag-mytag-code-facet", tag.getCode(), 1);
 
     }
@@ -292,7 +292,7 @@ public class TestMappings extends ESBase {
         TestCase.assertNotNull(searchResult);
         Thread.sleep(2000);
 
-        String result = doQuery(entity, "*", 1);
+        String result = doQuery(entity, "*");
         logger.info(result);
         assertTrue("Couldn't find the country GeoPoints", result.contains("points\":{\"country\""));
         assertTrue("Should be two geo points", result.contains("\"street\""));

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ import org.springframework.context.annotation.Profile;
 public class Register implements CommandLineRunner {
 
     private final ClientConfiguration clientConfiguration;
-    private final FdTemplate fdTemplate;
+    private final FdClientIo fdClientIo;
     @Value("${auth.user:#{null}}")
     String authUser;
     @Value("${register.login:#{null}}")
@@ -60,9 +60,9 @@ public class Register implements CommandLineRunner {
     private Logger logger = LoggerFactory.getLogger(Register.class);
 
     @Autowired
-    public Register(ClientConfiguration clientConfiguration, FdTemplate fdTemplate) {
+    public Register(ClientConfiguration clientConfiguration, FdClientIo fdClientIo) {
         this.clientConfiguration = clientConfiguration;
-        this.fdTemplate = fdTemplate;
+        this.fdClientIo = fdClientIo;
     }
 
     @Override
@@ -74,10 +74,10 @@ public class Register implements CommandLineRunner {
             System.exit(-1);
         }
 
-        CommandRunner.configureAuth(logger, authUser, fdTemplate);
+        CommandRunner.configureAuth(logger, authUser, fdClientIo);
 
         RegistrationBean regBean = new RegistrationBean(clientConfiguration.getCompany(), login);
-        RegistrationPost register = new RegistrationPost(fdTemplate, regBean);
+        RegistrationPost register = new RegistrationPost(fdClientIo, regBean);
         register.exec();
         if ( register.error()!=null)
             logger.error(register.error());

@@ -48,6 +48,7 @@ import java.util.Set;
  * </pre>
  *
  * Or maybe in spring.xml:
+ * {@literal
  * <pre>
  * <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype" >
  *      <beans:constructor-arg>
@@ -62,6 +63,7 @@ import java.util.Set;
  *      </beans:constructor-arg>
  *  </beans:bean>
  * </pre>
+ * }
  * In the above configuration, the https://api.stormpath.com/v1/groups/d8UDkz9QPcn2z73j93m6Z group translates into two granted
  * authorities: ROLE_A and ROLE_C. This allows your Spring Security application to remain Stormpath-agnostic and thus allowing
  * your own set of business-specific roles to be used in your application.

@@ -55,7 +55,7 @@ public class AttachmentTests extends ESBase {
         Thread.sleep(1000);
         assertNotNull(changeA);
         assertNotNull(changeA.getSearchKey());
-        doQuery(entity, "brown", 1);
+        doQuery(entity, "brown");
 
     }
 

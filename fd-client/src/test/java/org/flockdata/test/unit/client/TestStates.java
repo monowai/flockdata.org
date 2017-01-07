@@ -39,9 +39,9 @@ public class TestStates extends AbstractImport {
         String file = "/states.json";
         ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
         fileProcessor.processFile(new ExtractProfileHandler(contentModel), "/states.csv");
-        assertEquals(72, getFdWriter().getTags().size());
+        assertEquals(72, getTemplate().getTags().size());
 
-        for (TagInputBean stateTag : getFdWriter().getTags()) {
+        for (TagInputBean stateTag : getTemplate().getTags()) {
             assertEquals(1, stateTag.getTargets().size());
             TagInputBean country = stateTag.getTargets().get("region").iterator().next();
             assertNotNull(country);

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.flockdata.test.unit.client;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.integration.*;
 import org.flockdata.transform.FdIoInterface;
@@ -36,8 +36,8 @@ import static junit.framework.TestCase.assertNotNull;
  */
 @ContextConfiguration(classes = {
         ClientConfiguration.class,
-        FdPayloadWriter.class,
         FdTemplate.class,
+        FdClientIo.class,
         FdRabbitClient.class,
         AmqpRabbitConfig.class,
         Exchanges.class,
@@ -49,13 +49,13 @@ import static junit.framework.TestCase.assertNotNull;
 public class TestWiring {
 
     @Autowired
-    FdIoInterface fdIoInterface;
+    private FdIoInterface fdIoInterface;
     @Autowired
     private Exchanges exchanges;
     @Autowired
     private FdRabbitClient rabbitClient;
     @Autowired
-    private FdTemplate template;
+    private FdClientIo template;
 
     @Test
     public void wiringWorks() throws Exception {

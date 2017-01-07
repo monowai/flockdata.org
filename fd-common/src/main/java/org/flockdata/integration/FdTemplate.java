@@ -1,26 +1,23 @@
 /*
+ *  Copyright 2012-2017 the original author or authors.
  *
- *  Copyright (c) 2012-2017 "FlockData LLC"
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This file is part of FlockData.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  FlockData is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  FlockData is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.integration;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
@@ -42,8 +39,8 @@ import java.util.concurrent.locks.ReentrantLock;
 @Service
 @Configuration
 @Profile({"fd-batch", "fd-client"})
-public class FdPayloadWriter implements PayloadWriter {
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdPayloadWriter.class);
+public class FdTemplate implements Template {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdTemplate.class);
     private final Lock entityLock = new ReentrantLock();
     private final Lock tagLock = new ReentrantLock();
     private List<EntityInputBean> entityBatch = new ArrayList<>();
@@ -52,24 +49,33 @@ public class FdPayloadWriter implements PayloadWriter {
 
     private FdIoInterface fdIoInterface;
 
-    protected FdPayloadWriter() {
+    protected FdTemplate() {
     }
 
     @Autowired
-    public FdPayloadWriter(ClientConfiguration clientConfiguration, FdIoInterface fdIoInterface) {
+    public FdTemplate(ClientConfiguration clientConfiguration, FdIoInterface fdIoInterface) {
         this.clientConfiguration = clientConfiguration;
         this.fdIoInterface = fdIoInterface;
         logger.info(clientConfiguration.toString());
     }
 
+    /**
+     *
+     * @return Implementation of the IO interface being used to communicate with the service
+     */
     @Override
-    public void writeTag(TagInputBean tagInputBean, String message) throws FlockException {
-        writeTags(Collections.singletonList(tagInputBean), false, message);
+    public FdIoInterface getFdIoInterface() {
+        return fdIoInterface;
     }
 
     @Override
-    public void writeTags(Collection<TagInputBean> tagInputBeans, String message) throws FlockException {
-        writeTags(tagInputBeans, false, message);
+    public void writeTag(TagInputBean tagInputBean) throws FlockException {
+        writeTags(Collections.singletonList(tagInputBean), false);
+    }
+
+    @Override
+    public void writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException {
+        writeTags(tagInputBeans, false);
     }
 
     @Override
@@ -78,7 +84,7 @@ public class FdPayloadWriter implements PayloadWriter {
     }
 
     @Override
-    public void writeEntity(EntityInputBean entityInputBean, boolean doWrite) throws FlockException {
+    public void writeEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException {
         if (fdIoInterface == null)
             throw new FlockException("No valid FdIoHandler could be found. Please provide an implementation");
         try {
@@ -103,7 +109,7 @@ public class FdPayloadWriter implements PayloadWriter {
                 writeTags(entityInputBean);
             }
 
-            if (clientConfiguration.getBatchSize() > 0 && (doWrite || entityBatch.size() >= clientConfiguration.getBatchSize())) {
+            if (clientConfiguration.getBatchSize() > 0 && (flush || entityBatch.size() >= clientConfiguration.getBatchSize())) {
 
                 if (entityBatch.size() > 0) {
                     logger.debug("Writing....");
@@ -138,7 +144,7 @@ public class FdPayloadWriter implements PayloadWriter {
         return existingIndex;
     }
 
-    private void writeTags(Collection<TagInputBean> tagInputBeans, boolean forceFlush, String message) throws FlockException {
+    private void writeTags(Collection<TagInputBean> tagInputBeans, boolean forceFlush) throws FlockException {
         if ( tagInputBeans== null )
             return;
         try {
@@ -156,7 +162,7 @@ public class FdPayloadWriter implements PayloadWriter {
 
                 if (tagBatch.size() > 0)
                     if (forceFlush || tagBatch.size() >= clientConfiguration.getBatchSize()) {
-                        logger.debug("Writing " + message + " Tag Batch [{}]", tagBatch.size());
+                        logger.debug("Writing Tag Batch [{}]", tagBatch.size());
                         if (tagBatch.size() > 0)
                             fdIoInterface.writeTags(new ArrayList<>(tagBatch.values()));
                         logger.debug("Wrote Tag Batch");
@@ -201,7 +207,7 @@ public class FdPayloadWriter implements PayloadWriter {
         try {
             entityLock.lock();
             try {
-                writeTags(null, true, "");
+                writeTags(null, true);
                 if (entityBatch.size() > 0)
                     fdIoInterface.writeEntities(entityBatch);
                 entityBatch.clear();
@@ -231,6 +237,11 @@ public class FdPayloadWriter implements PayloadWriter {
     @Override
     public List<TagInputBean> getTags() {
         return new ArrayList<>(tagBatch.values());
+    }
+
+    @Override
+    public SystemUserResultBean validateConnectivity() throws FlockException {
+        return fdIoInterface.validateConnectivity();
     }
 
 }

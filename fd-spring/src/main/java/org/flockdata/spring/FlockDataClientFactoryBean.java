@@ -17,7 +17,7 @@
 package org.flockdata.spring;
 
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.transform.FdIoInterface;
+import org.flockdata.integration.Template;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -26,12 +26,12 @@ import org.springframework.context.annotation.Configuration;
 public class FlockDataClientFactoryBean {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FlockDataClientFactoryBean.class);
-    private final FdIoInterface fdTemplate;
+    private final Template fdTemplate;
 
     private ClientConfiguration clientConfiguration;
 
     @Autowired
-    public FlockDataClientFactoryBean(ClientConfiguration clientConfiguration, FdIoInterface fdTemplate) {
+    public FlockDataClientFactoryBean(ClientConfiguration clientConfiguration, Template fdTemplate) {
         this.fdTemplate = fdTemplate;
         this.clientConfiguration = clientConfiguration;
     }

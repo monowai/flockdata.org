@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.flockdata.test.unit.batch;
 
-import org.flockdata.integration.PayloadWriter;
+import org.flockdata.integration.Template;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.test.unit.client.AbstractImport;
 import org.flockdata.track.bean.DocumentTypeInputBean;
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 public class TestFdBatcher extends AbstractImport {
 
     @Autowired
-    private PayloadWriter myBatcher;
+    private Template myBatcher;
 
     @Test
     public void fdBatcherAccumulation() throws Exception {

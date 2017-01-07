@@ -17,12 +17,12 @@
 package org.flockdata.spring.service;
 
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.integration.PayloadWriter;
+import org.flockdata.integration.Template;
 import org.flockdata.spring.FlockDataClientFactoryBean;
 import org.flockdata.spring.utils.PojoToFdTransformer;
 import org.flockdata.spring.xml.ClientBeanDefinitionParser;
-import org.flockdata.test.unit.client.MockFdWriter;
-import org.flockdata.test.unit.client.MockPayloadWriter;
+import org.flockdata.test.unit.client.FdMockIo;
+import org.flockdata.test.unit.client.FdTemplateMock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +36,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 @TestPropertySource("/application_dev.properties")
 @ContextConfiguration(classes = {
         ClientConfiguration.class,
-        MockPayloadWriter.class,
+        FdTemplateMock.class,
         FlockDataClientFactoryBean.class,
-        MockFdWriter.class,
+        FdMockIo.class,
         PojoToFdTransformer.class,
         ClientBeanDefinitionParser.class,
         SimpleTrackedService.class
@@ -48,7 +48,7 @@ public class SimpleFlockServiceTest {
     @Autowired
     private SimpleTrackedService simpleTrackedService;
     @Autowired
-    private PayloadWriter payloadWriter;
+    private Template fdTemplate;
 
     @Test
     public void testCreateEntityAnnotation() {
@@ -57,7 +57,7 @@ public class SimpleFlockServiceTest {
         customer.setName("name");
         customer.setEmail("email@email.com");
         simpleTrackedService.save(customer);
-        payloadWriter.getEntities();
+        fdTemplate.getEntities();
     }
 
     @Test

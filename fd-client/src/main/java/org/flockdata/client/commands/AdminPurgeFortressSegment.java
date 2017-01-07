@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +36,8 @@ public class AdminPurgeFortressSegment extends AbstractRestCommand {
     private String result;
     private String fortress, docType, segment;
 
-    public AdminPurgeFortressSegment(FdTemplate fdTemplate, String fortress, String docType, String segment) {
-        super(fdTemplate);
+    public AdminPurgeFortressSegment(FdClientIo fdClientIo, String fortress, String docType, String segment) {
+        super(fdClientIo);
         this.fortress = fortress;
         this.docType = docType;
         this.segment = segment;
@@ -51,10 +51,10 @@ public class AdminPurgeFortressSegment extends AbstractRestCommand {
     public AdminPurgeFortressSegment exec() {
         String exec = getUrl()+ "/api/v1/admin/{fortress}/{docType}/{segment}";
         result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
+        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
         try {
             ResponseEntity<String> response;
-            response = fdTemplate.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress,docType,segment);
+            response = fdClientIo.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress,docType,segment);
             result = response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getMessage().startsWith("401"))

@@ -51,9 +51,9 @@ import static org.mockito.Mockito.when;
 public class TestIndexTagChanges extends ESBase {
     @Test
     public void testSimpleTagIndexes() throws Exception {
-        Company company = new CompanyInputBean("testCompany");
+        Company company = new CompanyInputBean("testTagCompany");
 
-        TagInputBean tagInputBean = new TagInputBean("aCode", "SomeLabel");
+        TagInputBean tagInputBean = new TagInputBean("simpleCode", "SimpleLabel");
         tagInputBean.setName("A Name to Find");
         tagInputBean.setProperty("user property", "UDFValue");
 

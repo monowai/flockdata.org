@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.search.ContentStructure;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -37,8 +37,8 @@ public class ModelFieldStructure extends AbstractRestCommand{
     private String fortress;
     private String documentType ;
 
-    public ModelFieldStructure(FdTemplate fdTemplate, String fortress, String documentType) {
-        super(fdTemplate);
+    public ModelFieldStructure(FdClientIo fdClientIo, String fortress, String documentType) {
+        super(fdClientIo);
         this.fortress = fortress;
         this.documentType = documentType;
     }
@@ -46,12 +46,12 @@ public class ModelFieldStructure extends AbstractRestCommand{
 
     @Override
     public ModelFieldStructure exec() {
-        HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
+        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
         result=null;   error =null;
         try {
 
             ResponseEntity<ContentStructure> response ;
-                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/model/{fortress}/{docType}/fields", HttpMethod.GET, requestEntity, ContentStructure.class,
+                response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/model/{fortress}/{docType}/fields", HttpMethod.GET, requestEntity, ContentStructure.class,
                         fortress,
                         documentType);
 

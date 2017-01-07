@@ -17,7 +17,7 @@
 package org.flockdata.test.integration;
 
 import me.tongfei.progressbar.ProgressBar;
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.client.commands.*;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
@@ -70,7 +70,7 @@ class IntegrationHelper {
     private static boolean setupComplete = false;
     // If any one of FD's services fail to come up we can't perform integration testing
     private static boolean stackFailed = false;
-    private FdTemplate fdTemplate;
+    private FdClientIo fdClientIo;
     @Value("${org.fd.test.sleep.short:1500}")
     private int shortSleep;
     @Value("${org.fd.test.sleep.long:4000}")
@@ -100,8 +100,8 @@ class IntegrationHelper {
     }
 
     @Autowired
-    void setFdTemplate(FdTemplate fdTemplate) {
-        this.fdTemplate = fdTemplate;
+    void setFdClientIo(FdClientIo fdClientIo) {
+        this.fdClientIo = fdClientIo;
     }
 
     Collection<EntityInputBean> toCollection(EntityInputBean entityInputBean) throws IOException {
@@ -234,7 +234,7 @@ class IntegrationHelper {
         if (setupComplete)
             return; // This method is called before every @Test - it's expensive :o)
 
-        logger.info("Waiting for containers to come on-line. Service URL {}", fdTemplate.getUrl());
+        logger.info("Waiting for containers to come on-line. Service URL {}", fdClientIo.getUrl());
 
         logger.debug("Running with debug logging");
         logger.info("org.fd.test.sleep.short {}ms", shortSleep);
@@ -250,7 +250,7 @@ class IntegrationHelper {
             logger.error("Failed to start the stack");
 
         setupComplete = true;
-        fdTemplate.resetRabbitClient(getRabbit(), getRabbitPort());
+        fdClientIo.resetRabbitClient(getRabbit(), getRabbitPort());
 
     }
 
@@ -269,9 +269,9 @@ class IntegrationHelper {
                         Thread.sleep(5000);
                     }
                 }
-                Ping enginePing = new Ping(fdTemplate, getEngine());
-                Ping searchPing = new Ping(fdTemplate, getSearch());
-                Ping storePing = new Ping(fdTemplate, getStore());
+                Ping enginePing = new Ping(fdClientIo, getEngine());
+                Ping searchPing = new Ping(fdClientIo, getSearch());
+                Ping storePing = new Ping(fdClientIo, getStore());
                 logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine());
                 logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch());
                 logger.info("FDStore  - {} - reachable @ {}", SERVICE_STORE, getStore());
@@ -287,7 +287,7 @@ class IntegrationHelper {
                 // If the services can't see each other, its not worth proceeding
                 SystemUserResultBean login = login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
                 assertNotNull(login);
-                Health health = new Health(fdTemplate);
+                Health health = new Health(fdClientIo);
                 assertWorked("Health Check", health.exec());
 
                 Map<String, Object> healthResult = health.result();
@@ -362,10 +362,10 @@ class IntegrationHelper {
      * @throws FlockException errors
      */
     SystemUserResultBean login(String user, String pass) throws FlockException {
-        fdTemplate.setServiceUrl(getEngine());
-        SystemUserResultBean su = fdTemplate.login(user, pass);
+        fdClientIo.setServiceUrl(getEngine());
+        SystemUserResultBean su = fdClientIo.login(user, pass);
         assertNotNull(String.format("failed to login as %s", user), su);
-        su = fdTemplate.register(user, "TestCompany");
+        su = fdClientIo.register(user, "TestCompany");
         assertNotNull(String.format("Failed to make the login %s a data access user", user), su.getApiKey());
         return su;
 

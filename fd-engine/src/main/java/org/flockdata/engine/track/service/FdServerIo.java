@@ -39,11 +39,15 @@ import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
 /**
+ * Server side IO writer that uses injected services rather than HTTP/AMQP communication mechanisms
+ * Used to support server side processing of data files
+ *
+ * @tag Batch, Entity, Tag
  * @author mholdsworth
  * @since 8/10/2014
  */
 @Service
-public class FdServerWriter implements FdIoInterface {
+public class FdServerIo implements FdIoInterface {
 
     private final FortressService fortressService;
 
@@ -56,7 +60,7 @@ public class FdServerWriter implements FdIoInterface {
     private final ContentModelService contentModelService;
 
     @Autowired
-    public FdServerWriter(MediationFacade mediationFacade, SecurityHelper securityHelper, ContentModelService contentModelService, FortressService fortressService, ConceptService conceptService) {
+    public FdServerIo(MediationFacade mediationFacade, SecurityHelper securityHelper, ContentModelService contentModelService, FortressService fortressService, ConceptService conceptService) {
         this.mediationFacade = mediationFacade;
         this.securityHelper = securityHelper;
         this.contentModelService = contentModelService;
@@ -116,13 +120,22 @@ public class FdServerWriter implements FdIoInterface {
 
     @Override
     public SystemUserResultBean validateConnectivity() throws FlockException {
-        return null;
-        // No-op - We're on the server, so we better be running
+        return me();
     }
 
     @Override
     public SystemUserResultBean register(String userName, String company) {
         throw new UnsupportedOperationException("Registration is not supported through this mechanism");
+    }
+
+    @Override
+    public SystemUserResultBean login(String userName, String password) {
+        throw new UnsupportedOperationException("login is not supported in this class");
+    }
+
+    @Override
+    public String getUrl() {
+        throw new UnsupportedOperationException("This function is not supported");
     }
 
 }

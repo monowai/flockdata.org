@@ -44,13 +44,16 @@ import java.util.Map;
 /**
  * FlockData spring-batch configuration class
  *
- * creates a configured instance of an FdLoader to communicate with FlockData
+ * creates a configured instance with an FdTemplate to communicate with FlockData
  * Loads org.fd.client.configs from your fd-batch.properties file that will in-turn read a
  * YAML file for mapping between an SQL query and a ContentProfile
  *
  * @tag Batch, Integration, Configuration, FdClient
  * @author mholdsworth
  * @since 24/01/2016
+ * @see org.flockdata.integration.ClientConfiguration
+ * @see FdIoInterface
+ * @see org.flockdata.integration.Template
  */
 @PropertySources({
         @PropertySource(value = "classpath:/fd-batch.properties"),
@@ -64,6 +67,7 @@ public class BatchConfig {
     @Value("${org.fd.client.amqp:true}")
     Boolean amqp = true;
     private Logger logger = LoggerFactory.getLogger(BatchConfig.class);
+    @Value("${org.fd.client.batchsize:1}")
     private int batchSize;
     @Value("${source.datasource.url}")
     private String url;
@@ -93,11 +97,13 @@ public class BatchConfig {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    @Value("${org.fd.client.batchsize:1}")
-    void setBatchSize(String batch) {
-        this.batchSize = Integer.parseInt(batch);
-    }
-
+    /**
+     * Initialisation of the configuration that will be handled by this class
+     * ToDo: These need to support refreshing in non-command line environments
+     *
+     * @param str comma separated list of configuration files to initialise
+     * @throws Exception anything goes wrong
+     */
     @Autowired
     void loadConfigs(@Value("${org.fd.client.configs:}") final String str) throws Exception {
         if (str != null && !str.equals("")) {
@@ -186,7 +192,7 @@ public class BatchConfig {
     }
 
     private StepConfig readConfig(String fileName) throws IOException {
-        StepConfig stepConfig = null;
+        StepConfig stepConfig;
         InputStream file = null;
         try {
             file = getClass().getClassLoader().getResourceAsStream(fileName);

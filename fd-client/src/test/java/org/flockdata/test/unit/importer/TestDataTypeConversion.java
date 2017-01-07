@@ -46,18 +46,18 @@ public class TestDataTypeConversion  extends AbstractImport {
     @Test
     public void preserve_NumberValueAsString() throws Exception {
         String fileName = "/model/data-types.json";
-        getFdWriter().flush();
+        getTemplate().flush();
         ContentModel contentModel = ContentModelDeserializer.getContentModel(fileName);
         ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
 
         fileProcessor.processFile(extractProfile, "/data/data-types.csv");
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getTemplate().getTags();
         assertEquals(2, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
             if (tagInputBean.getLabel().equals("as-string"))
                 assertEquals("00165", tagInputBean.getCode());
         }
-        EntityInputBean entity = getFdWriter().getEntities().iterator().next();
+        EntityInputBean entity = getTemplate().getEntities().iterator().next();
         assertNotNull ( entity.getContent());
         assertEquals("The N/A string should have been set to the default of 0", 0, entity.getContent().getData().get("illegal-num"));
         assertEquals("The Blank string should have been set to the default of 0", 0, entity.getContent().getData().get("blank-num"));
@@ -71,7 +71,7 @@ public class TestDataTypeConversion  extends AbstractImport {
         ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
 
         fileProcessor.processFile(extractProfile, "/data/entity-data-types.csv");
-        List<EntityInputBean> entityInputBeans = getFdWriter().getEntities();
+        List<EntityInputBean> entityInputBeans = getTemplate().getEntities();
         assertEquals(2, entityInputBeans.size());
         for (EntityInputBean entityInputBean : entityInputBeans) {
             Object o = entityInputBean.getProperties().get("value");
@@ -89,13 +89,13 @@ public class TestDataTypeConversion  extends AbstractImport {
         ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
 
         fileProcessor.processFile(extractProfile, "/data/data-types.csv");
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getTemplate().getTags();
         assertEquals(2, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
             if (tagInputBean.getLabel().equals("tag-code"))
                 assertEquals("123", tagInputBean.getCode());
         }
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        List<EntityInputBean> entities = getTemplate().getEntities();
         for (EntityInputBean entity : entities) {
             Object whatString = entity.getContent().getData().get("tag-code");
             assertEquals(""+whatString.getClass(), true, whatString instanceof String);
@@ -153,7 +153,7 @@ public class TestDataTypeConversion  extends AbstractImport {
         ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
 
         fileProcessor.processFile(extractProfile, "/data/data-types.csv");
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        List<EntityInputBean> entities = getTemplate().getEntities();
         assertEquals(1, entities.size());
         EntityInputBean entityInputBean = entities.iterator().next();
         assertEquals("Title expression did not evaluate", "00165-test", entityInputBean.getName());
@@ -166,7 +166,7 @@ public class TestDataTypeConversion  extends AbstractImport {
         ContentModel contentModel = ContentModelDeserializer.getContentModel(fileName);
         ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
         fileProcessor.processFile(extractProfile, "/data/data-types.csv");
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        List<EntityInputBean> entities = getTemplate().getEntities();
         assertEquals(1, entities.size());
         EntityInputBean entityInputBean = entities.iterator().next();
 
@@ -194,7 +194,7 @@ public class TestDataTypeConversion  extends AbstractImport {
         ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
 
         fileProcessor.processFile(extractProfile, "/data/data-types.csv");
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        List<EntityInputBean> entities = getTemplate().getEntities();
         assertEquals(1, entities.size());
         EntityInputBean entityInputBean = entities.iterator().next();
 

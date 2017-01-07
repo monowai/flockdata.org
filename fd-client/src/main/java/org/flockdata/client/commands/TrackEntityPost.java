@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackRequestResult;
 import org.springframework.http.HttpEntity;
@@ -39,8 +39,8 @@ public class TrackEntityPost extends AbstractRestCommand  {
 
     private TrackRequestResult result;
 
-    public TrackEntityPost(FdTemplate fdTemplate, EntityInputBean entityInputBean) {
-        super(fdTemplate);
+    public TrackEntityPost(FdClientIo fdClientIo, EntityInputBean entityInputBean) {
+        super(fdClientIo);
         this.entityInputBean = entityInputBean;
     }
 
@@ -51,10 +51,10 @@ public class TrackEntityPost extends AbstractRestCommand  {
     @Override
     public TrackEntityPost exec() {
         result=null; error =null;
-        HttpEntity<EntityInputBean> requestEntity = new HttpEntity<>(entityInputBean, fdTemplate.getHeaders());
+        HttpEntity<EntityInputBean> requestEntity = new HttpEntity<>(entityInputBean, fdClientIo.getHeaders());
 
         try {
-            ResponseEntity<TrackRequestResult> restResult = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/track/", HttpMethod.POST, requestEntity, TrackRequestResult.class);
+            ResponseEntity<TrackRequestResult> restResult = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/track/", HttpMethod.POST, requestEntity, TrackRequestResult.class);
             result = restResult.getBody();
         }catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();

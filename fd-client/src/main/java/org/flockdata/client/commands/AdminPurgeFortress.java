@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +37,8 @@ public class AdminPurgeFortress extends AbstractRestCommand {
     private String result;
     private String fortress;
 
-    public AdminPurgeFortress(FdTemplate fdTemplate, String fortress) {
-        super(fdTemplate);
+    public AdminPurgeFortress(FdClientIo fdClientIo, String fortress) {
+        super(fdClientIo);
         this.fortress = fortress;
     }
 
@@ -50,10 +50,10 @@ public class AdminPurgeFortress extends AbstractRestCommand {
     public AdminPurgeFortress exec() {
         String exec = getUrl() + "/api/v1/admin/{fortress}";
         result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
+        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
         try {
             ResponseEntity<String> response;
-            response = fdTemplate.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress);
+            response = fdClientIo.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress);
             result = response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getMessage().startsWith("401"))

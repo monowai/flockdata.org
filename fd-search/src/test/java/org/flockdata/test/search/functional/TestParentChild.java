@@ -109,7 +109,7 @@ public class TestParentChild extends ESBase {
         Thread.sleep(2000);
 
         //ToDo: Needs the relationship
-        System.out.println(doQuery(entity, "*", 1));
+        System.out.println(doQuery(entity, "*"));
         doFieldQuery(entity, "e.staff.code", "ABC123", 1, "Unable to locate by staff field");
         doFieldQuery(entity, "e.staff.tag.role.position.code", "Cleaner", 1, "Unable to locate by staff tag code");
     }
@@ -147,10 +147,10 @@ public class TestParentChild extends ESBase {
 
         Thread.sleep(2000);
         // One document of parent type
-        doQuery(parentEntity, "*", 1);
+        doQuery(parentEntity, "*");
 
         if (!indexManager.isSuffixed())
-            doQuery(childEntity, "*", 1);
+            doQuery(childEntity, "*");
 
         // Should find both the parent and the child when searching just the index
         doQuery(indexManager.getIndexRoot(parentEntity.getFortress()) + "*", "*", "*", 2);

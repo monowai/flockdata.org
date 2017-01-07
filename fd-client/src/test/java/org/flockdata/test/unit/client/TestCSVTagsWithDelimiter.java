@@ -51,7 +51,7 @@ public class TestCSVTagsWithDelimiter extends AbstractImport {
         long rows = fileProcessor.processFile(extractProfile, "/data/no-header.txt");
         int expectedRows = 6;
         assertEquals(expectedRows, rows);
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getTemplate().getTags();
         TestCase.assertEquals(expectedRows, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
             assertFalse(tagInputBean.getCode().contains("|"));

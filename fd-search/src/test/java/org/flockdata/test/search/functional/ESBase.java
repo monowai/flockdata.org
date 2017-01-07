@@ -147,13 +147,13 @@ public class ESBase {
     /**
      * Term query on a non-analyzed field
      *
-     * @param index
-     * @param field
-     * @param queryString
-     * @param expectedHitCount
-     * @param exceptionMessage
-     * @return
-     * @throws Exception
+     * @param index to search
+     * @param field to query
+     * @param queryString  for
+     * @param expectedHitCount how many?
+     * @param exceptionMessage display this error
+     * @return ES JSON result
+     * @throws Exception anything goes wrong
      */
     String doFacetQuery(String index, String type, String field, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
         // There should only ever be one document for a given Entity.
@@ -206,13 +206,13 @@ public class ESBase {
 
     /**
      * Scans an analyzed field looking for the queryString
-     * @param entity
-     * @param field
-     * @param queryString
-     * @param expectedHitCount
-     * @param exceptionMessage
-     * @return
-     * @throws Exception
+     * @param entity calculate the index from this
+     * @param field to query
+     * @param queryString  for
+     * @param expectedHitCount how many?
+     * @param exceptionMessage display this error
+     * @return ES JSON result
+     * @throws Exception anything goes wrong
      */
     String doFieldQuery(Entity entity, String field, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
         int runCount = 0, nbrResult;
@@ -289,8 +289,8 @@ public class ESBase {
         return result.getJsonString();
     }
 
-    String doQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
-        return doQuery(indexManager.parseIndex(entity), indexManager.parseType(entity), queryString, expectedHitCount);
+    String doQuery(Entity entity, String queryString) throws Exception {
+        return doQuery(indexManager.parseIndex(entity), indexManager.parseType(entity), queryString, 1);
     }
 
     String doQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
@@ -336,7 +336,7 @@ public class ESBase {
 
     }
 
-    String doFacetQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
+    String doFacetQuery(Entity entity, String field, String queryString) throws Exception {
         int runCount = 0, nbrResult;
 
         JestResult result;
@@ -366,9 +366,9 @@ public class ESBase {
             assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
             assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
             nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        } while (nbrResult != expectedHitCount && runCount < 5);
+        } while (nbrResult != 1 && runCount < 5);
 
-        Assert.assertEquals("Unexpected hit count searching '" + indexManager.parseIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        Assert.assertEquals("Unexpected hit count searching '" + indexManager.parseIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", 1, nbrResult);
         if (nbrResult != 0)
             return result.getJsonObject()
                     .getAsJsonObject("hits")
@@ -384,13 +384,11 @@ public class ESBase {
                     .getAsJsonArray().toString();
     }
 
-    String doDefaultFieldQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
-        return doDefaultFieldQuery(entity, null, field, queryString, expectedHitCount);
-    }
+    String doDescriptionQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
 
-    String doDefaultFieldQuery(Entity entity, String type, String field, String queryString, int expectedHitCount) throws Exception {
         int runCount = 0, nbrResult;
         JestResult result;
+        String field = "description" ;
         do {
 
             runCount++;
@@ -404,7 +402,6 @@ public class ESBase {
                     "}";
             Search search = new Search.Builder(query)
                     .addIndex(indexManager.parseIndex(entity))
-                    .addType(type)
                     .build();
 
             result = esClient.execute(search);

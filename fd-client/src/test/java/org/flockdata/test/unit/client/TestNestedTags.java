@@ -42,7 +42,7 @@ public class TestNestedTags extends AbstractImport {
 
         fileProcessor.processFile(extractProfile, "/data/tags-inputs.csv");
 
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getTemplate().getTags();
         // The profile defines a nested tag but the value is missing in the source
 
         assertEquals(1, tagInputBeans.size());

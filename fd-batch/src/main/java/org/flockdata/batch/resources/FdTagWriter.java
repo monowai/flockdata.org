@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package org.flockdata.batch.resources;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.integration.PayloadWriter;
+import org.flockdata.integration.Template;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.FdIoInterface;
 import org.slf4j.LoggerFactory;
@@ -41,11 +41,11 @@ import java.util.List;
 public class FdTagWriter implements ItemWriter<TagInputBean> {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdTagWriter.class);
-    private final PayloadWriter payloadWriter;
+    private final Template fdTemplate;
 
     @Autowired
-    public FdTagWriter(FdIoInterface fdIoInterface, PayloadWriter payloadWriter) {
-        this.payloadWriter = payloadWriter;
+    public FdTagWriter(FdIoInterface fdIoInterface, Template fdTemplate) {
+        this.fdTemplate = fdTemplate;
         try {
             fdIoInterface.validateConnectivity();
         } catch (FlockException e){
@@ -57,7 +57,7 @@ public class FdTagWriter implements ItemWriter<TagInputBean> {
     public void write(List<? extends TagInputBean> items) throws Exception {
 
         for (TagInputBean item : items) {
-            payloadWriter.writeTag(item, "");
+            fdTemplate.writeTag(item);
         }
     }
 }

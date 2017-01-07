@@ -36,12 +36,12 @@ These commands do the same thing - register the login account `demo` as a System
 ## fdimport
 Invoke the fdimporter to ingest data as modeled by `profile.json` using supplied arguments
  
-`docker-compose run fdimport --fd.client.import="path/data.txt, path/profile.json"`
+`docker-compose run fdimport -u=demo:123 --fd.client.import="path/data.txt, path/profile.json"`
 
 ## fdcountries
 See the world! This customized version of `fdimport` loads [countries](http://opengeocode.org/), capital cities, and common aliases along with geo tagged data, into FlockData. States for USA, Canada, and Australia are also added.
 
-`docker-compose run fd-client fdcountries`
+`docker-compose run fd-client fdcountries -u=demo:123`
 
 ### Configuration
 All test based configuration is controlled by files in `src/test/resources/`

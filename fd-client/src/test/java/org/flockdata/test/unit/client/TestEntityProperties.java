@@ -53,7 +53,7 @@ public class TestEntityProperties extends AbstractImport {
         extractProfile.setQuoteCharacter("|");
 
         fileProcessor.processFile(extractProfile, "/data/entity-properties.txt");
-        List<EntityInputBean> entities = fdWriter.getEntities();
+        List<EntityInputBean> entities = fdTemplate.getEntities();
 
         for (EntityInputBean entity : entities) {
             assertNotEquals("One org and one candidate", 0, entity.getTags().size());

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,9 +17,8 @@
 package org.flockdata.batch.resources;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.integration.PayloadWriter;
+import org.flockdata.integration.Template;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.FdIoInterface;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,17 +41,17 @@ public class FdEntityWriter implements ItemWriter<EntityInputBean> {
 
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdEntityWriter.class);
-    private PayloadWriter payloadWriter;
+    private Template fdTemplate;
 
     private FdEntityWriter() {
     }
 
     @Autowired
-    FdEntityWriter(PayloadWriter payloadWriter, FdIoInterface fdIoInterface) {
+    FdEntityWriter(Template fdTemplate) {
         this();
-        this.payloadWriter = payloadWriter;
+        this.fdTemplate = fdTemplate;
         try {
-            fdIoInterface.validateConnectivity();
+            fdTemplate.validateConnectivity();
         } catch (FlockException e) {
             logger.error("Error validating connectivity");
         }
@@ -61,7 +60,7 @@ public class FdEntityWriter implements ItemWriter<EntityInputBean> {
     @Override
     public void write(List<? extends EntityInputBean> items) throws Exception {
         for (EntityInputBean item : items) {
-            payloadWriter.writeEntity(item);
+            fdTemplate.writeEntity(item);
         }
     }
 }

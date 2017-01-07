@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,11 +21,10 @@ import junit.framework.TestCase;
 import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.resources.*;
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.integration.FdPayloadWriter;
-import org.flockdata.integration.PayloadWriter;
+import org.flockdata.integration.Template;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.test.unit.client.MockFdWriter;
-import org.flockdata.test.unit.client.MockPayloadWriter;
+import org.flockdata.test.unit.client.FdMockIo;
+import org.flockdata.test.unit.client.FdTemplateMock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.JobExecution;
@@ -50,13 +49,12 @@ import static org.junit.Assert.assertNotNull;
 @ContextConfiguration(classes = {BatchConfig.class,
         FdBatchResources.class,
         ClientConfiguration.class,
-        MockFdWriter.class,
-        MockPayloadWriter.class,
+        FdMockIo.class,
+        FdTemplateMock.class,
         FdTagProcessor.class,
         FdTagWriter.class,
         FdEntityProcessor.class,
         FdRowMapper.class,
-        FdPayloadWriter.class,
         HsqlDataSource.class,
         JobLauncherTestUtils.class,
         SqlTagStep.class
@@ -67,9 +65,9 @@ import static org.junit.Assert.assertNotNull;
 public class TestSqlTagToFlockData extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired
-    ClientConfiguration clientConfiguration;
+    private ClientConfiguration clientConfiguration;
     @Autowired
-    PayloadWriter payloadWriter;
+    private Template fdTemplate;
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
 
@@ -81,8 +79,8 @@ public class TestSqlTagToFlockData extends AbstractTransactionalJUnit4SpringCont
         assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());
         assertTrue(clientConfiguration.getBatchSize() > 1);
         // This check works because 2 is < the configured batch size
-        TestCase.assertEquals("Number of rows loaded ex entity-data.sql does not match", 2, payloadWriter.getTags().size());
-        for (TagInputBean tagInputBean : payloadWriter.getTags()) {
+        TestCase.assertEquals("Number of rows loaded ex entity-data.sql does not match", 2, fdTemplate.getTags().size());
+        for (TagInputBean tagInputBean : fdTemplate.getTags()) {
             assertEquals("Country", tagInputBean.getLabel());
             assertNotNull(tagInputBean.getName());
             assertEquals(3, tagInputBean.getCode().length());

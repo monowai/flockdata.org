@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import java.sql.SQLException;
  * Kept here for reference only
  * @author mholdsworth
  * @since 28/01/2016
- * @tag Batch
+ * @tag Batch, FdClient
  */
 @Component
 @Profile({"fd-batch", "fd-batch-dev"})
@@ -62,15 +62,20 @@ public class FdBatchResources {
     }
 
     /**
+     * {@literal
      * <beans:bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
      * <beans:property name="driverClassName" value="${datasource.driver}"/>
      * <beans:property name="url" value="${datasource.url}"/>
      * <beans:property name="username" value="${datasource.username}"/>
      * <beans:property name="password" value="${datasource.password}"/>
      * </beans:bean>
+     * }
      *
-     * @return
-     * @throws SQLException
+     * @return datasource to read from
+     * @throws SQLException connection errors
+     * @throws ClassNotFoundException driver couldn't be found
+     * @throws IllegalAccessException driver issue
+     * @throws InstantiationException driver issue
      */
     @Bean
     @Profile({"fd-batch", "fd-batch-dev"})

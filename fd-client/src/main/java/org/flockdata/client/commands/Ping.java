@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -40,13 +40,13 @@ public class Ping extends AbstractRestCommand {
 
     private String url = null;
 
-    public Ping(FdTemplate fdTemplate) {
-        super(fdTemplate);
-        this.url = fdTemplate.getUrl();
+    public Ping(FdClientIo fdClientIo) {
+        super(fdClientIo);
+        this.url = fdClientIo.getUrl();
     }
 
-    public Ping(FdTemplate fdTemplate, String url) {
-        super(fdTemplate);
+    public Ping(FdClientIo fdClientIo, String url) {
+        super(fdClientIo);
         this.url = url;
 
     }
@@ -67,7 +67,7 @@ public class Ping extends AbstractRestCommand {
         String exec = getUrl() + "/api/ping/";
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
-            ResponseEntity<String> response = fdTemplate.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
+            ResponseEntity<String> response = fdClientIo.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
             result = response.getBody();
             error = null;
         } catch (HttpClientErrorException e) {

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package org.flockdata.test.unit.client;
 
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.integration.FdPayloadWriter;
+import org.flockdata.integration.FdTemplate;
 import org.flockdata.transform.FdIoInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -25,9 +25,12 @@ import org.springframework.stereotype.Service;
 
 /**
  * To support unit testing. The entities and tags are not flushed so that the
- * transformed results can be validated by a test
+ * transformed results can be retrieved and asserted in a test
  *
- * User can call reset() to clear down cached data
+ * User can, and should, call reset() to clear down cached data which is handled automatically if your test
+ * extends AbstractImport
+ *
+ * You can include AbstractImport in your project by including org.flockdata:fd-client:test-jar
  *
  * @tag Rest, Test, Integration
  * @author mholdsworth
@@ -35,13 +38,16 @@ import org.springframework.stereotype.Service;
  */
 @Profile("dev")
 @Service
-public class MockPayloadWriter extends FdPayloadWriter {
+public class FdTemplateMock extends FdTemplate {
 
     @Autowired
-    public MockPayloadWriter(ClientConfiguration clientConfiguration, FdIoInterface fdIoInterface) {
+    public FdTemplateMock(ClientConfiguration clientConfiguration, FdIoInterface fdIoInterface) {
         super(clientConfiguration, fdIoInterface);
     }
 
+    /**
+     * Prevents clearing down
+     */
     @Override
     public void flush(){
         // Noop. Client can call reset() to clear cached data but otherwise we want to return

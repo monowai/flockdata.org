@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,10 +20,9 @@ import junit.framework.TestCase;
 import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.resources.*;
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.integration.FdPayloadWriter;
-import org.flockdata.integration.PayloadWriter;
-import org.flockdata.test.unit.client.MockFdWriter;
-import org.flockdata.test.unit.client.MockPayloadWriter;
+import org.flockdata.integration.Template;
+import org.flockdata.test.unit.client.FdMockIo;
+import org.flockdata.test.unit.client.FdTemplateMock;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,13 +53,12 @@ import static org.junit.Assert.assertNotNull;
 @ContextConfiguration(classes = {BatchConfig.class,
         FdBatchResources.class,
         ClientConfiguration.class,
-        MockFdWriter.class,
-        MockPayloadWriter.class,
+        FdMockIo.class,
+        FdTemplateMock.class,
         FdTagProcessor.class,
         FdEntityProcessor.class,
         FdEntityWriter.class,
         FdRowMapper.class,
-        FdPayloadWriter.class,
         HsqlDataSource.class,
         JobLauncherTestUtils.class,
         SqlEntityStep.class
@@ -76,7 +74,7 @@ public class TestSqlEntityToFlockData extends AbstractTransactionalJUnit4SpringC
     private ClientConfiguration clientConfiguration;
 
     @Autowired
-    private PayloadWriter payloadWriter;
+    private Template fdTemplate;
 
     @Test
     @Sql({"/batch/sql/entity.sql", "/batch/sql/entity-data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
@@ -86,8 +84,8 @@ public class TestSqlEntityToFlockData extends AbstractTransactionalJUnit4SpringC
         assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());
         assertTrue(clientConfiguration.getBatchSize() > 1);
         // This check works because 2 is < the configured batch size
-        TestCase.assertEquals("Number of rows loaded ex entity-data.sql does not match", 2, payloadWriter.getEntities().size());
-        for (EntityInputBean entityInputBean : payloadWriter.getEntities()) {
+        TestCase.assertEquals("Number of rows loaded ex entity-data.sql does not match", 2, fdTemplate.getEntities().size());
+        for (EntityInputBean entityInputBean : fdTemplate.getEntities()) {
             assertNotNull(entityInputBean.getContent());
             assertNotNull("Primary Key was not set via the content profile", entityInputBean.getCode());
             assertNotNull(entityInputBean.getContent().getData().get("ID"));

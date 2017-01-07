@@ -18,6 +18,7 @@ package org.flockdata.client;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.transform.FdIoInterface;
 import org.slf4j.Logger;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
@@ -66,7 +67,7 @@ public class CommandRunner {
         System.exit(0);
     }
 
-    public static void configureAuth(Logger logger, String authUser, FdTemplate fdTemplate) {
+    public static void configureAuth(Logger logger, String authUser, FdIoInterface fdClientIo) {
         if (authUser != null && !authUser.equals("")) {
 
             String[] uArgs = authUser.split(":");
@@ -75,9 +76,9 @@ public class CommandRunner {
                 throw new RuntimeException("No password supplied for {}" + uArgs[0]);
 
             logger.info("Using user id {}", uArgs[0]);
-            SystemUserResultBean su = fdTemplate.login(uArgs[0], uArgs[1]);
+            SystemUserResultBean su = fdClientIo.login(uArgs[0], uArgs[1]);
             if (su == null) {
-                logger.error("Error logging into {} for user {}", fdTemplate.getUrl(), uArgs[0]);
+                logger.error("Error logging into {} for user {}", fdClientIo.getUrl(), uArgs[0]);
                 System.exit(-1);
             }
 

@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.search.EsSearchResult;
 import org.flockdata.search.QueryParams;
 import org.springframework.http.HttpEntity;
@@ -39,11 +39,11 @@ public class SearchFdPost extends AbstractRestCommand {
     private EsSearchResult result;
 
     /**
-     * @param fdTemplate        dispatch mechanism
+     * @param fdClientIo        dispatch mechanism
      * @param queryParams         query params. Company will be added automatically based on login used
      */
-    public SearchFdPost(FdTemplate fdTemplate, QueryParams queryParams) {
-        super(fdTemplate);
+    public SearchFdPost(FdClientIo fdClientIo, QueryParams queryParams) {
+        super(fdClientIo);
         this.queryParams = queryParams;
     }
 
@@ -56,12 +56,12 @@ public class SearchFdPost extends AbstractRestCommand {
     public SearchFdPost exec() {
         result = null;
         error = null;
-        HttpEntity requestEntity = new HttpEntity<>(queryParams, fdTemplate.getHeaders());
+        HttpEntity requestEntity = new HttpEntity<>(queryParams, fdClientIo.getHeaders());
 
         try {
 
             ResponseEntity<EsSearchResult> response;
-            response = fdTemplate.getRestTemplate().exchange(getUrl()+ "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
+            response = fdClientIo.getRestTemplate().exchange(getUrl()+ "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
 
             result = response.getBody();
             error = result.getFdSearchError();

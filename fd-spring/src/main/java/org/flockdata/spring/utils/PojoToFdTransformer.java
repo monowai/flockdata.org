@@ -34,14 +34,14 @@ import java.util.Map;
 public class PojoToFdTransformer {
 
     /**
-     * @param pojo  entity to transform
-     * @return
-     * @throws IllegalAccessException
-     * @throws IOException
-
+     *
+     * @param pojo data object to transform
+     * @return EntityInputBean to track to FlockData
+     * @throws IllegalAccessException error
+     * @throws FlockException error
      */
 
-    public static EntityInputBean transformEntity(Object pojo) throws IllegalAccessException, IOException, FlockException {
+    public static EntityInputBean transformEntity(Object pojo) throws FlockException, IllegalAccessException {
 
         //ToDo: LogResultBean is only called when the @key is null, otherwise it's a log
         //ToDo:  caller does not determine this by fd-spring does.
@@ -120,8 +120,6 @@ public class PojoToFdTransformer {
                 }
             }
         }
-        //ObjectMapper mapper = new ObjectMapper(); // create once, reuse
-        //String what = mapper.writeValueAsString(mapWhat);
         contentInputBean.setData(mapWhat);
         entityInputBean.setContent(contentInputBean);
         //ToDo: Figure out tag structure
@@ -130,23 +128,14 @@ public class PojoToFdTransformer {
     }
 
     /**
-     * Maps to the DatagioLog event.
-     * {
-     * "auditKey": @auditKey,
-     * "when": @auditDate,
-     * "fortressUser": @auditUser,
-     * "comment": @canBePassedInDuringTheEvent or @auditComment,
-     * "transactional": @canBePassedInDuringTheEvent ,
-     *
-     * @param pojo
-     * @return
-     * @throws IllegalAccessException
-     * @throws IOException
-     * @What is EVERY other attribute and object that is not @track* annotated
-     * "data": "{\"name\": \"99\", \"thing\": {\"status\": \"android\"}}"
-     * }
+     * Logs a data change event in flockdata for the entity
+     * @param pojo data to change
+     * @return Content data
+     * @throws IllegalAccessException error
+     * @throws IOException error
+     * @throws FlockException   error
      */
-    public static ContentInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException, FlockException {
+    public static ContentInputBean transformToFdContent(Object pojo) throws IllegalAccessException, IOException, FlockException {
         ContentInputBean contentInputBean = new ContentInputBean("mike", new DateTime(), null);
         Map<String, Object> mapWhat = new HashMap<>();
 

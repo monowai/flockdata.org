@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.data.ContentModel;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -39,8 +39,8 @@ public class ModelGet extends AbstractRestCommand {
     private String fortress;
     private String type;
 
-    public ModelGet(FdTemplate fdTemplate, String fortress, String type) {
-        super(fdTemplate);
+    public ModelGet(FdClientIo fdClientIo, String fortress, String type) {
+        super(fdClientIo);
         this.fortress = fortress.toLowerCase();
         this.type = type.toLowerCase();
     }
@@ -55,9 +55,9 @@ public class ModelGet extends AbstractRestCommand {
         results=null;   error =null;
 
         try {
-            HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
+            HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
             ResponseEntity<ContentModel> response;
-            response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/model/{fortress}/{type}", HttpMethod.GET, requestEntity, ContentModel.class, fortress, type);
+            response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/model/{fortress}/{type}", HttpMethod.GET, requestEntity, ContentModel.class, fortress, type);
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
 
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {

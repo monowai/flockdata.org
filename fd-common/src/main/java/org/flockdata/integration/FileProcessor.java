@@ -1,21 +1,17 @@
 /*
+ *  Copyright 2012-2017 the original author or authors.
  *
- *  Copyright (c) 2012-2017 "FlockData LLC"
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This file is part of FlockData.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  FlockData is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  FlockData is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.integration;
@@ -78,7 +74,7 @@ public class FileProcessor {
     private static final DecimalFormat formatter = new DecimalFormat();
     private static final ExpressionParser parser = new SpelExpressionParser();
     static StandardEvaluationContext context = new StandardEvaluationContext();
-    private PayloadWriter payloadWriter;
+    private Template fdTemplate;
     private long skipCount, rowsToProcess = 0;
 
     public FileProcessor() {
@@ -91,8 +87,8 @@ public class FileProcessor {
     }
 
     @Autowired(required = false)
-    public FileProcessor(PayloadWriter payloadWriter) {
-        this.payloadWriter = payloadWriter;
+    public FileProcessor(Template fdTemplate) {
+        this.fdTemplate = fdTemplate;
     }
 
     private static String[] preProcess(String[] row, ExtractProfile extractProfile) {
@@ -213,7 +209,7 @@ public class FileProcessor {
             }
         } finally {
             if (result > 0) {
-                getPayloadWriter().flush();
+                getFdTemplate().flush();
             }
         }
 
@@ -244,7 +240,7 @@ public class FileProcessor {
             else
                 tags = mapper.readValue(stream, collType);
             for (TagInputBean tag : tags) {
-                getPayloadWriter().writeTag(tag, "JSON Tag Importer");
+                getFdTemplate().writeTag(tag);
                 processed++;
             }
 
@@ -253,7 +249,7 @@ public class FileProcessor {
             throw new RuntimeException("IO Exception ", e);
         } finally {
             if (processed > 0L)
-                getPayloadWriter().flush();
+                getFdTemplate().flush();
 
         }
         return tags.size();
@@ -322,7 +318,7 @@ public class FileProcessor {
 
 
         } finally {
-            getPayloadWriter().flush();
+            getFdTemplate().flush();
         }
 
         return endProcess(watch, rows, 0);
@@ -335,7 +331,7 @@ public class FileProcessor {
             entityInputBean.getEntityLinks().size();
         }
 
-        getPayloadWriter().writeEntity(entityInputBean);
+        getFdTemplate().writeEntity(entityInputBean);
 
     }
 
@@ -358,7 +354,7 @@ public class FileProcessor {
                     EntityInputBean entityInputBean = Transformer.toEntity(mappable, xsr, extractProfile.getContentModel());
                     rows++;
                     xsr.nextTag();
-                    getPayloadWriter().writeEntity(entityInputBean);
+                    getFdTemplate().writeEntity(entityInputBean);
 
                     if (stopProcessing(rows, then)) {
                         break;
@@ -366,7 +362,7 @@ public class FileProcessor {
 
                 }
             } finally {
-                getPayloadWriter().flush();
+                getFdTemplate().flush();
             }
             return endProcess(watch, rows, 0);
 
@@ -429,13 +425,13 @@ public class FileProcessor {
                             if (extractProfile.getContentModel().isTagModel() ) {
                                 Collection<TagInputBean> tagInputBean = Transformer.toTags(map, extractProfile.getContentModel());
                                 if (tagInputBean != null) {
-                                    getPayloadWriter().writeTags(tagInputBean, "TagInputBean");
+                                    getFdTemplate().writeTags(tagInputBean);
                                 }
                             } else {
                                 EntityInputBean entityInputBean = Transformer.toEntity(map, extractProfile.getContentModel());
                                 // Dispatch/load mechanism
                                 if (entityInputBean != null)
-                                    getPayloadWriter().writeEntity(entityInputBean);
+                                    getFdTemplate().writeEntity(entityInputBean);
                             }
                             if (stopProcessing(currentRow, then)) {
                                 break;
@@ -448,7 +444,7 @@ public class FileProcessor {
             }
         } finally {
 
-            getPayloadWriter().flush();
+            getFdTemplate().flush();
             br.close();
         }
 
@@ -504,11 +500,11 @@ public class FileProcessor {
         return rows;
     }
 
-    private PayloadWriter getPayloadWriter() {
-        if (payloadWriter == null) {
-            logger.error("You are trying to use the FileProcessor but no FdBatcher has been configured for this service");
-            throw new RuntimeException("Attempted use of the FileProcessor with no FdBatcher");
+    private Template getFdTemplate() {
+        if (fdTemplate == null) {
+            logger.error("You are trying to use the FileProcessor but no FlockData Template has been configured for use");
+            throw new RuntimeException("Attempted use of the FileProcessor with no Template");
         }
-        return payloadWriter;
+        return fdTemplate;
     }
 }

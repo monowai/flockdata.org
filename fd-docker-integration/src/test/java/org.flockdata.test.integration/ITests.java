@@ -17,14 +17,14 @@
 package org.flockdata.test.integration;
 
 import net.jcip.annotations.NotThreadSafe;
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.*;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.integration.FdPayloadWriter;
+import org.flockdata.integration.FdTemplate;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.SystemUserResultBean;
@@ -52,6 +52,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,11 +74,12 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  */
 @ContextConfiguration(classes = {
         ClientConfiguration.class,
-        FdPayloadWriter.class,
+        FileProcessor.class,
         FdTemplate.class,
+        FdClientIo.class,
         FdRabbitClient.class,
         AmqpRabbitConfig.class,
-        FileProcessor.class,
+        RestTemplate.class,
         IntegrationHelper.class
 
 })
@@ -119,17 +121,27 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
     private FileProcessor fileProcessor;
     @Autowired
     private IntegrationHelper integrationHelper;
-    private SearchHelper searchHelper = new SearchHelper();
-    /**
-     * Contains a RestTemplate configured to talk to FlockData. By default this is fd-engine
-     * but by calling clientConfiguration.setServiceUrl(...) it can be used to talk to
-     * fd-search or fd-store. Only fd-engine is secured by default
-     */
+    @Autowired
+    private RestTemplate restTemplate; // ensure resource is wired
     @Autowired
     private FdTemplate fdTemplate;
 
+    private SearchHelper searchHelper = new SearchHelper();
+    /**
+     * Uses the standard FdClientIo services, which use a RestTemplate and RabbitClient, to talk to FlockData.
+     * By default the service URL points to fd-engine but can be reconfigured via clientConfiguration.setServiceUrl(...)
+     * to talk to fd-search or fd-store (for ping requests only!).
+     *
+     * By design, only fd-engine is secured
+     */
+    @Autowired
+    private FdClientIo fdClientIo;
+
     @Before
     public void setupServices() {
+        assertNotNull(restTemplate);
+        assertNotNull(clientConfiguration);
+        clientConfiguration.setBatchSize(1);
         integrationHelper.waitForServices();
     }
 
@@ -137,14 +149,14 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
     public void aaPingFdStore() {
         logger.info("Ping FD Store");
         clientConfiguration.setServiceUrl(integrationHelper.getStore());
-        String result = fdTemplate.ping();
+        String result = fdClientIo.ping();
         assertEquals("Couldn't ping fd-store", "pong", result);
     }
 
     @Test
     public void aaPingFdEngine() {
         logger.info("Ping FD Engine");
-        String result = fdTemplate.ping();
+        String result = fdClientIo.ping();
         assertEquals("Couldn't ping fd-engine", "pong", result);
     }
 
@@ -153,7 +165,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         logger.info("Ping FD Search");
         clientConfiguration.setServiceUrl(integrationHelper.getSearch());
 
-        Ping ping = new Ping(fdTemplate);
+        Ping ping = new Ping(fdClientIo);
         ping.exec();
         assertTrue(ping.error(), ping.worked());
 
@@ -163,7 +175,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
     @Test
     public void simpleLogin() {
         logger.info("Testing simpleLogin");
-        SystemUserResultBean suResult = fdTemplate.login(ADMIN_REGRESSION_USER, "123");
+        SystemUserResultBean suResult = fdTemplate.getFdIoInterface().login(ADMIN_REGRESSION_USER, "123");
         assertNotNull(suResult);
         assertTrue("User Roles missing", suResult.getUserRoles().length != 0);
     }
@@ -200,7 +212,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         int countryInputs = fileProcessor.processFile(extractProfile, "/fd-cow.txt");
 
         assertEquals("Countries not processed", 250, countryInputs); //+1 "Undefined"
-        TagsGet countries = new TagsGet(fdTemplate, "Country");
+        TagsGet countries = new TagsGet(fdClientIo, "Country");
         // Tags are processed over a messageQ so will take a wee bit of time to be processed
         integrationHelper.longSleep();
         countries.exec();
@@ -212,18 +224,18 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         // rest will pass
         assertTrue("No countries found!", countryResults.length > 10);
 
-        TagGet countryByIsoShort = new TagGet(fdTemplate, "Country", "AU");
+        TagGet countryByIsoShort = new TagGet(fdClientIo, "Country", "AU");
         countryByIsoShort.exec();
         assertTrue(countryByIsoShort.error(), countryByIsoShort.worked());
         assertNotNull("Couldn't find Australia", countryByIsoShort.result());
 
-        TagGet countryByIsoLong = new TagGet(fdTemplate, "Country", "AUS");
+        TagGet countryByIsoLong = new TagGet(fdClientIo, "Country", "AUS");
         countryByIsoLong.exec();
         assertTrue(countryByIsoLong.error(), countryByIsoLong.worked());
         assertNotNull("Couldn't find Australia", countryByIsoLong.result());
 
 
-        TagGet countryByName = new TagGet(fdTemplate, "Country", "Australia");
+        TagGet countryByName = new TagGet(fdClientIo, "Country", "Australia");
         countryByName.exec();
         integrationHelper.assertWorked("Country by name - ", countryByName);
         assertNotNull("Couldn't find Australia", countryByName.result());
@@ -232,11 +244,11 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         assertEquals("By short code and long code they are the same country so should equal", countryByIsoLong.result(), countryByIsoShort.result());
         integrationHelper.shortSleep();
         QueryParams qp = searchHelper.getTagQuery("country", "australia");
-        SearchEsPost searchEsPost = new SearchEsPost(fdTemplate, qp);
+        SearchEsPost searchEsPost = new SearchEsPost(fdClientIo, qp);
         integrationHelper.assertWorked("Located Country by name", searchEsPost);
         searchHelper.assertHitCount("Should have found just 1 hit for Australia", 1, searchEsPost.result());
 
-        searchEsPost = new SearchEsPost(fdTemplate, searchHelper
+        searchEsPost = new SearchEsPost(fdClientIo, searchHelper
                 .getTagMatchQuery("country", "aka.bgn_longname", "commonwealth of australia"));
         searchHelper.assertHitCount("Didn't find Australia by alias", 1, searchEsPost.exec().result());
 
@@ -253,7 +265,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setDocumentType(new DocumentTypeInputBean("someThing"))
                 .setContent(new ContentInputBean(Helper.getRandomMap()))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
-        TrackEntityPost trackEntity = new TrackEntityPost(fdTemplate, entityInputBean);
+        TrackEntityPost trackEntity = new TrackEntityPost((FdClientIo)fdTemplate.getFdIoInterface(), entityInputBean);
 
         integrationHelper.assertWorked("Track Entity - ", trackEntity.exec());
 
@@ -262,7 +274,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         assertEquals("Should be a new Entity", trackEntity.result().isNewEntity(), true);
         assertEquals("Problem creating the Content", trackEntity.result().getLogStatus(), ContentInputBean.LogStatus.OK);
 
-        EntityGet foundEntity = new EntityGet(fdTemplate, trackEntity.result().getKey());
+        EntityGet foundEntity = new EntityGet(fdClientIo, trackEntity.result().getKey());
         integrationHelper.waitForEntityKey(logger, "trackEntityOverHttp", foundEntity.exec());
         integrationHelper.assertWorked("Find Entity - ", foundEntity);
         assertNotNull(foundEntity.result().getKey());
@@ -283,9 +295,9 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
 
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
+        fdTemplate.writeEntity(entityInputBean,true);
 
-        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean)
+        EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean)
                 .exec();
 
         integrationHelper.waitForEntityKey(logger, "trackEntityOverAmqpThenFindInSearch", entityGet);
@@ -303,7 +315,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         QueryParams qp = new QueryParams(entityResult.getCode())
                 .setFortress(entityInputBean.getFortress().getName());
 
-        SearchFdPost search = new SearchFdPost(fdTemplate, qp);
+        SearchFdPost search = new SearchFdPost(fdClientIo, qp);
         integrationHelper.assertWorked("Searching - ", search);
         EsSearchResult searchResults = search.result();
         assertEquals("Didn't get a search hit on the Entity", 1, searchResults.getResults().size());
@@ -329,26 +341,30 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "value")))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
 
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
-        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean).exec();
+        fdTemplate.writeEntity(entityInputBean,true);
+        EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean).exec();
         integrationHelper.waitForEntityKey(logger, "validateEntityLogs", entityGet);
 
         EntityResultBean entityResult = entityGet.result();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
 
-        EntityLogsGet entityLogs = new EntityLogsGet(fdTemplate, entityResult.getKey());
+        EntityLogsGet entityLogs = new EntityLogsGet(fdClientIo, entityResult.getKey());
         integrationHelper.waitForEntityLog(logger, "validateEntityLogs", entityLogs, 1);
         assertNotNull(entityLogs.result());
         assertEquals("Didn't find a log", 1, entityLogs.result().length);
         assertNotNull("No data was returned", entityLogs.result()[0].getData());
         assertEquals("Content property not found", "value", entityLogs.result()[0].getData().get("key"));
 
-        entityInputBean.setKey(entityResult.getKey())
+        entityInputBean = new EntityInputBean()
+                .setFortress(new FortressInputBean("validateEntityLogs", false))
+                .setCode("findme")
+                .setDocumentType(new DocumentTypeInputBean("validateEntityLogs"))
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "updated")));
 
+
         // Updating an existing entity
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
+        fdTemplate.writeEntity(entityInputBean, true);
         integrationHelper.waitForEntityLog(logger, "validateEntityLogs", entityLogs, 2);
         assertEquals("Didn't find the second log", 2, entityLogs.result().length);
         assertEquals("Didn't find the updated field as the first result", "updated", entityLogs.result()[0].getData().get("key"));
@@ -369,8 +385,8 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setDocumentType(new DocumentTypeInputBean("entityamqp"))
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")));
 
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
-        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
+        fdTemplate.writeEntity(entityInputBean,true);
+        EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean);
         integrationHelper.waitForEntityKey(logger, "findByESPassThroughWithUTF8", entityGet);
 
         EntityResultBean entityResult = entityGet.result();
@@ -392,7 +408,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                         "    }\n" +
                         "}"));
 
-        SearchEsPost search = new SearchEsPost(fdTemplate, qp);
+        SearchEsPost search = new SearchEsPost(fdClientIo, qp);
         integrationHelper.assertWorked("Search Reply ", search);
 
         assertFalse("errors were found " + search.result().get("errors"), search.result().containsKey("errors"));
@@ -414,9 +430,9 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         tagInputBean = new TagInputBean("BCode", tagLabel);
         tags.add(tagInputBean);
 
-        fdTemplate.writeTags(tags);
+        fdClientIo.writeTags(tags);
         integrationHelper.longSleep();  // Async delivery, so lets wait a bit....
-        TagsGet getTags = new TagsGet(fdTemplate, tagLabel);
+        TagsGet getTags = new TagsGet(fdClientIo, tagLabel);
 
         integrationHelper.waitForTagCount(logger, "simpleTags", getTags, 2);
 
@@ -426,7 +442,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
 
         QueryParams qp = searchHelper.getTagQuery(tagInputBean.getLabel(), "*");
 
-        SearchEsPost search = new SearchEsPost(fdTemplate, qp);
+        SearchEsPost search = new SearchEsPost(fdClientIo, qp);
         integrationHelper.shortSleep(); // Extra time for ES to commit
         integrationHelper.assertWorked("Search Reply ", search);
 
@@ -444,12 +460,12 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         tagInputBean.setProperty("aprop", 123);
 
         tags.add(tagInputBean);
-        fdTemplate.writeTags(tags);
+        fdClientIo.writeTags(tags);
         integrationHelper.longSleep();  // Async delivery, so lets wait a bit....
 
         qp = searchHelper.getTagQuery(tagInputBean.getLabel(), "wonder");
 
-        search = new SearchEsPost(fdTemplate, qp);
+        search = new SearchEsPost(fdClientIo, qp);
         integrationHelper.shortSleep();
 
         integrationHelper.assertWorked("Search Reply ", search);
@@ -477,7 +493,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         fdTemplate.writeTags(setD);
         integrationHelper.longSleep();
         QueryParams qp = searchHelper.getTagQuery("Set*", "code*");
-        SearchEsPost search = new SearchEsPost(fdTemplate, qp);
+        SearchEsPost search = new SearchEsPost((FdClientIo)fdTemplate.getFdIoInterface(), qp);
         search.exec();
         integrationHelper.assertWorked("Not finding any tags", search);
 
@@ -496,9 +512,9 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setDocumentType(new DocumentTypeInputBean("DeleteSearchDoc"))
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
 
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
+        fdTemplate.writeEntity(entityInputBean, true);
 
-        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
+        EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean);
 
         integrationHelper.waitForEntityKey(logger, "purgeFortressRemovesEsIndex", entityGet);
         integrationHelper.waitForSearch(logger, "purgeFortressRemovesEsIndex", entityGet, 1);
@@ -507,13 +523,13 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         QueryParams qp = new QueryParams("*");
         qp.setFortress("purgeFortressRemovesEsIndex");
         qp.setTypes("DeleteSearchDoc");
-        SearchFdPost search = new SearchFdPost(fdTemplate, qp)
+        SearchFdPost search = new SearchFdPost(fdClientIo, qp)
                 .exec();
 
         assertNotNull(search.result());
         assertEquals("expected 1 hit", 1, search.result().getResults().size());
 
-        AdminPurgeFortress purge = new AdminPurgeFortress(fdTemplate, "purgeFortressRemovesEsIndex");
+        AdminPurgeFortress purge = new AdminPurgeFortress(fdClientIo, "purgeFortressRemovesEsIndex");
         purge.exec();
         integrationHelper.longSleep(); // Give ES time to commit
         assertNull("The entity should not exist because the fortress was purged", entityGet.exec().result());
@@ -538,9 +554,9 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setDocumentType(docType)
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
 
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
+        fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
 
-        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
+        EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean);
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet);
         integrationHelper.waitForSearch(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet, 1);
@@ -553,8 +569,8 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setDocumentType(docType)
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
 
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
-        entityGet = new EntityGet(fdTemplate, entityInputBean);
+        fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
+        entityGet = new EntityGet(fdClientIo, entityInputBean);
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet);
         integrationHelper.waitForSearch(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet, 1);
@@ -565,28 +581,28 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         qp.setFortress("purgeSegment");
         qp.setTypes(docType.getCode());
 
-        SearchFdPost search = new SearchFdPost(fdTemplate, qp)
+        SearchFdPost search = new SearchFdPost(fdClientIo, qp)
                 .exec();
 
         assertNotNull(search.result());
         assertEquals("Searching across both segments returns 2", 2, search.result().getResults().size());
 
         qp.setSegment("2015");
-        search = new SearchFdPost(fdTemplate, qp)
+        search = new SearchFdPost(fdClientIo, qp)
                 .exec();
 
         assertNotNull(search.result());
         assertEquals("expected 1 hit on segment 2015", 1, search.result().getResults().size());
 
         qp.setSegment("2016");
-        search = new SearchFdPost(fdTemplate, qp)
+        search = new SearchFdPost(fdClientIo, qp)
                 .exec();
 
         assertNotNull(search.result());
         assertEquals("expected 1 hit on segment 2016", 1, search.result().getResults().size());
 
         // Now to purge 2015 so we are left only with 2016
-        AdminPurgeFortressSegment delete = new AdminPurgeFortressSegment(fdTemplate, "purgeSegment", docType.getName(), "2015");
+        AdminPurgeFortressSegment delete = new AdminPurgeFortressSegment(fdClientIo, "purgeSegment", docType.getName(), "2015");
         delete.exec();
         integrationHelper.longSleep();
 
@@ -607,10 +623,10 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setDocumentType(docType)
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Find Me")));
 
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
+        fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
         integrationHelper.longSleep();
         qp.setSegment("2015");
-        search = new SearchFdPost(fdTemplate, qp)
+        search = new SearchFdPost(fdClientIo, qp)
                 .exec();
 
         assertNotNull(search.result());
@@ -642,9 +658,9 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setDocumentType(docType)
                 .setEntityOnly(true);
 
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
+        fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
 
-        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
+        EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean);
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentEntitiesWithNoLogs", entityGet);
         integrationHelper.waitForSearch(logger, "purgeSegmentEntitiesWithNoLogs", entityGet, 1);
@@ -657,8 +673,8 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setDocumentType(docType)
                 .setEntityOnly(true);
 
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
-        entityGet = new EntityGet(fdTemplate, entityInputBean);
+        fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
+        entityGet = new EntityGet(fdClientIo, entityInputBean);
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentEntitiesWithNoLogs", entityGet);
         integrationHelper.waitForSearch(logger, "purgeSegmentEntitiesWithNoLogs", entityGet, 1);
@@ -669,7 +685,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         qp.setFortress(FORTRESS);
         qp.setTypes(docType.getCode());
 
-        SearchFdPost search = new SearchFdPost(fdTemplate, qp)
+        SearchFdPost search = new SearchFdPost(fdClientIo, qp)
                 .exec();
 
         assertNotNull(search.result());
@@ -677,21 +693,21 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         assertEquals("Searching across both segments returns 2", 2, search.result().getResults().size());
 
         qp.setSegment("2015");
-        search = new SearchFdPost(fdTemplate, qp)
+        search = new SearchFdPost(fdClientIo, qp)
                 .exec();
 
         assertNotNull(search.result());
         assertEquals("expected 1 hit on segment 2015", 1, search.result().getResults().size());
 
         qp.setSegment("2016");
-        search = new SearchFdPost(fdTemplate, qp)
+        search = new SearchFdPost(fdClientIo, qp)
                 .exec();
 
         assertNotNull(search.result());
         assertEquals("expected 1 hit on segment 2016", 1, search.result().getResults().size());
 
         // Now to purge 2015 so we are left only with 2016
-        AdminPurgeFortressSegment delete = new AdminPurgeFortressSegment(fdTemplate, FORTRESS, docType.getName(), "2015");
+        AdminPurgeFortressSegment delete = new AdminPurgeFortressSegment(fdClientIo, FORTRESS, docType.getName(), "2015");
         delete.exec();
         integrationHelper.longSleep();
 
@@ -712,10 +728,10 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setDocumentType(docType)
                 .setEntityOnly(true);
 
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
+        fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
         integrationHelper.longSleep();
         qp.setSegment("2015");
-        search = new SearchFdPost(fdTemplate, qp)
+        search = new SearchFdPost(fdClientIo, qp)
                 .exec();
 
         assertNotNull(search.result());
@@ -739,8 +755,8 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .addTag(new TagInputBean("anyCode", "anyLabel").addEntityTagLink("anyrlx"))
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")));
 
-        fdTemplate.writeEntities(integrationHelper.toCollection(entityInputBean));
-        EntityGet entityGet = new EntityGet(fdTemplate, entityInputBean);
+        fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
+        EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean);
         integrationHelper.waitForEntityKey(logger, "getEntityFieldStructure", entityGet);
 
         EntityResultBean entityResult = entityGet.result();
@@ -750,7 +766,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityGet.result().getSearch());
 
         // Searching with no parameters
-        ContentStructure structure = fdTemplate.entityFields(entityInputBean.getFortress().getName(), entityInputBean.getDocumentType().getName());
+        ContentStructure structure = fdClientIo.entityFields(entityInputBean.getFortress().getName(), entityInputBean.getDocumentType().getName());
 
         assertNotNull(structure);
 
@@ -767,10 +783,10 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         Collection<ContentModel>models = new ArrayList<>();
         models.add(contentModel);
 
-        ModelPost sendModels = new ModelPost(fdTemplate, models);
+        ModelPost sendModels = new ModelPost(fdClientIo, models);
         assertNull ( sendModels.exec().error());
         assertEquals("Expected a response equal to the number of inputs", 1, sendModels.result().size());
-        ContentModel found = fdTemplate.getContentModel(contentModel.getFortress().getName(), contentModel.getDocumentType().getCode());
+        ContentModel found = fdClientIo.getContentModel(contentModel.getFortress().getName(), contentModel.getDocumentType().getCode());
         assertNotNull ( found);
         assertFalse (found.getContent().isEmpty());
     }

@@ -48,7 +48,7 @@ public class TestCSVColumnParsing extends AbstractImport {
 
         long rows = fileProcessor.processFile(extractProfile, "/data/pac.txt");
         assertEquals(1L, rows);
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getTemplate().getTags();
         assertNotNull ( tagInputBeans);
         assertEquals(4, tagInputBeans.size());
         boolean foundA = false, foundB= false,foundC= false, foundD= false;
@@ -73,7 +73,7 @@ public class TestCSVColumnParsing extends AbstractImport {
         assertTrue("Failed to find Expenditure Tag", foundB);
         assertTrue("Failed to find InterestGroup Tag", foundC);
         assertTrue("Failed to find Politician Tag", foundD);
-        for (EntityInputBean entityInputBean : fdWriter.getEntities()) {
+        for (EntityInputBean entityInputBean : fdTemplate.getEntities()) {
             assertEquals("4111320141231324700", entityInputBean.getCode());
         }
     }
@@ -87,7 +87,7 @@ public class TestCSVColumnParsing extends AbstractImport {
         profile.setQuoteCharacter("|");
         long rows = fileProcessor.processFile(profile, "/data/pac.txt");
         assertEquals(1L, rows);
-        for (EntityInputBean entityInputBean : fdWriter.getEntities()) {
+        for (EntityInputBean entityInputBean : fdTemplate.getEntities()) {
             assertEquals("The segment was not set in to the EntityInput", "2014", entityInputBean.getSegment());
         }
     }

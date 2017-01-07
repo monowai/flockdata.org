@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityResultBean;
 import org.springframework.http.HttpEntity;
@@ -41,13 +41,13 @@ public class EntityGet extends AbstractRestCommand  {
 
     private String key;
 
-    public EntityGet(FdTemplate fdTemplate, EntityInputBean entityInputBean) {
-        super(fdTemplate);
+    public EntityGet(FdClientIo fdClientIo, EntityInputBean entityInputBean) {
+        super(fdClientIo);
         this.entityInputBean = entityInputBean;
     }
 
-    public EntityGet(FdTemplate fdTemplate, String key) {
-        super(fdTemplate);
+    public EntityGet(FdClientIo fdClientIo, String key) {
+        super(fdClientIo);
         this.key = key;
     }
 
@@ -58,15 +58,15 @@ public class EntityGet extends AbstractRestCommand  {
 
     @Override
     public EntityGet exec() {
-        HttpEntity requestEntity = new HttpEntity<>(fdTemplate.getHeaders());
+        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
         result=null;   error =null;
         try {
 
             ResponseEntity<EntityResultBean> response ;
             if (key !=null ) // Locate by FD unique key
-                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityResultBean.class, key);
+                response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityResultBean.class, key);
             else
-                response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityResultBean.class,
+                response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityResultBean.class,
                         entityInputBean.getFortress().getName(),
                         entityInputBean.getDocumentType().getName(),
                         entityInputBean.getCode());

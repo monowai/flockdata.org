@@ -43,7 +43,7 @@ public class TestTagAliases extends AbstractImport {
         ContentModel params = ContentModelDeserializer.getContentModel(paramFile);
         fileProcessor.processFile(new ExtractProfileHandler(params), "/data/csv-tag-alias.txt");
 
-        Collection<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        Collection<TagInputBean> tagInputBeans = getTemplate().getTags();
         assertEquals(3, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
             switch (tagInputBean.getCode()) {

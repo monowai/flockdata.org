@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.springframework.http.HttpEntity;
@@ -45,8 +45,8 @@ public class RegistrationPost extends AbstractRestCommand {
 
     private SystemUserResultBean result =null;
 
-    public RegistrationPost(FdTemplate fdTemplate, RegistrationBean registrationBean) {
-        super(fdTemplate);
+    public RegistrationPost(FdClientIo fdClientIo, RegistrationBean registrationBean) {
+        super(fdClientIo);
         this.registrationBean=registrationBean;
 
     }
@@ -58,10 +58,10 @@ public class RegistrationPost extends AbstractRestCommand {
     @Override
     public RegistrationPost exec() {
         result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(registrationBean, fdTemplate.getHeaders());
+        HttpEntity requestEntity = new HttpEntity<>(registrationBean, fdClientIo.getHeaders());
 
         try {
-            ResponseEntity<SystemUserResultBean> response = fdTemplate.getRestTemplate().exchange(getUrl()+"/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
+            ResponseEntity<SystemUserResultBean> response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
             result = response.getBody();
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();

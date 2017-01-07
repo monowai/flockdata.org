@@ -51,7 +51,7 @@ public class TestCollectUniqueEntities extends AbstractImport {
         contentModel.setEntityOnly(true);
 
         fileProcessor.processFile(extractProfile, "/data/duplicate-entities.csv");
-        List<EntityInputBean> entities = fdWriter.getEntities();
+        List<EntityInputBean> entities = fdTemplate.getEntities();
         TestCase.assertEquals(1, entities.size());
 
         EntityInputBean movie = entities.iterator().next();

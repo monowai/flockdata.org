@@ -45,7 +45,7 @@ public class TestEntityTagLinks extends AbstractImport {
 
         assertEquals (1, rows);
 
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        List<EntityInputBean> entities = getTemplate().getEntities();
 
         for (EntityInputBean entity : entities) {
             assertEquals (4, entity.getTags().size());

@@ -37,15 +37,23 @@ import java.util.Collection;
  */
 @Service
 @Profile({"dev"})
-public class MockFdWriter implements FdIoInterface {
+public class FdMockIo implements FdIoInterface {
 
     public Collection<EntityInputBean> entities = null;
     public Collection<TagInputBean> tags = null;
 
+    /**
+     *
+     * @return entities that would have been written to the service
+     */
     public Collection<EntityInputBean> getEntities() {
         return entities;
     }
 
+    /**
+     *
+     * @return tags that would have been written to the service
+     */
     public Collection<TagInputBean> getTags() {
         return tags;
     }
@@ -55,6 +63,12 @@ public class MockFdWriter implements FdIoInterface {
         return null;
     }
 
+    /**
+     *
+     * @param tagInputBeans tags to write
+     * @return usually an error message, but null for testing purposes
+     * @throws FlockException should never happen
+     */
     @Override
     public String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException {
         this.tags = tagInputBeans;
@@ -81,5 +95,15 @@ public class MockFdWriter implements FdIoInterface {
     @Override
     public SystemUserResultBean register(String userName, String company) {
         return null;
+    }
+
+    @Override
+    public SystemUserResultBean login(String userName, String password) {
+        return me();
+    }
+
+    @Override
+    public String getUrl() {
+        return "mock";
     }
 }

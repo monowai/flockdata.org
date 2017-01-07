@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.search.QueryParams;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -42,8 +42,8 @@ public class SearchEsPost extends AbstractRestCommand {
 
     private Map<String,Object> result;
 
-    public SearchEsPost(FdTemplate fdTemplate, QueryParams queryParams) {
-        super(fdTemplate);
+    public SearchEsPost(FdClientIo fdClientIo, QueryParams queryParams) {
+        super(fdClientIo);
         this.queryParams = queryParams;
     }
 
@@ -57,10 +57,10 @@ public class SearchEsPost extends AbstractRestCommand {
         result=null; error =null;
 
         try {
-            HttpEntity requestEntity = new HttpEntity<>(queryParams,fdTemplate.getHeaders());
+            HttpEntity requestEntity = new HttpEntity<>(queryParams, fdClientIo.getHeaders());
             ParameterizedTypeReference<Map<String,Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {};
             ResponseEntity<Map<String,Object>> response;
-            response = fdTemplate.getRestTemplate().exchange(getUrl()+ "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
+            response = fdClientIo.getRestTemplate().exchange(getUrl()+ "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
 
             result = response.getBody();
             if ( result().containsKey("errors")){

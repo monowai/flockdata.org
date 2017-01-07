@@ -52,23 +52,31 @@ import java.util.Map;
 
 /**
  * Dispatches Entity and Tag data requests to a FlockData service
- * over using RabbitMQ + Http
+ * using RabbitMQ + Http
  *
- * @tag Messaging, FdClient
  * @author mholdsworth
+ * @tag Messaging, FdClient
+ * @see ClientConfiguration
+ * @see FdRabbitClient
  * @since 13/10/2013
  */
 @Service
 @Profile("fd-client")
-public class FdTemplate implements FdIoInterface {
+public class FdClientIo implements FdIoInterface {
 
     private static boolean compress = true;
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdTemplate.class);
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdClientIo.class);
     private ClientConfiguration clientConfiguration;
     private FdRabbitClient fdRabbitClient;
     private RestTemplate restTemplate = null;
     private HttpHeaders httpHeaders = null;
 
+    /**
+     * Adds a user defined property called "weight"
+     *
+     * @param weight value to assign
+     * @return current user defined properties (function chaining)
+     */
     @SuppressWarnings("unused")
     public static Map<String, Object> getWeightedMap(int weight) {
         Map<String, Object> properties = new HashMap<>();
@@ -155,11 +163,15 @@ public class FdTemplate implements FdIoInterface {
     }
 
     public RestTemplate getRestTemplate() {
-        if (restTemplate == null) {
-            restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        }
+        if ( restTemplate == null)
+            setRestTemplate( new RestTemplate());
         return restTemplate;
+    }
+
+    @Autowired(required = false)
+    void setRestTemplate (RestTemplate restTemplate){
+        this.restTemplate = restTemplate;
+        this.restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
     }
 
     public String writeTags(Collection<TagInputBean> tagInputs) throws FlockException {
@@ -332,6 +344,11 @@ public class FdTemplate implements FdIoInterface {
         return clientConfiguration.getHttpPass();
     }
 
+    /**
+     * Overrides the endpoint for service communications for integration testing purposes only.
+     *
+     * @param serviceUrl URL to set
+     */
     public void setServiceUrl(String serviceUrl) {
         logger.info("setting service URL to {}", serviceUrl);
         clientConfiguration.setServiceUrl(serviceUrl);

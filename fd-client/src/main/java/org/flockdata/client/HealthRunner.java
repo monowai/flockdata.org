@@ -53,24 +53,24 @@ import org.springframework.context.annotation.Profile;
 public class HealthRunner implements CommandLineRunner {
 
     private final ClientConfiguration clientConfiguration;
-    private final FdTemplate fdTemplate;
+    private final FdClientIo fdClientIo;
     @Value("${auth.user:#{null}}")
     String authUser;
     private Logger logger = LoggerFactory.getLogger(HealthRunner.class);
 
     @Autowired
-    public HealthRunner(ClientConfiguration clientConfiguration, FdTemplate fdTemplate) {
+    public HealthRunner(ClientConfiguration clientConfiguration, FdClientIo fdClientIo) {
         this.clientConfiguration = clientConfiguration;
-        this.fdTemplate = fdTemplate;
+        this.fdClientIo = fdClientIo;
     }
 
     @Override
     public void run(String... args) throws Exception {
 
         logger.info("Looking for Flockdata on {}", clientConfiguration.getServiceUrl());
-        CommandRunner.configureAuth(logger, authUser, fdTemplate);
+        CommandRunner.configureAuth(logger, authUser, fdClientIo);
 
-        Health health = new Health(fdTemplate);
+        Health health = new Health(fdClientIo);
         logger.info(JsonUtils.pretty(health
                 .exec()
                 .result()));

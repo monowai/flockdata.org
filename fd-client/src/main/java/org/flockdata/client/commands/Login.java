@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.registration.LoginRequest;
 import org.flockdata.registration.SystemUserResultBean;
 import org.springframework.http.HttpEntity;
@@ -38,8 +38,8 @@ public class Login extends AbstractRestCommand {
 
     SystemUserResultBean result;
 
-    public Login(FdTemplate fdTemplate) {
-        super(fdTemplate);
+    public Login(FdClientIo fdClientIo) {
+        super(fdClientIo);
     }
 
     public SystemUserResultBean result() {
@@ -55,11 +55,11 @@ public class Login extends AbstractRestCommand {
         error = null;
         try {
             ResponseEntity<SystemUserResultBean> response;
-            HttpEntity<LoginRequest> request = new HttpEntity<>(new LoginRequest(fdTemplate.getUser(), fdTemplate.getPass()), fdTemplate.getHeaders());
-            response = fdTemplate.getRestTemplate().exchange(getUrl() + "/api/login", HttpMethod.POST, request, SystemUserResultBean.class);
+            HttpEntity<LoginRequest> request = new HttpEntity<>(new LoginRequest(fdClientIo.getUser(), fdClientIo.getPass()), fdClientIo.getHeaders());
+            response = fdClientIo.getRestTemplate().exchange(getUrl() + "/api/login", HttpMethod.POST, request, SystemUserResultBean.class);
             result = response.getBody();
         } catch (HttpClientErrorException |HttpServerErrorException | ResourceAccessException e) {
-            error = String.format("Login for %s on %s failed with %s", getUrl(), fdTemplate.getUser(), e.getMessage());
+            error = String.format("Login for %s on %s failed with %s", getUrl(), fdClientIo.getUser(), e.getMessage());
         }
         return this;
     }

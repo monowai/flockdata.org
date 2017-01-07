@@ -21,12 +21,11 @@ import org.flockdata.integration.ClientConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Pings the service and outputs the connectivity results
@@ -41,24 +40,23 @@ import javax.annotation.PostConstruct;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.authentication", "org.flockdata.client"})
-public class PingRunner {
+public class PingRunner implements CommandLineRunner{
 
     private final ClientConfiguration clientConfiguration;
-    private final FdTemplate fdTemplate;
+    private final FdClientIo fdClientIo;
     private Logger logger = LoggerFactory.getLogger(PingRunner.class);
 
     @Autowired
-    public PingRunner(ClientConfiguration clientConfiguration, FdTemplate fdTemplate) {
+    public PingRunner(ClientConfiguration clientConfiguration, FdClientIo fdClientIo) {
         this.clientConfiguration = clientConfiguration;
-        this.fdTemplate = fdTemplate;
+        this.fdClientIo = fdClientIo;
     }
 
-    @PostConstruct
-    void register() {
-        Ping pingCmd = new Ping(fdTemplate);
+    @Override
+    public void run(String... args) throws Exception {
+        Ping pingCmd = new Ping(fdClientIo);
         pingCmd.exec();
         logger.info("FlockData endpoint [{}] responded with [{}]", clientConfiguration.getServiceUrl(), pingCmd.error()!=null?pingCmd.error():pingCmd.result());
-
     }
 
 

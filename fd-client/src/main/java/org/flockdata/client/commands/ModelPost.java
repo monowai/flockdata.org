@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdTemplate;
+import org.flockdata.client.FdClientIo;
 import org.flockdata.data.ContentModel;
 import org.flockdata.model.ContentModelResult;
 import org.springframework.core.ParameterizedTypeReference;
@@ -41,8 +41,8 @@ public class ModelPost extends AbstractRestCommand {
 
     private Collection<ContentModel> models;
 
-    public ModelPost(FdTemplate fdTemplate,Collection<ContentModel> models) {
-        super(fdTemplate);
+    public ModelPost(FdClientIo fdClientIo, Collection<ContentModel> models) {
+        super(fdClientIo);
         this.models = models;
     }
 
@@ -56,10 +56,10 @@ public class ModelPost extends AbstractRestCommand {
         results=null;   error =null;
         try {
 
-            HttpEntity requestEntity = new HttpEntity<>(models, fdTemplate.getHeaders());
+            HttpEntity requestEntity = new HttpEntity<>(models, fdClientIo.getHeaders());
             ParameterizedTypeReference<Collection<ContentModelResult>> responseType = new ParameterizedTypeReference<Collection<ContentModelResult>>() {};
             ResponseEntity<Collection<ContentModelResult>> response;
-            response = fdTemplate.getRestTemplate().exchange(getUrl()+ "/api/v1/model/", HttpMethod.POST, requestEntity, responseType);
+            response = fdClientIo.getRestTemplate().exchange(getUrl()+ "/api/v1/model/", HttpMethod.POST, requestEntity, responseType);
 
 
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);

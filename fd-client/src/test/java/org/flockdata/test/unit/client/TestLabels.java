@@ -49,7 +49,7 @@ public class TestLabels extends AbstractImport {
         fileProcessor.processFile(extractProfile,
                 "/data/tag-labels.csv");
 
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getTemplate().getTags();
         assertEquals(2, tagInputBeans.size());
         boolean loanType=false, occupancy= false;
         for (TagInputBean tagInputBean : tagInputBeans) {
@@ -77,7 +77,7 @@ public class TestLabels extends AbstractImport {
         fileProcessor.processFile(extractProfile,
                 "/data/tag-label-expressions.csv");
 
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getTemplate().getTags();
         // 1 Politician
         //
         assertEquals(4, tagInputBeans.size());
@@ -105,7 +105,7 @@ public class TestLabels extends AbstractImport {
         fileProcessor.processFile(
                 extractProfile,
                 "/data/assets.txt");
-        List<EntityInputBean> entities = fdWriter.getEntities();
+        List<EntityInputBean> entities = fdTemplate.getEntities();
         List<TagInputBean> tagInputBeans = entities.iterator().next().getTags();
         assertEquals(1, tagInputBeans.size());
         TestCase.assertEquals(3, entities.iterator().next().getTags().iterator().next().getAliases().size());
@@ -133,7 +133,7 @@ public class TestLabels extends AbstractImport {
         fileProcessor.processFile(
                 extractProfile,
                 "/data/assets.txt");
-        List<EntityInputBean> entities = fdWriter.getEntities();
+        List<EntityInputBean> entities = fdTemplate.getEntities();
         List<TagInputBean> tagInputBeans = entities.iterator().next().getTags();
         assertNotNull("Tag Description of the label was not honoured", tagInputBeans.iterator().next().getDescription());
     }

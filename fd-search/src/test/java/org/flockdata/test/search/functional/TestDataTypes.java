@@ -70,7 +70,7 @@ public class TestDataTypes extends ESBase {
         searchRepo.handle(change);
         Thread.sleep(1000);
 
-        doQuery(entity, "*", 1);
+        doQuery(entity, "*");
 
         Entity entityB = getEntity(fortress, fortress, user, doc);
         Map<String,Object> strMap = ContentDataHelper.getSimpleMap("num", "NA");

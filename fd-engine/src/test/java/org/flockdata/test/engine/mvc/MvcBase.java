@@ -41,7 +41,7 @@ import org.flockdata.model.ContentValidationResults;
 import org.flockdata.registration.*;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
-import org.flockdata.test.unit.client.MockPayloadWriter;
+import org.flockdata.test.unit.client.FdTemplateMock;
 import org.flockdata.track.bean.*;
 import org.flockdata.transform.model.ContentModelHandler;
 import org.junit.Before;
@@ -89,7 +89,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringApplicationConfiguration({
         FdEngine.class,
         Neo4jConfigTest.class,
-        MockPayloadWriter.class,
+        FdTemplateMock.class,
         MapBasedStorageProxy.class})
 @ActiveProfiles({"dev", "fd-auth-test"})
 @RunWith(SpringRunner.class)

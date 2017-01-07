@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.flockdata.test.unit.client;
 
 import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.FileProcessor;
-import org.flockdata.integration.PayloadWriter;
+import org.flockdata.integration.Template;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,38 +41,42 @@ import static junit.framework.TestCase.assertTrue;
 @ActiveProfiles({"dev"})
 @ContextConfiguration(classes = {
         ClientConfiguration.class,
-        MockPayloadWriter.class,
+        FdTemplateMock.class,
         FileProcessor.class,
-        MockFdWriter.class,
+        FdMockIo.class,
 })
 @TestPropertySource({"/application_dev.properties"})
 public class AbstractImport {
     // Re-implement an FdWriter class if you want to validate data in the flush routines
 
     @Autowired
-    protected PayloadWriter fdWriter;
+    protected Template fdTemplate;
     @Autowired
     protected FileProcessor fileProcessor;
     @Autowired
     protected ClientConfiguration clientConfiguration;
 
-    protected PayloadWriter getFdWriter() {
-        return fdWriter;
+    protected Template getTemplate() {
+        return fdTemplate;
     }
 
+    /**
+     * Clear out any cached data in the template
+     *
+     * For testing purposes we need to analyse the batched payload without flushing
+     * If we don't reset the batched payload then any previous runs contents will also be in the result
+     */
     @Before
     public void clearLoader(){
-        // PayloadBatcher is normally cleared down when it is flushed at the end of an import process
-        // For testing purposes we need to analyse the batched payload without flushing
-        // If we don't reset the batched payload then any previous runs contents will be in the result
-        fdWriter.reset();
+        fdTemplate.reset();
+        assertNotNull(fdTemplate.getFdIoInterface());
     }
 
     @Test
     public void autoWiringWorks(){
         assertNotNull(clientConfiguration);
         assertTrue(""+clientConfiguration.getBatchSize(),clientConfiguration.getBatchSize()>10);
-        assertNotNull(fdWriter);
+        assertNotNull(fdTemplate);
         assertNotNull(fileProcessor);
     }
 
