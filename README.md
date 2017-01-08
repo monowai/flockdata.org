@@ -1,5 +1,7 @@
-[FlockData](http://FlockData.com) - Data management framework
+[FlockData](http://FlockData.com) - Data management framework        
 ===========
+
+[![CircleCI](https://circleci.com/gh/monowai/flockdata.org.svg?style=shield)](https://circleci.com/gh/monowai/flockdata.org)
 
 FlockData lets you visually model your system data and connect it to core business domain concepts in your organisation.
 
@@ -17,7 +19,6 @@ FD can take any data, including your SQL data/queries/views, and pipes it into g
     Model->Load->Analyze
 
 ## Overview
-
 FlockData allows you to model your data and normalize it around the business context - the conceptual model. The results allow you to 
 
   * Standardised way in which data can be securely read and analyzed
