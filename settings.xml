@@ -12,13 +12,10 @@
     </servers>
     <profiles>
         <profile>
-            <id>gpg</id>
-            <properties>
-                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
-            </properties>
-        </profile>
-        <profile>
             <id>release</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <repositories>
                 <repository>
                     <id>sonatype-staging</id>
@@ -29,10 +26,11 @@
                     </releases>
                 </repository>
             </repositories>
+            <properties>
+                <!--http://central.sonatype.org/pages/apache-maven.html#gpg-signed-components-->
+                <gpg.executable>gpg2</gpg.executable>
+                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+            </properties>
         </profile>
     </profiles>
-    <activeProfiles>
-        <activeProfile>gpg</activeProfile>
-        <activeProfile>release</activeProfile>
-    </activeProfiles>
 </settings>
