@@ -24,7 +24,7 @@ import org.flockdata.data.Document;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.FortressUser;
-import org.flockdata.engine.data.graph.EntityLogRlx;
+import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.engine.data.graph.LogNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.store.StoredContent;
@@ -48,7 +48,7 @@ public interface LogService {
 
     TrackResultBean writeLog(Document documentType, Entity entity, ContentInputBean input, FortressUser fu) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    EntityLogRlx getLastLog(Entity entity) throws FlockException;
+    EntityLog getLastLog(Entity entity) throws FlockException;
 
     StoredContent getContent(Entity entity, LogNode log);
 

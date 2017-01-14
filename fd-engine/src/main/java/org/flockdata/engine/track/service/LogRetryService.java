@@ -26,6 +26,7 @@ import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.data.dao.EntityDaoNeo;
 import org.flockdata.engine.data.graph.*;
+import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.helper.FlockException;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
@@ -149,7 +150,7 @@ public class LogRetryService {
         final TxRef txRef = txService.handleTxRef(trackResult.getContentInput(), (CompanyNode)fortress.getCompany());
         trackResult.setTxReference(txRef);
 
-        EntityLogRlx lastLog = getLastLog(trackResult.getEntity());
+        EntityLog lastLog = getLastLog(trackResult.getEntity());
 
         logger.debug("createLog key {}, ContentWhen {}, lastLogWhen {}, log {}", trackResult.getEntity().getKey(),  new DateTime(trackResult.getContentInput().getWhen()),
                 (lastLog == null ? "[null]" : new DateTime(lastLog.getFortressWhen()))
@@ -211,7 +212,7 @@ public class LogRetryService {
             trackResult.setLogStatus(ContentInputBean.LogStatus.OK);
 
         // This call also saves the entity
-        EntityLogRlx entityLog = entityDao.writeLog((EntityNode) trackResult.getEntity(), preparedLog, contentWhen);
+        EntityLog entityLog = entityDao.writeLog((EntityNode) trackResult.getEntity(), preparedLog, contentWhen);
 
         resultBean.setSysWhen(entityLog.getSysWhen());
 
@@ -233,7 +234,7 @@ public class LogRetryService {
      * @param contentWhen date range to consider
      * @return entityLog to compare against
      */
-    private EntityLogRlx resolveHistoricLog(Entity entity, EntityLogRlx incomingLog, DateTime contentWhen) {
+    private EntityLog resolveHistoricLog(Entity entity, EntityLog incomingLog, DateTime contentWhen) {
 
         if (incomingLog == null || incomingLog.isMocked())
             return null;
@@ -247,15 +248,15 @@ public class LogRetryService {
                 contentWhen);
 
         if (historicIncomingLog) {
-            Set<EntityLogRlx> entityLogs = entityDao.getLogs(entity.getId(), contentWhen.toDate());
+            Set<EntityLog> entityLogs = entityDao.getLogs(entity.getId(), contentWhen.toDate());
             if (entityLogs.isEmpty()) {
                 logger.debug("No logs prior to {}. Returning existing log", contentWhen);
                 return incomingLog;
             } else {
                 logger.debug("Found {} historic logs", entityLogs.size());
-                EntityLogRlx closestLog = null;
+                EntityLog closestLog = null;
 
-                for (EntityLogRlx entityLog : entityLogs) {
+                for (EntityLog entityLog : entityLogs) {
                     if (closestLog == null)
                         closestLog = entityLog;
                     else if (entityLog.getFortressWhen() < closestLog.getFortressWhen())
@@ -274,7 +275,7 @@ public class LogRetryService {
     }
 
     @Transactional
-    public EntityLogRlx getLastLog(Entity entity) throws FlockException {
+    public EntityLog getLastLog(Entity entity) throws FlockException {
         if (entity == null || entity.getId() == null || entity.isNewEntity())
             return null;
         logger.trace("Getting lastLog MetaID [{}]", entity.getId());

@@ -23,6 +23,7 @@ package org.flockdata.engine.data.dao;
 import org.flockdata.data.*;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.data.graph.*;
+import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.EntityTagService;
 import org.flockdata.engine.track.service.FortressService;
@@ -75,6 +76,8 @@ public class EntityDaoNeo {
 
     private final IndexManager indexManager;
     private final Neo4jTemplate template;
+    private final EntityTagInRepo entityTagInRepo;
+    private final EntityTagOutRepo entityTagOutRepo;
     private FortressService fortressService;
     private ConceptService conceptService;
 
@@ -82,7 +85,7 @@ public class EntityDaoNeo {
 
     @Autowired
     public EntityDaoNeo(EntityRepo entityRepo, KeyGenService keyGenService, TrackEventService trackEventService, DocumentTypeRepo documentTypeRepo, EntityTagService entityTagService, TxRepo txRepo,
-                        TrackLogRepo trackLogRepo, IndexManager indexManager, @Qualifier("engineConfig") PlatformConfig engineConfig, Neo4jTemplate template) {
+                        TrackLogRepo trackLogRepo, IndexManager indexManager, @Qualifier("engineConfig") PlatformConfig engineConfig, Neo4jTemplate template, EntityTagInRepo entityTagInRepo, EntityTagOutRepo entityTagOutRepo) {
         this.entityRepo = entityRepo;
         this.keyGenService = keyGenService;
         this.trackEventService = trackEventService;
@@ -93,6 +96,8 @@ public class EntityDaoNeo {
         this.indexManager = indexManager;
         this.engineConfig = engineConfig;
         this.template = template;
+        this.entityTagInRepo = entityTagInRepo;
+        this.entityTagOutRepo = entityTagOutRepo;
     }
 
     @Autowired
@@ -267,20 +272,20 @@ public class EntityDaoNeo {
         return txTag;
     }
 
-    public Set<EntityLogRlx> getLogs(Long entityId, Date from, Date to) {
+    public Set<EntityLog> getLogs(Long entityId, Date from, Date to) {
         return trackLogRepo.getLogs(entityId, from.getTime(), to.getTime());
     }
 
-    public Collection<EntityLog> getLogs(Entity entity) {
-        EntityLogRlx mockLog = getMockLog(entity);
+    public Collection<org.flockdata.data.EntityLog> getLogs(Entity entity) {
+        EntityLog mockLog = getMockLog(entity);
         if (mockLog != null) {
-            Set<EntityLog> results = new HashSet<>();
+            Set<org.flockdata.data.EntityLog> results = new HashSet<>();
             results.add(mockLog);
             return results;
         }
-        Set<EntityLogRlx> found = trackLogRepo.findLogs(entity.getId());
-        Collection<EntityLog> results = new ArrayList<>();
-        for (EntityLogRlx result : found) {
+        Set<EntityLog> found = trackLogRepo.findLogs(entity.getId());
+        Collection<org.flockdata.data.EntityLog> results = new ArrayList<>();
+        for (EntityLog result : found) {
             result.setEntity((EntityNode)entity);
             results.add(result);
         }
@@ -308,7 +313,7 @@ public class EntityDaoNeo {
         //Iterable<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            EntityLogRlx log = template.convert(row.get("logs"), EntityLogRlx.class);
+            EntityLog log = template.convert(row.get("logs"), EntityLog.class);
             Log change = template.convert(row.get("log"), LogNode.class);
             EntityNode entity = template.convert(row.get("track"), EntityNode.class);
             simpleResult.add(new EntityTXResult(entity, log));
@@ -322,7 +327,7 @@ public class EntityDaoNeo {
         return result;
     }
 
-    public EntityLog save(EntityLogRlx log) {
+    public org.flockdata.data.EntityLog save(EntityLog log) {
         // DAT-349 - don't persist mocked logs
         if (log.isMocked())
             return log;
@@ -334,25 +339,25 @@ public class EntityDaoNeo {
         return "Neo4J is OK";
     }
 
-    private EntityLogRlx getMockLog(Entity entity) {
+    private EntityLog getMockLog(Entity entity) {
         // DAT-349 returns a mock log if storage history is not being maintained by a KV impl
         if (!entity.getSegment().getFortress().isStoreEnabled()) {
             LogNode log = new LogNode(entity);
-            return new EntityLogRlx(entity, log, entity.getFortressCreatedTz());
+            return new EntityLog(entity, log, entity.getFortressCreatedTz());
         }
         return null;
     }
 
-    public EntityLogRlx getLog(EntityNode entity, Long logId) {
+    public EntityLog getLog(EntityNode entity, Long logId) {
 
-        EntityLogRlx mockLog = getMockLog(entity);
+        EntityLog mockLog = getMockLog(entity);
         if (mockLog != null)
             return mockLog;
 
         Relationship change = template.getRelationship(logId);
         if (change != null)
             try {
-                return (EntityLogRlx) template.getDefaultConverter().convert(change, EntityLogRlx.class);
+                return (EntityLog) template.getDefaultConverter().convert(change, EntityLog.class);
             } catch (NotFoundException nfe) {
                 // Occurs if fd-search has been down and the database is out of sync from multiple restarts
                 logger.error("Error converting relationship to a LoggedRelationship");
@@ -372,9 +377,9 @@ public class EntityDaoNeo {
         return template.fetch(lastChange);
     }
 
-    public EntityLogRlx writeLog(EntityNode entity, Log newLog, DateTime fortressWhen) throws FlockException {
+    public EntityLog writeLog(EntityNode entity, Log newLog, DateTime fortressWhen) throws FlockException {
 
-        EntityLogRlx entityLog = new EntityLogRlx(entity, newLog, fortressWhen);
+        EntityLog entityLog = new EntityLog(entity, newLog, fortressWhen);
 
         if (entity.getId() == null)// Graph tracking is suppressed; caller is only creating search docs
             return entityLog;
@@ -415,14 +420,14 @@ public class EntityDaoNeo {
     }
 
     private void setLatest(EntityNode entity) {
-        EntityLog latest = null;
+        org.flockdata.data.EntityLog latest = null;
         boolean moreRecent;
 
 
-        Set<EntityLogRlx> entityLogs = getLogs(entity.getId(), entity.getFortressUpdatedTz().toDate(), new DateTime().toDate());
+        Set<EntityLog> entityLogs = getLogs(entity.getId(), entity.getFortressUpdatedTz().toDate(), new DateTime().toDate());
 
 
-        for (EntityLog entityLog : entityLogs) {
+        for (org.flockdata.data.EntityLog entityLog : entityLogs) {
             if (latest == null || entityLog.getFortressWhen() > latest.getFortressWhen())
                 latest = entityLog;
         }
@@ -521,12 +526,12 @@ public class EntityDaoNeo {
 
     }
 
-    public EntityLogRlx getLastLog(Long entityId) {
+    public EntityLog getLastLog(Long entityId) {
         EntityNode entity = getEntity(entityId);
         return getLastEntityLog(entity);
     }
 
-    public EntityLogRlx getLastEntityLog(EntityNode entity) {
+    public EntityLog getLastEntityLog(EntityNode entity) {
 
         Log lastChange = entity.getLastChange();
         if (lastChange == null) {
@@ -537,7 +542,7 @@ public class EntityDaoNeo {
         return trackLogRepo.getLog(entity.getLastChange().getId());
     }
 
-    public Set<EntityLogRlx> getLogs(Long id, Date date) {
+    public Set<EntityLog> getLogs(Long id, Date date) {
         return trackLogRepo.getLogs(id, date.getTime());
     }
 
@@ -579,13 +584,20 @@ public class EntityDaoNeo {
         for (EntityNode entity : entities) {
             Collection<EntityTag> entityTags;
             if (withEntityTags) {
-                entityTags = entityTagService.findEntityTags(entity);
+                entityTags = findEntityTags(entity);
                 results.add(new EntityKeyBean(entity, entityTags, indexManager.parseIndex(entity)).addRelationship(""));
             } else {
                 results.add(new EntityKeyBean(entity, indexManager.parseIndex(entity)).addRelationship(""));
             }
 
         }
+        return results;
+    }
+
+    private Collection<EntityTag> findEntityTags(EntityNode entity) {
+        Collection<EntityTag>results = new ArrayList<>();
+        results.addAll(entityTagInRepo.getEntityTags(entity.getId()));
+        results.addAll(entityTagOutRepo.getEntityTags(entity.getId()));
         return results;
     }
 

@@ -83,8 +83,8 @@ public class TestHashcodeAndEquality {
         entityInput.setCode("abc");
 
         EntityNode entityNode = new EntityNode("123abc", fortress.getDefaultSegment(), entityInput, documentTypeNode);
-        EntityTagOutRlx entityTagA = new EntityTagOutRlx(entityNode, tagNode);
-        EntityTagOutRlx entityTagB = new EntityTagOutRlx(entityNode, tagNodeB);
+        EntityTagOut entityTagA = new EntityTagOut(entityNode, tagNode);
+        EntityTagOut entityTagB = new EntityTagOut(entityNode, tagNodeB);
 
         ArrayList<EntityTag>existingTags = new ArrayList<>();
         existingTags.add(entityTagA);

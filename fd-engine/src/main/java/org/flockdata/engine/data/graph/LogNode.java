@@ -58,7 +58,7 @@ public class LogNode implements Log {
     @RelatedTo(type = "AFFECTED", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRefNode txRef;
     @RelatedToVia(type = "LOGGED", direction = Direction.INCOMING)
-    private EntityLogRlx entityLog;
+    private EntityLog entityLog;
     private String event;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String comment;
@@ -219,11 +219,11 @@ public class LogNode implements Log {
     }
 
     @JsonIgnore
-    public EntityLogRlx getEntityLog() {
+    public EntityLog getEntityLog() {
         return entityLog;
     }
 
-    public void setEntityLog(EntityLogRlx entityLog) {
+    public void setEntityLog(EntityLog entityLog) {
         // DAT-288 DAT-465
         // logKey assumes that an entity will have exactly one change on the FortressWhen date
         this.logKey = ""+entityLog.getEntity().getId() +"."+ entityLog.getFortressWhen();

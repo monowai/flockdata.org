@@ -22,6 +22,7 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.data.*;
 import org.flockdata.engine.data.graph.*;
+import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -65,17 +66,17 @@ public interface EntityService {
 
     void updateEntity(EntityNode entity);
 
-    EntityLogRlx getLastEntityLog(Company company, String key) throws FlockException;
+    EntityLog getLastEntityLog(Company company, String key) throws FlockException;
 
-    EntityLogRlx getLastEntityLog(Long entityId);
+    EntityLog getLastEntityLog(Long entityId);
 
-    Collection<EntityLog> getEntityLogs(Entity entity);
+    Collection<org.flockdata.data.EntityLog> getEntityLogs(Entity entity);
 
     Collection<EntityLogResult> getEntityLogs(Company company, String key) throws FlockException;
 
     Collection<EntityLogResult> getEntityLogs(Company company, String key, boolean withData);
 
-    Set<EntityLogRlx> getEntityLogs(Company company, String key, Date from, Date to) throws FlockException;
+    Set<EntityLog> getEntityLogs(Company company, String key, Date from, Date to) throws FlockException;
 
     EntitySearchChange cancelLastLog(Company company, EntityNode entity) throws IOException, FlockException;
 
@@ -95,7 +96,7 @@ public interface EntityService {
 
     LogDetailBean getFullDetail(Company company, String key, Long logId);
 
-    EntityLogRlx getLogForEntity(EntityNode entity, Long logId);
+    EntityLog getLogForEntity(EntityNode entity, Long logId);
 
     Collection<TrackResultBean> trackEntities(DocumentNode documentType, Segment segment, Collection<EntityInputBean> inputBeans, Future<Collection<FdTagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException;
 
@@ -136,7 +137,7 @@ public interface EntityService {
 
     Collection<EntityTag> getLastLogTags(Company company, String key) throws FlockException;
 
-    EntityLog getEntityLog(CompanyNode company, String key, Long logId) throws FlockException;
+    org.flockdata.data.EntityLog getEntityLog(CompanyNode company, String key, Long logId) throws FlockException;
 
     /**
      *
@@ -147,7 +148,7 @@ public interface EntityService {
      * @param entityLog Log for which tags might exist
      * @return All entity Tags archived to the log
      */
-    Collection<EntityTag> getLogTags(Company company, EntityLog entityLog);
+    Collection<EntityTag> getLogTags(Company company, org.flockdata.data.EntityLog entityLog);
 
     Collection<EntityToEntityLinkInput> linkEntities(Company company, Collection<EntityToEntityLinkInput> entityLinks);
 

@@ -27,7 +27,7 @@ import org.flockdata.data.FortressUser;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.data.dao.EntityDaoNeo;
-import org.flockdata.engine.data.graph.EntityLogRlx;
+import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.data.graph.LogNode;
 import org.flockdata.helper.FlockException;
@@ -123,7 +123,7 @@ public class LogServiceNeo4j implements LogService {
 
     @Override
     @Transactional
-    public EntityLogRlx getLastLog(Entity entity) throws FlockException {
+    public EntityLog getLastLog(Entity entity) throws FlockException {
         if (entity == null || entity.getId() == null)
             return null;
         logger.trace("Getting lastLog MetaID [{}]", entity.getId());

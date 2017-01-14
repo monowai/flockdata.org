@@ -20,16 +20,14 @@
 
 package org.flockdata.engine.query.endpoint;
 
-import org.flockdata.data.EntityLog;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.TxRef;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.data.graph.CompanyNode;
-import org.flockdata.engine.data.graph.EntityLogRlx;
+import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.engine.data.graph.FortressNode;
-import org.flockdata.engine.tag.EntityTagResult;
 import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.engine.track.service.EntityService;
 import org.flockdata.engine.track.service.EntityTagService;
@@ -39,10 +37,7 @@ import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.store.StoredContent;
-import org.flockdata.track.bean.EntityLogResult;
-import org.flockdata.track.bean.EntityResultBean;
-import org.flockdata.track.bean.EntitySummaryBean;
-import org.flockdata.track.bean.LogDetailBean;
+import org.flockdata.track.bean.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,7 +163,7 @@ public class EntityEP {
                                       HttpServletRequest request) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/api/v1/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastlog
-        EntityLogRlx changed = entityService.getLastEntityLog(company, key);
+        EntityLog changed = entityService.getLastEntityLog(company, key);
         if (changed != null)
             return new EntityLogResult(changed);
 
@@ -194,7 +189,7 @@ public class EntityEP {
                                      HttpServletRequest request) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/api/v1/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
-        EntityLog tl = entityService.getEntityLog(company, key, logId);
+        org.flockdata.data.EntityLog tl = entityService.getEntityLog(company, key, logId);
         return convertTags(entityService.getLogTags(company, tl));
     }
 
@@ -215,7 +210,7 @@ public class EntityEP {
 
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{key}
         EntityNode entity = entityService.getEntity(company, key);
-        return convertTags(entityTagService.findEntityTags(entity));
+        return entityTagService.findEntityTagResults(entity);
     }
 
     @RequestMapping(value = "/{key}/log/last/attachment",
@@ -227,7 +222,7 @@ public class EntityEP {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         EntityNode entity = entityService.getEntity(company, key);
         if (entity != null) {
-            EntityLog lastLog = logService.getLastLog(entity);
+            org.flockdata.data.EntityLog lastLog = logService.getLastLog(entity);
             if (lastLog == null) {
                 logger.debug("Unable to find last log for {}", entity);
             } else {

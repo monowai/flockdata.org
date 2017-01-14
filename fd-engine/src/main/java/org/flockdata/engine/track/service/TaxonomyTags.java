@@ -23,7 +23,7 @@ package org.flockdata.engine.track.service;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.Tag;
 import org.flockdata.engine.data.graph.EntityNode;
-import org.flockdata.engine.data.graph.EntityTagOutRlx;
+import org.flockdata.engine.data.graph.EntityTagOut;
 import org.flockdata.engine.data.graph.TagNode;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.track.EntityTagFinder;
@@ -90,7 +90,7 @@ public class TaxonomyTags implements EntityTagFinder {
                             TagNode tag = template.projectTo(node, TagNode.class);
 
                             // ETO is arbitrary
-                            term = new EntityTagOutRlx((EntityNode) trackResultBean.getEntity(), tag);
+                            term = new EntityTagOut((EntityNode) trackResultBean.getEntity(), tag);
                             String relationship = "viewed";     // ToDo: Dynamic, not static
                             term.setRelationship(relationship);
                             terms.put(tag.getId(), term);

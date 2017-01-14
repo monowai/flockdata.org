@@ -22,7 +22,10 @@ package org.flockdata.engine.track;
 
 import com.google.common.collect.Lists;
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.data.*;
+import org.flockdata.data.Company;
+import org.flockdata.data.Entity;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;

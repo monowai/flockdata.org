@@ -150,8 +150,8 @@ public class MockDataFactory {
         return getEntityTag(entity, tagInput,DEFAULT_ET_NAME);
     }
 
-//    public static EntityTag getEntityTag(Entity entity, TagInputBean tagInput, Map<String,Object>props) {
-//        return getEntityTag(entity, tagInput, DEFAULT_ET_NAME, props);
+//    public static EntityTag getTag(Entity entity, TagInputBean tagInput, Map<String,Object>props) {
+//        return getTag(entity, tagInput, DEFAULT_ET_NAME, props);
 //    }
 
     public static EntityTag getEntityTag(Entity entity, TagInputBean tagInput, String rlxName) {
