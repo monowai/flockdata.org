@@ -21,6 +21,7 @@
 package org.flockdata.engine.data.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.data.AbstractEntityTag;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
@@ -40,21 +41,21 @@ import java.util.Map;
  * @tag Relationship, EntityTag, Tag, Entity
  */
 @RelationshipEntity (type = "ENTITY-TAG-IN")
-public class EntityTagInRlx extends AbstractEntityTag {
+public class EntityTagIn extends AbstractEntityTag {
 
-    protected DynamicProperties properties = new DynamicPropertiesContainer();
-    @RelationshipType
-    @Fetch
-    DynamicRelationshipType relationship;
     @GraphId
     private Long id =null;
+    @RelationshipType
+    @Fetch
+    private DynamicRelationshipType relationship;
     @StartNode
     @Fetch
     private TagNode tag;
     @EndNode
     private EntityNode entity;
+    private DynamicProperties properties = new DynamicPropertiesContainer();
 
-    protected EntityTagInRlx() {
+    protected EntityTagIn() {
     }
 
     /**
@@ -65,7 +66,7 @@ public class EntityTagInRlx extends AbstractEntityTag {
      * @param relationship Name of the relationship
      * @param propMap      Relationship properties
      */
-    public EntityTagInRlx(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
+    public EntityTagIn(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
         this();
         this.entity = (EntityNode)entity;
         this.tag = (TagNode)tag;
@@ -74,7 +75,7 @@ public class EntityTagInRlx extends AbstractEntityTag {
             this.properties = new DynamicPropertiesContainer(propMap);
     }
 
-    public EntityTagInRlx(EntityNode entity, EntityTag logTag) {
+    public EntityTagIn(EntityNode entity, EntityTag logTag) {
         this.entity = entity;
         this.tag = (TagNode)logTag.getTag();
         this.properties = new DynamicPropertiesContainer(logTag.getProperties());
@@ -98,9 +99,9 @@ public class EntityTagInRlx extends AbstractEntityTag {
         return properties.asMap();
     }
 
-    @Override
-    @JsonIgnore
-    public boolean isGeoRelationship() {
+    public Boolean isGeoRelationship() {
+        if ( geoRelationship == null )
+            return false;
         return geoRelationship;
     }
 
@@ -113,6 +114,11 @@ public class EntityTagInRlx extends AbstractEntityTag {
     @Override
     public Tag getTag() {
         return tag;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Map<String, Object> getTagProperties() {
+        return tag.getProperties();
     }
 
     @Override

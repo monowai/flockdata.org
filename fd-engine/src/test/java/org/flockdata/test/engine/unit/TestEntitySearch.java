@@ -51,9 +51,9 @@ public class TestEntitySearch {
         String relationship = "dupe";
 
         // ToDo: What is the diff between these relationships
-        tags.add( new EntityTagOutRlx(e, getTag("NameA", relationship), relationship, null ));
-        tags.add( new EntityTagOutRlx(e, getTag("NameB", "Dupe"), "Dupe", null ));
-        tags.add(new EntityTagOutRlx(e, getTag("NameC", relationship), relationship, null));
+        tags.add( new EntityTagOut(e, getTag("NameA", relationship), relationship, null ));
+        tags.add( new EntityTagOut(e, getTag("NameB", "Dupe"), "Dupe", null ));
+        tags.add(new EntityTagOut(e, getTag("NameC", relationship), relationship, null));
 
         EntitySearchChange entitySearchChange = new EntitySearchChange(e, "");
 

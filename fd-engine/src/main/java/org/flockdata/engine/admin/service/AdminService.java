@@ -24,7 +24,7 @@ import org.flockdata.data.*;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.configure.CacheConfiguration;
 import org.flockdata.engine.data.graph.DocumentNode;
-import org.flockdata.engine.data.graph.EntityLogRlx;
+import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.track.service.ConceptService;
@@ -383,7 +383,7 @@ public class AdminService implements EngineAdminService {
 
         Collection<SearchChange> searchDocuments = new ArrayList<>(entities.size());
         for (Entity entity : entities) {
-            EntityLogRlx lastLog = entityService.getLastEntityLog(entity.getId());
+            EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
             DocumentNode documentType = conceptService.findDocumentType(entity.getFortress(), entity.getType());
             TrackResultBean trackResultBean = new TrackResultBean(entity, documentType);
             // How to get the Linked Entities? From the model

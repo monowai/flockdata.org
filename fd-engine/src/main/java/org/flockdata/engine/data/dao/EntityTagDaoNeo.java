@@ -91,9 +91,9 @@ public class EntityTagDaoNeo {
     public void changeType(EntityNode entity, EntityTag existingTag, String newType) {
         EntityTag entityTag;
         if (existingTag.isReversed())
-            entityTag = new EntityTagInRlx(entity, existingTag.getTag(), newType, existingTag.getProperties());
+            entityTag = new EntityTagIn(entity, existingTag.getTag(), newType, existingTag.getProperties());
         else
-            entityTag = new EntityTagOutRlx(entity, existingTag.getTag(), newType, existingTag.getProperties());
+            entityTag = new EntityTagOut(entity, existingTag.getTag(), newType, existingTag.getProperties());
 
         template.delete(existingTag);
         template.save(entityTag);
@@ -116,7 +116,7 @@ public class EntityTagDaoNeo {
             if (relationship != null) {
                 // Relationships are immutable, so we have to destroy and recreate
                 template.delete(entityTag);
-                LogTagRlx logTag = new LogTagRlx(entityTag, log, relationship.getType().name());
+                LogTag logTag = new LogTag(entityTag, log, relationship.getType().name());
                 template.save(logTag);
             }
         }
@@ -158,9 +158,9 @@ public class EntityTagDaoNeo {
 
             AbstractEntityTag entityTag;
             if (isReversed)
-                entityTag = new EntityTagInRlx(entity, logTag);
+                entityTag = new EntityTagIn(entity, logTag);
             else
-                entityTag = new EntityTagOutRlx(entity, logTag);
+                entityTag = new EntityTagOut(entity, logTag);
 
             template.delete(logTag);
             template.save(entityTag);
@@ -169,13 +169,13 @@ public class EntityTagDaoNeo {
 
     }
 
-    public Set<EntityNode> findEntityTags(Tag tag) {
+    public Set<Entity> findEntityTags(Tag tag) {
         String query = " match (tag:Tag)-[]-(entity:Entity) where id(tag)={tagId}" +
                 " return entity";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", tag.getId());
         Iterable<Map<String, Object>> result = template.query(query, params);
-        Set<EntityNode> results = new HashSet<>();
+        Set<Entity> results = new HashSet<>();
         for (Map<String, Object> row : result) {
             EntityNode entity = template.convert(row.get("entity"), EntityNode.class);
             results.add(entity);
@@ -197,7 +197,7 @@ public class EntityTagDaoNeo {
 
         Iterable<Map<String, Object>> results = template.query(query, params);
         for (Map<String, Object> result : results) {
-            logTags.add(template.projectTo(result.get("logTag"), LogTagRlx.class));
+            logTags.add(template.projectTo(result.get("logTag"), LogTag.class));
         }
 
         return logTags;

@@ -1,25 +1,22 @@
 /*
+ *  Copyright 2012-2017 the original author or authors.
  *
- *  Copyright (c) 2012-2017 "FlockData LLC"
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This file is part of FlockData.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  FlockData is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  FlockData is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.track.bean;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.data.ChangeEvent;
 import org.flockdata.data.EntityLog;
@@ -38,27 +35,26 @@ import java.util.Map;
 public class EntityLogResult {
 
 
-    private Long logId;
+    private Long id;
     private Store store;
-//    private EntityBean entity;
     private String entityKey;
     private String contentType;
     private String checkSum;
     private String madeBy;
     private String comment;
     private Long when;
-//    private Boolean indexed;
     private ChangeEventResultBean event;
     private Map<String, Object> data;
     private boolean versioned;
     private String checksum;
+    private Log log;
 
     EntityLogResult(){}
 
     public EntityLogResult(EntityLog entityLog) {
         this();
-        Log log = entityLog.getLog();
-        this.logId = entityLog.getId();
+        this.log = entityLog.getLog();
+        this.id = entityLog.getId();
         this.store = Store.valueOf(log.getStorage());
         this.entityKey = entityLog.getEntity().getKey();
         this.contentType = log.getContentType();
@@ -80,8 +76,8 @@ public class EntityLogResult {
             this.data = storedContent.getData();
     }
 
-    public Long getLogId() {
-        return logId;
+    public Long getId() {
+        return id;
     }
 
     public Store getStore() {
@@ -92,7 +88,7 @@ public class EntityLogResult {
     public String toString() {
         return "LogRequest{" +
                 "store=" + store +
-                ", logId=" + logId +
+                ", id=" + id +
                 ", entity=" + entityKey +
                 '}';
     }
@@ -105,11 +101,10 @@ public class EntityLogResult {
         return madeBy;
     }
 
-    public String getEntityKey() {
-        return entityKey;
-    }
+//    public String getEntityKey() {
+//        return entityKey;
+//    }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getComment() {
         return comment;
     }
@@ -131,16 +126,13 @@ public class EntityLogResult {
         return versioned;
     }
 
-    public void setMocked(boolean mocked) {
-        this.versioned = mocked;
-    }
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getChecksum() {
         return checksum;
     }
 
-    public void setChecksum(String checksum) {
-        this.checksum = checksum;
+    @JsonIgnore
+    public Log getLog() {
+        return log;
     }
 }

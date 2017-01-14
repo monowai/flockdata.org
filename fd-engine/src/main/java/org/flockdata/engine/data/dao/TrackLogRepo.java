@@ -20,7 +20,7 @@
 
 package org.flockdata.engine.data.dao;
 
-import org.flockdata.engine.data.graph.EntityLogRlx;
+import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.engine.data.graph.LogNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
@@ -40,22 +40,22 @@ public interface TrackLogRepo extends GraphRepository<LogNode> {
 
     @Query( value = "match (change:Log)<-[log:LOGGED]-() where id(change)={0} " +
                     "   return log")
-    EntityLogRlx getLog(Long logId);
+    EntityLog getLog(Long logId);
 
     @Query(  value = "match (change:Log)<-[log:LAST_CHANGE]-(entity:Entity) where id(entity)={0} " +
                     "   return log")
-    EntityLogRlx getLastChange(Long entityId);
+    EntityLog getLastChange(Long entityId);
 
 
-    @Query(elementClass = EntityLogRlx.class,  value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2}  return log ")
-    Set<EntityLogRlx> getLogs(Long entityId, Long from, Long to);
+    @Query(elementClass = EntityLog.class,  value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2}  return log ")
+    Set<EntityLog> getLogs(Long entityId, Long from, Long to);
 
-    @Query(elementClass = EntityLogRlx.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen <= {1} return log limit 5")
-    Set<EntityLogRlx> getLogs(Long entityId, Long from );
+    @Query(elementClass = EntityLog.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen <= {1} return log limit 5")
+    Set<EntityLog> getLogs(Long entityId, Long from );
 
-    @Query( elementClass = EntityLogRlx.class, value = "  MATCH (entity:Entity)-[log:LOGGED]->(change) where id(entity) = {0} " +
+    @Query( elementClass = EntityLog.class, value = "  MATCH (entity:Entity)-[log:LOGGED]->(change) where id(entity) = {0} " +
                     " return log order by log.fortressWhen desc")
-    Set<EntityLogRlx> findLogs(Long entityId);
+    Set<EntityLog> findLogs(Long entityId);
 
     @Query (value = "match (m:Entity)-[l:LOGGED]-(log:Log) where m.key in {0} delete l,log;")
     void purgeFortressLogs(Collection<String> entities);

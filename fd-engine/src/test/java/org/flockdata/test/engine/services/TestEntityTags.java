@@ -87,13 +87,13 @@ public class TestEntityTags extends EngineBase {
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
 
         Assert.assertEquals(1, entityService.getLogCount(su.getCompany(), entity.getKey()));
-        Assert.assertEquals(1, entityTagService.findEntityTags(entity).size());
+        Assert.assertEquals(1, entityTagService.findEntityTagResults(entity).size());
 
         // Scenario 1: We send in the header with no content
         entityBean.setContent(null);
         mediationFacade.trackEntity(su.getCompany(), entityBean);
         Assert.assertEquals(1, entityService.getLogCount(su.getCompany(), entity.getKey()));
-        Assert.assertEquals(1, entityTagService.findEntityTags(entity).size());
+        Assert.assertEquals(1, entityTagService.findEntityTagResults(entity).size());
 
         // Scenario 2: We have an existing entity with content logged - it has one existing tag
         //           we now have a second tag added but no content.
@@ -102,7 +102,7 @@ public class TestEntityTags extends EngineBase {
         entity = mediationFacade.trackEntity(su.getCompany(), entityBean).getEntity();
 
         Assert.assertEquals(1, entityService.getLogCount(su.getCompany(), entity.getKey()));
-        Assert.assertEquals(2, entityTagService.findEntityTags(entity).size());
+        Assert.assertEquals(2, entityTagService.findEntityTagResults(entity).size());
 
         EntityLog lastLog = logService.getLastLog((EntityNode) entity);
         assertNotNull(lastLog);
@@ -137,7 +137,7 @@ public class TestEntityTags extends EngineBase {
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
 
         Assert.assertEquals(1, entityService.getLogCount(su.getCompany(), entity.getKey()));
-        Assert.assertEquals(1, entityTagService.findEntityTags(entity).size());
+        Assert.assertEquals(1, entityTagService.findEntityTagResults(entity).size());
 
         // Scenario 2: We have an existing entity with content logged - it has one existing tag
         //           we now have a second tag added but no content.
@@ -147,7 +147,7 @@ public class TestEntityTags extends EngineBase {
 
         entity = mediationFacade.trackEntity(su.getCompany(), entityBean).getEntity();
 
-        Assert.assertEquals(1, entityTagService.findEntityTags(entity).size());
+        Assert.assertEquals(1, entityTagService.findEntityTagResults(entity).size());
 
 
     }
@@ -261,7 +261,7 @@ public class TestEntityTags extends EngineBase {
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
         assertNotNull(result.getEntity());
-        assertEquals(1, entityTagService.findEntityTags(result.getEntity()).size());
+        assertEquals(1, entityTagService.findEntityTagResults(result.getEntity()).size());
     }
 
     @Test
@@ -354,17 +354,16 @@ public class TestEntityTags extends EngineBase {
         entityService.updateEntity(entity);
         entity = entityService.getEntity(su.getCompany(), entity.getKey());
         EntitySummaryBean summaryBean = entityService.getEntitySummary(null, entity.getKey());
-        tagSet = summaryBean.getTags();
-        assertNotNull(tagSet);
-        Set<EntityNode> entities = entityTagService.findEntityTags(su.getCompany(), "TagA");
+        assertNotNull(summaryBean.getTags());
+        Set<Entity> entities = entityTagService.findEntityTagResults(su.getCompany(), "TagA");
         assertNotNull(entities);
         assertNotSame(entities.size() + " Entities returned!", 0, entities.size());
 
         assertEquals(entity.getKey(), entities.iterator().next().getKey());
-        entities = entityTagService.findEntityTags(su.getCompany(), "TagC");
+        entities = entityTagService.findEntityTagResults(su.getCompany(), "TagC");
         assertNotNull(entities);
         assertEquals(entity.getKey(), entities.iterator().next().getKey());
-        entities = entityTagService.findEntityTags(su.getCompany(), "TagD");
+        entities = entityTagService.findEntityTagResults(su.getCompany(), "TagD");
         assertNotNull(entities);
         assertEquals(entity.getKey(), entities.iterator().next().getKey());
     }
@@ -615,7 +614,7 @@ public class TestEntityTags extends EngineBase {
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         EntityNode entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getKey());
         // By default, tags are inbound to the Entity. This asserts the reverse also works
-        Collection<EntityTag> tagResults = entityTagService.findOutboundTags(entity);
+        Collection<EntityTagResult> tagResults = entityTagService.findOutboundTagResults(entity);
         assertEquals("No tag heading out from the Entity could be found", 1, tagResults.size());
 
     }
@@ -1013,7 +1012,7 @@ public class TestEntityTags extends EngineBase {
         Collection<EntityTag> results = entityService.getLastLogTags(su.getCompany(), entity.getKey());
         // No tags removed for the last tag
         assertEquals(0, results.size()); // No tags against the logs
-        Assert.assertEquals(1, entityTagService.findEntityTags(entity).size());
+        Assert.assertEquals(1, entityTagService.findEntityTagResults(entity).size());
 
     }
 
@@ -1093,9 +1092,9 @@ public class TestEntityTags extends EngineBase {
         // Total of two tags
         validateTag(created, null, 2);
 
-        Collection<EntityTag> inboundTags = entityTagService.findInboundTags(created);
+        Collection<EntityTagResult> inboundTags = entityTagService.findInboundTagResults(created);
         assertEquals("One tag should be inbound", 1, inboundTags.size());
-        EntityTag trackOut = inboundTags.iterator().next();
+        EntityTagResult trackOut = inboundTags.iterator().next();
         Assert.assertEquals("TAG-IN", trackOut.getTag().getCode());
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
@@ -1111,7 +1110,7 @@ public class TestEntityTags extends EngineBase {
         // Removing the inbound tag
         mediationFacade.trackEntity(su.getCompany(), inputBean);
         validateTag(created, null, 1);
-        Collection<EntityTag> outboundTags = entityTagService.findOutboundTags(su.getCompany(), created);
+        Collection<EntityTagResult> outboundTags = entityTagService.findOutboundTagResults(su.getCompany(), created);
 
         // One remains and is reversed
         assertEquals(1, outboundTags.size());
@@ -1124,13 +1123,13 @@ public class TestEntityTags extends EngineBase {
         assertEquals(1, outboundTags.size());
 
         // Check that we still have our custom properties
-        outboundTags = entityTagService.findEntityTags(created);
-        trackOut = outboundTags.iterator().next();
-        Assert.assertEquals("TAG-IN", trackOut.getTag().getCode());
-        assertEquals("blah", trackOut.getProperties().get("stringTest"));
-        assertEquals(100d, trackOut.getProperties().get("doubleTest"));
-        assertEquals(99, trackOut.getWeight().intValue());
-        assertEquals(currentWhen, trackOut.getProperties().get(EntityTag.FD_WHEN));
+        Collection<EntityTag> entityTags = entityTagService.findEntityTags(created);
+        EntityTag entityTag = entityTags.iterator().next();
+        Assert.assertEquals("TAG-IN", entityTag.getTag().getCode());
+        assertEquals("blah", entityTag.getProperties().get("stringTest"));
+        assertEquals(100d, entityTag.getProperties().get("doubleTest"));
+        assertEquals(99, entityTag.getWeight().intValue());
+        assertEquals(currentWhen, entityTag.getProperties().get(EntityTag.FD_WHEN));
     }
 
     @Test

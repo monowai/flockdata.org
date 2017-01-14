@@ -41,23 +41,23 @@ import java.util.Map;
  * @tag Relationship, EntityTag, Tag, Entity
  */
 @RelationshipEntity  (type = "ENTITY-TAG-OUT")
-public class EntityTagOutRlx extends AbstractEntityTag {
+public class EntityTagOut extends AbstractEntityTag {
 
     @StartNode protected EntityNode entity;
     @EndNode
     @Fetch protected TagNode tag;
     protected DynamicProperties properties = new DynamicPropertiesContainer();
     @GraphId
-    Long id;
+    private Long id;
     @RelationshipType
     @Fetch
     private DynamicRelationshipType relationship ;
 
-    protected EntityTagOutRlx() {
+    protected EntityTagOut() {
 
     }
 
-    public EntityTagOutRlx(EntityNode entity, TagNode tag) {
+    public EntityTagOut(EntityNode entity, TagNode tag) {
         this(entity, tag,  "ENTITY-TAG-OUT", null);
     }
 
@@ -69,7 +69,7 @@ public class EntityTagOutRlx extends AbstractEntityTag {
      * @param relationship Name of the relationship
      * @param propMap      Relationship properties
      */
-    public EntityTagOutRlx(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
+    public EntityTagOut(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
         this();
         this.entity = (EntityNode)entity;
         this.tag = (TagNode)tag;
@@ -79,7 +79,7 @@ public class EntityTagOutRlx extends AbstractEntityTag {
 
     }
 
-    public EntityTagOutRlx(EntityNode entity, EntityTag logTag) {
+    public EntityTagOut(EntityNode entity, EntityTag logTag) {
         this.entity = entity;
         this.tag = (TagNode)logTag.getTag();
         this.properties = new DynamicPropertiesContainer(logTag.getProperties());
@@ -120,8 +120,9 @@ public class EntityTagOutRlx extends AbstractEntityTag {
     }
 
     @Override
-    @JsonIgnore
-    public boolean isGeoRelationship() {
+    public Boolean isGeoRelationship() {
+        if ( geoRelationship == null )
+            return false;
         return geoRelationship;
     }
 

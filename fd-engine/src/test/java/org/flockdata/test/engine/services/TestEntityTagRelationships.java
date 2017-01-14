@@ -110,7 +110,7 @@ public class TestEntityTagRelationships extends EngineBase {
 
         }
         assertEquals ("Found more relationships than expected", 4, count);
-        assertEquals (1, entityTagService.findInboundTags(su.getCompany(), entity).size());
-        assertEquals (3, entityTagService.findOutboundTags(su.getCompany(), entity).size());
+        assertEquals (1, entityTagService.findInboundTagResults(su.getCompany(), entity).size());
+        assertEquals (3, entityTagService.findOutboundTagResults(su.getCompany(), entity).size());
     }
 }

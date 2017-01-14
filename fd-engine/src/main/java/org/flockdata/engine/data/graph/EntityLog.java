@@ -22,7 +22,6 @@ package org.flockdata.engine.data.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.data.Entity;
-import org.flockdata.data.EntityLog;
 import org.flockdata.data.Log;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -37,7 +36,7 @@ import java.util.TimeZone;
  * @tag Relationship, Log
  */
 @RelationshipEntity(type = "LOGGED")
-public class EntityLogRlx implements EntityLog {
+public class EntityLog implements org.flockdata.data.EntityLog {
 
     @GraphId
     private Long id;
@@ -63,12 +62,12 @@ public class EntityLogRlx implements EntityLog {
     // ToDo: Associated with a node if Not Indexed. This is for maintenance and rebuilding missing docs.
     private boolean indexed = false;
 
-    protected EntityLogRlx() {
+    protected EntityLog() {
         DateTime utcNow = new DateTime().toDateTime(DateTimeZone.UTC);
         setSysWhen(utcNow.getMillis());
     }
 
-    public EntityLogRlx(Entity entity, Log log, DateTime fortressWhen) {
+    public EntityLog(Entity entity, Log log, DateTime fortressWhen) {
         this();
         this.entity = (EntityNode)entity;
         this.log = (LogNode)log;
@@ -142,9 +141,9 @@ public class EntityLogRlx implements EntityLog {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof EntityLogRlx)) return false;
+        if (!(o instanceof EntityLog)) return false;
 
-        EntityLogRlx that = (EntityLogRlx) o;
+        EntityLog that = (EntityLog) o;
 
         if (log != null ? !log.equals(that.log) : that.log != null) return false;
         if (entity != null ? !entity.getId().equals(that.entity.getId()) : that.entity != null) return false;

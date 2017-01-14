@@ -21,7 +21,6 @@
 package org.flockdata.test.engine.services;
 
 import org.flockdata.data.Entity;
-import org.flockdata.data.EntityLog;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.*;
 import org.flockdata.registration.FortressInputBean;
@@ -95,7 +94,7 @@ public class TestVersioning extends EngineBase {
         eib.setContent(cib);
         TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), eib);
         assertEquals(Boolean.FALSE, trackResult.getEntity().getFortress().isStoreEnabled());
-        EntityLog entityLog= entityService.getLastEntityLog(trackResult.getEntity().getId());
+        org.flockdata.data.EntityLog entityLog= entityService.getLastEntityLog(trackResult.getEntity().getId());
         assertNotNull ( entityLog);
 
         assertNotNull ( entityLog.getLog());
@@ -119,7 +118,7 @@ public class TestVersioning extends EngineBase {
             assertNotNull(log.getMadeBy());
             assertFalse(log.isVersioned());
         }
-        EntityLogRlx mockLog = entityService.getLogForEntity(entity, 0L);
+        EntityLog mockLog = entityService.getLogForEntity(entity, 0L);
         assertNotNull (mockLog);
         assertNotNull(mockLog.getLog());
         assertTrue( mockLog.isMocked());
@@ -146,7 +145,7 @@ public class TestVersioning extends EngineBase {
         input.setContent(log);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
-        EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
+        org.flockdata.data.EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
         assertNotNull(entityLog);
         Assert.assertEquals(Store.NONE.name(), entityLog.getLog().getStorage());
 

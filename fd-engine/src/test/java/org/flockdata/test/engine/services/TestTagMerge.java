@@ -88,7 +88,7 @@ public class TestTagMerge extends EngineBase {
         assertEquals(1, tags.size()) ;
         assertEquals(tagInputB.getName(), tags.iterator().next().getTag().getName());
 
-        assertEquals(2, entityTagService.findEntityTags(su.getCompany(), tagInputB.getCode()).size());
+        assertEquals(2, entityTagService.findEntityTagResults(su.getCompany(), tagInputB.getCode()).size());
 
         //assertEquals("rlxA", tags.iterator().next().);
 
@@ -132,8 +132,8 @@ public class TestTagMerge extends EngineBase {
         assertNotNull(aliasTag);
         assertEquals("The call to find tag with an alias should find the aliased tag", tag.getId(), aliasTag.getId());
 
-        assertEquals("Couldn't find via case-insensitive check", 2, entityTagService.findEntityTags(su.getCompany(), tag.getCode().toLowerCase()).size());
-        assertEquals("Couldn't find via case-insensitive check", 2, entityTagService.findEntityTags(su.getCompany(), tag.getCode().toUpperCase()).size());
+        assertEquals("Couldn't find via case-insensitive check", 2, entityTagService.findEntityTagResults(su.getCompany(), tag.getCode().toLowerCase()).size());
+        assertEquals("Couldn't find via case-insensitive check", 2, entityTagService.findEntityTagResults(su.getCompany(), tag.getCode().toUpperCase()).size());
 
     }
 }

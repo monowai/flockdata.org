@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 import org.flockdata.data.Entity;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.DocumentNode;
-import org.flockdata.engine.data.graph.EntityLogRlx;
+import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.track.service.FdServerIo;
 import org.flockdata.integration.FdTemplate;
@@ -103,7 +103,7 @@ public class TestCsvImportIntegration extends EngineBase {
             assertNotNull(entityA);
             TestCase.assertEquals("563890", entityA.getSegment().getCode());
 
-            EntityLogRlx log = entityService.getLastEntityLog(entityA.getId());
+            EntityLog log = entityService.getLastEntityLog(entityA.getId());
             Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entityA.getKey());
             for (EntityLogResult entityLog : logs) {
                 logger.debug("{}, {}", new DateTime(entityLog.getWhen()), entityLog.getChecksum());

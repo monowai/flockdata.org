@@ -32,7 +32,6 @@ import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.data.graph.FortressSegmentNode;
 import org.flockdata.engine.data.graph.SystemUserNode;
 import org.flockdata.engine.matrix.MatrixResults;
-import org.flockdata.engine.tag.EntityTagResult;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.ContentModelResult;
@@ -325,6 +324,19 @@ public abstract class MvcBase {
         }
         String json = response.getResponse().getContentAsString();
         return JsonUtils.toObject(json.getBytes(), EntityResultBean.class);
+    }
+
+    public EntitySummaryBean getEntitySummary(RequestPostProcessor user, String key, ResultMatcher status) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/entity/{key}/summary", key)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user)
+        ).andExpect(status).andReturn();
+
+        if (response.getResolvedException() != null) {
+            throw response.getResolvedException();
+        }
+        String json = response.getResponse().getContentAsString();
+        return JsonUtils.toObject(json.getBytes(), EntitySummaryBean.class);
     }
 
     public Map<String, Object> getHealth(RequestPostProcessor user) throws Exception {

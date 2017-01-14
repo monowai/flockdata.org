@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,6 @@
 
 package org.flockdata.test.engine.mvc;
 
-import org.flockdata.engine.tag.EntityTagResult;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;

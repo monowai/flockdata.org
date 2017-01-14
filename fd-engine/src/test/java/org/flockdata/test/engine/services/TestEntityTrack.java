@@ -23,6 +23,7 @@ package org.flockdata.test.engine.services;
 import junit.framework.TestCase;
 import org.flockdata.data.*;
 import org.flockdata.engine.data.graph.*;
+import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
@@ -292,7 +293,8 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull(entitySummary.getEntity().getCreatedBy());
         assertNotNull(entitySummary.getEntity().getLastUser());
         assertEquals(2, entitySummary.getChanges().size());
-        for (EntityLog entityLog : entitySummary.getChanges()) {
+        for (EntityLogResult entityLog : entitySummary.getChanges()) {
+            assertNotNull(entityLog.getLog());
             LogNode log = (LogNode)entityLog.getLog();
             assertNotNull(log.getEvent());
             StoredContent whatResult = entityService.getContent(entity, log);
@@ -655,13 +657,13 @@ public class TestEntityTrack extends EngineBase {
         entity = entityService.getEntity(su.getCompany(), key);
         FortressUserNode fu = fortressService.getUser(entity.getLastUser().getId());
         assertEquals("olivia@sunnybell.com", fu.getCode());
-        EntityLog compareLog = logService.getLastLog(entity);
+        org.flockdata.data.EntityLog compareLog = logService.getLastLog(entity);
 
         // Load a historic record. This should not become "last"
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("harry@sunnybell.com", entity.getKey(), earlyDate, ContentDataHelper.getSimpleMap("house", "house2"), "Update"));
         entity = entityService.getEntity(su.getCompany(), key);
 
-        EntityLog lastLog = logService.getLastLog(entity);
+        org.flockdata.data.EntityLog lastLog = logService.getLastLog(entity);
         assertNotNull(lastLog);
         assertEquals(compareLog.getId(), lastLog.getId());
 
@@ -702,7 +704,7 @@ public class TestEntityTrack extends EngineBase {
         Collection<EntityLogResult> aLogs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
         assertEquals(max, aLogs.size());
 
-        EntityLogRlx lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getKey());
+        EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getKey());
         Log lastChange = lastLog.getLog();
         assertNotNull(lastChange);
         assertEquals(workingDate, new DateTime(lastLog.getFortressWhen()));
@@ -711,7 +713,7 @@ public class TestEntityTrack extends EngineBase {
 
         DateTime then = workingDate.minusDays(4);
         logger.debug("Searching between " + then.toDate() + " and " + workingDate.toDate());
-        Collection<EntityLogRlx> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey(), then.toDate(), workingDate.toDate());
+        Collection<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey(), then.toDate(), workingDate.toDate());
         assertEquals(5, logs.size());
         Long logId = logs.iterator().next().getId();
         LogDetailBean change = entityService.getFullDetail(su.getCompany(), entity.getKey(), logId);
@@ -736,14 +738,14 @@ public class TestEntityTrack extends EngineBase {
 
         EntityNode entity = entityService.getEntity(su.getCompany(), key);
         ContentInputBean contentA = new ContentInputBean("olivia@sunnybell.com", entity.getKey(), firstDate, ContentDataHelper.getSimpleMap("house", "house1"));
-        EntityLog firstLog = mediationFacade.trackLog(su.getCompany(), contentA).getCurrentLog();
+        org.flockdata.data.EntityLog firstLog = mediationFacade.trackLog(su.getCompany(), contentA).getCurrentLog();
         assertEquals("Incorrect user against the log", contentA.getFortressUser(), firstLog.getLog().getMadeBy().getCode());
 
         FortressUserNode fu = fortressService.getFortressUser(fortress, firstLog.getLog().getMadeBy().getCode(), false);
         assertNotNull("FortressUser was not created", fu);
 
         ContentInputBean contentB = new ContentInputBean("isabella@sunnybell.com", entity.getKey(), firstDate.plusDays(1), ContentDataHelper.getSimpleMap("house", "house2"));
-        EntityLog secondLog = mediationFacade.trackLog(su.getCompany(), contentB).getCurrentLog();
+        org.flockdata.data.EntityLog secondLog = mediationFacade.trackLog(su.getCompany(), contentB).getCurrentLog();
         assertEquals("Incorrect user against the log", contentB.getFortressUser(), secondLog.getLog().getMadeBy().getCode());
 
         FortressUserNode fuB = fortressService.getFortressUser(fortress, secondLog.getLog().getMadeBy().getCode(), false);
@@ -787,7 +789,7 @@ public class TestEntityTrack extends EngineBase {
         EntityNode entity = entityService.getEntity(su.getCompany(), key);
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getKey(), new DateTime(), ContentDataHelper.getSimpleMap("house", "house1")));
         entity = entityService.getEntity(su.getCompany(), key); // Inflate the entity on the server
-        EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getKey());
+        org.flockdata.data.EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getKey());
         assertNotNull(lastLog);
         StoredContent content = entityService.getContent(entity, (LogNode)lastLog.getLog());
         assertNotNull(content);
@@ -815,7 +817,7 @@ public class TestEntityTrack extends EngineBase {
         contentInputBean = new ContentInputBean(mike_admin, key, logTime, ContentDataHelper.getSimpleMap("abx", "2"));
         mediationFacade.trackLog(su.getCompany(), contentInputBean);
 
-        EntityLogRlx log = entityService.getLastEntityLog(su.getCompany(), key);
+        EntityLog log = entityService.getLastEntityLog(su.getCompany(), key);
         assertEquals("Fortress modification date&time do not match", log.getFortressWhen().longValue(), logTime.getMillis());
         EntityNode entity = entityService.getEntity(su.getCompany(), key);
         assertEquals(fortressDateCreated.getMillis(), entity.getFortressCreatedTz().getMillis());
@@ -838,24 +840,24 @@ public class TestEntityTrack extends EngineBase {
 
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getKey(), null, ContentDataHelper.getSimpleMap("house", "house2"))).getCurrentLog();
 
-        Collection<EntityLog> logs = entityService.getEntityLogs(entity);
+        Collection<org.flockdata.data.EntityLog> logs = entityService.getEntityLogs(entity);
         assertEquals("Logs with missing dates not correctly recorded", 2, logs.size());
 
         // Can only have one log for an entity at a point in time. Passing in the same date would cause the last log to be rejected
         // so we remove a day from this entry
         DateTime dateMidnight = new DateTime();
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getKey(), dateMidnight.toDateTime().minusDays(1), ContentDataHelper.getSimpleMap("house", "house3"))).getCurrentLog();
-        EntityLog thirdLog = entityService.getLastEntityLog(su.getCompany(), key);
+        org.flockdata.data.EntityLog thirdLog = entityService.getLastEntityLog(su.getCompany(), key);
 
         // This is being inserted after the last log
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getKey(), dateMidnight.toDateTime(), ContentDataHelper.getSimpleMap("house", "house4")));
         logs = entityService.getEntityLogs(entity);
         assertEquals(4, logs.size());
         if (logger.isDebugEnabled())
-            for (EntityLog next : logs) {
+            for (org.flockdata.data.EntityLog next : logs) {
                 logger.debug(next.getId() + " - " + new Date(next.getSysWhen()).toString());
             }
-        EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), key);
+        org.flockdata.data.EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), key);
         assertNotSame("Last log in should be the last", lastLog.getLog().getId(), thirdLog.getLog().getId());
 
     }
@@ -983,7 +985,7 @@ public class TestEntityTrack extends EngineBase {
 
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         waitForFirstLog(su.getCompany(), trackResultBean.getEntity());
-        EntityLog lastLog = logService.getLastLog(trackResultBean.getEntity());
+        org.flockdata.data.EntityLog lastLog = logService.getLastLog(trackResultBean.getEntity());
 
         StoredContent content = storageService.read(trackResultBean.getEntity(), lastLog.getLog());
         assertEquals(json.get("Athlete"), content.getData().get("Athlete"));
@@ -1027,7 +1029,7 @@ public class TestEntityTrack extends EngineBase {
 
         waitForLogCount(su.getCompany(), entity, 2);
         entity = entityService.findByCode(fortress, "TestTrack", callerRef);
-        EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getKey());
+        org.flockdata.data.EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getKey());
         assertNotNull(lastLog);
         StoredContent what = storageService.read(entity, lastLog.getLog());
 
@@ -1050,7 +1052,7 @@ public class TestEntityTrack extends EngineBase {
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entityBean = trackResultBean.getEntity();
         waitForFirstLog(su.getCompany(), entityBean);
-        EntityLogRlx lastLog = logService.getLastLog(entityBean);
+        EntityLog lastLog = logService.getLastLog(entityBean);
         assertEquals(past.getMillis(), lastLog.getFortressWhen().longValue());
         assertEquals(past.getMillis(), entityBean.getFortressCreatedTz().getMillis());
         assertEquals("Created " + entityBean.getFortressCreatedTz(),
@@ -1082,7 +1084,7 @@ public class TestEntityTrack extends EngineBase {
         assertEquals(indexManager.getPrefix() + su.getCompany().getCode() + "." + fortress.getCode(), fortress.getRootIndex());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressCreatedTz()));
 
-        EntityLogRlx log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getKey());
+        EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getKey());
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(tz)));
     }
 
@@ -1117,7 +1119,7 @@ public class TestEntityTrack extends EngineBase {
         assertEquals("Why is this failing", indexManager.getPrefix() + su.getCompany().getCode() + "." + fortress.getCode(), fortress.getRootIndex());
         assertEquals("DateCreated not in Fortress TZ", 0, expectedCreateDate.compareTo(entity.getFortressCreatedTz()));
 
-        EntityLogRlx log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getKey());
+        EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getKey());
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(tz)));
     }
 
@@ -1155,7 +1157,7 @@ public class TestEntityTrack extends EngineBase {
         EntityNode entity = entityService.getEntity(su.getCompany(), result.getEntity().getKey());
         assertEquals("DateCreated not in Fortress TZ", 0, expectedCreateDate.compareTo(entity.getFortressCreatedTz()));
 
-        EntityLogRlx log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getKey());
+        EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getKey());
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(tz)));
     }
 
@@ -1235,7 +1237,7 @@ public class TestEntityTrack extends EngineBase {
 
         result = mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean);
         assertEquals(1, entityService.getLogCount(su.getCompany(), result.getKey()));
-        EntityLogRlx log = logService.getLastLog(result.getEntity());
+        EntityLog log = logService.getLastLog(result.getEntity());
         assertEquals(Long.valueOf(updateDate.getMillis()), log.getFortressWhen());
         StoredContent storedContent = storageService.read(result.getEntity(), log.getLog());
         assertNotNull(storedContent);

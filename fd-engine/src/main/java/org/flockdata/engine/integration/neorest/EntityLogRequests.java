@@ -20,7 +20,7 @@
 
 package org.flockdata.engine.integration.neorest;
 
-import org.flockdata.engine.data.graph.EntityLogRlx;
+import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.track.EntityLogs;
 import org.flockdata.track.bean.TrackResultBean;
 import org.springframework.context.annotation.Bean;
@@ -64,7 +64,7 @@ public class EntityLogRequests extends NeoRequestBase {
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(getLogUrl());
 
-        handler.setExpectedResponseType(EntityLogRlx.class);
+        handler.setExpectedResponseType(EntityLog.class);
         return handler;
     }
 
@@ -82,7 +82,7 @@ public class EntityLogRequests extends NeoRequestBase {
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(getEntityLog());
 
-        handler.setExpectedResponseType(EntityLogRlx.class);
+        handler.setExpectedResponseType(EntityLog.class);
         Map<String, Expression> vars = new HashMap<>();
         vars.put("entityId", expressionParser.parseExpression("payload[0]"));
         vars.put("logId", expressionParser.parseExpression("payload[1]"));
@@ -106,7 +106,7 @@ public class EntityLogRequests extends NeoRequestBase {
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(getLastLog());
 
-        handler.setExpectedResponseType(EntityLogRlx.class);
+        handler.setExpectedResponseType(EntityLog.class);
         Map<String, Expression> vars = new HashMap<>();
         vars.put("entityId", expressionParser.parseExpression("payload[0]"));
         handler.setUriVariableExpressions(vars);

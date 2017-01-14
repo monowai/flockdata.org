@@ -20,6 +20,7 @@ import org.flockdata.data.Entity;
 import org.flockdata.data.EntityLog;
 import org.flockdata.data.EntityTag;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -30,8 +31,8 @@ import java.util.Collection;
 public class EntitySummaryBean {
     private EntityResultBean entity;
     private String type;
-    private Collection<EntityLog> changes;
-    private Collection<EntityTag> tags;
+    private Collection<EntityLogResult> changes= new ArrayList<>();
+    private Collection<EntityTagResult> tags= new ArrayList<>();
     private String index;
 
     private EntitySummaryBean() {
@@ -41,19 +42,23 @@ public class EntitySummaryBean {
         this();
         this.entity = new EntityResultBean(entity);
         this.type = entity.getType().toLowerCase();
-        this.changes = changes;
-        this.tags = tags;
+        for (EntityLog change : changes) {
+            this.changes.add(new EntityLogResult(change));
+        }
+        for (EntityTag tag : tags) {
+            this.tags.add(new EntityTagResult(tag));
+        }
     }
 
     public Entity getEntity() {
         return entity;
     }
 
-    public Collection<EntityLog> getChanges() {
+    public Collection<EntityLogResult> getChanges() {
         return changes;
     }
 
-    public Collection<EntityTag> getTags() {
+    public Collection<EntityTagResult> getTags() {
         return tags;
     }
 
