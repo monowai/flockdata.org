@@ -91,9 +91,9 @@ public class IndexManager {
      */
     public String parseIndex(Entity entity) {
         if (entity.getSegment().isDefault())
-            return entity.getSegment().getFortress().getRootIndex() + getSuffix(entity.getType());
+            return entity.getFortress().getRootIndex() + getSuffix(entity.getType());
         else {
-            String index = entity.getSegment().getFortress().getRootIndex() + getSuffix(entity.getType());
+            String index = entity.getFortress().getRootIndex() + getSuffix(entity.getType());
             index = index + "." + entity.getSegment().getCode().toLowerCase();
             return index;
         }

@@ -18,9 +18,11 @@ package org.flockdata.registration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.Segment;
+import org.flockdata.track.bean.CompanyInputBean;
 
 import java.io.Serializable;
 import java.util.Locale;
@@ -93,8 +95,9 @@ public class FortressInputBean implements Serializable, Fortress {
     }
 
     @Override
+    @JsonDeserialize(as=CompanyInputBean.class)
     public Company getCompany() {
-        return null; // This is derived from the caller
+        return company; // This is derived from the caller
     }
 
     public void setCompany(Company company) {

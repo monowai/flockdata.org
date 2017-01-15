@@ -242,10 +242,16 @@ public class FortressServiceNeo4j implements FortressService {
         FortressNode fortress = fortressDao.getFortressByCode(company.getId(), fib.getCode());
         boolean storeEnabled = engineConfig.storeEnabled();
         if (fortress != null) {
-            if (fortress.isStoreEnabled() == null)
-                // DAT-346 - data upgrade, revert to system default
+            if ( fib.isStoreEnabled()!=null)
+                fortress.setStoreEnabled(fib.isStoreEnabled());
+            else
                 fortress.setStoreEnabled(storeEnabled);
+
+            if ( fib.isSearchEnabled()!=null)
+                fortress.setSearchEnabled(fib.isSearchEnabled());
+
             logger.debug("Found existing Fortress {} for Company {}", fortress, company);
+            fortressDao.save(fortress);
             return fortress;
         }
         if (createIfMissing) {
