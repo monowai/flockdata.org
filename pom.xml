@@ -5,7 +5,7 @@
     <groupId>org.flockdata</groupId>
     <artifactId>flockdata</artifactId>
     <name>flockdata</name>
-    <version>0.98.4-SNAPSHOT</version>
+    <version>0.98.3</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -325,7 +325,7 @@
         <connection>scm:git:https://github.com/monowai/flockdata.org</connection>
         <developerConnection>scm:git:https://github.com/monowai/flockdata.org</developerConnection>
         <url>https://github.com/monowai/flockdata.org</url>
-        <tag>HEAD</tag>
+        <tag>v0.98.3</tag>
     </scm>
 
     <distributionManagement>
