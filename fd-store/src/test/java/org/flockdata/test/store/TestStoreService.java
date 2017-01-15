@@ -242,6 +242,7 @@ public class TestStoreService {
         trackResultBean.setCurrentLog(eLog);
 
         StorageBean storeBean = new StorageBean(trackResultBean);
+        assertNotNull(indexManager.toStoreIndex(trackResultBean.getEntity()));
         storeBean.setStore(storeToTest.name());
         assertEquals(storeToTest.name(), graphLog.getStorage());
 

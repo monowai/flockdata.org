@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -89,7 +89,7 @@ public class RiakRepo extends AbstractStore {
 
     public void add(StoredContent storedContent) throws IOException {
         try {
-            Namespace ns = new Namespace(bucketType, indexManager.toStoreIndex(storedContent));
+            Namespace ns = new Namespace(bucketType, indexManager.toStoreIndex(storedContent.getEntity()));
             Location location = new Location(ns, storedContent.getId().toString());
             RiakObject riakObject = new RiakObject();
             byte[] bytes = ObjectHelper.serialize(storedContent.getContent());

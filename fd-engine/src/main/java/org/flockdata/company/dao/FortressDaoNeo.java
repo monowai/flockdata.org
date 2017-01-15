@@ -131,4 +131,9 @@ public class FortressDaoNeo  {
     public FortressNode update(FortressNode existing) {
         return template.save(existing);
     }
+
+    public Fortress save(FortressNode fortress) {
+        template.save(fortress);
+        return fortress;
+    }
 }

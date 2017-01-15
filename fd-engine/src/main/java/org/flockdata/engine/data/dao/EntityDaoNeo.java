@@ -384,7 +384,7 @@ public class EntityDaoNeo {
         if (entity.getId() == null)// Graph tracking is suppressed; caller is only creating search docs
             return entityLog;
 
-        if (!entity.getSegment().getFortress().isStoreEnabled())
+        if (!entity.getFortress().isStoreEnabled())
             return entityLog;
 
         logger.debug(entity.getKey());
