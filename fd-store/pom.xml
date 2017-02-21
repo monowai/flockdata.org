@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>flockdata</artifactId>
         <groupId>org.flockdata</groupId>
@@ -9,7 +9,8 @@
     </parent>
     <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>fd-store</artifactId>
+    <artifactId>
+        fd-store</artifactId>
     <properties>
         <org.springdata.redis>1.7.5.RELEASE</org.springdata.redis>
     </properties>
@@ -129,10 +130,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aspects</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.retry</groupId>

@@ -28,6 +28,10 @@ if [ -n "$COMPANY" ]; then
     FD_ARGS="$FD_ARGS --org.fd.client.default.company=$COMPANY"
 fi
 
+if [ -n "$SERVICE" ]; then
+    FD_ARGS="$FD_ARGS --org.fd.engine.api=$SERVICE"
+fi
+
 if [ -n "$LOGIN" ]; then
     FD_ARGS="$FD_ARGS --register.login=$LOGIN"
 fi

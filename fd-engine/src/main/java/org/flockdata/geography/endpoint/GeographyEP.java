@@ -20,17 +20,17 @@
 
 package org.flockdata.geography.endpoint;
 
-import org.flockdata.company.service.RegistrationService;
-import org.flockdata.engine.configure.ApiKeyInterceptor;
+import org.flockdata.data.Company;
 import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.geography.service.GeographyService;
+import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
 /**
@@ -45,17 +45,16 @@ import java.util.Collection;
 public class GeographyEP {
 
     private final GeographyService geoService;
-    private final RegistrationService regService;
 
     @Autowired
-    public GeographyEP(GeographyService geoService, RegistrationService regService) {
+    public GeographyEP(GeographyService geoService) {
         this.geoService = geoService;
-        this.regService = regService;
     }
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-    public Collection<FdTagResultBean> findCountries(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
-        return geoService.findCountries(regService.resolveCompany(ApiKeyInterceptor.ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)));
+    public Collection<FdTagResultBean> findCountries(HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return geoService.findCountries(company);
     }
 
 }
