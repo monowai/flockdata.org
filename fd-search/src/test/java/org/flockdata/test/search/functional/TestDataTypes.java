@@ -33,8 +33,15 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.fail;
 
 /**
@@ -82,4 +89,46 @@ public class TestDataTypes extends ESBase {
         fail("A mapping exception was not thrown");
 
     }
+
+    @Test
+    public void dateStrings () throws Exception {
+        String fortress = "dateStrings";
+        String doc = "dates";
+        String user = "mike";
+
+        Entity entity = getEntity(fortress, fortress, user, doc);
+        deleteEsIndex(entity);
+
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity))
+                .setDescription("Test Description");
+
+        Date date = new Date();
+        DateFormat outputFormatter = new SimpleDateFormat("yyyy/MM/dd");
+        String output = outputFormatter.format(date);
+
+        Map<String,Object> dateMap = new HashMap<>();
+        dateMap.put("someDate", "2017-12-31");
+        dateMap.put("rawDate", outputFormatter.parse(output));
+        
+        change.setData(dateMap);
+
+        indexMappingService.ensureIndexMapping(change);
+        searchRepo.handle(change);
+        Thread.sleep(1000);
+
+        String result = doQuery(entity, "*");
+        assertNotNull(result);
+        Collection<Map<String,Object>>hits = getHits(result);
+        assertEquals(1, hits.size());
+        Map<String,Object> source = (Map<String, Object>) hits.iterator().next().get("_source");
+        assertNotNull ( source);
+        assertEquals(entity.getKey(), source.get("code"));
+        Map<String,Object>theData = (Map<String, Object>) source.get("data");
+        assertNotNull (theData.get("someDate"));
+        assertEquals(dateMap.get("someDate"), theData.get("someDate"));
+        Date foundDate = (Date)dateMap.get("rawDate");
+        assertEquals("Dates did not match", dateMap.get("rawDate"), foundDate);
+
+    }
+
 }

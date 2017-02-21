@@ -35,6 +35,7 @@ import junit.framework.TestCase;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Fortress;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.search.SearchSchema;
 import org.flockdata.search.base.EntityChangeWriter;
@@ -56,11 +57,15 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * @tag Test, ElasticSearch, Search
@@ -452,4 +457,20 @@ public class ESBase {
         return entity;
 
     }
+
+    /**
+     * Convenience helper to return the hits from an ES result
+     * 
+     * @param result ES Json result
+     * @return Map of hits
+     * @throws IOException conversion error
+     */
+    Collection<Map<String, Object>> getHits(String result) throws IOException {
+        Map<String, Object> rez = JsonUtils.toMap(result);
+        TestCase.assertNotNull( rez);
+        assertTrue("No hits found", rez.containsKey("hits"));
+        Map<String,Object> hits = (Map<String, Object>) rez.get("hits");
+        return (Collection<Map<String, Object>>) hits.get("hits");
+    }
+
 }
