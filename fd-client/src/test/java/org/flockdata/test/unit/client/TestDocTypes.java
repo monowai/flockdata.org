@@ -20,12 +20,21 @@ import junit.framework.TestCase;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
 import org.flockdata.data.EntityTag;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author mholdsworth
@@ -50,5 +59,31 @@ public class TestDocTypes extends AbstractImport  {
         }
     }
 
+    @Test
+    public void entityKeyBeanWithDocType () throws Exception{
+        FortressInputBean fortress = new FortressInputBean("wrapport");
+        DocumentTypeInputBean pmv = new DocumentTypeInputBean("PMV");
+        DocumentTypeInputBean portfolio = new DocumentTypeInputBean("Portfolio");
 
+        EntityInputBean inputBean = new EntityInputBean(fortress, pmv );
+
+        EntityKeyBean key = new EntityKeyBean(portfolio.getName(), fortress, "Test", "parent");
+        inputBean.addEntityLink("parent", key);
+        assertNull(key.getResolvedDocument());
+
+        String json = JsonUtils.toJson(inputBean);
+
+        assertNotNull(json);
+
+        Collection<EntityInputBean>inputBeans = new ArrayList<>();
+        inputBeans.add(inputBean);
+
+
+
+        String jsonArray = JsonUtils.toJson(inputBeans);
+        Collection<EntityInputBean> results = JsonUtils.toCollection(jsonArray, EntityInputBean.class);
+        assertEquals(inputBeans.size(), results.size());
+
+
+    }
 }

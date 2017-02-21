@@ -59,6 +59,11 @@ public class FdTemplate implements Template {
         logger.info(clientConfiguration.toString());
     }
 
+    @Autowired
+    public void setClientConfiguration(ClientConfiguration clientConfiguration){
+        this.clientConfiguration = clientConfiguration;
+    }
+
     /**
      *
      * @return Implementation of the IO interface being used to communicate with the service
@@ -66,6 +71,11 @@ public class FdTemplate implements Template {
     @Override
     public FdIoInterface getFdIoInterface() {
         return fdIoInterface;
+    }
+
+    @Autowired
+    public void setFdIoInterface (FdIoInterface fdIoInterface){
+        this.fdIoInterface = fdIoInterface;
     }
 
     @Override

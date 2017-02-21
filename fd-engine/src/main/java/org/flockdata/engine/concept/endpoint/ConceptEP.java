@@ -60,7 +60,7 @@ public class ConceptEP {
 
 
     @RequestMapping(value = "/{fortress}", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
-    public Set<DocumentResultBean> getConceptsSingleDoc(HttpServletRequest request, @PathVariable("fortress") String fortress) throws FlockException {
+    public Set<DocumentResultBean> getConceptsForFortress(HttpServletRequest request, @PathVariable("fortress") String fortress) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         Collection<String>fortresses = new ArrayList<>();
         fortresses.add(fortress);
@@ -75,7 +75,7 @@ public class ConceptEP {
     }
 
     @RequestMapping(value = "/{fortress}/structure", method = RequestMethod.GET)
-    public MatrixResults getContentStructure
+    public MatrixResults getConceptStructure
             (@PathVariable("fortress") String fortress, HttpServletRequest request) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         return conceptService.getContentStructure(company, fortress);
@@ -90,7 +90,7 @@ public class ConceptEP {
     }
 
     @RequestMapping(value = "/{docType}/values", method = RequestMethod.GET)
-    public Collection<ConceptResultBean> getDocsLabels(HttpServletRequest request, @PathVariable("docType") String docType) throws FlockException {
+    public Collection<ConceptResultBean> getConceptsFOrDocument(HttpServletRequest request, @PathVariable("docType") String docType) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         Collection<String>docNames = new ArrayList<>();
         docNames.add(docType);

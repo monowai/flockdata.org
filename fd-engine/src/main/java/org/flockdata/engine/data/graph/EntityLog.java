@@ -49,11 +49,11 @@ public class EntityLog implements org.flockdata.data.EntityLog {
     private LogNode log;
 
     @Indexed
-    private Long sysWhen = 0l;
+    private Long sysWhen = 0L;
 
     @Indexed
     @Fetch
-    private Long fortressWhen = 0l;
+    private Long fortressWhen = 0L;
 
     @Transient
     private boolean isMock;
