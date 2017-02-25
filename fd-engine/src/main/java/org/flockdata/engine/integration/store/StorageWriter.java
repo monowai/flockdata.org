@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -47,13 +47,13 @@ import org.springframework.scheduling.annotation.Async;
 public class StorageWriter {
 
     @Autowired
-    AmqpRabbitConfig rabbitConfig;
+    private AmqpRabbitConfig rabbitConfig;
 
     @Autowired
-    Exchanges exchanges;
+    private Exchanges exchanges;
 
     @Autowired
-    MessageSupport messageSupport;
+    private MessageSupport messageSupport;
 
     @Bean
     MessageChannel storeWrite(){

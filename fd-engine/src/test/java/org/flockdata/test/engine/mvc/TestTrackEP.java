@@ -24,7 +24,6 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
-import org.flockdata.registration.TagInputBean;
 import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
@@ -140,20 +139,6 @@ public class TestTrackEP extends MvcBase {
         FortressResultBean fortress = getFortress(sally(), result.getCode());
         assertEquals(fortress.getRootIndex(), result.getRootIndex());
         assertEquals("Creation of a fortress should be case insensitive", 1, getFortresses(sally()).size());
-
-    }
-
-    @Test
-    public void entity_Summary() throws Exception {
-        FortressResultBean f = makeFortress(mike(), new FortressInputBean("entity_Summary", true));
-        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("Summary"));
-        eib.setFortressUser("userA");
-        eib.addTag(new TagInputBean("anyTag", "MyLabel", new EntityTagRelationshipInput("twaddle")));
-        ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
-        eib.setContent(cib);
-        TrackRequestResult trackResult = track(mike(), eib);
-        assertNotNull ( getEntity(mike(), trackResult.getKey(), MockMvcResultMatchers.status().isOk()));
-        assertNotNull ( getEntitySummary(mike(), trackResult.getKey(), MockMvcResultMatchers.status().isOk()));
 
     }
 

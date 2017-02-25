@@ -42,6 +42,8 @@ import java.util.concurrent.Future;
  */
 public interface EntityService {
 
+    Map<String,Object> getEntityDataLast(Company company, Entity entity) throws FlockException;
+
     Map<String,Object> getEntityDataLast(Company company, String key) throws FlockException;
 
     Collection<EntityKeyBean> getEntities(Company company, List<EntityKeyBean> linkTo);

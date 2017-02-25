@@ -43,6 +43,9 @@ public interface PlatformConfig {
 
     Store setStore(Store kvStore);
 
+    /**
+     * @return configured default KV Store mechanism.
+     */
     Store store();
 
     boolean isConceptsEnabled();

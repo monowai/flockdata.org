@@ -88,19 +88,20 @@ public class TestVersioning extends EngineBase {
         SystemUser su = registerSystemUser("kv_Ignored", "kv_Ignored");
         engineConfig.setStoreEnabled(false);
         FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("kv_Ignored", true));
-        assertFalse(engineConfig.storeEnabled());
+        assertFalse("Store is not disabled", engineConfig.storeEnabled());
         EntityInputBean eib = new EntityInputBean(fortress, "kv_Ignored", "kv_Ignored", new DateTime());
         ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
         eib.setContent(cib);
         TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), eib);
-        assertEquals(Boolean.FALSE, trackResult.getEntity().getFortress().isStoreEnabled());
-        org.flockdata.data.EntityLog entityLog= entityService.getLastEntityLog(trackResult.getEntity().getId());
+        assertEquals("Fortress did not have the store Disabled", Boolean.FALSE, trackResult.getEntity().getFortress().isStoreEnabled());
+        EntityLog entityLog= entityService.getLastEntityLog(trackResult.getEntity().getId());
         assertNotNull ( entityLog);
 
         assertNotNull ( entityLog.getLog());
         assertNotNull ( entityLog.getId());
         assertTrue(entityLog.getLog().isMocked());
         assertTrue( "Mocked log has an ID set to current system time", entityLog.getLog().getId()>0);
+        assertEquals("Mocked log should have the same ID as the Entity", trackResult.getEntity().getId(), entityLog.getId());
 
 
         EntityNode entity = entityService.getEntity(su.getCompany(), trackResult.getEntity().getKey());

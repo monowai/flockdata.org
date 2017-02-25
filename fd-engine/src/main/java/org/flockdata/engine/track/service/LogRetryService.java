@@ -212,7 +212,7 @@ public class LogRetryService {
             trackResult.setLogStatus(ContentInputBean.LogStatus.OK);
 
         // This call also saves the entity
-        EntityLog entityLog = entityDao.writeLog((EntityNode) trackResult.getEntity(), preparedLog, contentWhen);
+        EntityLog entityLog = entityDao.writeLog(trackResult, preparedLog, contentWhen);
 
         resultBean.setSysWhen(entityLog.getSysWhen());
 
@@ -282,15 +282,6 @@ public class LogRetryService {
         return entityDao.getLastEntityLog((EntityNode) entity);
     }
 
-    public LogNode prepareLog (Store defaultStore, TrackResultBean trackResult, LogNode log) {
-        Store storage = resolveStore(trackResult, defaultStore);
-        StoredContent storedContent = new StorageBean(trackResult);
-        storedContent.setStore(storage.name());
-        log.setStorage(storage.name());
-        log.setContent(storedContent);
-        return log;
-    }
-
     LogNode prepareLog(Company company, FortressUser fUser, TrackResultBean payLoad, TxRef txRef, LogNode previousChange) throws FlockException {
         ChangeEvent event = trackEventService.processEvent(company, payLoad.getContentInput().getEvent());
         LogNode changeLog = new LogNode((FortressUserNode) fUser, payLoad.getContentInput(), (TxRefNode) txRef);
@@ -298,6 +289,15 @@ public class LogRetryService {
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
         return prepareLog(engineConfig.store(), payLoad, changeLog);
+    }
+
+    public LogNode prepareLog (Store defaultStore, TrackResultBean trackResult, LogNode log) {
+        Store storage = resolveStore(trackResult, defaultStore);
+        StoredContent storedContent = new StorageBean(trackResult);
+        storedContent.setStore(storage.name());
+        log.setStorage(storage.name());
+        log.setContent(storedContent);
+        return log;
     }
 
 

@@ -23,6 +23,8 @@ package org.flockdata.engine.data.graph;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Log;
+import org.flockdata.store.Store;
+import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.data.annotation.Transient;
@@ -67,13 +69,22 @@ public class EntityLog implements org.flockdata.data.EntityLog {
         setSysWhen(utcNow.getMillis());
     }
 
+    public EntityLog(TrackResultBean trackResultBean, Store store, Log newLog, DateTime fortressWhen) {
+        this(trackResultBean.getEntity(), newLog, fortressWhen);
+        if (!store.equals(Store.NONE)){
+            id = null;
+            isMock = false;
+        }
+    }
+
     public EntityLog(Entity entity, Log log, DateTime fortressWhen) {
         this();
         this.entity = (EntityNode)entity;
         this.log = (LogNode)log;
+        // By default, this would be a disabled
         if (!entity.getSegment().getFortress().isStoreEnabled()) {
-            id = System.currentTimeMillis();
-            isMock = log.isMocked();
+            id = entity.getId(); // Mocked logs will have the ID of the Entity
+            isMock = true;
         }
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             setFortressWhen(fortressWhen);
@@ -83,7 +94,6 @@ public class EntityLog implements org.flockdata.data.EntityLog {
         }
         this.log.setEntityLog(this);
     }
-
 
     @Override
     public Long getSysWhen() {

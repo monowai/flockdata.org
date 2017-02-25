@@ -16,11 +16,13 @@
 
 package org.flockdata.test.integration;
 
+import junit.framework.TestCase;
 import net.jcip.annotations.NotThreadSafe;
 import org.flockdata.client.FdClientIo;
 import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.*;
 import org.flockdata.data.ContentModel;
+import org.flockdata.data.Document;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
@@ -33,10 +35,7 @@ import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.ContentStructure;
 import org.flockdata.search.EsSearchResult;
 import org.flockdata.search.QueryParams;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.DocumentTypeInputBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntityResultBean;
+import org.flockdata.track.bean.*;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.json.ExtractProfileDeserializer;
 import org.flockdata.transform.model.ExtractProfile;
@@ -54,9 +53,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 import static junit.framework.TestCase.*;
 import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_PASS;
@@ -68,8 +65,8 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * Establishes the integration test environment. Descendant classes use @Test functions against
  * this established stack
  *
- * @tag Test, Docker
  * @author mholdsworth
+ * @tag Test, Docker
  * @since 3/04/2016
  */
 @ContextConfiguration(classes = {
@@ -86,7 +83,6 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringRunner.class)
 @Configuration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-// fd-batch is used to inject the FdBatchWriter
 @ActiveProfiles({"fd-client", "fd-auth-test"})
 @NotThreadSafe
 public class ITests {
@@ -95,23 +91,7 @@ public class ITests {
     @ClassRule
     public static FdDocker stack = new FdDocker();
 
-//    private static DockerComposeContainer stack = FdDocker.stack;
-
-//    @ClassRule
-//    public static ExternalResource resource= new ExternalResource() {
-//        @Override
-//        protected void before() throws Throwable {
-//            if ( stack!=null)
-//                stack.start();
-//        }
-//
-//        @Override
-//        protected void after() {
-//            if (stack!=null)
-//                stack.stop();
-//        }
-//    };
-private static Logger logger = LoggerFactory.getLogger(ITests.class);
+    private static Logger logger = LoggerFactory.getLogger(ITests.class);
     /**
      * Contains properties used by rabbitConfig and fdRestWriter
      */
@@ -131,7 +111,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
      * Uses the standard FdClientIo services, which use a RestTemplate and RabbitClient, to talk to FlockData.
      * By default the service URL points to fd-engine but can be reconfigured via clientConfiguration.setServiceUrl(...)
      * to talk to fd-search or fd-store (for ping requests only!).
-     *
+     * <p>
      * By design, only fd-engine is secured
      */
     @Autowired
@@ -265,7 +245,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setDocumentType(new DocumentTypeInputBean("someThing"))
                 .setContent(new ContentInputBean(Helper.getRandomMap()))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
-        TrackEntityPost trackEntity = new TrackEntityPost((FdClientIo)fdTemplate.getFdIoInterface(), entityInputBean);
+        TrackEntityPost trackEntity = new TrackEntityPost((FdClientIo) fdTemplate.getFdIoInterface(), entityInputBean);
 
         integrationHelper.assertWorked("Track Entity - ", trackEntity.exec());
 
@@ -295,7 +275,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
 
-        fdTemplate.writeEntity(entityInputBean,true);
+        fdTemplate.writeEntity(entityInputBean, true);
 
         EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean)
                 .exec();
@@ -341,7 +321,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "value")))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
 
-        fdTemplate.writeEntity(entityInputBean,true);
+        fdTemplate.writeEntity(entityInputBean, true);
         EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean).exec();
         integrationHelper.waitForEntityKey(logger, "validateEntityLogs", entityGet);
 
@@ -385,7 +365,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
                 .setDocumentType(new DocumentTypeInputBean("entityamqp"))
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")));
 
-        fdTemplate.writeEntity(entityInputBean,true);
+        fdTemplate.writeEntity(entityInputBean, true);
         EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean);
         integrationHelper.waitForEntityKey(logger, "findByESPassThroughWithUTF8", entityGet);
 
@@ -493,7 +473,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         fdTemplate.writeTags(setD);
         integrationHelper.longSleep();
         QueryParams qp = searchHelper.getTagQuery("Set*", "code*");
-        SearchEsPost search = new SearchEsPost((FdClientIo)fdTemplate.getFdIoInterface(), qp);
+        SearchEsPost search = new SearchEsPost((FdClientIo) fdTemplate.getFdIoInterface(), qp);
         search.exec();
         integrationHelper.assertWorked("Not finding any tags", search);
 
@@ -610,7 +590,7 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
         assertEquals("expected 1 hit on segment 2016", 1, search.result().getResults().size());
 
         qp.setSegment("2015");
-        assertNotNull("Command failed to execute - " +search.error(), search.exec().error());
+        assertNotNull("Command failed to execute - " + search.error(), search.exec().error());
 //        assertNotNull("Expected an index not found type error", search.result().getFdSearchError());
 //        assertTrue("2015 index should be reported as missing", search.result().getFdSearchError().contains("no such index"));
 
@@ -770,25 +750,144 @@ private static Logger logger = LoggerFactory.getLogger(ITests.class);
 
         assertNotNull(structure);
 
-        assertTrue ("All data columns were un-faceted strings so nothing should be returned", structure.getData().isEmpty());
-        assertFalse (structure.getLinks().isEmpty());
-        assertFalse (structure.getSystem().isEmpty());
+        assertTrue("All data columns were un-faceted strings so nothing should be returned", structure.getData().isEmpty());
+        assertFalse(structure.getLinks().isEmpty());
+        assertFalse(structure.getSystem().isEmpty());
     }
 
     @Test
     public void persistEntityRelationshipModel() throws Exception {
         integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-entity-relationships.json");
-        assertNotNull ( contentModel);
-        Collection<ContentModel>models = new ArrayList<>();
+        assertNotNull(contentModel);
+        Collection<ContentModel> models = new ArrayList<>();
         models.add(contentModel);
 
         ModelPost sendModels = new ModelPost(fdClientIo, models);
-        assertNull ( sendModels.exec().error());
+        assertNull(sendModels.exec().error());
         assertEquals("Expected a response equal to the number of inputs", 1, sendModels.result().size());
         ContentModel found = fdClientIo.getContentModel(contentModel.getFortress().getName(), contentModel.getDocumentType().getCode());
-        assertNotNull ( found);
-        assertFalse (found.getContent().isEmpty());
+        assertNotNull(found);
+        assertFalse(found.getContent().isEmpty());
+    }
+
+    @Test
+    public void versionableEntity() throws Exception {
+
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull(login);
+
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("value", "alpha");
+        EntityInputBean entityInputBean = new EntityInputBean()
+                .setFortress(new FortressInputBean("TrackEntity")
+                        .setSearchEnabled(true)
+                        .setStoreEnabled(true))
+                .setDocumentType(new DocumentTypeInputBean("someThing"))
+                .setContent(new ContentInputBean(dataMap));
+
+        TrackEntityPost trackEntity = new TrackEntityPost(fdClientIo, entityInputBean);
+
+        integrationHelper.assertWorked("Track Entity - ", trackEntity.exec());
+
+        assertNotNull(trackEntity.result());
+        assertNotNull(trackEntity.result().getKey());
+        assertEquals("Should be a new Entity", trackEntity.result().isNewEntity(), true);
+        assertEquals("Problem creating the Content", trackEntity.result().getLogStatus(), ContentInputBean.LogStatus.OK);
+
+        EntityGet foundEntity = new EntityGet(fdClientIo, trackEntity.result().getKey());
+        integrationHelper.waitForEntityKey(logger, "versionableEntity", foundEntity.exec());
+        integrationHelper.assertWorked("Find Entity - ", foundEntity);
+        assertNotNull(foundEntity.result().getKey());
+
+        EntityLogsGet getLogs = new EntityLogsGet(fdClientIo, foundEntity.result().getKey());
+        getLogs.exec();
+        assertEquals("Expected one log", 1, getLogs.result().length);
+        EntityLogResult foundLog = getLogs.result()[0];
+        assertEquals("Data value mismatch", dataMap.get("value").toString(), foundLog.getData().get("value").toString());
+
+        // Now test that the value updates
+        dataMap.put("value", "beta");
+        entityInputBean.setContent(new ContentInputBean(dataMap));
+        entityInputBean.setKey(foundEntity.result().getKey());
+
+        trackEntity = new TrackEntityPost(fdClientIo, entityInputBean);
+        integrationHelper.assertWorked("Track Entity - ", trackEntity.exec());
+        integrationHelper.shortSleep();
+        getLogs.exec();
+        assertEquals("Expected two logs", 2, getLogs.result().length);
+
+    }
+
+    @Test
+    public void suppressVersionsOnByDocBasis() throws Exception {
+
+        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        assertNotNull(login);
+
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("value", "alpha");
+        EntityInputBean entityInputBean = new EntityInputBean()
+                .setCode(new Date().toString())
+                .setFortress(new FortressInputBean("suppressVersionsOnByDocBasis")
+                        .setSearchEnabled(true)
+                        .setStoreEnabled(true)) // Enable the store
+                .setDocumentType(new DocumentTypeInputBean("someThing")
+                        .setVersionStrategy(Document.VERSION.DISABLE)) // But suppress version history for this class of Entity
+                .setContent(new ContentInputBean(dataMap));
+        EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean).exec();
+        assertTrue("Expected entity not to exist", entityGet.error()!=null);
+        TrackEntityPost trackEntityPost = new TrackEntityPost(fdClientIo, entityInputBean);
+
+        integrationHelper.assertWorked("Track Entity - ", trackEntityPost.exec());
+        TrackRequestResult trackResult = trackEntityPost.result();
+        String key = trackResult.getKey();
+
+        assertEquals("Should be a new Entity", true, trackResult.isNewEntity());
+        assertEquals("Problem creating the Content", trackResult.getLogStatus(), ContentInputBean.LogStatus.OK);
+
+        EntityLogsGet getLogs = new EntityLogsGet(fdClientIo, key);
+        getLogs.exec();
+        assertEquals("Log should not exist", 0, getLogs.result().length);
+
+        EntityData entityDataByKey = new EntityData(fdClientIo, key);
+        integrationHelper.assertWorked("Get Data by key = ", entityDataByKey.exec());
+
+        assertNotNull(entityDataByKey.result());
+        assertFalse(entityDataByKey.result().isEmpty());
+        TestCase.assertEquals(dataMap.get("value"), entityDataByKey.result().get("value"));
+
+
+        EntityData entityDataByCode = new EntityData(fdClientIo, entityInputBean);
+        integrationHelper.assertWorked("Get Data by code= ", entityDataByCode.exec());
+
+        assertNotNull(entityDataByCode.result());
+        assertFalse(entityDataByCode.result().isEmpty());
+        TestCase.assertEquals(dataMap.get("value"), entityDataByCode.result().get("value"));
+
+        // Now test that the value updates
+        dataMap.put("value", "beta");
+        entityInputBean.setContent(new ContentInputBean(dataMap));
+
+        EntityGet entityByKey = new EntityGet(fdClientIo, key);
+        integrationHelper.waitForEntityKey(logger, "suppressVersionsOnByDocBasis", entityByKey.exec());
+        integrationHelper.assertWorked("Find Entity by key - ", entityByKey);
+
+        EntityGet entityByCode = new EntityGet(fdClientIo, entityInputBean);
+        integrationHelper.waitForEntityKey(logger, "suppressVersionsOnByDocBasis", entityByCode.exec());
+        integrationHelper.assertWorked("Find Entity by code - ", entityByCode);
+
+        entityInputBean.setKey(entityByKey.result().getKey());
+
+        trackEntityPost = new TrackEntityPost(fdClientIo, entityInputBean);
+        integrationHelper.assertWorked("Track Entity - ", trackEntityPost.exec());
+        integrationHelper.shortSleep();
+        entityDataByKey = new EntityData(fdClientIo, entityByKey.result().getKey());
+        integrationHelper.assertWorked("Get Data", entityDataByKey.exec());
+
+        assertNotNull(entityDataByKey.result());
+        assertFalse(entityDataByKey.result().isEmpty());
+        TestCase.assertEquals(dataMap.get("value"), entityDataByKey.result().get("value"));
     }
 
     private Collection<TagInputBean> getRandomTags(String label, String code) {

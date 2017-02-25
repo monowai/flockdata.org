@@ -64,6 +64,12 @@ public class TrackResultBean implements Serializable {
         addServiceMessage(serviceMessage);
     }
 
+    private TrackResultBean(Entity entity) {
+        this.entity = entity;
+        this.company = entity.getFortress().getCompany();
+        this.newEntity = entity.isNewEntity();
+    }
+
     /**
      * Entity is only used internally by fd-engine; it can not be serialized as JSON
      * Callers should rely on entityResultBean
@@ -80,12 +86,6 @@ public class TrackResultBean implements Serializable {
         this.contentInput = entityInputBean.getContent();
         this.documentType = documentType;
         this.index = fortress.getRootIndex();
-    }
-
-    private TrackResultBean(Entity entity) {
-        this.entity = entity;
-        this.company = entity.getFortress().getCompany();
-        this.newEntity = entity.isNewEntity();
     }
 
     public TrackResultBean(Entity entity, Document documentType) {

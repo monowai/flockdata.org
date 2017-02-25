@@ -51,6 +51,7 @@ public class EntityResultBean implements Serializable, Entity {
     private FortressResultBean fortress;
     private SegmentResultBean segment;
     private Integer search=0;
+    private boolean newEntity;
     private Map<String, Object> props;
 
     EntityResultBean() {
@@ -79,6 +80,7 @@ public class EntityResultBean implements Serializable, Entity {
             // Description is recorded in the search document, not the graph
             searchSuppressed = entity.isSearchSuppressed();
             name = entity.getName();
+            newEntity = entity.isNewEntity();
 
             fortress = new FortressResultBean(entity.getSegment().getFortress());
 
@@ -164,9 +166,8 @@ public class EntityResultBean implements Serializable, Entity {
     }
 
     @Override
-    @JsonIgnore // Satisfies the interface but is not part of a serializable contract
     public boolean isNewEntity() {
-        return false;
+        return newEntity;
     }
 
     @Override

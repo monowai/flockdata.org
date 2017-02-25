@@ -705,6 +705,30 @@ public abstract class MvcBase {
         return JsonUtils.toCollection(json, EntityLogResult.class);
     }
 
+    public Map<String,Object> getEntityData(RequestPostProcessor user, String key) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/entity/{key}/log/last/data", key)
+                .with(user)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.toMap(json);
+    }
+
+    public Map<String,Object> getEntityData(RequestPostProcessor user, EntityInputBean eib) throws Exception {
+        assert eib !=null;
+        assert eib.getCode() !=null ;
+        
+        MvcResult response = mvc().perform(
+                MockMvcRequestBuilders.get(apiPath + "/entity/{fortress}/{docType}/{code}/log/last/data", eib.getFortress().getName(), eib.getDocumentType().getName(), eib.getCode() )
+                .with(user)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.toMap(json);
+    }
+
     public void getEntityLogsIllegalEntity(RequestPostProcessor user, String key) throws Exception {
         mvc().perform(MockMvcRequestBuilders.get(apiPath + "/entity/" + key + "/log")
                 .with(user)
@@ -723,6 +747,7 @@ public abstract class MvcBase {
     }
 
     public DocumentResultBean makeDocuments(RequestPostProcessor user, Fortress fortress, DocumentTypeInputBean docTypes) throws Exception {
+        assert docTypes!= null;
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders

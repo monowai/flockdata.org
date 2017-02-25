@@ -5,7 +5,7 @@
 # fd-client is used to communicate to the services
 
 application:
-  title: FlockData Integration Testing
+  title: Docker Staging Tests
 banner:
   location: banner.txt
 

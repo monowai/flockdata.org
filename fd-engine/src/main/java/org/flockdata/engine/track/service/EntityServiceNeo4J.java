@@ -33,6 +33,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.SearchResult;
+import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
@@ -114,21 +115,33 @@ public class EntityServiceNeo4J implements EntityService {
         return findByCode(company, entityKeyBean.getFortressName(), entityKeyBean.getDocumentType(), entityKeyBean.getCode());
     }
 
+    @Override
+    public Map<String, Object> getEntityDataLast(Company company, Entity entity) throws FlockException {
+        if (entity != null) {
+
+            EntityLog log = getLastEntityLog(entity.getId());
+            if (log != null) {
+                StoredContent content = storageProxy.read(entity, log.getLog());
+                if (content == null)
+                    throw new FlockException("Unable to locate content for [" + entity.getKey() + "]. Log found [" + log +"]");
+                return content.getData();
+            } else {
+                // Look for Entity data, not log history
+                StoredContent content = storageProxy.read( new LogRequest(entity));
+                if (content == null)
+                    throw new FlockException("Unable to locate content for [" + entity.getKey() + "]. ");
+                return content.getData();
+
+            }
+        }
+        return null;
+
+    }
 
     @Override
     public Map<String, Object> getEntityDataLast(Company company, String key) throws FlockException {
         EntityNode entity = getEntity(company, key);
-        if (entity != null) {
-
-            org.flockdata.data.EntityLog log = getLastEntityLog(entity.getId());
-            if (log != null) {
-                StoredContent content = storageProxy.read(entity, log.getLog());
-                if (content == null)
-                    throw new FlockException("Unable to locate the content for " + key + ". The log was found - " + log);
-                return content.getData();
-            }
-        }
-        return null;
+        return getEntityDataLast(company, entity);
     }
 
     @Override

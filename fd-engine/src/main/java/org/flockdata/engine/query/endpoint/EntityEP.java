@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.query.endpoint;
 
+import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.TxRef;
 import org.flockdata.engine.admin.service.StorageProxy;
@@ -171,6 +172,36 @@ public class EntityEP {
 
     }
 
+    @RequestMapping(value = "/{key}/log/last/data", produces = "application/json", method = RequestMethod.GET)
+    @ResponseBody
+    public  Map<String, Object> getLastLogDataByKey(@PathVariable("key") String key,
+                                               HttpServletRequest request) throws FlockException {
+        CompanyNode company = CompanyResolver.resolveCompany(request);
+
+        Map<String, Object> content = entityService.getEntityDataLast(company, key);
+        if (content != null) return content;
+
+        throw new NotFoundException(String.format("Unable to locate the log for %s / lastLog", key));
+
+    }
+
+    @RequestMapping(value = "/{fortress}/{documentType}/{code}/log/last/data", produces = "application/json", method = RequestMethod.GET)
+    @ResponseBody
+    public  Map<String, Object> getLastLogDataByCode(@PathVariable("fortress") String fortress,
+                                                      @PathVariable("documentType") String documentType,
+                                                      @PathVariable("code") String code,
+                                               HttpServletRequest request) throws FlockException {
+        CompanyNode company = CompanyResolver.resolveCompany(request);
+        Entity entity = entityService.findByCode(company, fortress, documentType, code);
+        if ( entity !=null ) {
+            Map<String, Object> content = entityService.getEntityDataLast(company, entity);
+            if (content != null) return content;
+        }
+
+        throw new NotFoundException(String.format("Unable to locate the log for [%s] [%s] [%s]",fortress, documentType, code));
+
+    }
+
 
     @RequestMapping(value = "/{key}/log/last/tags", produces = "application/json", method = RequestMethod.GET)
     public
@@ -234,20 +265,6 @@ public class EntityEP {
         throw new NotFoundException("Unable to find the content for the requested key");
 
     }
-
-    @RequestMapping(value = "/{key}/log/last/data", produces = "application/json", method = RequestMethod.GET)
-    @ResponseBody
-    public  Map<String, Object> getLastLogWhat(@PathVariable("key") String key,
-                                       HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-
-        Map<String, Object> content = entityService.getEntityDataLast(company, key);
-        if (content != null) return content;
-
-        throw new NotFoundException(String.format("Unable to locate the log for %s / lastLog", key));
-
-    }
-
 
     @RequestMapping(value = "/{key}/log/{logId}", produces = "application/json", method = RequestMethod.GET)
     public

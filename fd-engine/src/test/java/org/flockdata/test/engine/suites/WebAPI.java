@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -45,6 +45,7 @@ import org.junit.runners.Suite;
         TestTagEP.class,
         TestTrackEP.class,
         TestContentModel.class,
+        TestEntityEP.class,
         TestApiKeyInterceptor.class
 
 

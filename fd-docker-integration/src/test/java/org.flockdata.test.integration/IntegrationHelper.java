@@ -87,9 +87,12 @@ class IntegrationHelper {
     }
 
     static String getEngine() throws IllegalStateException {
-        return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdengine_1", SERVICE_ENGINE) : SERVICE_ENGINE);
+        return getService("fdengine_1", SERVICE_ENGINE);
     }
 
+    static String getService(String service, int port){
+        return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort(service, port) : port);
+    }
     private static String getIpAddress() {
         if (stack == null)
             return "192.168.99.100";
@@ -198,7 +201,8 @@ class IntegrationHelper {
      * @param command to check
      */
     void assertWorked(String message, Command command) {
-        command.exec();
+        if (command.result()==null )
+            command.exec();
         assertTrue(message + command.error(), command.worked());
 
     }
@@ -275,9 +279,9 @@ class IntegrationHelper {
                 logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine());
                 logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch());
                 logger.info("FDStore  - {} - reachable @ {}", SERVICE_STORE, getStore());
-//              logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, getEngine() + ":" + getEngineDebug());
-//              logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_SEARCH, getSearch() + ":" + getSearchDebug());
-//              logger.info("FDStore-Debug  - {} - reachable @ {}", DEBUG_STORE, getStore() + ":" + getStoreDebug());
+                logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, getService("fdengine_1", DEBUG_ENGINE) );
+                logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_ENGINE, getService("fdsearch_1", DEBUG_SEARCH) );
+                logger.info("FDStore-Debug - {} - reachable @ {}", DEBUG_ENGINE, getService("fdstore_1", DEBUG_STORE) );
                 logger.info("Rabbit Admin on http://{}:{}", getRabbit(), getRabbitAdmin());
                 waitForPong(enginePing, waitSeconds);
                 waitForService("fd-engine", enginePing, 30);
@@ -322,32 +326,11 @@ class IntegrationHelper {
     }
 
     String getSearch() throws IllegalStateException {
-        return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdsearch_1", SERVICE_SEARCH) : SERVICE_SEARCH);
+        return getService("fdsearch_1", SERVICE_SEARCH);
     }
 
-//    private Integer getEngineDebug() {
-//        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdengine_1", DEBUG_ENGINE) : DEBUG_ENGINE);
-//    }
-//
-//    private Integer getSearchDebug() {
-//        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdsearch_1", DEBUG_SEARCH) : DEBUG_SEARCH);
-//    }
-//
-//    private Integer getStoreDebug() {
-//        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", DEBUG_STORE) : DEBUG_STORE);
-//    }
-
-
-    //    private Integer getSearchDebug() {
-//        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdsearch_1", DEBUG_SEARCH) : DEBUG_SEARCH);
-//    }
-//
-//    private Integer getStoreDebug() {
-//        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", DEBUG_STORE) : DEBUG_STORE);
-//    }
-
     String getStore() throws IllegalStateException {
-        return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", SERVICE_STORE) : SERVICE_STORE);
+        return getService("fdstore_1", SERVICE_STORE);
     }
 
     /**

@@ -68,7 +68,7 @@ public class FdStorageProxy implements StorageProxy {
     public void write(TrackResultBean resultBean) {
         StorageBean storageBean = new StorageBean(resultBean);
         // If there is no store to write to then don't !
-        if ( !storageBean.getStore().equals( Store.NONE.name()))
+        //if ( !storageBean.getStore().equals( Store.NONE.name()))
             writeGateway.write(storageBean);
     }
 

@@ -149,10 +149,10 @@ public class EngineConfig implements PlatformConfig {
 
     @Override
     public Store store() {
-        if ( storeEnabled)
+//        if ( storeEnabled)
             return Store.valueOf(storeEngine.toUpperCase());
-        else
-            return Store.NONE;
+//        else
+//            return Store.NONE;
     }
 
     @Override

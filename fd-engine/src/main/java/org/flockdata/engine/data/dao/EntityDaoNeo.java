@@ -31,10 +31,9 @@ import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.integration.KeyGenService;
-import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntityKeyBean;
-import org.flockdata.track.bean.EntityTXResult;
+import org.flockdata.store.Store;
+import org.flockdata.store.StoreHelper;
+import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
@@ -56,6 +55,7 @@ import java.util.*;
  * @since 21/04/2013
  */
 @Repository("entityDao")
+@Transactional
 public class EntityDaoNeo {
 
     private final EntityRepo entityRepo;
@@ -286,7 +286,7 @@ public class EntityDaoNeo {
         Set<EntityLog> found = trackLogRepo.findLogs(entity.getId());
         Collection<org.flockdata.data.EntityLog> results = new ArrayList<>();
         for (EntityLog result : found) {
-            result.setEntity((EntityNode)entity);
+            result.setEntity((EntityNode) entity);
             results.add(result);
         }
         return results;
@@ -377,20 +377,21 @@ public class EntityDaoNeo {
         return template.fetch(lastChange);
     }
 
-    public EntityLog writeLog(EntityNode entity, Log newLog, DateTime fortressWhen) throws FlockException {
-
-        EntityLog entityLog = new EntityLog(entity, newLog, fortressWhen);
+    public EntityLog writeLog(TrackResultBean trackResultBean, Log newLog, DateTime fortressWhen) throws FlockException {
+        EntityNode entity = (EntityNode) trackResultBean.getEntity();
+        Store store = StoreHelper.resolveStore(trackResultBean, engineConfig.store());
+        EntityLog entityLog = new EntityLog(trackResultBean, store, newLog, fortressWhen);
 
         if (entity.getId() == null)// Graph tracking is suppressed; caller is only creating search docs
             return entityLog;
 
-        if (!entity.getFortress().isStoreEnabled())
+        if (store.equals(Store.NONE))
             return entityLog;
 
         logger.debug(entity.getKey());
 
         EntityNode currentState = template.fetch(entity);
-        // Entity is being committed in another thread? On occasion metakKey is null on refresh meaning the Log does not get created
+        // Entity is being committed in another thread? On occasion key is null on refresh meaning the Log does not get created
         // Easiest way to test is when there is not fortress and you track the first request in to it.
         // DAT-419
 
@@ -595,7 +596,7 @@ public class EntityDaoNeo {
     }
 
     private Collection<EntityTag> findEntityTags(EntityNode entity) {
-        Collection<EntityTag>results = new ArrayList<>();
+        Collection<EntityTag> results = new ArrayList<>();
         results.addAll(entityTagInRepo.getEntityTags(entity.getId()));
         results.addAll(entityTagOutRepo.getEntityTags(entity.getId()));
         return results;

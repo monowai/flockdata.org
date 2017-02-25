@@ -77,7 +77,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         String existingIndexKey = searchChange.getSearchKey();
 
         DeleteResponse dr = elasticSearchClient.prepareDelete(searchChange.getIndexName(), recordType, existingIndexKey)
-                .setRouting(searchChange.getCode())
+//                .setRouting(searchChange.getCode())
                 .execute()
                 .actionGet();
 
@@ -106,12 +106,12 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
                         .setSource(source);
 
         irb.setId(searchChange.getSearchKey());
-        if (searchChange.getParent() != null)
-            // Disabling parent document functionality
-//            irb.setParent(searchChange.getParent().getCode());
-            irb.setRouting(searchChange.getParent().getCode());
-        else
-            irb.setRouting(searchChange.getCode());
+//        if (searchChange.getParent() != null)
+//            // Disabling parent document functionality
+////            irb.setParent(searchChange.getParent().getCode());
+//            irb.setRouting(searchChange.getParent().getCode());
+//        else
+//            irb.setRouting(searchChange.getCode());
 
         try {
             IndexResponse ir = irb.execute().actionGet();
@@ -199,7 +199,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             // Update the existing document with the searchChange change
             IndexRequestBuilder update = elasticSearchClient
                     .prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
-            //.setRouting(searchChange.getKey());
+//            update.setRouting(searchChange.getCode());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
                     execute();

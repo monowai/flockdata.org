@@ -268,6 +268,20 @@ public class TestFortressEP extends MvcBase {
     }
 
     @Test
+    public void customFortressDefaultsWork() throws Exception {
+        FortressInputBean fortressInputBean = new FortressInputBean("demo-custom")
+                .setStoreEnabled(true)
+                .setSearchEnabled(true);
+        FortressResultBean defaults = makeFortress(mike(), fortressInputBean);
+        assertNotNull(defaults);
+        assertTrue("Search wasn't enabled", defaults.isSearchEnabled());
+        assertTrue("Store wasn't enabled", defaults.isStoreEnabled());
+        assertNotNull(defaults.getTimeZone());
+
+    }
+
+
+    @Test
     public void find_withDotInCode() throws Exception {
         String name = "name.with.init";
         FortressResultBean fortress = makeFortress(mike(), name);
