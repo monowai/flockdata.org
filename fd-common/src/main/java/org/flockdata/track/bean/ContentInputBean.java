@@ -174,6 +174,11 @@ public class ContentInputBean implements EntityContent, Serializable {
         return comment;
     }
 
+    public ContentInputBean setComment(String comment){
+        this.comment = comment;
+        return this;
+    }
+
     public String getCode() {
         return code;
     }
@@ -220,6 +225,10 @@ public class ContentInputBean implements EntityContent, Serializable {
         }
     }
 
+    /**
+     *
+     * @param fdMessage server side result of the track request
+     */
     public void setFdMessage(String fdMessage) {
         this.fdMessage = fdMessage;
 

@@ -521,7 +521,7 @@ public class TestConcepts extends EngineBase {
         // Checking that the entity is linked when part of the track request
         EntityInputBean workRecord = new EntityInputBean(fortress, "wally", "Work", new DateTime(), "ABC321")
                 .addTag(new TagInputBean("someTag", "SomeLabel", "somerlx"))
-                .addEntityLink("worked", new EntityKeyBean("Staff", fortress.getName(), "ABC123").setRelationshipName("worked"));
+                .addEntityLink( new EntityKeyBean("Staff", fortress.getName(), "ABC123").setRelationshipName("worked"));
 
         mediationFacade.trackEntity(su.getCompany(), workRecord);
         assertEquals(2, conceptService.getDocumentsInUse(su.getCompany()).size());
@@ -568,7 +568,7 @@ public class TestConcepts extends EngineBase {
         // Checking that the entity is linked when part of the track request
         EntityInputBean workRecord = new EntityInputBean(fortress, "wally", "Work", new DateTime(), "ABC321")
                 .addTag(new TagInputBean("someTag", "SomeLabel", "somerlx"))
-                .addEntityLink("worked", new EntityKeyBean("Staff", fortress.getName(), "ABC123")
+                .addEntityLink(new EntityKeyBean("Staff", fortress.getName(), "ABC123")
                         .setRelationshipName("worked")
                         .setParent(true));
 

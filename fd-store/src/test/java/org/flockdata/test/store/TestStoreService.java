@@ -228,7 +228,8 @@ public class TestStoreService {
         // Create a log with a random primary key
         Log graphLog = mock(Log.class);
         when(graphLog.isMocked()).thenReturn(true);
-        when (graphLog.getId()).thenReturn(System.currentTimeMillis());
+        long id = entity.getId();
+        when (graphLog.getId()).thenReturn(id);
         when(graphLog.getStorage()).thenReturn(storeToTest.name());
         StorageBean storageBean = new StorageBean(trackResultBean, storeToTest);
         when(graphLog.getContent()).thenReturn(storageBean);

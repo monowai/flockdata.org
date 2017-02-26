@@ -22,6 +22,7 @@ package org.flockdata.test.engine.mvc;
 
 import au.com.bytecode.opencsv.CSVReader;
 import org.flockdata.data.ContentModel;
+import org.flockdata.data.Document;
 import org.flockdata.engine.matrix.EdgeResult;
 import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.JsonUtils;
@@ -116,20 +117,23 @@ public class TestContentModel extends MvcBase {
     public void documentTypeFlagChecksFromModel() throws Exception{
         String test = "documentTypeFlagChecksFromModel";
         ContentModel model = new ContentModelHandler();
-        model.setDocumentType( new DocumentTypeInputBean(test))
-                .setTrackSuppressed(true)
-                .setSearchSuppressed(true)
+        model.setDocumentType( new DocumentTypeInputBean(test)
+                    .setVersionStrategy(Document.VERSION.DISABLE))
+                .setTrackSuppressed(true) // Suppress on a model basis
+                .setSearchSuppressed(true) // Suppress on a model basis
                 .setTagModel(false)
-                .setFortress( new FortressInputBean(test));
+                .setFortress( new FortressInputBean(test)
+                        .setStoreEnabled(true)
+                        .setSearchEnabled(true));
 
         makeDataAccessProfile("test", "mike");
         makeContentModel(mike(),test,test, model, OK );
         DocumentResultBean documentResultBean = getDocument(mike(), test, test);
         assertNotNull (documentResultBean);
-        assertNotNull ( "Property did not default to true from the content model to the documentType", documentResultBean.getTrackSuppressed());
-        assertTrue(documentResultBean.getTrackSuppressed());
-        assertNotNull ( documentResultBean.getSearchSuppressed());
-        assertTrue(documentResultBean.getSearchSuppressed());
+        assertNotNull ( "Property did not default to true from the content model to the documentType", documentResultBean.getStoreEnabled());
+        assertFalse("Document did not override the fortress setting", documentResultBean.getStoreEnabled());
+        assertNotNull ( documentResultBean.getSearchEnabled());
+        assertFalse("Search should have been disabled for the DocumentType ", documentResultBean.getSearchEnabled());
 
     }
 

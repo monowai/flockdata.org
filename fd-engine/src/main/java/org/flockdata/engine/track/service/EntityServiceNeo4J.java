@@ -568,7 +568,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         EntityLog entityLog = entityDao.getLog(entity, logId);
         entityDao.fetch((LogNode)entityLog.getLog());
-        StoredContent what = contentReader.read(entity, entityLog.getLog());
+        StoredContent what = contentReader.read(new LogRequest(entity, entityLog.getLog()));
 
         return new LogDetailBean(entityLog, what);
     }

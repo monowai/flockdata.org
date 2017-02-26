@@ -29,11 +29,12 @@ import org.flockdata.track.bean.*;
 import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author mholdsworth
@@ -83,6 +84,25 @@ public class TestEntityEP extends MvcBase {
 
     }
 
+    @Test
+    public void mocked_EntityLogs() throws Exception {
+        FortressResultBean f = makeFortress(mike(),
+                new FortressInputBean("mocked_EntityLogs")
+        .setStoreEnabled(false).setSearchEnabled( false));
+        
+        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("mocked_EntityLogs"));
+        eib.setFortressUser("userA");
+        ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
+        eib.setContent(cib);
+        TrackRequestResult trackResult = track(mike(), eib);
+        Collection<EntityLogResult> logs = getEntityLogs(mike(), trackResult.getKey());
+        assertEquals("Expected one log", 1, logs.size());
+        EntityLogResult entityLog =  logs.iterator().next();
+
+        assertNull("The log is not serializable in this view", entityLog.getLog());
+        assertTrue(entityLog.isMocked());
+
+    }
     @Test
     public void new_EntityIdentified() throws Exception {
         Map<String, Object> dataMap = new HashMap<>();

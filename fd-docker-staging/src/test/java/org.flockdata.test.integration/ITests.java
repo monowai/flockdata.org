@@ -848,15 +848,16 @@ public class ITests {
 
         EntityLogsGet getLogs = new EntityLogsGet(fdClientIo, key);
         getLogs.exec();
-        assertEquals("Log should not exist", 0, getLogs.result().length);
-
+        assertEquals("Expecting one Mock log", 1, getLogs.result().length);
+        EntityLogResult mockedLog = getLogs.result()[0];
+        assertTrue ( "Log was not flagged as mocked",mockedLog.isMocked());
+        
         EntityData entityDataByKey = new EntityData(fdClientIo, key);
         integrationHelper.assertWorked("Get Data by key = ", entityDataByKey.exec());
 
         assertNotNull(entityDataByKey.result());
         assertFalse(entityDataByKey.result().isEmpty());
         TestCase.assertEquals(dataMap.get("value"), entityDataByKey.result().get("value"));
-
 
         EntityData entityDataByCode = new EntityData(fdClientIo, entityInputBean);
         integrationHelper.assertWorked("Get Data by code= ", entityDataByCode.exec());

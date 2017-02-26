@@ -76,6 +76,7 @@ public class MockDataFactory {
 
         when (entity.getFortressCreatedTz()).thenReturn(now);
         when( entity.getDateCreated()).thenReturn(now.getMillis());
+        when(entity.getId()).thenReturn(now.getMillis());
         return entity;
 //        return new Entity(Long.toString(System.currentTimeMillis()), fortress.getDefaultSegment(), entityInput, doc);
 

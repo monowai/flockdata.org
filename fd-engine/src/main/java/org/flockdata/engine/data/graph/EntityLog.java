@@ -82,7 +82,7 @@ public class EntityLog implements org.flockdata.data.EntityLog {
         this.entity = (EntityNode)entity;
         this.log = (LogNode)log;
         // By default, this would be a disabled
-        if (!entity.getSegment().getFortress().isStoreEnabled()) {
+        if (log.isMocked()) {
             id = entity.getId(); // Mocked logs will have the ID of the Entity
             isMock = true;
         }

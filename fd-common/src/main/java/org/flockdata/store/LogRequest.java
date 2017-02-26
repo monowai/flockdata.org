@@ -43,7 +43,8 @@ public class LogRequest {
     }
     public LogRequest(Entity entity, Log log ){
         this(entity);
-        this.logId = log.getId();
+        if ( !log.isMocked())
+            this.logId = log.getId();
         this.store = Store.valueOf(log.getStorage());
         this.contentType = log.getContentType();
         this.checkSum = log.getChecksum();

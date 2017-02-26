@@ -408,7 +408,7 @@ public class MediationFacadeNeo implements MediationFacade {
     @Override
     public Map<String, Object> getLogContent(EntityNode entity, Long logId) {
         EntityLog log = entityService.getLogForEntity(entity, logId);
-        if (log != null)
+        if (log != null && contentReader!=null)
             return contentReader.read(entity, log.getLog()).getData();
 
         return new HashMap<>();

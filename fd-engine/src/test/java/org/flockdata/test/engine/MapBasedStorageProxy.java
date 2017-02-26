@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -39,10 +39,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Profile({"dev"})
-
 public class MapBasedStorageProxy extends FdStorageProxy {
     @Autowired
-    InMemoryRepo inMemoryRepo;
+    private InMemoryRepo inMemoryRepo;
 
     @Override
     public void write(TrackResultBean trackResult) {

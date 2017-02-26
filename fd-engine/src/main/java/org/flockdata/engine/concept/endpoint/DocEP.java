@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.concept.endpoint;
 
+import org.flockdata.data.Fortress;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.FortressService;
@@ -66,8 +67,8 @@ public class DocEP {
     @RequestMapping(value = "/{fortress}/{docType}", method = RequestMethod.GET)
     public DocumentResultBean getDocument(HttpServletRequest request, @PathVariable("fortress") String fortress, @PathVariable("docType") String docType) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
-
-        return new DocumentResultBean(conceptService.findDocumentType(fortressService.findByName(company, fortress), docType));
+        Fortress f = fortressService.findByName(company, fortress);
+        return new DocumentResultBean(conceptService.findDocumentType(f , docType), f);
     }
 
 

@@ -356,10 +356,25 @@ public class EntityInputBean implements Serializable, UserProperties {
         return this;
     }
 
+    @Deprecated // use addEntityLink ( EntityKeyBean )
     public EntityInputBean addEntityLink(String relationshipName, EntityKeyBean entityKey) {
         if (entityKey.getRelationshipName() == null)
             entityKey.setRelationshipName(relationshipName);
-        List<EntityKeyBean> refs = entityLinks.computeIfAbsent(relationshipName, k -> new ArrayList<>());
+
+        return addEntityLink( entityKey);
+    }
+
+    /**
+     * Connect this Entity to another Entity. Other entity should already exist.
+     * By default, entityLinks are flagged as Parent which means that they will carry across to fd-search
+     * as related data
+     * @param entityKey payload
+     * @tag Entity, Parent, Search
+     * @return this
+     */
+    public EntityInputBean addEntityLink ( EntityKeyBean entityKey){
+        assert entityKey.getRelationshipName() !=null;
+        List<EntityKeyBean> refs = entityLinks.computeIfAbsent(entityKey.getRelationshipName(), k -> new ArrayList<>());
         refs.add(entityKey);
         return this;
     }

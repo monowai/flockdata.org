@@ -169,7 +169,7 @@ public class TestEntityLinks extends EngineBase {
 
         EntityInputBean workRecord = new EntityInputBean(timesheetFortress, "wally", docTypeWork.getName(), new DateTime(), "ABC321");
         // Checking that the entity is linked when part of the track request
-        workRecord.addEntityLink("worked", new EntityKeyBean("Staff", "timesheet", "ABC123")
+        workRecord.addEntityLink( new EntityKeyBean("Staff", "timesheet", "ABC123")
                 .setRelationshipName("worked")
                 .setParent(true));
         TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
@@ -255,10 +255,10 @@ public class TestEntityLinks extends EngineBase {
         mediationFacade.trackEntity(su.getCompany(), eStaff);
 
         // Cross reference two entities in the same fortress irrespective of the Document type
-        EntityInputBean xRef = new EntityInputBean(fortress, new DocumentTypeInputBean("Entity"));
-        xRef.setCode("30250");
+        EntityInputBean xRef = new EntityInputBean(fortress, new DocumentTypeInputBean("Entity"))
+            .setCode("30250");
 
-        xRef.addEntityLink("manages", new EntityKeyBean("30251", "Entity"));
+        xRef.addEntityLink(new EntityKeyBean("Entity", fortress, "30251", "manages"));
 
         // Specifying the DocumentType as "Entity" instructs FD to treat the payload only as
         // creating relationships. Entity is a reserved docType. This is a useful mechanism
@@ -395,7 +395,7 @@ public class TestEntityLinks extends EngineBase {
         EntityInputBean staff = new EntityInputBean(timesheetFortress, new DocumentTypeInputBean("Staff"))
                 .setCode("ABC123")
                 .addTag(new TagInputBean("Cleaner", "Position", new EntityTagRelationshipInput("role")))
-                .addEntityLink("managed", new EntityKeyBean(company)
+                .addEntityLink(new EntityKeyBean(company)
                         .setRelationshipName("managed")
                         .setParent(true));
 
@@ -410,9 +410,10 @@ public class TestEntityLinks extends EngineBase {
 
         EntityInputBean workRecord = new EntityInputBean(timesheetFortress, new DocumentTypeInputBean("work"))
                 // Not a parent
-                .addEntityLink("anything", new EntityKeyBean(randomResult.getDocumentType().getName(), randomResult.getEntity().getFortress(), randomResult.getEntity().getCode(),"anything"))
+                .addEntityLink(new EntityKeyBean(randomResult.getDocumentType().getName(), randomResult.getEntity().getFortress(), randomResult.getEntity().getCode(),"anything")
+                .setParent(false))
                 // And a parent with a path
-                .addEntityLink("worked", new EntityKeyBean(staffResult.getDocumentType().getName(), staffResult.getEntity().getFortress(), staffResult.getEntity().getCode(),"worked")
+                .addEntityLink(new EntityKeyBean(staffResult.getDocumentType().getName(), staffResult.getEntity().getFortress(), staffResult.getEntity().getCode(),"worked")
                         .setParent(true)
                 );
         TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
@@ -467,7 +468,7 @@ public class TestEntityLinks extends EngineBase {
         EntityInputBean staff = new EntityInputBean(timesheetFortress, new DocumentTypeInputBean("Staff"))
                 .setCode("ABC123")
                 .addTag(new TagInputBean("Cleaner", "Position", new EntityTagRelationshipInput("role")))
-                .addEntityLink("managed", new EntityKeyBean(company)
+                .addEntityLink(new EntityKeyBean(company)
                         .setRelationshipName("managed")
                         .setParent(true));
 
@@ -476,10 +477,11 @@ public class TestEntityLinks extends EngineBase {
 
         EntityInputBean workRecord = new EntityInputBean(timesheetFortress, new DocumentTypeInputBean("work"))
                 // Not a parent
-                .addEntityLink("anything", new EntityKeyBean(randomResult.getDocumentType().getName(), randomResult.getEntity().getFortress(),
-                        randomResult.getEntity().getCode(), "anything"))
+                .addEntityLink( new EntityKeyBean(randomResult.getDocumentType().getName(), randomResult.getEntity().getFortress(),
+                        randomResult.getEntity().getCode(), "anything")
+                .setParent(false))
                 // And a parent with a path
-                .addEntityLink("worked", new EntityKeyBean(staffResult.getDocumentType().getName(), staffResult.getEntity().getFortress(),
+                .addEntityLink(new EntityKeyBean(staffResult.getDocumentType().getName(), staffResult.getEntity().getFortress(),
                         staffResult.getEntity().getCode(), "worked")
                             .setParent(false)
                 );

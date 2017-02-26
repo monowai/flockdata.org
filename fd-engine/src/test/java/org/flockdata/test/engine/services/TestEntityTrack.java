@@ -62,13 +62,14 @@ import static org.junit.Assert.*;
 public class TestEntityTrack extends EngineBase {
 
     @Autowired
+    private
     TrackBatchSplitter batchSplitter;
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
     /**
      * Most basic functionality. An entity is created and can be found
      *
-     * @throws Exception
+     * @throws Exception error
      */
     @Test
     public void trackByCallerRef_NoContentNoUser() throws Exception {
@@ -89,7 +90,7 @@ public class TestEntityTrack extends EngineBase {
     /**
      * Next most basic functionality. Create Entity connected to a FortressUser
      *
-     * @throws Exception
+     * @throws Exception error
      */
     @Test
     public void trackByCallerRef_NoContent_WithFortressUser() throws Exception {
@@ -152,7 +153,7 @@ public class TestEntityTrack extends EngineBase {
     /**
      * Create & Update user-defined Entity properties - no content
      *
-     * @throws Exception
+     * @throws Exception  error
      */
     @Test
     public void modified_UserDefinedProperties_NoContent() throws Exception {
@@ -185,7 +186,7 @@ public class TestEntityTrack extends EngineBase {
     /**
      * Start adding Content and locating Logs
      *
-     * @throws Exception
+     * @throws Exception error
      */
     @Test
     public void track_WithSingleContentLog() throws Exception {
@@ -196,7 +197,7 @@ public class TestEntityTrack extends EngineBase {
         SystemUser su = registerSystemUser("fortress_CreateOnTrack");
         String fortressName = "fortress_CreateOnTrack";
 
-        FortressInputBean fib = new FortressInputBean(fortressName, true);
+        FortressInputBean fib = new FortressInputBean(fortressName).setSearchEnabled(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
         EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), code);
 
@@ -226,7 +227,7 @@ public class TestEntityTrack extends EngineBase {
     /**
      * Track a single Entity with a Collection of contentInputBeans
      *
-     * @throws Exception
+     * @throws Exception error
      */
     @Test
     public void makeEntity_MultipleIdenticalContentInput() throws Exception {
@@ -264,7 +265,7 @@ public class TestEntityTrack extends EngineBase {
      * Creates an entity without a log and then independently adds a couple of ContentInputBeans Logs
      * Some basic tests on Previous log checks
      *
-     * @throws Exception
+     * @throws Exception error
      */
     @Test
     public void createEntity_ThenTrackLogs() throws Exception {
@@ -604,8 +605,8 @@ public class TestEntityTrack extends EngineBase {
         StopWatch watch = new StopWatch();
         watch.start();
 
-        createLogRecords(authMike, su, key, "house", 20);
-        createLogRecords(authHarry, suB, ahHS, "house", 40);
+        createLogRecords(authMike, su, key, 20);
+        createLogRecords(authHarry, suB, ahHS, 40);
         watch.stop();
         logger.info(watch.prettyPrint() + " avg = " + (watch.getLastTaskTimeMillis() / 1000d) / max);
 
@@ -681,7 +682,11 @@ public class TestEntityTrack extends EngineBase {
         SystemUser su = registerSystemUser("logDateRangesWorking");
 
         int max = 10;
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
+        FortressNode fortress = fortressService.registerFortress(su.getCompany(),
+                new FortressInputBean("wportfolio")
+                        .setSearchEnabled(false)
+                        .setStoreEnabled(true));
+
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(max);
         DateTime workingDate = firstDate.toDateTime();
@@ -836,9 +841,9 @@ public class TestEntityTrack extends EngineBase {
 
         // Check that TimeZone information is used to correctly establish Now when not passed in a log
         // No Date, so default to NOW in the Fortress Timezone
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getKey(), null, ContentDataHelper.getSimpleMap("house", "house1"))).getCurrentLog();
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getKey(), null, ContentDataHelper.getSimpleMap("house", "house1")));
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getKey(), null, ContentDataHelper.getSimpleMap("house", "house2"))).getCurrentLog();
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getKey(), null, ContentDataHelper.getSimpleMap("house", "house2")));
 
         Collection<org.flockdata.data.EntityLog> logs = entityService.getEntityLogs(entity);
         assertEquals("Logs with missing dates not correctly recorded", 2, logs.size());
@@ -846,7 +851,7 @@ public class TestEntityTrack extends EngineBase {
         // Can only have one log for an entity at a point in time. Passing in the same date would cause the last log to be rejected
         // so we remove a day from this entry
         DateTime dateMidnight = new DateTime();
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getKey(), dateMidnight.toDateTime().minusDays(1), ContentDataHelper.getSimpleMap("house", "house3"))).getCurrentLog();
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getKey(), dateMidnight.toDateTime().minusDays(1), ContentDataHelper.getSimpleMap("house", "house3")));
         org.flockdata.data.EntityLog thirdLog = entityService.getLastEntityLog(su.getCompany(), key);
 
         // This is being inserted after the last log
@@ -1325,7 +1330,7 @@ public class TestEntityTrack extends EngineBase {
      *
      * Useful for checking the user experience of working with the Result view
      *
-     * @throws Exception
+     * @throws Exception error
      */
     @Test
     public void contentInputWithDocumentAndFortress () throws Exception {
@@ -1357,17 +1362,53 @@ public class TestEntityTrack extends EngineBase {
 
     }
 
+    /**
+     * Track an Entity to a disabled store. We still return a Mock log as the content _can_ be retrived
+     * from the search engine. The ID's of a mockedLog will be that of the Entity
+     *
+     * @throws Exception error
+     */
+    @Test
+    public void mockLogForEntity() throws Exception {
+        logger.debug("### mockLogForEntity");
+        engineConfig.setTestMode(true); // Force sync processing of the content and log
+
+        String code = "mockLogForEntity";
+        SystemUser su = registerSystemUser("mockLogForEntity");
+        String fortressName = "mockLogForEntity";
+
+        FortressInputBean fib = new FortressInputBean(fortressName).setSearchEnabled(false).setStoreEnabled(false);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), code);
+
+        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), ContentDataHelper.getSimpleMap("name", "a")));
+
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        assertEquals(ContentInputBean.LogStatus.OK, result.getLogStatus());
+
+        Collection<EntityLogResult> entityLogs = entityService.getEntityLogs(su.getCompany(), result.getKey());
+        assertNotNull(entityLogs);
+        assertEquals("Didn't find the log for the entity", 1, entityLogs.size());
+        // Validate that the LastChangeUser is in the Log
+        for (EntityLogResult entityLog : entityLogs) {
+            assertEquals(true, entityLog.getLog().isMocked());
+            assertEquals ( result.getEntity().getId(), entityLog.getId());
+            assertEquals( result.getEntity().getId(), entityLog.getLog().getId());
+        }
+    }
+
+
     private void compareUser(String exceptionMessage, EntityNode entity, String userName) {
         FortressUserNode fu = fortressService.getUser(entity.getLastUser().getId());
         assertEquals(exceptionMessage, userName, fu.getCode());
 
     }
 
-    private void createLogRecords(Authentication auth, SystemUser su, String key, String col, double recordsToCreate) throws Exception {
+    private void createLogRecords(Authentication auth, SystemUser su, String key, double recordsToCreate) throws Exception {
         int i = 0;
         SecurityContextHolder.getContext().setAuthentication(auth);
         while (i < recordsToCreate) {
-            mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", key, new DateTime(), ContentDataHelper.getSimpleMap(col, "house" + i), (String) null));
+            mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", key, new DateTime(), ContentDataHelper.getSimpleMap("house", "house" + i), (String) null));
             i++;
         }
         assertEquals(recordsToCreate, (double) entityService.getLogCount(su.getCompany(), key), 0);

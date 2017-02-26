@@ -48,12 +48,15 @@ public class EntityLogResult {
     private boolean versioned;
     private String checksum;
     private Log log;
+    private boolean mocked = false;
 
     EntityLogResult(){}
 
     public EntityLogResult(EntityLog entityLog) {
         this();
         this.log = entityLog.getLog();
+        this.mocked = log.isMocked();
+        this.checkSum = log.getChecksum();
         this.id = entityLog.getId();
         this.store = Store.valueOf(log.getStorage());
         this.entityKey = entityLog.getEntity().getKey();
@@ -134,5 +137,13 @@ public class EntityLogResult {
     @JsonIgnore
     public Log getLog() {
         return log;
+    }
+
+    public String getCheckSum() {
+        return checkSum;
+    }
+
+    public boolean isMocked() {
+        return mocked;
     }
 }

@@ -67,7 +67,9 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("tags_MetaTagsUpdatedForExistingEntity", mike_admin);
         assertNotNull(su);
 
-        FortressInputBean fib = new FortressInputBean("ABC", true);
+        FortressInputBean fib = new FortressInputBean("ABC")
+                .setStoreEnabled(true)
+                .setSearchEnabled(false);
 
         FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
         assertNotNull(fortress);
@@ -104,8 +106,9 @@ public class TestEntityTags extends EngineBase {
         Assert.assertEquals(1, entityService.getLogCount(su.getCompany(), entity.getKey()));
         Assert.assertEquals(2, entityTagService.findEntityTagResults(entity).size());
 
-        EntityLog lastLog = logService.getLastLog((EntityNode) entity);
+        EntityLog lastLog = logService.getLastLog(entity);
         assertNotNull(lastLog);
+        assertFalse(lastLog.getLog().isMocked());
         Map<String, Object> values = mediationFacade.getLogContent((EntityNode) entity, lastLog.getId());
         assertFalse(values.isEmpty());
         assertEquals(jsonMap.get("Key").toString(), values.get("Key").toString());

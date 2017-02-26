@@ -47,6 +47,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+import static org.flockdata.store.StoreHelper.isMockable;
+
 /**
  * Access to Entity objects stored in Neo4j
  *
@@ -277,19 +279,44 @@ public class EntityDaoNeo {
     }
 
     public Collection<org.flockdata.data.EntityLog> getLogs(Entity entity) {
-        EntityLog mockLog = getMockLog(entity);
-        if (mockLog != null) {
-            Set<org.flockdata.data.EntityLog> results = new HashSet<>();
-            results.add(mockLog);
-            return results;
-        }
+        DocumentNode doc = conceptService.findDocumentType(entity.getFortress(), entity.getType(), false);
+        if ( isMockable(entity, doc))
+            return mockLogs(entity, doc);
+        
         Set<EntityLog> found = trackLogRepo.findLogs(entity.getId());
+        if ( found.isEmpty())
+            return mockLogs(entity, doc );
         Collection<org.flockdata.data.EntityLog> results = new ArrayList<>();
         for (EntityLog result : found) {
             result.setEntity((EntityNode) entity);
             results.add(result);
         }
         return results;
+    }
+
+    private Collection<org.flockdata.data.EntityLog> mockLogs(Entity entity, DocumentNode documentType) {
+//        DocumentNode documentType = conceptService.findDocumentType(entity.getFortress(), entity.getType(), false);
+        boolean mock = isMockable(entity, documentType);
+        if ( mock) {
+            EntityLog mockLog = getMockLog(entity);
+            if (mockLog != null) {
+                Set<org.flockdata.data.EntityLog> results = new HashSet<>();
+                results.add(mockLog);
+                return results;
+            }
+        }
+        return new ArrayList<>();
+    }
+
+
+    private EntityLog getMockLog(Entity entity) {
+        // DAT-349 returns a mock log if storage history is not being maintained by a KV impl
+        DocumentNode documentType = conceptService.findDocumentType(entity.getFortress(), entity.getType(), false);
+        if (isMockable(entity, documentType)) {
+            LogNode log = new LogNode(entity);
+            return new EntityLog(entity, log, entity.getFortressCreatedTz());
+        }
+        return null;
     }
 
     public Map<String, Object> findByTransaction(TxRef txRef) {
@@ -337,15 +364,6 @@ public class EntityDaoNeo {
 
     public String ping() {
         return "Neo4J is OK";
-    }
-
-    private EntityLog getMockLog(Entity entity) {
-        // DAT-349 returns a mock log if storage history is not being maintained by a KV impl
-        if (!entity.getSegment().getFortress().isStoreEnabled()) {
-            LogNode log = new LogNode(entity);
-            return new EntityLog(entity, log, entity.getFortressCreatedTz());
-        }
-        return null;
     }
 
     public EntityLog getLog(EntityNode entity, Long logId) {

@@ -132,7 +132,8 @@ public class FdClientIo implements FdIoInterface {
 
     private String writeEntitiesAmqp(Collection<EntityInputBean> entityInputs) throws FlockException {
         try {
-            // DAT-373
+            if ( clientConfiguration.getApiKey()== null)
+                login();
             fdRabbitClient.publish(entityInputs);
         } catch (IOException ioe) {
             logger.error(ioe.getLocalizedMessage());
@@ -144,7 +145,8 @@ public class FdClientIo implements FdIoInterface {
 
     private String writeTagsAmqp(Collection<TagInputBean> tagInputs) throws FlockException {
         try {
-            // DAT-373
+            if ( clientConfiguration.getApiKey()== null)
+                login();
             fdRabbitClient.publishTags(tagInputs);
         } catch (IOException | AlreadyClosedException ioe) {
             logger.error(ioe.getLocalizedMessage());

@@ -16,6 +16,7 @@
 
 package org.flockdata.track.bean;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.flockdata.data.Document;
 import org.flockdata.data.Entity;
@@ -45,7 +46,7 @@ public class EntityKeyBean {
     private String key;
     private String code;
     private String name;
-    private boolean parent;
+    private boolean parent ;
 
     private Document resolvedDocument;
 
@@ -131,6 +132,7 @@ public class EntityKeyBean {
         }
     }
 
+    @Deprecated // caller should supply the relationship name
     public EntityKeyBean(String code, String documentType) {
         this.code = code;
         this.documentType = documentType;
@@ -147,6 +149,7 @@ public class EntityKeyBean {
         return documentType;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getCode() {
         return code;
     }
@@ -156,6 +159,7 @@ public class EntityKeyBean {
         return this;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getKey() {
         return key;
     }
@@ -164,6 +168,7 @@ public class EntityKeyBean {
         return index;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public HashMap<String, Map<String, ArrayList<SearchTag>>> getSearchTags() {
         return searchTags;
     }
@@ -182,10 +187,12 @@ public class EntityKeyBean {
         return this;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getDescription() {
         return description;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getName() {
         return name;
     }
@@ -212,6 +219,7 @@ public class EntityKeyBean {
         this.resolvedEntity = resolvedEntity;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Document getResolvedDocument() {
         return resolvedDocument;
     }

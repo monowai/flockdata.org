@@ -52,24 +52,36 @@ import org.springframework.web.client.HttpClientErrorException;
 @Profile({"fd-server"})
 public class FdStorageProxy implements StorageProxy {
 
-    @Autowired (required = false)
     private StorageReader.StorageReaderGateway readGateway;
-
-    @Autowired (required = false)
     private StorageWriter.StorageWriterGateway writeGateway;
-    @Autowired
     private IndexManager indexManager;
-    @Autowired   (required = false)
     private EsRepo esRepo;
     private Logger logger = LoggerFactory.getLogger(FdStorageProxy.class);
+
+    @Autowired(required = false)
+    public void setFdStorageProxy(StorageReader.StorageReaderGateway readGateway) {
+        this.readGateway = readGateway;
+    }
+
+    @Autowired(required = false)
+    void setStorageWriter(StorageWriter.StorageWriterGateway writer){
+        this.writeGateway = writer;
+    }
+
+    @Autowired(required = false)
+    void setEsRepo ( EsRepo esRepo){
+        this.esRepo = esRepo;
+    }
+
+    @Autowired
+    void setIndexManager(IndexManager indexManager){
+        this.indexManager = indexManager;
+    }
 
     @Override
     @Retryable
     public void write(TrackResultBean resultBean) {
-        StorageBean storageBean = new StorageBean(resultBean);
-        // If there is no store to write to then don't !
-        //if ( !storageBean.getStore().equals( Store.NONE.name()))
-            writeGateway.write(storageBean);
+        writeGateway.write(new StorageBean(resultBean));
     }
 
     @Override
@@ -80,25 +92,25 @@ public class FdStorageProxy implements StorageProxy {
     @Override
     public StoredContent read(LogRequest logRequest) {
         String index = indexManager.toStoreIndex(logRequest.getStore(), logRequest.getEntity());
-        String type  = indexManager.parseType(logRequest.getEntity());
-        String key   ;
+        String type = indexManager.parseType(logRequest.getEntity());
+        String key;
         try {
             key = indexManager.resolveKey(logRequest);
         } catch (NotFoundException e) {
-            logger.error ( e.getMessage());
+            logger.error(e.getMessage());
             return null;
         }
         StoredContent contentResult;
-        if ( logRequest.getStore() == Store.NONE){
-            contentResult = esRepo.read(index,type,key);
+        if (logRequest.getStore() == Store.NONE) {
+            contentResult = esRepo.read(index, type, key);
         } else {
             try {
                 contentResult = readGateway.read(logRequest.getStore(),
                         index,
                         type,
                         key);
-            } catch (HttpClientErrorException nfe){
-                logger.debug("Request caused error - {} - for {}/{}/{} was not found", nfe.getMessage(), index,type,key);
+            } catch (HttpClientErrorException nfe) {
+                logger.debug("Request caused error - {} - for {}/{}/{} was not found", nfe.getMessage(), index, type, key);
                 return null;
             }
         }
@@ -108,9 +120,10 @@ public class FdStorageProxy implements StorageProxy {
 
     /**
      * Determines if the lastLog and the incomingLog are the same
-     * @param entity        owner of the log
-     * @param existingLog   persisted log
-     * @param incomingLog   notional log
+     *
+     * @param entity      owner of the log
+     * @param existingLog persisted log
+     * @param incomingLog notional log
      * @return true if different false if the same
      */
     @Override
@@ -124,13 +137,12 @@ public class FdStorageProxy implements StorageProxy {
 
     /**
      * Determine if the Log Content has changed
-     *
+     * @tag Delta, Storage
      * @return false if different, true if same
      */
-    boolean isSame(LogRequest logRequest, Log compareTo, StoredContent existingContent) {
-        if (logRequest.getLogId()== null)
+    private boolean isSame(LogRequest logRequest, Log compareTo, StoredContent existingContent) {
+        if (logRequest.getLogId() == null)
             return false;
-
 
         boolean sameContentType = logRequest.getContentType().equals(compareTo.getContentType());
 

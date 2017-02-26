@@ -94,7 +94,7 @@ public class FortressEP {
     public DocumentResultBean registerDocumentType(HttpServletRequest request, @PathVariable("fortressName") String fortressName, @PathVariable("docTypeName") String docTypeName) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.getFortress(company, fortressName);
-        return new DocumentResultBean(conceptService.resolveByDocCode(fortress, docTypeName, Boolean.TRUE));
+        return new DocumentResultBean(conceptService.resolveByDocCode(fortress, docTypeName, Boolean.TRUE), fortress);
 
     }
 
@@ -105,7 +105,7 @@ public class FortressEP {
         Fortress fortress = fortressService.getFortress(company, fortressName);
         if (fortress == null)
             throw new NotFoundException("Unable to locate the fortress ");
-        return new DocumentResultBean(conceptService.findOrCreate(fortress, new DocumentNode(fortress.getDefaultSegment(), docType)));
+        return new DocumentResultBean(conceptService.findOrCreate(fortress, new DocumentNode(fortress.getDefaultSegment(), docType)), fortress);
 
     }
 

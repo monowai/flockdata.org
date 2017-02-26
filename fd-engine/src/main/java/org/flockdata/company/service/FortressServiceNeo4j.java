@@ -281,7 +281,7 @@ public class FortressServiceNeo4j implements FortressService {
         Collection<DocumentNode> rawDocs = conceptDao.getFortressDocumentsInUse(fortress);
         for (DocumentNode rawDoc : rawDocs) {
             rawDoc = conceptDao.findDocumentTypeWithSegments(rawDoc);
-            results.add(new DocumentResultBean(rawDoc));
+            results.add(new DocumentResultBean(rawDoc, fortress));
         }
         return results;
     }

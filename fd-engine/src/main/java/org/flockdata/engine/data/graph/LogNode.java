@@ -85,7 +85,7 @@ public class LogNode implements Log {
      */
     public LogNode(Entity entity){
         //DAT-349 creates a mock node when storage is disabled
-        this.id = System.currentTimeMillis();
+        this.id = entity.getId();
         this.mocked = true;
         this.madeBy = (entity.getCreatedBy()==null ? new FortressUserNode(entity.getSegment().getFortress(), null) : (FortressUserNode) entity.getCreatedBy());
         this.event = (entity.getEvent() == null ? "Create":entity.getEvent());
