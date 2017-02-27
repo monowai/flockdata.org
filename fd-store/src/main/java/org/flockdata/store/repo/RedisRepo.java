@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 
 package org.flockdata.store.repo;
 
-import org.flockdata.helper.ObjectHelper;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.store.AbstractStore;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
@@ -53,18 +53,18 @@ public class RedisRepo extends AbstractStore {
 
     public void add(StoredContent storedContent) throws IOException {
 
-        template.opsForValue().set(storedContent.getId(), ObjectHelper.serialize(storedContent.getContent()));
+        template.opsForValue().set(storedContent.getId(), JsonUtils.toJsonBytes(storedContent));
     }
 
     @Override
     public StoredContent read(String index, String type, String id) {
-        Long key = Long.decode(id.toString());
+        Long key = Long.decode(id);
         byte[] bytes = template.opsForValue().get(key);
 
         try {
-            Object oResult = ObjectHelper.deserialize(bytes);
-            return getContent(key, oResult);
-        } catch (ClassNotFoundException | IOException e) {
+            return JsonUtils.toObject(bytes, StoredContent.class);
+            //return getContent(key, oResult);
+        } catch (IOException e) {
             logger.error("Error extracting content for " + key, e);
         }
         return null;

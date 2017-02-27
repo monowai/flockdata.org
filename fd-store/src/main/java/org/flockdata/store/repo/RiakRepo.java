@@ -32,7 +32,7 @@ import com.basho.riak.client.core.query.Location;
 import com.basho.riak.client.core.query.Namespace;
 import com.basho.riak.client.core.query.RiakObject;
 import com.basho.riak.client.core.util.BinaryValue;
-import org.flockdata.helper.ObjectHelper;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.store.AbstractStore;
 import org.flockdata.store.LogRequest;
@@ -92,7 +92,8 @@ public class RiakRepo extends AbstractStore {
             Namespace ns = new Namespace(bucketType, indexManager.toStoreIndex(storedContent.getEntity()));
             Location location = new Location(ns, storedContent.getId().toString());
             RiakObject riakObject = new RiakObject();
-            byte[] bytes = ObjectHelper.serialize(storedContent.getContent());
+
+            byte[] bytes = JsonUtils.toJsonBytes(storedContent);
             riakObject.setValue(BinaryValue.create(bytes));
             StoreValue store = new StoreValue.Builder(riakObject)
                     .withLocation(location)
@@ -112,7 +113,7 @@ public class RiakRepo extends AbstractStore {
     @Override
     public StoredContent read(String index, String type, String id) {
         try {
-            logger.debug("Looking in RIAK for {}", id);
+            logger.debug("RIAK: index: {}, type: {}, id:{}", index, type, id);
             Namespace ns = new Namespace(bucketType, index);
             Location location = new Location(ns, id);
             FetchValue fv = new FetchValue.Builder(location).build();
@@ -120,10 +121,9 @@ public class RiakRepo extends AbstractStore {
             RiakObject result = response.getValue(RiakObject.class);
 
             if (result != null) {
-                Object oResult = ObjectHelper.deserialize(result.getValue().getValue());
-                return getContent(id, oResult);
+                return JsonUtils.toObject(result.getValue().getValue(), StoredContent.class);
             }
-        } catch (InterruptedException | RiakException | ExecutionException | IOException | ClassNotFoundException e) {
+        } catch (InterruptedException | RiakException | ExecutionException | IOException e) {
             logger.error("RIAK Store Error", e);
             if (client != null) {
                 client.shutdown();

@@ -36,11 +36,13 @@ import java.util.Map;
  * @since 8/05/2013
  */
 public class ContentInputBean implements EntityContent, Serializable {
+
+    private static final long serialVersionUID = -5345117293752779172L;
     private LogStatus fdStatus;
     private String fdMessage;
     private Boolean isTransactional = false;
 
-    private double pVer = 1d;
+    private double version = 1d;
 
     // Use either key or CallerRef strategy
     // Required if not updating via a Entity
@@ -324,8 +326,13 @@ public class ContentInputBean implements EntityContent, Serializable {
     /**
      * @return version of the contentProfile used to create this payload
      */
-    public Double getpVer() {
-        return pVer;
+    public double getVersion() {
+        return version;
+    }
+
+    public ContentInputBean setVersion(double version) {
+        this.version = version;
+        return this;
     }
 
     @Override

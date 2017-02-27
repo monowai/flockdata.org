@@ -243,7 +243,7 @@ public class LogNode implements Log {
     public void setContent(StoredContent storedContent) {
         this.content = storedContent;
         if (storedContent.getContent() != null) {
-            this.profileVersion = storedContent.getContent().getpVer();
+            this.profileVersion = storedContent.getContent().getVersion();
             this.checkSum = storedContent.getChecksum();
         }
 
