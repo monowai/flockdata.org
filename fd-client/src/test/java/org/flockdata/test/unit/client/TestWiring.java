@@ -28,6 +28,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author mike
@@ -57,11 +58,21 @@ public class TestWiring {
     @Autowired
     private FdClientIo template;
 
+    @Autowired
+    private ClientConfiguration clientConfiguration;
+
     @Test
     public void wiringWorks() throws Exception {
         assertNotNull(exchanges);
         assertNotNull(rabbitClient);
         assertNotNull(template);
         assertNotNull(fdIoInterface);
+        assertNotNull(clientConfiguration);
+    }
+
+    @Test
+    public void clientDefaults () throws Exception{
+        assertNull(clientConfiguration.getApiKey());
+        assertNotNull(clientConfiguration.getHttpUser());
     }
 }

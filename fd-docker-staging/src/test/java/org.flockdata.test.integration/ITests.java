@@ -17,7 +17,6 @@
 package org.flockdata.test.integration;
 
 import junit.framework.TestCase;
-import net.jcip.annotations.NotThreadSafe;
 import org.flockdata.client.FdClientIo;
 import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.*;
@@ -84,7 +83,6 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @Configuration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles({"fd-client", "fd-auth-test"})
-@NotThreadSafe
 public class ITests {
 
 

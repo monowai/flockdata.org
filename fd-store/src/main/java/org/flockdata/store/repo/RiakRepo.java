@@ -41,6 +41,7 @@ import org.flockdata.store.service.FdStoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -58,11 +59,14 @@ import java.util.concurrent.ExecutionException;
 @Profile("riak")
 public class RiakRepo extends AbstractStore {
 
-    static final String bucketType = "default";
+    private static final String bucketType = "default";
     private static Logger logger = LoggerFactory.getLogger(RiakRepo.class);
     private final IndexManager indexManager;
     private final FdStoreConfig kvConfig;
     private RiakClient client = null;
+
+    @Value("${org.fd.store.system.shutdown:true}")
+    private boolean shutdownIfNotFound ;
 
     @Autowired
     public RiakRepo(IndexManager indexManager, FdStoreConfig kvConfig) {
@@ -93,8 +97,8 @@ public class RiakRepo extends AbstractStore {
             Location location = new Location(ns, storedContent.getId().toString());
             RiakObject riakObject = new RiakObject();
 
-            byte[] bytes = JsonUtils.toJsonBytes(storedContent);
-            riakObject.setValue(BinaryValue.create(bytes));
+            riakObject.setValue(BinaryValue.create(JsonUtils.toJsonBytes(storedContent)));
+
             StoreValue store = new StoreValue.Builder(riakObject)
                     .withLocation(location)
                     .withOption(StoreValue.Option.W, new Quorum(3)).build();
@@ -167,7 +171,31 @@ public class RiakRepo extends AbstractStore {
     }
 
     @Override
-    public String ping() {
+    public String ping(){
+        try {
+            logger.info("Validating connectivity to RIAK");
+            client= getClient();
+            Namespace ns = new Namespace(bucketType, "fd-ping");
+            Location location = new Location(ns, "ping");
+
+            RiakObject riakObject = new RiakObject()
+                    .setContentType("text/plain")
+                    .setValue(BinaryValue.create("ping"));
+            
+            StoreValue store = new StoreValue.Builder(riakObject)
+                    .withLocation(location)
+                    .withOption(StoreValue.Option.W, new Quorum(3)).build();
+            client.execute(store);
+            return"Connection to RIAK was ok";
+        } catch (RiakException | InterruptedException| ExecutionException| UnknownHostException e) {
+            logger.error("Unable to verify the RIAK repo manager");
+
+            return "Error connecting to RIAK "+riakConfig();
+
+        }
+    }
+
+    private String riakConfig() {
         try {
             List<RiakNode> riakNodes = getClient().getRiakCluster().getNodes();
             if ( riakNodes .isEmpty() )
@@ -192,8 +220,20 @@ public class RiakRepo extends AbstractStore {
 
     @PostConstruct
     void status(){
-        Logger logger = LoggerFactory.getLogger("configuration");
-        logger.info("**** Deployed Riak repo manager");
+        LoggerFactory.getLogger("configuration").info("**** Deploying RIAK repo manager");
+    }
+
+    @PostConstruct
+    public void validate(){
+        String ping = ping();
+        if ( ping.startsWith("Error") ){
+            if (shutdownIfNotFound)
+                System.exit(-1);
+            else
+                logger.warn("RIAK is not running on this computer [{}]", ping);
+
+        }
+
     }
 
 }

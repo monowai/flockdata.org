@@ -13,6 +13,7 @@ org.fd:
       engine: RIAK
       api: api
       enabled: true # Is this store engine enbaled ? If yes, then engine: is used to id the store mechanism
+      shutdown: false # Prevent RiakRepo from exiting if Riak is not running
     executor:
       poolSize: 8-15
       queueCapacity: 3

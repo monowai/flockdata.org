@@ -25,12 +25,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.data.*;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.integration.InMemoryRepo;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.store.FdStore;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
+import org.flockdata.store.repo.RedisRepo;
+import org.flockdata.store.repo.RiakRepo;
 import org.flockdata.store.service.StoreManager;
 import org.flockdata.test.helper.MockDataFactory;
 import org.flockdata.track.bean.ContentInputBean;
@@ -80,10 +83,20 @@ import static org.springframework.test.util.AssertionErrors.fail;
 @WebAppConfiguration (value = "src/main/resources")
 public class TestStoreService {
 
-
     private static RedisServer redisServer;
+    
     @Autowired
     private IndexManager indexManager;
+
+    @Autowired
+    private RiakRepo riakRepo;
+
+    @Autowired
+    private InMemoryRepo inMemoryRepo;
+
+    @Autowired
+    private RedisRepo redisRepo ;
+    
     private MockMvc mockMvc;
     @Autowired
     private WebApplicationContext wac;
@@ -164,6 +177,13 @@ public class TestStoreService {
         return user("noone");
     }
 
+    @Test
+    public void autoWiredRepos () throws Exception{
+        assertNotNull(inMemoryRepo);
+        assertNotNull(riakRepo);
+        assertNotNull(redisRepo);
+    }
+
     @Before
     public void resetKvStore() {
         mockMvc = MockMvcBuilders
@@ -192,6 +212,10 @@ public class TestStoreService {
         kvAttachmentTest(Store.REDIS);
     }
 
+    @Test
+    public void riak_AttachmentTest() throws Exception {
+        kvAttachmentTest(Store.RIAK);
+    }
     private void testStore(Store storeToTest) throws Exception {
         if ( redisServer == null || !redisServer.isActive()){
             logger.info("!! REDIS is not installed so we cannot test it");
@@ -306,6 +330,7 @@ public class TestStoreService {
         EntityInputBean inputBean = new EntityInputBean(entity.getFortress(), "myuser", docType, DateTime.now(), entityCode);
         ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime());
         contentInputBean.setAttachment("test-attachment-data", "PDF", "testFile.txt");
+
 
         try {
             TrackResultBean trackResultBean = new TrackResultBean(null, entity, MockDataFactory.getDocument(entity.getFortress(), docType), inputBean);
