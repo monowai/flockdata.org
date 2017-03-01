@@ -123,12 +123,12 @@ public class EntityLogRequests extends NeoRequestBase {
     }
 
     private MessageHandler fdEntityLogs() {
-        SpelExpressionParser expressionParser = new SpelExpressionParser();
 
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(getForEntity());
 
         handler.setExpectedResponseType(EntityLogs.class);
+        SpelExpressionParser expressionParser = new SpelExpressionParser();
         Map<String, Expression> vars = new HashMap<>();
         vars.put("entityId", expressionParser.parseExpression("payload[0]"));
         handler.setUriVariableExpressions(vars);

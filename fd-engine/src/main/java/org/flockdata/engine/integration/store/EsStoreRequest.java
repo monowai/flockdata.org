@@ -44,6 +44,7 @@ import org.springframework.messaging.MessageHandler;
 
 /**
  * Pulls the "data" block from ElasticSearch
+ *
  * @author mholdsworth
  * @since 13/02/2016
  */
@@ -53,8 +54,8 @@ import org.springframework.messaging.MessageHandler;
 @Profile({"fd-server"})
 public class EsStoreRequest extends AbstractIntegrationRequest {
     @Autowired
-            @Qualifier("engineConfig")
-    PlatformConfig platformConfig;
+    @Qualifier("engineConfig")
+    private PlatformConfig platformConfig;
 
     @Bean
     MessageChannel receiveContentReply() {

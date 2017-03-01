@@ -33,9 +33,9 @@ public interface PlatformConfig {
 
     String getTagSuffix(Company company);
 
-    Map<String, String> getHealth();
+    Map<String, Object> getHealth();
 
-    Map<String, String> getHealthAuth();
+    Map<String, Object> getHealthAuth();
 
     boolean isMultiTenanted();
 

@@ -89,13 +89,13 @@ public class RedisRepo extends AbstractStore {
         Date when = new Date();
         template.opsForValue().setIfAbsent(-99999l, when.toString().getBytes());
         template.opsForValue().getOperations().delete(-99999l);
-        return "Redis is OK";
+        return "OK - Redis";
     }
 
     @PostConstruct
     void status(){
         Logger logger = LoggerFactory.getLogger("configuration");
-        logger.info("**** Deployed Redis repo manager");
+        logger.info("**** Deploying Redis repo manager");
     }
 
 }

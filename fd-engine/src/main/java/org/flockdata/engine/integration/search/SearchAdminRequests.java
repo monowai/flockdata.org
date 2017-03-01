@@ -18,17 +18,11 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.integration.store;
+package org.flockdata.engine.integration.search;
 
-/**
- * For SDN4 Un-managed Extensions
- *
- * @author mholdsworth
- * @since 21/07/2015
- */
-
-import org.flockdata.engine.configure.EngineConfig;
+import org.flockdata.engine.admin.PlatformConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -44,37 +38,63 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.handler.annotation.Payload;
 
+import java.util.Map;
+
 /**
- * Ping fd-store
- *
  * @author mholdsworth
  * @since 3/07/2015
+ * @tag Messaging, Administration, Search, Gateway
  */
 
 @Configuration
+@Profile("fd-server")
 @IntegrationComponentScan
-@Profile({"fd-server"})
-public class StorePingRequest {
+public class SearchAdminRequests {
+
+    private final PlatformConfig engineConfig;
 
     @Autowired
-    EngineConfig engineConfig;
+    public SearchAdminRequests(@Qualifier("engineConfig") PlatformConfig engineConfig) {
+        this.engineConfig = engineConfig;
+    }
 
     @Bean
-    MessageChannel storePing(){
+    MessageChannel searchPing(){
         return new DirectChannel();
     }
 
     @Bean
-    IntegrationFlow storePingFlow() {
+    MessageChannel searchHealth(){
+        return new DirectChannel();
+    }
 
-        return IntegrationFlows.from(storePing())
-                .handle(pingRequest())
+
+    @Bean
+    IntegrationFlow searchHealthFlow() {
+        return IntegrationFlows.from(searchHealth())
+                .handle(fdsHealthRequest())
                 .get();
     }
 
-    private MessageHandler pingRequest() {
+    private MessageHandler fdsHealthRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/admin/ping");
+                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/health");
+        handler.setExpectedResponseType(Map.class);
+        handler.setHttpMethod(HttpMethod.GET);
+
+        return handler;
+    }
+
+    @Bean
+    IntegrationFlow searchPingFlow() {
+
+        return IntegrationFlows.from(searchPing())
+                .handle(fdsPingRequest())
+                .get();
+    }
+    private MessageHandler fdsPingRequest() {
+        HttpRequestExecutingMessageHandler handler =
+                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/ping");
         handler.setExpectedResponseType(String.class);
         handler.setHttpMethod(HttpMethod.GET);
 
@@ -82,10 +102,14 @@ public class StorePingRequest {
     }
 
     @MessagingGateway
-    public interface StorePingGateway {
+    public interface AdminGateway {
         @Payload("new java.util.Date()")
-        @Gateway(requestChannel = "storePing", requestTimeout = 2000)
+        @Gateway(requestChannel = "searchPing", requestTimeout = 6000)
         String ping();
+
+        @Payload("new java.util.Date()")
+        @Gateway(requestChannel = "searchHealth", requestTimeout = 6000)
+        Map<String,Object> health();
 
     }
 

@@ -186,7 +186,7 @@ public class RiakRepo extends AbstractStore {
                     .withLocation(location)
                     .withOption(StoreValue.Option.W, new Quorum(3)).build();
             client.execute(store);
-            return"Connection to RIAK was ok";
+            return"OK - Riak";
         } catch (RiakException | InterruptedException| ExecutionException| UnknownHostException e) {
             logger.error("Unable to verify the RIAK repo manager");
 

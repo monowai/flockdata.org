@@ -49,12 +49,9 @@ import java.util.Map;
 public class AdminEP {
 
     private static Logger logger = LoggerFactory.getLogger(AdminEP.class);
-    private final
-    MediationFacade mediationFacade;
-    private final
-    SecurityHelper securityHelper;
-    private final
-    PlatformConfig engineConfig;
+    private final MediationFacade mediationFacade;
+    private final SecurityHelper securityHelper;
+    private final PlatformConfig engineConfig;
 
     @Autowired
     public AdminEP(@Qualifier("mediationFacadeNeo") MediationFacade mediationFacade, SecurityHelper securityHelper, PlatformConfig engineConfig) {
@@ -71,7 +68,7 @@ public class AdminEP {
 
 
     @RequestMapping(value = "/health", method = RequestMethod.GET)
-    public Map<String, String> getHealth(HttpServletRequest request) throws FlockException {
+    public Map<String, Object> getHealth(HttpServletRequest request) throws FlockException {
         Object o = request.getAttribute(ApiKeyInterceptor.API_KEY);
         if (o == null)
             o = request.getHeader(ApiKeyInterceptor.API_KEY);

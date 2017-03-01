@@ -23,9 +23,9 @@ package org.flockdata.engine.configure;
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.data.Company;
 import org.flockdata.engine.admin.PlatformConfig;
-import org.flockdata.engine.integration.search.SearchPingRequest;
-import org.flockdata.engine.integration.search.SearchPingRequest.PingGateway;
-import org.flockdata.engine.integration.store.StorePingRequest;
+import org.flockdata.engine.integration.search.SearchAdminRequests;
+import org.flockdata.engine.integration.search.SearchAdminRequests.AdminGateway;
+import org.flockdata.engine.integration.store.StoreAdminRequests;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.VersionHelper;
 import org.flockdata.store.Store;
@@ -36,6 +36,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -43,8 +44,8 @@ import static org.flockdata.authentication.FdRoles.FD_ROLE_ADMIN;
 import static org.flockdata.authentication.FdRoles.FD_ROLE_USER;
 
 /**
- * @tag Engine
  * @author mholdsworth
+ * @tag Engine
  * @since 29/08/2013
  */
 @Transactional
@@ -53,25 +54,23 @@ public class EngineConfig implements PlatformConfig {
 
     @Value("${spring.cloud.config.discovery.enabled:false}")
     Boolean discoveryEnabled;
-                                // By default, storage engine services are not disabled
-                                // and current state content is retrieved from ElasticSearch
-                                // By default, we only require a reply if this is being indexed for the first time
-                                @Value("${org.fd.engine.search.update:true}")
-                                Boolean requireSearchToConfirm = false;
+    // By default, storage engine services are not disabled
+    // and current state content is retrieved from ElasticSearch
+    // By default, we only require a reply if this is being indexed for the first time
+    @Value("${org.fd.engine.search.update:true}")
+    Boolean requireSearchToConfirm = false;
     @Value("${org.fd.engine.system.storage:RIAK}")
     private String storeEngine; // The default store to write to IF a fortress allows it
     @Value("${org.fd.engine.fortress.store:false}")
     private Boolean storeEnabled;
     @Value("${org.fd.engine.system.api:api}")
-    private String apiBase ;
-    @Autowired (required = false)
-    private
-    PingGateway pingSearchGateway;
-    @Autowired (required = false)
-    private SearchPingRequest searchPingRequest;
+    private String apiBase;
+    private AdminGateway pingSearchGateway;
+    @Autowired(required = false)
+    private SearchAdminRequests searchAdminRequests;
     @Autowired
-    private StorePingRequest.StorePingGateway storePingGateway;
-    @Autowired (required = false)
+    private StoreAdminRequests.StorePingGateway storePingGateway;
+    @Autowired(required = false)
     private AmqpRabbitConfig rabbitConfig;
     @Value("${org.fd.engine.system.multiTenanted:false}")
     private Boolean multiTenanted = false;
@@ -85,17 +84,26 @@ public class EngineConfig implements PlatformConfig {
     private String fdSearch;
     @Value("${org.fd.store.api:http://localhost:8082}")
     private String fdStoreUrl;
-    @Value ("${eureka.client.serviceUrl.defaultZone}")
+    @Value("${eureka.client.serviceUrl.defaultZone}")
     private String eurekaUrl;
     @Value("${org.fd.engine.system.timings:false}")
     private boolean timing = false;
-    @Autowired(required = false)
     private VersionHelper versionHelper;
+
+    @Autowired(required = false)
+    public void setAdminGateway(AdminGateway pingSearchGateway) {
+        this.pingSearchGateway = pingSearchGateway;
+    }
+
+    @Autowired(required = false)
+    public void sertVersionHelper(VersionHelper versionHelper) {
+        this.versionHelper = versionHelper;
+    }
 
     @Override
     public String getFdStore() {
 
-        return fdStoreUrl+"/api";
+        return fdStoreUrl + "/api";
     }
 
     @Override
@@ -109,7 +117,7 @@ public class EngineConfig implements PlatformConfig {
     }
 
     public void setSearchEnabled(String searchEnabled) {
-        this.searchEnabled =Boolean.parseBoolean(searchEnabled);
+        this.searchEnabled = Boolean.parseBoolean(searchEnabled);
     }
 
     public Boolean isSearchRequiredToConfirm() {
@@ -117,7 +125,6 @@ public class EngineConfig implements PlatformConfig {
     }
 
     /**
-     *
      * @return is fd-storeEngine part of the data processing pipeline?
      */
     public Boolean storeEnabled() {
@@ -137,8 +144,8 @@ public class EngineConfig implements PlatformConfig {
     @Value("${org.fd.engine.system.concepts:true}")
     public Boolean setConceptsEnabled(boolean conceptsEnabled) {
         Boolean previous = conceptsEnabled;
-        this.conceptsEnabled =conceptsEnabled;
-        return previous  ;
+        this.conceptsEnabled = conceptsEnabled;
+        return previous;
     }
 
     public Store setStore(Store store) {
@@ -150,7 +157,7 @@ public class EngineConfig implements PlatformConfig {
     @Override
     public Store store() {
 //        if ( storeEnabled)
-            return Store.valueOf(storeEngine.toUpperCase());
+        return Store.valueOf(storeEngine.toUpperCase());
 //        else
 //            return Store.NONE;
     }
@@ -163,7 +170,7 @@ public class EngineConfig implements PlatformConfig {
     }
 
     @Secured({FD_ROLE_ADMIN, FD_ROLE_USER})
-    public Map<String, String> getHealthAuth() {
+    public Map<String, Object> getHealthAuth() {
         return getHealth();
     }
 
@@ -173,39 +180,53 @@ public class EngineConfig implements PlatformConfig {
      * @return system configuration details
      */
     @Override
-    public Map<String, String> getHealth() {
+    public Map<String, Object> getHealth() {
         String version = "";
-        if ( versionHelper !=null )
+        if (versionHelper != null)
             version = versionHelper.getFdVersion();
-        Map<String, String> healthResults = new TreeMap<>();
+        Map<String, Object> healthResults = new TreeMap<>();
 
         healthResults.put("fd.version", version);
 
-        String esPingResult;
+        String esPingResult = "ok";
+        Map<String, Object> esHealth = null;
         try {
-            String esPing = "Disabled";
-            if ( searchPingRequest != null )
-                esPing = pingSearchGateway.ping();
-            esPingResult = (esPing == null || !esPing.equals("pong") ? esPing : "Ok");
+            if (searchAdminRequests != null)
+                esHealth = pingSearchGateway.health();
+            //esPingResult = (esHealth == null || !esHealth.equals("pong") ? esHealth : "Ok");
         } catch (Exception ce) {
             esPingResult = "!Unreachable ";
             if (ce.getCause() != null)
                 esPingResult = esPingResult + ce.getCause().getMessage();
         }
-        healthResults.put("fd-search",  esPingResult + " on " +fdSearch);
+        Map<String, Object> searchHealth = new HashMap<>();
+        searchHealth.put("org.fd.search.api", fdSearch);
+        if ( searchAdminRequests == null )
+            searchHealth.put("status", "Disabled");
+        else
+            searchHealth.put("status", esPingResult);
 
+        if (esHealth != null)
+            searchHealth.put("health", esHealth);
+
+        healthResults.put("fd-search", searchHealth);
+        String kvPingResult ;
         try {
-            String esPing = storePingGateway.ping();
-            esPingResult = (esPing == null || !esPing.equals("pong") ? "Problem" : "Ok");
+            String esPing = storePingGateway.ping(storeEngine);
+
+            kvPingResult = (esPing == null ? "Problem" : esPing);
         } catch (Exception ce) {
-            esPingResult = "!Unreachable ";
+            kvPingResult = "!Unreachable ";
             if (ce.getCause() != null)
-                esPingResult = esPingResult + ce.getCause().getMessage();
+                kvPingResult = kvPingResult + ce.getCause().getMessage();
         }
-        healthResults.put("fd-store", esPingResult + " on " +fdStoreUrl);
-        healthResults.put("fd.store.engine", storeEngine);
-        healthResults.put("fd.store.enabled", storeEnabled().toString());
-        if ( rabbitConfig !=null ) {
+        Map<String, Object> storeHealth = new HashMap<>();
+        healthResults.put("fd-store", storeHealth);
+        storeHealth.put("org.fd.store.api", fdStoreUrl);
+        storeHealth.put("status", kvPingResult);
+        storeHealth.put("fd.store.engine", storeEngine);
+        storeHealth.put("fd.store.enabled", storeEnabled().toString());
+        if (rabbitConfig != null) {
             healthResults.put("rabbit.host", rabbitConfig.getHost());
             healthResults.put("rabbit.port", rabbitConfig.getPort().toString());
             healthResults.put("rabbit.user", rabbitConfig.getUser());
@@ -248,7 +269,7 @@ public class EngineConfig implements PlatformConfig {
     }
 
     public String getFdSearch() {
-        return fdSearch +"/api";
+        return fdSearch + "/api";
     }
 
 }

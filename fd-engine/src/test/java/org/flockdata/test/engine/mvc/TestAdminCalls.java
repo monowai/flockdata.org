@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -81,8 +81,11 @@ public class TestAdminCalls extends MvcBase {
         assertFalse("We didn't get back the health results for a valid api account", results.isEmpty());
         if (results.get("fd-search").toString().equalsIgnoreCase("ok"))
             logger.warn("fd-search is running in a not unit test fashion....");
-        else
-            assertTrue(results.get("fd-search").toString(), results.get("fd-search").toString().contains("Disabled"));
+        else {
+            Map<String,Object>fdSearchProps = (Map<String, Object>) results.get("fd-search");
+            assertEquals(2, fdSearchProps.size());
+            assertTrue(fdSearchProps.get("status").toString(), fdSearchProps.get("status").toString().contains("Disabled"));
+        }
 
         results = getHealth(mike());
         assertFalse("We didn't get back the health results for an admin user", results.isEmpty());
