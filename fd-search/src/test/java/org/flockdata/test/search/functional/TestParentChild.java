@@ -33,7 +33,7 @@ import org.flockdata.track.bean.EntityKeyBean;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertNotNull;
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertNotNull;
  * @since 10/09/2015
  */
 @RunWith(SpringRunner.class)
-@SpringApplicationConfiguration(FdSearch.class)
+@SpringBootTest(classes = FdSearch.class)
 public class TestParentChild extends ESBase {
 
     @Test

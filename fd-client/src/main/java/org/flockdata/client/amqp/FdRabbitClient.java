@@ -214,11 +214,14 @@ public class FdRabbitClient {
 
     public void publishTags(Collection<TagInputBean> tagInputs) throws IOException {
         verifyConnection();
-        trackChannel.basicPublish(
-                configuration.getFdExchange(),
-                configuration.getTrackRoutingKey(),
-                getTagProps(),
-                JsonUtils.toJsonBytes(tagInputs));
+        if ( trackChannel == null )
+            throw new RuntimeException(String.format("Failed to connect to Rabbit. Is it running @ %s:%s", rabbitConfig.getHost(), rabbitConfig.getPort()));
+        else
+            trackChannel.basicPublish(
+                    configuration.getFdExchange(),
+                    configuration.getTrackRoutingKey(),
+                    getTagProps(),
+                    JsonUtils.toJsonBytes(tagInputs));
     }
 
     private HashMap<String, Object> getHeaders(String type, String apiKey) {

@@ -321,7 +321,7 @@ public class FileProcessor {
             getFdTemplate().flush();
         }
 
-        return endProcess(watch, rows, 0);
+        return endProcess(fileName, watch, rows, 0);
     }
 
     private void processJsonNode(JsonNode node, ContentModel importProfile, List<EntityToEntityLinkInput> referenceInputBeans) throws FlockException {
@@ -364,7 +364,7 @@ public class FileProcessor {
             } finally {
                 getFdTemplate().flush();
             }
-            return endProcess(watch, rows, 0);
+            return endProcess(file, watch, rows, 0);
 
 
         } catch (XMLStreamException | JAXBException e1) {
@@ -448,7 +448,7 @@ public class FileProcessor {
             br.close();
         }
 
-        return endProcess(watch, currentRow, ignoreCount);
+        return endProcess(file, watch, currentRow, ignoreCount);
     }
 
     private boolean isHeaderRow(String[] nextLine) {
@@ -489,14 +489,14 @@ public class FileProcessor {
         return nextLine[0].startsWith("#");
     }
 
-    public int endProcess(StopWatch watch, int rows, int ignoreCount) {
+    public int endProcess(String file, StopWatch watch, int rows, int ignoreCount) {
         watch.stop();
         double mins = watch.getTotalTimeSeconds() / 60;
         long rowsProcessed = rows - skipCount;
         if (skipCount > 0)
-            logger.info("Completed [{}] rows in [{}] secs. rpm [{}]. Skipped first [{}] rows, finished on row {}, ignored [{}] rows", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, rows,ignoreCount);
+            logger.info("[{}] - Completed [{}] rows in [{}] secs. rpm [{}]. Skipped first [{}] rows, finished on row {}, ignored [{}] rows", file, rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, rows,ignoreCount);
         else
-            logger.info("Completed [{}] rows in [{}] secs. rpm [{}] Finished on row [{}], ignored [{}] rows.", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), rows, ignoreCount);
+            logger.info("[{}] - Completed [{}] rows in [{}] secs. rpm [{}] Finished on row [{}], ignored [{}] rows.", file, rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), rows, ignoreCount);
         return rows;
     }
 

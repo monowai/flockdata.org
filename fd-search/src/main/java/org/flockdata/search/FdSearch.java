@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -21,14 +21,20 @@
 package org.flockdata.search;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.integration.config.EnableIntegration;
+
 /**
- *
+ * Starts fd-search as a SB app
+ * 
  * @author mholdsworth
  * @since 16/12/2014
  * @tag Application, Search
  */
-@SpringBootApplication (scanBasePackages = {"org.flockdata.search", "org.flockdata.integration", "org.flockdata.authentication"})
+@SpringBootApplication (scanBasePackages = {"org.flockdata.search.integration", "org.flockdata.search", "org.flockdata.integration", "org.flockdata.authentication"})
+@EnableIntegration
+@EnableAutoConfiguration
 public class FdSearch {
 
     public static void main(String[] args) {

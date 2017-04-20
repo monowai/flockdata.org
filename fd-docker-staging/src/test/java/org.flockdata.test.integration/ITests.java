@@ -839,21 +839,20 @@ public class ITests {
 
         integrationHelper.assertWorked("Track Entity - ", trackEntityPost.exec());
         TrackRequestResult trackResult = trackEntityPost.result();
-        String key = trackResult.getKey();
-
         assertEquals("Should be a new Entity", true, trackResult.isNewEntity());
         assertEquals("Problem creating the Content", trackResult.getLogStatus(), ContentInputBean.LogStatus.OK);
 
-        EntityLogsGet getLogs = new EntityLogsGet(fdClientIo, key);
+        EntityLogsGet getLogs = new EntityLogsGet(fdClientIo, trackResult.getKey());
         getLogs.exec();
         assertEquals("Expecting one Mock log", 1, getLogs.result().length);
         EntityLogResult mockedLog = getLogs.result()[0];
         assertTrue ( "Log was not flagged as mocked",mockedLog.isMocked());
         
-        EntityData entityDataByKey = new EntityData(fdClientIo, key);
+        EntityData entityDataByKey = new EntityData(fdClientIo, trackResult.getKey());
         integrationHelper.assertWorked("Get Data by key = ", entityDataByKey.exec());
-        integrationHelper.shortSleep();
         assertNotNull(entityDataByKey.result());
+        if ( entityDataByKey.result().isEmpty())
+            entityDataByKey.exec();
         assertFalse(entityDataByKey.result().isEmpty());
         TestCase.assertEquals(dataMap.get("value"), entityDataByKey.result().get("value"));
 
@@ -868,7 +867,7 @@ public class ITests {
         dataMap.put("value", "beta");
         entityInputBean.setContent(new ContentInputBean(dataMap));
 
-        EntityGet entityByKey = new EntityGet(fdClientIo, key);
+        EntityGet entityByKey = new EntityGet(fdClientIo, trackResult.getKey());
         integrationHelper.waitForEntityKey(logger, "suppressVersionsOnByDocBasis", entityByKey.exec());
         integrationHelper.assertWorked("Find Entity by key - ", entityByKey);
 

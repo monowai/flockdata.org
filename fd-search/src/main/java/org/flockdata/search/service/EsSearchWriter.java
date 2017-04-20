@@ -32,8 +32,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 /**
@@ -46,6 +49,7 @@ import java.io.IOException;
 @Service
 @Qualifier("esSearchWriter")
 @DependsOn("searchConfig")
+@Primary
 public class EsSearchWriter implements SearchWriter {
 
     private final IndexMappingService indexMappingService;
@@ -54,14 +58,18 @@ public class EsSearchWriter implements SearchWriter {
 
     private final TagChangeWriter tagWriter;
 
+    private boolean fdServer =false;
+
     private WriteSearchChanges.EngineResultGateway engineResultGateway;
+
     private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
 
     @Autowired
-    public EsSearchWriter(TagChangeWriter tagWriter, EntityChangeWriter entityWriter, IndexMappingService indexMappingService) {
+    public EsSearchWriter(TagChangeWriter tagWriter, EntityChangeWriter entityWriter, IndexMappingService indexMappingService, Environment environment) {
         this.tagWriter = tagWriter;
         this.entityWriter = entityWriter;
         this.indexMappingService = indexMappingService;
+        this.fdServer = environment.acceptsProfiles("fd-server");
     }
 
     @Autowired(required = false)
@@ -122,11 +130,22 @@ public class EsSearchWriter implements SearchWriter {
             }
 
         }
-        if (!results.isEmpty() && engineResultGateway != null) {
-            logger.debug("Processed {} requests. Returning [{}] SearchResults", results.getSearchResults().size(), results.getSearchResults().size());
+        if ( results.isEmpty()){
+            logger.debug("No results to return");
+        } else if ( !fdServer) {
+            // Manually checking as @Profile does not seem to work with an @MessageGateway
+            logger.debug( "Engine Result Gateway is not enabled. ");
+        } else {
             engineResultGateway.writeEntitySearchResult(results);
+            logger.debug("Processed {} requests. Returning [{}] SearchResults", results.getSearchResults().size(), results.getSearchResults().size());
+
         }
         return results;
 
     }
+    @PostConstruct
+    void logStatus() {
+        logger.debug("**** Deployed EsSearchWriter.  EngineResultGateway {}" , engineResultGateway!=null);
+    }
+
 }

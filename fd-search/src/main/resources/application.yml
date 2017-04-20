@@ -7,6 +7,9 @@ eureka:
       enabled: false
     serviceUrl:
       defaultZone: ${org.fd.discovery.url:http://localhost:8761/eureka/}
+  instance:
+    preferIpAddress: true
+
 #    enabled: false
 
 spring:

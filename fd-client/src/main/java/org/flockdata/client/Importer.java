@@ -197,10 +197,7 @@ public class Importer implements CommandLineRunner {
         } catch (Exception e) {
             logger.error("Import error", e);
             System.exit(-1);
-        } finally {
-            if (fileProcessor != null)
-                fileProcessor.endProcess(watch, totalRows, 0);
-        }
+        } 
     }
 
     private ExtractProfile resolveExtractProfile(String fileModel, ContentModel contentModel) {

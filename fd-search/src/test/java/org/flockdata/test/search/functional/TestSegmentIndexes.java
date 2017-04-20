@@ -27,7 +27,7 @@ import org.flockdata.search.FdSearch;
 import org.flockdata.search.SearchChanges;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ import java.util.Collection;
  */
 
 @RunWith(SpringRunner.class)
-@SpringApplicationConfiguration(FdSearch.class)
+@SpringBootTest(classes = FdSearch.class)
 public class TestSegmentIndexes extends ESBase {
     /**
      * Fortress are linked to segments that in turn have entities.

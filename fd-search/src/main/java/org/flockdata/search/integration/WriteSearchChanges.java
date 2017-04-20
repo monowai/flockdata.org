@@ -36,9 +36,9 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
 import org.springframework.integration.annotation.*;
@@ -51,8 +51,9 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 /**
@@ -61,30 +62,44 @@ import java.io.IOException;
  * @since 12/04/2014
  * @tag Search, Entity, Messaging
  */
-@Transactional
-@MessageEndpoint
-@Configurable
-@Profile({"fd-server"})
+@Configuration
+@IntegrationComponentScan
+@Component
 public class WriteSearchChanges {
 
-    private final Exchanges exchanges;
     // We only support ElasticSearch
     private final SearchWriter searchWriter;
     private final SearchAdmin searchAdmin;
-    private final AmqpRabbitConfig rabbitConfig;
-    private final MessageSupport messageSupport;
+    private Exchanges exchanges;
+    private AmqpRabbitConfig rabbitConfig;
+    private MessageSupport messageSupport;
     private Logger logger = LoggerFactory.getLogger(WriteSearchChanges.class);
 
     @Autowired
-    public WriteSearchChanges(AmqpRabbitConfig rabbitConfig, MessageSupport messageSupport, Exchanges exchanges, SearchAdmin searchAdmin, @Qualifier("esSearchWriter") SearchWriter searchWriter) {
-        this.rabbitConfig = rabbitConfig;
-        this.messageSupport = messageSupport;
-        this.exchanges = exchanges;
+    public WriteSearchChanges(SearchAdmin searchAdmin, @Qualifier("esSearchWriter") SearchWriter searchWriter) {
         this.searchAdmin = searchAdmin;
         this.searchWriter = searchWriter;
     }
 
-//    private static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
+    @Autowired (required = false)
+    void setRabbitConfig(AmqpRabbitConfig rabbitConfig){
+        this.rabbitConfig = rabbitConfig;
+    }
+
+    @Autowired (required = false)
+    void setMessageSupport(MessageSupport messageSupport){
+        this.messageSupport = messageSupport;
+    }
+
+    @Autowired (required = false)
+    void setExchanges(Exchanges exchanges){
+        this.exchanges= exchanges;
+    }
+
+    @PostConstruct
+    void logStatus() {
+        logger.info("**** Deployed WriteSearchChanges");
+    }
 
     @Bean
     MessageChannel writeSearchDoc(){
@@ -107,6 +122,7 @@ public class WriteSearchChanges {
     }
 
     @Bean
+    @Profile("fd-server")
     public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory, RetryOperationsInterceptor searchInterceptor) {
         return IntegrationFlows.from(
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
@@ -142,12 +158,14 @@ public class WriteSearchChanges {
     }
 
     @Transformer(inputChannel = "searchReply", outputChannel = "searchDocSyncResult")
+    @Profile("fd-server")
     public Message<?> transformSearchResults( Message message) {
         return messageSupport.toJson(message);
     }
 
     @Bean
     @ServiceActivator(inputChannel = "searchDocSyncResult")
+    @Profile("fd-server")
     public AmqpOutboundEndpoint writeEntitySearchResult(AmqpTemplate amqpTemplate) {
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
@@ -158,7 +176,7 @@ public class WriteSearchChanges {
 
     }
 
-    @MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
+    @MessagingGateway
     public interface EngineResultGateway {
         @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
         @Async("fd-search")
