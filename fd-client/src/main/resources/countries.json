@@ -1,7 +1,6 @@
 {
   "name": "ISO Countries of the world",
   "code": "Countries",
-  "archiveTags": true,
   "delimiter": ";",
   "tagModel": true,
   "content": {

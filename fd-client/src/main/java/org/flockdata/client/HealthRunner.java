@@ -49,7 +49,7 @@ import org.springframework.context.annotation.Profile;
 @Profile("fd-health")
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.authentication", "org.flockdata.client"})
+@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.client"})
 public class HealthRunner implements CommandLineRunner {
 
     private final ClientConfiguration clientConfiguration;
@@ -71,9 +71,14 @@ public class HealthRunner implements CommandLineRunner {
         CommandRunner.configureAuth(logger, authUser, fdClientIo);
 
         Health health = new Health(fdClientIo);
-        logger.info(JsonUtils.pretty(health
-                .exec()
+        health.exec();
+        if ( health.error() ==null )
+            logger.info(JsonUtils.pretty(health
                 .result()));
+        else if (health.error().equals("auth")){
+            logger.error("Authentication error for [{}]", clientConfiguration.getHttpUser());
+        }   else
+            logger.error(health.error());
 
     }
 

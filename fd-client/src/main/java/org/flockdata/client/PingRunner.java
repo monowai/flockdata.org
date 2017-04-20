@@ -39,7 +39,7 @@ import org.springframework.context.annotation.Profile;
 @Profile("fd-ping")
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.authentication", "org.flockdata.client"})
+@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.client"})
 public class PingRunner implements CommandLineRunner{
 
     private final ClientConfiguration clientConfiguration;
