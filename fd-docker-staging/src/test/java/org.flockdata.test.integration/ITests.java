@@ -852,7 +852,7 @@ public class ITests {
         
         EntityData entityDataByKey = new EntityData(fdClientIo, key);
         integrationHelper.assertWorked("Get Data by key = ", entityDataByKey.exec());
-
+        integrationHelper.shortSleep();
         assertNotNull(entityDataByKey.result());
         assertFalse(entityDataByKey.result().isEmpty());
         TestCase.assertEquals(dataMap.get("value"), entityDataByKey.result().get("value"));
