@@ -32,7 +32,7 @@ import org.flockdata.test.helper.MockDataFactory;
 import org.flockdata.track.bean.CompanyInputBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashSet;
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
  * @since 16/05/2016
  */
 @RunWith(SpringRunner.class)
-@SpringApplicationConfiguration(FdSearch.class)
+@SpringBootTest(classes = FdSearch.class)
 public class TestIndexTagChanges extends ESBase {
     @Test
     public void testSimpleTagIndexes() throws Exception {

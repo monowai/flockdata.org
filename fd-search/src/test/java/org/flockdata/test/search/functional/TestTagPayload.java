@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Copyright (c) 2012-2017 "FlockData LLC"
  *
  *  This file is part of FlockData.
  *
@@ -23,7 +23,7 @@ package org.flockdata.test.search.functional;
 import org.flockdata.search.FdSearch;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 
 @RunWith(SpringRunner.class)
-@SpringApplicationConfiguration(FdSearch.class)
+@SpringBootTest(classes = FdSearch.class)
 public class TestTagPayload extends ESBase {
 
     @Test

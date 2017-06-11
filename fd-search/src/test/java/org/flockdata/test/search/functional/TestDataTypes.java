@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -51,7 +51,7 @@ import static org.springframework.test.util.AssertionErrors.fail;
  * @since 27/03/2015
  */
 @RunWith(SpringRunner.class)
-@SpringApplicationConfiguration(FdSearch.class)
+@SpringBootTest(classes = FdSearch.class)
 @ActiveProfiles({"dev"})
 public class TestDataTypes extends ESBase {
 

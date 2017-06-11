@@ -30,10 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
-import org.springframework.integration.annotation.Gateway;
-import org.springframework.integration.annotation.MessagingGateway;
-import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.integration.annotation.Transformer;
+import org.springframework.integration.annotation.*;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.NullChannel;
 import org.springframework.messaging.Message;
@@ -48,17 +45,22 @@ import org.springframework.stereotype.Service;
  */
 @Configuration
 @Service
+@IntegrationComponentScan
 @Profile("fd-server")
 public class EntitySearchWriter {
 
-    @Autowired
-    private AmqpRabbitConfig rabbitConfig;
+    private final AmqpRabbitConfig rabbitConfig;
+
+    private final Exchanges exchanges;
+
+    private final MessageSupport messageSupport;
 
     @Autowired
-    private Exchanges exchanges;
-
-    @Autowired
-    private MessageSupport messageSupport;
+    public EntitySearchWriter(AmqpRabbitConfig rabbitConfig, Exchanges exchanges, MessageSupport messageSupport) {
+        this.rabbitConfig = rabbitConfig;
+        this.exchanges = exchanges;
+        this.messageSupport = messageSupport;
+    }
 
     // ToDo: Can we handle this more via the flow or handler?
     @Transformer(inputChannel="sendEntityIndexRequest", outputChannel="writeSearchChanges")
@@ -87,6 +89,7 @@ public class EntitySearchWriter {
 
     @MessagingGateway
     public interface EntitySearchWriterGateway {
+        @Profile("fd-server")
         @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel")
         void makeSearchChanges(SearchChanges searchChanges);
     }

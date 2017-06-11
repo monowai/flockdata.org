@@ -31,7 +31,7 @@ import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.test.helper.MockDataFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ import static junit.framework.TestCase.assertNotNull;
  */
 
 @RunWith(SpringRunner.class)
-@SpringApplicationConfiguration(FdSearch.class)
+@SpringBootTest(classes = FdSearch.class)
 public class TestSupportFunctions extends ESBase {
     @Test
     public void defaultTagQueryWorks() throws Exception {

@@ -46,11 +46,11 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-api</artifactId>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -68,11 +68,6 @@
             <groupId>de.grundid.opendatalab</groupId>
             <artifactId>geojson-jackson</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.geotools</groupId>-->
-            <!--<artifactId>gt-opengis</artifactId>-->
-            <!--<version>${geotools.version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-referencing</artifactId>
@@ -148,25 +143,8 @@
                             <goal>test-jar</goal>
                         </goals>
                     </execution>
-                    <!--<execution>-->
-                    <!--<id>make-common-jar</id>-->
-                    <!--&lt;!&ndash; ToDo package? &ndash;&gt;-->
-                    <!--<phase>compile</phase>-->
-                    <!--<goals>-->
-                    <!--<goal>jar</goal>-->
-                    <!--</goals>-->
-                    <!--<configuration>-->
-                    <!--<classifier>client</classifier>-->
-                    <!--<includes>-->
-                    <!--<include>**/service/*</include>-->
-                    <!--</includes>-->
-                    <!--</configuration>-->
-                    <!--</execution>-->
-
                 </executions>
             </plugin>
-
-
         </plugins>
     </build>
     <profiles>

@@ -557,7 +557,7 @@ public class EntityInputBean implements Serializable, UserProperties {
                     // Tag exists, but do the relationships?
                     TagInputBean existingTag = tags.get(index);
                     tagInputBean.getEntityTagLinks().keySet().stream().filter(key -> !existingTag.hasEntityRelationship(key)).forEach(key -> {
-                        existingTag.addEntityTagLink(key, tagInputBean.getEntityTagLinks().get(key));
+                        existingTag.addEntityTagLink(tagInputBean.getEntityTagLinks().get(key));
                     });
                 } else {
                     addTag(tagInputBean);

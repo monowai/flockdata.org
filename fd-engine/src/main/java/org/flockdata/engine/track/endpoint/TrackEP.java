@@ -96,7 +96,7 @@ public class TrackEP {
     }
 
 
-    @RequestMapping(value = "/log/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/log", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     public ResponseEntity<EntityLog> trackLog(@RequestBody ContentInputBean input ,
                                               HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         CompanyNode company = CompanyResolver.resolveCompany(request);

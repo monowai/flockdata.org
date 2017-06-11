@@ -50,8 +50,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -85,7 +84,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
  * @since 12/02/2016
  */
 @WebAppConfiguration(value = "src/main/resources")
-@SpringApplicationConfiguration({
+@SpringBootTest(classes = {
         FdEngine.class,
         Neo4jConfigTest.class,
         FdTemplateMock.class,
@@ -108,8 +107,8 @@ public abstract class MvcBase {
     ResultMatcher OK = MockMvcResultMatchers.status().isOk();
     ResultMatcher ACCEPTED = MockMvcResultMatchers.status().isAccepted();
     SystemUserResultBean suMike;
+
     @Autowired
-    @Qualifier("engineConfig")
     PlatformConfig engineConfig;
     @Autowired
     private WebApplicationContext wac;

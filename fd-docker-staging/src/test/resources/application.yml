@@ -34,3 +34,7 @@ rabbit:
   pass: guest
 #  Host name is reassigned by the Integration tests
   host: localhost
+
+spring:
+  profiles:
+    include: fd-server

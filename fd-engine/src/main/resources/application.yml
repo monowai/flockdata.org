@@ -23,7 +23,14 @@ eureka:
   client:
     serviceUrl:
       defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
+  instance:
+    preferIpAddress: true
+
 #    enabled: false
+
+# RabbitMQ on docker
+# docker run -d -p 5672:5672 -p 15672:15672 --hostname dev-rabbit --name rabbit-dev rabbitmq
+
 spring:
   application:
     name: fd-engine
@@ -32,8 +39,8 @@ spring:
     caffeine:
       spec: "maximumSize=200,expireAfterAccess=600s"
   profiles:
-    active: fd-auth-test
-    include: fd-server,fd-batch
+    active: fd-server
+    include: fd-batch, fd-auth-test
 #  Run with the "discovery" profile active to connect
 #  cloud:
 #    discovery:
@@ -77,6 +84,7 @@ org.fd:
       concepts: true
       timings: false
       # The default store to write to IF a fortress allows it. See fd.engine.fortress.store & fd.store.system.enabled
+      #  MEMORY, REDIS, RIAK
       storage: RIAK
     messaging:
       prefetchCount: 1

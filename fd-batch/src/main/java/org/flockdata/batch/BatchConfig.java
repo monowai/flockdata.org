@@ -201,7 +201,7 @@ public class BatchConfig {
                 file = new FileInputStream(fileName);
             stepConfig = loadStepConfig(file);
         } catch (IOException e) {
-            logger.info("Unable to read {} as a file, trying as a URL...", fileName);
+            logger.info("Unable to read {} as a file. Error {} \r\n, trying as a URL...", fileName, e.getMessage());
             stepConfig = loadStepConfig(new URL(fileName));
         } finally {
             if (file != null) {

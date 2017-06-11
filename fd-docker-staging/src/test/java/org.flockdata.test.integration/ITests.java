@@ -825,8 +825,9 @@ public class ITests {
 
         Map<String, Object> dataMap = new HashMap<>();
         dataMap.put("value", "alpha");
+        String key = new Date().toString();
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setCode(new Date().toString())
+                .setCode(key)
                 .setFortress(new FortressInputBean("suppressVersionsOnByDocBasis")
                         .setSearchEnabled(true)
                         .setStoreEnabled(true)) // Enable the store
@@ -834,26 +835,33 @@ public class ITests {
                         .setVersionStrategy(Document.VERSION.DISABLE)) // But suppress version history for this class of Entity
                 .setContent(new ContentInputBean(dataMap));
         EntityGet entityGet = new EntityGet(fdClientIo, entityInputBean).exec();
-        assertTrue("Expected entity not to exist", entityGet.error()!=null);
+        assertTrue("Expected an error. entity should not exist", entityGet.error()!=null);
         TrackEntityPost trackEntityPost = new TrackEntityPost(fdClientIo, entityInputBean);
 
         integrationHelper.assertWorked("Track Entity - ", trackEntityPost.exec());
         TrackRequestResult trackResult = trackEntityPost.result();
-        String key = trackResult.getKey();
-
         assertEquals("Should be a new Entity", true, trackResult.isNewEntity());
         assertEquals("Problem creating the Content", trackResult.getLogStatus(), ContentInputBean.LogStatus.OK);
+        assertNotNull( "No Entity Key!", trackResult.getKey());
 
-        EntityLogsGet getLogs = new EntityLogsGet(fdClientIo, key);
+        EntityLogsGet getLogs = new EntityLogsGet(fdClientIo, trackResult.getKey());
         getLogs.exec();
         assertEquals("Expecting one Mock log", 1, getLogs.result().length);
         EntityLogResult mockedLog = getLogs.result()[0];
         assertTrue ( "Log was not flagged as mocked",mockedLog.isMocked());
-        
-        EntityData entityDataByKey = new EntityData(fdClientIo, key);
-        integrationHelper.assertWorked("Get Data by key = ", entityDataByKey.exec());
+        entityGet = new EntityGet(fdClientIo, trackResult.getKey())
+                .exec();
+        assertNotNull ( entityGet);
+        assertNotNull(entityGet.result());
+        integrationHelper.shortSleep(); // Waiting for the data to be stored in ES
 
+        EntityData entityDataByKey = new EntityData(fdClientIo, trackResult.getKey());
+        integrationHelper.assertWorked("Get Data by key = ", entityDataByKey);
         assertNotNull(entityDataByKey.result());
+        if ( entityDataByKey.result().isEmpty()) {
+            integrationHelper.shortSleep(); // Waiting for the data to be stored in ES
+            entityDataByKey.exec();
+        }
         assertFalse(entityDataByKey.result().isEmpty());
         TestCase.assertEquals(dataMap.get("value"), entityDataByKey.result().get("value"));
 
@@ -868,7 +876,7 @@ public class ITests {
         dataMap.put("value", "beta");
         entityInputBean.setContent(new ContentInputBean(dataMap));
 
-        EntityGet entityByKey = new EntityGet(fdClientIo, key);
+        EntityGet entityByKey = new EntityGet(fdClientIo, trackResult.getKey());
         integrationHelper.waitForEntityKey(logger, "suppressVersionsOnByDocBasis", entityByKey.exec());
         integrationHelper.assertWorked("Find Entity by key - ", entityByKey);
 

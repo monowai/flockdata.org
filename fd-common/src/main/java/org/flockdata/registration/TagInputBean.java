@@ -224,11 +224,6 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
         return this;
     }
 
-    public TagInputBean addEntityTagLink(EntityTagRelationshipInput entityTagRelationshipInput) {
-        if (entityTagRelationshipInput != null)
-            return this.addEntityTagLink(entityTagRelationshipInput.getRelationshipName(), entityTagRelationshipInput);
-        return this;
-    }
 
     /**
      * Primary function for carrying the relationship data describing the connection between
@@ -236,16 +231,15 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      *
      * You can't have multiple relationships with the same name. Names are usually verbs
      *
-     * @param relationshipName           name
      * @param entityTagRelationshipInput FD specific processing instructions and user defined properties
      * @return this
      */
-    public TagInputBean addEntityTagLink(String relationshipName, EntityTagRelationshipInput entityTagRelationshipInput) {
+    public TagInputBean addEntityTagLink(EntityTagRelationshipInput entityTagRelationshipInput) {
+        if ( entityTagRelationshipInput == null)
+            return this;
         if (entityTagLinks == null)
             entityTagLinks = new HashMap<>();
-//        if ( entityTagLinks.get(relationshipName) == null )
-
-        this.entityTagLinks.put(relationshipName, entityTagRelationshipInput);
+        this.entityTagLinks.put(entityTagRelationshipInput.getRelationshipName(), entityTagRelationshipInput);
         return this;
     }
 
@@ -259,7 +253,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     public TagInputBean addEntityTagLink(String relationshipName) {
         if (relationshipName.equals("located"))
             setReverse(true);
-        return addEntityTagLink(relationshipName, new EntityTagRelationshipInput(relationshipName));
+        return addEntityTagLink(new EntityTagRelationshipInput(relationshipName));
     }
 
     public Map<String, EntityTagRelationshipInput> getEntityTagLinks() {
