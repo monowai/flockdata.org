@@ -44,7 +44,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
-        <jackson.version>2.8.8</jackson.version>
+        <jackson.version>2.8.9</jackson.version>
         <mockito.version>1.10.19</mockito.version>
         <org.springboot.version>1.5.4.RELEASE</org.springboot.version>
         <org.springframework.version>4.3.9.RELEASE</org.springframework.version>
@@ -62,11 +62,11 @@
         <!-- spring data-neo4j wants this specific version -->
         <springdata.commons>1.11.6.RELEASE</springdata.commons>
 
-        <org.aspectj.version>1.8.9</org.aspectj.version>
-        <surefire.version>2.19.1</surefire.version>
-        <slf4j.version>1.7.10</slf4j.version>
-        <log4j2.version>2.7</log4j2.version>
+        <surefire.version>2.20</surefire.version>
         <dependency.locations.enabled>false</dependency.locations.enabled>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -136,12 +136,6 @@
                 <version>${springdata.commons}</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.12</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
@@ -160,19 +154,9 @@
                 <version>${org.springboot.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.3</version>
+                <version>2.9.9</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -183,11 +167,6 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -230,44 +209,6 @@
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.9.2</version>
             </dependency>
-            <!-- Spring -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${org.springframework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context-support</artifactId>
-                <version>${org.springframework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.retry</groupId>
-                <artifactId>spring-retry</artifactId>
-                <version>1.1.3.RELEASE</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-instrument</artifactId>
-                <version>${org.springframework.version}</version>
-            </dependency>
-            <!--Never had to include these in the past-->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-                <version>${org.springframework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-aop</artifactId>
-                <version>${org.springframework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
-                <version>${org.springframework.version}</version>
-            </dependency>
-            <!--End Never had to include these in the past-->
             <dependency>
                 <groupId>org.springframework.integration</groupId>
                 <artifactId>spring-integration-java-dsl</artifactId>
@@ -313,6 +254,13 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-parent</artifactId>
                 <version>${org.springcloud.release.train}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${org.springboot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -395,7 +343,7 @@
                 <plugin>
                     <groupId>com.spotify</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.4.14</version>
+                    <version>1.0.0</version>
                     <configuration>
                         <serverId>docker-hub</serverId>
                         <registryUrl>https://index.docker.io/v1/</registryUrl>
@@ -409,7 +357,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.5</version>
+                    <version>3.6.1</version>
 
                     <configuration>
                         <encoding>UTF-8</encoding>
@@ -485,9 +433,6 @@
     <profiles>
         <profile>
             <id>release</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
             <build>
                 <plugins>
                     <plugin>
