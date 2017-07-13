@@ -20,6 +20,7 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.client.FdTemplate;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
 import org.flockdata.data.SystemUser;
@@ -28,7 +29,6 @@ import org.flockdata.engine.track.service.BatchService;
 import org.flockdata.engine.track.service.ContentModelService;
 import org.flockdata.engine.track.service.FdServerIo;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.integration.FdTemplate;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.test.engine.MapBasedStorageProxy;

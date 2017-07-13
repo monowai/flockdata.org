@@ -21,6 +21,8 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -67,12 +69,14 @@ public interface FdIoInterface {
      */
     SystemUserResultBean validateConnectivity() throws FlockException;
 
-    SystemUserResultBean register(String userName, String company);
-
     SystemUserResultBean login(String userName, String password);
 
     /**
      * @return URL for service
      */
     String getUrl();
+
+    RestTemplate getRestTemplate();
+
+    HttpHeaders getHeaders();
 }

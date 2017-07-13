@@ -24,7 +24,9 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -93,11 +95,6 @@ public class FdMockIo implements FdIoInterface {
     }
 
     @Override
-    public SystemUserResultBean register(String userName, String company) {
-        return null;
-    }
-
-    @Override
     public SystemUserResultBean login(String userName, String password) {
         return me();
     }
@@ -105,5 +102,15 @@ public class FdMockIo implements FdIoInterface {
     @Override
     public String getUrl() {
         return "mock";
+    }
+
+    @Override
+    public RestTemplate getRestTemplate() {
+        return null;
+    }
+
+    @Override
+    public HttpHeaders getHeaders() {
+        return null;
     }
 }

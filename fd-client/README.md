@@ -1,57 +1,44 @@
 Overview
 ========
-fd-client is an Apache licensed client side library used to talk to FlockData. It contains classes that can be injected into your Java code and commands that can be executed from the command line
+fd-client is an Apache licensed client side library used to talk to FlockData. It contains classes that can be injected into your Java code and commands that can be executed from the FD shell
     
-Configuration is via YAML and can be overridden by passing arguments on the command line.
 
-### Commands
-Commands are being added on a regular basis and provide a functional wrapper to the REST services. These classes, and how they are used, can be found in the package `org.flockdata.client.commands`
+### Shell
 
-We recommend using the Docker package `flockdata/fd-client`. The commands in this section show example of running in native docker and with the [fd-demo](http://github.com/monowai/fd-demo) stack.
-
- * Ping         - Can you see the service
- * Login        - Authenticate with the service
- * Health       - Validate health checks
- * TrackEntity  - Write an entity to the service
- * Registration - Register an authorised login as a data-access user 
- * EntityGet    - Retrieve a tracked entity from the service.
-
-`docker-compose run fd-client fdping`
-`curl http://localhost:8080/api/ping`
-`docker-compose run fd-client fdhealth`
+`docker run -it flockdata/fd-client`
+ * help         - as it says
+ * ping         - Can you see the service
+ * login        - Authenticate with the service
+ * health       - Validate health checks
+ * set          - Reconfigure, the FD environment 
+ * env          - Display the current FD environment
+ * import       - Push data into the FD service
 
 ## fdregister
 FlockData allows you to allow users in your authentication domain to access data. This is happens when you connect a login account with FlockData as a "System User" account. System Users have access to data curated in FlockData. Docker-Compose defines where the `fd-engine` api is located where running with `docker` means you have to tell it where to find `fd-engine` 
 
 To register a data access account you need to both login and specify the data access account you want to create. Run the following:
 
-`docker-compose run fd-client fdregister -u=demo:123 -l=demo`
+`register --login demo`
 
-If you are just running Docker, then you will need to tell it how to find fd-engine:
-
-`docker run fd-client fdregister -u=demo:123 -l=demo --org.fd.engine.url=http://fd-engine:8080`
-
-These commands do the same thing - register the login account `demo` as a SystemUser so that it can read and write data
-
-## fdimport
+## import
 Invoke the fdimporter to ingest data as modeled by `profile.json` using supplied arguments
  
-`docker-compose run fdimport -u=demo:123 --fd.client.import="path/data.txt, path/profile.json"`
+`import --data="path/data.txt, path/profile.json"`
 
 ## fdcountries
 See the world! This customized version of `fdimport` loads [countries](http://opengeocode.org/), capital cities, and common aliases along with geo tagged data, into FlockData. States for USA, Canada, and Australia are also added.
 
 `docker-compose run fd-client fdcountries -u=demo:123`
 
-### Configuration
-All test based configuration is controlled by files in `src/test/resources/`
-
- * `application.yml`     - General client configuration settings for client side classes
- * `application_dev.yml` - Unit test client configuration settings
- * `fd-batch.properties` - Spring batch client configuration settings
+### env
+Dump the currently configured environment settings
 
 Configured settings can always be overridden on the command line or set as system environment variables
 
+### login
+Connect the shell with a different set of credentials
+`login --user demo --pass 123`
 
 ### Java
 FlockData has a comprehensive REST based API. This package provides convenience classes to facilitate client side communication. Classes in this package support injection using the SpringFramework. There are three classes that are primarily required when communicating using Java:

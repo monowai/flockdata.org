@@ -19,15 +19,16 @@ package org.flockdata.client;
 import com.rabbitmq.client.AlreadyClosedException;
 import org.apache.commons.codec.binary.Base64;
 import org.flockdata.client.amqp.FdRabbitClient;
-import org.flockdata.client.commands.*;
+import org.flockdata.client.commands.CommandResponse;
+import org.flockdata.client.commands.Login;
+import org.flockdata.client.commands.ModelGet;
+import org.flockdata.client.commands.SearchEsPost;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.ContentStructure;
 import org.flockdata.search.QueryParams;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
@@ -70,6 +71,15 @@ public class FdClientIo implements FdIoInterface {
     private FdRabbitClient fdRabbitClient;
     private RestTemplate restTemplate = null;
     private HttpHeaders httpHeaders = null;
+    private Login login;
+    private SearchEsPost postQuery;
+    private ModelGet modelGet;
+
+
+    @Autowired
+    FdClientIo(ClientConfiguration clientConfiguration) {
+        this.clientConfiguration = clientConfiguration;
+    }
 
     /**
      * Adds a user defined property called "weight"
@@ -84,50 +94,24 @@ public class FdClientIo implements FdIoInterface {
         return properties;
     }
 
+    @Autowired
+    void setCommands(SearchEsPost postQuery, ModelGet modelGet, Login login ){
+        this.postQuery = postQuery;
+        this.modelGet = modelGet;
+        this.login = login;
+    }
+
     @Autowired(required = false)
     void setFdRabbitClient(FdRabbitClient fdRabbitClient) {
         this.fdRabbitClient = fdRabbitClient;
     }
 
     public SystemUserResultBean me() {
-        Login login = new Login(this);
-        return login.exec().result();
+        return login.exec(this, clientConfiguration.getHttpUser(), clientConfiguration.getHttpPass()).getResult();
     }
 
     private ClientConfiguration getClientConfiguration() {
         return clientConfiguration;
-    }
-
-    @Autowired
-    void setClientConfiguration(ClientConfiguration clientConfiguration) {
-        this.clientConfiguration = clientConfiguration;
-    }
-
-    /**
-     * Simple ping to see if the service endpoint is up
-     *
-     * @return "pong"
-     */
-    public String ping() {
-        Ping ping = new Ping(this);
-        ping.exec();
-        return ping.result();
-    }
-
-    /**
-     * Registers a data access account. Security context is that of the user/pass
-     * found in the ClientConfiguration
-     *
-     * @param userName name of the user account (should match an id in your security domain)
-     * @param company  company that the userName will belong to
-     * @return details about the system user data access account
-     */
-    public SystemUserResultBean register(String userName, String company) {
-        RegistrationPost registrationPost = new RegistrationPost(this, new RegistrationBean(company, userName));
-        SystemUserResultBean result = registrationPost.exec().result();
-        if (result != null)
-            clientConfiguration.setApiKey(result.getApiKey());
-        return result;
     }
 
     private String writeEntitiesAmqp(Collection<EntityInputBean> entityInputs) throws FlockException {
@@ -194,7 +178,7 @@ public class FdClientIo implements FdIoInterface {
                 auth.getBytes(Charset.forName("UTF-8")));
         String authHeader = "Basic " + new String(encodedAuth);
 
-        if (httpHeaders != null && httpHeaders.get("Authorization").iterator().next().equals(authHeader))
+        if (httpHeaders != null && httpHeaders.get("Authorization") !=null && httpHeaders.get("Authorization").iterator().next().equals(authHeader))
             return httpHeaders;
 
         httpHeaders = new HttpHeaders() {
@@ -226,17 +210,17 @@ public class FdClientIo implements FdIoInterface {
     }
 
     public SystemUserResultBean login() {
-        Login login = new Login(this);
-        if (login.exec().error() != null) {
-            logger.error("Error logging in as [{}] - {}", getUser(), login.error());
+        CommandResponse<SystemUserResultBean> response = login.exec(this, clientConfiguration.getHttpUser(), clientConfiguration.getHttpPass());
+        if (response.getError() != null) {
+            logger.error("Error logging in as [{}] - {}", getUser(), response.getError());
             return null;
         }
 
-        SystemUserResultBean suResult = login.result();
+        SystemUserResultBean suResult = response.getResult();
         if (suResult != null) {
             if (suResult.getApiKey() != null) {
-                logger.info("Configuring apiKey for user {}", clientConfiguration.getHttpUser());
-                clientConfiguration.setApiKey(suResult.getApiKey());
+                logger.debug("Configuring apiKey for [{}] to [{}]", clientConfiguration.getHttpUser(), clientConfiguration.getServiceUrl());
+                clientConfiguration.setSystemUser(suResult);
             } else {
                 logger.debug("User [{}] authenticated at [{}] but is not a registered data access user", clientConfiguration.getHttpUser(), clientConfiguration.getServiceUrl());
             }
@@ -261,16 +245,15 @@ public class FdClientIo implements FdIoInterface {
     }
 
     public ContentModel getContentModel(String type, String clazz) {
-        ModelGet modelGet = new ModelGet(this, type, clazz);
-        modelGet.exec();
-        String error = modelGet.exec().error();
+        CommandResponse<ContentModel> response = modelGet.exec(this, type, clazz);
+        String error = response.getError();
         if (error != null)
             logger.error("Get Model resulted in {} for {} {} on {} for {}",
                     error, type, clazz,
                     clientConfiguration.getServiceUrl(),
                     clientConfiguration.getHttpUser());
 
-        return modelGet.result();
+        return response.getResult();
     }
 
     ExtractProfile getExtractProfile(String name, ContentModel contentModel) {
@@ -305,7 +288,7 @@ public class FdClientIo implements FdIoInterface {
             error = true;
             me = me();
             if (me != null && me.isActive()) {   // Resolve the api key from a login result
-                clientConfiguration.setApiKey(me.getApiKey());
+                clientConfiguration.setSystemUser(me);
                 error = false;
             }
 
@@ -316,22 +299,22 @@ public class FdClientIo implements FdIoInterface {
         return me;
     }
 
-
     public SystemUserResultBean login(String user, String pass) {
         httpHeaders = null;
         getClientConfiguration()
                 .setHttpUser(user)
-                .setHttpPass(pass)
-                .setApiKey(null);
+                .setHttpPass(pass);
 
         return login();
     }
 
+
+
     public Map<String, Object> search(QueryParams qp) {
-        SearchEsPost postQuery = new SearchEsPost(this, qp);
-        if (postQuery.exec().error() != null)
-            logger.error(postQuery.error());
-        return postQuery.exec().result();
+        CommandResponse<Map<String, Object>> response = postQuery.exec(this, qp);
+        if (response.getError() != null)
+            logger.error(response.getError());
+        return response.getResult();
     }
 
     public String getUrl() {
@@ -352,18 +335,8 @@ public class FdClientIo implements FdIoInterface {
      * @param serviceUrl URL to set
      */
     public void setServiceUrl(String serviceUrl) {
-        logger.info("setting service URL to {}", serviceUrl);
+        logger.debug("setting service URL to {}", serviceUrl);
         clientConfiguration.setServiceUrl(serviceUrl);
     }
 
-    public ContentStructure entityFields(String fortress, String documentType) {
-        ModelFieldStructure query = new ModelFieldStructure(this, fortress, documentType);
-        query.exec();
-        if (query.error() == null)
-            return query.result();
-
-        logger.error(query.error());
-        return null;
-
-    }
 }

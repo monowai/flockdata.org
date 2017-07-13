@@ -16,28 +16,41 @@
 
 package org.flockdata.test.integration.matchers;
 
+import org.flockdata.client.commands.CommandResponse;
 import org.flockdata.client.commands.EntityGet;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityResultBean;
+import org.flockdata.transform.FdIoInterface;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mholdsworth
  * @since 23/04/2016
  */
+@Component
 public class EntityKeyReady implements ReadyMatcher {
 
-    EntityGet entityGet;
+    private EntityGet entityGet;
+    private EntityInputBean entityInputBean;
+    private CommandResponse<EntityResultBean> response;
+    private String key;
 
-    public EntityKeyReady(EntityGet entityGet) {
+    public EntityKeyReady(EntityGet entityGet, EntityInputBean entityInputBean, String key) {
         this.entityGet = entityGet;
+        this.entityInputBean = entityInputBean;
+        this.key = key;
     }
 
     @Override
-    public String getMessage() {
-        return "EntityKey";
+    public CommandResponse<EntityResultBean> getResponse() {
+        return response;
     }
 
     @Override
-    public boolean isReady() {
-        entityGet.exec();
-        return entityGet.result() != null && entityGet.result().getKey() != null;
+    public boolean isReady(FdIoInterface fdIoInterface) {
+        response = entityGet.exec(fdIoInterface, entityInputBean, key);
+        return response.getResult() != null && response.getResult().getKey() != null;
+
     }
+
 }

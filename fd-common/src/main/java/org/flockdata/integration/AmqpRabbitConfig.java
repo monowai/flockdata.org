@@ -43,7 +43,7 @@ import java.util.Map;
 
 @Configuration
 @IntegrationComponentScan
-@Profile({"fd-server", "fd-client"})
+//@Profile({"fd-server", "fd-client"})
 public class AmqpRabbitConfig {
 
     @Value("${org.fd.messaging.exchange:fd-dlx}")
@@ -164,13 +164,15 @@ public class AmqpRabbitConfig {
         return setConnectionProperties(new CachingConnectionFactory());
     }
 
-    public String fdExchangeDlxName() {
+    String fdExchangeDlxName() {
         return fdExchangeDlxName;
     }
 
 
     @PostConstruct
-    public void logStatus() {
-        logger.info("**** FlockData RabbitAMQP configuration deployed. rabbit.host set to {}", getHost());
+    public String logStatus() {
+        String message = String.format("**** FlockData RabbitAMQP configuration deployed. rabbit.host set to [%s:%s], rabbit.user [%s]", getHost(), getPort(), getUser());
+        logger.info(message);
+        return message;
     }
 }

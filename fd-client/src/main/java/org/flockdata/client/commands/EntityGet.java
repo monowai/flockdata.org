@@ -16,12 +16,14 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityResultBean;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.shell.core.CommandMarker;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -29,53 +31,33 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * Locate an Entity by either it's key or the fortress/type/code strategy
  *
- * @tag Command, Entity, Track
  * @author mholdsworth
+ * @tag Command, Entity, Track
  * @since 17/04/2016
  */
-public class EntityGet extends AbstractRestCommand  {
+@Component
+public class EntityGet implements CommandMarker {
 
-    private EntityInputBean entityInputBean;
+    public CommandResponse<EntityResultBean> exec(FdIoInterface fdIoInterface, EntityInputBean entityInputBean, String key) {
 
-    private EntityResultBean result;
-
-    private String key;
-
-    public EntityGet(FdClientIo fdClientIo, EntityInputBean entityInputBean) {
-        super(fdClientIo);
-        this.entityInputBean = entityInputBean;
-    }
-
-    public EntityGet(FdClientIo fdClientIo, String key) {
-        super(fdClientIo);
-        this.key = key;
-    }
-
-
-    public EntityResultBean result() {
-        return result;
-    }
-
-    @Override
-    public EntityGet exec() {
-        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
-        result=null;   error =null;
+        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+        EntityResultBean result = null;
+        String error = null;
         try {
-
-            ResponseEntity<EntityResultBean> response ;
-            if (key !=null ) // Locate by FD unique key
-                response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityResultBean.class, key);
-            else
-                response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityResultBean.class,
+            ResponseEntity<EntityResultBean> response;
+            if (key == null)
+                response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityResultBean.class,
                         entityInputBean.getFortress().getName(),
                         entityInputBean.getDocumentType().getName(),
                         entityInputBean.getCode());
+            else
+                response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityResultBean.class, key);
 
-            result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+            result = response.getBody();
 
         } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
-            error= e.getMessage();
+            error = e.getMessage();
         }
-        return this;// Everything worked
+        return new CommandResponse<>(error, result);
     }
 }

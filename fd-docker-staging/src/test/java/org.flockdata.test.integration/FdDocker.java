@@ -29,15 +29,16 @@ import static org.flockdata.test.integration.IntegrationHelper.*;
 /**
  * see http://testcontainers.viewdocs.io/testcontainers-java/usage/docker_compose/
  *
- * We want to be able to run the stack either for a single test method or as a suite.
- * Easier to centralise the container config in this class to accomplish that
+ * Centralised Docker management config in this class
  *
  * @author mholdsworth
  * @since 6/05/2016
  */
 public class FdDocker extends ExternalResource {
 
-    static DockerComposeContainer stack =
+    // To debug without test containers,set the stack to null
+//    static DockerComposeContainer stack = null;
+    static DockerComposeContainer stack   =
             new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"))
                     .withPull(false)
                     .withExposedService("rabbit_1", 5672)
@@ -52,7 +53,7 @@ public class FdDocker extends ExternalResource {
     private static Logger logger = LoggerFactory.getLogger(FdDocker.class);
 
     static DockerComposeContainer getStack() {
-        logger.debug("Stack started from FdDocker = {}", stack != null);
+        logger.trace("Stack started from FdDocker [{}]", stack != null);
         return stack;
     }
 

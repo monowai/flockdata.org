@@ -141,20 +141,20 @@
                             <argLine>-Xmx256m</argLine>
                             <runOrder>alphabetical</runOrder>
                         </configuration>
-                        <executions>
-                            <execution>
-                                <id>integration-test</id>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>verify</id>
-                                <goals>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<id>integration-test</id>-->
+                                <!--<goals>-->
+                                    <!--<goal>integration-test</goal>-->
+                                <!--</goals>-->
+                            <!--</execution>-->
+                            <!--<execution>-->
+                                <!--<id>verify</id>-->
+                                <!--<goals>-->
+                                    <!--<goal>verify</goal>-->
+                                <!--</goals>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
                     </plugin>
                 </plugins>
             </build>

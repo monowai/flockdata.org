@@ -16,8 +16,8 @@
 
 package org.flockdata.test.unit.client;
 
+import org.flockdata.client.FdTemplate;
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.integration.FdTemplate;
 import org.flockdata.transform.FdIoInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;

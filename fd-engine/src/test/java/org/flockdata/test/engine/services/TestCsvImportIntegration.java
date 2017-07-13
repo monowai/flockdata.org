@@ -21,13 +21,13 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.data.Entity;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.track.service.FdServerIo;
-import org.flockdata.integration.FdTemplate;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.integration.Template;
 import org.flockdata.registration.FortressInputBean;

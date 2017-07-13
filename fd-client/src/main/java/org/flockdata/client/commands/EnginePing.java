@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,17 +14,27 @@
  *  limitations under the License.
  */
 
-package org.flockdata.test.integration.matchers;
+package org.flockdata.client.commands;
 
-import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.shell.core.CommandMarker;
+import org.springframework.stereotype.Component;
 
 /**
- * @author mholdsworth
- * @since 23/04/2016
+ * @author mike
+ * @tag
+ * @since 13/07/17
  */
-public interface ReadyMatcher<T> {
+@Component
+@Qualifier("enginePing")
+public class EnginePing extends Ping implements CommandMarker {
 
-    boolean isReady(FdIoInterface fdIoInterface);
+    @Override
+    public String getPath() {
+        return "/api/ping/";
+    }
 
-    T getResponse();
+    public void setApi(String api) {
+        this.api = api;
+    }
 }

@@ -16,11 +16,13 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.data.ContentModel;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.shell.core.CommandMarker;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -32,37 +34,23 @@ import org.springframework.web.client.ResourceAccessException;
  * @author mholdsworth
  * @since 17/04/2016
  */
-public class ModelGet extends AbstractRestCommand {
+@Component
+public class ModelGet implements CommandMarker {
 
-    private ContentModel results;
+    public CommandResponse<ContentModel> exec(FdIoInterface fdIoInterface, String fortress, String type) {
 
-    private String fortress;
-    private String type;
-
-    public ModelGet(FdClientIo fdClientIo, String fortress, String type) {
-        super(fdClientIo);
-        this.fortress = fortress.toLowerCase();
-        this.type = type.toLowerCase();
-    }
-
-
-    public ContentModel result() {
-        return results;
-    }
-
-    @Override
-    public ModelGet exec() {
-        results=null;   error =null;
+        ContentModel results= null;
+        String error = null;
 
         try {
-            HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
+            HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
             ResponseEntity<ContentModel> response;
-            response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/model/{fortress}/{type}", HttpMethod.GET, requestEntity, ContentModel.class, fortress, type);
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+"/api/v1/model/{fortress}/{type}", HttpMethod.GET, requestEntity, ContentModel.class, fortress, type);
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
 
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();
         }
-        return this;// Everything worked
+        return new CommandResponse<>(error, results);// Everything worked
     }
 }

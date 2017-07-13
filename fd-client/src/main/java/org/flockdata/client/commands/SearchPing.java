@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012-2016 the original author or authors.
+ *  Copyright 2012-2017 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,22 +16,20 @@
 
 package org.flockdata.client.commands;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.shell.core.CommandMarker;
+import org.springframework.stereotype.Component;
+
 /**
- * Interface for running commands against a Client
- *
- * @tag FdClient
- * @author mholdsworth
- * @since 4/04/2016
+ * @author mike
+ * @tag
+ * @since 13/07/17
  */
-public interface Command<T> {
+@Component
+@Qualifier("searchPing")
+public class SearchPing extends Ping implements CommandMarker {
 
-    Command exec();
-
-    String error();
-
-    T result();
-
-    boolean worked();
-
+    public void setApi(String api) {
+        this.api = api;
+    }
 }
-

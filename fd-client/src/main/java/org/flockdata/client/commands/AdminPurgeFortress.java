@@ -16,10 +16,11 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -32,28 +33,18 @@ import org.springframework.web.client.ResourceAccessException;
  * @tag Command, Fortress, Administration
  */
 
-public class AdminPurgeFortress extends AbstractRestCommand {
+@Component
+public class AdminPurgeFortress {
 
-    private String result;
-    private String fortress;
 
-    public AdminPurgeFortress(FdClientIo fdClientIo, String fortress) {
-        super(fdClientIo);
-        this.fortress = fortress;
-    }
-
-    public String result() {
-        return result;
-    }
-
-    @Override    // Command
-    public AdminPurgeFortress exec() {
-        String exec = getUrl() + "/api/v1/admin/{fortress}";
-        result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
+    public CommandResponse<String> exec(FdIoInterface fdIoInterface, String fortress) {
+        String error = null;
+        String result = null;
+        String exec = fdIoInterface.getUrl() + "/api/v1/admin/{fortress}";
+        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
         try {
             ResponseEntity<String> response;
-            response = fdClientIo.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress);
+            response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress);
             result = response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getMessage().startsWith("401"))
@@ -63,6 +54,6 @@ public class AdminPurgeFortress extends AbstractRestCommand {
         } catch (HttpServerErrorException | ResourceAccessException e) {
             error = e.getMessage();
         }
-        return this;
+        return new CommandResponse<>(error, result);
     }
 }

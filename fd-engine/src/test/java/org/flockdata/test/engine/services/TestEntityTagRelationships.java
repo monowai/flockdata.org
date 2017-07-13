@@ -20,12 +20,12 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.client.FdTemplate;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.track.service.FdServerIo;
-import org.flockdata.integration.FdTemplate;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;

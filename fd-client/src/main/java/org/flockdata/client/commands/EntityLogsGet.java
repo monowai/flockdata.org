@@ -16,11 +16,12 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.track.bean.EntityLogResult;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -32,37 +33,24 @@ import org.springframework.web.client.ResourceAccessException;
  * @author mholdsworth
  * @since 17/04/2016
  */
-public class EntityLogsGet extends AbstractRestCommand {
+@Component
+public class EntityLogsGet {
 
-    private EntityLogResult[] results;
-
-    private String key;
-
-    public EntityLogsGet(FdClientIo fdClientIo, String key) {
-        super(fdClientIo);
-        this.key = key;
-    }
-
-
-    public EntityLogResult[] result() {
-        return results;
-    }
-
-    @Override
-    public EntityLogsGet exec() {
-        results=null;   error =null;
-        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
+    public CommandResponse<EntityLogResult[]> exec(FdIoInterface fdIoInterface, String key) {
+        String error =null;
+        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+        EntityLogResult[] results = null;
 
         try {
 
             ResponseEntity<EntityLogResult[]> response;
-            response = fdClientIo.getRestTemplate().exchange(getUrl() + "/api/v1/entity/{key}/log?withData=true", HttpMethod.GET, requestEntity, EntityLogResult[].class, key);
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/entity/{key}/log?withData=true", HttpMethod.GET, requestEntity, EntityLogResult[].class, key);
 
 
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();
         }
-        return this;// Everything worked
+        return new CommandResponse<>(error, results);// Everything worked
     }
 }

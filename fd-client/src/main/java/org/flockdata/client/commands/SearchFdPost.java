@@ -16,12 +16,13 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.search.EsSearchResult;
 import org.flockdata.search.QueryParams;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -32,42 +33,25 @@ import org.springframework.web.client.ResourceAccessException;
  * @author mholdsworth
  * @since 17/04/2016
  */
-public class SearchFdPost extends AbstractRestCommand {
+@Component
+public class SearchFdPost {
 
-    private QueryParams queryParams;
+    public CommandResponse<EsSearchResult> exec(FdIoInterface fdIoInterface, QueryParams queryParams) {
+        String error ;
 
-    private EsSearchResult result;
-
-    /**
-     * @param fdClientIo        dispatch mechanism
-     * @param queryParams         query params. Company will be added automatically based on login used
-     */
-    public SearchFdPost(FdClientIo fdClientIo, QueryParams queryParams) {
-        super(fdClientIo);
-        this.queryParams = queryParams;
-    }
-
-
-    public EsSearchResult result() {
-        return result;
-    }
-
-    @Override
-    public SearchFdPost exec() {
-        result = null;
-        error = null;
-        HttpEntity requestEntity = new HttpEntity<>(queryParams, fdClientIo.getHeaders());
+        EsSearchResult result= null;
+        HttpEntity requestEntity = new HttpEntity<>(queryParams, fdIoInterface.getHeaders());
 
         try {
 
             ResponseEntity<EsSearchResult> response;
-            response = fdClientIo.getRestTemplate().exchange(getUrl()+ "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+ "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
 
             result = response.getBody();
             error = result.getFdSearchError();
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error = e.getMessage();
         }
-        return this;// Everything worked
+        return new CommandResponse<>(error,result);// Everything worked
     }
 }

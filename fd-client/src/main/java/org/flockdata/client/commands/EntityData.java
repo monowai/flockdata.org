@@ -16,12 +16,13 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -35,41 +36,33 @@ import java.util.Map;
  * @author mholdsworth
  * @since 17/04/2016
  */
-public class EntityData extends AbstractRestCommand  {
+@Component
+public class EntityData  {
 
-    public static final String BY_KEY = "/entity/{key}/log/last/data";
-    public static final String  BY_CODE = "/entity/{fortress}/{docType}/{code}/log/last/data";
-    private EntityInputBean entityInputBean;
-    private Map<String, Object> result;
-    private String key;
+    private static final String BY_KEY = "/entity/{key}/log/last/data";
+    private static final String  BY_CODE = "/entity/{fortress}/{docType}/{code}/log/last/data";
 
-    public EntityData(FdClientIo fdClientIo, EntityInputBean entityInputBean) {
-        super(fdClientIo);
-        this.entityInputBean = entityInputBean;
+    public CommandResponse<Map<String, Object>> exec(FdIoInterface fdIoInterface, String key) {
+        return exec(fdIoInterface, key, null);
     }
 
-    public EntityData(FdClientIo fdClientIo, String key) {
-        super(fdClientIo);
-        this.key = key;
+    public CommandResponse<Map<String, Object>> exec(FdIoInterface fdIoInterface, EntityInputBean entityInputBean) {
+        return exec(fdIoInterface, null, entityInputBean);
     }
+    
+    public CommandResponse<Map<String, Object>> exec(FdIoInterface fdIoInterface, String key, EntityInputBean entityInputBean) {
+        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+        Map<String, Object> result = null;
+        String error = null;
 
-
-    public Map<String, Object> result() {
-        return result;
-    }
-
-    @Override
-    public EntityData exec() {
-        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
-        result=null;   error =null;
         try {
             ParameterizedTypeReference<Map<String,Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {};
             ResponseEntity<Map<String,Object>> response;
             if (key !=null ) {// Locate by FD unique key
-                String command = getUrl()+"/api/v1"+BY_KEY;
-                response = fdClientIo.getRestTemplate().exchange(command, HttpMethod.GET, requestEntity, responseType, key);
+                String command = fdIoInterface.getUrl()+"/api/v1"+BY_KEY;
+                response = fdIoInterface.getRestTemplate().exchange(command, HttpMethod.GET, requestEntity, responseType, key);
             } else
-                response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1"+BY_CODE, HttpMethod.GET, requestEntity, responseType,
+                response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+"/api/v1"+BY_CODE, HttpMethod.GET, requestEntity, responseType,
                         entityInputBean.getFortress().getName(),
                         entityInputBean.getDocumentType().getName(),
                         entityInputBean.getCode());
@@ -79,6 +72,6 @@ public class EntityData extends AbstractRestCommand  {
         } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
             error= e.getMessage();
         }
-        return this;// Everything worked
+        return new CommandResponse<>(error, result);// Everything worked
     }
 }

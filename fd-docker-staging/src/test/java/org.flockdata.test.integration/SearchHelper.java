@@ -18,6 +18,7 @@ package org.flockdata.test.integration;
 
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.QueryParams;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,6 +32,7 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
  * @author mholdsworth
  * @since 31/05/2016
  */
+@Component
 public class SearchHelper {
 
     QueryParams getTagQuery(String label, String searchText) throws IOException {

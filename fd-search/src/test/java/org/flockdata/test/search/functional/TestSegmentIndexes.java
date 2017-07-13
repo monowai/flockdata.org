@@ -79,7 +79,7 @@ public class TestSegmentIndexes extends ESBase {
 
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         //"Each doc should be in it's own segmented index"
         doQuery(entity, entity.getKey());
         //"Each doc should be in it's own segmented index"

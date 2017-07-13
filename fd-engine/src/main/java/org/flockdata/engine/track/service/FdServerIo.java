@@ -32,7 +32,9 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -124,11 +126,6 @@ public class FdServerIo implements FdIoInterface {
     }
 
     @Override
-    public SystemUserResultBean register(String userName, String company) {
-        throw new UnsupportedOperationException("Registration is not supported through this mechanism");
-    }
-
-    @Override
     public SystemUserResultBean login(String userName, String password) {
         throw new UnsupportedOperationException("login is not supported in this class");
     }
@@ -136,6 +133,16 @@ public class FdServerIo implements FdIoInterface {
     @Override
     public String getUrl() {
         throw new UnsupportedOperationException("This function is not supported");
+    }
+
+    @Override
+    public RestTemplate getRestTemplate() {
+        return null;
+    }
+
+    @Override
+    public HttpHeaders getHeaders() {
+        return null;
     }
 
 }
