@@ -16,12 +16,14 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.search.QueryParams;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.shell.core.CommandMarker;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -36,36 +38,25 @@ import java.util.Map;
  * @author mholdsworth
  * @since 17/04/2016
  */
-public class SearchEsPost extends AbstractRestCommand {
-
-    private QueryParams queryParams;
-
-    private Map<String,Object> result;
-
-    public SearchEsPost(FdClientIo fdClientIo, QueryParams queryParams) {
-        super(fdClientIo);
-        this.queryParams = queryParams;
-    }
+@Component
+public class SearchEsPost implements CommandMarker{
 
 
-    public Map<String,Object> result() {
-        return result;
-    }
+    public CommandResponse<Map<String,Object>> exec(FdIoInterface fdIoInterface, QueryParams queryParams) {
+        String error= null;
+        Map<String,Object> result = null;
 
-    @Override
-    public SearchEsPost exec() {
-        result=null; error =null;
 
         try {
-            HttpEntity requestEntity = new HttpEntity<>(queryParams, fdClientIo.getHeaders());
+            HttpEntity requestEntity = new HttpEntity<>(queryParams, fdIoInterface.getHeaders());
             ParameterizedTypeReference<Map<String,Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {};
             ResponseEntity<Map<String,Object>> response;
-            response = fdClientIo.getRestTemplate().exchange(getUrl()+ "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+ "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
 
             result = response.getBody();
-            if ( result().containsKey("errors")){
+            if ( result.containsKey("errors")){
                 ArrayList<String> errors = (ArrayList<String>) result.get("errors");
-                this.error = errors.get(0);
+                error = errors.get(0);
             }
 
 
@@ -73,6 +64,7 @@ public class SearchEsPost extends AbstractRestCommand {
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();
         }
-        return this;// Everything worked
+        return new CommandResponse<>(error,result);
     }
+
 }

@@ -16,11 +16,12 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.registration.TagResultBean;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -32,36 +33,22 @@ import org.springframework.web.client.ResourceAccessException;
  * @author mholdsworth
  * @since 17/04/2016
  */
-public class TagGet extends AbstractRestCommand  {
+@Component
+public class TagGet {
 
-    private String label;
-    private String code;
-
-    private TagResultBean result;
-
-    public TagGet(FdClientIo fdClientIo, String label, String code) {
-        super(fdClientIo);
-        this.label = label;
-        this.code = code;
-    }
-
-    public TagResultBean result() {
-        return result;
-    }
-
-    @Override
-    public TagGet exec() {
-        result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
-
+    public CommandResponse<TagResultBean> exec(FdIoInterface fdIoInterface, String label, String code) {
+        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+        TagResultBean result = null;
+        String error = null;
+        
         try {
             ResponseEntity<TagResultBean> response ;
-                response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/tag/{label}/{code}", HttpMethod.GET, requestEntity, TagResultBean.class, label,code );
+                response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+"/api/v1/tag/{label}/{code}", HttpMethod.GET, requestEntity, TagResultBean.class, label,code );
 
             result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();
         }
-        return this;// Everything worked
+        return new CommandResponse<>(error, result);// Everything worked
     }
 }

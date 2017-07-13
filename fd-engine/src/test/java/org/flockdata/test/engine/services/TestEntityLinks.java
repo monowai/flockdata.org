@@ -21,6 +21,7 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
+import org.flockdata.client.FdTemplate;
 import org.flockdata.data.Company;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.SystemUser;
@@ -30,7 +31,6 @@ import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.track.service.BatchService;
 import org.flockdata.engine.track.service.ContentModelService;
 import org.flockdata.engine.track.service.FdServerIo;
-import org.flockdata.integration.FdTemplate;
 import org.flockdata.model.ContentModelResult;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
@@ -75,9 +75,11 @@ import static org.junit.Assert.assertTrue;
 public class TestEntityLinks extends EngineBase {
 
     @Autowired
+    private
     ContentModelService contentModelService;
 
     @Autowired
+    private
     BatchService batchService;
 
     @Override

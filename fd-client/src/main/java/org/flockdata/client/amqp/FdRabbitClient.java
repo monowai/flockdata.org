@@ -65,7 +65,7 @@ public class FdRabbitClient {
 
     @PostConstruct
     public void logStatus() {
-        logger.info("** Configured for Rabbit on {}", rabbitConfig.getHost());
+        logger.info("** Configured for Rabbit on [{}]", rabbitConfig.getHost());
     }
 
     @PreDestroy

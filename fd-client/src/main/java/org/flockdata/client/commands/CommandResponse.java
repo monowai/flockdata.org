@@ -16,36 +16,30 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
- * Commands are immutable and re-usable. Ensure your clientConfiguration has been configured prior
- * to object creation
- * @tag Command, Endpoint
- * @author mholdsworth
- * @since 13/04/2016
+ * Placeholder for responses to commands
+ * @author mike
+ * @tag
+ * @since 15/07/17
  */
-abstract class AbstractRestCommand implements Command {
+@Data
+@EqualsAndHashCode
+@ToString
+public class CommandResponse<T> {
+    private String error;
+    private T result;
 
-    String error = null;
-    FdClientIo fdClientIo;
-
-    /**
-     * Set's the basic immutable properties for this command
-     *
-     * @param fdClientIo Helper class to access HTTP resources
-     */
-    AbstractRestCommand(FdClientIo fdClientIo) {
-        this.fdClientIo = fdClientIo;
+    public CommandResponse(String error, T result) {
+        this.error = error;
+        this.result = result;
     }
 
-    public String getUrl(){
-        return fdClientIo.getUrl();
-    }
-
-    // NULL if no error
-    public String error() {
-        return error;
+    public T getResult() {
+        return result;
     }
 
     public boolean worked() {

@@ -64,6 +64,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * Implementation to track requests into the FD stack
+ * 
+ */
 @Service
 @Qualifier("mediationFacadeNeo")
 public class MediationFacadeNeo implements MediationFacade {
@@ -229,7 +233,7 @@ public class MediationFacadeNeo implements MediationFacade {
         }
 
         Future<Collection<DocumentNode>> docType = docTypeRetryService.createDocTypes(segment, inputBeans);
-        Future<Collection<FdTagResultBean>> tagResults = createTagsAsync((CompanyNode)segment.getCompany(), getTags(inputBeans));
+        Future<Collection<FdTagResultBean>> tagResults = createTagsAsync(segment.getCompany(), getTags(inputBeans));
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
 
@@ -247,7 +251,6 @@ public class MediationFacadeNeo implements MediationFacade {
             Collection<TrackResultBean> allResults = new ArrayList<>();
             // We have to wait for the docType before proceeding to create entities
             Collection<DocumentNode> docs = docType.get(10, TimeUnit.SECONDS);
-//            assert docs.size()!=0; //
             for (List<EntityInputBean> entityInputBeans : splitList) {
                 DocumentNode documentType = null;
                 if ( docs.iterator().hasNext())
@@ -482,7 +485,7 @@ public class MediationFacadeNeo implements MediationFacade {
         }
     }
 
-    void distributeChanges(final Fortress fortress, final Iterable<TrackResultBean> resultBeans) throws InterruptedException, ExecutionException, FlockException {
+    private void distributeChanges(final Fortress fortress, final Iterable<TrackResultBean> resultBeans) throws InterruptedException, ExecutionException, FlockException {
 
         logger.debug("Distributing changes to sub-services");
         if ( searchServiceFacade != null )

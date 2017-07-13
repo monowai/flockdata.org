@@ -16,13 +16,15 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.data.ContentModel;
 import org.flockdata.model.ContentModelResult;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.shell.core.CommandMarker;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -35,37 +37,25 @@ import java.util.Collection;
  * @author mholdsworth
  * @since 17/04/2016
  */
-public class ModelPost extends AbstractRestCommand {
-
-    private Collection<ContentModelResult> results;
-
-    private Collection<ContentModel> models;
-
-    public ModelPost(FdClientIo fdClientIo, Collection<ContentModel> models) {
-        super(fdClientIo);
-        this.models = models;
-    }
+@Component
+public class ModelPost implements CommandMarker{
 
 
-    public Collection<ContentModelResult> result() {
-        return results;
-    }
-
-    @Override
-    public ModelPost exec() {
-        results=null;   error =null;
+    public CommandResponse<Collection<ContentModelResult>> exec(FdIoInterface fdIoInterface, Collection<ContentModel> models) {
+        Collection<ContentModelResult> results=null;
+        String error =null;
         try {
 
-            HttpEntity requestEntity = new HttpEntity<>(models, fdClientIo.getHeaders());
+            HttpEntity requestEntity = new HttpEntity<>(models, fdIoInterface.getHeaders());
             ParameterizedTypeReference<Collection<ContentModelResult>> responseType = new ParameterizedTypeReference<Collection<ContentModelResult>>() {};
             ResponseEntity<Collection<ContentModelResult>> response;
-            response = fdClientIo.getRestTemplate().exchange(getUrl()+ "/api/v1/model/", HttpMethod.POST, requestEntity, responseType);
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+ "/api/v1/model/", HttpMethod.POST, requestEntity, responseType);
 
 
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();
         }
-        return this;// Everything worked
+        return new CommandResponse<>(error, results);// Everything worked
     }
 }

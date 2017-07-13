@@ -16,9 +16,10 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
+import org.flockdata.transform.FdIoInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
@@ -33,41 +34,28 @@ import org.springframework.web.client.ResourceAccessException;
  * @since 4/04/2016
  */
 
-public class Ping extends AbstractRestCommand {
+public class Ping {
 
-    String result;
-    private HttpHeaders httpHeaders;
+    private static Logger logger = LoggerFactory.getLogger(Ping.class);
 
-    private String url = null;
+    String api = null;
 
-    public Ping(FdClientIo fdClientIo) {
-        super(fdClientIo);
-        this.url = fdClientIo.getUrl();
+    public String getPath(){
+        return "/api/v1/admin/ping/";
     }
 
-    public Ping(FdClientIo fdClientIo, String url) {
-        super(fdClientIo);
-        this.url = url;
+    public CommandResponse<String> exec(FdIoInterface fdIoInterface) {
+        String result = null;
+        String error ;
 
-    }
-
-    @Override
-    public String getUrl() {
-        return this.url;
-    }
-
-    public String result() {
-        return result;
-    }
-
-    @Override    // Command
-    public Ping exec() {
-        result = null;
-        error = null;
-        String exec = getUrl() + "/api/ping/";
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
+        if ( getApi()== null)
+            this.api = fdIoInterface.getUrl();
+        
+        String exec = getApi() + getPath();
+        logger.debug("Pinging [{}]", getApi());
+        HttpEntity requestEntity = new HttpEntity<>(null);
         try {
-            ResponseEntity<String> response = fdClientIo.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
+            ResponseEntity<String> response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
             result = response.getBody();
             error = null;
         } catch (HttpClientErrorException e) {
@@ -78,6 +66,10 @@ public class Ping extends AbstractRestCommand {
         } catch (HttpServerErrorException | ResourceAccessException e) {
             error = e.getMessage();
         }
-        return this;
+        return new CommandResponse<>(error, result);
+    }
+
+    public String getApi() {
+        return api;
     }
 }

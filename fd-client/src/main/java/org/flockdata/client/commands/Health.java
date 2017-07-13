@@ -16,16 +16,18 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,26 +38,16 @@ import java.util.Map;
  * @since 4/04/2016
  */
 
-public class Health extends AbstractRestCommand {
-
-    Map<String,Object> result;
-
-    public Health(FdClientIo restWriter) {
-        super(restWriter);
-    }
-
-    public Map<String,Object> result() {
-        return result;
-    }
-
-    @Override    // Command
-    public Health exec() {
-        String exec = getUrl() + "/api/v1/admin/health/";
-        result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
+@Component
+public class Health {
+    public CommandResponse<Map<String,Object>> exec(FdIoInterface fdIoInterface) {
+        String error = null;
+        Map<String,Object>result = new HashMap<>();
+        String exec = fdIoInterface.getUrl() + "/api/v1/admin/health/";
+        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
         try {
             ResponseEntity<String> response;
-            response = fdClientIo.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
+            response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
             result = JsonUtils.toMap(response.getBody());
         } catch (HttpClientErrorException e) {
             if (e.getMessage().startsWith("401"))
@@ -65,6 +57,6 @@ public class Health extends AbstractRestCommand {
         } catch (HttpServerErrorException | ResourceAccessException | IOException e) {
             error = e.getMessage();
         }
-        return this;
+        return new CommandResponse<>(error, result);
     }
 }

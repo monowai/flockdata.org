@@ -16,7 +16,10 @@
 
 package org.flockdata.test.integration.matchers;
 
+import org.flockdata.client.commands.CommandResponse;
 import org.flockdata.client.commands.TagsGet;
+import org.flockdata.registration.TagResultBean;
+import org.flockdata.transform.FdIoInterface;
 
 /**
  * @author mholdsworth
@@ -24,21 +27,25 @@ import org.flockdata.client.commands.TagsGet;
  */
 public class TagCountReady implements ReadyMatcher {
 
-    TagsGet tags;
-    int waitFor;
-    public TagCountReady(TagsGet tagGet, int waitFor) {
+    private TagsGet tags;
+    private int waitFor;
+    private CommandResponse<TagResultBean[]> response;
+    private String tagLabel;
+
+    public TagCountReady(TagsGet tagGet, int waitFor, String tagLabel) {
         this.waitFor = waitFor;
         this.tags = tagGet;
+        this.tagLabel = tagLabel;
     }
 
     @Override
-    public String getMessage() {
-        return "TagWait "+ waitFor;
+    public boolean isReady(FdIoInterface fdIoInterface) {
+        response = tags.exec(fdIoInterface, tagLabel);
+        return response.getResult() != null && response.getResult().length >= waitFor ;
     }
 
     @Override
-    public boolean isReady() {
-        tags.exec();
-        return tags.result() != null && tags.result().length >= waitFor ;
+    public CommandResponse<TagResultBean[]> getResponse() {
+        return response;
     }
 }

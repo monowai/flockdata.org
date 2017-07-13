@@ -16,7 +16,10 @@
 
 package org.flockdata.test.integration.matchers;
 
+import org.flockdata.client.commands.CommandResponse;
 import org.flockdata.client.commands.EntityLogsGet;
+import org.flockdata.track.bean.EntityLogResult;
+import org.flockdata.transform.FdIoInterface;
 
 /**
  * @author mholdsworth
@@ -24,21 +27,26 @@ import org.flockdata.client.commands.EntityLogsGet;
  */
 public class EntityLogReady implements ReadyMatcher {
 
-    EntityLogsGet entityLogs;
-    int waitFor;
-    public EntityLogReady(EntityLogsGet entityLogs, int waitFor) {
+    private EntityLogsGet entityLogs;
+    private int waitFor;
+    private CommandResponse<EntityLogResult[]> response;
+    private String key;
+
+    public EntityLogReady(EntityLogsGet entityLogs, int waitFor, String key) {
         this.waitFor = waitFor;
         this.entityLogs = entityLogs;
+        this.key = key;
     }
 
     @Override
-    public String getMessage() {
-        return "EntityLog "+ waitFor;
+    public boolean isReady(FdIoInterface fdIoInterface) {
+        response = entityLogs.exec(fdIoInterface, key);
+
+        return response.getResult() != null && response.getResult().length >= waitFor && response.getResult()[waitFor-1].getData()!=null;
     }
 
     @Override
-    public boolean isReady() {
-        entityLogs.exec();
-        return entityLogs.result() != null && entityLogs.result().length >= waitFor && entityLogs.result()[waitFor-1].getData()!=null;
+    public CommandResponse<EntityLogResult[]> getResponse() {
+        return response;
     }
 }

@@ -20,9 +20,13 @@ org.fd:
     http:
       user: integration
       pass: 123
+    default:
+      company: TestCompany
+
 
   engine:
-    fortress:  # Defaults on creation of a fortress if not otherwise supplied
+    api: http://docker-ip:8090
+    fortress:  # Ensure fortress indexes documents in search by default
       search: true
 
     executor:
@@ -33,7 +37,7 @@ rabbit:
   user: guest
   pass: guest
 #  Host name is reassigned by the Integration tests
-  host: localhost
+  host: docker-ip
 
 spring:
   profiles:

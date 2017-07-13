@@ -16,11 +16,13 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.search.ContentStructure;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.shell.core.CommandMarker;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -32,26 +34,17 @@ import org.springframework.web.client.ResourceAccessException;
  * @author mholdsworth
  * @since 31/08/2016
  */
-public class ModelFieldStructure extends AbstractRestCommand{
-    private ContentStructure result;
-    private String fortress;
-    private String documentType ;
+@Component
+public class ModelFieldStructure implements CommandMarker {
 
-    public ModelFieldStructure(FdClientIo fdClientIo, String fortress, String documentType) {
-        super(fdClientIo);
-        this.fortress = fortress;
-        this.documentType = documentType;
-    }
-
-
-    @Override
-    public ModelFieldStructure exec() {
-        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
-        result=null;   error =null;
+    public CommandResponse<ContentStructure> exec(FdIoInterface fdIoInterface, String fortress, String documentType) {
+        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+        ContentStructure result = null;
+        String error =null;
         try {
 
             ResponseEntity<ContentStructure> response ;
-                response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/model/{fortress}/{docType}/fields", HttpMethod.GET, requestEntity, ContentStructure.class,
+                response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+"/api/v1/model/{fortress}/{docType}/fields", HttpMethod.GET, requestEntity, ContentStructure.class,
                         fortress,
                         documentType);
 
@@ -60,11 +53,8 @@ public class ModelFieldStructure extends AbstractRestCommand{
         } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
             error= e.getMessage();
         }
-        return this;// Everything worked
+        return new CommandResponse<>(error, result);// Everything worked
     }
 
-    @Override
-    public ContentStructure result() {
-        return result;
-    }
+
 }

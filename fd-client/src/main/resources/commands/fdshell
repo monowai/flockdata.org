@@ -11,7 +11,6 @@
 # docker run flockdata/fd-client fdimport -u=demo:123 --org.fd.engine.url=http://fd-engine:8080 --fd.client.import="path/to/data.txt,path/to/profile.json"
 
 FD_SCRIPT=$( cd "$( dirname "$0" )" && pwd )""
-FD_ARGS="ping"
 
 source $FD_SCRIPT/fdutils
 setBaseDir
@@ -21,22 +20,11 @@ if [ -z "$FD_JAR" ]; then
     FD_JAR="$FD_BASE/fd-client.jar"
 fi
 
-if [ -n "$USER" ]; then
-    FD_ARGS="$FD_ARGS --auth.user=$USER"
-fi
-
-if [ -n "$SERVICE" ]; then
-    FD_ARGS="$FD_ARGS --org.fd.engine.api=$SERVICE"
-fi
-
-if [ -n "$APIKEY" ]; then
-    FD_ARGS="$FD_ARGS --org.fd.client.apikey=$APIKEY "
-fi
 DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 cd $FD_BASE
 java  "-Dfile.encoding=UTF8" \
-    -jar $FD_JAR \
-    $FD_ARGS \
-    "-Dlogging.config=$FD_BASE/conf/log4j2.yml"
+    -jar $FD_JAR
+#    \
+#    "-Dlogging.config=$FD_BASE/conf/log4j2.yml"
 

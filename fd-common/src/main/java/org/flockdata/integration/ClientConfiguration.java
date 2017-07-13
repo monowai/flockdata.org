@@ -16,6 +16,7 @@
 
 package org.flockdata.integration;
 
+import org.flockdata.registration.SystemUserResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +28,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Properties;
 
 /**
  * Configures fd-client from properties source from a configuration file
@@ -94,41 +94,6 @@ public class ClientConfiguration {
     private File file;
     private Collection<String> filesToImport = new ArrayList<>();
 
-    public ClientConfiguration() {
-//        defConfig = true;
-    }
-
-    @Deprecated // use injection
-    public ClientConfiguration(Properties prop) {
-        //defConfig = false;
-        Object o = prop.get(KEY_ENGINE_API);
-        if (o != null)
-            setServiceUrl(o.toString());
-        o = prop.get(KEY_API_KEY);
-        if (o != null && !o.toString().equals(""))
-            setApiKey(o.toString());
-        o = prop.get(KEY_BATCH_SIZE);
-        if (o != null)
-            setBatchSize(Integer.parseInt(o.toString()));
-        o = prop.get(KEY_COMPANY);
-        if (o != null)
-            setCompany(o.toString());
-
-        o = prop.get(KEY_TRACK_EXCHANGE);
-        if (o != null)
-            setFdExchange(o.toString());
-
-        o = prop.get(KEY_TRACK_QUEUE);
-        if (o != null)
-            setTrackQueue(o.toString());
-
-        o = prop.get(KEY_TRACK_BINDING);
-        if (o != null)
-            setTrackRoutingKey(o.toString());
-
-
-    }
-
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
         return new PropertySourcesPlaceholderConfigurer();
@@ -149,7 +114,7 @@ public class ClientConfiguration {
         return apiKey;
     }
 
-    public ClientConfiguration setApiKey(String apiKey) {
+    private ClientConfiguration setApiKey(String apiKey) {
         this.apiKey = apiKey;
         return this;
     }
@@ -169,13 +134,13 @@ public class ClientConfiguration {
         if (apiKey != null && !apiKey.isEmpty())
             auth = KEY_API_KEY + "='" + "** set **";
         else
-            auth = KEY_HTTP_USER + "='" + httpUser;
+            auth = KEY_HTTP_USER + " [" + httpUser;
 
-        return "ClientConfiguration{" +
-                ""+ KEY_ENGINE_API +"='" + engineUrl + '\'' +
-                ", " + auth + '\'' +
-                ", "+ KEY_BATCH_SIZE +"=" + batchSize +
-                '}';
+        return "ClientConfiguration - " +
+                ""+ KEY_ENGINE_API +" [" + engineUrl + ']' +
+                ", " + auth + ']' +
+                ", "+ KEY_BATCH_SIZE +" [" + batchSize +
+                "]";
     }
 
     public String getCompany() {
@@ -286,5 +251,13 @@ public class ClientConfiguration {
 
     public boolean isApiKeyValid() {
         return !(apiKey == null || apiKey.isEmpty());
+    }
+
+    public void setSystemUser(SystemUserResultBean systemUser) {
+        if ( systemUser != null) {
+            setApiKey(systemUser.getApiKey());
+            setHttpUser(systemUser.getLogin());
+            setCompany(systemUser.getCompanyName());
+        }
     }
 }

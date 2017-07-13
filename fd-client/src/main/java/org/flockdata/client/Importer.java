@@ -30,12 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.util.StopWatch;
 
 import java.io.IOException;
@@ -69,11 +66,11 @@ import java.util.List;
  * @author mholdsworth
  * @since 13/10/2013
  */
-@Profile("fd-importer")
+//@Profile("fd-importer")    // Command line importer
 @Configuration
-@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.client"})
+//@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.client"})
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
-public class Importer implements CommandLineRunner {
+public class Importer {
 
     @Value("${auth.user:#{null}}")
     String authUser;
@@ -111,23 +108,7 @@ public class Importer implements CommandLineRunner {
         this.fdClientIo = fdClientIo;
     }
 
-
-    @Override
-    public void run(String... args) throws Exception {
-        logger.info("Looking for Flockdata on {}", clientConfiguration.getServiceUrl());
-        CommandRunner.configureAuth(logger, authUser, fdClientIo);
-
-        if (clientConfiguration.getApiKey() == null) {
-            logger.error("No API key is set in the config file. Have you run the fdregister process?");
-            System.exit(-1);
-        }
-
-        Collection<String> files = clientConfiguration.getFilesToImport();
-        if (files.isEmpty()) {
-            logger.error("No files to parse!");
-            System.exit(1);
-        }
-
+    public String runImport(Collection<String> files) {
         StopWatch watch = new StopWatch("Batch Import");
         int totalRows = 0;
         try {
@@ -139,7 +120,7 @@ public class Importer implements CommandLineRunner {
             fdClientIo.validateConnectivity();
             watch.start();
 
-            for (String thisFile : clientConfiguration.getFilesToImport()) {
+            for (String thisFile : files) {
                 List<String> items = Arrays.asList(thisFile.split("\\s*,\\s*"));
 
                 int item = 0;
@@ -170,8 +151,7 @@ public class Importer implements CommandLineRunner {
                     extractProfile = new ExtractProfileHandler(contentModel, delimiter);
 
                 } else {
-                    logger.error("No import parameters to work with");
-                    return;
+                    return ("No import parameters to work with");
                 }
 
                 SystemUserResultBean su = fdClientIo.me(); // Use the configured API as the default FU unless another is set
@@ -180,11 +160,9 @@ public class Importer implements CommandLineRunner {
                         throw new FlockException("Unable to connect to FlockData. Is the service running at [" + clientConfiguration.getServiceUrl() + "]?");
                     else
                         logger.warn("Http communications with FlockData are not working. Is the service running at [" + clientConfiguration.getServiceUrl() + "]?");
-                } else if (su.getApiKey() == null)
-                    throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
-
+                } 
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, contentModel, batchSize, skipCount);
-                logger.info("Processing {} against model {}",fileName, fileModel);
+                logger.info("Processing [{}], model [{}]",fileName, fileModel);
 
                 // ToDo: Figure out importProfile properties. We are currently reading them out of the content model
                 if (extractProfile== null)
@@ -192,12 +170,13 @@ public class Importer implements CommandLineRunner {
 
                 totalRows = totalRows + fileProcessor.processFile(extractProfile, fileName);
             }
-            logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
+            return String.format("Finished at {%s}", DateFormat.getDateTimeInstance().format(new Date()));
+
 
         } catch (Exception e) {
-            logger.error("Import error", e);
-            System.exit(-1);
-        } 
+            return ("Import error " + e.getMessage());
+//            System.exit(-1);
+        }
     }
 
     private ExtractProfile resolveExtractProfile(String fileModel, ContentModel contentModel) {

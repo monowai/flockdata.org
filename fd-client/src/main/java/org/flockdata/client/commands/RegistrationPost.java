@@ -16,12 +16,14 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.shell.core.CommandMarker;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -33,39 +35,20 @@ import org.springframework.web.client.ResourceAccessException;
  * @author mholdsworth
  * @since 13/04/2016
  */
-public class RegistrationPost extends AbstractRestCommand {
-    /**
-     * Set's the basic immutable properties for this command
-     *
-     * @param clientConfiguration URL, APIkey, user, password
-     * @param restWriter          Helper class to access HTTP resources
-     */
+@Component
+public class RegistrationPost implements CommandMarker{
 
-    private  RegistrationBean registrationBean;
-
-    private SystemUserResultBean result =null;
-
-    public RegistrationPost(FdClientIo fdClientIo, RegistrationBean registrationBean) {
-        super(fdClientIo);
-        this.registrationBean=registrationBean;
-
-    }
-
-    public SystemUserResultBean result() {
-        return result;
-    }
-
-    @Override
-    public RegistrationPost exec() {
-        result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(registrationBean, fdClientIo.getHeaders());
-
+    public CommandResponse<SystemUserResultBean> exec(FdIoInterface fdIoInterface, RegistrationBean registrationBean) {
+        String error = null;
+        HttpEntity requestEntity = new HttpEntity<>(registrationBean, fdIoInterface.getHeaders());
+        SystemUserResultBean result = null;
         try {
-            ResponseEntity<SystemUserResultBean> response = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
+            ResponseEntity<SystemUserResultBean> response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+"/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
             result = response.getBody();
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();
         }
-        return this;// Everything worked
+
+        return new CommandResponse<>(error, result);// Everything worked
     }
 }

@@ -16,12 +16,14 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackRequestResult;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.shell.core.CommandMarker;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -33,32 +35,20 @@ import org.springframework.web.client.ResourceAccessException;
  * @author mholdsworth
  * @since 17/04/2016
  */
-public class TrackEntityPost extends AbstractRestCommand  {
+@Component
+public class TrackEntityPost implements CommandMarker {
 
-    private EntityInputBean entityInputBean;
-
-    private TrackRequestResult result;
-
-    public TrackEntityPost(FdClientIo fdClientIo, EntityInputBean entityInputBean) {
-        super(fdClientIo);
-        this.entityInputBean = entityInputBean;
-    }
-
-    public TrackRequestResult result() {
-        return result;
-    }
-
-    @Override
-    public TrackEntityPost exec() {
-        result=null; error =null;
-        HttpEntity<EntityInputBean> requestEntity = new HttpEntity<>(entityInputBean, fdClientIo.getHeaders());
+    public CommandResponse<TrackRequestResult > exec(FdIoInterface fdIoInterface, EntityInputBean entityInputBean) {
+        TrackRequestResult result=null;
+        String error =null;
+        HttpEntity<EntityInputBean> requestEntity = new HttpEntity<>(entityInputBean, fdIoInterface.getHeaders());
 
         try {
-            ResponseEntity<TrackRequestResult> restResult = fdClientIo.getRestTemplate().exchange(getUrl()+"/api/v1/track/", HttpMethod.POST, requestEntity, TrackRequestResult.class);
+            ResponseEntity<TrackRequestResult> restResult = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+"/api/v1/track/", HttpMethod.POST, requestEntity, TrackRequestResult.class);
             result = restResult.getBody();
         }catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();
         }
-        return this;// Everything worked
+        return new CommandResponse<>(error, result);
     }
 }

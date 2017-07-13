@@ -189,7 +189,7 @@ public class FileProcessor {
     public int processFile(ExtractProfile extractProfile, String source) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
         //String source = path;
-        logger.info("Start processing of {}", source);
+        logger.debug("Processing [{}]", source);
         Collection<String> files = resolveFiles(source);
         int result = 0;
         try {
@@ -213,7 +213,7 @@ public class FileProcessor {
             }
         }
 
-        logger.info("Processed {}", source);
+        logger.debug("Processed [{}]", source);
         return result;
     }
 
@@ -415,7 +415,7 @@ public class FileProcessor {
                     currentRow++;
                     if (currentRow >= skipCount) {
                         if (currentRow == skipCount)
-                            logger.info("Processing now begins at row {}", skipCount);
+                            logger.info("Processing starts at row [{}]", skipCount);
 
                         nextLine = preProcess(nextLine, extractProfile);
 

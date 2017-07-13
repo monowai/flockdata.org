@@ -14,9 +14,11 @@
  *  limitations under the License.
  */
 
-package org.flockdata.integration;
+package org.flockdata.client;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.Template;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -56,7 +58,6 @@ public class FdTemplate implements Template {
     public FdTemplate(ClientConfiguration clientConfiguration, FdIoInterface fdIoInterface) {
         this.clientConfiguration = clientConfiguration;
         this.fdIoInterface = fdIoInterface;
-        logger.info(clientConfiguration.toString());
     }
 
     @Autowired

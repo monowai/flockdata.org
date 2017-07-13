@@ -16,10 +16,11 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -31,30 +32,18 @@ import org.springframework.web.client.ResourceAccessException;
  * @tag Command, Fortress, Administration, Segment
  */
 
-public class AdminPurgeFortressSegment extends AbstractRestCommand {
+@Component
+public class AdminPurgeFortressSegment {
 
-    private String result;
-    private String fortress, docType, segment;
 
-    public AdminPurgeFortressSegment(FdClientIo fdClientIo, String fortress, String docType, String segment) {
-        super(fdClientIo);
-        this.fortress = fortress;
-        this.docType = docType;
-        this.segment = segment;
-    }
-
-    public String result() {
-        return result;
-    }
-
-    @Override    // Command
-    public AdminPurgeFortressSegment exec() {
-        String exec = getUrl()+ "/api/v1/admin/{fortress}/{docType}/{segment}";
-        result=null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
+    public CommandResponse<String> exec(FdIoInterface fdIoInterface, String fortress, String docType, String segment) {
+        String exec = fdIoInterface.getUrl()+ "/api/v1/admin/{fortress}/{docType}/{segment}";
+        String result=null;
+        String error =null;
+        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
         try {
             ResponseEntity<String> response;
-            response = fdClientIo.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress,docType,segment);
+            response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress,docType,segment);
             result = response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getMessage().startsWith("401"))
@@ -64,6 +53,6 @@ public class AdminPurgeFortressSegment extends AbstractRestCommand {
         } catch (HttpServerErrorException | ResourceAccessException e) {
             error = e.getMessage();
         }
-        return this;
+        return new CommandResponse<>(error, result);
     }
 }

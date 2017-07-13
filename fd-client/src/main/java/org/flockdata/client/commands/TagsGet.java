@@ -16,11 +16,12 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.client.FdClientIo;
 import org.flockdata.registration.TagResultBean;
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -32,34 +33,22 @@ import org.springframework.web.client.ResourceAccessException;
  * @author mholdsworth
  * @since 17/04/2016
  */
-public class TagsGet extends AbstractRestCommand {
+@Component
+public class TagsGet {
 
-    private String label;
-
-    private TagResultBean[] result;
-
-    public TagsGet(FdClientIo fdClientIo, String label) {
-        super(fdClientIo);
-        this.label = label;
-    }
-
-    public TagResultBean[] result() {
-        return result;
-    }
-
-    @Override
-    public TagsGet exec() {
-        result =null; error =null;
-        HttpEntity requestEntity = new HttpEntity<>(fdClientIo.getHeaders());
+    public CommandResponse<TagResultBean[]> exec(FdIoInterface fdIoInterface, String label) {
+        TagResultBean[] result = new TagResultBean[0];
+        String error = null;
+        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
 
         try {
             ResponseEntity<TagResultBean[]> response;
-            response = fdClientIo.getRestTemplate().exchange(getUrl() + "/api/v1/tag/{label}", HttpMethod.GET, requestEntity, TagResultBean[].class, label);
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/tag/{label}", HttpMethod.GET, requestEntity, TagResultBean[].class, label);
 
             result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         }catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error= e.getMessage();
         }
-        return this;// Everything worked
+        return new CommandResponse<>(error, result);// Everything worked
     }
 }
