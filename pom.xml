@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flockdata</groupId>
     <artifactId>flockdata</artifactId>
-    <name>flockdata</name>
+    <name>org.flockdata.bom</name>
     <url>https://github.com/monowai/flockdata.org</url>
     <description>Data Management Framework</description>
     <licenses>
@@ -32,9 +32,8 @@
         <module>fd-engine</module>
         <module>fd-store</module>
         <module>fd-search</module>
-        <module>fd-spring</module>
+        <!--<module>fd-spring</module>-->
         <module>fd-docker-staging</module>
-
     </modules>
 
     <properties>
@@ -268,6 +267,25 @@
     </dependencyManagement>
     <repositories>
         <repository>
+            <id>oss</id>
+            <name>oss</name>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>oss-snapshots</id>
+            <name>oss-snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
             <url>http://repo.spring.io/milestone</url>
@@ -293,7 +311,7 @@
         <connection>scm:git:https://github.com/monowai/flockdata.org</connection>
         <developerConnection>scm:git:https://github.com/monowai/flockdata.org</developerConnection>
         <url>https://github.com/monowai/flockdata.org</url>
-        <tag>v0.98.4</tag>
+        <tag>v0.98.9</tag>
     </scm>
 
     <distributionManagement>

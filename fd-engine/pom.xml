@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>flockdata</artifactId>
         <groupId>org.flockdata</groupId>
+        <artifactId>flockdata</artifactId>
         <version>0.98.9-SNAPSHOT</version>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
     <artifactId>fd-engine</artifactId>
+    <version>0.98.9-SNAPSHOT</version>
 
     <properties>
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://wiki.flockdata.com</docs.url>
         <neo4j.jersey.version>1.19.1</neo4j.jersey.version>
         <start-class>org.flockdata.engine.FdEngine</start-class>
+        <org.flockdata.client.version>0.98.9-SNAPSHOT</org.flockdata.client.version>
+        <org.flockdata.common.version>0.98.9-SNAPSHOT</org.flockdata.common.version>
+        <org.flockdata.security.version>0.98.9-SNAPSHOT</org.flockdata.security.version>
+        <jetty.version>9.2.9.v20150224</jetty.version>
     </properties>
 
     <dependencies>
@@ -56,32 +62,32 @@
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
-            <version>${project.version}</version>
+            <version>0.98.9-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-client</artifactId>
             <type>test-jar</type>
-            <version>${project.version}</version>
+            <version>${org.flockdata.client.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-client</artifactId>
-            <version>${project.version}</version>
+            <version>${org.flockdata.client.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-security</artifactId>
-            <version>${project.version}</version>
+            <version>${org.flockdata.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
             <type>test-jar</type>
-            <version>${project.version}</version>
+            <version>${org.flockdata.common.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -138,44 +144,44 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.2.9.v20150224</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>9.2.9.v20150224</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-http</artifactId>
-            <version>9.2.9.v20150224</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-io</artifactId>
-            <version>9.2.9.v20150224</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>9.2.9.v20150224</version>
+            <version>${jetty.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-security</artifactId>
-            <version>9.2.9.v20150224</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-util</artifactId>
-            <version>9.2.9.v20150224</version>
+            <version>${jetty.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-xml</artifactId>
-            <version>9.2.9.v20150224</version>
+            <version>${jetty.version}</version>
         </dependency>
         <!-- Web UI -->
         <dependency>
@@ -574,6 +580,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>
-

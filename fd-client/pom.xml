@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+
     <parent>
         <groupId>org.flockdata</groupId>
         <artifactId>flockdata</artifactId>
         <version>0.98.9-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <license-text.header>apache_v2</license-text.header>
+        <testcontainers.version>master-SNAPSHOT</testcontainers.version>
+        <org.flockdata.security.version>0.98.9-SNAPSHOT</org.flockdata.security.version>
+        <org.flockdata.common.version>0.98.9-SNAPSHOT</org.flockdata.common.version>
+    </properties>
+
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fd-client</artifactId>
     <version>0.98.9-SNAPSHOT</version>
-
-    <properties>
-        <license-text.header>apache_v2</license-text.header>
-        <testcontainers.version>master-SNAPSHOT</testcontainers.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -36,12 +40,12 @@
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
-            <version>${project.version}</version>
+            <version>${org.flockdata.common.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-security</artifactId>
-            <version>${project.version}</version>
+            <version>${org.flockdata.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -74,7 +78,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20140107</version>
+            <!--<version>20140107</version>-->
             <scope>test</scope>
         </dependency>
         <!--http://stackoverflow.com/questions/7869711/getting-nosuchmethoderror-org-hamcrest-matcher-describemismatch-when-running-->
@@ -93,21 +97,18 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- fd-batch-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.dataformat</groupId>-->
+            <!--<artifactId>jackson-dataformat-yaml</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.core</groupId>-->
+            <!--<artifactId>jackson-annotations</artifactId>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

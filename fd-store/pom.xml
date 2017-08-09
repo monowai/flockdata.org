@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>flockdata</artifactId>
         <groupId>org.flockdata</groupId>
+        <artifactId>flockdata</artifactId>
         <version>0.98.9-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
+
     <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>
-        fd-store</artifactId>
+    <version>0.98.9-SNAPSHOT</version>
+    <artifactId>fd-store</artifactId>
     <properties>
         <org.springdata.redis>1.7.5.RELEASE</org.springdata.redis>
+        <org.flockdata.client.version>0.98.9-SNAPSHOT</org.flockdata.client.version>
+        <org.flockdata.common.version>0.98.9-SNAPSHOT</org.flockdata.common.version>
+        <org.flockdata.security.version>0.98.9-SNAPSHOT</org.flockdata.security.version>
+
     </properties>
 
     <dependencies>
@@ -42,23 +46,22 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <version>${org.springsecurity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
-            <version>${project.version}</version>
+            <version>${org.flockdata.common.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
             <type>test-jar</type>
-            <version>${project.version}</version>
+            <version>${org.flockdata.common.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-security</artifactId>
-            <version>${project.version}</version>
+            <version>${org.flockdata.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>

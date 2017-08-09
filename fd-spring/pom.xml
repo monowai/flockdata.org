@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>flockdata</artifactId>
         <groupId>org.flockdata</groupId>
-        <version>0.98.9-SNAPSHOT</version>
+        <version>0.98.8</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fd-spring</artifactId>
+    <version>0.98.8</version>
     <properties>
         <org.aspectj.version>1.8.9</org.aspectj.version>
     </properties>
@@ -15,13 +16,13 @@
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-client</artifactId>
-            <version>${project.version}</version>
+            <version>0.98.8</version>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-client</artifactId>
             <type>test-jar</type>
-            <version>${project.version}</version>
+            <version>0.98.8</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
