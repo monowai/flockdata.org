@@ -46,6 +46,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StopWatch;
+import org.springframework.util.StringUtils;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLInputFactory;
@@ -114,19 +115,21 @@ public class FileProcessor {
     }
 
     public static Reader getReader(String file) throws NotFoundException {
-        InputStream stream = ClassLoader.class.getResourceAsStream(file);
+        String trimmedFile = StringUtils.trimLeadingWhitespace(file.trim());
+
+        InputStream stream = ClassLoader.class.getResourceAsStream(trimmedFile);
 
         Reader fileObject = null;
         try {
-            fileObject = new FileReader(file);
+            fileObject = new FileReader(trimmedFile);
         } catch (FileNotFoundException e) {
             if (stream != null)
                 fileObject = new InputStreamReader(stream);
 
         }
         if (fileObject == null) {
-            logger.error("Unable to resolve the source [{}]", file);
-            throw new NotFoundException("Unable to resolve the source " + file);
+            logger.error("Unable to resolve the source [{}]", trimmedFile);
+            throw new NotFoundException("Unable to resolve the source [" + trimmedFile +"]");
         }
         return fileObject;
     }

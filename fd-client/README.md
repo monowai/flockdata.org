@@ -22,14 +22,11 @@ To register a data access account you need to both login and specify the data ac
 `register --login demo`
 
 ## import
-Invoke the fdimporter to ingest data as modeled by `profile.json` using supplied arguments
- 
-`import --data="path/data.txt, path/profile.json"`
-
-## fdcountries
 See the world! This customized version of `fdimport` loads [countries](http://opengeocode.org/), capital cities, and common aliases along with geo tagged data, into FlockData. States for USA, Canada, and Australia are also added.
 
-`docker-compose run fd-client fdcountries -u=demo:123`
+From the shell you can ingest delimited data by supplying its content model profile `profile.json` 
+ 
+`import --data "data/fd-cow.txt, model/countries.json;data/states.csv, model/states.json""`
 
 ### env
 Dump the currently configured environment settings

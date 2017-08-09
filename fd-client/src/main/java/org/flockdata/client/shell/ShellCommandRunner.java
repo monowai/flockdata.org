@@ -162,9 +162,10 @@ public class ShellCommandRunner implements CommandMarker {
     }
 
 
-    @CliCommand(value = "import", help = "Set shell to talk to an instance of flockdata or display the currently configured instance")
+    @CliCommand(value = "import", help = "Track data into the service")
     public String importData(
-            @CliOption(key = {"data"}, help = "data,model pairing separated by e.g. /fd-cow.txt, /countries.json;/states.csv, /states.json") final String fileInput) {
+            @CliOption(key = {"data"}, mandatory = true, help = "--data \"datafile.txt,profile.json\" e.g. import \"data/fd-cow.txt, profile/countries.json;data/states.csv, model/states.json")
+            final String fileInput) {
 
         if (clientConfiguration.getApiKey() == null) {
             return "No API key. Have you logged in and is you login a data access account?";

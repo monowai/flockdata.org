@@ -83,5 +83,20 @@ public class TestImportProfileValidation extends AbstractImport {
 
     }
 
+    @Test
+    public void argumentsAreTrimmed() throws Exception {
+
+        ContentModel profile = ContentModelDeserializer.getContentModel(" /model/properties-rlx.json ");
+        assertNotNull ( "Locating profile did not trim leading and trailing white space", profile);
+        ExtractProfile extractProfile = new ExtractProfileHandler(profile,false);
+        extractProfile.setQuoteCharacter("|");
+        assertEquals(',', extractProfile.getDelimiter());
+        assertEquals(false, extractProfile.hasHeader());
+        profile.setFortress(null);
+        exception.expect(FlockException.class);
+        fileProcessor.processFile(extractProfile, " /data/properties-rlx.txt ");
+
+    }
+
 
 }

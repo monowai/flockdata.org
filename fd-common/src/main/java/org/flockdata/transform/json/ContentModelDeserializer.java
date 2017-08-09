@@ -24,6 +24,7 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.model.ContentModelHandler;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,13 +54,14 @@ public class ContentModelDeserializer extends JsonDeserializer<ContentModel> {
     public static ContentModel getContentModel(String fileName) throws IOException {
         ContentModel contentModel = null;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
+        String trimmedFile = StringUtils.trimLeadingWhitespace(fileName.trim());
 
-        File fileIO = new File(fileName);
+        File fileIO = new File(trimmedFile);
         if (fileIO.exists()) {
             contentModel = om.readValue(fileIO, ContentModelHandler.class);
 
         } else {
-            InputStream stream = ClassLoader.class.getResourceAsStream(fileName);
+            InputStream stream = ClassLoader.class.getResourceAsStream(trimmedFile);
             if (stream != null) {
                 contentModel = om.readValue(stream, ContentModelHandler.class);
 
