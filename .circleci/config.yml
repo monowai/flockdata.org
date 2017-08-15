@@ -1,0 +1,280 @@
+version: 2
+jobs:
+
+  checkout-code:
+    machine:
+      enabled: true
+    working_directory: '~/org.flockdata'
+    steps:
+      - checkout
+      - save_cache:
+          key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/org.flockdata
+
+  build-common:
+    machine:
+      enabled: true
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+    working_directory: '~/org.flockdata'
+    # caches are immutable and will be built once by the common job
+    steps:
+      - restore_cache:
+            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - run:
+          command: 'mvn clean install -DskipTests=true'
+
+      - run:
+          command: 'mvn test -f ./fd-common/pom.xml '
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - store_test_results:
+          path: ./target/test-results
+
+      - store_artifacts:
+          path: ././target/jars
+
+  build-client:
+    machine:
+      enabled: true
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+    working_directory: '~/org.flockdata'
+
+    steps:
+      - restore_cache:
+            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+
+      - restore_cache:
+            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - run:
+          command: 'mvn -q test -f fd-client/pom.xml'
+
+      - store_test_results:
+          path: fd-client/target/test-results
+
+      - store_artifacts:
+          path: ././target/jars
+
+  build-security:
+    machine:
+      enabled: true
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+    working_directory: '~/org.flockdata'
+
+    steps:
+      - restore_cache:
+            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+
+      - restore_cache:
+            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - run:
+          command: 'mvn -q test -f fd-security/pom.xml'
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - store_test_results:
+          path: fd-security/target/test-results
+
+      - store_artifacts:
+          path: ././target/jars
+
+  build-search:
+    machine:
+      enabled: true
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+    working_directory: '~/org.flockdata'
+
+    steps:
+      - restore_cache:
+            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+
+      - restore_cache:
+            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - run:
+          command: 'mvn -q test -f fd-search/pom.xml'
+
+      - store_test_results:
+          path: fd-search/target/test-results
+
+      - store_artifacts:
+          path: ./fd-search/target/*.jar
+
+  build-store:
+    machine:
+      enabled: true
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+    working_directory: '~/org.flockdata'
+
+    steps:
+      - restore_cache:
+            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+
+      - restore_cache:
+            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - run:
+          command: 'mvn -q test -f fd-store/pom.xml'
+
+      - store_test_results:
+          path: fd-store/target/test-results
+
+      - store_artifacts:
+          path: ./fd-store/target/*.jar
+
+  build-batch:
+    machine:
+      enabled: true
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+    working_directory: '~/org.flockdata'
+
+    steps:
+      - restore_cache:
+            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+
+      - restore_cache:
+            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - run:
+          command: 'mvn -q test -f fd-batch/pom.xml'
+
+      - store_test_results:
+          path: fd-batch/target/test-results
+
+      - store_artifacts:
+          path: ./fd-batch/target/*.jar
+
+  build-engine:
+    machine:
+      enabled: true
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+    working_directory: '~/org.flockdata'
+
+    steps:
+      - restore_cache:
+            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+
+      - restore_cache:
+            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - run:
+          command: 'mvn -q test -f fd-engine/pom.xml'
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - store_test_results:
+          path: fd-engine/target/test-results
+
+      - store_artifacts:
+          path: ./fd-engine/target/*.jar
+
+  stage-tests:
+    machine:
+      enabled: true
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+    working_directory: '~/org.flockdata'
+
+    steps:
+      - restore_cache:
+            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+
+      - restore_cache:
+            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - run:
+          command: 'mvn -q install -P docker -DskipTests=true'
+
+      - run:
+          command: 'mvn -q verify -P integration -f fd-docker-staging/pom.xml'
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - store_test_results:
+          path: fd-docker-staging/target/test-results
+
+
+workflows:
+  version: 2
+  build_and_stage:
+    jobs:
+      - checkout-code
+      - build-common:
+          requires:
+            - checkout-code
+      - build-security:
+          requires:
+            - build-common
+      - build-client:
+          requires:
+            - build-security
+      - build-batch:
+          requires:
+            - build-client
+
+      - build-engine:
+          requires:
+            - build-client
+      - build-search:
+          requires:
+            - build-security
+      - build-store:
+          requires:
+            - build-security
+      - stage-tests:
+          requires:
+            - build-store
+            - build-search
+            - build-engine
+#      - deploy:
+#          requires:
+#            - stage-tests
+#          filters:
+#            branches:
+#              only: /release.*/
+
+
+#deployment:
+#  snapshot:
+#    branch: /snapshot.*/
+#    commands:
+#      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+#      - docker push flockdata/fd-engine
+#      - docker push flockdata/fd-store
+#      - docker push flockdata/fd-search
+#      - docker push flockdata/fd-client
+#
+#  release:
+#    branch: /release.*/
+#    commands:
+#      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+#      - docker push flockdata/fd-engine
+#      - docker push flockdata/fd-store
+#      - docker push flockdata/fd-search
+#      - docker push flockdata/fd-client
+

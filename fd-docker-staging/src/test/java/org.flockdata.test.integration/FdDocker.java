@@ -36,7 +36,7 @@ import static org.flockdata.test.integration.IntegrationHelper.*;
  */
 public class FdDocker extends ExternalResource {
 
-    // To debug without test containers,set the stack to null
+    // To debug without test containers, i.e. externally started stack, set stack to null
 //    static DockerComposeContainer stack = null;
     static DockerComposeContainer stack   =
             new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"))

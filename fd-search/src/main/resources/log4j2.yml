@@ -11,7 +11,7 @@ Configuration:
       - name: FILE
         fileName: log/search.log
         PatternLayout:
-          Pattern: "%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n%wEx"
+          Pattern: "[%-5p] [%d{yyyy-MM-dd HH:mm:ss}] [%t] [%C{2}] [%F]:(%L) - %m%n"
         #Enable this for RollingFile
         #filePattern: "log/fd/archive/$${date:yyyy-MM}/search-%d{yyyy-MM-dd}-%i.log.gz"
         #policies:

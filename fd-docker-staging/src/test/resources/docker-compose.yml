@@ -1,139 +1,122 @@
+version: "2"
+services:
+  rabbit:
+    image: rabbitmq:3-management
 
-rabbit:
-  image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
 
-# Uncomment ports for non-proxy debug
-  ports:
-    - '5672:5672'
-    - '15672:15672'
+#    mem_limt: 384m
 
-  expose:
-    - 5672
-    - 15672
+    expose:
+      - 5672
+      - 15672
 
-fdengine:
-  image: flockdata/fd-engine
-  links:
-     - rabbit
-     - fdsearch
-     - fdstore
+  fdengine:
+    image: flockdata/fd-engine
+    links:
+       - rabbit
+       - fdsearch
+       - fdstore
 
-  ports:
-    - '8090:8090'
-    - '61000:61000'
+  #  mem_limt: 384m
 
-  expose:
-    - 8090
-    - 61000
+    ports:
+      - '8090:8090'
+      - '61000:61000'
 
-  environment:
-    server.port: 8090
-    _JAVA_OPTIONS: "-Xms256m -Xmx512m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61000"
-    org.fd.engine.fortress.search: 'true'
-    org.fd.engine.fortress.store: 'true'
-    logging.level.org.flockdata: DEBUG
-    org.fd.engine.system.storage: memory
-    org.fd.engine.search.update: 'true'
-    org.fd.search.api: http://fdsearch:8091
-    org.fd.store.api: http://fdstore:8092
-    # Create an integration account for testing
-    org.fd.auth.simple.users.integration.pass: 123
-    org.fd.auth.simple.users.integration.roles: FD_USER;FD_ADMIN
-#    org.fd.auth.simple.login.method: basic
+    expose:
+      - 8090
+      - 61000
 
-    logging.level.org.flockdata: INFO
-    # Disable the webserver
-    org.neo4j.server.webserver.port: -1
-    org.neo4j.dbms.pagecache.memory: 256m
-    spring.jackson.serialization.indent_output: 'true'
-    spring.rabbitmq.host: rabbit
-    org.fd.auth.simple.login.method: basic
+    environment:
+      server.port: 8090
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61000"
+      org.fd.engine.fortress.search: 'true'
+      org.fd.engine.fortress.store: 'true'
+      logging.level.org.flockdata: DEBUG
+      org.fd.engine.system.storage: memory
+      org.fd.search.api: http://fdsearch:8091
+      org.fd.store.api: http://fdstore:8092
+      # Create an integration account for testing
+      org.fd.auth.simple.users.integration.pass: 123
+      org.fd.auth.simple.users.integration.roles: FD_USER;FD_ADMIN
 
-fdstore:
-  image: flockdata/fd-store
-  links:
-     - rabbit
+      logging.level.org.flockdata: INFO
+      # Disable the webserver
+      org.neo4j.server.webserver.port: -1
+      org.neo4j.dbms.pagecache.memory: 256m
+      spring.jackson.serialization.indent_output: 'true'
+      spring.rabbitmq.host: rabbit
+      org.fd.auth.simple.login.method: basic
 
-# Uncomment ports for non-proxy debug
-  ports:
-    - '8092:8092'
-    - '61002:61002'
+  fdstore:
+    image: flockdata/fd-store
+    links:
+       - rabbit
 
-  expose:
-    - 8092
-    - 61002
+  # Uncomment ports for non-proxy debug
+    ports:
+      - '8092:8092'
+      - '61002:61002'
 
-  environment:
-    server.port: 8092
-    _JAVA_OPTIONS: "-Xms256m -Xmx512m"
-#    _JAVA_OPTIONS: "-Xms256m -Xmx512m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61002"
-    spring.jackson.serialization.indent_output: 'true'
-    logging.level.org.flockdata: DEBUG
-    spring.profiles.active: fd-no-auth,memstore,fd-server
-    spring.rabbitmq.host: rabbit
+    expose:
+      - 8092
+      - 61002
 
+  #  mem_limit: 384m
 
-fdsearch:
-  image: flockdata/fd-search
-
-# Uncomment ports for non-proxy debug
-  ports:
-    - '8091:8091'
-    - '61001:61001'
-    - '9201:9201'
-
-  expose:
-    - 8091
-    - 61001
-    - 9201
-
-  links:
-    - rabbit
-#    - elasticsearch
-
-  environment:
-    server.port: 8091
-    _JAVA_OPTIONS: "-Xms256m -Xmx512m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61001"
-    org.fd.engine.url: 'http://fdengine:8090'
-    # Enables integration functionality
-    org.fd.engine.api: http://fdengine:8090
-    logging.level.org.flockdata: DEBUG
-
-    # True == Connect to remote ES cluster (enable link to elasticsearch
-    # False == Start a local embedded data node
-    org.fd.search.es.transportOnly: "false"
-    # Limit looking for ES nodes ouside of the fd-search JVM
-    org.fd.search.es.local: "false"
-    # optional ; delimited list of hosts to join with
-#    es.nodes: elasticsearch:9300
-
-    # If !transportOnly then which port should ES start with?
-    es.http.port: 9201
-    es.http.port: 9303
-
-    spring.jackson.serialization.indent_output: 'true'
-
-    es.clustername: 'es_int_fd'
-    es.path.home: /opt/flockdata
-    es.path.data: /opt/flockdata/data
-
-    spring.rabbitmq.host: rabbit
+    environment:
+      server.port: 8092
+      spring.jackson.serialization.indent_output: 'true'
+      logging.level.org.flockdata: DEBUG
+      spring.profiles.active: fd-no-auth,memstore,fd-server
+      spring.rabbitmq.host: rabbit
 
 
-#elasticsearch:
-# Reducing memory usage on CircleCI so not currently running in this config
-#  # Regular standalone elasticsearch image
-#
-#  image: elasticsearch:2.3
-#  command: "elasticsearch -Des.cluster.name=es-fd-int -Des.node.master=true --network.host=0.0.0.0 --net=host"
-#  environment:
-#    _JAVA_OPTIONS: "-Xms256m -Xmx512m"
-#
-#  ports:
-#    - '9200-9200'
-#    - '9300-9300'
-#
-#  expose:
-#    - 9200
-#    - 9300
+  fdsearch:
+    image: flockdata/fd-search
 
+  # Uncomment ports for non-proxy debug
+    ports:
+      - '8091:8091'
+      - '61001:61001'
+
+    expose:
+      - 8091
+      - 61001
+
+    links:
+      - rabbit
+      - elasticsearch
+
+  #  mem_limit: 384m
+
+    environment:
+      server.port: 8091
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61001"
+
+      org.fd.engine.url: 'http://fdengine:8090'
+      org.fd.engine.api: http://fdengine:8090
+
+      logging.level.org.flockdata: DEBUG
+      spring.jackson.serialization.indent_output: 'true'
+
+      es.nodes: elasticsearch:9300
+      es.path.home: 'ignore'
+      es.clustername: 'es_int_fd'
+
+      spring.rabbitmq.host: rabbit
+
+  elasticsearch:
+    image: elasticsearch:5-alpine
+    command: "elasticsearch -E node.name=fd-int -E cluster.name=es_int_fd -E node.master=true -E discovery.type=single-node -E network.host=0.0.0.0 -E http.host=0.0.0.0"
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+
+  #  mem_limt: 384m
+    expose:
+      - 9200
+      - 9300
