@@ -178,7 +178,7 @@ public class SearchServiceFacade {
         ContentInputBean contentInput = trackResultBean.getContentInput();
         Entity entity = trackResultBean.getEntity();
 
-        EntitySearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput, indexManager.parseIndex(entity));
+        EntitySearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput, indexManager.toIndex(entity));
 
         if (entityLog != null) {
             // Used to reconcile that the change was actually indexed
@@ -282,14 +282,14 @@ public class SearchServiceFacade {
                         logger.error("Unable to locate content for {} ", entity);
                         return null;
                     }
-                    searchDocument = new EntitySearchChange(entity, lastLog, content.getContent(), indexManager.parseIndex(entity));
+                    searchDocument = new EntitySearchChange(entity, lastLog, content.getContent(), indexManager.toIndex(entity));
                 } else
-                    searchDocument = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+                    searchDocument = new EntitySearchChange(entity, indexManager.toIndex(entity));
 
                 if (lastChange.getMadeBy() != null)
                     searchDocument.setWho(lastChange.getMadeBy().getCode());
             } else {
-                searchDocument = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+                searchDocument = new EntitySearchChange(entity, indexManager.toIndex(entity));
                 if (entity.getCreatedBy() != null)
                     searchDocument.setWho(entity.getCreatedBy().getCode());
             }
@@ -316,7 +316,7 @@ public class SearchServiceFacade {
             return defaultTagFinder;
     }
 
-    public EsSearchResult search(QueryParams queryParams) {
+    public EsSearchRequestResult search(QueryParams queryParams) {
         return fdViewQueryGateway.fdSearch(queryParams);
     }
 
@@ -448,7 +448,7 @@ public class SearchServiceFacade {
     }
 
     private TagSearchChange getTagChangeToPublish(CompanyNode company, FdTagResultBean tagResult) {
-        String indexName = indexManager.getIndexRoot(company, tagResult.getTag());
+        String indexName = indexManager.getTagIndexRoot(company, tagResult.getTag());
         return new TagSearchChange(indexName, tagResult.getTag());
     }
 }

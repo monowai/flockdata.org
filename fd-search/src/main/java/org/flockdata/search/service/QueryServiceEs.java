@@ -30,10 +30,10 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author mholdsworth
- * @since 18/06/2013
  * @tag Query, Search, ElasticSearch
+ * @since 18/06/2013
  */
-@Service ("queryServiceEs")
+@Service("queryServiceEs")
 public class QueryServiceEs implements QueryService {
 
     private final QueryDaoES queryDao;
@@ -54,8 +54,8 @@ public class QueryServiceEs implements QueryService {
     }
 
     @Override
-    public EsSearchResult doFdViewSearch(QueryParams queryParams) throws FlockException {
-            return queryDao.doEntitySearch(queryParams);
+    public EsSearchRequestResult doFdViewSearch(QueryParams queryParams) throws FlockException {
+        return queryDao.doEntitySearch(queryParams);
     }
 
     public EntityKeyResults doKeyQuery(QueryParams queryParams) throws FlockException {
@@ -63,9 +63,8 @@ public class QueryServiceEs implements QueryService {
     }
 
     @Override
-    public EsSearchResult doEntityQuery(QueryParams queryParams) throws FlockException {
-        // DAT-347 introduces ES as KV store
-        return queryDao.doWhatSearch(queryParams);
+    public EsSearchRequestResult doParamatizedQuery(QueryParams queryParams) throws FlockException {
+        return queryDao.doParametrizedQuery(queryParams);
     }
 
     @Override

@@ -64,8 +64,8 @@ public class TestSegmentIndexes extends ESBase {
         deleteEsIndex(entity);
         TestCase.assertEquals("2014", entity.getSegment().getCode());
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
-        deleteEsIndex(indexManager.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        deleteEsIndex(indexManager.toIndex(entity));
 
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 
@@ -74,8 +74,8 @@ public class TestSegmentIndexes extends ESBase {
         deleteEsIndex(entityOtherSegment);
         TestCase.assertEquals("2015", entityOtherSegment.getSegment().getCode());
 
-        change = new EntitySearchChange(entityOtherSegment, indexManager.parseIndex(entityOtherSegment));
-        deleteEsIndex(indexManager.parseIndex(entityOtherSegment));
+        change = new EntitySearchChange(entityOtherSegment, indexManager.toIndex(entityOtherSegment));
+        deleteEsIndex(indexManager.toIndex(entityOtherSegment));
 
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 
@@ -110,8 +110,8 @@ public class TestSegmentIndexes extends ESBase {
         deleteEsIndex(entity);
         TestCase.assertEquals("2014", entity.getSegment().getCode());
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
-        deleteEsIndex(indexManager.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        deleteEsIndex(indexManager.toIndex(entity));
 
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 
@@ -120,8 +120,8 @@ public class TestSegmentIndexes extends ESBase {
         deleteEsIndex(entityOtherSegment);
         TestCase.assertEquals("2015", entityOtherSegment.getSegment().getCode());
 
-        change = new EntitySearchChange(entityOtherSegment, indexManager.parseIndex(entityOtherSegment));
-        deleteEsIndex(indexManager.parseIndex(entityOtherSegment));
+        change = new EntitySearchChange(entityOtherSegment, indexManager.toIndex(entityOtherSegment));
+        deleteEsIndex(indexManager.toIndex(entityOtherSegment));
 
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 

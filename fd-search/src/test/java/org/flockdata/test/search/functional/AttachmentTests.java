@@ -45,7 +45,7 @@ public class AttachmentTests extends ESBase {
 //            return ;
         Entity entity = getEntity("cust", "fort", "anyuser", "fort");
 
-        EntitySearchChange changeA = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        EntitySearchChange changeA = new EntitySearchChange(entity, indexManager.toIndex(entity));
         changeA.setAttachment(ContentDataHelper.getPdfDoc());
 
         deleteEsIndex(entity);

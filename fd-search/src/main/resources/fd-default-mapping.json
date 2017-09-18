@@ -2,47 +2,38 @@
   "mapping": {
     "properties": {
       "key": {
-        "type": "string",
+        "type": "keyword",
         "doc_values": true,
-        "store": false,
-        "index": "not_analyzed"
+        "store": false
       },
       "fortress": {
-        "type": "string",
-        "doc_values": true,
-        "index": "not_analyzed"
+        "type": "keyword",
+        "doc_values": true
       },
       "docType": {
-        "type": "string",
-        "doc_values": true,
-        "index": "not_analyzed"
+        "type": "keyword"
       },
       "code": {
-        "type": "string",
-        "doc_values": true,
-        "boost": "2.0",
-        "index": "not_analyzed"
+        "type": "keyword",
+        "boost": "2.0"
       },
       "name": {
-        "type" : "string",
+        "type": "keyword",
         "boost": "4.0",
         "fields": {
-          "facet": {
-            "type": "string",
-            "boost": "8.0",
-            "doc_values": true,
-            "index": "not_analyzed"
+          "text": {
+            "type": "text",
+            "boost": "8.0"
           }
         }
       },
       "description": {
-        "type": "string",
+        "type": "text",
         "boost": 4
       },
       "lastEvent": {
-        "type": "string",
-        "doc_values": true,
-        "index": "not_analyzed"
+        "type": "keyword",
+        "doc_values": true
       },
       "timestamp": {
         "type": "date"
@@ -54,43 +45,32 @@
         "type": "date"
       },
       "who": {
-        "type": "string",
-        "index": "not_analyzed"
+        "type": "keyword"
       },
       "tags": {
-        "type": "multi_field",
+        "type": "keyword",
         "fields": {
-          "tags": {
+          "suggest": {
             "type": "completion",
             "preserve_position_increments": false,
             "analyzer": "auto-complete"
-          },
-          "facet": {
-            "type": "string",
-            "index": "not_analyzed",
-            "docValues": true
           }
         }
+
       }
     },
+
     "dynamic_templates": [
       {
         "inline_tag_code_template": {
           "path_match": "tag.*.code",
-          "match_mapping_type": "string",
+          "match_mapping_type": "*",
           "mapping": {
-            "type": "multi_field",
+            "type": "keyword",
             "fields": {
-              "{name}": {
-                "type": "string",
-                "boost": "3.0",
-                "index": "analyzed"
-              },
-              "facet": {
-                "type": "string",
-                "boost": "5.0",
-                "doc_values": true,
-                "index": "not_analyzed"
+              "text": {
+                "type": "text",
+                "boost": "3.0"
               }
             }
           }
@@ -99,20 +79,14 @@
       {
         "inline_tag_name_template": {
           "path_match": "tag.*.name",
-          "match_mapping_type": "string",
+          "path_unmatch": "e.*.tag.*.name",
+          "match_mapping_type": "*",
           "mapping": {
-            "type": "multi_field",
+            "type": "keyword",
             "fields": {
-              "{name}": {
-                "type": "string",
-                "boost": "3.0",
-                "index": "analyzed"
-              },
-              "facet": {
-                "type": "string",
-                "boost": "5.0",
-                "doc_values": true,
-                "index": "not_analyzed"
+              "text": {
+                "type": "text",
+                "boost": "3.0"
               }
             }
           }
@@ -135,18 +109,11 @@
           "path_match": "*tag.*.geo.*.code",
           "match_mapping_type": "string",
           "mapping": {
-            "type": "multi_field",
+            "type": "keyword",
             "fields": {
-              "{name}": {
-                "type": "string",
-                "boost": "3.0",
-                "index": "analyzed"
-              },
-              "facet": {
-                "type": "string",
-                "boost": "5.0",
-                "doc_values": true,
-                "index": "not_analyzed"
+              "text": {
+                "type": "text",
+                "boost": "3.0"
               }
             }
           }
@@ -157,18 +124,11 @@
           "path_match": "*tag.*.geo.*.name",
           "match_mapping_type": "string",
           "mapping": {
-            "type": "multi_field",
+            "type": "keyword",
             "fields": {
-              "{name}": {
-                "type": "string",
-                "boost": "3.0",
-                "index": "analyzed"
-              },
-              "facet": {
-                "type": "string",
-                "boost": "5.0",
-                "doc_values": true,
-                "index": "not_analyzed"
+              "text": {
+                "type": "text",
+                "boost": "3.0"
               }
             }
           }
@@ -177,20 +137,15 @@
       {
         "inline_entity_tag_code_template": {
           "path_match": "e.*.tag.*.code",
+          "path_unmatch": "tag.*.code",
           "match_mapping_type": "string",
           "mapping": {
-            "type": "multi_field",
+            "type": "keyword",
+            "boost": "3.0",
             "fields": {
-              "{name}": {
-                "type": "string",
-                "boost": "3.0",
-                "index": "analyzed"
-              },
-              "facet": {
-                "type": "string",
-                "boost": "5.0",
-                "doc_values": true,
-                "index": "not_analyzed"
+              "text": {
+                "type": "text",
+                "boost": "3.0"
               }
             }
           }
@@ -201,18 +156,12 @@
           "path_match": "e.*.tag.*.name",
           "match_mapping_type": "string",
           "mapping": {
-            "type": "multi_field",
+            "type": "keyword",
+            "boost": "3.0",
             "fields": {
-              "{name}": {
-                "type": "string",
-                "boost": "3.0",
-                "index": "analyzed"
-              },
-              "facet": {
-                "type": "string",
-                "boost": "5.0",
-                "doc_values": true,
-                "index": "not_analyzed"
+              "text": {
+                "type": "text",
+                "boost": "3.0"
               }
             }
           }
@@ -220,14 +169,17 @@
       },
       {
         "inline_entity_code_template": {
-          "match_mapping_type": "string",
           "path_match": "e.*.code",
           "path_unmatch": "e.*.tag.*.code",
           "mapping": {
-            "type": "string",
-            "doc_values": true,
+            "type": "keyword",
             "boost": "2.0",
-            "index": "not_analyzed"
+            "fields": {
+              "text": {
+                "type": "text",
+                "boost": "2.0"
+              }
+            }
           }
         }
       },
@@ -236,10 +188,8 @@
           "path_match": "e.*.index",
           "match_mapping_type": "string",
           "mapping": {
-            "type": "string",
-            "doc_values": true,
-            "boost": "2.0",
-            "index": "not_analyzed"
+            "type": "keyword",
+            "boost": "2.0"
           }
         }
       },
@@ -248,16 +198,10 @@
           "path_match": "e.*.name",
           "match_mapping_type": "string",
           "mapping": {
-            "type": "multi_field",
+            "type": "keyword",
             "fields": {
-              "{name}": {
-                "type": "string",
-                "index": "analyzed"
-              },
-              "facet": {
-                "type": "string",
-                "doc_values": true,
-                "index": "not_analyzed"
+              "text": {
+                "type": "text"
               }
             }
           }

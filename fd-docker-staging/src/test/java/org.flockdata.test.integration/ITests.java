@@ -23,17 +23,17 @@ import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.*;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
-import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.FileProcessor;
+import org.flockdata.integration.IndexManager;
 import org.flockdata.model.ContentModelResult;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.ContentStructure;
-import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.EsSearchRequestResult;
 import org.flockdata.search.QueryParams;
 import org.flockdata.track.bean.*;
 import org.flockdata.transform.json.ContentModelDeserializer;
@@ -56,9 +56,9 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
 import static junit.framework.TestCase.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_PASS;
 import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_USER;
-import static org.junit.Assert.assertNotEquals;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -72,6 +72,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  */
 @ContextConfiguration(classes = {
         ClientConfiguration.class,
+        IndexManager.class,
         FileProcessor.class,
         FdTemplate.class,
         FdClientIo.class,
@@ -248,12 +249,17 @@ public class ITests {
 
         assertEquals("By Code and By Name they are the same country so should equal", foundTag.getResult(), foundTag.getResult());
         integrationHelper.shortSleep();
-        QueryParams qp = searchHelper.getTagQuery("country", "australia");
+        QueryParams qp = searchHelper.getTagQuery(login.getCompanyName(),"country", "australia");
+
         CommandResponse<Map<String, Object>> response = searchViaEs.exec(fdClientIo, qp);
-        assertTrue("Located Country by name", response.getError() == null);
+        assertThat(response)
+                .hasFieldOrPropertyWithValue("error", null)
+                .hasFieldOrProperty("result");
+
         searchHelper.assertHitCount("Should have found just 1 hit for Australia", 1, response.getResult());
         response = searchViaEs.exec(fdClientIo, searchHelper
-                .getTagMatchQuery("country", "aka.bgn_longname", "commonwealth of australia"));
+                .getTagMatchQuery( login.getCompanyName(),"country", "aka.bgn_longname", "Commonwealth of Australia"));
+        
         searchHelper.assertHitCount("Didn't find Australia by alias", 1, response.getResult());
 
     }
@@ -313,11 +319,17 @@ public class ITests {
 
         integrationHelper.shortSleep();
         QueryParams qp = new QueryParams(entityResult.getCode())
+                .setEntityOnly(true)
+                .setCode(entityResult.getCode())
                 .setFortress(entityInputBean.getFortress().getName());
 
-        CommandResponse<EsSearchResult> esResponse = searchViaFd.exec(fdClientIo, qp);
-        assertEquals("Search Reply Check", null, esResponse.getError());
-        EsSearchResult searchResults = esResponse.getResult();
+        CommandResponse<EsSearchRequestResult> esResponse = searchViaFd.exec(fdClientIo, qp);
+        assertThat(esResponse)
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("error", null)
+                .hasFieldOrProperty("result");
+
+        EsSearchRequestResult searchResults = esResponse.getResult();
         assertEquals("Didn't get a search hit on the Entity", 1, searchResults.getResults().size());
         assertEquals("Keys do not match", entityResult.getKey(), searchResults.getResults().iterator().next().getKey());
 
@@ -342,14 +354,14 @@ public class ITests {
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
 
         fdTemplate.writeEntity(entityInputBean, true);
-        integrationHelper.shortSleep();
+        integrationHelper.longSleep();
         CommandResponse<EntityResultBean> response = integrationHelper.waitForEntityKey(logger, "validateEntityLogs", entityGet, entityInputBean, null);
 
         EntityResultBean entityResult = response.getResult();
-        assertNotNull(entityResult);
-        assertNotNull(entityResult.getKey());
+        assertThat(entityResult)
+                .isNotNull()
+                .hasFieldOrProperty("key");
 
-//        EntityLogsGet entityLogsGet = new EntityLogsGet(entityResult.getKey());
         CommandResponse<EntityLogResult[]> elResponse = integrationHelper.waitForEntityLog(logger, "validateEntityLogs", entityLogsGet, 1, entityResult.getKey());
         assertNotNull(elResponse.getResult());
         assertEquals("Didn't find a log", 1, elResponse.getResult().length);
@@ -390,24 +402,18 @@ public class ITests {
         CommandResponse<EntityResultBean> response = integrationHelper.waitForEntityKey(logger, "findByESPassThroughWithUTF8", entityGet, entityInputBean, null);
         assertEquals("Error waiting by entity Key", null, response.getError());
 
-        EntityResultBean entityResult = response.getResult();
-        assertNotNull(entityResult);
-        assertNotNull(entityResult.getKey());
+        assertThat(response.getResult())
+                .isNotNull()
+                .hasFieldOrProperty("key");
+
         response = integrationHelper.waitForSearch(logger, "findByESPassThroughWithUTF8", entityGet, 1, entityInputBean, null);
         assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, response.getResult().getSearch());
 
         integrationHelper.shortSleep();
         QueryParams qp = new QueryParams()
                 .setFortress(entityInputBean.getFortress().getName())
-                .setQuery(JsonUtils.toMap("{\n" +
-                        "    \"filtered\": {\n" +
-                        "      \"query\": {\n" +
-                        "        \"query_string\": {\n" +
-                        "          \"query\": \"*\"\n" +
-                        "        }\n" +
-                        "      }\n" +
-                        "    }\n" +
-                        "}"));
+                .setTypes(entityInputBean.getDocumentType().getName())
+                .setMatchAll(true);
 
         CommandResponse<Map<String, Object>> esResponse = searchViaEs.exec(fdClientIo, qp);
         assertEquals("Search Reply ", null, esResponse.getError());
@@ -441,11 +447,12 @@ public class ITests {
         assertNotNull(foundTags);
         assertEquals("Missing tags", 2, foundTags.length);
 
-        QueryParams qp = searchHelper.getTagQuery(tagInputBean.getLabel(), "*");
+        QueryParams qp = searchHelper.getTagQuery(login.getCompanyName(), tagInputBean.getLabel(), "*");
+
 
         CommandResponse<Map<String, Object>> response = searchViaEs.exec(fdClientIo, qp);
         integrationHelper.shortSleep(); // Extra time for ES to commit
-        assertNull("Search Reply ", response.getError());
+        assertEquals("Search Reply ", null, response.getError());
 
         Map<String, Object> esResult = response.getResult();
         assertFalse("errors were found " + esResult.get("errors"), esResult.containsKey("errors"));
@@ -464,7 +471,7 @@ public class ITests {
         fdClientIo.writeTags(tags);
         integrationHelper.longSleep();  // Async delivery, so lets wait a bit....
 
-        qp = searchHelper.getTagQuery(tagInputBean.getLabel(), "wonder");
+        qp = searchHelper.getTagQuery(login.getCompanyName(),tagInputBean.getLabel(), "wonder");
 
         response = searchViaEs.exec(fdClientIo, qp);
         integrationHelper.shortSleep();
@@ -493,7 +500,8 @@ public class ITests {
         fdTemplate.writeTags(setC);
         fdTemplate.writeTags(setD);
         integrationHelper.longSleep();
-        QueryParams qp = searchHelper.getTagQuery("Set*", "code*");
+        QueryParams qp = searchHelper.getTagQuery(login.getCompanyName(),"Set*", "code*");
+
         CommandResponse<Map<String, Object>> response = searchViaEs.exec(fdTemplate.getFdIoInterface(), qp);
         assertNull("Not finding any tags", response.getError());
 
@@ -521,18 +529,18 @@ public class ITests {
 
         QueryParams qp = new QueryParams("*");
         qp.setFortress("purgeFortressRemovesEsIndex");
-        qp.setTypes("DeleteSearchDoc");
-        CommandResponse<EsSearchResult> esResponse = searchViaFd.exec(fdClientIo, qp);
+        qp.setTypes("DeleteSearchDoc".toLowerCase());
+        CommandResponse<EsSearchRequestResult> esResponse = searchViaFd.exec(fdClientIo, qp);
 
         assertNotNull(esResponse.getResult());
-        assertEquals("expected 1 hit", 1, esResponse.getResult().getResults().size());
+        assertEquals("expected 1 hit", 1L, esResponse.getResult().getTotalHits());
 
         CommandResponse<String> response = purge.exec(fdClientIo, "purgeFortressRemovesEsIndex");
         integrationHelper.longSleep(); // Give ES time to commit
         assertEquals("Purge fortress failed", null, response.getError());
 
         assertNull("The entity should not exist because the fortress was purged", entityGet.exec(fdClientIo, entityInputBean, null).getResult());
-        assertEquals("The entity search doc was not removed", 0, searchViaFd.exec(fdClientIo, qp).getResult().getResults().size());
+        assertEquals("The entity search doc was not removed", 0L, searchViaFd.exec(fdClientIo, qp).getResult().getTotalHits());
 
 
     }
@@ -575,24 +583,31 @@ public class ITests {
 
         QueryParams qp = new QueryParams("*")
                 .setFortress("purgeSegment")
-                .setTypes(docType.getCode());
+                .setEntityOnly(true)
+                .setTypes(docType.getCode().toLowerCase());
 
-        CommandResponse<EsSearchResult> esResponse = searchViaFd.exec(fdClientIo, qp);
+        CommandResponse<EsSearchRequestResult> esResponse = searchViaFd.exec(fdClientIo, qp);
 
-        assertNotNull(esResponse.getResult());
-        assertEquals("Searching across both segments returns 2", 2, esResponse.getResult().getResults().size());
+        assertThat(esResponse)
+                .isNotNull()
+                .hasFieldOrProperty("result")
+                .hasFieldOrPropertyWithValue("error", null);
+
+        assertThat (esResponse.getResult())
+                .hasFieldOrPropertyWithValue("totalHits", 2l)
+        ;
 
         qp.setSegment("2015");
         esResponse = searchViaFd.exec(fdClientIo, qp);
 
         assertNotNull(esResponse.getResult());
-        assertEquals("expected 1 hit on segment 2015", 1, esResponse.getResult().getResults().size());
+        assertEquals("expected 1 hit on segment 2015", 1L, esResponse.getResult().getTotalHits());
 
         qp.setSegment("2016");
         esResponse = searchViaFd.exec(fdClientIo, qp);
 
         assertNotNull(esResponse.getResult());
-        assertEquals("expected 1 hit on segment 2016", 1, esResponse.getResult().getResults().size());
+        assertEquals("expected 1 hit on segment 2016", 1L, esResponse.getResult().getTotalHits());
 
         // Now to purge 2015 so we are left only with 2016
         adminPurgeFortressSegment.exec(fdClientIo, "purgeSegment", docType.getName(), "2015");
@@ -600,11 +615,11 @@ public class ITests {
 
         esResponse = searchViaFd.exec(fdClientIo, qp);
         assertEquals("", null, esResponse.getError());
-        assertEquals("expected 1 hit on segment 2016", 1, esResponse.getResult().getResults().size());
+        assertEquals("expected 1 hit on segment 2016", 1L, esResponse.getResult().getTotalHits());
 
         qp.setSegment("2015");
         esResponse = searchViaFd.exec(fdClientIo, qp);
-        assertNotEquals("Command failed to execute", null, esResponse.getError());
+        assertEquals("Command failed to execute", null, esResponse.getError());
 
         // Check we can track back into previously purged fortress
         entityInputBean = new EntityInputBean()
@@ -620,9 +635,12 @@ public class ITests {
         qp.setSegment("2015");
         esResponse = searchViaFd.exec(fdClientIo, qp);
 
-        assertNotNull(esResponse.getResult());
-        assertEquals("Didn't expect an error - ", null, esResponse.getError());
-        assertEquals("expected 1 hit on segment 2015", 1, esResponse.getResult().getResults().size());
+        assertThat (esResponse)
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("error", null);
+
+        assertThat(esResponse.getResult())
+                .hasFieldOrPropertyWithValue("totalHits", 1L);
     }
 
     /**
@@ -667,33 +685,36 @@ public class ITests {
 
         integrationHelper.shortSleep(); // Give ES some extra time to commit
 
-        QueryParams qp = new QueryParams("*");
-        qp.setFortress(FORTRESS);
-        qp.setTypes(docType.getCode());
+        QueryParams qp = new QueryParams("*")
+                .setFortress(FORTRESS)
+                .setEntityOnly(true)
+                .setTypes(docType.getCode().toLowerCase());
 
-        CommandResponse<EsSearchResult> esResponse = searchViaFd.exec(fdClientIo, qp);
+        CommandResponse<EsSearchRequestResult> esResponse = searchViaFd.exec(fdClientIo, qp);
 
         assertNotNull(esResponse.getResult());
-        assertEquals("Searching across both segments returns 2", 2, esResponse.getResult().getResults().size());
+        assertEquals("Searching across both segments returns 2", 2L, esResponse.getResult().getTotalHits());
 
         qp.setSegment("2015");
         esResponse = searchViaFd.exec(fdClientIo, qp);
+        assertThat(esResponse)
+                .isNotNull()
+                .hasFieldOrProperty("result");
 
-        assertNotNull(esResponse.getResult());
-        assertEquals("expected 1 hit on segment 2015", 1, esResponse.getResult().getResults().size());
+        assertEquals("expected 1 hit on segment 2015", 1L, esResponse.getResult().getTotalHits());
 
         qp.setSegment("2016");
         esResponse = searchViaFd.exec(fdClientIo, qp);
 
         assertNotNull(esResponse.getResult());
-        assertEquals("expected 1 hit on segment 2016", 1, esResponse.getResult().getResults().size());
+        assertEquals("expected 1 hit on segment 2016", 1L, esResponse.getResult().getTotalHits());
 
         // Now to purge 2015 so we are left only with 2016
         adminPurgeFortressSegment.exec(fdClientIo, FORTRESS, docType.getName(), "2015");
         integrationHelper.longSleep();
 
         esResponse = searchViaFd.exec(fdClientIo, qp);
-        assertEquals("expected 1 hit on segment 2016", 1, esResponse.getResult().getResults().size());
+        assertEquals("expected 1 hit on segment 2016", 1L, esResponse.getResult().getTotalHits());
 
         // Check we can track back into previously purged fortress
         entityInputBean = new EntityInputBean()
@@ -711,7 +732,7 @@ public class ITests {
 
         assertNotNull(esResponse.getResult());
         assertEquals("Didn't expect an error", null, esResponse.getError());
-        assertEquals("expected 1 hit on segment 2015", 1, esResponse.getResult().getResults().size());
+        assertEquals("expected 1 hit on segment 2015", 1L, esResponse.getResult().getTotalHits());
 
 
     }
@@ -835,12 +856,20 @@ public class ITests {
         CommandResponse<TrackRequestResult> trackResponse = trackEntityPost.exec(fdClientIo, entityInputBean);
         assertEquals("Track Entity - ", null, trackResponse.getError());
         TrackRequestResult trackResult = trackResponse.getResult();
-        assertEquals("Should be a new Entity", true, trackResult.isNewEntity());
-        assertEquals("Problem creating the Content", trackResult.getLogStatus(), ContentInputBean.LogStatus.OK);
-        assertNotNull("No Entity Key!", trackResult.getKey());
+        assertThat(trackResult)
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("newEntity", true)
+                .hasFieldOrPropertyWithValue("logStatus", ContentInputBean.LogStatus.OK)
+                .hasFieldOrProperty("key");
 
+        integrationHelper.longSleep();// Wait for log to write to ES
         CommandResponse<EntityLogResult[]> logResponse = entityLogsGet.exec(fdClientIo, trackResult.getKey());
-        assertEquals("Expecting one Mock log", 1, logResponse.getResult().length);
+        assertThat(logResponse)
+                .hasFieldOrPropertyWithValue("error", null);
+        assertThat(logResponse.getResult())
+                .isNotNull()
+                .hasSize(1);
+
         EntityLogResult mockedLog = logResponse.getResult()[0];
         assertTrue("Log was not flagged as mocked", mockedLog.isMocked());
         CommandResponse<EntityResultBean> entityResponse = entityGet.exec(fdClientIo, null, trackResult.getKey());

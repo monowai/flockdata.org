@@ -176,7 +176,7 @@ public class TestInputBeans {
         Document doc = new DocumentNode(fortress, "docType");
         Entity entity = new EntityNode("abc", fortress, eib, doc);
 
-        EntitySearchChange searchChange = new EntitySearchChange(entity, new IndexManager("fd.", true).parseIndex(entity));
+        EntitySearchChange searchChange = new EntitySearchChange(entity, new IndexManager("fd.", true).toIndex(entity));
         SearchChanges changes = new SearchChanges(searchChange);
         String json = JsonUtils.toJson(changes);
 

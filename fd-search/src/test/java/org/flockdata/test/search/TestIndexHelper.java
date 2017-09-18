@@ -98,7 +98,7 @@ public class TestIndexHelper {
         qp.setFortress(fortress);
         qp.setSegment(segment);
         qp.setTypes("Type0");
-        String parsedIndex = indexManager.parseIndex(qp);
+        String parsedIndex = indexManager.toIndex(qp);
         TestCase.assertEquals("If this fails then locating the content when KV_NONE will fail", "fd." + company.toLowerCase() + "." + fortress.toLowerCase() + "." + segment.toLowerCase(), parsedIndex);
         //String[] indexes = IndexHelper.getIndexesToQuery(qp);
         //validateIndexesForQuery(company, fortress, segment, indexes);

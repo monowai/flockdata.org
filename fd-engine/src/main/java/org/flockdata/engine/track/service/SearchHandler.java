@@ -39,9 +39,13 @@ import java.util.Collection;
 @Service
 public class SearchHandler {
 
-    @Autowired
-    EntityService entityService;
+    private EntityService entityService;
     private Logger logger = LoggerFactory.getLogger(SearchHandler.class);
+
+    @Autowired
+    public void setEntityService(EntityService entityService) {
+        this.entityService = entityService;
+    }
 
     public void handleResults(SearchResults searchResults) {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
@@ -68,7 +72,4 @@ public class SearchHandler {
         return entityService;
     }
 
-    public void setEntityService(EntityService entityService) {
-        this.entityService = entityService;
-    }
 }

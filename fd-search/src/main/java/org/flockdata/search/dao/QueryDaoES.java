@@ -22,12 +22,14 @@ package org.flockdata.search.dao;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.text.Text;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.aggregations.Aggregation;
@@ -35,7 +37,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.highlight.HighlightField;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
@@ -56,6 +58,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 /**
  * @author mholdsworth
  * @since 28/04/2013
@@ -65,8 +69,8 @@ import java.util.concurrent.TimeoutException;
 public class QueryDaoES  {
 
     public static final String ES_FIELD_SEP = ".";
-    public static final String CODE_FACET = ".code.facet";
-    public static final String NAME_FACET = ".name.facet";
+    public static final String CODE_KEYWORD = ".code";
+    public static final String NAME_KEYWORD = ".name";
     private static Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
     private final Client elasticSearchClient;
     private final IndexManager indexManager;
@@ -108,11 +112,11 @@ public class QueryDaoES  {
     }
 
     private String parseTagCode(String relationship, String tag) {
-        return SearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + CODE_FACET;
+        return SearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + CODE_KEYWORD;
     }
 
     private String parseTagName(String relationship, String tag) {
-        return SearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + "-name-facet";
+        return SearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + "-name-keyword";
     }
 
     public String[] getIndexes(TagCloudParams tagCloudParams) {
@@ -137,7 +141,7 @@ public class QueryDaoES  {
 
         query.setTypes(tagCloudParams.getTypes());
 
-        query.setExtraSource(QueryGenerator.getFilteredQuery(tagCloudParams, false));
+//        query.setExtraSource(QueryGenerator.getFilteredQuery(tagCloudParams, false));
         for (String whatAndTagField : whatAndTagFields) {
             query.addAggregation(AggregationBuilders.terms(whatAndTagField).field(whatAndTagField).size(50));
         }
@@ -185,7 +189,7 @@ public class QueryDaoES  {
         ArrayList<String> relationships = new ArrayList<>();
 
         for (String s : asMap.keySet()) {
-            int pos = s.indexOf(NAME_FACET); // Names by preference
+            int pos = s.indexOf(NAME_KEYWORD); // Names by preference
             if (pos > 0) {
 
                 InternalTerms terms = (InternalTerms) asMap.get(s);
@@ -198,7 +202,7 @@ public class QueryDaoES  {
         }
         // Pickup any Codes that don't have Name entries
         for (String s : asMap.keySet()) {
-            int pos = s.indexOf(CODE_FACET); // Names by preference
+            int pos = s.indexOf(CODE_KEYWORD); // Names by preference
             if (pos > 0) {
                 String relationship = s.substring(0, pos);
                 if (!relationships.contains(relationship)) {
@@ -226,10 +230,11 @@ public class QueryDaoES  {
         if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
         }
+
         SearchRequestBuilder query = elasticSearchClient.prepareSearch(indexManager.getIndexesToQuery(queryParams))
                 .setTypes(types)
-                .addField(SearchSchema.KEY)
-                .setExtraSource(QueryGenerator.getFilteredQuery(queryParams, false));
+                .addDocValueField(SearchSchema.KEY)
+                .setQuery(QueryBuilders.matchQuery(SearchSchema.KEY, queryParams.getKey()));
         if ( queryParams.getSize()!=null)
             query.setSize(queryParams.getSize());
 
@@ -257,7 +262,7 @@ public class QueryDaoES  {
 
     public String doSearch(QueryParams queryParams) throws FlockException {
         SearchResponse result = elasticSearchClient.prepareSearch(indexManager.getIndexesToQuery(queryParams))
-                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, false))
+                .setQuery(QueryBuilders.wrapperQuery(QueryGenerator.getSimpleQuery(queryParams, false)))
                 .execute()
                 .actionGet();
 
@@ -275,23 +280,25 @@ public class QueryDaoES  {
 
     }
 
-    public EsSearchResult doEntitySearch(QueryParams queryParams) throws FlockException {
+    public EsSearchRequestResult doEntitySearch(QueryParams queryParams) throws FlockException {
         StopWatch watch = new StopWatch();
 
         watch.start(queryParams.toString());
         String[] indexes = indexManager.getIndexesToQuery(queryParams);
+        String queryString = (queryParams.getSearchText()==null? queryParams.getCode(): queryParams.getSearchText());
         SearchRequestBuilder query = elasticSearchClient.prepareSearch(indexes)
-                .addField(SearchSchema.KEY)
-                .addField(SearchSchema.FORTRESS)
-                .addField(SearchSchema.LAST_EVENT)
-                .addField(SearchSchema.NAME)
-                .addField(SearchSchema.DESCRIPTION)
-                .addField(SearchSchema.CODE)
-                .addField(SearchSchema.WHO)
-                .addField(SearchSchema.UPDATED)
-                .addField(SearchSchema.CREATED)
-                .addField(SearchSchema.TIMESTAMP)
-                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, highlightEnabled));
+                .addDocValueField(SearchSchema.KEY)
+                .addDocValueField(SearchSchema.FORTRESS)
+                .addDocValueField(SearchSchema.LAST_EVENT)
+                .addDocValueField(SearchSchema.NAME )
+                .addStoredField(SearchSchema.DESCRIPTION)
+                .addDocValueField(SearchSchema.CODE)
+                .addDocValueField(SearchSchema.WHO)
+                .addDocValueField(SearchSchema.UPDATED)
+                .addDocValueField(SearchSchema.CREATED)
+                .addDocValueField(SearchSchema.TIMESTAMP)
+                .setQuery(boolQuery().should(queryStringQuery(queryString)));
+//                .setQuery(QueryBuilders.simpleQueryStringQuery(QueryGenerator.getSimpleQuery(queryParams, highlightEnabled))) ;
 
         if (queryParams.getSize()!=null )
             query.setSize(queryParams.getSize());
@@ -300,27 +307,31 @@ public class QueryDaoES  {
             query.setFrom(queryParams.getFrom());
 
         // Add user requested fields
-        if (queryParams.getData() != null)
-            query.addFields(queryParams.getData());
+        if (queryParams.getData() != null){
+            for (String field : queryParams.getData()) {
+                query.addDocValueField(field);
+            }
+        }
+
 
         ListenableActionFuture<SearchResponse> future = query.execute();
-        Collection<SearchResult> results = new ArrayList<>();
+
 
         SearchResponse response;
         try {
             response = future.get();
         } catch (ExecutionException e ){
             logger.debug(e.getCause().getMessage() +"\n"+queryParams.toString() + " computed indexes"+ Arrays.toString(indexes));
-            return  new EsSearchResult("Error looking for entities "+ parseException(e));
+            return  new EsSearchRequestResult("Error looking for entities "+ parseException(e));
 
         }catch (InterruptedException  e) {
             logger.error("Search Exception processing query", e);
             // ToDo: No sensible error being returned to the caller
-            return new EsSearchResult(e.getMessage());
+            return new EsSearchRequestResult(e.getMessage());
         }
 
-        getEntityResults(results, response, queryParams);
-        EsSearchResult searchResult = new EsSearchResult(results);
+        Collection<SearchResult> results = convert(response, queryParams);
+        EsSearchRequestResult searchResult = new EsSearchRequestResult(results);
         searchResult.setTotalHits(response.getHits().getTotalHits());
         searchResult.setStartedFrom(queryParams.getFrom()==null ?0:queryParams.getFrom());
         watch.stop();
@@ -336,8 +347,9 @@ public class QueryDaoES  {
 
     }
 
-    private void getEntityResults(Collection<SearchResult> results, SearchResponse response, QueryParams queryParams) {
-        logger.debug("Processing [{}] SearchResults from ElasticSearch", results.size());
+    private Collection<SearchResult> convert( SearchResponse response, QueryParams queryParams) {
+
+        Collection<SearchResult> results = new ArrayList<>();
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             if (!searchHitFields.getFields().isEmpty()) { // DAT-83
                 // This function returns only information tracked by FD which will always have  a key
@@ -345,9 +357,9 @@ public class QueryDaoES  {
                 if (keyCol != null) {
                     Object key = keyCol.getValue();
                     if (key != null) {
-                        Map<String, String[]> fragments = convertHighlightToMap(searchHitFields.getHighlightFields());
+//                        Map<String, HighlightField> fragments = convertHighlightToMap(searchHitFields.getHighlightFields());
 
-                        SearchResult sr = new SearchResult(
+                        EsSearchResult sr = new EsSearchResult(
                                 searchHitFields.getId(),
                                 key.toString(),
                                 getHitValue(searchHitFields.getFields().get(SearchSchema.FORTRESS)),
@@ -356,8 +368,8 @@ public class QueryDaoES  {
                                 getHitValue(searchHitFields.getFields().get(SearchSchema.WHO)),
                                 getHitValue(searchHitFields.getFields().get(SearchSchema.UPDATED)),
                                 getHitValue(searchHitFields.getFields().get(SearchSchema.CREATED)),
-                                getHitValue(searchHitFields.getFields().get(SearchSchema.TIMESTAMP)),
-                                fragments);
+                                getHitValue(searchHitFields.getFields().get(SearchSchema.TIMESTAMP))
+                        );
 
                         sr.setDescription(getHitValue(searchHitFields.getFields().get(SearchSchema.DESCRIPTION)));
                         sr.setName(getHitValue(searchHitFields.getFields().get(SearchSchema.NAME)));
@@ -375,6 +387,7 @@ public class QueryDaoES  {
                 logger.debug("Skipping row due to no column");
             }
         }
+        return results;
     }
 
     private String getHitValue(SearchHitField field) {
@@ -384,87 +397,119 @@ public class QueryDaoES  {
         return field.getValue().toString();
     }
 
-    private Map<String, String[]> convertHighlightToMap(Map<String, HighlightField> highlightFields) {
-        Map<String, String[]> highlights = new HashMap<>();
+    private Map<String, HighlightField> convertHighlightToMap(Map<String, HighlightField> highlightFields) {
+        Map<String, HighlightField> highlights = new HashMap<>();
         for (String key : highlightFields.keySet()) {
             Text[] esFrag = highlightFields.get(key).getFragments();
-            String[] frags = new String[esFrag.length];
-            int i = 0;
-            for (Text text : esFrag) {
-                frags[i] = text.string();
-                i++;
-            }
-            highlights.put(key, frags);
+            highlights.put(key, new HighlightField(key, esFrag));
         }
         return highlights;
     }
 
-    public EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException {
-        EsSearchResult result ;
-        if (queryParams.getQuery() != null || queryParams.getAggs()!=null) {
-            // Raw ES query
-            String query="{\"query\": {\"match_all\": {}}";
+    public EsSearchRequestResult doEsQuery(QueryParams queryParams) throws FlockException {
+        String index = queryParams.getIndex();
+        if ( index == null )
+            index = indexManager.toIndex(queryParams);
 
-            if ( queryParams.getQuery()!=null )
-                query = "{\"query\": " + JsonUtils.toJson(queryParams.getQuery()) ;
-            if ( queryParams.getFields()!=null){
-                query = query +",\"fields\": "+JsonUtils.toJson(queryParams.getFields());
-            }
-            if ( queryParams.getAggs()!=null )
-                query = query + ",\"aggs\": " + JsonUtils.toJson(queryParams.getAggs()) + "}";
-            else
-                query = query + "}";
+
+        SearchRequestBuilder esQuery = elasticSearchClient
+                .prepareSearch(index)
+                .setQuery(termQuery(SearchSchema.CODE, queryParams.getCode()))
+                .setTypes(queryParams.getTypes());
+
+        SearchResponse response = esQuery.execute().actionGet();
+        return wrapResponseResult(response);
+
+    }
+
+    public EsSearchRequestResult wrapResponseResult(SearchResponse response) {
+        EsSearchRequestResult result = new EsSearchRequestResult(response.toString().getBytes());
+        result.setTotalHits(response.getHits().getTotalHits());
+        return result;
+    }
+
+    public EsSearchRequestResult doParametrizedQuery(QueryParams queryParams) throws FlockException {
+        EsSearchRequestResult result ;
+//        if (queryParams.isMatchAll() || queryParams.getCode() != null || queryParams.getAggs()!=null) {
+            // Default ES query if not otherwise supplied
 
             SearchRequestBuilder esQuery = elasticSearchClient
                     .prepareSearch(indexManager.getIndexesToQuery(queryParams));
+
+            BoolQueryBuilder boolQuery =null;
+            MatchAllQueryBuilder matchAll = null;
+            
+            if ( queryParams.isMatchAll())
+                matchAll = QueryBuilders.matchAllQuery();
+
+            if ( queryParams.getCode()!=null ) {
+                boolQuery =QueryBuilders.boolQuery();
+                boolQuery.must(termQuery(SearchSchema.CODE, queryParams.getCode()));
+            }
+
+            if ( queryParams.getSearchText() !=null ){
+                if ( boolQuery == null )
+                    boolQuery =QueryBuilders.boolQuery();
+                boolQuery.should(queryStringQuery(queryParams.getSearchText()));
+            }
+
+
+            if ( !queryParams.getTerms().isEmpty()){
+                if ( boolQuery == null )
+                    boolQuery =QueryBuilders.boolQuery();
+                for (String key : queryParams.getTerms().keySet()) {
+                    boolQuery.must(termQuery(key, queryParams.getTerms().get(key))) ;
+                }
+            }
+
+            if ( queryParams.getFields()!=null){
+                for (String field : queryParams.getFields()) {
+                    esQuery.addDocValueField(field);
+                }
+            }
+
+            if ( queryParams.getAggs()!=null ) {
+                // ToDo: Fix Aggs
+//                query = query + ",\"aggs\": " + JsonUtils.toJson(queryParams.getAggs()) + "}";
+            }
 
             if ( queryParams.getTypes()!=null )
                     esQuery.setTypes(queryParams.getTypes());
 
             if ( queryParams.getSize()!=null )
                 esQuery.setSize(queryParams.getSize());
-
             if (queryParams.getFrom() != null)
                 esQuery.setFrom(queryParams.getFrom());
 
-            esQuery.setExtraSource( query );
-
+            if ( boolQuery !=null )
+                esQuery.setQuery(boolQuery);
+            else
+                esQuery.setQuery(matchAll);
+            
             try {
                 SearchResponse response = esQuery
                         .execute()
                         .actionGet();
 
-                result = new EsSearchResult(response.toString().getBytes());
-                result.setTotalHits(response.getHits().getTotalHits());
+                return wrapResponseResult(response);
             } catch ( ElasticsearchException e){
                 Map<String,Object>error = new HashMap<>();
                 error.put("errors", parseException(e.getRootCause().getMessage()));
 
                 try {
-                    result = new EsSearchResult(JsonUtils.toJsonBytes(error));
+                    result = new EsSearchRequestResult(JsonUtils.toJsonBytes(error));
                 } catch (IOException e1) {
                     throw new FlockException("Json error", e1);
                 }
             }
 
 
-        } else {
-            String index = queryParams.getIndex();
-            if ( index == null )
-                index = indexManager.parseIndex(queryParams);
-
-            GetResponse response =
-                    elasticSearchClient.prepareGet(index,
-                            queryParams.getTypes()[0],
-                            queryParams.getCode())
-                            .execute()
-                            .actionGet();
-            result = new EsSearchResult(response.getSourceAsBytes());
-
-        }
+//        }
         return result;
 
     }
+
+
 
     private Collection<String> parseException(String message) {
 

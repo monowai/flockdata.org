@@ -54,7 +54,7 @@ public class FdQueryEP {
     }
 
     @RequestMapping(value = "/fdView", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    public EsSearchResult fdViewQuery(@RequestBody QueryParams queryParams) throws FlockException {
+    public EsSearchRequestResult fdViewQuery(@RequestBody QueryParams queryParams) throws FlockException {
 
         return searchService.doFdViewSearch(queryParams);
     }
@@ -66,8 +66,8 @@ public class FdQueryEP {
     }
 
     @RequestMapping(value = "/data", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    public EsSearchResult dataContent(@RequestBody QueryParams queryParams) throws FlockException {
-        return searchService.doEntityQuery(queryParams);
+    public EsSearchRequestResult dataContent(@RequestBody QueryParams queryParams) throws FlockException {
+        return searchService.doParamatizedQuery(queryParams);
     }
 
     @RequestMapping(value = "/tagCloud", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)

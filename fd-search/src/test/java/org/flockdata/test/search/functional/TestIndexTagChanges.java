@@ -38,8 +38,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.HashSet;
 import java.util.Set;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
@@ -65,11 +64,14 @@ public class TestIndexTagChanges extends ESBase {
         aliasSet.add(alias);
         when (tag.getAliases()).thenReturn(aliasSet);
 
-        String indexName = indexManager.getIndexRoot(company, tag);
-        assertNotNull (indexName);
+        String indexName = indexManager.getTagIndexRoot(company, tag);
+        assertThat(indexName)
+                .isNotNull()
+                .contains(".tags")
+                .endsWith("."+ indexManager.parseType(tagInputBean.getLabel()))
+        ;
+
         deleteEsIndex(indexName);
-        assertTrue(indexName.contains(".tags."));
-        assertTrue(indexName.endsWith("."+ indexManager.parseType(tagInputBean.getLabel())));
 
         TagSearchChange tagSearchChange=  new TagSearchChange(indexName, tag);
 

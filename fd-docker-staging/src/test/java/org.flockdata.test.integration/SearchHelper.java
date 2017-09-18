@@ -17,7 +17,9 @@
 package org.flockdata.test.integration;
 
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.integration.IndexManager;
 import org.flockdata.search.QueryParams;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -35,34 +37,24 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 @Component
 public class SearchHelper {
 
-    QueryParams getTagQuery(String label, String searchText) throws IOException {
-        return new QueryParams()
+    @Autowired
+    private IndexManager indexManager;
+    
+    QueryParams getTagQuery(String company, String label, String searchText) throws IOException {
+        QueryParams qp= new QueryParams(searchText)
                 .searchTags()
-                .setTypes(label.toLowerCase())
-                .setQuery(JsonUtils.toMap("{\n" +
-                        "    \"filtered\": {\n" +
-                        "      \"query\": {\n" +
-                        "        \"query_string\": {\n" +
-                        "          \"query\": \""+searchText+"\"\n" +
-                        "        }\n" +
-                        "      }\n" +
-                        "    }\n" +
-                        "}"));
+                .setIndex(indexManager.getTagIndexRoot(company, label))
+                .setTypes(label.toLowerCase());
+        return qp;
     }
 
-    QueryParams getTagMatchQuery(String label, String field, String searchText ) throws IOException {
-        return new QueryParams()
+    QueryParams getTagMatchQuery(String company, String label, String field, String searchText ) throws IOException {
+        QueryParams qp= new QueryParams()
                 .searchTags()
+                .setIndex(indexManager.getTagIndexRoot(company, label))
                 .setTypes(label.toLowerCase())
-                .setQuery(JsonUtils.toMap("{\n" +
-                        "    \"match\": {\n" +
-                        "      \""+field+"\": {\n" +
-                        "        \"query\": \""+searchText+"\",\n" +
-                        "        \"type\": \"phrase\"\n" +
-                        "      }\n" +
-                        "  }\n" +
-                        "}"));
-
+                .addTerm(field, searchText);
+        return qp;
     }
 
     void assertHitCount(String message, int expectedCount, Map<String, Object> esResult) {

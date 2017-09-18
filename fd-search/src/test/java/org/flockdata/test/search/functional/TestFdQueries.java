@@ -57,10 +57,13 @@ public class TestFdQueries extends ESBase{
         String user = "mike";
 
         Entity entity = getEntity(company, fortress, user, doc);
+        assertNotNull ( entity.getName());
+
         deleteEsIndex(entity);
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
         change.setDescription("Test Description");
         change.setData(json);
+        change.setName(entity.getName());
 
         deleteEsIndex(entity);
         Thread.sleep(1000);
@@ -74,10 +77,15 @@ public class TestFdQueries extends ESBase{
         QueryParams queryParams = new QueryParams(entity.getSegment());
         queryParams.setCompany(company);
         queryParams.setSearchText("*");
-        // Sanity check - there is only one document in the index
-        EsSearchResult queryResult = queryServiceEs.doFdViewSearch(queryParams);
+        // Exactly one document in the index
+        EsSearchRequestResult queryResult = queryServiceEs.doFdViewSearch(queryParams);
+        assertNotNull( queryResult.getResults());
         assertEquals(1, queryResult.getResults().size());
         assertEquals(entity.getKey(), queryResult.getResults().iterator().next().getKey());
+        assertEquals(entity.getName(), queryResult.getResults().iterator().next().getName());
+
+        // Find by Key
+        queryParams.setKey(entity.getKey());
         EntityKeyResults metaResults = queryServiceEs.doKeyQuery(queryParams);
         assertEquals(1, metaResults.getResults().size());
         assertEquals(entity.getKey(), metaResults.getResults().iterator().next());
@@ -112,7 +120,7 @@ public class TestFdQueries extends ESBase{
 
         Entity entity = getEntity(company, fortress, user, doc);
         deleteEsIndex(entity);
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
         change.setDescription("Test Description");
         change.setData(json);
 

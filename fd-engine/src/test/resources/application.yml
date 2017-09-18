@@ -8,7 +8,7 @@ eureka:
     enabled: 'false'
 
 application:
-  title: FlockData - Unit Testing...
+  title: FlockData - Functional Testing...
 spring:
   profiles:
     active: dev

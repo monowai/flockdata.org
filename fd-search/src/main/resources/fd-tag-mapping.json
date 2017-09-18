@@ -12,56 +12,53 @@
             "geohash_precision": "1km"
           }
         }
+      },
+      {
+        "inline_tag_code_template": {
+          "path_match": "aka.*",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "keyword",
+            "fields": {
+              "text": {
+                "type": "text",
+                "boost": "3.0"
+              }
+            }
+          }
+        }
       }
     ],
     "properties": {
       "key": {
-        "type": "string",
-        "doc_values": true,
-        "store": false,
-        "index": "not_analyzed"
+        "type": "keyword"
       },
       "fortress": {
-        "type": "string",
-        "doc_values": true,
-        "index": "not_analyzed"
+        "type": "keyword"
       },
       "code": {
-        "type": "string",
+        "type": "keyword",
         "boost": "3.0",
         "fields": {
-          "{name}": {
-            "type": "string",
+          "text": {
+            "type": "text",
             "boost": "3.0",
             "index": "analyzed"
-          },
-          "facet": {
-            "type": "string",
-            "boost": "5.0",
-            "doc_values": true,
-            "index": "not_analyzed"
           }
         }
       },
       "name": {
-        "type": "string",
+        "type": "keyword",
         "boost": "4.0",
         "fields": {
-          "{name}": {
-            "type": "string",
-            "boost": "3.0",
-            "index": "analyzed"
-          },
-          "facet": {
-            "type": "string",
-            "boost": "5.0",
-            "doc_values": true,
-            "index": "not_analyzed"
+          "text": {
+            "type": "text",
+            "boost": "5.0"
           }
         }
       },
       "description": {
-        "type": "string",
+        "type": "text",
         "boost": 4
       }
     }

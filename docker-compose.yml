@@ -1,0 +1,26 @@
+version: '3.3'
+services:
+  elasticsearch:
+    image: elasticsearch:5-alpine
+    command: "elasticsearch -E node.name=fd-dev -E cluster.name=fd-dev -E node.master=true -E discovery.type=single-node -E network.host=0.0.0.0"
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    volumes:
+      - fd-dev-es:/usr/share/elasticsearch/data
+    expose:
+      - 9200
+      - 9300
+
+  rabbit:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    expose:
+      - 15682
+      - 5672
+
+volumes:
+  fd-dev-es: {}
+

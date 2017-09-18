@@ -25,14 +25,15 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.node.Node;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.SearchSchema;
+import org.flockdata.search.configure.SearchConfig;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.util.HashMap;
@@ -44,11 +45,15 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Raw ES client functionality. Establishes a local node
  */
+//@RunWith(SpringRunner.class)
 public class TestElasticSearch extends ESBase {
 
     ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
     private Logger logger = LoggerFactory.getLogger(TestElasticSearch.class);
 
+    @Autowired
+    SearchConfig searchConfig;
+    
     @Test
     public void testMappingJson() throws Exception {
         String escWhat = "{\"house\": \"house\"}";
@@ -90,10 +95,7 @@ public class TestElasticSearch extends ESBase {
         Map<String, String> env = System.getenv();
         if (env.containsKey("COMPUTERNAME"))
             return env.get("COMPUTERNAME");
-        else if (env.containsKey("HOSTNAME"))
-            return env.get("HOSTNAME");
-        else
-            return "Unknown Computer";
+        else return env.getOrDefault("HOSTNAME", "Unknown Computer");
     }
 
 
@@ -102,26 +104,18 @@ public class TestElasticSearch extends ESBase {
         tempDir.delete();
         tempDir.mkdir();
 
-        Settings settings = Settings.settingsBuilder()
+        Settings settings = Settings.builder()
                 .put("cluster.name", getComputerName())
                 .put("node.name", getComputerName())
-                .put("path.home", new File(tempDir, "./").getAbsolutePath())
+                .put("path.home", new File(tempDir, "./work").getAbsolutePath())
                 .put("path.data", new File(tempDir, "data").getAbsolutePath())
                 .put("path.logs", new File(tempDir, "logs").getAbsolutePath())
-                .put("path.work", new File(tempDir, "work").getAbsolutePath())
-
                 .put("node.data", true)
-                .put("node.local", true).build();
+                .build();
 
         // Elasticsearch
-        Node node = org.elasticsearch.node.NodeBuilder
-                .nodeBuilder()
-                .settings(settings)
-                .clusterName(getComputerName())
-                .local(true)
-                .node();
-
-        Client client = node.client();
+        SearchConfig searchConfig = new SearchConfig();
+        Client client = searchConfig.elasticSearchClient(settings);
         String indexKey = change.getIndexName() == null ? "indexkey" : change.getIndexName();
 
         // Write the object to Lucene
@@ -140,7 +134,7 @@ public class TestElasticSearch extends ESBase {
                 .setRouting(change.getKey())
                 .execute()
                 .actionGet();
-        node.close();
+        client.close();
         return response;
     }
 

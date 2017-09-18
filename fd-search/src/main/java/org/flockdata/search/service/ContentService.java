@@ -20,7 +20,6 @@
 
 package org.flockdata.search.service;
 
-import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -67,12 +66,12 @@ public class ContentService {
             fieldMappings.setFields("data.*","tag.*", "e.*", "up.*", SearchSchema.PROPS, SearchSchema.CREATED, SearchSchema.UPDATED, SearchSchema.DOC_TYPE);
             ListenableActionFuture<GetFieldMappingsResponse> future = fieldMappings.execute();
             GetFieldMappingsResponse result = future.get();
-            ImmutableMap<String, ImmutableMap<String, ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData>>> mappings = result.mappings();
+            Map<String, Map<String, Map<String, GetFieldMappingsResponse.FieldMappingMetaData>>> mappings = result.mappings();
             for (String index : mappings.keySet()) {
-                ImmutableMap<String, ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData>> stringImmutableMapImmutableMap = mappings.get(index);
+                Map<String, Map<String, GetFieldMappingsResponse.FieldMappingMetaData>> stringImmutableMapImmutableMap = mappings.get(index);
                 for (String type : stringImmutableMapImmutableMap.keySet()) {
                     ContentStructure contentStructure = new ContentStructure(index, type);
-                    ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData> fields = stringImmutableMapImmutableMap.get(type);
+                    Map<String, GetFieldMappingsResponse.FieldMappingMetaData> fields = stringImmutableMapImmutableMap.get(type);
                     for (String field : fields.keySet()) {
                         handle(contentStructure, fields.get(field));
                     }
@@ -106,7 +105,7 @@ public class ContentService {
         EsColumn column = null;
         if ( !fd ) {
             Map<String, Object> source = fieldMappingMetaData.sourceAsMap();
-            if (source.containsKey("facet")) {
+            if (link && isKeyword(source)) {
                 column = new EsColumn(name, "string");
             } else {
                 Collection<Object> values = fieldMappingMetaData.sourceAsMap().values();
@@ -134,5 +133,18 @@ public class ContentService {
             else
                 contentStructure.addFd(column);
         }
+    }
+
+    private boolean isKeyword(Map<String, Object> source) {
+        if (source.containsKey("keyword"))
+            return true;
+        Map<String,Object> defn = (Map<String, Object>) source.values().iterator().next();
+        if ( defn.containsKey("type") && defn.get("type").equals("keyword"))
+            return true;
+        if ( defn.containsKey("fields")){
+            Map<String,Object> candidate = (Map<String, Object>) defn.get("fields");
+            return candidate.containsKey("keyword");
+        }
+        return false;
     }
 }

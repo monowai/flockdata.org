@@ -1,21 +1,17 @@
 /*
+ *  Copyright 2012-2017 the original author or authors.
  *
- *  Copyright (c) 2012-2017 "FlockData LLC"
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This file is part of FlockData.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  FlockData is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  FlockData is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.search;
@@ -27,6 +23,7 @@ import org.flockdata.track.bean.MatrixInputBean;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -52,11 +49,15 @@ public class QueryParams implements QueryInterface {
     private Map<String, Object> query; // Raw query to pass through to ES
     private Map<String, Object> aggs; // Raw aggs to pass through to ES
     private Map<String,Object> filter; // Raw filter to pass through to ES
+    private Map<String,Object> terms= new HashMap<>(); // Raw filter to pass through to ES
     private ArrayList<String> tags;
     private ArrayList<String> relationships = new ArrayList<>();
+    private boolean matchAll;
 
     public QueryParams(String searchText) {
         this.searchText = searchText;
+        if ( this.searchText.equals("*"))
+            setMatchAll(true);
     }
 
     public QueryParams(Segment segment) {
@@ -98,6 +99,11 @@ public class QueryParams implements QueryInterface {
                 this.types[i++] = s.toLowerCase();
             }
         }
+    }
+
+    public QueryParams(String index, String text) {
+        this(text);
+        this.index = index;
     }
 
     public ArrayList<String> getTags() {
@@ -175,8 +181,9 @@ public class QueryParams implements QueryInterface {
         return entityOnly;
     }
 
-    public void setEntityOnly(boolean entityOnly) {
+    public QueryParams setEntityOnly(boolean entityOnly) {
         this.entityOnly = entityOnly;
+        return this;
     }
 
     public String getKey() {
@@ -203,6 +210,7 @@ public class QueryParams implements QueryInterface {
     /**
      * @return elasticsearch body to execute against the requested index
      */
+    @Deprecated
     public Map<String, Object> getQuery() {
         return query;
     }
@@ -255,5 +263,25 @@ public class QueryParams implements QueryInterface {
     @Override
     public Map<String,Object> getFilter() {
         return filter;
+    }
+
+    public Map<String, Object> getTerms() {
+        return terms;
+    }
+
+    @Override
+    public QueryParams addTerm(String field, Object value) {
+        terms.put(field, value);
+
+        return this;
+    }
+
+    public boolean isMatchAll() {
+        return matchAll;
+    }
+
+    public QueryParams setMatchAll(boolean matchAll) {
+        this.matchAll = matchAll;
+        return this;
     }
 }

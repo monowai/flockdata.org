@@ -69,9 +69,9 @@ public class QueryEP {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public EsSearchResult searchQueryParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
+    public EsSearchRequestResult searchQueryParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
-        EsSearchResult result =  queryService.search(company, queryParams);
+        EsSearchRequestResult result =  queryService.search(company, queryParams);
         if (result.getFdSearchError()!=null )
             throw new FlockException(result.getFdSearchError());
         return result;
@@ -90,7 +90,7 @@ public class QueryEP {
         queryParams.setEntityOnly(false);
         queryParams.setCompany(company.getName());
 
-        EsSearchResult result = queryService.search(company, queryParams);
+        EsSearchRequestResult result = queryService.search(company, queryParams);
         if (result.getJson() == null)
             throw new NotFoundException("No search results were found");
 

@@ -23,7 +23,7 @@ package org.flockdata.engine.integration.search;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.MessageSupport;
-import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.EsSearchRequestResult;
 import org.flockdata.search.QueryParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -104,15 +104,15 @@ public class FdViewQuery {
 
     // ToDo: Can this be integrated to the handler?
     @Transformer(inputChannel="receiveFdViewReply", outputChannel="fdViewResult")
-    public EsSearchResult fdViewResponse(Message<String> theObject) throws IOException {
-        return JsonUtils.toObject(theObject.getPayload().getBytes(), EsSearchResult.class);
+    public EsSearchRequestResult fdViewResponse(Message<String> theObject) throws IOException {
+        return JsonUtils.toObject(theObject.getPayload().getBytes(), EsSearchRequestResult.class);
     }
 
     @MessagingGateway
     public interface FdViewQueryGateway {
 
         @Gateway(requestChannel = "sendSearchRequest", replyChannel = "fdViewResult")
-        EsSearchResult fdSearch(QueryParams queryParams);
+        EsSearchRequestResult fdSearch(QueryParams queryParams);
 
     }
 

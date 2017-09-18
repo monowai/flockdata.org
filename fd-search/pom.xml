@@ -11,7 +11,7 @@
     <version>0.98.9-SNAPSHOT</version>
     <packaging>jar</packaging>
     <properties>
-        <es.version>2.4.4</es.version>
+        <es.version>5.5.2</es.version>
         <org.flockdata.client.version>0.98.9-SNAPSHOT</org.flockdata.client.version>
         <org.flockdata.common.version>0.98.9-SNAPSHOT</org.flockdata.common.version>
         <org.flockdata.security.version>0.98.9-SNAPSHOT</org.flockdata.security.version>
@@ -102,12 +102,17 @@
             <artifactId>elasticsearch</artifactId>
             <version>${es.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.elasticsearch.client</groupId>-->
-            <!--<artifactId>transport</artifactId>-->
-            <!--<version>${es.version}</version>-->
-        <!--</dependency>-->
-
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>transport</artifactId>
+            <version>${es.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.plugin</groupId>
+            <artifactId>transport-netty4-client</artifactId>
+            <version>${es.version}</version>
+            <!--<scope>test</scope>-->
+        </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
@@ -126,7 +131,7 @@
         <dependency>
             <groupId>io.searchbox</groupId>
             <artifactId>jest</artifactId>
-            <version>2.0.0</version>
+            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>

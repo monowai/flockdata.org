@@ -33,7 +33,10 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.mapper.MapperParsingException;
+import org.elasticsearch.rest.RestStatus;
 import org.flockdata.data.Entity;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.integration.IndexManager;
@@ -57,11 +60,9 @@ import java.util.*;
 @Service
 public class EntityChangeWriterEs implements EntityChangeWriter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityChangeWriterEs.class);
     private final Client elasticSearchClient;
-
     private final IndexManager indexManager;
-
-    private Logger logger = LoggerFactory.getLogger(EntityChangeWriterEs.class);
 
     @Autowired
     public EntityChangeWriterEs(Client elasticSearchClient, IndexManager indexManager) {
@@ -81,42 +82,36 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
                 .execute()
                 .actionGet();
 
-        if (!dr.isFound()) {
-            logger.debug("Didn't find the document to remove [{}] from {}/{}", existingIndexKey, indexName, recordType);
+        if (dr.status() == RestStatus.NOT_FOUND) {
+            LOGGER.debug("Didn't find the document to remove [{}] from {}/{}", existingIndexKey, indexName, recordType);
             return false;// Not found
         }
-        logger.debug("Removed document [{}] from {}/{}", existingIndexKey, indexName, recordType);
+        LOGGER.debug("Removed document [{}] from {}/{}", existingIndexKey, indexName, recordType);
         return true;
     }
 
     /**
      * @param searchChange object containing changes
-     * @param source       Json to save
+     * @param source Json to save
      * @return key value of the child document
      */
-    private EntitySearchChange save(EntitySearchChange searchChange, String source)  {
+    private EntitySearchChange save(EntitySearchChange searchChange, String source) {
         String indexName = searchChange.getIndexName();
         String documentType = searchChange.getDocumentType();
-        logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getKey(), searchChange.getSearchKey());
+        LOGGER.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getKey(), searchChange.getSearchKey());
 
         // Rebuilding a document after a reindex - preserving the unique key.
         IndexRequestBuilder irb =
                 elasticSearchClient
                         .prepareIndex(searchChange.getIndexName(), documentType)
-                        .setSource(source);
+                        .setSource(source, XContentType.JSON);
 
         irb.setId(searchChange.getSearchKey());
-//        if (searchChange.getParent() != null)
-//            // Disabling parent document functionality
-////            irb.setParent(searchChange.getParent().getCode());
-//            irb.setRouting(searchChange.getParent().getCode());
-//        else
-//            irb.setRouting(searchChange.getCode());
 
         try {
             IndexResponse ir = irb.execute().actionGet();
 
-            logger.debug("Save:Document entityId [{}], [{}], logId= [{}] searchKey [{}] index [{}/{}]",
+            LOGGER.debug("Save:Document entityId [{}], [{}], logId= [{}] searchKey [{}] index [{}/{}]",
                     searchChange.getId(),
                     searchChange.getKey(),
                     searchChange.getLogId(),
@@ -127,10 +122,10 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             return searchChange;
         } catch (MapperParsingException e) {
             // DAT-359
-            logger.error("Parsing error {} - code [{}], key [{}], [{}]", indexName, searchChange.getCode(), searchChange.getKey(), e.getMessage());
+            LOGGER.error("Parsing error {} - code [{}], key [{}], [{}]", indexName, searchChange.getCode(), searchChange.getKey(), e.getMessage());
             throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], key [" + searchChange.getKey() + "], " + e.getMessage(), e);
         } catch (Exception e) {
-            logger.error("Writing to index {} produced an error [{}]", indexName, e.getMessage());
+            LOGGER.error("Writing to index {} produced an error [{}]", indexName, e.getMessage());
             throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], key [" + searchChange.getKey() + "], " + e.getMessage(), e);
         }
 
@@ -143,12 +138,12 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
             searchChange.setSearchKey((searchChange.getCode() == null ? searchChange.getKey() : searchChange.getCode()));
-            logger.debug("No search key, creating as a new document [{}]", searchChange.getKey());
+            LOGGER.debug("No search key, creating as a new document [{}]", searchChange.getKey());
             return save(searchChange, source);
         }
 
         try {
-            logger.debug("Update request for searchKey [{}], key[{}]", searchChange.getSearchKey(), searchChange.getKey());
+            LOGGER.debug("Update request for searchKey [{}], key[{}]", searchChange.getSearchKey(), searchChange.getKey());
 
             GetRequestBuilder request =
                     elasticSearchClient.prepareGet(searchChange.getIndexName(),
@@ -163,9 +158,9 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             GetResponse response = request.execute()
                     .actionGet();
 
-            logger.debug("executed get request for {}", searchChange.toString());
+            LOGGER.debug("executed get request for {}", searchChange.toString());
             if (response.isExists() && !response.isSourceEmpty()) {
-                logger.debug("Document exists!");
+                LOGGER.debug("Document exists!");
                 // Messages can be received out of sequence
                 // Check to ensure we don't accidentally overwrite a more current
                 // document with an older one. We assume the calling fortress understands
@@ -174,25 +169,25 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
                 if (o != null) {
 
                     Long existingWhen = Long.decode(o.toString());
-                    logger.debug("Comparing searchChange when {} with stored when {}", searchChange.getUpdatedDate(), existingWhen);
+                    LOGGER.debug("Comparing searchChange when {} with stored when {}", searchChange.getUpdatedDate(), existingWhen);
                     if (!searchChange.isForceReindex()) {
                         if (existingWhen.compareTo(searchChange.getUpdatedDate().getTime()) > 0) {
-                            logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the searchChange document dated [{}]", new Date(existingWhen), searchChange.getUpdatedDate());
+                            LOGGER.debug("ignoring a request to update as the existing document dated [{}] is newer than the searchChange document dated [{}]", new Date(existingWhen), searchChange.getUpdatedDate());
                             return searchChange; // Don't overwrite the most current doc!
                         } else if (searchChange.getUpdatedDate().getTime() == 0L && !searchChange.isReplyRequired()) {
                             // Meta Change - not indexed in FD, so ignore something we already have.
                             // Likely scenario is a batch is being reprocessed
                             return searchChange;
                         }
-                        logger.debug("Document is more recent. Proceeding with update");
+                        LOGGER.debug("Document is more recent. Proceeding with update");
                     } else {
-                        logger.debug("Forcing an update of the document.");
+                        LOGGER.debug("Forcing an update of the document.");
                     }
                 }
             } else {
                 // No response, to a search key we expect to exist. Create a new one
                 // Likely to be in response to rebuilding an ES index from Graph data.
-                logger.debug("About to create in response to an update request for {}", searchChange.toString());
+                LOGGER.debug("About to create in response to an update request for {}", searchChange.toString());
                 return save(searchChange, source);
             }
 
@@ -204,12 +199,12 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
                     execute();
 
-            if (logger.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 IndexResponse indexResponse = ur.actionGet();
-                logger.debug("Updated [{}] logId=[{}] for [{}] to version [{}]", searchChange.getSearchKey(), searchChange.getLogId(), searchChange, indexResponse.getVersion());
+                LOGGER.debug("Updated [{}] logId=[{}] for [{}] to version [{}]", searchChange.getSearchKey(), searchChange.getLogId(), searchChange, indexResponse.getVersion());
             }
 //        } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
-//            logger.info("Attempt to update non-existent index [{}]. Creating it..", searchChange.getRootIndex());
+//            LOGGER.info("Attempt to update non-existent index [{}]. Creating it..", searchChange.getRootIndex());
 //            purgeCache();
 //            return save(searchChange, source);
         } catch (NoShardAvailableActionException e) {
@@ -229,11 +224,11 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
     }
 
     public Map<String, Object> findOne(Entity entity, String id) {
-        String indexName = indexManager.parseIndex(entity);//entity.getFortress().getRootIndex();
+        String indexName = indexManager.toIndex(entity);//entity.getFortress().getRootIndex();
         String documentType = entity.getType();
         if (id == null)
             id = entity.getSearchKey();
-        logger.debug("Looking for [{}] in {}", id, indexName + documentType);
+        LOGGER.debug("Looking for [{}] in {}", id, indexName + documentType);
 
         GetResponse response = elasticSearchClient.prepareGet(indexName, documentType, id)
                 //.setRouting(entity.getKey())
@@ -243,24 +238,31 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         if (response != null && response.isExists() && !response.isSourceEmpty())
             return response.getSource();
 
-        logger.info("Unable to find response data for [" + id + "] in " + indexName + "/" + documentType);
+        LOGGER.info("Unable to find response data for [" + id + "] in " + indexName + "/" + documentType);
         return null;
     }
 
     @Override
     public Map<String, Object> ping() {
         Map<String, Object> results = new HashMap<>();
-        ClusterHealthRequest request = new ClusterHealthRequest();
-        ClusterHealthResponse response = elasticSearchClient.admin().cluster().health(request).actionGet();
-        if (response == null) {
-            results.put("status", "error!");
+        ClusterHealthResponse response = null;
+        try {
+            response = elasticSearchClient.admin()
+                    .cluster()
+                    .health(new ClusterHealthRequest())
+                    .actionGet();
+        } catch (NoNodeAvailableException e) {
+            // Node may become available, so we will not stop the service
+            results.put("status", e.getMessage());
+            LOGGER.error(e.getMessage());
             return results;
         }
-        results.put("Status", "ok");
+
         results.put("health", response.getStatus().name());
         results.put("dataNodes", response.getNumberOfDataNodes());
         results.put("nodes", response.getNumberOfNodes());
         results.put("clusterName", response.getClusterName());
+        results.put("Status", "ok");
         results.put("nodeName", elasticSearchClient.settings().get("name"));
 
         return results;
@@ -273,7 +275,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             return mapper.writeValueAsString(index);
         } catch (JsonProcessingException e) {
 
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         return null;
     }
@@ -322,9 +324,9 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         String name = searchChange.getName();
         String description = searchChange.getDescription();
 
-        if ( name !=null ){
+        if (name != null) {
             // We prefer storing the description in the search doc
-            if ( description==null || StringUtils.equals(name, description))
+            if (description == null || StringUtils.equals(name, description))
                 description = name;
             else
                 indexMe.put(SearchSchema.NAME, searchChange.getName());
@@ -506,7 +508,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             for (String key : tag.getParent().keySet()) {
                 Collection<SearchTag> nestedSearchTags = tag.getParent().get(key);
                 gatherTags(tagCodes, nestedSearchTags);
-//                logger.info(key);
+//                LOGGER.info(key);
             }
         }
     }

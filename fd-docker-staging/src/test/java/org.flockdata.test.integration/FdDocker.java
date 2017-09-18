@@ -38,17 +38,21 @@ public class FdDocker extends ExternalResource {
 
     // To debug without test containers, i.e. externally started stack, set stack to null
 //    static DockerComposeContainer stack = null;
+
     static DockerComposeContainer stack   =
             new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"))
                     .withPull(false)
                     .withExposedService("rabbit_1", 5672)
                     .withExposedService("rabbit_1", 15672)
+                    .withExposedService("elasticsearch_1", 9200)
+                    .withExposedService("elasticsearch_1", 9300)
                     .withExposedService("fdengine_1", SERVICE_ENGINE)
                     .withExposedService("fdengine_1", DEBUG_ENGINE)
                     .withExposedService("fdsearch_1", SERVICE_SEARCH)
                     .withExposedService("fdsearch_1", DEBUG_SEARCH)
                     .withExposedService("fdstore_1", SERVICE_STORE)
                     .withExposedService("fdstore_1", DEBUG_STORE);
+
 
     private static Logger logger = LoggerFactory.getLogger(FdDocker.class);
 

@@ -87,32 +87,32 @@ public class QueryService {
         this.esStore = contentStoreEs;
     }
 
-    public EsSearchResult search(CompanyNode company, QueryParams queryParams) {
+    public EsSearchRequestResult search(CompanyNode company, QueryParams queryParams) {
 
         queryParams.setCompany(company.getName());
-        EsSearchResult esSearchResult;
+        EsSearchRequestResult esSearchRequestResult;
         if (queryParams.isSearchTagsOnly()) {
             // Set the index
-            queryParams.setIndex(indexManager.parseIndex(queryParams));
+            queryParams.setIndex(indexManager.toIndex(queryParams));
 
         }
 
-        if (queryParams.getQuery() != null || queryParams.getAggs() != null) {
-            esSearchResult = esStore.getData(queryParams);
+        if (queryParams.isMatchAll() || queryParams.isSearchTagsOnly() || queryParams.getQuery() != null || queryParams.getAggs() != null ) {
+            esSearchRequestResult = esStore.getData(queryParams);
         } else {
             if (fdViewQueryGateway == null) {
                 logger.info("fdViewQueryGateway is not available");
                 return null;
             } else {
                 try {
-                    esSearchResult = fdViewQueryGateway.fdSearch(queryParams);
+                    esSearchRequestResult = fdViewQueryGateway.fdSearch(queryParams);
                 } catch ( ResourceAccessException e){
                     throw new FlockServiceException("The search service is not currently available");
                 }
             }
         }
 
-        return esSearchResult;
+        return esSearchRequestResult;
 
     }
 

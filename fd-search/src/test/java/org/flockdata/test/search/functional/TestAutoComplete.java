@@ -67,7 +67,8 @@ public class TestAutoComplete extends ESBase{
 
         // 2 char code as this is the minimum we will index from
         TagInputBean noName = new TagInputBean("11", "NumCode", "rlxname");
-        TagInputBean numCodeWithName = new TagInputBean("21", "AutoComplete", "rlxname").setName("Code should not be indexed");
+        TagInputBean numCodeWithName = new TagInputBean("21", "AutoComplete", "rlxname")
+                .setName("Code should not be indexed");
         TagInputBean zipCode = new TagInputBean("70612", "ZipCode");
 
         Collection<EntityTag> tags = new ArrayList<>();
@@ -75,7 +76,7 @@ public class TestAutoComplete extends ESBase{
         tags.add(MockDataFactory.getEntityTag(entity, numCodeWithName, "rlxname"));
         tags.add(MockDataFactory.getEntityTag(entity, zipCode, "zip"));
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
         change.setData(what);
         change.setStructuredTags(EntityTag.TAG_STRUCTURE.DEFAULT, tags);
 
@@ -90,8 +91,8 @@ public class TestAutoComplete extends ESBase{
         doCompletionQuery(entity, "code", 1, "Find by name, but Code is not indexed");
         doCompletionQuery(entity, numCodeWithName.getCode(), 0, "Should not be found as numeric code is ignored");
         doCompletionQuery(entity, zipCode.getCode(), 1, "Didn't find the zip code");
-        doFieldQuery(entity, "tag.rlxname.autocomplete.code", numCodeWithName.getCode(), 0, "Code should not be indexed");
-        doFacetQuery(indexManager.parseIndex(entity), entity.getType(), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
+        doTermQuery(entity, "tag.rlxname.autocomplete.code", numCodeWithName.getCode(), 0, "AutoComplete code should not be indexed");
+        doTermQuery(entity, "tag.rlxname.autocomplete.name", numCodeWithName.getName());
 
 
 
@@ -116,7 +117,7 @@ public class TestAutoComplete extends ESBase{
         tags.add(MockDataFactory.getEntityTag(entity, tagInputA, "rlxname"));
         tags.add(MockDataFactory.getEntityTag(entity, tagInputB, "rlxname"));
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
         change.setData(what);
         change.setStructuredTags(EntityTag.TAG_STRUCTURE.DEFAULT, tags);
 
@@ -127,7 +128,7 @@ public class TestAutoComplete extends ESBase{
         Thread.sleep(2000);
         logger.info(doQuery(entity, entity.getCode()));
 
-        doCompletionQuery(entity, "find", 2, "Find by tag name failed");
+        doCompletionQuery(entity, "find", 1, "Find by tag name failed");
         doCompletionQuery(entity, "ab", 1, "Code is 2 chars and should be indexed");
         doCompletionQuery(entity, "a", 0, "Code less than 2 chars should have been ignored");
 
@@ -162,7 +163,7 @@ public class TestAutoComplete extends ESBase{
         tags.add(MockDataFactory.getEntityTag(entity, procedure, "proc"));
         tags.add(MockDataFactory.getEntityTag(entity, procedureB, "proc"));
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
         change.setData(what);
         change.setStructuredTags(EntityTag.TAG_STRUCTURE.DEFAULT, tags);
 

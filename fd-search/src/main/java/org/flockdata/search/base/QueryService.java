@@ -34,7 +34,7 @@ public interface QueryService {
 
     Long getHitCount(String index);
 
-    EsSearchResult doFdViewSearch(QueryParams queryParams) throws FlockException;
+    EsSearchRequestResult doFdViewSearch(QueryParams queryParams) throws FlockException;
 
     /**
      * Returns the "data" associated with the entity resolved from the queryParams
@@ -43,9 +43,9 @@ public interface QueryService {
      * @return searchResult with the what Map populated
      * @throws FlockException business exception occurred
      * @see QueryParams
-     * @see EsSearchResult
+     * @see EsSearchRequestResult
      */
-    EsSearchResult doEntityQuery(QueryParams queryParams) throws FlockException;
+    EsSearchRequestResult doParamatizedQuery(QueryParams queryParams) throws FlockException;
 
     EntityKeyResults doKeyQuery(QueryParams queryParams) throws FlockException;
 

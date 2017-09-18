@@ -2,24 +2,24 @@
     "mapping": {
         "properties": {
             "key": {
-                "type": "string",
+                "type": "keyword",
                 "index": "not_analyzed"
             },
             "code": {
-                "type": "string",
+                "type": "keyword",
                 "boost": "2.0",
                 "index": "not_analyzed"
             },
             "docType": {
-                "type": "string",
+                "type": "keyword",
                 "index": "not_analyzed"
             },
             "fortress": {
-                "type": "string",
+                "type": "keyword",
                 "index": "not_analyzed"
             },
             "lastEvent": {
-                "type": "string",
+                "type": "keyword",
                 "index": "not_analyzed"
             },
             "timestamp": {
@@ -37,14 +37,14 @@
                 }
             },
             "description": {
-                "type": "string",
+                "type": "text",
                 "analyzer": "ngram_long"
             } ,
             "when": {
                 "type": "date"
             },
             "who": {
-                "type": "string",
+                "type": "keyword",
                 "index": "not_analyzed"
             }
         },
@@ -53,9 +53,9 @@
             {
                 "tag-template": {
                     "path_match": "tag.*.code",
-                    "match_mapping_type": "string",
+                    "match_mapping_type": "text",
                     "mapping": {
-                        "type": "string",
+                        "type": "keyword",
                         "doc_values": true,
                         "boost": 3.0,
                         "index": "not_analyzed",

@@ -16,219 +16,44 @@
 
 package org.flockdata.search;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.track.bean.SearchChange;
-
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Object to tie the keys between fd-engine and fd-search so that fd-engine can keep the document up-to-date
- *
- * @author mholdsworth
- * @since 13/07/2013
- * @tag Search, Entity, Contract
+ * @author Mike Holdsworth
+ * @since 16/09/17
  */
-public class SearchResult {
+public interface SearchResult {
+    String getLastUser();
 
+    String getDescription();
 
-    private String key, fortress, searchKey, documentType;
-    private String indexName; // Store Index
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long logId;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long entityId;
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Map<String, String[]> fragments;
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Map<String, Object> data;
-    private String code;
-    private String createdBy;
-    private Long fdTimestamp;
-    private String name;
-    private String lastUser;
-    private String description;
-    private String event;
-    private Long dateCreated;
-    private Long lastUpdate;
-    private long whenCreated;
-    protected SearchResult() {
-    }
-    public SearchResult(SearchChange thisChange) {
-        this();
-        this.entityId = thisChange.getId();
-        this.fortress = thisChange.getFortressName();
-        this.searchKey = thisChange.getSearchKey();
-        this.documentType = thisChange.getDocumentType();
-        this.key = thisChange.getKey();
-        this.indexName = thisChange.getIndexName();
+    String getEvent();
 
-        setLogId(thisChange.getLogId());
-        setEntityId(thisChange.getId());
+    Long getLastUpdate();
 
+    long getWhenCreated();
 
-    }
-    public SearchResult(
-                        String searchKey,
-                        String key,
-                        String fortress,
-                        String event,
-                        String type,
-                        String lastUser,
-                        String lastUpdate,
-                        String whenCreated,
-                        String fdTimestamp,
-                        Map<String, String[]> fragments) {
-        this.key = key;
-        this.documentType = type;
-        this.searchKey = searchKey;
-        this.fragments = fragments;
-        this.event = event;
-        this.fortress = fortress;
-        this.lastUser = lastUser;
-        if ( whenCreated !=null )
-            this.whenCreated= Long.decode(whenCreated);
+    String getKey();
 
-        if ( lastUpdate != null && !lastUpdate.equals(whenCreated) )
-            this.lastUpdate = Long.decode(lastUpdate);
+    String getFortress();
 
-        if ( fdTimestamp !=null )
-            this.fdTimestamp = Long.decode(fdTimestamp);
+    String getIndexName();
 
-    }
+    String getSearchKey();
 
-    public String getLastUser() {
-        return lastUser;
-    }
+    String getDocumentType();
 
-    public String getDescription() {
-        return description;
-    }
+    Long getLogId();
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    Long getEntityId();
 
-    public String getEvent() {
-        return event;
-    }
+    String getCode();
 
-    public Long getLastUpdate() {
-        return lastUpdate;
-    }
+    String getCreatedBy();
 
-    public long getWhenCreated() {
-        return whenCreated;
-    }
+    Long getFdTimestamp();
 
-    /**
-     * GUID for the key
-     *
-     * @return string
-     */
-    public String getKey() {
-        return key;
-    }
+    Map<String,Object> getData();
 
-    /**
-     * name of the fortress that owns the key
-     *
-     * @return string
-     */
-    public String getFortress() {
-        return fortress;
-    }
-
-    public String getIndexName() {
-        return indexName;
-    }
-
-    /**
-     * GUID for the search document
-     *
-     * @return string
-     */
-    public String getSearchKey() {
-        return searchKey;
-    }
-
-    public void setSearchKey(String searchKey) {
-        this.searchKey = searchKey;
-    }
-
-    /**
-     * useful for external caller to know what type of document was indexed
-     *
-     * @return type of Entity
-     */
-    public String getDocumentType() {
-        return documentType;
-    }
-
-    @Override
-    public String toString() {
-        return "SearchResult{" +
-                "entityId='" + entityId + '\'' +
-                ", key='" + key + '\'' +
-                ", logId='" + logId + '\'' +
-                ", fortress='" + fortress + '\'' +
-                ", documentType='" + documentType + '\'' +
-                '}';
-    }
-
-    public Long getLogId() {
-        return logId;
-    }
-
-    public void setLogId(Long logId) {
-        this.logId = logId;
-    }
-
-    public Long getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(Long entityId) {
-        this.entityId = entityId;
-    }
-
-    public Map<String, String[]> getFragments() {
-        return fragments;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public Long getFdTimestamp() {
-        return fdTimestamp;
-    }
-
-    public void addFieldValue(String field, Object value) {
-        if ( this.data == null )
-            data = new HashMap<>();
-        if ( field.contains(SearchSchema.DATA))
-            field = field.substring(SearchSchema.DATA.length()+1);
-        this.data.put(field, value);
-    }
-
-    public Map<String,Object> getData(){
-        return data;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    String getName();
 }

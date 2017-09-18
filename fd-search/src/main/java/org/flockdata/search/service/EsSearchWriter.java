@@ -38,6 +38,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Service endpoint to write incoming search requests via an ElasticSearch implementation
@@ -91,6 +93,7 @@ public class EsSearchWriter implements SearchWriter {
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
 
         SearchResults results = new SearchResults();
+        Collection<SearchResult> searchResults = new ArrayList<>(changes.getChanges().size());
 
         for (SearchChange searchChange : thisChange) {
             if (searchChange == null) {
@@ -103,33 +106,32 @@ public class EsSearchWriter implements SearchWriter {
                 if (searchChange.isType(SearchChange.Type.ENTITY)) {
                     logger.debug("Delete Entity request");
                     entityWriter.delete((EntitySearchChange) searchChange);
-//                } else if (searchChange.isType(SearchChange.Type.TAG)) {
-//                    logger.debug("Delete Tag request");
-//                    tagWriter.delete((TagSearchChange) searchChange);
                 }
                 return results;
             }
 
             indexMappingService.ensureIndexMapping(searchChange);
 
-            SearchResult result;
+            EsSearchResult result;
             if (searchChange.isType(SearchChange.Type.ENTITY))
-                result = new SearchResult(
+                result = new EsSearchResult(
                         entityWriter.handle((EntitySearchChange) searchChange));
             else
-                result = new SearchResult(
+                result = new EsSearchResult(
                         tagWriter.handle((TagSearchChange) searchChange));
 
 
             // Used to tie the fact that the doc was updated back to the engine
             if (searchChange.isReplyRequired()) {
-                results.addSearchResult(result);
+                searchResults.add(result);
                 logger.trace("Dispatching searchResult to fd-engine {}", result);
             } else {
                 logger.trace("No reply required");
             }
-
         }
+        results = new SearchResults();
+        results.setSearchResults(searchResults);
+
         if ( results.isEmpty()){
             logger.debug("No results to return");
         } else if ( !fdServer) {

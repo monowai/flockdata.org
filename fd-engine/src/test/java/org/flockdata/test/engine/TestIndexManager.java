@@ -33,6 +33,8 @@ import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.QueryParams;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author mholdsworth
  * @since 29/02/2016
@@ -56,8 +58,9 @@ public class TestIndexManager {
         TestCase.assertNotNull(json);
 
         QueryParams qp = JsonUtils.toObject(json.getBytes(), QueryParams.class);
-        TestCase.assertNotNull (qp);
-        TestCase.assertEquals(queryParams.getSearchText(), qp.getSearchText());
+        assertThat(qp)
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("searchText", qp.getSearchText());
     }
 
     @Test

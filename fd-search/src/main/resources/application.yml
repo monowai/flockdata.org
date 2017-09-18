@@ -35,21 +35,8 @@ server:
   port: 8081
 
 es:
-  clustername: es_flockdata
-  # this clients ports
-  http:
-    port: 9200
-  tcp:
-    port: 9300
-
-  path:
-    home: ./data/
-    data: ${es.path.home}/fd/es
-
-
-  # , serparated list of hosts to connect to if transportOnly == true
-#  nodes: localhost:9300
-
+  clustername: fd-dev
+  nodes: 127.0.0.1:9300
 
 org.fd:
   engine:
@@ -66,7 +53,7 @@ org.fd:
       #Is the node going to be a client node which means it will hold no data ?
       # True for production/cluster
       # False for dev/demo (default)
-      transportOnly: false
+      transportOnly: true
 
       # Look outside of this jvm for an ES host
       # True for dev/transportOnly = false (default)

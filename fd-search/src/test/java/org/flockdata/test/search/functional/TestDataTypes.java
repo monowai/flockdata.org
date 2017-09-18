@@ -67,7 +67,7 @@ public class TestDataTypes extends ESBase {
         Entity entity = getEntity(fortress, fortress, user, doc);
         deleteEsIndex(entity);
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity))
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity))
                 .setDescription("Test Description");
 
         Map<String,Object> numMap = ContentDataHelper.getSimpleMap("num", 100);
@@ -81,7 +81,7 @@ public class TestDataTypes extends ESBase {
 
         Entity entityB = getEntity(fortress, fortress, user, doc);
         Map<String,Object> strMap = ContentDataHelper.getSimpleMap("num", "NA");
-        change = new EntitySearchChange(entityB, indexManager.parseIndex(entityB));
+        change = new EntitySearchChange(entityB, indexManager.toIndex(entityB));
         change.setDescription("Test Description");
         change.setData(strMap);
 
@@ -99,7 +99,7 @@ public class TestDataTypes extends ESBase {
         Entity entity = getEntity(fortress, fortress, user, doc);
         deleteEsIndex(entity);
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity))
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity))
                 .setDescription("Test Description");
 
         Date date = new Date();

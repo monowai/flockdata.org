@@ -117,7 +117,7 @@ public class EntityDaoNeo {
         String key = (trackEnabled ? keyGenService.getUniqueKey() : null);
         EntityNode entity = new EntityNode(key, segment, inputBean, documentType);
 
-        entity.setIndexName(indexManager.parseIndex(entity));
+        entity.setIndexName(indexManager.toIndex(entity));
         entity.setCreatedBy(fortressUser);
         entity.addLabel(documentType.getName());
 
@@ -604,9 +604,9 @@ public class EntityDaoNeo {
             Collection<EntityTag> entityTags;
             if (withEntityTags) {
                 entityTags = findEntityTags(entity);
-                results.add(new EntityKeyBean(entity, entityTags, indexManager.parseIndex(entity)).addRelationship(""));
+                results.add(new EntityKeyBean(entity, entityTags, indexManager.toIndex(entity)).addRelationship(""));
             } else {
-                results.add(new EntityKeyBean(entity, indexManager.parseIndex(entity)).addRelationship(""));
+                results.add(new EntityKeyBean(entity, indexManager.toIndex(entity)).addRelationship(""));
             }
 
         }
@@ -628,7 +628,7 @@ public class EntityDaoNeo {
             if (entity != null) {
                 Collection<EntityTag> entityTags = entityTagService.findEntityTagsWithGeo(entity);
                 results.add(
-                        new EntityKeyBean(entity, entityTags, indexManager.parseIndex(entity)).addRelationship(entityKey.getRelationshipName())
+                        new EntityKeyBean(entity, entityTags, indexManager.toIndex(entity)).addRelationship(entityKey.getRelationshipName())
                                 .setParent(entityKey.isParent()));
 
             }
@@ -679,7 +679,7 @@ public class EntityDaoNeo {
             for (String relationship : parents.keySet()) {
                 Node node = (Node) row.get(relationship);
                 EntityNode e = getEntity(node.getId());
-                connected.add(new EntityKeyBean(e, entityTagService.findEntityTagsWithGeo(e), indexManager.parseIndex(e))
+                connected.add(new EntityKeyBean(e, entityTagService.findEntityTagsWithGeo(e), indexManager.toIndex(e))
                         .setRelationshipName(relationship));
             }
         }

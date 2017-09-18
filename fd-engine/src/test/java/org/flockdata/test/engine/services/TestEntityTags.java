@@ -37,12 +37,14 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author mholdsworth
@@ -1273,9 +1275,14 @@ public class TestEntityTags extends EngineBase {
 
     // Use this to mock the search service result
     private SearchResults getSearchResults(SearchChange searchChange) {
-        SearchResults searchResults = new SearchResults();
-        SearchResult searchResult = new SearchResult(searchChange);
-        searchResults.addSearchResult(searchResult);
+        SearchResult searchResult = Mockito.mock(SearchResult.class);
+        when(searchResult.getCode()).thenReturn(searchChange.getCode());
+        when(searchResult.getCode()).thenReturn(searchChange.getCode());
+        when(searchResult.getEntityId()).thenReturn(searchChange.getId());
+        when(searchResult.getSearchKey()).thenReturn(searchChange.getSearchKey());
+        Collection<SearchResult>results = new ArrayList<>();
+        results.add(searchResult);
+        SearchResults searchResults = new SearchResults(results);
         return searchResults;
     }
 

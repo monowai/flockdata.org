@@ -29,7 +29,6 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsReques
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.search.base.IndexMappingService;
@@ -95,7 +94,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
             return true;
         }
 
-        makeIndex(change, indexName, documentType);
+        makeIndex(indexName, documentType, change);
         return true;
     }
 
@@ -115,7 +114,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
         }
     }
 
-    private synchronized void makeIndex(SearchChange change, String indexName, String documentType) {
+    private synchronized void makeIndex(String indexName, String documentType, SearchChange change) {
         logger.debug("Ensuring index {}, {}", indexName, documentType);
         String key = change.getIndexName() + "/" + change.getDocumentType();
         if ( knownIndexes.contains(key))
@@ -145,10 +144,10 @@ public class IndexMappingServiceEs implements IndexMappingService {
                             .actionGet();
                 }
             } catch (ElasticsearchException esx) {
-                if (!(esx instanceof IndexAlreadyExistsException)) {
+//                if (!(esx instanceof IndexAlreadyExistsException)) {
                     logger.error("Error while ensuring index.... " + indexName, esx);
-                    throw esx;
-                }
+//                    throw esx;
+//                }
             }
         }
         knownIndexes.add(key);

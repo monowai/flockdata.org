@@ -21,7 +21,7 @@
 package org.flockdata.store.integration;
 
 import org.flockdata.integration.AbstractIntegrationRequest;
-import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.EsSearchRequestResult;
 import org.flockdata.search.QueryParams;
 import org.flockdata.store.service.FdStoreConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +82,7 @@ public class EsStoreRequest extends AbstractIntegrationRequest {
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(getDataQuery());
         handler.setHttpMethod(HttpMethod.POST);
-        handler.setExpectedResponseType(EsSearchResult.class);
+        handler.setExpectedResponseType(EsSearchRequestResult.class);
         return handler;
     }
 
@@ -106,7 +106,7 @@ public class EsStoreRequest extends AbstractIntegrationRequest {
     public interface ContentStoreEs {
         @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
         @Gateway(requestChannel = "doDataQuery", replyChannel = "receiveContentReply")
-        EsSearchResult getData(QueryParams queryParams);
+        EsSearchRequestResult getData(QueryParams queryParams);
     }
 
 }

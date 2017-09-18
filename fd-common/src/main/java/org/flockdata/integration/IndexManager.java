@@ -16,6 +16,7 @@
 
 package org.flockdata.integration;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.flockdata.data.*;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -43,6 +44,7 @@ import java.util.Collection;
 @Configuration
 public class IndexManager {
 
+    public static final String SEPARATOR = ".";
     private Logger logger = LoggerFactory.getLogger("configuration");
 
     @Value("${org.fd.engine.fortress.index.entity.prefix:fd.}")
@@ -89,18 +91,18 @@ public class IndexManager {
      * @param entity properties
      * @return parsed index
      */
-    public String parseIndex(Entity entity) {
+    public String toIndex(Entity entity) {
         if (entity.getSegment().isDefault())
             return entity.getFortress().getRootIndex() + getSuffix(entity.getType());
         else {
             String index = entity.getFortress().getRootIndex() + getSuffix(entity.getType());
-            index = index + "." + entity.getSegment().getCode().toLowerCase();
+            index = index + SEPARATOR + entity.getSegment().getCode().toLowerCase();
             return index;
         }
     }
 
     public String toStoreIndex(Entity entity) {
-        return parseIndex(entity);
+        return toIndex(entity);
     }
 
     /**
@@ -111,27 +113,38 @@ public class IndexManager {
      */
     private String getSuffix(String type) {
         if (isSuffixed() && type != null)
-            return "." + parseType(type);
+            return SEPARATOR + parseType(type);
         else
             return "";
     }
 
-    public String getIndexRoot(Company company, Tag tag) {
-        return getTagIndexRoot(company) + getSuffix(tag.getLabel().toLowerCase());
+    public String getTagIndexRoot(Company company, Tag tag) {
+        return getTagIndexRoot(company.getCode(),tag.getLabel());
     }
 
-    private String getTagIndexRoot(Company company) {
-        return getTagIndexRoot(company.getCode());
+    public String getTagIndexRoot(String company, String label) {
+        return getTagIndexRoot(company.toLowerCase()) + SEPARATOR + label.toLowerCase();
     }
 
     private String getTagIndexRoot(String company) {
-        return fdSystemIndexPrefix + company.toLowerCase() + ".tags";
+        return fdSystemIndexPrefix + company.toLowerCase() + SEPARATOR+"tags";
     }
 
+    /**
+     * Root index for an Entity
+     * @param fortress system
+     * @param documentType  entity type
+     * @return FQN
+     */
     public String getIndexRoot(Fortress fortress, Document documentType) {
         return getIndexRoot(fortress)+getSuffix(documentType.getName());
     }
 
+    /**
+     * Toor index for a fortress
+     * @param fortress system
+     * @return prefix.company.forterss
+     */
     public String getIndexRoot(Fortress fortress) {
 
         if (fortress.isSystem()) {
@@ -152,7 +165,7 @@ public class IndexManager {
      * @return absolute name of the index
      */
     private String getIndexRoot(String prefix, String company, String fortress) {
-        String fort = (fortress == null || fortress.equals("*") ? "" : "." + fortress.toLowerCase());
+        String fort = (fortress == null || fortress.equals("*") ? "" : SEPARATOR + fortress.toLowerCase());
         return prefix + company.toLowerCase() + fort;
     }
 
@@ -161,10 +174,10 @@ public class IndexManager {
      * @param queryParams used to compute the result
      * @return computed index name based on queryParams
      */
-    public String parseIndex(QueryParams queryParams) {
+    public String toIndex(QueryParams queryParams) {
         String index;
         if (queryParams.isSearchTagsOnly()) {
-            index = getTagIndexRoot(queryParams.getCompany());
+            index = getTagIndexRoot(queryParams.getCompany())+SEPARATOR+"*";
         } else {
             // Entity index root
             String indexRoot = getIndexRoot(queryParams.getCompany(), queryParams.getFortress());
@@ -187,13 +200,15 @@ public class IndexManager {
     public String[] getIndexesToQuery(QueryParams queryParams) throws FlockException {
         if (queryParams.getIndex() != null) {
             if (queryParams.getTypes() == null)
-                return new String[]{queryParams.getIndex() + ".*"};
-            String indexes[] = new String[queryParams.getTypes().length];
-            int i = 0;
-            for (String type : queryParams.getTypes()) {
-                indexes[i] = queryParams.getIndex() + "." + parseType(type);
-            }
-            return indexes;
+                return new String[]{queryParams.getIndex() + "*"};
+
+            return ArrayUtils.toArray(queryParams.getIndex());
+//            String indexes[] = new String[queryParams.getTypes().length];
+//            int i = 0;
+//            for (String type : queryParams.getTypes()) {
+//                indexes[i] = queryParams.getIndex() ;//+ "." + parseType(type);
+//            }
+//            return indexes;
         }
         return getIndexesToQuery(queryParams.getCompany(), queryParams.getFortress(), queryParams.getTypes(), queryParams.getSegment());
     }
@@ -217,7 +232,7 @@ public class IndexManager {
         }
 
         if ( fortress == null && types==null &&segment == null ) {
-            results.add(getPrefix() + company.toLowerCase()+".*");
+            results.add(getPrefix() + company.toLowerCase()+SEPARATOR+"*");
             return results.toArray(new String[0]);
         }
 
@@ -225,16 +240,16 @@ public class IndexManager {
         String segmentFilter ;
 
         if (segment != null && !isDefaultSegment(segment)) {
-            segmentFilter = "." + segment.toLowerCase();
+            segmentFilter = SEPARATOR + segment.toLowerCase();
         } else {
             segmentFilter = "*";// all segments
         }
 
         String fortressFilter;
         if (fortress == null || fortress.equals("*"))
-            fortressFilter = ".*";
+            fortressFilter = SEPARATOR+"*";
         else
-            fortressFilter = (segmentFilter.equals("") ? "." + fortress.toLowerCase() + ".*" : "." + fortress.toLowerCase());
+            fortressFilter = (segmentFilter.equals("") ? SEPARATOR + fortress.toLowerCase() + SEPARATOR+"*" : SEPARATOR + fortress.toLowerCase());
 
         indexPath = indexPath + fortressFilter;
 
@@ -248,7 +263,7 @@ public class IndexManager {
                     if (type == null)
                         typeFilter = "";
                     else
-                        typeFilter = "." + type.toLowerCase();
+                        typeFilter = SEPARATOR + type.toLowerCase();
                     results.add(indexPath + typeFilter + segmentFilter);
                 }
             }
@@ -280,12 +295,13 @@ public class IndexManager {
 
     public String toStoreIndex(Store store, Entity entity) {
         if (store == null)
-            return parseIndex(entity);
+            return toIndex(entity);
         return toStoreIndex(entity);
     }
 
     public String toStoreIndex(StoredContent storedContent) {
-        return parseIndex(storedContent.getEntity());
+        return toIndex(storedContent.getEntity());
     }
+
 }
 

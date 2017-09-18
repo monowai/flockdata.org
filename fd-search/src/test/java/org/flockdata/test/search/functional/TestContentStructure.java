@@ -62,10 +62,11 @@ public class TestContentStructure extends ESBase {
 
         Entity entity = getEntity(company, fortress, user, doc);
         deleteEsIndex(entity);
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
 
         Collection<EntityTag> tags = new ArrayList<>();
-        TagInputBean tagInputBean = new TagInputBean("SomeCode", "SomeLabel", new EntityTagRelationshipInput("blah"))
+        TagInputBean tagInputBean = new TagInputBean("SomeCode", "SomeLabel",
+                new EntityTagRelationshipInput("blah"))
             .setProperty("mynum", 100);
 
         EntityTag entityTag = MockDataFactory.getEntityTag(entity, tagInputBean);
@@ -89,11 +90,11 @@ public class TestContentStructure extends ESBase {
         ContentStructure dataStructure = contentService.getStructure(queryParams);
         assertNotNull ( dataStructure);
         Collection<EsColumn> dataFields = dataStructure.getData();
-        assertEquals("Un-faceted string fields should not be returned",1, dataFields.size());
+        assertEquals("Keyword string fields should not be returned",1, dataFields.size());
         assertEquals("Expected a tag and its numeric user defined property", 2, dataStructure.getLinks().size());
         Collection<EsColumn> linkFields = dataStructure.getLinks();
         for (EsColumn linkField : linkFields) {
-            if ( linkField.getName().endsWith(".facet"))
+            if ( linkField.getDisplayName().startsWith(DEFAULT_ET_NAME+".somelabel.code"))
                 assertEquals (DEFAULT_ET_NAME+".somelabel.code", linkField.getDisplayName());
             else
                 assertEquals (DEFAULT_ET_NAME+".somelabel.mynum", linkField.getDisplayName());

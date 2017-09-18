@@ -35,7 +35,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.search.EntitySearchChange;
-import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.EsSearchRequestResult;
 import org.flockdata.search.QueryParams;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.bean.TrackResultBean;
@@ -130,7 +130,7 @@ public class AdminService implements EngineAdminService {
                     if ( entities.size()> 0) {
                         EntityNode entity = entityService.getEntity(company, entities.iterator().next());
                         // We need to get an entity to figure out which search index it is in
-                        searchIndexToDelete = indexManager.parseIndex(entity);
+                        searchIndexToDelete = indexManager.toIndex(entity);
                     }  else
                         searchIndexToDelete = indexManager.getIndexRoot(segment.getFortress(), documentType);
                 }
@@ -219,7 +219,7 @@ public class AdminService implements EngineAdminService {
         do {
             qp.setFrom(start);
 
-            EsSearchResult searchResult = new EsSearchResult();//queryService.search(company, qp);
+            EsSearchRequestResult searchResult = new EsSearchRequestResult();//queryService.search(company, qp);
             Map<String, Object> results = searchResult.getRawResults();
 
             Map<String, Object> hits = (Map<String, Object>) results.get("hits");

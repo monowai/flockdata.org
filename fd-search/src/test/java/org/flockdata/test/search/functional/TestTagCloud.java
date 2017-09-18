@@ -59,7 +59,7 @@ public class TestTagCloud extends ESBase {
 
         Entity entity = getEntity(comp, fort, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
         change.setDescription("Test Description");
         change.setData(json);
         ArrayList<EntityTag> tags = new ArrayList<>();

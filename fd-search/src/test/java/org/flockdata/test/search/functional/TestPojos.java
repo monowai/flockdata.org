@@ -63,7 +63,7 @@ public class TestPojos {
 //        qp.setCompany(company);
 //        qp.setSearchText("*");
 //
-//        String indexRoot = indexManager.getIndexRoot(company, null);
+//        String indexRoot = indexManager.getTagIndexRoot(company, null);
 //        assertEquals(indexManager.getPrefix() + company.toLowerCase() , indexRoot);
 //
 //        // Varargs set to a 0 length array

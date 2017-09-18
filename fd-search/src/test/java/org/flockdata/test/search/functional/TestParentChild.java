@@ -71,7 +71,7 @@ public class TestParentChild extends ESBase {
                 "  \"logId\": null,\n" +
                 "  \"tagValues\": {},\n" +
                 "  \"id\": 10,\n" +
-                "  \"indexName\": \"" + indexManager.parseIndex(entity) + "\",\n" +
+                "  \"indexName\": \"" + indexManager.toIndex(entity) + "\",\n" +
                 "  \"sysWhen\": 1450644354230,\n" +
                 "  \"replyRequired\": true,\n" +
                 "  \"forceReindex\": false,\n" +
@@ -110,8 +110,9 @@ public class TestParentChild extends ESBase {
 
         //ToDo: Needs the relationship
         System.out.println(doQuery(entity, "*"));
-        doFieldQuery(entity, "e.staff.code", "ABC123", 1, "Unable to locate by staff field");
-        doFieldQuery(entity, "e.staff.tag.role.position.code", "Cleaner", 1, "Unable to locate by staff tag code");
+        // ToDo - why is e.staff.code only matching on lowercase?
+        doTermQuery(entity, "e.staff.code", "ABC123", 1, "Unable to locate by staff field");
+        doTermQuery(entity, "e.staff.tag.role.position.code", "Cleaner", 1, "Unable to locate by staff tag code");
     }
 
     @Test
@@ -127,16 +128,16 @@ public class TestParentChild extends ESBase {
         Entity parentEntity = getEntity(company, fortress, user, type, "123");
         Entity childEntity = getEntity(company, fortress, user, child);
 
-        deleteEsIndex(indexManager.parseIndex(parentEntity));
-        deleteEsIndex(indexManager.parseIndex(childEntity));
+        deleteEsIndex(indexManager.toIndex(parentEntity));
+        deleteEsIndex(indexManager.toIndex(childEntity));
 
-        EntitySearchChange parent = new EntitySearchChange(parentEntity, indexManager.parseIndex(parentEntity));
+        EntitySearchChange parent = new EntitySearchChange(parentEntity, indexManager.toIndex(parentEntity));
 
         // Children have to be in the same company/fortress.
         // ES connects the Child to a Parent. Parents don't need to know about children
         EntitySearchChange childChange =
-                new EntitySearchChange(childEntity, indexManager.parseIndex(parentEntity))
-                        .setParent(new EntityKeyBean(parentEntity, indexManager.parseIndex(parentEntity)))
+                new EntitySearchChange(childEntity, indexManager.toIndex(parentEntity))
+                        .setParent(new EntityKeyBean(parentEntity, indexManager.toIndex(parentEntity)))
                         .setData(ContentDataHelper.getSimpleMap("childKey", "childValue"));
 
         esSearchWriter.createSearchableChange(new SearchChanges(childChange));
@@ -185,7 +186,7 @@ public class TestParentChild extends ESBase {
 
             //
             Search search = new Search.Builder(query)
-                    .addIndex(indexManager.parseIndex(entity))
+                    .addIndex(indexManager.toIndex(entity))
                     .addType(indexManager.parseType(entity))
                     .build();
 
@@ -196,7 +197,7 @@ public class TestParentChild extends ESBase {
         } while (nbrResult != expectedHitCount && runCount < 6);
 
         assertNotNull(jResult);
-        Assert.assertEquals(indexManager.parseIndex(entity) + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
+        Assert.assertEquals(indexManager.toIndex(entity) + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
 
         return jResult.getJsonString();
 

@@ -6,7 +6,6 @@ spring:
   profiles:
     active: dev
 
-
 es:
   clustername: es_fd_test
   http:
@@ -31,14 +30,11 @@ org.fd:
     es:
       settings: src/test/resources/fd-default-settings.json
       mappings: '.'
+#     Use embedded node for testing
+      transportOnly: false
     messaging:
       concurrentConsumers: 2
       prefetchCount: 3
     executor:
       poolSize: 4
       capacity: 10
-
-
-
-
-

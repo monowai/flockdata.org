@@ -1,140 +1,248 @@
 /*
+ *  Copyright 2012-2017 the original author or authors.
  *
- *  Copyright (c) 2012-2017 "FlockData LLC"
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This file is part of FlockData.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  FlockData is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  FlockData is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.search;
 
-import org.flockdata.helper.JsonUtils;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.track.bean.SearchChange;
 
-import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EsSearchResult {
+/**
+ * Object to tie the keys between fd-engine and fd-search so that fd-engine can keep the document up-to-date
+ *
+ * @author mholdsworth
+ * @since 13/07/2013
+ * @tag Search, Entity, Contract
+ */
+public class EsSearchResult implements SearchResult {
 
-    private Collection<SearchResult> results;
-    private long totalHits;
-    private int startedFrom;
-    private boolean kvResponse = false;
-    private Map<String,Object>what;
-    private String index;
-    private String entityType;
-    private String fdSearchError;
-    private byte[] json;
 
-    public EsSearchResult() {
+    private String key, fortress, searchKey, documentType;
+    private String indexName; // Store Index
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long logId;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long entityId;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Map<String, Object> data;
+    private String code;
+    private String createdBy;
+    private Long fdTimestamp;
+    private String name;
+    private String lastUser;
+    private String description;
+    private String event;
+    private Long dateCreated;
+    private Long lastUpdate;
+    private long whenCreated;
+    protected EsSearchResult() {
     }
-
-    public EsSearchResult(EsSearchResult results) {
+    public EsSearchResult(SearchChange thisChange) {
         this();
-        totalHits= results.getStartedFrom();
-        totalHits = results.getTotalHits();
-        this.results = results.getResults();
+        this.entityId = thisChange.getId();
+        this.fortress = thisChange.getFortressName();
+        this.searchKey = thisChange.getSearchKey();
+        this.documentType = thisChange.getDocumentType();
+        this.key = thisChange.getKey();
+        this.indexName = thisChange.getIndexName();
+
+        setLogId(thisChange.getLogId());
+        setEntityId(thisChange.getId());
+
+
+    }
+    public EsSearchResult(
+            String searchKey,
+            String key,
+            String fortress,
+            String event,
+            String type,
+            String lastUser,
+            String lastUpdate,
+            String whenCreated,
+            String fdTimestamp) {
+        this.key = key;
+        this.documentType = type;
+        this.searchKey = searchKey;
+//        this.fragments = fragments;
+        this.event = event;
+        this.fortress = fortress;
+        this.lastUser = lastUser;
+        if ( whenCreated !=null )
+            this.whenCreated= Long.decode(whenCreated);
+
+        if ( lastUpdate != null && !lastUpdate.equals(whenCreated) )
+            this.lastUpdate = Long.decode(lastUpdate);
+
+        if ( fdTimestamp !=null )
+            this.fdTimestamp = Long.decode(fdTimestamp);
 
     }
 
-    public EsSearchResult(Collection<SearchResult> results) {
-        this.results = results;
+    @Override
+    public String getLastUser() {
+        return lastUser;
     }
 
-    public EsSearchResult(String fdSearchError) {
-        this.fdSearchError = fdSearchError;
+    @Override
+    public String getDescription() {
+        return description;
     }
 
-    public EsSearchResult (byte[] json){
-        this.json = json;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public EsSearchResult(Map<String, Object> source) {
-        this.what = source;
-        this.kvResponse = true;
+    @Override
+    public String getEvent() {
+        return event;
     }
 
-    public byte[] getJson() {
-        return json;
+    @Override
+    public Long getLastUpdate() {
+        return lastUpdate;
     }
 
-    public void setJson(byte[] json) {
-        this.json = json;
+    @Override
+    public long getWhenCreated() {
+        return whenCreated;
     }
 
-    public Collection<SearchResult> getResults() {
-        return results;
+    /**
+     * GUID for the key
+     *
+     * @return string
+     */
+    @Override
+    public String getKey() {
+        return key;
     }
 
-    public void setResults(Collection<SearchResult> results) {
-        this.results = results;
+    /**
+     * name of the fortress that owns the key
+     *
+     * @return string
+     */
+    @Override
+    public String getFortress() {
+        return fortress;
     }
 
-    public Map<String,Object>getRawResults() {
-        if ( json !=null ){
-            try {
-                return JsonUtils.toMap(json);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return new HashMap<>();
+    @Override
+    public String getIndexName() {
+        return indexName;
     }
 
-    public long getTotalHits() {
-        return totalHits;
+    /**
+     * GUID for the search document
+     *
+     * @return string
+     */
+    @Override
+    public String getSearchKey() {
+        return searchKey;
     }
 
-    public void setTotalHits(long totalHits) {
-        this.totalHits = totalHits;
+    public void setSearchKey(String searchKey) {
+        this.searchKey = searchKey;
     }
 
-    public int getStartedFrom() {
-        return startedFrom;
+    /**
+     * useful for external caller to know what type of document was indexed
+     *
+     * @return type of Entity
+     */
+    @Override
+    public String getDocumentType() {
+        return documentType;
     }
 
-    public void setStartedFrom(int startedFrom) {
-        this.startedFrom = startedFrom;
+    @Override
+    public String toString() {
+        return "SearchResult{" +
+                "entityId='" + entityId + '\'' +
+                ", key='" + key + '\'' +
+                ", logId='" + logId + '\'' +
+                ", fortress='" + fortress + '\'' +
+                ", documentType='" + documentType + '\'' +
+                '}';
     }
 
-    public Map<String, Object> getWhat() {
-        return what;
+    @Override
+    public Long getLogId() {
+        return logId;
     }
 
-    public void setWhat(Map<String, Object> what) {
-        this.what = what;
+    public void setLogId(Long logId) {
+        this.logId = logId;
     }
 
-    public String getIndex() {
-        return index;
+    @Override
+    public Long getEntityId() {
+        return entityId;
     }
 
-    public void setIndex(String index) {
-        this.index = index;
+    public void setEntityId(Long entityId) {
+        this.entityId = entityId;
     }
 
-    public String getEntityType() {
-        return entityType;
+//    public Map<String, String[]> getFragments() {
+//        return fragments;
+//    }
+
+    @Override
+    public String getCode() {
+        return code;
     }
 
-    public void setEntityType(String entityType) {
-        this.entityType = entityType;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public String getFdSearchError() {
-        return fdSearchError;
+    @Override
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    @Override
+    public Long getFdTimestamp() {
+        return fdTimestamp;
+    }
+
+    public void addFieldValue(String field, Object value) {
+        if ( this.data == null )
+            data = new HashMap<>();
+        if ( field.contains(SearchSchema.DATA))
+            field = field.substring(SearchSchema.DATA.length()+1);
+        this.data.put(field, value);
+    }
+
+    @Override
+    public Map<String,Object> getData(){
+        return data;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

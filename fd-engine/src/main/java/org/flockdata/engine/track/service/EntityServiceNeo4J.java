@@ -212,7 +212,7 @@ public class EntityServiceNeo4J implements EntityService {
                     entityTagService.associateTags(company, entity, entityLog, entityInput)
             );
             if (!entityInput.getEntityLinks().isEmpty()) {
-                EntityKeyBean thisEntity = new EntityKeyBean(entity, indexManager.parseIndex(entity));
+                EntityKeyBean thisEntity = new EntityKeyBean(entity, indexManager.toIndex(entity));
                 for (String relationship : entityInput.getEntityLinks().keySet()) {
                     linkEntities(company, thisEntity, entityInput.getEntityLinks().get(relationship), relationship);
                 }
@@ -295,7 +295,7 @@ public class EntityServiceNeo4J implements EntityService {
             entityInput.setKey("NT " + segment.getFortress().getId()); // We ain't tracking this
         else if (!entityInput.getEntityLinks().isEmpty()) {
             // DAT-525
-            EntityKeyBean thisEntity = new EntityKeyBean(entity, indexManager.parseIndex(entity));
+            EntityKeyBean thisEntity = new EntityKeyBean(entity, indexManager.toIndex(entity));
             for (String relationship : entityInput.getEntityLinks().keySet()) {
                 linkEntities(segment.getCompany(), thisEntity, entityInput.getEntityLinks().get(relationship), relationship);
             }
@@ -447,7 +447,7 @@ public class EntityServiceNeo4J implements EntityService {
         if (fromLog == null) {
             if (entity.getSegment().getFortress().isSearchEnabled()) {
                 // Nothing to index, no changes left so we're done
-                searchDocument = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+                searchDocument = new EntitySearchChange(entity, indexManager.toIndex(entity));
                 searchDocument.setDelete(true);
                 searchDocument.setSearchKey(searchKey);
             }
@@ -459,7 +459,7 @@ public class EntityServiceNeo4J implements EntityService {
             // Update against the Entity only by re-indexing the search document
             StoredContent priorContent = contentReader.read(entity, fromLog);
 
-            searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent(), indexManager.parseIndex(entity));
+            searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent(), indexManager.toIndex(entity));
             //EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
 
 
@@ -556,7 +556,7 @@ public class EntityServiceNeo4J implements EntityService {
         Collection<org.flockdata.data.EntityLog> changes = getEntityLogs(entity);
         Collection<EntityTag> tags = entityTagService.findEntityTagsWithGeo(entity);
         EntitySummaryBean esb = new EntitySummaryBean(entity, changes, tags);
-        esb.setIndex(indexManager.parseIndex(entity));
+        esb.setIndex(indexManager.toIndex(entity));
         return esb;
     }
 

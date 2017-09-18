@@ -239,7 +239,7 @@ class IntegrationHelper {
             run++;
             pb.step();
             // After waiting for 30% of the waitCount will try running the command if it exists
-            if (pingCommand != null && (((double) run) / waitCount) > .3) {
+            if (pingCommand != null && (((double) run) / waitCount) > .05) {
                 // After 1 minute we will ping to see if we can finish this early
                 CommandResponse<String> pingResponse = pingCommand.exec(fdClientIo);
                 if (pingResponse.getError() == null && pingResponse.getResult().equals("pong")) {

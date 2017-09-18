@@ -397,6 +397,9 @@
                     <version>${surefire.version}</version>
                     <configuration>
                         <reportsDirectory>${project.build.directory}/test-results</reportsDirectory>
+                        <!--<excludes>-->
+                            <!--<exclude>**/*ITe*</exclude>-->
+                        <!--</excludes>-->
                     </configuration>
                 </plugin>
                 <plugin>

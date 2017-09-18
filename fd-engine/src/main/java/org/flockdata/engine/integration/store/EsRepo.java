@@ -20,10 +20,11 @@
 
 package org.flockdata.engine.integration.store;
 
+import org.flockdata.engine.query.service.EsHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.EsSearchRequestResult;
 import org.flockdata.search.QueryParams;
 import org.flockdata.search.SearchSchema;
 import org.flockdata.store.AbstractStore;
@@ -55,10 +56,13 @@ import java.util.Map;
 public class EsRepo extends AbstractStore {
 
     @Autowired
-    EsStoreRequest.ContentStoreEs gateway;
+    private EsStoreRequest.ContentStoreEs gateway;
 
     @Autowired
-    IndexManager indexManager;
+    private IndexManager indexManager;
+
+    @Autowired
+    private EsHelper esHelper;
 
     private Logger logger = LoggerFactory.getLogger(EsRepo.class);
 
@@ -67,7 +71,7 @@ public class EsRepo extends AbstractStore {
     }
 
     public StoredContent read(LogRequest logRequest) {
-        String index = indexManager.parseIndex(logRequest.getEntity());
+        String index = indexManager.toIndex(logRequest.getEntity());
         String type = indexManager.parseType(logRequest.getEntity());
         String id = logRequest.getEntity().getSearchKey();
         return read (index, type, id);
@@ -78,7 +82,7 @@ public class EsRepo extends AbstractStore {
         QueryParams queryParams = new QueryParams(index, type, id);
 
         ContentInputBean contentInput = new ContentInputBean();
-        EsSearchResult result = null;
+        EsSearchRequestResult result = null;
         try {
             result = gateway.getData(queryParams);
         } catch ( HttpServerErrorException e){
@@ -91,7 +95,7 @@ public class EsRepo extends AbstractStore {
                     result.setIndex (index);
                     result.setEntityType (type);
                     if (result.getJson() != null) {
-                        HashMap map = JsonUtils.toObject(result.getJson(), HashMap.class);
+                        Map<String,Object> map = esHelper.extractData(JsonUtils.toMap(result.getJson()));
                         contentInput.setData((Map<String, Object>) map.get(SearchSchema.DATA));
     //                    if( map.get("name")!=null)
     //                        contentInput.getData().put("_name", map.get("name"));
@@ -103,6 +107,13 @@ public class EsRepo extends AbstractStore {
                 }
         return new StorageBean(id, contentInput);
 
+    }
+
+    private Map<String, Object> unwrapData(HashMap<String, Object> map) {
+        if ( !map.containsKey("hits"))
+            return null;
+        Map<String,Object>hits = (Map<String, Object>) map.get("hits");
+        return null;
     }
 
     public void delete(LogRequest logRequest) {

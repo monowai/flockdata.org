@@ -5,7 +5,7 @@
 # fd-client is used to communicate to the services
 
 application:
-  title: Docker Staging Tests
+  title: Docker Stage Testing
 banner:
   location: banner.txt
 

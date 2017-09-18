@@ -46,11 +46,10 @@ public class QueryGenerator {
             queryString = StringEscapeUtils.escapeJson(queryString);
         }
 
-        simpleQuery.append("{ \"query\": {"
-                + "        \"query_string\": { "
+        simpleQuery.append("{ \n"
+                + "   \"query_string\": { \n"
                 + "            \"query\": " + '"').append(queryString.toLowerCase()).append('"')
-                .append("          }")
-                .append("  }");
+                .append("  \n}");
 
         if (highlightEnabled) {
             simpleQuery.append(",\n" +
@@ -83,15 +82,16 @@ public class QueryGenerator {
         if ( queryString.equals(""))
             queryString="*";
         String filter = getRelationshipFilter(queryParams);
-        simpleQuery.append("\n" +
-                " {\"query\": {\n" +
-                "    \"filtered\": {\n" +
-                "       \"query\": {\n" +
-                "           \"query_string\": {\"query\":\"" + queryString.toLowerCase() + "\"}\n" +
-                "   "+(!filter.equals("")?"},"+filter : "}") +
-//                filter +
-                "  }\n" +
-                "}");
+        simpleQuery.append("{\n" +
+//                " \"query\": {\n" +
+                "    \"bool\": {\n" +
+                "       \"must\": {\n" +
+                "           \"match\":"+" {\n" +
+                "               \"text\":\"" + queryString.toLowerCase() + "\"\n}" +
+                "   "+(!filter.equals("")?"}\n,"+filter : "}\n") +
+                "    }\n" +
+//                "  }\n" +
+                "}\n");
 
         if (highlightEnabled) {
             simpleQuery.append(",\n" +

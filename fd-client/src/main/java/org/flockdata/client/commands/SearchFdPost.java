@@ -16,7 +16,7 @@
 
 package org.flockdata.client.commands;
 
-import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.EsSearchRequestResult;
 import org.flockdata.search.QueryParams;
 import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
@@ -36,16 +36,16 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class SearchFdPost {
 
-    public CommandResponse<EsSearchResult> exec(FdIoInterface fdIoInterface, QueryParams queryParams) {
+    public CommandResponse<EsSearchRequestResult> exec(FdIoInterface fdIoInterface, QueryParams queryParams) {
         String error ;
 
-        EsSearchResult result= null;
+        EsSearchRequestResult result= null;
         HttpEntity requestEntity = new HttpEntity<>(queryParams, fdIoInterface.getHeaders());
 
         try {
 
-            ResponseEntity<EsSearchResult> response;
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+ "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
+            ResponseEntity<EsSearchRequestResult> response;
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+ "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchRequestResult.class);
 
             result = response.getBody();
             error = result.getFdSearchError();

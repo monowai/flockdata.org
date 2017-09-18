@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>flockdata</artifactId>
         <groupId>org.flockdata</groupId>
@@ -144,18 +145,18 @@
                             <runOrder>alphabetical</runOrder>
                         </configuration>
                         <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<id>integration-test</id>-->
-                                <!--<goals>-->
-                                    <!--<goal>integration-test</goal>-->
-                                <!--</goals>-->
-                            <!--</execution>-->
-                            <!--<execution>-->
-                                <!--<id>verify</id>-->
-                                <!--<goals>-->
-                                    <!--<goal>verify</goal>-->
-                                <!--</goals>-->
-                            <!--</execution>-->
+                        <!--<execution>-->
+                        <!--<id>integration-test</id>-->
+                        <!--<goals>-->
+                        <!--<goal>integration-test</goal>-->
+                        <!--</goals>-->
+                        <!--</execution>-->
+                        <!--<execution>-->
+                        <!--<id>verify</id>-->
+                        <!--<goals>-->
+                        <!--<goal>verify</goal>-->
+                        <!--</goals>-->
+                        <!--</execution>-->
                         <!--</executions>-->
                     </plugin>
                 </plugins>
