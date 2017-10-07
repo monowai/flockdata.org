@@ -24,6 +24,8 @@ import org.flockdata.client.commands.Login;
 import org.flockdata.client.commands.ModelGet;
 import org.flockdata.client.commands.SearchEsPost;
 import org.flockdata.data.ContentModel;
+import org.flockdata.data.Document;
+import org.flockdata.data.Fortress;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.integration.ClientConfiguration;
@@ -62,7 +64,7 @@ import java.util.Map;
  * @since 13/10/2013
  */
 @Service
-@Profile("fd-client")
+@Profile("!fd-server")
 public class FdClientIo implements FdIoInterface {
 
     private static boolean compress = true;
@@ -256,7 +258,7 @@ public class FdClientIo implements FdIoInterface {
         return response.getResult();
     }
 
-    ExtractProfile getExtractProfile(String name, ContentModel contentModel) {
+    public ExtractProfile getExtractProfile(String name, ContentModel contentModel) {
         ExtractProfile extractProfile = null;
 
         try {
@@ -268,6 +270,11 @@ public class FdClientIo implements FdIoInterface {
         if (extractProfile == null)
             extractProfile = new ExtractProfileHandler(contentModel);
         return extractProfile;
+    }
+
+    @Override
+    public ContentModel getContentModel(Fortress fortress, Document documentType) {
+        return getContentModel(fortress.getName(), documentType.getCode());
     }
 
     /**

@@ -17,10 +17,13 @@
 package org.flockdata.transform;
 
 import org.flockdata.data.ContentModel;
+import org.flockdata.data.Document;
+import org.flockdata.data.Fortress;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.transform.model.ExtractProfile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
@@ -60,6 +63,8 @@ public interface FdIoInterface {
      */
     String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException;
 
+    ContentModel getContentModel(Fortress fortress, Document documentType);
+    
     ContentModel getContentModel(String modelKey) throws IOException;
 
     /**
@@ -79,4 +84,8 @@ public interface FdIoInterface {
     RestTemplate getRestTemplate();
 
     HttpHeaders getHeaders();
+
+    ExtractProfile getExtractProfile(String fileModel, ContentModel contentModel);
+
+
 }

@@ -22,6 +22,7 @@ import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.json.ExtractProfileDeserializer;
 import org.flockdata.transform.model.ExtractProfile;
 import org.flockdata.transform.model.ExtractProfileHandler;
@@ -66,9 +67,7 @@ import java.util.List;
  * @author mholdsworth
  * @since 13/10/2013
  */
-//@Profile("fd-importer")    // Command line importer
 @Configuration
-//@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.client"})
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class Importer {
 
@@ -80,14 +79,14 @@ public class Importer {
     String serverSideContentModel; // tag:{typeCode} or {fortress}:{doctype}
     private Logger logger = LoggerFactory.getLogger(Importer.class);
     private ClientConfiguration clientConfiguration;
-    private FdClientIo fdClientIo;
+    private FdIoInterface fdClientIo;
     private FileProcessor fileProcessor;
 
     public Importer() {
     }
 
     @Autowired
-    public Importer(FileProcessor fileProcessor, FdClientIo fdClientIo, ClientConfiguration clientConfiguration) {
+    public Importer(FileProcessor fileProcessor, FdIoInterface fdClientIo, ClientConfiguration clientConfiguration) {
         this.fileProcessor = fileProcessor;
         this.fdClientIo = fdClientIo;
         this.clientConfiguration = clientConfiguration;
@@ -104,7 +103,7 @@ public class Importer {
     }
 
     @Autowired
-    void setFdClientIo(FdClientIo fdClientIo){
+    void setFdClientIo(FdIoInterface fdClientIo){
         this.fdClientIo = fdClientIo;
     }
 

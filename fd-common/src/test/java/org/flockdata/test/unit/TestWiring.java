@@ -42,14 +42,13 @@ import static junit.framework.TestCase.assertNotNull;
 
 })
 @RunWith(SpringRunner.class)
-@ActiveProfiles({"fd-client", "fd-server", "dev"})
+@ActiveProfiles({"dev"})
 public class TestWiring {
     @Autowired
     private ClientConfiguration clientConfiguration;
     @Autowired
     private AmqpRabbitConfig rabbitConfig;
-    @Autowired
-    private Exchanges exchanges;
+
     @Autowired
     private FileProcessor fileProcessor;
 
@@ -58,7 +57,6 @@ public class TestWiring {
         // Ensure basic components deploy with sensible defaults
         assertNotNull(clientConfiguration);
         assertNotNull(rabbitConfig);
-        assertNotNull(exchanges);
         assertNotNull(fileProcessor);
     }
 }

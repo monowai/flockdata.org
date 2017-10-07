@@ -17,12 +17,15 @@
 package org.flockdata.test.unit.client;
 
 import org.flockdata.data.ContentModel;
+import org.flockdata.data.Document;
+import org.flockdata.data.Fortress;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.json.ContentModelDeserializer;
+import org.flockdata.transform.model.ExtractProfile;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -84,6 +87,12 @@ public class FdMockIo implements FdIoInterface {
     }
 
     @Override
+    public ContentModel getContentModel(Fortress fortress, Document documentType) {
+        //return getContentModel(fortress.getName(), documentType.getCode());
+        return null;
+    }
+
+    @Override
     public ContentModel getContentModel( String modelKey) throws IOException {
         return ContentModelDeserializer.getContentModel(modelKey);
     }
@@ -111,6 +120,11 @@ public class FdMockIo implements FdIoInterface {
 
     @Override
     public HttpHeaders getHeaders() {
+        return null;
+    }
+
+    @Override
+    public ExtractProfile getExtractProfile(String fileModel, ContentModel contentModel) {
         return null;
     }
 }

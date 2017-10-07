@@ -36,6 +36,7 @@ import org.flockdata.search.ContentStructure;
 import org.flockdata.search.EsSearchRequestResult;
 import org.flockdata.search.QueryParams;
 import org.flockdata.track.bean.*;
+import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.json.ExtractProfileDeserializer;
 import org.flockdata.transform.model.ExtractProfile;
@@ -105,14 +106,14 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @RunWith(SpringRunner.class)
 @Configuration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@ActiveProfiles({"fd-client", "fd-auth-test"})
+@ActiveProfiles({"fd-auth-test"})
 public class ITests {
-
 
     @ClassRule
     public static FdDocker stack = new FdDocker();
 
     private static Logger logger = LoggerFactory.getLogger(ITests.class);
+    
     /**
      * Contains properties used by rabbitConfig and fdRestWriter
      */
@@ -155,7 +156,6 @@ public class ITests {
     @Autowired
     private AdminPurgeFortressSegment adminPurgeFortressSegment;
 
-
     /**
      * Uses the standard FdClientIo services, which use a RestTemplate and RabbitClient, to talk to FlockData.
      * By default the service URL points to fd-engine but can be reconfigured via clientConfiguration.setServiceUrl(...)
@@ -164,7 +164,7 @@ public class ITests {
      * By design, only fd-engine is secured
      */
     @Autowired
-    private FdClientIo fdClientIo;
+    private FdIoInterface fdClientIo;
 
     @Before
     public void setupServices() {
@@ -782,7 +782,7 @@ public class ITests {
         CommandResponse<Collection<ContentModelResult>> response = modelPost.exec(fdClientIo, models);
         assertEquals("Error - ", null, response.getError());
         assertEquals("Expected a response equal to the number of inputs", 1, response.getResult().size());
-        ContentModel found = fdClientIo.getContentModel(contentModel.getFortress().getName(), contentModel.getDocumentType().getCode());
+        ContentModel found = fdClientIo.getContentModel(contentModel.getFortress(), contentModel.getDocumentType());
         assertNotNull(found);
         assertFalse(found.getContent().isEmpty());
     }

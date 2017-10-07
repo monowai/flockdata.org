@@ -52,6 +52,7 @@ import java.util.Objects;
 
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.util.AssertionErrors.*;
 
 
@@ -399,7 +400,8 @@ class IntegrationHelper {
     SystemUserResultBean login(String user, String pass) throws FlockException {
         fdClientIo.setServiceUrl(getEngine());
         SystemUserResultBean result = fdClientIo.login(user, pass);
-        assertNotNull(String.format("failed to login as %s", user), result);
+        assertThat(result)
+                .isNotNull();
         if (result.getApiKey() == null) {
             // New data access user
             CommandResponse<SystemUserResultBean> suResponse = registrationPost.exec(fdClientIo, new RegistrationBean("TestCompany", user));

@@ -55,7 +55,7 @@ import static org.junit.Assert.assertEquals;
         FdTemplate.class,
         FdServerIo.class,
         MapBasedStorageProxy.class})
-@ActiveProfiles({"dev", "fd-auth-test", "fd-client"})
+@ActiveProfiles({"dev", "fd-auth-test"})
 public class TestEntityTagRelationships extends EngineBase {
 
     @Autowired

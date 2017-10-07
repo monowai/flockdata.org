@@ -53,7 +53,7 @@ import static org.junit.Assert.*;
         FdTemplate.class,
         FdServerIo.class,
         MapBasedStorageProxy.class})
-@ActiveProfiles({"dev", "fd-auth-test", "fd-client"})
+@ActiveProfiles({"dev", "fd-auth-test"})
 public class TestBatch extends EngineBase {
     @Autowired
     FileProcessor fileProcessor;

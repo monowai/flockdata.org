@@ -59,7 +59,7 @@ import java.util.Map;
         @PropertySource(value = "classpath:/fd-batch.properties"),
         @PropertySource(value = "file:${org.fd.batch.properties}", ignoreResourceNotFound = true)
 })
-@Profile({"fd-batch", "fd-batch-dev", "fd-client"})
+@Profile({"fd-batch", "fd-batch-dev"})
 @Service
 public class BatchConfig {
     private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());

@@ -6,15 +6,16 @@ fd-client is an Apache licensed client side library used to talk to FlockData. I
 ### Shell
 
 `docker run -it flockdata/fd-client`
- * help         - as it says
- * ping         - Can you see the service
+ * help         - Confuses you
+ * ping         - pong
  * login        - Authenticate with the service
  * health       - Validate health checks
  * set          - Reconfigure, the FD environment 
  * env          - Display the current FD environment
  * import       - Push data into the FD service
-
-## fdregister
+ * register     - allows the `--login {name}` to write data to the service
+  
+## register
 FlockData allows you to allow users in your authentication domain to access data. This is happens when you connect a login account with FlockData as a "System User" account. System Users have access to data curated in FlockData. Docker-Compose defines where the `fd-engine` api is located where running with `docker` means you have to tell it where to find `fd-engine` 
 
 To register a data access account you need to both login and specify the data access account you want to create. Run the following:
@@ -26,7 +27,7 @@ See the world! This customized version of `fdimport` loads [countries](http://op
 
 From the shell you can ingest delimited data by supplying its content model profile `profile.json` 
  
-`import --data "data/fd-cow.txt, model/countries.json;data/states.csv, model/states.json""`
+`import --data "data/fd-cow.txt, model/countries.json;data/states.csv, model/states.json"`
 
 ### env
 Dump the currently configured environment settings

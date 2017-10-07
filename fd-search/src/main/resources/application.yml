@@ -37,6 +37,7 @@ server:
 es:
   clustername: fd-dev
   nodes: 127.0.0.1:9300
+  path.home: ./
 
 org.fd:
   engine:

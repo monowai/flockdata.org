@@ -24,7 +24,6 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -43,7 +42,6 @@ import java.util.concurrent.TimeoutException;
  * @tag FdClient, Rabbit, Messaging
  */
 @Service
-@Profile({"fd-server", "fd-client"})
 public class FdRabbitClient {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdRabbitClient.class);

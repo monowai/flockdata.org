@@ -37,8 +37,4 @@ rabbit:
   user: guest
   pass: guest
 #  Host name is reassigned by the Integration tests
-  host: docker-ip
-
-spring:
-  profiles:
-    include: fd-server
+#  host: docker-ip

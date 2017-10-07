@@ -26,7 +26,6 @@ import org.flockdata.transform.FdIoInterface;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -40,7 +39,6 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Service
 @Configuration
-@Profile({"fd-batch", "fd-client"})
 public class FdTemplate implements Template {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdTemplate.class);
     private final Lock entityLock = new ReentrantLock();

@@ -21,6 +21,21 @@ services:
       - 15682
       - 5672
 
+  riak:
+    image: lapax/riak:latest
+    ports:
+      - '8087:8087'
+      - '8098:8098'
+    expose:
+      - 8098
+    environment:
+      storage_backend: leveldb
+      platform_data_dir: /data/riak
+
+    volumes:
+      - fd-dev-riak:/data/riak
+
 volumes:
   fd-dev-es: {}
+  fd-dev-riak: {}
 

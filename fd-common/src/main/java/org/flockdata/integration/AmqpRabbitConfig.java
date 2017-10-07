@@ -43,7 +43,6 @@ import java.util.Map;
 
 @Configuration
 @IntegrationComponentScan
-//@Profile({"fd-server", "fd-client"})
 public class AmqpRabbitConfig {
 
     @Value("${org.fd.messaging.exchange:fd-dlx}")

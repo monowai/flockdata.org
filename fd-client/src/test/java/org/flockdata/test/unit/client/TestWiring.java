@@ -56,13 +56,11 @@ import static org.junit.Assert.assertNull;
 
 })
 @RunWith(SpringRunner.class)
-@ActiveProfiles({"fd-client", "fd-server", "dev"})
+@ActiveProfiles({ "dev"})
 public class TestWiring {
 
     @Autowired
     private FdIoInterface fdIoInterface;
-    @Autowired
-    private Exchanges exchanges;
     @Autowired
     private FdRabbitClient rabbitClient;
     @Autowired
@@ -73,7 +71,6 @@ public class TestWiring {
 
     @Test
     public void wiringWorks() throws Exception {
-        assertNotNull(exchanges);
         assertNotNull(rabbitClient);
         assertNotNull(template);
         assertNotNull(fdIoInterface);

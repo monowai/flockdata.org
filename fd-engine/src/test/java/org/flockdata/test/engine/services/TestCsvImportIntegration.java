@@ -68,7 +68,7 @@ import static org.junit.Assert.assertNotNull;
         FdTemplate.class,
         FdServerIo.class,
         MapBasedStorageProxy.class})
-@ActiveProfiles({"dev", "fd-auth-test", "fd-client"})
+@ActiveProfiles({"fd-auth-test", "dev" })
 public class TestCsvImportIntegration extends EngineBase {
 
     @Autowired
