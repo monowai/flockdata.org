@@ -61,13 +61,12 @@ public class FdQueryEP {
 
     @RequestMapping(value = "/keys", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     public EntityKeyResults keys(@RequestBody QueryParams queryParams) throws FlockException {
-
         return searchService.doKeyQuery(queryParams);
     }
 
     @RequestMapping(value = "/data", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     public EsSearchRequestResult dataContent(@RequestBody QueryParams queryParams) throws FlockException {
-        return searchService.doParamatizedQuery(queryParams);
+        return searchService.doParamaterQuery(queryParams);
     }
 
     @RequestMapping(value = "/tagCloud", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)

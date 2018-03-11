@@ -1,8 +1,8 @@
 version: '3.3'
 services:
   elasticsearch:
-    image: elasticsearch:5-alpine
-    command: "elasticsearch -E node.name=fd-dev -E cluster.name=fd-dev -E node.master=true -E discovery.type=single-node -E network.host=0.0.0.0"
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.3
+    command: "elasticsearch -E node.name=fd-dev -E cluster.name=fd-dev -E node.master=true -E discovery.type=single-node -E network.host=0.0.0.0 -E xpack.security.enabled=false"
     ports:
       - '9200:9200'
       - '9300:9300'
@@ -10,8 +10,21 @@ services:
       - fd-dev-es:/usr/share/elasticsearch/data
     expose:
       - 9200
-      - 9300
+      - 9300  
+  kibana:
+    image: docker.elastic.co/kibana/kibana:5.5.3
+    expose:
+      - 5601
+      - 32776
+    ports:
+      - '5601:5601'
+      - '32776:32776'
 
+    environment:
+      SERVER_NAME: kibana.localhost
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: "false"
+    
   rabbit:
     image: rabbitmq:3-management
     ports:

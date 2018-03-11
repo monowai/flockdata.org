@@ -14,27 +14,32 @@
  *  limitations under the License.
  */
 
-package org.flockdata.client.shell;
+package org.flockdata.shell;
 
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.shell.plugin.HistoryFileNameProvider;
+import org.springframework.shell.jline.PromptProvider;
 import org.springframework.stereotype.Component;
 
 /**
  * @author mike
- * @tag
- * @since 16/07/17
+ * @tag shell
+ * @since 13/07/17
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class ShellHistory implements HistoryFileNameProvider {
+public class ShellPromptProvider implements PromptProvider {
+    @Override
+    public AttributedString getPrompt() {
+        AttributedStringBuilder builder = new AttributedStringBuilder();
 
-    public String getHistoryFileName() {
-        return "fd-shell.log";
+        builder.append("fd-shell$ ", AttributedStyle.BOLD);
+        //return new AttributedString(Ansi.ansi().render("@|cyan fd-shell$ |@").toString());
+        return builder.toAttributedString();
     }
 
-    public String getProviderName() {
-        return "FlockData History";
-    }
+
 }

@@ -20,23 +20,9 @@
 
     <artifactId>fd-client</artifactId>
     <version>0.98.9-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.shell</groupId>
-            <artifactId>spring-shell</artifactId>
-            <version>1.2.0.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
@@ -98,18 +84,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
-        </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.fasterxml.jackson.dataformat</groupId>-->
-            <!--<artifactId>jackson-dataformat-yaml</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.fasterxml.jackson.core</groupId>-->
-            <!--<artifactId>jackson-annotations</artifactId>-->
-        <!--</dependency>-->
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
@@ -144,21 +118,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <classifier>exec</classifier>
-                    <mainClass>org.flockdata.client.Shell</mainClass>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.0.0</version>
@@ -171,7 +130,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.flockdata.client.Shell</mainClass>
+                                    <mainClass>org.flockdata.client.FdShell</mainClass>
                                 </transformer>
                             </transformers>
                             <artifactSet>
@@ -263,72 +222,7 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>docker</id>
-            <!--
-                Builds an executable JAR and performs the docker packaging steps for that jar.
-                The jar can be deployed using other means, i.e. java -jar fd-engine.jar
-             -->
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
 
-                    <plugin>
-                        <groupId>com.spotify</groupId>
-
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>build</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>tag-image</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>tag</goal>
-                                </goals>
-                                <configuration>
-                                    <forceTags>true</forceTags>
-                                    <image>flockdata/${project.artifactId}</image>
-                                    <newName>flockdata/${project.artifactId}:${project.version}</newName>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>push-image</id>
-                                <goals>
-                                    <goal>push</goal>
-                                </goals>
-                                <configuration>
-                                    <imageName>flockdata/${project.artifactId}:${project.version}</imageName>
-                                </configuration>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <imageName>flockdata/${project.artifactId}</imageName>
-                            <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
-                            <resources>
-                                <resource>
-                                    <targetPath>/</targetPath>
-                                    <directory>${project.build.directory}</directory>
-                                    <include>*-exec.jar</include>
-                                    <include>classes/application.yml</include>
-                                    <include>classes/log4j*</include>
-                                    <include>classes/*.json</include>
-                                    <include>classes/fd-cow.txt</include>
-                                    <include>classes/states.csv</include>
-                                    <include>classes/commands/*</include>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
 
     <!--<repositories>-->

@@ -23,7 +23,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.shell.core.CommandMarker;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -38,7 +37,7 @@ import java.util.Collection;
  * @since 17/04/2016
  */
 @Component
-public class ModelPost implements CommandMarker{
+public class ModelPost {
 
 
     public CommandResponse<Collection<ContentModelResult>> exec(FdIoInterface fdIoInterface, Collection<ContentModel> models) {

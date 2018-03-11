@@ -28,6 +28,7 @@
         <module>fd-common</module>
         <module>fd-security</module>
         <module>fd-client</module>
+        <module>fd-shell</module>
         <module>fd-batch</module>
         <module>fd-engine</module>
         <module>fd-store</module>
@@ -45,10 +46,10 @@
 
         <jackson.version>2.8.9</jackson.version>
         <mockito.version>1.10.19</mockito.version>
-        <org.springboot.version>1.5.7.RELEASE</org.springboot.version>
-        <org.springframework.version>4.3.9.RELEASE</org.springframework.version>
+        <org.springboot.version>1.5.10.RELEASE</org.springboot.version>
+        <org.springframework.version>4.3.11.RELEASE</org.springframework.version>
         <org.springbatch.version>3.0.7.RELEASE</org.springbatch.version>
-        <org.springintegration.version>4.3.10.RELEASE</org.springintegration.version>
+        <org.springintegration.version>4.3.14.RELEASE</org.springintegration.version>
         <org.springsecurity.version>4.2.0.RELEASE</org.springsecurity.version>
 
         <org.springcloud.release.train>Dalston.SR1</org.springcloud.release.train>

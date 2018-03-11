@@ -234,7 +234,7 @@ public class QueryDaoES  {
         SearchRequestBuilder query = elasticSearchClient.prepareSearch(indexManager.getIndexesToQuery(queryParams))
                 .setTypes(types)
                 .addDocValueField(SearchSchema.KEY)
-                .setQuery(QueryBuilders.matchQuery(SearchSchema.KEY, queryParams.getKey()));
+            .setQuery(QueryBuilders.matchQuery(SearchSchema.KEY, (queryParams.getKey() == null ? queryParams.getSearchText() : queryParams.getKey())));
         if ( queryParams.getSize()!=null)
             query.setSize(queryParams.getSize());
 
@@ -260,7 +260,7 @@ public class QueryDaoES  {
         return results;
     }
 
-    public String doSearch(QueryParams queryParams) throws FlockException {
+    public String doSearch(QueryParams queryParams) {
         SearchResponse result = elasticSearchClient.prepareSearch(indexManager.getIndexesToQuery(queryParams))
                 .setQuery(QueryBuilders.wrapperQuery(QueryGenerator.getSimpleQuery(queryParams, false)))
                 .execute()
@@ -280,7 +280,7 @@ public class QueryDaoES  {
 
     }
 
-    public EsSearchRequestResult doEntitySearch(QueryParams queryParams) throws FlockException {
+    public EsSearchRequestResult doEntitySearch(QueryParams queryParams) {
         StopWatch watch = new StopWatch();
 
         watch.start(queryParams.toString());
@@ -406,7 +406,7 @@ public class QueryDaoES  {
         return highlights;
     }
 
-    public EsSearchRequestResult doEsQuery(QueryParams queryParams) throws FlockException {
+    public EsSearchRequestResult doEsQuery(QueryParams queryParams) {
         String index = queryParams.getIndex();
         if ( index == null )
             index = indexManager.toIndex(queryParams);

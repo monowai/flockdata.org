@@ -22,7 +22,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.shell.core.CommandMarker;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -39,7 +38,7 @@ import java.util.Map;
  * @since 17/04/2016
  */
 @Component
-public class SearchEsPost implements CommandMarker{
+public class SearchEsPost {
 
 
     public CommandResponse<Map<String,Object>> exec(FdIoInterface fdIoInterface, QueryParams queryParams) {

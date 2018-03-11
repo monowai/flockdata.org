@@ -64,7 +64,7 @@ import java.util.Map;
  * @since 13/10/2013
  */
 @Service
-@Profile("!fd-server")
+@Profile("fd-client")
 public class FdClientIo implements FdIoInterface {
 
     private static boolean compress = true;

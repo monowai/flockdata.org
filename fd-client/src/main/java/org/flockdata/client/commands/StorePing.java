@@ -17,7 +17,6 @@
 package org.flockdata.client.commands;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.shell.core.CommandMarker;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,7 +26,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Qualifier("StorePing")
-public class StorePing extends Ping implements CommandMarker {
+public class StorePing extends Ping {
 
     public void setApi(String api) {
         this.api = api;

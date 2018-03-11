@@ -56,29 +56,26 @@ import static org.junit.Assert.assertNull;
 
 })
 @RunWith(SpringRunner.class)
-@ActiveProfiles({ "dev"})
+@ActiveProfiles({"fd-client"})
 public class TestWiring {
 
     @Autowired
     private FdIoInterface fdIoInterface;
     @Autowired
     private FdRabbitClient rabbitClient;
-    @Autowired
-    private FdClientIo template;
 
     @Autowired
     private ClientConfiguration clientConfiguration;
 
     @Test
-    public void wiringWorks() throws Exception {
+    public void wiringWorks() {
         assertNotNull(rabbitClient);
-        assertNotNull(template);
         assertNotNull(fdIoInterface);
         assertNotNull(clientConfiguration);
     }
 
     @Test
-    public void clientDefaults () throws Exception{
+    public void clientDefaults() {
         assertNull(clientConfiguration.getApiKey());
         assertNotNull(clientConfiguration.getHttpUser());
     }

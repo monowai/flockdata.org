@@ -14,35 +14,33 @@
  *  limitations under the License.
  */
 
-package org.flockdata.client;
+package org.flockdata.shell;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.shell.Bootstrap;
-
-import java.io.IOException;
 
 /**
  * @author mike
- * @tag
+ * @tag Application
  * @since 13/07/17
  */
 
-@Configuration
-@ComponentScan(basePackages = {"org.flockdata.integration", "org.flockdata.client"})
-@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
-public class Shell {
-    /**
-     * Main class that delegates to Spring Shell's Bootstrap class in order to simplify debugging inside an IDE
-     * @param args
-     * @throws IOException
-     */
-    public static void main(String[] args) throws IOException {
-        Bootstrap.main(args);
+@SpringBootApplication(scanBasePackages = {"org.flockdata.integration", "org.flockdata.client", "org.flockdata.shell"},
+    exclude = DataSourceAutoConfiguration.class)
+public class FdShell {
+
+    public static void main(String[] args) {
+        SpringApplication.run(FdShell.class, args);
     }
 
+    private ShellCommands shellCommands;
+
+    @Autowired
+    void setShellCommands(ShellCommands shellCommands) {
+        this.shellCommands = shellCommands;
+    }
 
 
 }

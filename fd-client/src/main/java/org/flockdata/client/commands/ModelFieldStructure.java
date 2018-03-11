@@ -21,7 +21,6 @@ import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.shell.core.CommandMarker;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -35,7 +34,7 @@ import org.springframework.web.client.ResourceAccessException;
  * @since 31/08/2016
  */
 @Component
-public class ModelFieldStructure implements CommandMarker {
+public class ModelFieldStructure {
 
     public CommandResponse<ContentStructure> exec(FdIoInterface fdIoInterface, String fortress, String documentType) {
         HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());

@@ -80,9 +80,6 @@ public class ContentService {
             }
 //            logger.info(result.toString());
             return null;
-        } catch (FlockException e) {
-            logger.error(e.getMessage());
-            throw (e);
         } catch (InterruptedException | ExecutionException e) {
             logger.error(e.getMessage());
             throw new FlockException(e.getMessage());

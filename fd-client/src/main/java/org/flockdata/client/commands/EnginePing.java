@@ -17,7 +17,6 @@
 package org.flockdata.client.commands;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.shell.core.CommandMarker;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,7 +26,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Qualifier("enginePing")
-public class EnginePing extends Ping implements CommandMarker {
+public class EnginePing extends Ping {
 
     @Override
     public String getPath() {

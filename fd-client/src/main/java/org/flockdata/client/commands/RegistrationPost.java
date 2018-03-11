@@ -22,7 +22,6 @@ import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.shell.core.CommandMarker;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -36,7 +35,7 @@ import org.springframework.web.client.ResourceAccessException;
  * @since 13/04/2016
  */
 @Component
-public class RegistrationPost implements CommandMarker{
+public class RegistrationPost {
 
     public CommandResponse<SystemUserResultBean> exec(FdIoInterface fdIoInterface, RegistrationBean registrationBean) {
         String error = null;

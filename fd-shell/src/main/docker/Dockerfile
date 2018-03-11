@@ -10,7 +10,6 @@ MAINTAINER Mike Holdsworth "https://github.com/monowai"
 
 # Create flockdata var/lib folder
 RUN mkdir /opt/flockdata && \
-    mkdir /opt/flockdata/bin && \
     mkdir /opt/flockdata/log && \
     mkdir /opt/flockdata/data && \
     mkdir /opt/flockdata/model && \
@@ -18,16 +17,14 @@ RUN mkdir /opt/flockdata && \
 
 WORKDIR /opt/flockdata
 # Add files.
-COPY fd-client*-exec.jar /opt/flockdata/fd-client.jar
-COPY classes/*.json /opt/flockdata/model/
-COPY classes/fd-cow.txt /opt/flockdata/data/
-COPY classes/states.csv /opt/flockdata/data/
-COPY classes/application.yml /opt/flockdata/
 COPY classes/log4j* /opt/flockdata/conf/
 COPY classes/application.yml /opt/flockdata/conf/application.yml
 
-# Command scripts
-COPY classes/commands/ /opt/flockdata/bin/
+COPY fd-shell-*.jar /opt/flockdata/fd-shell.jar
+#COPY ../../fd-client/*.json /opt/flockdata/model/
+#COPY ../../fd-client/fd-cow.txt /opt/flockdata/data/
+#COPY ../../fd-client/states.csv /opt/flockdata/data/
+#COPY ../../fd-client/application.yml /opt/flockdata/
 
 ENV FD_BASE="/opt/flockdata"
 #RUN ln -s $FD_BASE/bin/fdshell /usr/local/bin/fdshell
@@ -38,7 +35,7 @@ RUN alias ll='ls -la'
 ## Useful for running API commands
 #RUN apk -U add curl
 
-RUN bash -c 'touch /opt/flockdata/fd-client.jar'
-RUN chmod +x  /opt/flockdata/bin/*
+RUN bash -c 'touch /opt/flockdata/fd-shell.jar'
+#RUN chmod +x  /opt/flockdata/bin/*
 
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-Dfile.encoding=UTF8", "-jar","/opt/flockdata/fd-client.jar", "--profiles","fd-client"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-Dfile.encoding=UTF8", "-jar","/opt/flockdata/fd-shell.jar", "--profiles","fd-client"]

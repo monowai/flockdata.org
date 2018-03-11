@@ -45,7 +45,7 @@ public interface QueryService {
      * @see QueryParams
      * @see EsSearchRequestResult
      */
-    EsSearchRequestResult doParamatizedQuery(QueryParams queryParams) throws FlockException;
+    EsSearchRequestResult doParamaterQuery(QueryParams queryParams) throws FlockException;
 
     EntityKeyResults doKeyQuery(QueryParams queryParams) throws FlockException;
 

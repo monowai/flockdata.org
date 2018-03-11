@@ -3,40 +3,7 @@ Overview
 fd-client is an Apache licensed client side library used to talk to FlockData. It contains classes that can be injected into your Java code and commands that can be executed from the FD shell
     
 
-### Shell
 
-`docker run -it flockdata/fd-client`
- * help         - Confuses you
- * ping         - pong
- * login        - Authenticate with the service
- * health       - Validate health checks
- * set          - Reconfigure, the FD environment 
- * env          - Display the current FD environment
- * import       - Push data into the FD service
- * register     - allows the `--login {name}` to write data to the service
-  
-## register
-FlockData allows you to allow users in your authentication domain to access data. This is happens when you connect a login account with FlockData as a "System User" account. System Users have access to data curated in FlockData. Docker-Compose defines where the `fd-engine` api is located where running with `docker` means you have to tell it where to find `fd-engine` 
-
-To register a data access account you need to both login and specify the data access account you want to create. Run the following:
-
-`register --login demo`
-
-## import
-See the world! This customized version of `fdimport` loads [countries](http://opengeocode.org/), capital cities, and common aliases along with geo tagged data, into FlockData. States for USA, Canada, and Australia are also added.
-
-From the shell you can ingest delimited data by supplying its content model profile `profile.json` 
- 
-`import --data "data/fd-cow.txt, model/countries.json;data/states.csv, model/states.json"`
-
-### env
-Dump the currently configured environment settings
-
-Configured settings can always be overridden on the command line or set as system environment variables
-
-### login
-Connect the shell with a different set of credentials
-`login --user demo --pass 123`
 
 ### Java
 FlockData has a comprehensive REST based API. This package provides convenience classes to facilitate client side communication. Classes in this package support injection using the SpringFramework. There are three classes that are primarily required when communicating using Java:

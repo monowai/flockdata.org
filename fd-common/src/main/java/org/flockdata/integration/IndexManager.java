@@ -197,7 +197,7 @@ public class IndexManager {
      * @throws FlockException business exception using the supplied queryParams
      * @see QueryParams
      */
-    public String[] getIndexesToQuery(QueryParams queryParams) throws FlockException {
+    public String[] getIndexesToQuery(QueryParams queryParams) {
         if (queryParams.getIndex() != null) {
             if (queryParams.getTypes() == null)
                 return new String[]{queryParams.getIndex() + "*"};

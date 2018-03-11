@@ -16,20 +16,16 @@
 
 package org.flockdata.client.commands;
 
-import jline.console.ConsoleReader;
 import org.flockdata.registration.LoginRequest;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.transform.FdIoInterface;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.shell.core.CommandMarker;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
-
-import java.io.IOException;
 
 /**
  * Logs the user into the FlockData service in order to make authorised calls
@@ -40,7 +36,7 @@ import java.io.IOException;
  */
 
 @Component
-public class Login implements CommandMarker {
+public class Login {
     /**
      * @param fdIoInterface
      * @return an error message (if one occurred) and null if everything is worked. Call result() to get, umm, the result
@@ -59,31 +55,4 @@ public class Login implements CommandMarker {
         return new CommandResponse<>(error, result);
     }
 
-    public String readPassword() {
-        String question = "password : ";
-        try {
-            ConsoleReader consolereader = new ConsoleReader();
-            return consolereader.readLine(question, '*');
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public String readLogin( String currentLogin ) {
-
-        String question = String.format("login [%s]: " ,currentLogin);
-        try {
-            ConsoleReader consolereader = new ConsoleReader();
-            String login =  consolereader.readLine(question);
-            if ( login.equalsIgnoreCase(""))
-                login= currentLogin;
-            return login;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
-    }
 }

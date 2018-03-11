@@ -14,12 +14,10 @@
  *  limitations under the License.
  */
 
-package org.flockdata.client.shell;
+package org.flockdata.shell;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.shell.plugin.support.DefaultBannerProvider;
-import org.springframework.shell.support.util.OsUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -29,18 +27,20 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class BannerProvider extends DefaultBannerProvider {
+
+public class BannerProvider {
 
     public String getBanner() {
-        return OsUtils.LINE_SEPARATOR +
-                "=======================================" +
-                OsUtils.LINE_SEPARATOR +
-                "*          Flockdata Shell            *" +
-                OsUtils.LINE_SEPARATOR +
-                "=======================================" +
-                OsUtils.LINE_SEPARATOR +
-                "Version:" +
-                this.getVersion();
+        return "banner";
+//        return OsUtils.LINE_SEPARATOR +
+//                "=======================================" +
+//                OsUtils.LINE_SEPARATOR +
+//                "*          Flockdata Shell            *" +
+//                OsUtils.LINE_SEPARATOR +
+//                "=======================================" +
+//                OsUtils.LINE_SEPARATOR +
+//                "Version:" +
+//                this.getVersion();
     }
 
 
@@ -51,4 +51,9 @@ public class BannerProvider extends DefaultBannerProvider {
     public String getProviderName() {
         return "FlockData Banner";
     }
+
+//    @Override
+//    public void printBanner(Environment environment, Class<?> aClass, PrintStream printStream) {
+//        return "";
+//    }
 }

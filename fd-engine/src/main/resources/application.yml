@@ -14,7 +14,7 @@
 # disable/enable KV versions
 
 server:
-  port: 8080
+  port: 14001
 
 security:
   sessions: NEVER
@@ -103,7 +103,7 @@ org.fd:
       prefetchCount: 10
 
   search:
-    api: ${org.fd.search.url:http://127.0.0.1:8081}
+    api: ${org.fd.search.url:http://127.0.0.1:14002}
     messaging:
       concurrentConsumers: 2
       prefetchCount: 10
@@ -111,7 +111,7 @@ org.fd:
       poolSize: 20-30
       queueCapacity: 10
   store:
-    api: ${org.fd.store.url:http://127.0.0.1:8082}
+    api: ${org.fd.store.url:http://127.0.0.1:14003}
     system:
       enabled: false
     # Async hand offs to fd-store
@@ -153,7 +153,7 @@ org.fd:
 org:
   neo4j:
     # path to neo4j.properties. This setting is for development. It MUST be overriden for other environments
-    path: src/main/resources
+    path: fd-engine/src/main/resources
     # where to write the db files to - required
     server.database.location: data/neo4j
 #    dbms.pagecache.memory: 1g

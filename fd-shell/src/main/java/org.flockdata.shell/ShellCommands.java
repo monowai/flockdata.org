@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.flockdata.client.shell;
+package org.flockdata.shell;
 
 import org.flockdata.client.Importer;
 import org.flockdata.client.commands.*;
@@ -25,14 +25,13 @@ import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.track.bean.CompanyInputBean;
 import org.flockdata.transform.FdIoInterface;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliCommand;
-import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -40,12 +39,12 @@ import java.util.Collection;
  * Runs commands on behalf of the shell
  *
  * @author mholdsworth
- * @tag Command, FdClient, Application, Shell
- * @since 27/05/2016
+ * @tag Command, Shell
+ * @since 27/05/2018
  */
-@Component
-public class ShellCommandRunner implements CommandMarker {
-    private Logger logger = LoggerFactory.getLogger(ShellCommandRunner.class);
+@ShellComponent
+public class ShellCommands {
+    //    private Logger logger = LoggerFactory.getLogger(ShellCommands.class);
     private EnginePing enginePing;
     private Health health;
     private ClientConfiguration clientConfiguration;
@@ -56,19 +55,23 @@ public class ShellCommandRunner implements CommandMarker {
     private Importer importer;
 
     @Autowired
-    ShellCommandRunner(FdIoInterface fdIoInterface, ClientConfiguration clientConfiguration, AmqpRabbitConfig rabbitConfig) {
+    ShellCommands(FdIoInterface fdIoInterface, ClientConfiguration clientConfiguration, AmqpRabbitConfig rabbitConfig) throws IOException {
         this.fdIoInterface = fdIoInterface;
         this.clientConfiguration = clientConfiguration;
-        this.rabbitConfig =rabbitConfig;
+        this.rabbitConfig = rabbitConfig;
+//        Terminal terminal = TerminalBuilder.terminal();
+//        reader = LineReaderBuilder.builder()
+//            .terminal(terminal).build();
     }
 
     /**
      * Commands supported by this ShellRunner
-     * @param importer          data file import
-     * @param registrationPost  register a system user as a data acess user
-     * @param login             login under a different system user account
-     * @param enginePing        ping the tracking API
-     * @param health            verify connectivity health of services
+     *
+     * @param importer data file import
+     * @param registrationPost register a system user as a data acess user
+     * @param login login under a different system user account
+     * @param enginePing ping the tracking API
+     * @param health verify connectivity health of services
      */
     @Autowired
     void setCommands(Importer importer, RegistrationPost registrationPost, Login login, EnginePing enginePing, Health health) {
@@ -79,53 +82,62 @@ public class ShellCommandRunner implements CommandMarker {
         this.registrationPost = registrationPost;
     }
 
-    @CliCommand(value = "set", help = "Set shell to talk to an instance of flockdata or display the currently configured instance")
-    public String setApi(
-            @CliOption(key = {"api"}, help = "The FQDN of FD ") final String url,
-            @CliOption(key = {"rabbit.host"}, help = "Rabbit MQ host") final String rabbitHost,
-            @CliOption(key = {"rabbit.port"}, help = "Rabbit MQ port default") Integer rabbitPort) {
+    //help = "Set shell to talk to an instance of flockdata or display the currently configured instance"
+    @ShellMethod(value = "set")
+    public Collection<String> setApi(
+        @ShellOption(help = "The FQDN of FD ") final String url,
+        @ShellOption(help = "Rabbit MQ host") final String rabbitHost,
+        @ShellOption(help = "Rabbit MQ port default") Integer rabbitPort) {
 
         if (url != null) {
             clientConfiguration.setServiceUrl(url);
         }
 
         if (rabbitHost != null) {
-            if (rabbitPort == null)
+            if (rabbitPort == null) {
                 rabbitPort = rabbitConfig.getPort();
+            }
             rabbitConfig.resetHost(rabbitHost, rabbitPort);
         }
 
         return config();
     }
 
-    @CliCommand(value = "ping", help = "Ping the fd-engine service")
+    //help = "Ping the fd-engine service"
+    @ShellMethod(value = "ping")
     public String ping() {
         CommandResponse<String> commandResponse = enginePing.exec(fdIoInterface);
         return (commandResponse.getError() == null ? commandResponse.getResult() : commandResponse.getError());
     }
 
-    @CliCommand(value = "env", help = "Dump the currently defined FD client environment ")
-    public String config() {
-        String result = clientConfiguration.toString();
-        return result + "\r\n" + rabbitConfig.logStatus();
+    //, help = "Dump the currently defined FD client environment "
+    @ShellMethod(value = "config")
+    public Collection<String> config() {
+        Collection<String> results = new ArrayList<>();
+        results.add(clientConfiguration.toString());
+        results.add(rabbitConfig.logStatus());
+        return results;
     }
 
-    @CliCommand(value = "health", help = "Verify the health of the FD services")
+    //    , help = "Verify the health of the FD services"
+    @ShellMethod(value = "health")
     public String health() {
         CommandResponse response = health.exec(fdIoInterface);
         return (response.getError() == null ? JsonUtils.pretty(response.getResult()) : response.getError());
     }
 
-    @CliCommand(value = "register", help = "register an FD login as a data access user")
+    //, help = "register an FD login as a data access user"
+    @ShellMethod(value = "register")
     public String register(
-            @CliOption(key = {"login"}, help = "The login account to register") final String account,
-            @CliOption(key = {"email"}, help = "The email account to record") final String email,
-            @CliOption(key = {"company"}, help = "If the login manages multiple companies, then assign this login to this one") final String company) {
+        @ShellOption(help = "The login account to register") final String account,
+        @ShellOption(help = "The email account to record") final String email,
+        @ShellOption(help = "If the login manages multiple companies, then assign this login to this one") final String company) {
         RegistrationBean registrationBean = new RegistrationBean(clientConfiguration.getCompany(), account)
-                .setEmail(email);
+            .setEmail(email);
 
-        if (company != null)
+        if (company != null) {
             registrationBean.setCompany(new CompanyInputBean(company));
+        }
 
         CommandResponse response = registrationPost.exec(fdIoInterface, registrationBean);
         String result;
@@ -138,19 +150,23 @@ public class ShellCommandRunner implements CommandMarker {
 
     }
 
-    @CliCommand(value = "login", help = "Login to flockdata")
+    //, help = "Login to flockdata"
+    @ShellMethod(value = "login")
     public String login(
-            @CliOption(key = {"user"}, help = "The user name") String user,
-            @CliOption(key = {"pass"}, help = "The user password") String pass) {
+        @ShellOption(help = "The user name") String user,
+        @ShellOption(help = "The user password") String pass) {
 
-        if (user==null )
-            user =login.readLogin( clientConfiguration.getHttpUser());
+        if (user == null) {
+            user = readLogin(clientConfiguration.getHttpUser());
+        }
 
-        if ( pass == null )
-            pass = login.readPassword();
+        if (pass == null) {
+            pass = readPassword();
+        }
 
-        if ( pass ==null )
+        if (pass == null) {
             return "No password supplied";
+        }
 
         if (user != null) {
             clientConfiguration.setHttpUser(user);
@@ -162,21 +178,47 @@ public class ShellCommandRunner implements CommandMarker {
     }
 
 
-    @CliCommand(value = "import", help = "Track data into the service")
+    //, help = "Track data into the service"
+    // import-data --data "data/fd-cow.txt, profile/countries.json;data/states.csv, model/states.json"
+    @ShellMethod(value = "import-data")
     public String importData(
-            @CliOption(key = {"data"}, mandatory = true, help = "--data \"datafile.txt,profile.json\" e.g. import \"data/fd-cow.txt, profile/countries.json;data/states.csv, model/states.json")
-            final String fileInput) {
+        @ShellOption(help = "--data \"datafile.txt,profile.json\" e.g. import \"data/fd-cow.txt, profile/countries.json;data/states.csv, model/states.json") final String data) {
 
         if (clientConfiguration.getApiKey() == null) {
             return "No API key. Have you logged in and is you login a data access account?";
         }
         Collection<String> filesAndModels;
-        if (fileInput == null || fileInput.equals("")) {
+        if (data == null || data.equals("")) {
             return "No files to parse!";
         }
 
-        filesAndModels = Arrays.asList(fileInput.split(";"));
+        filesAndModels = Arrays.asList(data.split(";"));
         return importer.runImport(filesAndModels);
     }
+
+    @ShellMethod(value = "cd")
+    public String cd() {
+
+        return System.getProperty("user.dir");
+
+
+    }
+
+    private String readPassword() {
+        String question = "password : ";
+        //return reader.readLine(question, '*');
+        return "";
+    }
+
+    private String readLogin(String currentLogin) {
+
+//        String question = String.format("login [%s]: " ,currentLogin);
+//        String login =  reader.readLine(question);
+//        if ( login.equalsIgnoreCase(""))
+//            login= currentLogin;
+        return "";
+    }
+
+
 
 }
