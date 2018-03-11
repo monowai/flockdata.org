@@ -61,7 +61,7 @@ public class ContentService {
 
     public ContentStructure getStructure (QueryParams queryParams) throws FlockException {
         try {
-            String[] indexes = indexManager.getIndexesToQuery(queryParams);
+            String[] indexes = indexManager.getIndices(queryParams);
             GetFieldMappingsRequestBuilder fieldMappings = elasticSearchClient.admin().indices().prepareGetFieldMappings(indexes);
             fieldMappings.setFields("data.*","tag.*", "e.*", "up.*", SearchSchema.PROPS, SearchSchema.CREATED, SearchSchema.UPDATED, SearchSchema.DOC_TYPE);
             ListenableActionFuture<GetFieldMappingsResponse> future = fieldMappings.execute();

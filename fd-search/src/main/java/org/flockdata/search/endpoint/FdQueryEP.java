@@ -66,7 +66,7 @@ public class FdQueryEP {
 
     @RequestMapping(value = "/data", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
     public EsSearchRequestResult dataContent(@RequestBody QueryParams queryParams) throws FlockException {
-        return searchService.doParamaterQuery(queryParams);
+        return searchService.doParametrizedQuery(queryParams);
     }
 
     @RequestMapping(value = "/tagCloud", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)

@@ -18,7 +18,6 @@ package org.flockdata.integration;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.flockdata.data.*;
-import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.search.QueryParams;
 import org.flockdata.store.LogRequest;
@@ -44,7 +43,7 @@ import java.util.Collection;
 @Configuration
 public class IndexManager {
 
-    public static final String SEPARATOR = ".";
+    private static final String SEPARATOR = ".";
     private Logger logger = LoggerFactory.getLogger("configuration");
 
     @Value("${org.fd.engine.fortress.index.entity.prefix:fd.}")
@@ -194,23 +193,16 @@ public class IndexManager {
      *
      * @param queryParams Args holding parameters to use in the query
      * @return one index per doc type
-     * @throws FlockException business exception using the supplied queryParams
      * @see QueryParams
      */
-    public String[] getIndexesToQuery(QueryParams queryParams) {
+    public String[] getIndices(QueryParams queryParams) {
         if (queryParams.getIndex() != null) {
             if (queryParams.getTypes() == null)
                 return new String[]{queryParams.getIndex() + "*"};
 
             return ArrayUtils.toArray(queryParams.getIndex());
-//            String indexes[] = new String[queryParams.getTypes().length];
-//            int i = 0;
-//            for (String type : queryParams.getTypes()) {
-//                indexes[i] = queryParams.getIndex() ;//+ "." + parseType(type);
-//            }
-//            return indexes;
         }
-        return getIndexesToQuery(queryParams.getCompany(), queryParams.getFortress(), queryParams.getTypes(), queryParams.getSegment());
+        return getIndices(queryParams.getCompany(), queryParams.getFortress(), queryParams.getTypes(), queryParams.getSegment());
     }
 
     /**
@@ -222,9 +214,7 @@ public class IndexManager {
      * @param segment  optional segment to restrict by
      * @return One index line per Root+Type combination
      */
-    public String[] getIndexesToQuery(String company, String fortress, String[] types, String segment) {
-
-
+    public String[] getIndices(String company, String fortress, String[] types, String segment) {
         Collection<String> results = new ArrayList<>();
         if ( company == null && fortress == null && types==null &&segment == null ) {
             results.add(getPrefix() + "*");

@@ -77,7 +77,7 @@ public class TestQueryDao extends ESBase {
                 .setTypes(entity.getType())
                 .setCode(entity.getCode());
 
-        EsSearchRequestResult result = queryServiceEs.doParamaterQuery(queryParams);
+        EsSearchRequestResult result = queryServiceEs.doParametrizedQuery(queryParams);
         assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)
@@ -91,7 +91,7 @@ public class TestQueryDao extends ESBase {
                 .setTypes(entity.getType())
                 .addTerm("fortress", entity.getSegment().getFortress().getCode());
 
-        result = queryServiceEs.doParamaterQuery(queryParams);
+        result = queryServiceEs.doParametrizedQuery(queryParams);
         assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)
@@ -104,7 +104,7 @@ public class TestQueryDao extends ESBase {
                 .setSegment(entity.getSegment().getCode())
         ;
 
-        result = queryServiceEs.doParamaterQuery(queryParams);
+        result = queryServiceEs.doParametrizedQuery(queryParams);
         assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)
@@ -118,7 +118,7 @@ public class TestQueryDao extends ESBase {
         ;
 
 
-        result = queryServiceEs.doParamaterQuery(queryParams);
+        result = queryServiceEs.doParametrizedQuery(queryParams);
         assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)
@@ -132,7 +132,7 @@ public class TestQueryDao extends ESBase {
                 .setIndex(indexManager.toIndex(entity))
         ;
 
-        result = queryServiceEs.doParamaterQuery(queryParams);
+        result = queryServiceEs.doParametrizedQuery(queryParams);
         assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)
@@ -177,7 +177,7 @@ public class TestQueryDao extends ESBase {
                 .setIndex(indexManager.getTagIndexRoot(company, tag))
         ;
 
-        EsSearchRequestResult result = queryServiceEs.doParamaterQuery(queryParams);
+        EsSearchRequestResult result = queryServiceEs.doParametrizedQuery(queryParams);
         assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)

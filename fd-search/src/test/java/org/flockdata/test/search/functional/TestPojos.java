@@ -69,13 +69,13 @@ public class TestPojos {
 //        // Varargs set to a 0 length array
 //        qp.setTypes();
 //
-//        String[] indexes = indexManager.getIndexesToQuery(qp);
+//        String[] indexes = indexManager.getIndices(qp);
 //        TestCase.assertFalse(indexes == null);
 //        TestCase.assertEquals(1, indexes.length);
 //        assertEquals(indexRoot +".*", indexes[0]);
 //
 //        qp.setFortress("*");
-//        indexes = indexManager.getIndexesToQuery(qp);
+//        indexes = indexManager.getIndices(qp);
 //        TestCase.assertFalse(indexes == null);
 //        TestCase.assertEquals(1, indexes.length);
 //        assertEquals(indexRoot+".*", indexes[0]);

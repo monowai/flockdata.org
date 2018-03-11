@@ -48,7 +48,7 @@ public class TestIndexHelper {
         String types[] = new String[1];
 
         types[0] = "lar";
-        String[] indexes = indexManager.getIndexesToQuery(company, fortress, types, segment);
+        String[] indexes = indexManager.getIndices(company, fortress, types, segment);
         TestCase.assertEquals(1, indexes.length);
         TestCase.assertEquals("fd.flockdata.fdm.lar.2013", indexes[0]);
     }
@@ -61,7 +61,7 @@ public class TestIndexHelper {
         String segment = null;
         String types[] = new String[1];
 
-        String[] indexes = indexManager.getIndexesToQuery(company, fortress, types, segment);
+        String[] indexes = indexManager.getIndices(company, fortress, types, segment);
         TestCase.assertEquals(1, indexes.length);
         TestCase.assertEquals("fd.flockdata.fdm*", indexes[0]);
     }
@@ -76,7 +76,7 @@ public class TestIndexHelper {
 
         types[0] = "Type0";
         types[1] = "Type1";
-        String[] indexes = indexManager.getIndexesToQuery(company, fortress, types, segment);
+        String[] indexes = indexManager.getIndices(company, fortress, types, segment);
         int count=0 ;
         for (String index : indexes) {
             validateIndex(company, fortress, types[count], segment, index);
@@ -100,7 +100,7 @@ public class TestIndexHelper {
         qp.setTypes("Type0");
         String parsedIndex = indexManager.toIndex(qp);
         TestCase.assertEquals("If this fails then locating the content when KV_NONE will fail", "fd." + company.toLowerCase() + "." + fortress.toLowerCase() + "." + segment.toLowerCase(), parsedIndex);
-        //String[] indexes = IndexHelper.getIndexesToQuery(qp);
+        //String[] indexes = IndexHelper.getIndices(qp);
         //validateIndexesForQuery(company, fortress, segment, indexes);
     }
 
@@ -116,7 +116,7 @@ public class TestIndexHelper {
         qp.setSegment(segment);
         qp.setTypes("Type0", "type1");
 
-        String[] indexes = indexManager.getIndexesToQuery(qp);
+        String[] indexes = indexManager.getIndices(qp);
         int expectedCount = 2; // We set two type filters so should be at least two indexes
         TestCase.assertEquals(expectedCount, indexes.length);
         int count =0;
@@ -137,7 +137,7 @@ public class TestIndexHelper {
         QueryParams qp = new QueryParams();
         qp.setCompany(company);
 
-        String[] indexes = indexManager.getIndexesToQuery(qp);
+        String[] indexes = indexManager.getIndices(qp);
         TestCase.assertEquals(1, indexes.length);
         for (String index : indexes) {
             assertTrue(index.startsWith(indexManager.getPrefix() + company.toLowerCase() + ".*"));
@@ -151,7 +151,7 @@ public class TestIndexHelper {
         qp.setCompany("theCompany"); // normally this is set automatically by fd-engine
         qp.setTypes("thedoc");
         IndexManager indexManager = new IndexManager("fd.", true);
-        String indexes[] = indexManager.getIndexesToQuery(qp);
+        String indexes[] = indexManager.getIndices(qp);
         for (String index : indexes) {
             System.out.println(index);
         }
@@ -162,13 +162,13 @@ public class TestIndexHelper {
     public void nullIndexes() throws Exception {
         QueryParams qp = new QueryParams("*");
         IndexManager indexManager = new IndexManager("fd.", true);
-        String indexes[] = indexManager.getIndexesToQuery(qp);
+        String indexes[] = indexManager.getIndices(qp);
         assertEquals(1, indexes.length);
         assertEquals("Cross company filter did not work", "fd.*", indexes[0]);
 
         //
         qp.setCompany("MyCo") ;
-        indexes = indexManager.getIndexesToQuery(qp);
+        indexes = indexManager.getIndices(qp);
         assertEquals(1, indexes.length);
         assertEquals("fd.myco.*", indexes[0]);
 

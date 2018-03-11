@@ -50,12 +50,12 @@ public class QueryServiceEs implements QueryService {
 
     @Override
     public Long getHitCount(String index) {
-        return queryDao.getHitCount(index);
+        return queryDao.doHitCountQuery(index);
     }
 
     @Override
-    public EsSearchRequestResult doFdViewSearch(QueryParams queryParams) {
-        return queryDao.doEntitySearch(queryParams);
+    public EsSearchRequestResult doFdViewSearch(QueryParams queryParams) throws FlockException {
+        return queryDao.doFdViewSearch(queryParams);
     }
 
     public EntityKeyResults doKeyQuery(QueryParams queryParams) throws FlockException {
@@ -63,12 +63,12 @@ public class QueryServiceEs implements QueryService {
     }
 
     @Override
-    public EsSearchRequestResult doParamaterQuery(QueryParams queryParams) throws FlockException {
+    public EsSearchRequestResult doParametrizedQuery(QueryParams queryParams) throws FlockException {
         return queryDao.doParametrizedQuery(queryParams);
     }
 
     @Override
-    public String doSearch(QueryParams queryParams) {
+    public String doSearch(QueryParams queryParams) throws FlockException {
         return queryDao.doSearch(queryParams);
     }
 
