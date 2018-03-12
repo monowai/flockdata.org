@@ -111,7 +111,7 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.5.3
-    command: "elasticsearch -E node.name=fd-int -E cluster.name=es_int_fd -E node.master=true -E discovery.type=single-node -E network.host=0.0.0.0 -E http.host=0.0.0.0"
+    command: "elasticsearch -E node.name=fd-int -E cluster.name=es_int_fd -E node.master=true -E discovery.type=single-node -E network.host=0.0.0.0 -E http.host=0.0.0.0 -E xpack.security.enabled=false"
     ports:
       - '9200:9200'
       - '9300:9300'

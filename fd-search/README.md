@@ -36,13 +36,13 @@ fd-search does not have any security. All endpoints are unsecured. This is in co
 There is a ping url
 
 ```
-curl -X GET http://localhost:8081/api/v1/admin/ping
+curl -X GET http://localhost:14002/api/v1/admin/ping
 ```
 
 And health of the service can be queried via a secured call
 
 ```
-curl -X GET http://localhost:8081/api/v1/admin/health
+curl -X GET http://localhost:14002/api/v1/admin/health
 ```
 
 Say hello to ElasticSearch

@@ -491,10 +491,10 @@ public class ITests {
         SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
         assertNotNull(login);
 
-        Collection<TagInputBean> setA = getRandomTags("Set");
-        Collection<TagInputBean> setB = getRandomTags("Set");
-        Collection<TagInputBean> setC = getRandomTags("Set");
-        Collection<TagInputBean> setD = getRandomTags("Set");
+        Collection<TagInputBean> setA = getRandomTags();
+        Collection<TagInputBean> setB = getRandomTags();
+        Collection<TagInputBean> setC = getRandomTags();
+        Collection<TagInputBean> setD = getRandomTags();
         fdTemplate.writeTags(setA);
         fdTemplate.writeTags(setB);
         fdTemplate.writeTags(setC);
@@ -594,7 +594,7 @@ public class ITests {
                 .hasFieldOrPropertyWithValue("error", null);
 
         assertThat (esResponse.getResult())
-                .hasFieldOrPropertyWithValue("totalHits", 2l)
+            .hasFieldOrPropertyWithValue("totalHits", 2L)
         ;
 
         qp.setSegment("2015");
@@ -917,13 +917,13 @@ public class ITests {
         TestCase.assertEquals(dataMap.get("value"), entityDataResponse.getResult().get("value"));
     }
 
-    private Collection<TagInputBean> getRandomTags(String label) {
+    private Collection<TagInputBean> getRandomTags() {
         int i = 0;
         int max = 20;
 
         Collection<TagInputBean> tags = new ArrayList<>();
         while (i < max) {
-            TagInputBean tagInputBean = new TagInputBean("codea" + i, label + i);
+            TagInputBean tagInputBean = new TagInputBean("codea" + i, "Set" + i);
             tags.add(tagInputBean);
 
             i++;

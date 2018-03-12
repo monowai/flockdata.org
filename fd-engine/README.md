@@ -49,20 +49,20 @@ cd fd-engine/target
 java -jar fd-engine-0.98.1.jar --org.neo4j.path=classes --org.fd.auth.simple.users.myuser.pass=123 --org.fd.auth.simple.users.myuser.roles="FD_USER;FD_ADMIN"
 ```
 
-Default HTTP port for fd-engine is 8080 and for fd-search its 8081. If you are using different ports then review the [configuration files] (src/main/resources/application.yml) that describe how engine and search find each other. If you have an existing ElasticSearch cluster, you will also want to review
+Default HTTP port for fd-engine is 14001 and for fd-search its 14002. If you are using different ports then review the [configuration files] (src/main/resources/application.yml) that describe how engine and search find each other. If you have an existing ElasticSearch cluster, you will also want to review
 
 ## Interacting with FlockData
 HTTP, REST and JSON is the lingua franca.
 
 ### Authenticate and see who you are
 ```
-curl -u myuser:123 -X GET http://localhost:8080/api/account/
+curl -u myuser:123 -X GET http://localhost:14001/api/account/
 ```
 An authorised user is one with one of the two FD_ auth roles. And FD_ADMIN user does not automatically inherit the rights to read and write data, but they can create users who can do this.
 
 ### Register yourself as a data access user
 ```
-curl -u myuser:123 -H "Content-Type:application/json" -X POST http://localhost:8080/api/v1/profiles/ -d '{"name":"myuser", "companyName":"Monowai","login":"myuser"}'
+curl -u myuser:123 -H "Content-Type:application/json" -X POST http://localhost:14001/api/v1/profiles/ -d '{"name":"myuser", "companyName":"Monowai","login":"myuser"}'
 ```
 This command connects your authenticated user to a FlockData SystemUser. A company called monowai is created that will own the data being tracked through the service.
 
@@ -72,14 +72,14 @@ By default, information is tracked in Neo4J and ElasticSearch. You can, at the p
 ### Create an Application Fortress
 This is one of your computer systems that you want to track information coming from
 ```
-curl -u myuser:123 -H "Content-Type:application/json" -X POST http://localhost:8080/api/v1/fortress/ -d '{"name": "dataService","searchEnabled": true}'
+curl -u myuser:123 -H "Content-Type:application/json" -X POST http://localhost:14001/api/v1/fortress/ -d '{"name": "dataService","searchEnabled": true}'
 -- Have a look at the fortress you just created
-curl -u myuser:123 -X GET http://localhost:8080/api/v1/fortress/
+curl -u myuser:123 -X GET http://localhost:14001/api/v1/fortress/
 ```
 ### Track a Data Event
 Make sure you have started [fd-search](../fd-search)
 ```
-curl -u myuser:123 -H "Content-Type:application/json" -X POST http://localhost:8080/api/v1/track/ -d '{
+curl -u myuser:123 -H "Content-Type:application/json" -X POST http://localhost:14001/api/v1/track/ -d '{
   "fortress": {"name":"dataService"},
   "type": {"name":"Debtor"},
   "code":"myPrimaryKey",
@@ -88,11 +88,11 @@ curl -u myuser:123 -H "Content-Type:application/json" -X POST http://localhost:8
 }'
 
 -- If you take note of the key returned by the previous call you can then execute this call:
-curl -umyuser:123 -X GET http://localhost:8080/api/v1/entity/LykuJI_TTVG2nW33WVy6qA
+curl -umyuser:123 -X GET http://localhost:14001/api/v1/entity/LykuJI_TTVG2nW33WVy6qA
 -- List all logs associated wtih the entity
-curl -umyuser:123 -X GET http://localhost:8080/api/v1/entity/LykuJI_TTVG2nW33WVy6qA/log
+curl -umyuser:123 -X GET http://localhost:14001/api/v1/entity/LykuJI_TTVG2nW33WVy6qA/log
 -- retreive the data stored with the "last" log
-curl -umyuser:123 -X GET http://localhost:8080/api/v1/entity/LykuJI_TTVG2nW33WVy6qA/log/last/data
+curl -umyuser:123 -X GET http://localhost:14001/api/v1/entity/LykuJI_TTVG2nW33WVy6qA/log/last/data
 
 ```
 ### Find that doc in ElasticSearch
@@ -119,7 +119,7 @@ curl -u myuser:123 -X POST  -H "Content-Type: application/json" -d '{
   "size":6
 
 }
-' "http://localhost:8080/api/v1/query/"
+' "http://localhost:14001/api/v1/query/"
 ```
 Raw ElasticSearch queries can be passed through the `query/es` endpoint. This provides secure access to data while giving you
 full access to the expressive ElasticSearch DSL.
@@ -135,7 +135,7 @@ curl -u myuser:123 -X POST -H "Content-Type: application/json" -d '{
       }
     }
   }
-}' "http://localhost:8080/api/v1/query/es"
+}' "http://localhost:14001/api/v1/query/es"
 ```
 
 ### Next steps....
