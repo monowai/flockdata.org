@@ -443,7 +443,7 @@ public class QueryDaoES {
             return esUtils.wrapResponseResult(response);
         } catch (ElasticsearchException e) {
             Map<String, Object> error = new HashMap<>();
-            error.put("errors", esUtils.parseException(e.getRootCause().getMessage()));
+            error.put("__errors__", esUtils.parseException(e.getRootCause().getMessage()));
 
             try {
                 result = new EsSearchRequestResult(JsonUtils.toJsonBytes(error));

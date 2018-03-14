@@ -21,7 +21,7 @@
 package org.flockdata.engine.query.service;
 
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.data.Company;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.integration.search.EntityKeyQuery.EntityKeyGateway;
 import org.flockdata.engine.integration.search.FdViewQuery.FdViewQueryGateway;
@@ -87,14 +87,13 @@ public class QueryService {
         this.esStore = contentStoreEs;
     }
 
-    public EsSearchRequestResult search(CompanyNode company, QueryParams queryParams) {
+    public EsSearchRequestResult search(Company company, QueryParams queryParams) {
 
         queryParams.setCompany(company.getName());
         EsSearchRequestResult esSearchRequestResult;
         if (queryParams.isSearchTagsOnly()) {
             // Set the index
             queryParams.setIndex(indexManager.toIndex(queryParams));
-
         }
 
         if (queryParams.isMatchAll() || queryParams.isSearchTagsOnly() || queryParams.getQuery() != null || queryParams.getAggs() != null ) {
@@ -116,7 +115,7 @@ public class QueryService {
 
     }
 
-    public TagCloud getTagCloud(CompanyNode company, TagCloudParams tagCloudParams) throws NotFoundException {
+    public TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException {
         FortressNode fortress = fortressService.findByCode(company, tagCloudParams.getFortress());
         if (fortress == null)
             throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
@@ -125,7 +124,7 @@ public class QueryService {
         return tagCloudGateway.getTagCloud(tagCloudParams);
     }
 
-    public EntityKeyResults getKeys(CompanyNode company, QueryParams queryParams) {
+    public EntityKeyResults getKeys(Company company, QueryParams queryParams) {
         queryParams.setCompany(company.getName());
         return entityKeyGateway.keys(queryParams);
     }

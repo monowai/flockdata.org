@@ -130,9 +130,9 @@ class IntegrationHelper {
     }
 
     private static String getIpAddress() {
-        if (stack == null)
-            return "192.168.99.100";
-        else
+        if (stack == null) {
+            return "localhost";
+        } else
             return stack.getServiceHost("fdengine_1", SERVICE_ENGINE);
 
         //return DockerClientFactory.instance().dockerHostIpAddress();

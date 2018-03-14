@@ -25,7 +25,7 @@ org.fd:
 
 
   engine:
-    api: http://docker-ip:8090
+    api: http://localhost:8090
     fortress:  # Ensure fortress indexes documents in search by default
       search: true
 

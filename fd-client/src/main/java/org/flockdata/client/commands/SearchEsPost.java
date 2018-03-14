@@ -53,8 +53,8 @@ public class SearchEsPost {
             response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+ "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
 
             result = response.getBody();
-            if ( result.containsKey("errors")){
-                ArrayList<String> errors = (ArrayList<String>) result.get("errors");
+            if (result.containsKey("__errors__")) {
+                ArrayList<String> errors = (ArrayList<String>) result.get("__errors__");
                 error = errors.get(0);
             }
 

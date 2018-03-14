@@ -95,18 +95,26 @@ public class EsRepo extends AbstractStore {
                     result.setIndex (index);
                     result.setEntityType (type);
                     if (result.getJson() != null) {
-                        Map<String,Object> map = esHelper.extractData(JsonUtils.toMap(result.getJson()));
+                        Map<String, Object> map = JsonUtils.toMap(result.getJson());
+                        failIfError(map);
+                        map = esHelper.extractData(map);
                         contentInput.setData((Map<String, Object>) map.get(SearchSchema.DATA));
-    //                    if( map.get("name")!=null)
-    //                        contentInput.getData().put("_name", map.get("name"));
-    //                    if ( map.get("description")!=null)
-    //                        contentInput.getData().put("_description", map.get("description"));
                     }
                 } catch (FlockException | IOException e) {
                     logger.error("Json issue", e);
                 }
         return new StorageBean(id, contentInput);
 
+    }
+
+    private void failIfError(Map<String, Object> map) throws FlockException {
+        if (map == null) {
+            return;
+        }
+        Object error = map.get("__errors__");
+        if (error != null) {
+            throw new FlockException(error.toString());
+        }
     }
 
     private Map<String, Object> unwrapData(HashMap<String, Object> map) {

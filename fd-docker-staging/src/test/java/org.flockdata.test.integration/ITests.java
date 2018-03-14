@@ -418,7 +418,7 @@ public class ITests {
         CommandResponse<Map<String, Object>> esResponse = searchViaEs.exec(fdClientIo, qp);
         assertEquals("Search Reply ", null, esResponse.getError());
 
-        assertFalse("errors were found " + esResponse.getResult().get("errors"), esResponse.getResult().containsKey("errors"));
+        assertFalse("errors were found " + esResponse.getResult().get("__errors__"), esResponse.getResult().containsKey("__errors__"));
 
         searchHelper.assertHitCount("Expected 1 hit", 1, esResponse.getResult());
         assertTrue("UTF-8 failure. Couldn't find " + entityInputBean.getCode(), searchHelper.getHits(esResponse.getResult()).contains(entityInputBean.getCode()));
@@ -455,7 +455,7 @@ public class ITests {
         assertEquals("Search Reply ", null, response.getError());
 
         Map<String, Object> esResult = response.getResult();
-        assertFalse("errors were found " + esResult.get("errors"), esResult.containsKey("errors"));
+        assertFalse("errors were found " + esResult.get("__errors__"), esResult.containsKey("__errors__"));
 
         searchHelper.assertHitCount("Expected 2 hits for two tags when searching for *", 2, response.getResult());
 
