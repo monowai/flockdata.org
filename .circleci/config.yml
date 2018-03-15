@@ -261,8 +261,7 @@ workflows:
             - build-client
       - build-shell:
           requires:
-            - build-shell
-
+            - build-client
       - build-engine:
           requires:
             - build-client
