@@ -93,34 +93,6 @@ jobs:
       - store_artifacts:
           path: ././target/jars
 
-  build-shell:
-    machine:
-      enabled: true
-    environment:
-      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
-    working_directory: '~/org.flockdata'
-
-    steps:
-      - restore_cache:
-            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
-
-      - restore_cache:
-            key: org-flockdata-v1-{{ checksum "pom.xml" }}
-
-      - run:
-          command: 'mvn -q test -f fd-shell/pom.xml'
-
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: org-flockdata-v1-{{ checksum "pom.xml" }}
-
-      - store_test_results:
-          path: fd-shell/target/test-results
-
-      - store_artifacts:
-          path: ././target/jars
-
   build-search:
     machine:
       enabled: true
@@ -189,6 +161,29 @@ jobs:
 
       - store_artifacts:
           path: ./fd-batch/target/*.jar
+
+  build-shell:
+    machine:
+      enabled: true
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+    working_directory: '~/org.flockdata'
+
+    steps:
+      - restore_cache:
+            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+
+      - restore_cache:
+            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - run:
+          command: 'mvn -q test -f fd-shell/pom.xml'
+
+      - store_test_results:
+          path: fd-shell/target/test-results
+
+      - store_artifacts:
+          path: ./fd-shell/target/*.jar
 
   build-engine:
     machine:
@@ -264,6 +259,9 @@ workflows:
       - build-batch:
           requires:
             - build-client
+      - build-shell:
+          requires:
+            - build-shell
 
       - build-engine:
           requires:
