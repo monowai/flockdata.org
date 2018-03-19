@@ -18,6 +18,8 @@ package org.flockdata.shell;
 
 import org.flockdata.client.Importer;
 import org.flockdata.client.commands.*;
+import org.flockdata.data.Company;
+import org.flockdata.data.SystemUser;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
@@ -25,6 +27,10 @@ import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.track.bean.CompanyInputBean;
 import org.flockdata.transform.FdIoInterface;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -35,6 +41,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import static org.springframework.shell.standard.ShellOption.NULL;
+
 /**
  * Runs commands on behalf of the shell
  *
@@ -44,6 +52,7 @@ import java.util.Collection;
  */
 @ShellComponent
 public class ShellCommands {
+
     //    private Logger logger = LoggerFactory.getLogger(ShellCommands.class);
     private EnginePing enginePing;
     private Health health;
@@ -53,15 +62,55 @@ public class ShellCommands {
     private RegistrationPost registrationPost;
     private FdIoInterface fdIoInterface;
     private Importer importer;
+    private final LineReader reader;
+    private SystemUserResultBean unauthenticated;
 
     @Autowired
     ShellCommands(FdIoInterface fdIoInterface, ClientConfiguration clientConfiguration, AmqpRabbitConfig rabbitConfig) throws IOException {
         this.fdIoInterface = fdIoInterface;
         this.clientConfiguration = clientConfiguration;
         this.rabbitConfig = rabbitConfig;
-//        Terminal terminal = TerminalBuilder.terminal();
-//        reader = LineReaderBuilder.builder()
-//            .terminal(terminal).build();
+        Terminal terminal = TerminalBuilder.terminal();
+        reader = LineReaderBuilder.builder()
+            .terminal(terminal).build();
+        SystemUser su = new SystemUser() {
+            @Override
+            public String getName() {
+                return "unauthenticated";
+            }
+
+            @Override
+            public String getLogin() {
+                return null;
+            }
+
+            @Override
+            public String getApiKey() {
+                return null;
+            }
+
+            @Override
+            public Company getCompany() {
+                return null;
+            }
+
+            @Override
+            public String getEmail() {
+                return null;
+            }
+
+            @Override
+            public Long getId() {
+                return null;
+            }
+
+            @Override
+            public boolean isActive() {
+                return false;
+            }
+        };
+        unauthenticated = new SystemUserResultBean(su);
+
     }
 
     /**
@@ -83,7 +132,7 @@ public class ShellCommands {
     }
 
     //help = "Set shell to talk to an instance of flockdata or display the currently configured instance"
-    @ShellMethod(value = "set")
+    @ShellMethod(value = "set", key = "set")
     public Collection<String> setApi(
         @ShellOption(help = "The FQDN of FD ") final String url,
         @ShellOption(help = "Rabbit MQ host") final String rabbitHost,
@@ -103,6 +152,14 @@ public class ShellCommands {
         return config();
     }
 
+    @ShellMethod(key = {"whoami", "me"}, value = "whoami")
+    public SystemUserResultBean whoAmiI() {
+        SystemUserResultBean result = fdIoInterface.me();
+        if (result == null) {
+            return unauthenticated;
+        }
+        return result;
+    }
     //help = "Ping the fd-engine service"
     @ShellMethod(value = "ping")
     public String ping() {
@@ -153,8 +210,8 @@ public class ShellCommands {
     //, help = "Login to flockdata"
     @ShellMethod(value = "login")
     public String login(
-        @ShellOption(help = "The user name") String user,
-        @ShellOption(help = "The user password") String pass) {
+        @ShellOption(help = "The user name", defaultValue = NULL) String user,
+        @ShellOption(help = "The user password", defaultValue = NULL) String pass) {
 
         if (user == null) {
             user = readLogin(clientConfiguration.getHttpUser());
@@ -198,25 +255,22 @@ public class ShellCommands {
 
     @ShellMethod(value = "cd")
     public String cd() {
-
         return System.getProperty("user.dir");
-
-
     }
 
     private String readPassword() {
         String question = "password : ";
-        //return reader.readLine(question, '*');
-        return "";
+        return reader.readLine(question, '*');
     }
 
     private String readLogin(String currentLogin) {
 
-//        String question = String.format("login [%s]: " ,currentLogin);
-//        String login =  reader.readLine(question);
-//        if ( login.equalsIgnoreCase(""))
-//            login= currentLogin;
-        return "";
+        String question = String.format("login [%s]: ", currentLogin);
+        String login = reader.readLine(question);
+        if (login.equalsIgnoreCase("")) {
+            login = currentLogin;
+        }
+        return login;
     }
 
 
