@@ -39,8 +39,7 @@ spring:
     caffeine:
       spec: "maximumSize=200,expireAfterAccess=600s"
   profiles:
-    active: fd-server
-    include: fd-batch, fd-auth-test
+    include: fd-batch, fd-auth-test, fd-server
 #  Run with the "discovery" profile active to connect
 #  cloud:
 #    discovery:

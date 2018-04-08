@@ -16,8 +16,7 @@ spring:
   application:
     name: fd-search
   profiles:
-    active: fd-no-auth
-    include: fd-server
+    include: fd-server, fd-no-auth
 #    Run with the "discovery" profile active to connect
 #  cloud:
 #    discovery:

@@ -22,9 +22,9 @@ spring:
   application:
     name: fd-store
   profiles:
-    active: fd-server
 #    Switch memstore to something like riak when you're needs are more persistent
-    include: fd-no-auth,memstore
+    active: memstore
+    include: fd-server,fd-no-auth
 #  Run with the "discovery" profile active to connect
 #  cloud:
 #    discovery:

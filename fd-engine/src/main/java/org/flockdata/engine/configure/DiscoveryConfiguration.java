@@ -41,6 +41,7 @@ import javax.annotation.PostConstruct;
 @EnableDiscoveryClient
 @Configuration
 @Component
+// Not working. SB + SpringData + Neo4j issues :-(
 @Profile("discovery")
 public class DiscoveryConfiguration implements InfoContributor {
     private Logger logger = LoggerFactory.getLogger("configuration");
