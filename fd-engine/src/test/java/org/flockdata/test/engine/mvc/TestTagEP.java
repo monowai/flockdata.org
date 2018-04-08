@@ -68,7 +68,7 @@ public class TestTagEP extends MvcBase {
 
     }
 
-    @Test
+    @Test(expected = org.springframework.security.web.firewall.RequestRejectedException.class)
     public void get_escapedTags() throws Exception {
 
         TagInputBean thingTag = new TagInputBean("This/That", "Things");
@@ -133,9 +133,9 @@ public class TestTagEP extends MvcBase {
 
     }
 
-    @Test
+    @Test(expected = org.springframework.security.web.firewall.RequestRejectedException.class)
     public void get_percentageScenario() throws Exception {
-
+        // Spring Security upgrade stops such nonsense by default
         TagInputBean thingTag = new TagInputBean("1% Increase", "Thing2");
 
         Collection<TagResultBean> tags = createTag(mike(), thingTag);

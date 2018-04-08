@@ -223,7 +223,7 @@ public class TestStoreService {
         }
         logger.debug("Registering system user!");
 
-        String fortress = "Entity Test";
+        String fortress = "EntityTest";
         String docType = "TestAuditX";
         String entityCode = "ABC123R";
         String company = "company";
@@ -354,7 +354,8 @@ public class TestStoreService {
     }
 
     private StoredContent getContent(RequestPostProcessor user, Store store, String index, String type, Object key, ResultMatcher status) throws Exception {
-        MvcResult response =mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/data/{store}/{index}/{type}/{key}", store.name(), index, type, key)
+        MvcResult response = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/v1/data/{store}/{index}/{type}/{key}", store.name(), index, type, key)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(status).andReturn();
