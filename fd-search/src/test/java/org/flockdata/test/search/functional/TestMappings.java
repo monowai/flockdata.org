@@ -68,7 +68,7 @@ public class TestMappings extends ESBase {
 
         Entity entity = MockDataFactory.getEntity(company, fortress, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
         change.setDescription("Test Description");
         change.setName("Test Name");
         change.setData(json);
@@ -110,8 +110,8 @@ public class TestMappings extends ESBase {
         Entity entity = getEntity(company, fortress, user, doc);
         Entity entityB = getEntity(company, fortress, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
-        EntitySearchChange changeB = new EntitySearchChange(entityB, indexManager.toIndex(entityB));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
+        EntitySearchChange changeB = new EntitySearchChange(entityB, searchConfig.getIndexManager().toIndex(entityB));
         change.setDescription("Test Description");
         change.setData(json);
         changeB.setData(json);
@@ -142,8 +142,8 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entityA);
         deleteEsIndex(entityB);
 
-        EntitySearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json), indexManager.toIndex(entityA));
-        EntitySearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json), indexManager.toIndex(entityB));
+        EntitySearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json), searchConfig.getIndexManager().toIndex(entityA));
+        EntitySearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json), searchConfig.getIndexManager().toIndex(entityB));
 
         // FortB will have
         changeA.setDescription("Test Description");
@@ -182,8 +182,8 @@ public class TestMappings extends ESBase {
         assertSame(entityB.getCode(), entityB.getKey()); // Mock key + code is the same if code not explicit
 
 
-        EntitySearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json), indexManager.toIndex(entityA));
-        EntitySearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json), indexManager.toIndex(entityB));
+        EntitySearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json), searchConfig.getIndexManager().toIndex(entityA));
+        EntitySearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json), searchConfig.getIndexManager().toIndex(entityB));
 
         TagInputBean tag = new TagInputBean("my TAG", "TheLabel", "rlxname");
         assertEquals("my TAG", tag.getCode());
@@ -214,7 +214,7 @@ public class TestMappings extends ESBase {
         doTermQuery(entityB,  "tag.mytag.thelabel.code", tag.getCode());
         // Locate by raw text
         doQuery(entityB,  tag.getCode().toLowerCase());
-        String index = indexManager.getIndexRoot(entityA.getFortress()) +"*";
+        String index = searchConfig.getIndexManager().getIndexRoot(entityA.getFortress()) + "*";
 
         doTermQuery(index, "*", "tag.mytag.thelabel.code", tag.getCode(), 2, "Not scanning across indexes");
 
@@ -225,7 +225,7 @@ public class TestMappings extends ESBase {
         Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
         Entity entity = getEntity("cust", "tagWithRelationshipNamesMatchingNodeNames", "anyuser", "fortdoc");
         deleteEsIndex(entity);
-        EntitySearchChange changeA = new EntitySearchChange(entity, new ContentInputBean(json), indexManager.toIndex(entity));
+        EntitySearchChange changeA = new EntitySearchChange(entity, new ContentInputBean(json), searchConfig.getIndexManager().toIndex(entity));
 
         TagInputBean tag = new TagInputBean("aValue", "myTag", "myTag");
 
@@ -255,7 +255,7 @@ public class TestMappings extends ESBase {
         String user = "mikey";
 
         Entity entity = getEntity(comp, fort, user, fort);
-        deleteEsIndex(indexManager.toIndex(entity));
+        deleteEsIndex(searchConfig.getIndexManager().toIndex(entity));
 
         Map<String, Object> what = ContentDataHelper.getSimpleMap(
                 SearchSchema.WHAT_CODE, "GEO");
@@ -283,7 +283,7 @@ public class TestMappings extends ESBase {
         when(entityTag.getGeoData()).thenReturn(geoPayLoad);
         tags.add(entityTag);
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
 
         change.setData(what);
         change.setStructuredTags(tags);

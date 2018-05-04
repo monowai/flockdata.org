@@ -41,6 +41,7 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.search.*;
+import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.search.helper.EsUtils;
 import org.flockdata.search.helper.QueryGenerator;
 import org.slf4j.Logger;
@@ -77,9 +78,9 @@ public class QueryDaoES {
     Boolean highlightEnabled;
 
     @Autowired
-    public QueryDaoES(IndexManager indexManager, Client elasticSearchClient, EsUtils esUtils) {
-        this.indexManager = indexManager;
-        this.elasticSearchClient = elasticSearchClient;
+    public QueryDaoES(SearchConfig searchConfig, EsUtils esUtils) {
+        this.indexManager = searchConfig.getIndexManager();
+        this.elasticSearchClient = searchConfig.getClient();
         this.esUtils = esUtils;
     }
 
@@ -114,7 +115,7 @@ public class QueryDaoES {
     }
 
     public void getTags(String indexName) {
-//        GetMappingsResponse fieldMappings = elasticSearchClient
+//        GetMappingsResponse fieldMappings = getClient
 //                .admin()
 //                .indices()
 //                .getMappings(new GetMappingsRequest())

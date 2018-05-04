@@ -28,6 +28,8 @@ import org.flockdata.search.dao.QueryDaoES;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 /**
  * @author mholdsworth
  * @tag Query, Search, ElasticSearch
@@ -44,12 +46,12 @@ public class QueryServiceEs implements QueryService {
     }
 
     @Override
-    public TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException {
+    public TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException, FlockException {
         return queryDao.getCloudTag(tagCloudParams);
     }
 
     @Override
-    public Long getHitCount(String index) {
+    public Long getHitCount(String index) throws IOException {
         return queryDao.doHitCountQuery(index);
     }
 

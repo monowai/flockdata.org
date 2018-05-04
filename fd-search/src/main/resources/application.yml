@@ -34,13 +34,12 @@ server:
   port: 14002
 
 es:
-  clustername: fd-dev
+  clustername: es_flockdata
   nodes: 127.0.0.1:9300
   path.home: ./
 
 org.fd:
   engine:
-    api: http://localhost:8080
     messaging:
       prefetchCount: 3
       concurrentConsumers: 2
@@ -50,10 +49,6 @@ org.fd:
   search:
     es:
       mappings: ./
-      #Is the node going to be a client node which means it will hold no data ?
-      # True for production/cluster
-      # False for dev/demo (default)
-      transportOnly: true
 
       # Look outside of this jvm for an ES host
       # True for dev/transportOnly = false (default)

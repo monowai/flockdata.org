@@ -22,7 +22,7 @@ package org.flockdata.test.search;
 
 import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.SearchSchema;
-import org.flockdata.search.dao.EntityChangeWriterEs;
+import org.flockdata.search.dao.EntityChangeMapper;
 import org.junit.Test;
 
 import java.util.Map;
@@ -44,45 +44,41 @@ import static org.junit.Assert.assertFalse;
 public class TestNameHandler {
 
     @Test
-    public void differentNameAndDescription() throws Exception {
+    public void differentNameAndDescription() {
         EntitySearchChange entitySearchChange = new EntitySearchChange();
         entitySearchChange.setName("A Name");
         entitySearchChange.setDescription("A Description");
-        EntityChangeWriterEs bean = new EntityChangeWriterEs(null, null);
-        Map<String,Object> change =  bean.getMapFromChange(entitySearchChange);
+        Map<String, Object> change = EntityChangeMapper.getMapFromChange(entitySearchChange);
         assertTrue(change.containsKey(SearchSchema.NAME));
         assertTrue(change.containsKey(SearchSchema.DESCRIPTION));
     }
 
     @Test
-    public void sameNameAndDescription() throws Exception {
+    public void sameNameAndDescription() {
         EntitySearchChange entitySearchChange = new EntitySearchChange();
         entitySearchChange.setName("A Description");
         entitySearchChange.setDescription("A Description");
-        EntityChangeWriterEs bean = new EntityChangeWriterEs(null, null);
-        Map<String,Object> change =  bean.getMapFromChange(entitySearchChange);
+        Map<String, Object> change = EntityChangeMapper.getMapFromChange(entitySearchChange);
         // If == store just one field to reduce index space
         assertFalse("When name and description are the same, only description is recorded", change.containsKey(SearchSchema.NAME));
         assertTrue(change.containsKey(SearchSchema.DESCRIPTION));
     }
 
     @Test
-    public void nameAndNoDescription() throws Exception {
+    public void nameAndNoDescription() {
         EntitySearchChange entitySearchChange = new EntitySearchChange();
         entitySearchChange.setName("A Name");
-        EntityChangeWriterEs bean = new EntityChangeWriterEs(null, null);
-        Map<String,Object> change =  bean.getMapFromChange(entitySearchChange);
+        Map<String, Object> change = EntityChangeMapper.getMapFromChange(entitySearchChange);
         assertFalse("When no description, name is recorded as description", change.containsKey(SearchSchema.NAME));
         assertTrue(change.containsKey(SearchSchema.DESCRIPTION));
     }
 
     @Test
-    public void neitherNameNorDescription() throws Exception {
+    public void neitherNameNorDescription() {
         EntitySearchChange entitySearchChange = new EntitySearchChange();
         entitySearchChange.setName(null);
         entitySearchChange.setDescription(null);
-        EntityChangeWriterEs bean = new EntityChangeWriterEs(null, null);
-        Map<String,Object> change =  bean.getMapFromChange(entitySearchChange);
+        Map<String, Object> change = EntityChangeMapper.getMapFromChange(entitySearchChange);
         assertFalse("Null name should not be indexed", change.containsKey(SearchSchema.NAME));
         assertFalse("Null description should not be indexed", change.containsKey(SearchSchema.DESCRIPTION));
     }

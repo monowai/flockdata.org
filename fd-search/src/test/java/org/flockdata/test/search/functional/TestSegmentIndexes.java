@@ -51,7 +51,6 @@ public class TestSegmentIndexes extends ESBase {
      * Consider segmenting annual datasets and transactions. Segmenting master data (i.e. Customer) doesn't really
      * make any sense unless you want to break things up by Branch for instance.
      *
-     * @throws Exception
      */
     @Test
     public void test_segmentedIndexes() throws Exception {
@@ -64,8 +63,8 @@ public class TestSegmentIndexes extends ESBase {
         deleteEsIndex(entity);
         TestCase.assertEquals("2014", entity.getSegment().getCode());
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
-        deleteEsIndex(indexManager.toIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
+        deleteEsIndex(searchConfig.getIndexManager().toIndex(entity));
 
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 
@@ -74,8 +73,8 @@ public class TestSegmentIndexes extends ESBase {
         deleteEsIndex(entityOtherSegment);
         TestCase.assertEquals("2015", entityOtherSegment.getSegment().getCode());
 
-        change = new EntitySearchChange(entityOtherSegment, indexManager.toIndex(entityOtherSegment));
-        deleteEsIndex(indexManager.toIndex(entityOtherSegment));
+        change = new EntitySearchChange(entityOtherSegment, searchConfig.getIndexManager().toIndex(entityOtherSegment));
+        deleteEsIndex(searchConfig.getIndexManager().toIndex(entityOtherSegment));
 
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 
@@ -86,7 +85,7 @@ public class TestSegmentIndexes extends ESBase {
         doQuery(entityOtherSegment, entityOtherSegment.getKey());
         // Scanning across segmented indexes
         String index;
-        if (indexManager.isSuffixed())
+        if (searchConfig.getIndexManager().isSuffixed())
             index = entity.getSegment().getFortress().getRootIndex() + ".invoice.*";
         else
             index = entity.getSegment().getFortress().getRootIndex() + ".*";
@@ -110,8 +109,8 @@ public class TestSegmentIndexes extends ESBase {
         deleteEsIndex(entity);
         TestCase.assertEquals("2014", entity.getSegment().getCode());
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
-        deleteEsIndex(indexManager.toIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
+        deleteEsIndex(searchConfig.getIndexManager().toIndex(entity));
 
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 
@@ -120,8 +119,8 @@ public class TestSegmentIndexes extends ESBase {
         deleteEsIndex(entityOtherSegment);
         TestCase.assertEquals("2015", entityOtherSegment.getSegment().getCode());
 
-        change = new EntitySearchChange(entityOtherSegment, indexManager.toIndex(entityOtherSegment));
-        deleteEsIndex(indexManager.toIndex(entityOtherSegment));
+        change = new EntitySearchChange(entityOtherSegment, searchConfig.getIndexManager().toIndex(entityOtherSegment));
+        deleteEsIndex(searchConfig.getIndexManager().toIndex(entityOtherSegment));
 
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 

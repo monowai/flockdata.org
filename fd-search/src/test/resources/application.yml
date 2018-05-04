@@ -7,14 +7,11 @@ spring:
     active: dev
 
 es:
-  clustername: es_fd_test
+  clustername: fd-test
   http:
-    port: 9205
-  tcp:
-    port: 9305
-  path:
-    home: ./target/
-    data: ${es.path.home}/es-test-data
+    port: 9203
+  tcp:                                
+    port: 9303
 
 rabbit:
     user: guest

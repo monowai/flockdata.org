@@ -21,21 +21,23 @@
 package org.flockdata.test.search.functional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.FdSearch;
 import org.flockdata.search.SearchSchema;
-import org.flockdata.search.configure.SearchConfig;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,15 +47,13 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Raw ES client functionality. Establishes a local node
  */
-//@RunWith(SpringRunner.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = FdSearch.class)
 public class TestElasticSearch extends ESBase {
 
     ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
     private Logger logger = LoggerFactory.getLogger(TestElasticSearch.class);
 
-    @Autowired
-    SearchConfig searchConfig;
-    
     @Test
     public void testMappingJson() throws Exception {
         String escWhat = "{\"house\": \"house\"}";
@@ -91,101 +91,24 @@ public class TestElasticSearch extends ESBase {
 
     }
 
-    private String getComputerName() {
-        Map<String, String> env = System.getenv();
-        if (env.containsKey("COMPUTERNAME"))
-            return env.get("COMPUTERNAME");
-        else return env.getOrDefault("HOSTNAME", "Unknown Computer");
-    }
-
-
     private GetResponse writeSimple(EntitySearchChange change) throws Exception {
-        File tempDir = File.createTempFile("elasticsearch-temp", Long.toString(System.nanoTime()));
-        tempDir.delete();
-        tempDir.mkdir();
-
-        Settings settings = Settings.builder()
-                .put("cluster.name", getComputerName())
-                .put("node.name", getComputerName())
-                .put("path.home", new File(tempDir, "./work").getAbsolutePath())
-                .put("path.data", new File(tempDir, "data").getAbsolutePath())
-                .put("path.logs", new File(tempDir, "logs").getAbsolutePath())
-                .put("node.data", true)
-                .build();
 
         // Elasticsearch
-        SearchConfig searchConfig = new SearchConfig();
-        Client client = searchConfig.elasticSearchClient(settings);
+        RestHighLevelClient client = searchConfig.getRestHighLevelClient();
+
         String indexKey = change.getIndexName() == null ? "indexkey" : change.getIndexName();
+        IndexRequest indexRequest = new IndexRequest(indexKey, change.getWho())
+            .source(om.writeValueAsString(change));
 
-        // Write the object to Lucene
-        IndexResponse ir =
-                client.prepareIndex(indexKey, change.getWho())
-                        .setSource(om.writeValueAsString(change))
-                        .setRouting(change.getKey())
-                        .execute()
-                        .actionGet();
+        IndexResponse indexResponse = client.index(indexRequest);
 
-        assertNotNull(ir);
-        logger.info(ir.getId());
+        assertNotNull(indexResponse);
+        logger.info(indexResponse.getId());
 
-        // Retrieve from Lucene
-        GetResponse response = client.prepareGet(indexKey, change.getWho(), ir.getId())
-                .setRouting(change.getKey())
-                .execute()
-                .actionGet();
-        client.close();
-        return response;
+        return client.get
+            (new GetRequest(indexKey, change.getWho(), indexResponse.getId())
+            );
     }
 
-//    private  GetResponse writeSimpleV2(EntitySearchChange change) throws Exception {
-//
-//        // Elasticsearch v2
-//
-//        Client client = getNode().client();
-//        String indexKey = change.getRootIndex() == null ? "indexkey" : change.getRootIndex();
-//
-//        // Write the object to Lucene
-//        IndexResponse ir =
-//                client.prepareIndex(indexKey, change.getWho())
-//                        .setSource(om.writeValueAsString(change))
-//                        .setRouting(change.getKey())
-//                        .execute()
-//                        .actionGet();
-//
-//        assertNotNull(ir);
-//        logger.info(ir.getId());
-//
-//        // Retrieve from Lucene
-//        GetResponse response = client.prepareGet(indexKey, change.getWho(), ir.getId())
-//                .setRouting(change.getKey())
-//                .execute()
-//                .actionGet();
-//        client.close();
-//        return response;
-//    }
-
-    //    public  Node getNode() throws Exception {
-//        File tempDir = File.createTempFile("elasticsearch-temp", Long.toString(System.nanoTime()));
-//        tempDir.delete();
-//        tempDir.mkdir();
-//        //LOGGER.info("writing to: %s", tempDir);
-//
-//        String clusterName = UUID.randomUUID().toString();
-//        Node esNode = NodeBuilder
-//                .nodeBuilder()
-//                .local(false)
-//                .clusterName(clusterName)
-//                .settings(  Settings.builder()
-//                                .put("index.number_of_shards", "1")
-//                                .put("index.number_of_replicas", "0")
-//                                .put("path.home", new File(tempDir, "./").getAbsolutePath())
-//                                .put("path.data", new File(tempDir, "data").getAbsolutePath())
-//                                .put("path.logs", new File(tempDir, "logs").getAbsolutePath())
-//                                .put("path.work", new File(tempDir, "work").getAbsolutePath())
-//                ).node();
-//        esNode.start();
-//        return esNode;
-//    }
 
 }

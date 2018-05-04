@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertNotNull;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
@@ -62,8 +61,8 @@ public class TestQueryDao extends ESBase {
         String user = "mike";
 
         Entity entity = getEntity(company, fortress, user, doc, "theCodeToFind", "2015");
-        
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
         change.setDescription("Test Description");
         change.setData(json);
 
@@ -73,12 +72,12 @@ public class TestQueryDao extends ESBase {
 
         // COde is a term Query
         QueryParams queryParams = new QueryParams()
-                .setIndex(indexManager.toIndex(entity))
+            .setIndex(searchConfig.getIndexManager().toIndex(entity))
                 .setTypes(entity.getType())
                 .setCode(entity.getCode());
 
         EsSearchRequestResult result = queryServiceEs.doParametrizedQuery(queryParams);
-        assertThat(result)
+        org.assertj.core.api.Assertions.assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)
                 .hasFieldOrPropertyWithValue("totalHits", 1L)
@@ -87,12 +86,12 @@ public class TestQueryDao extends ESBase {
 
         // User defined Term query
         queryParams = new QueryParams()
-                .setIndex(indexManager.toIndex(entity))
+            .setIndex(searchConfig.getIndexManager().toIndex(entity))
                 .setTypes(entity.getType())
                 .addTerm("fortress", entity.getSegment().getFortress().getCode());
 
         result = queryServiceEs.doParametrizedQuery(queryParams);
-        assertThat(result)
+        org.assertj.core.api.Assertions.assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)
                 .hasFieldOrPropertyWithValue("totalHits", 1L)
@@ -100,12 +99,12 @@ public class TestQueryDao extends ESBase {
 
         // MatchAll query
         queryParams = new QueryParams("*")
-                .setIndex(indexManager.toIndex(entity))
+            .setIndex(searchConfig.getIndexManager().toIndex(entity))
                 .setSegment(entity.getSegment().getCode())
         ;
 
         result = queryServiceEs.doParametrizedQuery(queryParams);
-        assertThat(result)
+        org.assertj.core.api.Assertions.assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)
                 .hasFieldOrPropertyWithValue("totalHits", 1L)
@@ -114,12 +113,12 @@ public class TestQueryDao extends ESBase {
 
         // MatchAll query within a segment
         queryParams = new QueryParams("*")
-                .setIndex(indexManager.toIndex(entity))
+            .setIndex(searchConfig.getIndexManager().toIndex(entity))
         ;
 
 
         result = queryServiceEs.doParametrizedQuery(queryParams);
-        assertThat(result)
+        org.assertj.core.api.Assertions.assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)
                 .hasFieldOrProperty("json")
@@ -129,11 +128,11 @@ public class TestQueryDao extends ESBase {
         // Boost Query
         queryParams = new QueryParams(entity.getCode())
                 .setMatchAll(true)
-                .setIndex(indexManager.toIndex(entity))
+            .setIndex(searchConfig.getIndexManager().toIndex(entity))
         ;
 
         result = queryServiceEs.doParametrizedQuery(queryParams);
-        assertThat(result)
+        org.assertj.core.api.Assertions.assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)
                 .hasFieldOrProperty("json")
@@ -158,8 +157,8 @@ public class TestQueryDao extends ESBase {
         aliasSet.add(alias);
         when (tag.getAliases()).thenReturn(aliasSet);
 
-        String indexName = indexManager.getTagIndexRoot(company, tag);
-        assertThat(indexName)
+        String indexName = searchConfig.getIndexManager().getTagIndexRoot(company, tag);
+        org.assertj.core.api.Assertions.assertThat(indexName)
                 .isNotNull()
                 .contains(".tags")
         ;
@@ -174,11 +173,11 @@ public class TestQueryDao extends ESBase {
         Thread.sleep(1000);
 
         QueryParams queryParams = new QueryParams(tag.getName())
-                .setIndex(indexManager.getTagIndexRoot(company, tag))
+            .setIndex(searchConfig.getIndexManager().getTagIndexRoot(company, tag))
         ;
 
         EsSearchRequestResult result = queryServiceEs.doParametrizedQuery(queryParams);
-        assertThat(result)
+        org.assertj.core.api.Assertions.assertThat(result)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("fdSearchError", null)
                 .hasFieldOrProperty("json")

@@ -21,7 +21,12 @@ Configuration:
           level: error
           AppenderRef:
             - ref: CONSOLE
-           # - ref: APPLICATION
+
+        - name: org.flockdata.test
+          additivity: false
+          level: info
+          AppenderRef:
+            - ref: CONSOLE
 
         - name: org.flockdata.search
           additivity: false

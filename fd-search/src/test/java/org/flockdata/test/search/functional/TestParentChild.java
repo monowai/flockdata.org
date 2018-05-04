@@ -71,7 +71,7 @@ public class TestParentChild extends ESBase {
                 "  \"logId\": null,\n" +
                 "  \"tagValues\": {},\n" +
                 "  \"id\": 10,\n" +
-                "  \"indexName\": \"" + indexManager.toIndex(entity) + "\",\n" +
+            "  \"indexName\": \"" + searchConfig.getIndexManager().toIndex(entity) + "\",\n" +
                 "  \"sysWhen\": 1450644354230,\n" +
                 "  \"replyRequired\": true,\n" +
                 "  \"forceReindex\": false,\n" +
@@ -89,7 +89,7 @@ public class TestParentChild extends ESBase {
                 "      \"documentName\": \"Staff\",\n" +
                 "      \"key\": \"ZnU0EpMaQHKFtUT2eZE9LQ\",\n" +
                 "      \"code\": \"ABC123\",\n" +
-                "      \"index\": \"" + indexManager.getPrefix() + "xref_frominputbeans.timesheet\",\n" +
+            "      \"index\": \"" + searchConfig.getIndexManager().getPrefix() + "xref_frominputbeans.timesheet\",\n" +
                 "      \"searchTags\": {\n" +
                 "        \"role\": {\n" +
                 "          \"position\": [\n" +
@@ -128,16 +128,16 @@ public class TestParentChild extends ESBase {
         Entity parentEntity = getEntity(company, fortress, user, type, "123");
         Entity childEntity = getEntity(company, fortress, user, child);
 
-        deleteEsIndex(indexManager.toIndex(parentEntity));
-        deleteEsIndex(indexManager.toIndex(childEntity));
+        deleteEsIndex(searchConfig.getIndexManager().toIndex(parentEntity));
+        deleteEsIndex(searchConfig.getIndexManager().toIndex(childEntity));
 
-        EntitySearchChange parent = new EntitySearchChange(parentEntity, indexManager.toIndex(parentEntity));
+        EntitySearchChange parent = new EntitySearchChange(parentEntity, searchConfig.getIndexManager().toIndex(parentEntity));
 
         // Children have to be in the same company/fortress.
         // ES connects the Child to a Parent. Parents don't need to know about children
         EntitySearchChange childChange =
-                new EntitySearchChange(childEntity, indexManager.toIndex(parentEntity))
-                        .setParent(new EntityKeyBean(parentEntity, indexManager.toIndex(parentEntity)))
+            new EntitySearchChange(childEntity, searchConfig.getIndexManager().toIndex(parentEntity))
+                .setParent(new EntityKeyBean(parentEntity, searchConfig.getIndexManager().toIndex(parentEntity)))
                         .setData(ContentDataHelper.getSimpleMap("childKey", "childValue"));
 
         esSearchWriter.createSearchableChange(new SearchChanges(childChange));
@@ -150,13 +150,13 @@ public class TestParentChild extends ESBase {
         // One document of parent type
         doQuery(parentEntity, "*");
 
-        if (!indexManager.isSuffixed())
+        if (!searchConfig.getIndexManager().isSuffixed())
             doQuery(childEntity, "*");
 
         // Should find both the parent and the child when searching just the index
-        doQuery(indexManager.getIndexRoot(parentEntity.getFortress()) + "*", "*", "*", 2);
+        doQuery(searchConfig.getIndexManager().getIndexRoot(parentEntity.getFortress()) + "*", "*", "*", 2);
         // Both entities are in the same index but are of different types
-        doQuery(indexManager.getIndexRoot(childEntity.getFortress()) + "*" + "*", "*", "*", 2);
+        doQuery(searchConfig.getIndexManager().getIndexRoot(childEntity.getFortress()) + "*" + "*", "*", "*", 2);
 
 //        String result = doHasChild(parentEntity, indexManager.parseType(childEntity), "childValue");
 //        assertTrue(result.contains("123"));
@@ -186,8 +186,8 @@ public class TestParentChild extends ESBase {
 
             //
             Search search = new Search.Builder(query)
-                    .addIndex(indexManager.toIndex(entity))
-                    .addType(indexManager.parseType(entity))
+                .addIndex(searchConfig.getIndexManager().toIndex(entity))
+                .addType(searchConfig.getIndexManager().parseType(entity))
                     .build();
 
             jResult = esClient.execute(search);
@@ -197,7 +197,7 @@ public class TestParentChild extends ESBase {
         } while (nbrResult != expectedHitCount && runCount < 6);
 
         assertNotNull(jResult);
-        Assert.assertEquals(indexManager.toIndex(entity) + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
+        Assert.assertEquals(searchConfig.getIndexManager().toIndex(entity) + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
 
         return jResult.getJsonString();
 

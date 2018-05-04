@@ -38,16 +38,17 @@ import org.flockdata.data.Entity;
 import org.flockdata.data.Fortress;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.integration.IndexManager;
 import org.flockdata.search.SearchSchema;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.IndexMappingService;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.base.TagChangeWriter;
+import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.search.service.ContentService;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.test.helper.MockDataFactory;
+import org.flockdata.test.search.EsContainer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -56,8 +57,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.containers.GenericContainer;
 
+import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collection;
@@ -75,19 +77,20 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * @since 15/08/2014
  */
 @Component
-@ActiveProfiles({"dev"})
 public class ESBase {
     static JestClient esClient;
     private static Logger logger = LoggerFactory.getLogger(TestMappings.class);
+
+    private static EsContainer esContainer = EsContainer.getInstance();
+
+    @Autowired
+    SearchConfig searchConfig;
+
     @Autowired
     EntityChangeWriter entityWriter;
 
     @Autowired
     TagChangeWriter tagWriter;
-
-
-    @Autowired
-    IndexManager indexManager;
 
     @Autowired
     IndexMappingService indexMappingService;
@@ -108,6 +111,7 @@ public class ESBase {
     @BeforeClass
     @Rollback(false)
     public static void cleanupElasticSearch() throws Exception {
+
         logger.info("You have to be running this with a working directory of fd-search for this to work");
 
         FileInputStream f = new FileInputStream("./src/test/resources/application.yml");
@@ -117,16 +121,27 @@ public class ESBase {
         JsonNode tree = mapper.reader().readTree(f);
         JsonNode esNode = tree.get("es");
         JsonNode http = esNode.get("http");
-        Object port = http.get("port").asText();
+//        int httpPort = http.get("port").asInt();
+        int httpPort = esContainer.esContainer().getMappedPort(9200);
 
         //properties.get("es.http.port")
-        HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + port).multiThreaded(false).build();
+        HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + httpPort).multiThreaded(false).build();
         // Construct a new Jest client according to configuration via factory
         JestClientFactory factory = new JestClientFactory();
         factory.setHttpClientConfig(clientConfig);
         //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
 
+    }
+
+    @PostConstruct
+    void resetPorts() throws Exception {
+        GenericContainer container = esContainer.esContainer();
+        searchConfig.resetPorts(
+            container.getMappedPort(9200),
+            container.getMappedPort(9300)
+        );
+        logger.info("Running {}, http {}", container.isRunning(), container.getMappedPort(9200));
     }
 
     static int getNbrResult(JestResult jResult) {
@@ -143,7 +158,7 @@ public class ESBase {
     }
 
     void deleteEsIndex(Entity entity) throws Exception {
-        deleteEsIndex(indexManager.toIndex(entity));
+        deleteEsIndex(searchConfig.getIndexManager().toIndex(entity));
     }
 
     void deleteEsIndex(String indexName) throws Exception {
@@ -236,7 +251,7 @@ public class ESBase {
             runCount++;
             String query = getTermQuery(field, queryString);
             Search search = new Search.Builder(query)
-                    .addIndex(indexManager.toIndex(entity))
+                .addIndex(searchConfig.getIndexManager().toIndex(entity))
                     .build();
 
             result = esClient.execute(search);
@@ -247,7 +262,7 @@ public class ESBase {
         } while (nbrResult != expectedHitCount && runCount < esTimeout);
 
         logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
-        logger.trace("searching index [{}] field [{}] for [{}]", indexManager.toIndex(entity), field, queryString);
+        logger.trace("searching index [{}] field [{}] for [{}]", searchConfig.getIndexManager().toIndex(entity), field, queryString);
         if (exceptionMessage == null)
             exceptionMessage = result.getJsonString();
         Assert.assertEquals(exceptionMessage, expectedHitCount, nbrResult);
@@ -280,7 +295,7 @@ public class ESBase {
 
 
         Suggest search = new Suggest.Builder(query).
-                addIndex(indexManager.toIndex(entity)).
+            addIndex(searchConfig.getIndexManager().toIndex(entity)).
                 build();
         result = esClient.execute(search);
         TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
@@ -296,7 +311,8 @@ public class ESBase {
     }
 
     String doQuery(Entity entity, String queryString) throws Exception {
-        return doQuery(indexManager.toIndex(entity), indexManager.parseType(entity), queryString, 1);
+        return doQuery(searchConfig.getIndexManager().toIndex(entity),
+            searchConfig.getIndexManager().parseType(entity), queryString, 1);
     }
 
     String doQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
@@ -343,7 +359,7 @@ public class ESBase {
     String getMapping(Entity entity) throws Exception {
 
         //"/fd.cust.fortmapping.doctype/_mapping/doctype";
-        String indexName = indexManager.toIndex(entity);
+        String indexName = searchConfig.getIndexManager().toIndex(entity);
         Action getMapping = new GetMapping.Builder().addIndex(indexName).build();
         JestResult result = esClient.execute(getMapping);
         if ( result == null )
@@ -366,12 +382,12 @@ public class ESBase {
                     "    }\n" +
                     "}\n";
             Search search = new Search.Builder(query)
-                    .addIndex(indexManager.toIndex(entity))
-                    .addType(indexManager.parseType(entity))
+                .addIndex(searchConfig.getIndexManager().toIndex(entity))
+                .addType(searchConfig.getIndexManager().parseType(entity))
                     .build();
 
             result = esClient.execute(search);
-            String message = indexManager.toIndex(entity) + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
+            String message = searchConfig.getIndexManager().toIndex(entity) + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
             assertNotNull(message, result);
             assertNotNull(message, result.getJsonObject());
             assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
@@ -379,7 +395,7 @@ public class ESBase {
             nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
         } while (nbrResult != 1 && runCount < 5);
 
-        Assert.assertEquals("Unexpected hit count searching '" + indexManager.toIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", 1, nbrResult);
+        Assert.assertEquals("Unexpected hit count searching '" + searchConfig.getIndexManager().toIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", 1, nbrResult);
         if (nbrResult != 0)
             return result.getJsonObject()
                     .getAsJsonObject("hits")
@@ -412,7 +428,7 @@ public class ESBase {
                     "      }\n" +
                     "}";
             Search search = new Search.Builder(query)
-                    .addIndex(indexManager.toIndex(entity))
+                .addIndex(searchConfig.getIndexManager().toIndex(entity))
                     .build();
 
             result = esClient.execute(search);
@@ -458,7 +474,7 @@ public class ESBase {
         if (!defaultSegment) {
             when(entity.getSegment().getCode()).thenReturn(segment);
         }
-        assertEquals(indexManager.getIndexRoot(entity.getFortress()), entity.getFortress().getRootIndex());
+        assertEquals(searchConfig.getIndexManager().getIndexRoot(entity.getFortress()), entity.getFortress().getRootIndex());
 
         return entity;
 

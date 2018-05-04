@@ -24,15 +24,17 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.search.*;
 
+import java.io.IOException;
+
 /**
  * @author mholdsworth
  * @since 8/09/2014
  * @tag Query, Search
  */
 public interface QueryService {
-    TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException;
+    TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException, FlockException;
 
-    Long getHitCount(String index);
+    Long getHitCount(String index) throws IOException;
 
     EsSearchRequestResult doFdViewSearch(QueryParams queryParams) throws FlockException;
 

@@ -62,7 +62,7 @@ public class TestContentStructure extends ESBase {
 
         Entity entity = getEntity(company, fortress, user, doc);
         deleteEsIndex(entity);
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
 
         Collection<EntityTag> tags = new ArrayList<>();
         TagInputBean tagInputBean = new TagInputBean("SomeCode", "SomeLabel",

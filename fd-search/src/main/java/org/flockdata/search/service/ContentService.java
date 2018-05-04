@@ -23,13 +23,13 @@ package org.flockdata.search.service;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
-import org.elasticsearch.client.Client;
 import org.flockdata.helper.FlockException;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.search.ContentStructure;
 import org.flockdata.search.EsColumn;
 import org.flockdata.search.QueryParams;
 import org.flockdata.search.SearchSchema;
+import org.flockdata.search.configure.SearchConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,23 +46,22 @@ import java.util.concurrent.ExecutionException;
  */
 @Service
 public class ContentService {
-    private final Client elasticSearchClient;
 
     private final IndexManager indexManager;
-
+    private final SearchConfig searchConfig;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public ContentService(Client elasticSearchClient, IndexManager indexManager) {
-        this.elasticSearchClient = elasticSearchClient;
-        this.indexManager = indexManager;
+    public ContentService(SearchConfig searchConfig) {
+        this.searchConfig = searchConfig;
+        this.indexManager = searchConfig.getIndexManager();
     }
 
 
     public ContentStructure getStructure (QueryParams queryParams) throws FlockException {
         try {
             String[] indexes = indexManager.getIndices(queryParams);
-            GetFieldMappingsRequestBuilder fieldMappings = elasticSearchClient.admin().indices().prepareGetFieldMappings(indexes);
+            GetFieldMappingsRequestBuilder fieldMappings = searchConfig.getClient().admin().indices().prepareGetFieldMappings(indexes);
             fieldMappings.setFields("data.*","tag.*", "e.*", "up.*", SearchSchema.PROPS, SearchSchema.CREATED, SearchSchema.UPDATED, SearchSchema.DOC_TYPE);
             ListenableActionFuture<GetFieldMappingsResponse> future = fieldMappings.execute();
             GetFieldMappingsResponse result = future.get();

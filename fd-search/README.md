@@ -1,9 +1,9 @@
-fd-search - ElasticSearch Facade
+fd-search - ElasticSearch Writer
 ===============
-This service is used by [fd-engine](../fd-engine) to talk to ElasticSearch or notionally any search product you would care to write a handler for. It listens for data integrating over http or amqp puts the docs into ElasticSearch
+This service can be used independently but is used primarily by [fd-engine](../fd-engine) to index content into ElasticSearch 
 
 ## Configuration
-See [Spring](src/main/webapp/WEB-INF/spring) and [Application config](src/main/resources/config.properties) for various fd-search defaults. These can be overridden while fd-search is starting if you pass them in via the command line. But for evaluation purposes, they are good enough!
+See [Application config](src/main/resources/application.yml) for various fd-search defaults. These can be overridden while fd-search is starting if you pass them in via the command line. But for evaluation purposes, they are good enough!
 
 The ElasticSearch cluster that fd-search joins by default is 
 
@@ -32,7 +32,6 @@ fd-search does not have any security. All endpoints are unsecured. This is in co
 
 ## Interacting
 
-
 There is a ping url
 
 ```
@@ -52,7 +51,7 @@ curl -X GET http://localhost:9200/_cluster/health?pretty=true
 
 Generally that's it. There are some endpoints implemented using an @ServiceActivator pattern but these are reserved for fd-engine integration.
 
-By default, fd-search spins up and ElasticSearch instance. It uses ports 9200 and 9300. This is basically so you can experiment with ElasticSearch clustering on one computer. You can run ElasticSearch standalone and have fd-search be a transport only client with a bit of configuration. See the application.yml file for further details
+fd-search requires an ElasticSearch instance to be running. It uses ports 9200 and 9300. This is basically so you can experiment with ElasticSearch clustering on one computer.  
 
 ## Search Documents
 FlockData indexes documents in a structure that follows [fd.{fortress-code}.{document-type}/{caller-ref}] structure. 

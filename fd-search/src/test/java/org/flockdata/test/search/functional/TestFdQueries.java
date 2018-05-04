@@ -61,7 +61,7 @@ public class TestFdQueries extends ESBase{
         assertNotNull ( entity.getName());
 
         deleteEsIndex(entity);
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
         change.setDescription("Test Description");
         change.setData(json);
         change.setName(entity.getName());
@@ -125,7 +125,7 @@ public class TestFdQueries extends ESBase{
         Thread.sleep(1000);
 
         // Create SearchDoc 1
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
         change.setDescription("Test Description");
         change.setData(json);
         change.setName(entity.getName());
@@ -137,7 +137,7 @@ public class TestFdQueries extends ESBase{
 
         // Create SearchDoc 2
         entity = getEntity(company, fortress, user, doc);
-        change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
         change.setDescription("Test Description 2");
         change.setData(json);
         change.setName(entity.getName() + "2");
@@ -172,7 +172,7 @@ public class TestFdQueries extends ESBase{
 
         Entity entity = getEntity(company, fortress, user, doc);
         deleteEsIndex(entity);
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
         change.setDescription("Test Description");
         change.setData(json);
 

@@ -27,17 +27,14 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.integration.IndexManager;
 import org.flockdata.search.base.IndexMappingService;
 import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.track.bean.SearchChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -61,13 +58,8 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * @tag ElasticSearch, Search
  */
 @Service
-@DependsOn("elasticSearchClient")
 @Scope("singleton")
 public class IndexMappingServiceEs implements IndexMappingService {
-
-    private final Client elasticSearchClient;
-
-    private final IndexManager indexManager;
 
     private SearchConfig searchConfig;
 
@@ -76,9 +68,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     private Map<String, Object> defaultSettings = null;
 
     @Autowired
-    public IndexMappingServiceEs(IndexManager indexManager, Client elasticSearchClient, SearchConfig searchConfig) {
-        this.indexManager = indexManager;
-        this.elasticSearchClient = elasticSearchClient;
+    public IndexMappingServiceEs(SearchConfig searchConfig) {
         this.searchConfig = searchConfig;
     }
 
@@ -86,7 +76,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     public boolean ensureIndexMapping(SearchChange change) {
 
         final String indexName = change.getIndexName();
-        String documentType = indexManager.parseType(change.getDocumentType());
+        String documentType = searchConfig.getIndexManager().parseType(change.getDocumentType());
 
         if (hasIndex(change)) {
             // Need to be able to allow for a "per document" mapping
@@ -107,7 +97,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     private void deleteIndex(String index) {
         try {
-            elasticSearchClient.admin().indices().delete(new DeleteIndexRequest(index)).get();
+            searchConfig.getClient().admin().indices().delete(new DeleteIndexRequest(index)).get();
             logger.info("deleted [{}]", index);
         } catch (ExecutionException |InterruptedException e) {
             logger.error(e.getMessage());
@@ -128,7 +118,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
             Map<String, Object> esSettings = getSettings();
             try {
                 if (esSettings != null) {
-                    elasticSearchClient.admin()
+                    searchConfig.getClient().admin()
                             .indices()
                             .prepareCreate(indexName)
                             .addMapping(documentType, esMapping)
@@ -136,7 +126,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
                             .execute()
                             .actionGet();
                 } else {
-                    elasticSearchClient.admin()
+                    searchConfig.getClient().admin()
                             .indices()
                             .prepareCreate(indexName)
                             .addMapping(documentType, esMapping)
@@ -161,13 +151,13 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
         // Test if Type exist
         String[] documentTypes = new String[1];
-        String documentType = indexManager.parseType(change.getDocumentType());
+        String documentType = searchConfig.getIndexManager().parseType(change.getDocumentType());
         documentTypes[0] = documentType;
 
         String[] indexNames = new String[1];
         indexNames[0] = change.getIndexName();
 
-        boolean hasIndexMapping = elasticSearchClient.admin()
+        boolean hasIndexMapping = searchConfig.getClient().admin()
                 .indices()
                 //.exists( new IndicesExistsRequest(indexNames))
                 .typesExists(new TypesExistsRequest(indexNames, documentType))
@@ -182,13 +172,13 @@ public class IndexMappingServiceEs implements IndexMappingService {
     }
 
     private synchronized void makeMapping(String documentType, String[] indexNames, XContentBuilder mapping) {
-        if (!elasticSearchClient.admin()
+        if (!searchConfig.getClient().admin()
                 .indices()
                 //.exists( new IndicesExistsRequest(indexNames))
                 .typesExists(new TypesExistsRequest(indexNames, documentType))
                 .actionGet()
                 .isExists())
-            elasticSearchClient.admin().indices()
+            searchConfig.getClient().admin().indices()
                     .preparePutMapping(indexNames[0])
                     .setType(documentType)
                     .setSource(mapping)
@@ -198,7 +188,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     private boolean hasIndex(SearchChange change) {
         String indexName = change.getIndexName();
-        boolean hasIndex = elasticSearchClient
+        boolean hasIndex = searchConfig.getClient()
                 .admin()
                 .indices()
                 .exists(new IndicesExistsRequest(indexName))
@@ -259,12 +249,8 @@ public class IndexMappingServiceEs implements IndexMappingService {
             Map<String, Object> map = getDefaultMapping(change);
             Map<String, Object> docMap = new HashMap<>();
             Map<String, Object> theMapping = (Map<String, Object>) map.get("mapping");
-//            if (change.getParent() != null) {
-//                HashMap<String, Object> parentMap = new HashMap<>();
-//                parentMap.put("type", indexManager.parseType(change.getParent().getType()));
-//                theMapping.put("_parent", parentMap);
-//            }
-            docMap.put(indexManager.parseType(change.getDocumentType()), theMapping);
+
+            docMap.put(searchConfig.getIndexManager().parseType(change.getDocumentType()), theMapping);
             xbMapping = jsonBuilder().map(docMap);
         } catch (IOException e) {
             logger.error("Problem getting the search mapping", e);

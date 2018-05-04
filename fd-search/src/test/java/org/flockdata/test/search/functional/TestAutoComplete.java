@@ -52,11 +52,9 @@ import static org.junit.Assert.assertNotNull;
 public class TestAutoComplete extends ESBase{
 
     private Logger logger = LoggerFactory.getLogger(TestAutoComplete.class);
+
     @Test
     public void completion_numericCodesIgnored() throws Exception {
-
-        // DAT-446
-
         String comp = "comp4";
         String fort = "fort4";
         String user = "mikey";
@@ -76,7 +74,7 @@ public class TestAutoComplete extends ESBase{
         tags.add(MockDataFactory.getEntityTag(entity, numCodeWithName, "rlxname"));
         tags.add(MockDataFactory.getEntityTag(entity, zipCode, "zip"));
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
         change.setData(what);
         change.setStructuredTags(EntityTag.TAG_STRUCTURE.DEFAULT, tags);
 
@@ -117,7 +115,7 @@ public class TestAutoComplete extends ESBase{
         tags.add(MockDataFactory.getEntityTag(entity, tagInputA, "rlxname"));
         tags.add(MockDataFactory.getEntityTag(entity, tagInputB, "rlxname"));
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
         change.setData(what);
         change.setStructuredTags(EntityTag.TAG_STRUCTURE.DEFAULT, tags);
 
@@ -131,12 +129,10 @@ public class TestAutoComplete extends ESBase{
         doCompletionQuery(entity, "find", 1, "Find by tag name failed");
         doCompletionQuery(entity, "ab", 1, "Code is 2 chars and should be indexed");
         doCompletionQuery(entity, "a", 0, "Code less than 2 chars should have been ignored");
-
-
     }
+
     @Test
     public void completion_FindTagsByCodeAndDescription() throws Exception {
-
         String comp = "comp2";
         String fort = "fort2";
         String user = "mikey";
@@ -163,7 +159,7 @@ public class TestAutoComplete extends ESBase{
         tags.add(MockDataFactory.getEntityTag(entity, procedure, "proc"));
         tags.add(MockDataFactory.getEntityTag(entity, procedureB, "proc"));
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexManager.toIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
         change.setData(what);
         change.setStructuredTags(EntityTag.TAG_STRUCTURE.DEFAULT, tags);
 
