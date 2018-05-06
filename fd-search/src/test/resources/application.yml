@@ -10,7 +10,7 @@ es:
   clustername: fd-test
   http:
     port: 9203
-  tcp:                                
+  tcp:
     port: 9303
 
 rabbit:

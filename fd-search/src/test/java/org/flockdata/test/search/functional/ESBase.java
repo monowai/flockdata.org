@@ -57,9 +57,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.Rollback;
-import org.testcontainers.containers.GenericContainer;
 
-import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collection;
@@ -120,8 +118,6 @@ public class ESBase {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         JsonNode tree = mapper.reader().readTree(f);
         JsonNode esNode = tree.get("es");
-        JsonNode http = esNode.get("http");
-//        int httpPort = http.get("port").asInt();
         int httpPort = esContainer.esContainer().getMappedPort(9200);
 
         //properties.get("es.http.port")
@@ -131,18 +127,21 @@ public class ESBase {
         factory.setHttpClientConfig(clientConfig);
         //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
-
+        System.setProperty("es.http.port", esContainer.esContainer().getMappedPort(9200).toString());
+        System.setProperty("es.nodes", "localhost:" + esContainer.esContainer().getMappedPort(9300));
+        System.setProperty("es.tcp.port", esContainer.esContainer().getMappedPort(9300).toString());
+        logger.info("Set properties - http: {}, tcp {}", System.getProperty("es.http.port"), System.getProperty("es.tcp.port"));
     }
 
-    @PostConstruct
-    void resetPorts() throws Exception {
-        GenericContainer container = esContainer.esContainer();
-        searchConfig.resetPorts(
-            container.getMappedPort(9200),
-            container.getMappedPort(9300)
-        );
-//        logger.info("Running {}, http {}", container.isRunning(), container.getMappedPort(9200));
-    }
+//    @PostConstruct
+//    void resetPorts() throws Exception {
+//        GenericContainer container = esContainer.esContainer();
+//        searchConfig.resetPorts(
+//            container.getMappedPort(9200),
+//            container.getMappedPort(9300)
+//        );
+////        logger.info("Running {}, http {}", container.isRunning(), container.getMappedPort(9200));
+//    }
 
     static int getNbrResult(JestResult jResult) {
         int nbrResult;

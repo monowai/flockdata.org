@@ -88,36 +88,14 @@ public class SearchConfig {
         this.indexManager = indexManager;
     }
 
-    /**
-     * For use when needing to remap searchConfig when integration testing against Docker
-     * Testcontainers re-maps the ES port to a random number
-     *
-     * @param httpPort port fo Rest
-     * @param tcpPort deprecated transport port
-     * @throws IOException
-     */
-    public void resetPorts(Integer httpPort, Integer tcpPort) throws IOException {
-        if (this.httpPort.compareTo(httpPort) != 0 || tcpPort.compareTo(this.tcpPort) != 0) {
-            this.httpPort = httpPort;
-            this.tcpPort = tcpPort;
-            closeClients();
-            initSearchConfig();
-            setTransportClient(new String[] {"localhost:" + tcpPort});
-
-        }
-    }
 
     @Autowired
     public void initSearchConfig() {
         restClient = RestClient.builder(
             new HttpHost(httpHost, httpPort, "http")).build();
         restHighLevelClient =
-            new RestHighLevelClient(getRestClient());
+            new RestHighLevelClient(restClient);
 
-    }
-
-    RestClient getRestClient() {
-        return restClient;
     }
 
     public RestHighLevelClient getRestHighLevelClient() {
@@ -210,6 +188,7 @@ public class SearchConfig {
     void closeClients() throws IOException {
         if (restClient != null) {
             restClient.close();
+            restHighLevelClient = null;
         }
         if (client != null) {
             client.close();
