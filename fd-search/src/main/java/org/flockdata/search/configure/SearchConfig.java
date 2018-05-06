@@ -100,12 +100,7 @@ public class SearchConfig {
         if (this.httpPort.compareTo(httpPort) != 0 || tcpPort.compareTo(this.tcpPort) != 0) {
             this.httpPort = httpPort;
             this.tcpPort = tcpPort;
-            if (this.client != null) {
-                client.close();
-            }
-            if (restClient != null) {
-                restClient.close();
-            }
+            closeClients();
             initSearchConfig();
             setTransportClient(new String[] {"localhost:" + tcpPort});
 
@@ -212,9 +207,12 @@ public class SearchConfig {
     }
 
     @PreDestroy
-    void closeClient() throws IOException {
+    void closeClients() throws IOException {
         if (restClient != null) {
             restClient.close();
+        }
+        if (client != null) {
+            client.close();
         }
     }
 

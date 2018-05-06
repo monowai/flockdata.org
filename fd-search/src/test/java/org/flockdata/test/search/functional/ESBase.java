@@ -141,7 +141,7 @@ public class ESBase {
             container.getMappedPort(9200),
             container.getMappedPort(9300)
         );
-        logger.info("Running {}, http {}", container.isRunning(), container.getMappedPort(9200));
+//        logger.info("Running {}, http {}", container.isRunning(), container.getMappedPort(9200));
     }
 
     static int getNbrResult(JestResult jResult) {
