@@ -42,6 +42,7 @@ public class EsContainer {
         if (esContainer == null) {
             esContainer = serviceContainer("docker.elastic.co/elasticsearch/elasticsearch:5.6.9", network())
                 .withExposedPorts(9200, 9300)
+                .withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m")
                 .withCommand("elasticsearch -E cluster.name=fd-test -E node.master=true -E discovery.type=single-node -E network.host=0.0.0.0 -E xpack.security.enabled=false")
             ;
             esContainer.start();

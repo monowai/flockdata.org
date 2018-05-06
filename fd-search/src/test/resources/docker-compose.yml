@@ -9,3 +9,5 @@ services:
     expose:
       - 9203
       - 9303
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
