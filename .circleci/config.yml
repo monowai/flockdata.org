@@ -228,10 +228,11 @@ jobs:
             key: org-flockdata-v1-{{ checksum "pom.xml" }}
 
       - run:
-          command: 'mvn -q install -P docker -DskipTests=true'
-
-      - run:
-          command: 'mvn -q verify -P integration -f fd-docker-staging/pom.xml'
+          command: |
+            'mvn -q install -P docker -DskipTests=true'
+            'cd fd-docker-staging
+            'mvn -q verify -P integration -f pom.xml'
+            'cd ..'
 
       - save_cache:
           paths:
