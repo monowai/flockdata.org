@@ -97,7 +97,7 @@ jobs:
     machine:
       enabled: true
     environment:
-      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+      _JAVA_OPTIONS: "-Xms256m -Xmx384m"
     working_directory: '~/org.flockdata'
 
     steps:
@@ -108,7 +108,7 @@ jobs:
             key: org-flockdata-v1-{{ checksum "pom.xml" }}
 
       - run:
-          command: 'mvn -q test -f fd-search/pom.xml'
+          command: 'pushd fd-search && mvn -q install -P docker && popd'
 
       - store_test_results:
           path: fd-search/target/test-results
@@ -154,7 +154,7 @@ jobs:
             key: org-flockdata-v1-{{ checksum "pom.xml" }}
 
       - run:
-          command: 'mvn -q test -f fd-store/pom.xml'
+          command: 'mvn -q install -f fd-store/pom.xml -P docker'
 
       - store_test_results:
           path: fd-store/target/test-results
@@ -200,7 +200,7 @@ jobs:
             key: org-flockdata-v1-{{ checksum "pom.xml" }}
 
       - run:
-          command: 'mvn -q test -f fd-shell/pom.xml'
+          command: 'mvn -q install -f fd-shell/pom.xml -P docker'
 
       - store_test_results:
           path: fd-shell/target/test-results
@@ -223,7 +223,7 @@ jobs:
             key: org-flockdata-v1-{{ checksum "pom.xml" }}
 
       - run:
-          command: 'mvn -q test -f fd-engine/pom.xml'
+          command: 'mvn -q install -f fd-engine/pom.xml -P docker'
 
       - save_cache:
           paths:
@@ -251,14 +251,7 @@ jobs:
             key: org-flockdata-v1-{{ checksum "pom.xml" }}
 
       - run:
-          command: 'mvn -q install -P docker -DskipTests=true'
-
-      - run:
-          command: 'cd fd-docker-staging'
-      - run:
-          command: 'mvn -q verify -P integration -f pom.xml'
-      - run:
-          command: 'cd ..'
+          command: 'pushd fd-docker-staging && mvn -q verify -P integration && popd'
 
       - save_cache:
           paths:

@@ -22,15 +22,12 @@ package org.flockdata.test.search.functional;
 
 import org.flockdata.data.Entity;
 import org.flockdata.search.EntitySearchChange;
-import org.flockdata.search.FdSearch;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.test.helper.ContentDataHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.text.DateFormat;
@@ -51,8 +48,6 @@ import static org.springframework.test.util.AssertionErrors.fail;
  * @since 27/03/2015
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FdSearch.class)
-@ActiveProfiles({"dev"})
 public class TestDataTypes extends ESBase {
 
     @Autowired

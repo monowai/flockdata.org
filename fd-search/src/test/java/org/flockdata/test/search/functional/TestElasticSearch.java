@@ -28,14 +28,12 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.EntitySearchChange;
-import org.flockdata.search.FdSearch;
 import org.flockdata.search.SearchSchema;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashMap;
@@ -48,7 +46,6 @@ import static org.junit.Assert.assertNotNull;
  * Raw ES client functionality. Establishes a local node
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FdSearch.class)
 public class TestElasticSearch extends ESBase {
 
     ObjectMapper om = FdJsonObjectMapper.getObjectMapper();

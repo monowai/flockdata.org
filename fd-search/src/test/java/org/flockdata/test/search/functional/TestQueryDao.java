@@ -33,7 +33,6 @@ import org.flockdata.test.helper.MockDataFactory;
 import org.flockdata.track.bean.CompanyInputBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashSet;
@@ -49,7 +48,6 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FdSearch.class)
 public class TestQueryDao extends ESBase {
     @Test
     public void entityQueryFromQueryParams() throws Exception {

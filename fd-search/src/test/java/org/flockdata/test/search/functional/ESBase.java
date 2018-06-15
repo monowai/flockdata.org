@@ -38,6 +38,7 @@ import org.flockdata.data.Entity;
 import org.flockdata.data.Fortress;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.search.FdSearch;
 import org.flockdata.search.SearchSchema;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.IndexMappingService;
@@ -55,8 +56,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -75,6 +78,8 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * @since 15/08/2014
  */
 @Component
+@SpringBootTest(classes = FdSearch.class)
+@ActiveProfiles({"dev"})
 public class ESBase {
     static JestClient esClient;
     private static Logger logger = LoggerFactory.getLogger(TestMappings.class);
@@ -464,7 +469,7 @@ public class ESBase {
         return getEntity(company, fortress, user, invoice, code, null);
     }
 
-    public Entity getEntity(String comp, String fort, String userName, String docType, String code, String segment) throws FlockException {
+    public Entity getEntity(String comp, String fort, String userName, String docType, String code, String segment) {
         // These are the minimum objects necessary to create Entity data
         Entity entity = MockDataFactory.getEntity(comp, fort, userName, docType, code);
         boolean defaultSegment = segment == null || segment.equals(Fortress.DEFAULT);

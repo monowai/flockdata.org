@@ -20,10 +20,8 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.search.FdSearch;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -32,11 +30,10 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FdSearch.class)
 public class TestTagPayload extends ESBase {
 
     @Test
-    public void nestedTag_SearchDoc () throws Exception {
+    public void nestedTag_SearchDoc() {
         System.out.print("implement me");
     }
 }

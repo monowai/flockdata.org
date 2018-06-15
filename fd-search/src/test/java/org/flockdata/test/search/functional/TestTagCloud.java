@@ -23,14 +23,16 @@ package org.flockdata.test.search.functional;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.*;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.SearchChanges;
+import org.flockdata.search.TagCloud;
+import org.flockdata.search.TagCloudParams;
 import org.flockdata.search.dao.QueryDaoES;
 import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.test.helper.MockDataFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -43,7 +45,6 @@ import static org.junit.Assert.assertEquals;
  * @since 15/08/2014
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FdSearch.class)
 public class TestTagCloud extends ESBase {
     @Autowired
     QueryDaoES queryDaoES;

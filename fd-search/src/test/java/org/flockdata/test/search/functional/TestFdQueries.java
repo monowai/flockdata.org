@@ -28,7 +28,6 @@ import org.flockdata.test.helper.ContentDataHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
@@ -42,7 +41,6 @@ import static org.junit.Assert.assertNotNull;
  * @since 27/04/2015
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FdSearch.class)
 public class TestFdQueries extends ESBase{
 
     @Autowired

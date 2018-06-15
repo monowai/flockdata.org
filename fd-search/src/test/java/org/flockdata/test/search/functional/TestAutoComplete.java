@@ -24,7 +24,6 @@ import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.EntitySearchChange;
-import org.flockdata.search.FdSearch;
 import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.test.helper.MockDataFactory;
 import org.flockdata.track.bean.SearchChange;
@@ -32,7 +31,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -48,7 +46,6 @@ import static org.junit.Assert.assertNotNull;
  * @since 28/05/2015
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FdSearch.class)
 public class TestAutoComplete extends ESBase{
 
     private Logger logger = LoggerFactory.getLogger(TestAutoComplete.class);
