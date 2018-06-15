@@ -116,6 +116,29 @@ jobs:
       - store_artifacts:
           path: ./fd-search/target/*.jar
 
+  build-graph:
+    machine:
+      enabled: true
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
+    working_directory: '~/org.flockdata'
+
+    steps:
+      - restore_cache:
+            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+
+      - restore_cache:
+            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+
+      - run:
+          command: 'mvn -q test -f fd-graph/pom.xml'
+
+      - store_test_results:
+          path: fd-graph/target/test-results
+
+      - store_artifacts:
+          path: ./fd-graph/target/*.jar
+
   build-store:
     machine:
       enabled: true
@@ -269,6 +292,9 @@ workflows:
       - build-engine:
           requires:
             - build-client
+      - build-graph:
+          requires:
+            - build-security
       - build-search:
           requires:
             - build-security
@@ -280,6 +306,7 @@ workflows:
             - build-store
             - build-search
             - build-engine
+            - build-graph
 #      - deploy:
 #          requires:
 #            - stage-tests

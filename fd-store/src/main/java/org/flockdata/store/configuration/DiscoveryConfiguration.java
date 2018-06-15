@@ -35,11 +35,11 @@ import javax.annotation.PostConstruct;
  * @author mholdsworth
  * @since 7/05/2016
  */
-@EnableDiscoveryClient
-@Configuration
-@Profile("discovery")
-public class DiscoveryConfiguration implements InfoContributor {
-
+//@EnableDiscoveryClient
+//@Configuration
+//@Profile("discovery")
+//public class DiscoveryConfiguration implements InfoContributor {
+public class DiscoveryConfiguration {
     private final StoreConfig storeConfig;
     private Logger logger = LoggerFactory.getLogger("configuration");
 
@@ -53,10 +53,10 @@ public class DiscoveryConfiguration implements InfoContributor {
         logger.info("**** Discovery Configuration Client configuration deployed");
     }
 
-    @Override
-    public void contribute(Info.Builder builder) {
-        builder.withDetail("health",
-                storeConfig.health());
-
-    }
+//    @Override
+//    public void contribute(Info.Builder builder) {
+//        builder.withDetail("health",
+//                storeConfig.health());
+//
+//    }
 }

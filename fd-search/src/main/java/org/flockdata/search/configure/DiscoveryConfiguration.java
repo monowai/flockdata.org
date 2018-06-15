@@ -39,7 +39,7 @@ import javax.annotation.PostConstruct;
 @EnableDiscoveryClient
 @Configuration
 @Profile("discovery")
-public class DiscoveryConfiguration implements InfoContributor {
+public class DiscoveryConfiguration {//implements InfoContributor {
 
     private final SearchAdmin searchAdmin;
     private Logger logger = LoggerFactory.getLogger("configuration");
@@ -54,11 +54,11 @@ public class DiscoveryConfiguration implements InfoContributor {
         logger.info("**** Discovery Configuration Client configuration deployed");
     }
 
-    @Override
-    public void contribute(Info.Builder builder) {
-        builder.withDetail("health",
-                searchAdmin.getHealth());
-
-    }
+//    @Override
+//    public void contribute(Info.Builder builder) {
+//        builder.withDetail("health",
+//                searchAdmin.getHealth());
+//
+//    }
 
 }

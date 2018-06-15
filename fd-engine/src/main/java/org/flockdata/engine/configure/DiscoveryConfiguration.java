@@ -43,7 +43,7 @@ import javax.annotation.PostConstruct;
 @Component
 // Not working. SB + SpringData + Neo4j issues :-(
 @Profile("discovery")
-public class DiscoveryConfiguration implements InfoContributor {
+public class DiscoveryConfiguration {//implements InfoContributor {
     private Logger logger = LoggerFactory.getLogger("configuration");
     private PlatformConfig engineConfig;
 
@@ -57,10 +57,11 @@ public class DiscoveryConfiguration implements InfoContributor {
         this.engineConfig = engineConfig;
     }
 
-    @Override
-    public void contribute(Info.Builder builder) {
-        builder.withDetail("health",
-                engineConfig.getHealth());
-
-    }
+//    @Override
+    // Actuator starter required
+//    public void contribute(Info.Builder builder) {
+//        builder.withDetail("health",
+//                engineConfig.getHealth());
+//
+//    }
 }

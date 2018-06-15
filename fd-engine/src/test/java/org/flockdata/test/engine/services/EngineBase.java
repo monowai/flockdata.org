@@ -29,8 +29,8 @@ import org.flockdata.data.Entity;
 import org.flockdata.data.EntityLog;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.FdEngine;
+import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.admin.PlatformConfig;
-import org.flockdata.engine.admin.service.AdminService;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.configure.SecurityHelper;
@@ -150,7 +150,7 @@ public abstract class EngineBase {
     @Autowired
     StorageProxy storageService;
     @Autowired
-    AdminService adminService;
+    EngineAdminService adminService;
     @Autowired
     Neo4jTemplate neo4jTemplate;
     @Autowired

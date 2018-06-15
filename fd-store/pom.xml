@@ -12,7 +12,8 @@
     <version>0.98.9-SNAPSHOT</version>
     <artifactId>fd-store</artifactId>
     <properties>
-        <org.springdata.redis>1.7.5.RELEASE</org.springdata.redis>
+        <org.springdata.redis>1.8.13.RELEASE</org.springdata.redis>
+        <redis.version>2.9.0</redis.version>
         <org.flockdata.client.version>0.98.9-SNAPSHOT</org.flockdata.client.version>
         <org.flockdata.common.version>0.98.9-SNAPSHOT</org.flockdata.common.version>
         <org.flockdata.security.version>0.98.9-SNAPSHOT</org.flockdata.security.version>
@@ -22,7 +23,7 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
@@ -92,23 +93,9 @@
             <version>${org.springdata.redis}</version>
         </dependency>
         <dependency>
-            <!-- The driver connection - you can get api mismatches !-->
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>2.6.3</version>
-            <!-- This version needs to align with springdata-redis -->
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-expression</artifactId>
+            <version>${redis.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.integration</groupId>

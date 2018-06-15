@@ -47,6 +47,9 @@ import java.util.Map;
 @Service
 @Configuration
 public class SearchAdmin {
+
+    private Logger logger = LoggerFactory.getLogger("configuration");
+
     @Autowired
     private EntityChangeWriter engineDao;
 
@@ -55,9 +58,9 @@ public class SearchAdmin {
 
     @Autowired
     private SearchConfig searchConfig;
+
     @Autowired (required = false)
     private VersionHelper versionHelper;
-    private Logger logger = LoggerFactory.getLogger("configuration");
 
     public Map<String, Object> getHealth() {
 

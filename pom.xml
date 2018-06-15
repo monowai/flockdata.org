@@ -59,8 +59,6 @@
         <neo4j.version>2.3.8</neo4j.version>
 
         <org.springdata.neo4j>3.4.6.RELEASE</org.springdata.neo4j>
-        <!-- spring data-neo4j wants this specific version -->
-        <springdata.commons>1.11.6.RELEASE</springdata.commons>
 
         <surefire.version>2.20</surefire.version>
         <dependency.locations.enabled>false</dependency.locations.enabled>

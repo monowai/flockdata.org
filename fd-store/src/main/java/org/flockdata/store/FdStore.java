@@ -20,8 +20,8 @@
 
 package org.flockdata.store;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 
 /**
  * Starts fd-store KV store service
@@ -37,7 +37,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 public class FdStore {
     public static void main(String[] args) {
         try {
-            new SpringApplicationBuilder(FdStore.class).web(true).run(args);
+            SpringApplication.run(FdStore.class, args);
         } catch ( Exception e) {
             System.out.println(e.getLocalizedMessage());
         }
