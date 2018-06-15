@@ -24,9 +24,6 @@ import org.flockdata.engine.admin.PlatformConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.info.Info;
-import org.springframework.boot.actuate.info.InfoContributor;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -38,7 +35,7 @@ import javax.annotation.PostConstruct;
  * @author mholdsworth
  * @since 7/05/2016
  */
-@EnableDiscoveryClient
+//@EnableDiscoveryClient
 @Configuration
 @Component
 // Not working. SB + SpringData + Neo4j issues :-(

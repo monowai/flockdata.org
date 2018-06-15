@@ -54,7 +54,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -80,7 +79,6 @@ import static org.springframework.test.util.AssertionErrors.fail;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {FdStore.class})
 @ActiveProfiles({"dev", "fd-auth-none", "riak", "redis"})
-@WebAppConfiguration (value = "src/main/resources")
 public class TestStoreService {
 
     private static RedisServer redisServer;
@@ -98,8 +96,10 @@ public class TestStoreService {
     private RedisRepo redisRepo ;
     
     private MockMvc mockMvc;
+
     @Autowired
     private WebApplicationContext wac;
+
     private Logger logger = LoggerFactory.getLogger(TestStoreService.class);
     @Autowired
     private StoreManager storeManager;
