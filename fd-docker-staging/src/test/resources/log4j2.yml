@@ -24,7 +24,7 @@ Configuration:
 
         - name: org.flockdata
           additivity: false
-          level: info
+          level: error
           AppenderRef:
             - ref: CONSOLE
            # - ref: APPLICATION

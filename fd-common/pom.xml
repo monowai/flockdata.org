@@ -49,11 +49,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-api</artifactId>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -67,10 +62,6 @@
             <artifactId>spring-expression</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>de.grundid.opendatalab</groupId>-->
-        <!--<artifactId>geojson-jackson</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-referencing</artifactId>

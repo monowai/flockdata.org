@@ -1,0 +1,4 @@
+org.flockdata.neo4j:
+  uri: "bolt://localhost:7687"
+  uesr: "neo4j"
+  password: "password"
