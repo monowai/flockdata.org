@@ -19,6 +19,7 @@ package org.flockdata.client.commands;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackRequestResult;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,15 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class TrackEntityPost {
 
-    public CommandResponse<TrackRequestResult > exec(FdIoInterface fdIoInterface, EntityInputBean entityInputBean) {
+    private FdIoInterface fdIoInterface;
+
+    @Autowired
+    public TrackEntityPost(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+
+    public CommandResponse<TrackRequestResult> exec(EntityInputBean entityInputBean) {
         TrackRequestResult result=null;
         String error =null;
         HttpEntity<EntityInputBean> requestEntity = new HttpEntity<>(entityInputBean, fdIoInterface.getHeaders());

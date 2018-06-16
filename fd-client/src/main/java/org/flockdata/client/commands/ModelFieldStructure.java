@@ -18,6 +18,7 @@ package org.flockdata.client.commands;
 
 import org.flockdata.search.ContentStructure;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,15 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class ModelFieldStructure {
 
-    public CommandResponse<ContentStructure> exec(FdIoInterface fdIoInterface, String fortress, String documentType) {
+    private FdIoInterface fdIoInterface;
+
+    @Autowired
+    public ModelFieldStructure(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+
+    public CommandResponse<ContentStructure> exec(String fortress, String documentType) {
         HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
         ContentStructure result = null;
         String error =null;

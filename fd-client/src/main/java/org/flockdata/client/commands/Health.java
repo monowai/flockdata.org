@@ -18,6 +18,7 @@ package org.flockdata.client.commands;
 
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +41,15 @@ import java.util.Map;
 
 @Component
 public class Health {
-    public CommandResponse<Map<String,Object>> exec(FdIoInterface fdIoInterface) {
+
+    private FdIoInterface fdIoInterface;
+
+    @Autowired
+    public Health(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+    public CommandResponse<Map<String, Object>> exec() {
         String error = null;
         Map<String,Object>result = new HashMap<>();
         String exec = fdIoInterface.getUrl() + "/api/v1/admin/health/";

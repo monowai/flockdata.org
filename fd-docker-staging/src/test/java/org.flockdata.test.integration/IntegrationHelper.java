@@ -242,7 +242,7 @@ class IntegrationHelper {
             // After waiting for 30% of the waitCount will try running the command if it exists
             if (pingCommand != null && (((double) run) / waitCount) > .05) {
                 // After 1 minute we will ping to see if we can finish this early
-                CommandResponse<String> pingResponse = pingCommand.exec(fdClientIo);
+                CommandResponse<String> pingResponse = pingCommand.exec();
                 if (pingResponse.getError() == null && pingResponse.getResult().equals("pong")) {
                     logger.info("finished after {}", run); // Early finish - yay!
                     return;
@@ -260,7 +260,7 @@ class IntegrationHelper {
         if (stackFailed)
             return;
         logger.info("looking for [{}]", service);
-        CommandResponse<String> pingResponse = pingCommand.exec(fdClientIo);
+        CommandResponse<String> pingResponse = pingCommand.exec();
         do {
             countDown--;
 
@@ -342,7 +342,7 @@ class IntegrationHelper {
                 // If the services can't see each other, its not worth proceeding
                 SystemUserResultBean login = login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
                 assertNotNull(login);
-                CommandResponse<Map<String, Object>> healthResponse = health.exec(fdClientIo);
+                CommandResponse<Map<String, Object>> healthResponse = health.exec();
                 assertNull("Health Check", healthResponse.getError());
 
                 Map<String, Object> healthResult = healthResponse.getResult();
@@ -404,7 +404,7 @@ class IntegrationHelper {
                 .isNotNull();
         if (result.getApiKey() == null) {
             // New data access user
-            CommandResponse<SystemUserResultBean> suResponse = registrationPost.exec(fdClientIo, new RegistrationBean("TestCompany", user));
+            CommandResponse<SystemUserResultBean> suResponse = registrationPost.exec(new RegistrationBean("TestCompany", user));
             assertEquals("Error registering data access user", null, suResponse.getError());
             result = suResponse.getResult();
             assertNotNull(String.format("Failed to make the login [%s] a data access user", user), result.getApiKey());

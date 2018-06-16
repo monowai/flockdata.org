@@ -18,6 +18,7 @@ package org.flockdata.client.commands;
 
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -42,15 +43,23 @@ public class EntityData  {
     private static final String BY_KEY = "/entity/{key}/log/last/data";
     private static final String  BY_CODE = "/entity/{fortress}/{docType}/{code}/log/last/data";
 
-    public CommandResponse<Map<String, Object>> exec(FdIoInterface fdIoInterface, String key) {
-        return exec(fdIoInterface, key, null);
+    private FdIoInterface fdIoInterface;
+
+    @Autowired
+    public EntityData(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
     }
 
-    public CommandResponse<Map<String, Object>> exec(FdIoInterface fdIoInterface, EntityInputBean entityInputBean) {
-        return exec(fdIoInterface, null, entityInputBean);
+
+    public CommandResponse<Map<String, Object>> exec(String key) {
+        return exec(key, null);
     }
-    
-    public CommandResponse<Map<String, Object>> exec(FdIoInterface fdIoInterface, String key, EntityInputBean entityInputBean) {
+
+    public CommandResponse<Map<String, Object>> exec(EntityInputBean entityInputBean) {
+        return exec(null, entityInputBean);
+    }
+
+    public CommandResponse<Map<String, Object>> exec(String key, EntityInputBean entityInputBean) {
         HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
         Map<String, Object> result = null;
         String error = null;

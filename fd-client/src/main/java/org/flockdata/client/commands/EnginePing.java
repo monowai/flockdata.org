@@ -16,6 +16,7 @@
 
 package org.flockdata.client.commands;
 
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,10 @@ import org.springframework.stereotype.Component;
 @Component
 @Qualifier("enginePing")
 public class EnginePing extends Ping {
+
+    public EnginePing(FdIoInterface fdIoInterface) {
+        super(fdIoInterface);
+    }
 
     @Override
     public String getPath() {

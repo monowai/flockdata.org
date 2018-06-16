@@ -17,6 +17,7 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +36,14 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class AdminPurgeFortressSegment {
 
+    private FdIoInterface fdIoInterface;
 
-    public CommandResponse<String> exec(FdIoInterface fdIoInterface, String fortress, String docType, String segment) {
+    @Autowired
+    public AdminPurgeFortressSegment(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+    public CommandResponse<String> exec(String fortress, String docType, String segment) {
         String exec = fdIoInterface.getUrl()+ "/api/v1/admin/{fortress}/{docType}/{segment}";
         String result=null;
         String error =null;

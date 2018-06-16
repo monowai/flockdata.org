@@ -19,6 +19,7 @@ package org.flockdata.client.commands;
 import org.flockdata.data.ContentModel;
 import org.flockdata.model.ContentModelResult;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -39,8 +40,15 @@ import java.util.Collection;
 @Component
 public class ModelPost {
 
+    private FdIoInterface fdIoInterface;
 
-    public CommandResponse<Collection<ContentModelResult>> exec(FdIoInterface fdIoInterface, Collection<ContentModel> models) {
+    @Autowired
+    public ModelPost(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+
+    public CommandResponse<Collection<ContentModelResult>> exec(Collection<ContentModel> models) {
         Collection<ContentModelResult> results=null;
         String error =null;
         try {

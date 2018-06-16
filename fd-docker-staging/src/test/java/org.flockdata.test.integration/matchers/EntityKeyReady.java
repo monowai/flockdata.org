@@ -48,7 +48,7 @@ public class EntityKeyReady implements ReadyMatcher {
 
     @Override
     public boolean isReady(FdIoInterface fdIoInterface) {
-        response = entityGet.exec(fdIoInterface, entityInputBean, key);
+        response = entityGet.exec(entityInputBean, key);
         return response.getResult() != null && response.getResult().getKey() != null;
 
     }

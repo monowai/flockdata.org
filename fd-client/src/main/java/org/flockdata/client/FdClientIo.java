@@ -109,7 +109,7 @@ public class FdClientIo implements FdIoInterface {
     }
 
     public SystemUserResultBean me() {
-        return login.exec(this, clientConfiguration.getHttpUser(), clientConfiguration.getHttpPass()).getResult();
+        return login.exec(clientConfiguration.getHttpUser(), clientConfiguration.getHttpPass()).getResult();
     }
 
     private ClientConfiguration getClientConfiguration() {
@@ -212,7 +212,7 @@ public class FdClientIo implements FdIoInterface {
     }
 
     public SystemUserResultBean login() {
-        CommandResponse<SystemUserResultBean> response = login.exec(this, clientConfiguration.getHttpUser(), clientConfiguration.getHttpPass());
+        CommandResponse<SystemUserResultBean> response = login.exec(clientConfiguration.getHttpUser(), clientConfiguration.getHttpPass());
         if (response.getError() != null) {
             logger.error("Error logging in as [{}] - {}", getUser(), response.getError());
             return null;
@@ -247,7 +247,7 @@ public class FdClientIo implements FdIoInterface {
     }
 
     public ContentModel getContentModel(String type, String clazz) {
-        CommandResponse<ContentModel> response = modelGet.exec(this, type, clazz);
+        CommandResponse<ContentModel> response = modelGet.exec(type, clazz);
         String error = response.getError();
         if (error != null)
             logger.error("Get Model resulted in {} for {} {} on {} for {}",
@@ -318,7 +318,7 @@ public class FdClientIo implements FdIoInterface {
 
 
     public Map<String, Object> search(QueryParams qp) {
-        CommandResponse<Map<String, Object>> response = postQuery.exec(this, qp);
+        CommandResponse<Map<String, Object>> response = postQuery.exec(qp);
         if (response.getError() != null)
             logger.error(response.getError());
         return response.getResult();

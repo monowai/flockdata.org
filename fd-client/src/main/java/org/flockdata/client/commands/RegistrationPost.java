@@ -19,6 +19,7 @@ package org.flockdata.client.commands;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,15 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class RegistrationPost {
 
-    public CommandResponse<SystemUserResultBean> exec(FdIoInterface fdIoInterface, RegistrationBean registrationBean) {
+    private FdIoInterface fdIoInterface;
+
+    @Autowired
+    public RegistrationPost(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+
+    public CommandResponse<SystemUserResultBean> exec(RegistrationBean registrationBean) {
         String error = null;
         HttpEntity requestEntity = new HttpEntity<>(registrationBean, fdIoInterface.getHeaders());
         SystemUserResultBean result = null;

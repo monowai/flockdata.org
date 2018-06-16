@@ -18,6 +18,7 @@ package org.flockdata.client.commands;
 
 import org.flockdata.data.ContentModel;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,15 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class ModelGet {
 
-    public CommandResponse<ContentModel> exec(FdIoInterface fdIoInterface, String fortress, String type) {
+    private FdIoInterface fdIoInterface;
+
+    @Autowired
+    public ModelGet(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+
+    public CommandResponse<ContentModel> exec(String fortress, String type) {
 
         ContentModel results= null;
         String error = null;

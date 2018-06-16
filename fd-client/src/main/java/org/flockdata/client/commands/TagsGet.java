@@ -18,6 +18,7 @@ package org.flockdata.client.commands;
 
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,15 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class TagsGet {
 
-    public CommandResponse<TagResultBean[]> exec(FdIoInterface fdIoInterface, String label) {
+    private FdIoInterface fdIoInterface;
+
+    @Autowired
+    public TagsGet(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+
+    public CommandResponse<TagResultBean[]> exec(String label) {
         TagResultBean[] result = new TagResultBean[0];
         String error = null;
         HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());

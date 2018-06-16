@@ -163,7 +163,7 @@ public class ShellCommands {
     //help = "Ping the fd-engine service"
     @ShellMethod(value = "ping")
     public String ping() {
-        CommandResponse<String> commandResponse = enginePing.exec(fdIoInterface);
+        CommandResponse<String> commandResponse = enginePing.exec();
         return (commandResponse.getError() == null ? commandResponse.getResult() : commandResponse.getError());
     }
 
@@ -179,7 +179,7 @@ public class ShellCommands {
     //    , help = "Verify the health of the FD services"
     @ShellMethod(value = "health")
     public String health() {
-        CommandResponse response = health.exec(fdIoInterface);
+        CommandResponse response = health.exec();
         return (response.getError() == null ? JsonUtils.pretty(response.getResult()) : response.getError());
     }
 
@@ -196,7 +196,7 @@ public class ShellCommands {
             registrationBean.setCompany(new CompanyInputBean(company));
         }
 
-        CommandResponse response = registrationPost.exec(fdIoInterface, registrationBean);
+        CommandResponse response = registrationPost.exec(registrationBean);
         String result;
         if (response.getError() != null) {
             result = response.getError();
@@ -229,7 +229,7 @@ public class ShellCommands {
             clientConfiguration.setHttpUser(user);
             clientConfiguration.setHttpPass(pass);
         }
-        CommandResponse<SystemUserResultBean> response = login.exec(fdIoInterface, user, pass);
+        CommandResponse<SystemUserResultBean> response = login.exec(user, pass);
         clientConfiguration.setSystemUser(response.getResult());
         return (response.getError() == null ? JsonUtils.pretty(response.getResult()) : response.getError());
     }

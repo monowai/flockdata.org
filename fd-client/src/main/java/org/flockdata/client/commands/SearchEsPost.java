@@ -18,6 +18,7 @@ package org.flockdata.client.commands;
 
 import org.flockdata.search.QueryParams;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -40,8 +41,14 @@ import java.util.Map;
 @Component
 public class SearchEsPost {
 
+    private FdIoInterface fdIoInterface;
 
-    public CommandResponse<Map<String,Object>> exec(FdIoInterface fdIoInterface, QueryParams queryParams) {
+    @Autowired
+    public SearchEsPost(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+    public CommandResponse<Map<String, Object>> exec(QueryParams queryParams) {
         String error= null;
         Map<String,Object> result = null;
 

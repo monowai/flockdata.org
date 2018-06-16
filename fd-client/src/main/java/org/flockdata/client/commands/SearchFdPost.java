@@ -19,6 +19,7 @@ package org.flockdata.client.commands;
 import org.flockdata.search.EsSearchRequestResult;
 import org.flockdata.search.QueryParams;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,15 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class SearchFdPost {
 
-    public CommandResponse<EsSearchRequestResult> exec(FdIoInterface fdIoInterface, QueryParams queryParams) {
+    private FdIoInterface fdIoInterface;
+
+    @Autowired
+    public SearchFdPost(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+
+    public CommandResponse<EsSearchRequestResult> exec(QueryParams queryParams) {
         String error ;
 
         EsSearchRequestResult result= null;

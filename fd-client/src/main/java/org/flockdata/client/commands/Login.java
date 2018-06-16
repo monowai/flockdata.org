@@ -19,6 +19,7 @@ package org.flockdata.client.commands;
 import org.flockdata.registration.LoginRequest;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,11 +38,19 @@ import org.springframework.web.client.ResourceAccessException;
 
 @Component
 public class Login {
+
+    private FdIoInterface fdIoInterface;
+
+    @Autowired
+    public Login(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+
     /**
-     * @param fdIoInterface
      * @return an error message (if one occurred) and null if everything is worked. Call result() to get, umm, the result
      */
-    public CommandResponse<SystemUserResultBean> exec(FdIoInterface fdIoInterface, String user, String pass) {
+    public CommandResponse<SystemUserResultBean> exec(String user, String pass) {
         String error = null;
         SystemUserResultBean result = null;
         try {

@@ -19,6 +19,7 @@ package org.flockdata.client.commands;
 import org.flockdata.transform.FdIoInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -38,13 +39,22 @@ public class Ping {
 
     private static Logger logger = LoggerFactory.getLogger(Ping.class);
 
+    private FdIoInterface fdIoInterface;
+
+    @Autowired
+    public Ping(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+
+
     String api = null;
 
     public String getPath(){
         return "/api/v1/admin/ping/";
     }
 
-    public CommandResponse<String> exec(FdIoInterface fdIoInterface) {
+    public CommandResponse<String> exec() {
         String result = null;
         String error ;
 

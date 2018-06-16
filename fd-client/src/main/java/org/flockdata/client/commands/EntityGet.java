@@ -19,6 +19,7 @@ package org.flockdata.client.commands;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityResultBean;
 import org.flockdata.transform.FdIoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,15 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class EntityGet {
 
-    public CommandResponse<EntityResultBean> exec(FdIoInterface fdIoInterface, EntityInputBean entityInputBean, String key) {
+    private FdIoInterface fdIoInterface;
+
+    @Autowired
+    public EntityGet(FdIoInterface fdIoInterface) {
+        this.fdIoInterface = fdIoInterface;
+    }
+
+
+    public CommandResponse<EntityResultBean> exec(EntityInputBean entityInputBean, String key) {
 
         HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
         EntityResultBean result = null;

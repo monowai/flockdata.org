@@ -16,6 +16,7 @@
 
 package org.flockdata.client.commands;
 
+import org.flockdata.transform.FdIoInterface;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,10 @@ import org.springframework.stereotype.Component;
 @Component
 @Qualifier("StorePing")
 public class StorePing extends Ping {
+
+    public StorePing(FdIoInterface fdIoInterface) {
+        super(fdIoInterface);
+    }
 
     public void setApi(String api) {
         this.api = api;
