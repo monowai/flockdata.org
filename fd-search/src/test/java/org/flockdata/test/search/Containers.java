@@ -17,14 +17,14 @@ import java.time.Duration;
  * @since 6/05/18
  */
 @Configuration
-public class EsContainer {
+public class Containers {
 
-    GenericContainer esContainer;
-    private static EsContainer es = null;
+    private GenericContainer esContainer;
+    private static Containers es = null;
 
-    public static EsContainer getInstance() {
+    public static Containers getInstance() {
         if (es == null) {
-            es = new EsContainer();
+            es = new Containers();
             es.start();
         }
         return es;
@@ -34,15 +34,15 @@ public class EsContainer {
         return Network.newNetwork();
     }
 
-    private void start() {
-        esContainer = esContainer();
+    private GenericContainer start() {
+        return elasticSearch();
     }
 
-    public GenericContainer esContainer() {
+    public GenericContainer elasticSearch() {
         if (esContainer == null) {
             esContainer = serviceContainer("docker.elastic.co/elasticsearch/elasticsearch:5.6.9", network())
                 .withExposedPorts(9200, 9300)
-                .withEnv("ES_JAVA_OPTS", "-Xms256m -Xmx384m")
+                .withEnv("ES_JAVA_OPTS", "-Xms256m -Xmx512m")
                 .withCommand("elasticsearch -E cluster.name=fd-test -E node.master=true -E discovery.type=single-node -E network.host=0.0.0.0 -E xpack.security.enabled=false")
             ;
             esContainer.start();

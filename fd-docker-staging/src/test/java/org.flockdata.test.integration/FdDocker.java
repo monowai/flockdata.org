@@ -21,8 +21,11 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.File;
+import java.time.Duration;
 
 import static org.flockdata.test.integration.IntegrationHelper.*;
 
@@ -41,18 +44,20 @@ public class FdDocker extends ExternalResource {
 
     static DockerComposeContainer stack   =
             new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"))
-                    .withPull(false)
-                    .withExposedService("rabbit_1", 5672)
-                    .withExposedService("rabbit_1", 15672)
-                    .withExposedService("elasticsearch_1", 9200)
-                    .withExposedService("elasticsearch_1", 9300)
-                    .withExposedService("fdengine_1", SERVICE_ENGINE)
-                    .withExposedService("fdengine_1", DEBUG_ENGINE)
-                    .withExposedService("fdsearch_1", SERVICE_SEARCH)
-                    .withExposedService("fdsearch_1", DEBUG_SEARCH)
-                    .withExposedService("fdstore_1", SERVICE_STORE)
-                    .withExposedService("fdstore_1", DEBUG_STORE);
-
+                .withPull(false)
+                .withExposedService("rabbit_1", 5672)
+                .withExposedService("rabbit_1", 15672)
+                .withExposedService("elasticsearch_1", 9200, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(50)))
+                .withExposedService("elasticsearch_1", 9300)
+                .withLogConsumer("fdengine", (new Slf4jLogConsumer(LoggerFactory.getLogger("🐳 fdengine"))))
+                .withLogConsumer("fdstore", (new Slf4jLogConsumer(LoggerFactory.getLogger("🐳 fdstore"))))
+                .withLogConsumer("fdsearch", (new Slf4jLogConsumer(LoggerFactory.getLogger("🐳 fdsearch"))))
+                .withExposedService("fdstore_1", SERVICE_STORE, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(180)))
+//                .withExposedService("fdstore_1", DEBUG_STORE, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(240)))
+                .withExposedService("fdsearch_1", SERVICE_SEARCH, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(180)))
+//                .withExposedService("fdsearch_1", DEBUG_SEARCH, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(240)))
+                .withExposedService("fdengine_1", SERVICE_ENGINE, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(240)));
+//                .withExposedService("fdengine_1", DEBUG_ENGINE, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(240)));
 
     private static Logger logger = LoggerFactory.getLogger(FdDocker.class);
 

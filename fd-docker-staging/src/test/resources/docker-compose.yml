@@ -32,7 +32,7 @@ services:
 
     environment:
       server.port: 8090
-      _JAVA_OPTIONS: "-Xms256m -Xmx512m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61000"
+      _JAVA_OPTIONS: "-Xms256m -Xmx384m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61000"
       org.fd.engine.fortress.search: 'true'
       org.fd.engine.fortress.store: 'true'
       logging.level.org.flockdata: DEBUG
@@ -68,6 +68,7 @@ services:
   #  mem_limit: 384m
 
     environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx384m"
       server.port: 8092
       spring.jackson.serialization.indent_output: 'true'
       logging.level.org.flockdata: DEBUG
@@ -95,10 +96,7 @@ services:
 
     environment:
       server.port: 8091
-      _JAVA_OPTIONS: "-Xms256m -Xmx512m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61001"
-
-      org.fd.engine.url: 'http://fdengine:8090'
-      org.fd.engine.api: http://fdengine:8090
+      _JAVA_OPTIONS: "-Xms256m -Xmx384m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61001"
 
       logging.level.org.flockdata: DEBUG
       spring.jackson.serialization.indent_output: 'true'
@@ -110,7 +108,7 @@ services:
       spring.rabbitmq.host: rabbit
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.3
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.9
     command: "elasticsearch -E node.name=fd-int -E cluster.name=es_int_fd -E node.master=true -E discovery.type=single-node -E network.host=0.0.0.0 -E http.host=0.0.0.0 -E xpack.security.enabled=false"
     ports:
       - '9200:9200'
@@ -120,3 +118,5 @@ services:
     expose:
       - 9200
       - 9300
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx384m"

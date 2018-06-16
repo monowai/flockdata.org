@@ -20,20 +20,21 @@
 
 package org.flockdata.test.search.functional;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.searchbox.action.Action;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
 import io.searchbox.client.config.HttpClientConfig;
+import io.searchbox.client.http.JestHttpClient;
 import io.searchbox.core.Search;
 import io.searchbox.core.Suggest;
 import io.searchbox.core.SuggestResult;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
 import junit.framework.TestCase;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Fortress;
 import org.flockdata.helper.FlockException;
@@ -49,7 +50,7 @@ import org.flockdata.search.service.ContentService;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.test.helper.MockDataFactory;
-import org.flockdata.test.search.EsContainer;
+import org.flockdata.test.search.Containers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -58,10 +59,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.stereotype.Component;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -84,7 +83,7 @@ public class ESBase {
     static JestClient esClient;
     private static Logger logger = LoggerFactory.getLogger(TestMappings.class);
 
-    private static EsContainer esContainer = EsContainer.getInstance();
+    private static Containers containers = Containers.getInstance();
 
     @Autowired
     SearchConfig searchConfig;
@@ -112,41 +111,49 @@ public class ESBase {
     QueryServiceEs queryServiceEs;
 
     @BeforeClass
-    @Rollback(false)
-    public static void cleanupElasticSearch() throws Exception {
+    public static void initElasticSearch() throws IOException, InterruptedException {
+        int httpPort = containers.elasticSearch().getMappedPort(9200);
 
-        logger.info("You have to be running this with a working directory of fd-search for this to work");
-
-        FileInputStream f = new FileInputStream("./src/test/resources/application.yml");
-
-
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        JsonNode tree = mapper.reader().readTree(f);
-        JsonNode esNode = tree.get("es");
-        int httpPort = esContainer.esContainer().getMappedPort(9200);
-
-        //properties.get("es.http.port")
         HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + httpPort).multiThreaded(false).build();
         // Construct a new Jest client according to configuration via factory
         JestClientFactory factory = new JestClientFactory();
         factory.setHttpClientConfig(clientConfig);
-        //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
-        System.setProperty("es.http.port", esContainer.esContainer().getMappedPort(9200).toString());
-        System.setProperty("es.nodes", "localhost:" + esContainer.esContainer().getMappedPort(9300));
-        System.setProperty("es.tcp.port", esContainer.esContainer().getMappedPort(9300).toString());
+        System.setProperty("es.http.port", containers.elasticSearch().getMappedPort(9200).toString());
+        System.setProperty("es.nodes", "localhost:" + containers.elasticSearch().getMappedPort(9300));
+        System.setProperty("es.tcp.port", containers.elasticSearch().getMappedPort(9300).toString());
         logger.info("Set properties - http: {}, tcp {}", System.getProperty("es.http.port"), System.getProperty("es.tcp.port"));
+        waitForES();
     }
 
-//    @PostConstruct
-//    void resetPorts() throws Exception {
-//        GenericContainer container = esContainer.esContainer();
-//        searchConfig.resetPorts(
-//            container.getMappedPort(9200),
-//            container.getMappedPort(9300)
-//        );
-////        logger.info("Running {}, http {}", container.isRunning(), container.getMappedPort(9200));
-//    }
+    static void waitForES() throws InterruptedException {
+        int countDown = 20;
+        boolean running;
+        do {
+            countDown--;
+            running = isRunning();
+            if (!running) {
+                int waitSecs = 10;
+                Thread.sleep(1000 * waitSecs);
+                logger.info("Waiting {} seconds for {} to come on-line", waitSecs, "ES");
+            }
+
+        } while (!running && countDown > 0);
+
+        logger.info("ES running {}", containers.elasticSearch().isRunning());
+    }
+
+    private static boolean isRunning() {
+        try {
+            CloseableHttpResponse result = ((JestHttpClient) esClient).getHttpClient().execute(new HttpGet("http://localhost:" + System.getProperty("es.http.port")));
+            String status = IOUtils.toString(result.getEntity().getContent());
+            ;
+            result.close();
+            return status.contains("You Know, for Search");
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
     static int getNbrResult(JestResult jResult) {
         int nbrResult;

@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - save_cache:
-          key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+          key: org-flockdata-src-repo-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - ~/org.flockdata
 
@@ -21,9 +21,9 @@ jobs:
     # caches are immutable and will be built once by the common job
     steps:
       - restore_cache:
-            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+            key: org-flockdata-src-repo-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
-            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+            key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - run:
           command: 'mvn clean install -DskipTests=true'
@@ -34,13 +34,13 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
-          key: org-flockdata-v1-{{ checksum "pom.xml" }}
+          key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - store_test_results:
           path: ./target/test-results
 
       - store_artifacts:
-          path: ././target/jars
+          path: ./fd-common/target/jars
 
   build-client:
     machine:
@@ -51,10 +51,10 @@ jobs:
 
     steps:
       - restore_cache:
-            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+            key: org-flockdata-src-repo-{{ .Environment.CIRCLE_SHA1 }}
 
       - restore_cache:
-            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+            key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - run:
           command: 'mvn -q test -f fd-client/pom.xml'
@@ -63,7 +63,7 @@ jobs:
           path: fd-client/target/test-results
 
       - store_artifacts:
-          path: ././target/jars
+          path: ./fd-client/target/jars
 
   build-security:
     machine:
@@ -74,10 +74,10 @@ jobs:
 
     steps:
       - restore_cache:
-            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+            key: org-flockdata-src-repo-{{ .Environment.CIRCLE_SHA1 }}
 
       - restore_cache:
-            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+            key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - run:
           command: 'mvn -q test -f fd-security/pom.xml'
@@ -85,30 +85,30 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
-          key: org-flockdata-v1-{{ checksum "pom.xml" }}
+          key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - store_test_results:
           path: fd-security/target/test-results
 
       - store_artifacts:
-          path: ././target/jars
+          path: ./fd-security/target/jars
 
   build-search:
     machine:
       enabled: true
     environment:
-      _JAVA_OPTIONS: "-Xms256m -Xmx384m"
+      _JAVA_OPTIONS: "-Xms256m -Xmx512m"
     working_directory: '~/org.flockdata'
 
     steps:
       - restore_cache:
-            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+            key: org-flockdata-src-repo-{{ .Environment.CIRCLE_SHA1 }}
 
       - restore_cache:
-            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+            key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - run:
-          command: 'pushd fd-search && mvn -q install -P docker && popd'
+          command: 'pushd fd-search && mvn -q install && popd'
 
       - store_test_results:
           path: fd-search/target/test-results
@@ -125,10 +125,10 @@ jobs:
 
     steps:
       - restore_cache:
-            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+            key: org-flockdata-src-repo-{{ .Environment.CIRCLE_SHA1 }}
 
       - restore_cache:
-            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+            key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - run:
           command: 'mvn -q test -f fd-graph/pom.xml'
@@ -148,13 +148,13 @@ jobs:
 
     steps:
       - restore_cache:
-            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+            key: org-flockdata-src-repo-{{ .Environment.CIRCLE_SHA1 }}
 
       - restore_cache:
-            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+            key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - run:
-          command: 'mvn -q install -f fd-store/pom.xml -P docker'
+          command: 'mvn -q install -f fd-store/pom.xml'
 
       - store_test_results:
           path: fd-store/target/test-results
@@ -171,10 +171,10 @@ jobs:
 
     steps:
       - restore_cache:
-            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+            key: org-flockdata-src-repo-{{ .Environment.CIRCLE_SHA1 }}
 
       - restore_cache:
-            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+            key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - run:
           command: 'mvn -q test -f fd-batch/pom.xml'
@@ -194,13 +194,13 @@ jobs:
 
     steps:
       - restore_cache:
-            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+            key: org-flockdata-src-repo-{{ .Environment.CIRCLE_SHA1 }}
 
       - restore_cache:
-            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+            key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - run:
-          command: 'mvn -q install -f fd-shell/pom.xml -P docker'
+          command: 'mvn -q install -f fd-shell/pom.xml'
 
       - store_test_results:
           path: fd-shell/target/test-results
@@ -217,18 +217,18 @@ jobs:
 
     steps:
       - restore_cache:
-            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+            key: org-flockdata-src-repo-{{ .Environment.CIRCLE_SHA1 }}
 
       - restore_cache:
-            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+            key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - run:
-          command: 'mvn -q install -f fd-engine/pom.xml -P docker'
+          command: 'mvn -q install -f fd-engine/pom.xml'
 
       - save_cache:
           paths:
             - ~/.m2
-          key: org-flockdata-v1-{{ checksum "pom.xml" }}
+          key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - store_test_results:
           path: fd-engine/target/test-results
@@ -245,10 +245,13 @@ jobs:
 
     steps:
       - restore_cache:
-            key: org-flockdata-repo-{{ .Environment.CIRCLE_SHA1 }}
+            key: org-flockdata-src-repo-{{ .Environment.CIRCLE_SHA1 }}
 
       - restore_cache:
-            key: org-flockdata-v1-{{ checksum "pom.xml" }}
+            key: org-flockdata-v2a-{{ checksum "pom.xml" }}
+
+      - run:
+          command: 'mvn -q package -P docker -DskipTests'
 
       - run:
           command: 'pushd fd-docker-staging && mvn -q verify -P integration && popd'
@@ -256,7 +259,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
-          key: org-flockdata-v1-{{ checksum "pom.xml" }}
+          key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - store_test_results:
           path: fd-docker-staging/target/test-results

@@ -328,14 +328,14 @@ class IntegrationHelper {
                 logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine());
                 logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch());
                 logger.info("FDStore  - {} - reachable @ {}", SERVICE_STORE, getStore());
-                logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, getService("fdengine_1", DEBUG_ENGINE));
-                logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_SEARCH, getService("fdsearch_1", DEBUG_SEARCH));
-                logger.info("FDStore-Debug - {} - reachable @ {}", DEBUG_STORE, getService("fdstore_1", DEBUG_STORE));
+//                logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, getService("fdengine_1", DEBUG_ENGINE));
+//                logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_SEARCH, getService("fdsearch_1", DEBUG_SEARCH));
+//                logger.info("FDStore-Debug - {} - reachable @ {}", DEBUG_STORE, getService("fdstore_1", DEBUG_STORE));
                 logger.info("Rabbit Admin on http://{}:{}", getRabbit(), getRabbitAdmin());
-                waitForPong(enginePing, waitSeconds);
-
-                waitForService("fd-search", searchPing, 30);
-                waitForService("fd-store", storePing, 30);
+//                waitForPong(enginePing, waitSeconds);
+//
+//                waitForService("fd-search", searchPing, 30);
+//                waitForService("fd-store", storePing, 30);
                 logger.info("HealthChecks");
                 // Remap the API service URL due to the proxy activity that occurred above
                 fdClientIo.setServiceUrl(getEngine());

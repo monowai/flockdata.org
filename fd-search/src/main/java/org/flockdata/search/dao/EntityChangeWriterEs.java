@@ -241,7 +241,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
     @Override
     public Map<String, Object> ping() {
         Map<String, Object> results = new HashMap<>();
-        ClusterHealthResponse response = null;
+        ClusterHealthResponse response;
         try {
             response = searchConfig.getClient().admin()
                     .cluster()

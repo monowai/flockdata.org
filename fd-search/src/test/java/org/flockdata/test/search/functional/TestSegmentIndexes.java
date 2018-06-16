@@ -78,6 +78,7 @@ public class TestSegmentIndexes extends ESBase {
         Thread.sleep(3000);
         //"Each doc should be in it's own segmented index"
         doQuery(entity, entity.getKey());
+        Thread.sleep(3000);
         //"Each doc should be in it's own segmented index"
         doQuery(entityOtherSegment, entityOtherSegment.getKey());
         // Scanning across segmented indexes

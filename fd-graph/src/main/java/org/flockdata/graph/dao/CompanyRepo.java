@@ -54,7 +54,7 @@ public class CompanyRepo {
         StatementResult statementResult = tx.run(
             "CREATE (company:FDCompany {name: $name, code: $code, apiKey: $apiKey}) return company",
             parameters(
-                "code", company.getCode(),
+                "code", company.getCode().toLowerCase(),
                 "name", company.getName(),
                 "apiKey", company.getApiKey())
         );
