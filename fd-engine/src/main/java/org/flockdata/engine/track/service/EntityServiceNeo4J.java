@@ -20,14 +20,13 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.data.*;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.data.dao.EntityDaoNeo;
 import org.flockdata.engine.data.graph.*;
 import org.flockdata.engine.data.graph.EntityLog;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.integration.IndexManager;

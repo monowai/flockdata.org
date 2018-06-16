@@ -20,8 +20,8 @@
 
 package org.flockdata.engine.integration.engine;
 
+import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.data.Company;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;

@@ -20,12 +20,12 @@
 
 package org.flockdata.engine.schema;
 
+import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
 import org.flockdata.engine.data.dao.SchemaDaoNeo4j;
-import org.flockdata.engine.data.graph.CompanyNode;
-import org.flockdata.engine.track.service.SchemaService;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.services.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class SchemaServiceNeo4j implements SchemaService {
         this.schemaDao = schemaDao;
     }
 
-    public Boolean ensureSystemIndexes(CompanyNode company) {
+    public Boolean ensureSystemIndexes(Company company) {
         return schemaDao.ensureSystemConstraints(company);
     }
 

@@ -75,13 +75,19 @@ public class TestRegistration extends EngineBase {
         setSecurity();
         String companyName = "onlyOneCompanyCreatedWithMixedCase";
         Company company = companyService.create(companyName);
-        SystemUser systemUser = regService.registerSystemUser(company, new RegistrationBean(companyName, "password", "user").setIsUnique(false) );
+        SystemUser systemUser = regService.registerSystemUser(company,
+            RegistrationBean.builder().companyName(companyName).login("password").name("user").unique(false).build());
         assertNotNull(systemUser);
         Collection<Company> companies = companyService.findCompanies(systemUser.getApiKey());
         assertEquals(1, companies.size());
         String cKey = companies.iterator().next().getApiKey();
         Company companyB = companyService.create(companyName.toLowerCase());
-        SystemUser systemUserB = regService.registerSystemUser(companyB, new RegistrationBean(companyName.toLowerCase(), "password", "xyz").setIsUnique(false));
+        SystemUser systemUserB = regService.registerSystemUser(companyB, RegistrationBean.builder()
+            .companyName(companyName.toLowerCase())
+            .login("password")
+            .name("xyz")
+            .unique(false)
+            .build());
         assertNotNull(systemUserB);
 
         companyService.findCompanies(systemUserB.getApiKey());

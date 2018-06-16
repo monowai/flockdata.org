@@ -20,10 +20,10 @@
 
 package org.flockdata.engine.concept.service;
 
+import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.authentication.SystemUserService;
 import org.flockdata.data.SystemUser;
 import org.flockdata.data.TxRef;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.data.dao.EntityDaoNeo;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.data.graph.EntityNode;

@@ -22,7 +22,6 @@ package org.flockdata.engine.tag.endpoint;
 
 import org.flockdata.data.Tag;
 import org.flockdata.engine.data.graph.CompanyNode;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.engine.tag.service.TagService;
 import org.flockdata.helper.CompanyResolver;
@@ -31,6 +30,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
+import org.flockdata.track.bean.FdTagResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

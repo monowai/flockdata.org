@@ -22,14 +22,13 @@ package org.flockdata.engine.tag.service;
 
 import org.flockdata.data.Company;
 import org.flockdata.data.Tag;
-import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.data.graph.TagNode;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
+import org.flockdata.track.bean.FdTagResultBean;
 
 import java.util.Collection;
 import java.util.Map;
@@ -56,7 +55,7 @@ public interface TagService {
 
     Tag findTag(Company company, String label, String keyPrefix, String tagCode);
 
-    Tag findTag(CompanyNode company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException;
+    Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException;
 
     void createAlias(Company company, Tag tag, String forLabel, String aliasKeyValue);
 
@@ -66,5 +65,5 @@ public interface TagService {
 
     Map<String, Collection<FdTagResultBean>> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException;
 
-    Collection<TagNode> findTag(CompanyNode company, String code);
+    Collection<TagNode> findTag(Company company, String code);
 }

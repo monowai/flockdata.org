@@ -59,7 +59,7 @@ public class SystemUserNode implements SystemUser {
     protected SystemUserNode() {
     }
 
-    public SystemUserNode(String name, String login, CompanyNode company, boolean admin) {
+    public SystemUserNode(String name, String login, Company company, boolean admin) {
         setName(name);
         if ( login == null )
             login = name;

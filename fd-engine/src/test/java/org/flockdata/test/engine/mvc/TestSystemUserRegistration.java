@@ -65,8 +65,10 @@ public class TestSystemUserRegistration extends MvcBase {
         // Retry the operation
         SystemUserResultBean regResult
                 = registerSystemUser(mike(),
-                    new RegistrationBean(ANYCO, "new-user")
-                                .setEmail("anyone@anywhere.com"));
+            RegistrationBean.builder().companyName(ANYCO)
+                .login("new-user")
+                .email("anyone@anywhere.com")
+                .build());
         assertNotNull(regResult);
         assertEquals("new-user", regResult.getLogin());
         assertNotNull(regResult.getCompanyName());
@@ -170,7 +172,10 @@ public class TestSystemUserRegistration extends MvcBase {
                 int i = 0;
                 while (i < runCount) {
                     setSecurity();
-                    SystemUserResultBean regResult = registerSystemUser(mike(), new RegistrationBean(ANYCO, harry));
+                    SystemUserResultBean regResult = registerSystemUser(mike(), RegistrationBean.builder()
+                        .companyName(ANYCO)
+                        .login(harry)
+                        .build());
                     assertNotNull(regResult);
                     i++;
                 }

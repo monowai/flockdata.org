@@ -23,7 +23,6 @@ package org.flockdata.engine.track.service;
 import org.flockdata.data.*;
 import org.flockdata.engine.data.graph.*;
 import org.flockdata.engine.data.graph.EntityLog;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.search.EntitySearchChange;

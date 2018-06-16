@@ -21,9 +21,9 @@
 package org.flockdata.test.engine.services;
 
 import org.flockdata.data.SystemUser;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.track.bean.FdTagResultBean;
 import org.junit.Test;
 
 import java.util.ArrayList;

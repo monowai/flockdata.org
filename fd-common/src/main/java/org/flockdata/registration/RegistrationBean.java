@@ -17,89 +17,29 @@
 package org.flockdata.registration;
 
 
+import lombok.Builder;
+import lombok.Data;
 import org.flockdata.data.Company;
 
 /**
  * @author mholdsworth
  * @since 14/05/2013
  */
+@Builder
+@Data
 public class RegistrationBean {
     private String name;
     private String login;
     private String companyName;
     private Company company;
-    private boolean unique = false;
+    private boolean unique;
     private String email;
-
-    public RegistrationBean() {
-    }
-
-    public RegistrationBean(String companyName, String login) {
-        this.companyName = companyName;
-        this.login = login;
-    }
-
-    public RegistrationBean(String companyName, String login, String name) {
-        this.companyName = companyName;
-        this.login = login;
-        this.name = name;
-    }
-
-    public RegistrationBean(String accessUser) {
-        this.login = accessUser;
-        this.name  = accessUser;
-    }
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public RegistrationBean setCompanyName(final String companyName) {
-        this.companyName = companyName;
-        return this;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public RegistrationBean setLogin(final String login) {
-        this.login = login;
-        return this;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public RegistrationBean setName(final String name) {
-        this.name = name;
-        return this;
-    }
-
-    public Company getCompany() {
-        return this.company;  //To change body of implemented methods use File | Settings | File Templates.
-    }
 
     public RegistrationBean setCompany(final Company company) {
         this.company = company;
         if (company != null)
             this.companyName = company.getName();
 
-        return this;
-    }
-
-    public RegistrationBean setIsUnique(boolean mustBeUnique) {
-        this.unique = mustBeUnique;
-        return this;
-    }
-
-    public boolean isUnique() {
-        return unique;
-    }
-
-    public RegistrationBean setUnique(final boolean unique) {
-        this.unique = unique;
         return this;
     }
 
@@ -113,14 +53,6 @@ public class RegistrationBean {
                 '}';
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public RegistrationBean setEmail(final String email) {
-        this.email = email;
-        return this;
-    }
 }
 
 

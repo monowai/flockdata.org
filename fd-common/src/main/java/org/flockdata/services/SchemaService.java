@@ -18,10 +18,10 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.track.service;
+package org.flockdata.services;
 
+import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
-import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.registration.TagInputBean;
 
 import java.util.Collection;
@@ -38,7 +38,7 @@ public interface SchemaService {
      * @param company for who?
      * @return completed
      */
-    Boolean ensureSystemIndexes(CompanyNode company);
+    Boolean ensureSystemIndexes(Company company);
 
     /**
      * Deletes the majority of the structural associations between a fortress and data in FlockData

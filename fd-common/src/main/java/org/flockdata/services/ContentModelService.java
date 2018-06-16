@@ -18,13 +18,12 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.track.service;
+package org.flockdata.services;
 
 import org.flockdata.data.Company;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
 import org.flockdata.data.Fortress;
-import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.ContentModelResult;
 import org.flockdata.model.ContentValidationRequest;
@@ -42,7 +41,7 @@ public interface ContentModelService {
 
     ContentModelResult saveEntityModel(Company company, Fortress fortress, Document documentType, ContentModel contentModel) throws FlockException;
 
-    ContentModelResult saveTagModel(CompanyNode company, String code, ContentModel profileConfig) throws FlockException;
+    ContentModelResult saveTagModel(Company company, String code, ContentModel profileConfig) throws FlockException;
 
     ContentModel get(Company company, String fortressCode, String documentName) throws FlockException;
 
@@ -50,11 +49,11 @@ public interface ContentModelService {
 
     ContentModel createDefaultContentModel(ContentValidationRequest contentRequest);
 
-    Collection<ContentModelResult> find(CompanyNode company);
+    Collection<ContentModelResult> find(Company company);
 
-    ContentModelResult find(CompanyNode company, String key) throws FlockException;
+    ContentModelResult find(Company company, String key) throws FlockException;
 
-    ContentModel getTagModel(CompanyNode company, String code) throws FlockException;
+    ContentModel getTagModel(Company company, String code) throws FlockException;
 
-    void delete(CompanyNode company, String key);
+    void delete(Company company, String key);
 }

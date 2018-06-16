@@ -23,16 +23,14 @@ package org.flockdata.engine.model.service;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.data.*;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.data.dao.ContentModelDaoNeo;
-import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.data.graph.ModelNode;
 import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.engine.track.service.ContentModelService;
 import org.flockdata.engine.track.service.EntityService;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.*;
@@ -41,6 +39,7 @@ import org.flockdata.model.ContentModelResult;
 import org.flockdata.model.ContentValidationRequest;
 import org.flockdata.model.ContentValidationResults;
 import org.flockdata.registration.FortressInputBean;
+import org.flockdata.services.ContentModelService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -118,7 +117,7 @@ public class ContentModelServiceNeo implements ContentModelService {
         return contentModel;
     }
 
-    public ContentModelResult saveTagModel(CompanyNode company, String code, ContentModel contentModel) throws FlockException {
+    public ContentModelResult saveTagModel(Company company, String code, ContentModel contentModel) throws FlockException {
         FortressNode internalFortress = fortressService.findInternalFortress(company);
 
         assert internalFortress != null;
@@ -218,13 +217,13 @@ public class ContentModelServiceNeo implements ContentModelService {
 
     @Override
     @Transactional
-    public Collection<ContentModelResult> find(CompanyNode company) {
+    public Collection<ContentModelResult> find(Company company) {
         return contentModelDao.find(company.getId());
     }
 
     @Override
     @Transactional
-    public ContentModelResult find(CompanyNode company, String key) throws FlockException {
+    public ContentModelResult find(Company company, String key) throws FlockException {
         ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
         if (model == null) {
             throw new NotFoundException("Unable to locate Content Model from key " + key);
@@ -238,7 +237,7 @@ public class ContentModelServiceNeo implements ContentModelService {
     }
 
     @Override
-    public ContentModel getTagModel(CompanyNode company, String code) throws FlockException {
+    public ContentModel getTagModel(Company company, String code) throws FlockException {
         Model model = contentModelDao.findTagProfile(company, TagHelper.parseKey(code));
 
         if (model == null)
@@ -257,7 +256,7 @@ public class ContentModelServiceNeo implements ContentModelService {
     @Override
     @Transactional
     @Retryable
-    public void delete(CompanyNode company, String key) {
+    public void delete(Company company, String key) {
         ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
         if (model != null)
             contentModelDao.delete(company, model.getKey());

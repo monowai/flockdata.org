@@ -21,8 +21,8 @@
 package org.flockdata.geography.service;
 
 import org.flockdata.data.Company;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.engine.tag.service.TagService;
+import org.flockdata.track.bean.FdTagResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

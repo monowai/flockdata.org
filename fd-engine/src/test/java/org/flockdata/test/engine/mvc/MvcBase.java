@@ -295,7 +295,7 @@ public abstract class MvcBase {
     public SystemUserResultBean makeDataAccessProfile(RequestPostProcessor user, String company, String accessUser, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
                 .perform(MockMvcRequestBuilders.post(apiPath + "/profiles/")
-                        .content(JsonUtils.toJson(new RegistrationBean(company, accessUser)))
+                    .content(JsonUtils.toJson(RegistrationBean.builder().companyName(company).login(accessUser).build()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
                 ).andExpect(status).andReturn();

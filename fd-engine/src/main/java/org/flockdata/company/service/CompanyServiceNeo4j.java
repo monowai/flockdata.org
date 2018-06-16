@@ -21,13 +21,14 @@
 package org.flockdata.company.service;
 
 
+import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.company.dao.CompanyDaoNeo;
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.integration.KeyGenService;
+import org.flockdata.services.CompanyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

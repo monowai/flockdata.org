@@ -20,10 +20,10 @@
 
 package org.flockdata.engine.data.dao;
 
+import org.flockdata.data.Company;
 import org.flockdata.data.Document;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.Model;
-import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.data.graph.ModelNode;
 import org.flockdata.model.ContentModelResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class ContentModelDaoNeo {
     }
 
 
-    public ModelNode findTagProfile(CompanyNode company, String code) {
+    public ModelNode findTagProfile(Company company, String code) {
         return contentModelRepo.findTagModel(company.getId(), code);
     }
 
@@ -101,7 +101,7 @@ public class ContentModelDaoNeo {
         return new ContentModelResult(model);
     }
 
-    public void delete(CompanyNode company, String key) {
+    public void delete(Company company, String key) {
         ModelNode model = contentModelRepo.findByKey(key);
         if ( model == null )
             return ;

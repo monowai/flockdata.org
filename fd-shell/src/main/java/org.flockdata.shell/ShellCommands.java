@@ -189,8 +189,11 @@ public class ShellCommands {
         @ShellOption(help = "The login account to register") final String account,
         @ShellOption(help = "The email account to record") final String email,
         @ShellOption(help = "If the login manages multiple companies, then assign this login to this one") final String company) {
-        RegistrationBean registrationBean = new RegistrationBean(clientConfiguration.getCompany(), account)
-            .setEmail(email);
+        RegistrationBean registrationBean = RegistrationBean.builder()
+            .companyName(clientConfiguration.getCompany())
+            .login(account)
+            .email(email)
+            .build();
 
         if (company != null) {
             registrationBean.setCompany(new CompanyInputBean(company));

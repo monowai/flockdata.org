@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.configure;
 
+import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
 import org.slf4j.Logger;

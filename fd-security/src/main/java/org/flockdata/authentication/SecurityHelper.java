@@ -18,9 +18,8 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.configure;
+package org.flockdata.authentication;
 
-import org.flockdata.authentication.SystemUserService;
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;

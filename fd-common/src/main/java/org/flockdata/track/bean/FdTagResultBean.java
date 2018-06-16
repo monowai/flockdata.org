@@ -18,15 +18,13 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.tag;
+package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.data.Alias;
 import org.flockdata.data.Tag;
-import org.flockdata.engine.data.graph.TagNode;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.track.bean.AliasResultBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -95,7 +93,7 @@ public class FdTagResultBean extends TagResultBean {
         return tag;
     }
 
-    public void setTag(TagNode tag) {
+    public void setTag(Tag tag) {
         this.tag = tag;
     }
 

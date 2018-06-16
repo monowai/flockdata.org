@@ -404,7 +404,7 @@ class IntegrationHelper {
                 .isNotNull();
         if (result.getApiKey() == null) {
             // New data access user
-            CommandResponse<SystemUserResultBean> suResponse = registrationPost.exec(new RegistrationBean("TestCompany", user));
+            CommandResponse<SystemUserResultBean> suResponse = registrationPost.exec(RegistrationBean.builder().companyName("TestCompany").login(user).build());
             assertEquals("Error registering data access user", null, suResponse.getError());
             result = suResponse.getResult();
             assertNotNull(String.format("Failed to make the login [%s] a data access user", user), result.getApiKey());

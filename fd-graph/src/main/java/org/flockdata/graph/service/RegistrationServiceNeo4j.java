@@ -18,28 +18,25 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.company.service;
+package org.flockdata.graph.service;
 
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.authentication.SystemUserService;
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
-import org.flockdata.engine.admin.PlatformConfig;
-import org.flockdata.engine.data.graph.SystemUserNode;
+import org.flockdata.graph.dao.CompanyRepo;
+import org.flockdata.graph.model.CompanyNode;
+import org.flockdata.graph.model.SystemUserNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.integration.KeyGenService;
 import org.flockdata.registration.RegistrationBean;
-import org.flockdata.services.CompanyService;
 import org.flockdata.services.RegistrationService;
-import org.flockdata.services.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @tag Service, Company, Registration, Security
@@ -47,30 +44,30 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RegistrationServiceNeo4j implements RegistrationService {
 
-    public static SystemUserNode GUEST = new SystemUserNode("Guest", null, null, false);
-    private final CompanyService companyService;
+    public static SystemUserNode GUEST = SystemUserNode.builder().login("Guest").build();
+    private final CompanyRepo companyRepo;
     private final SystemUserService systemUserService;
-    private final  KeyGenService keyGenService;
+    private final KeyGenService keyGenService;
     private final SecurityHelper securityHelper;
     private Logger logger = LoggerFactory.getLogger(RegistrationServiceNeo4j.class);
 
     @Autowired
-    public RegistrationServiceNeo4j(CompanyService companyService, SystemUserService systemUserService, KeyGenService keyGenService, SchemaService schemaService, @Qualifier("engineConfig") PlatformConfig engineConfig, SecurityHelper securityHelper) {
-        this.companyService = companyService;
+    public RegistrationServiceNeo4j(CompanyRepo companyRepo, SystemUserService systemUserService, KeyGenService keyGenService, SecurityHelper securityHelper) {
+        this.companyRepo = companyRepo;
         this.systemUserService = systemUserService;
         this.keyGenService = keyGenService;
         this.securityHelper = securityHelper;
     }
 
     @Override
-    @Transactional
+//    @Transactional
     @PreAuthorize(FdRoles.EXP_ADMIN)
     public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException {
 
-        SystemUserNode systemUser = (SystemUserNode)systemUserService.findByLogin(regBean.getLogin());
+        SystemUserNode systemUser = (SystemUserNode) systemUserService.findByLogin(regBean.getLogin());
 
         if (systemUser != null) {
-            if ( systemUser.getApiKey() == null ) {
+            if (systemUser.getApiKey() == null) {
                 systemUser.setApiKey(keyGenService.getUniqueKey());
                 systemUserService.save(systemUser);
             }
@@ -85,23 +82,32 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
     public SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException {
-        // Non-transactional method
-
-//        if (engineConfig.createSystemConstraints())
-//            schemaService.ensureSystemIndexes(null);
-
-        Company company = companyService.findByName(regBean.getCompanyName());
-        if (company == null) {
-            company = companyService.create(regBean.getCompanyName());
-
+        Company company = regBean.getCompany();
+        if (company == null && regBean.getCompanyName() != null) {
+            // Might be a new Company
+            company = CompanyNode.builder()
+                .name(regBean.getCompanyName())
+                .code(regBean.getCompanyName().toLowerCase())
+                .apiKey(keyGenService.getUniqueKey())
+                .build();
+            regBean.setCompany(company);
         }
+
+        if (company != null && company.getId() == null) {
+            company = companyRepo.findByCode(company);
+        }
+
+        if (company == null) {
+            company = companyRepo.create(regBean.getCompany());
+        }
+
 
         return registerSystemUser(company, regBean);
     }
 
-    @Transactional
+    //    @Transactional
     public SystemUser makeSystemUser(RegistrationBean regBean) {
-        logger.debug("Creating new system user {}",regBean);
+        logger.debug("Creating new system user {}", regBean);
         return systemUserService.save(regBean);
 
 
@@ -110,32 +116,35 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     /**
      * @return currently logged-in SystemUser or Guest if anonymous
      */
-    @Transactional
+//    @Transactional
     public SystemUser getSystemUser() {
         String systemUser = securityHelper.getUserName(false, false);
-        if (systemUser == null)
+        if (systemUser == null) {
             return GUEST;
+        }
         SystemUser iSystemUser = systemUserService.findByLogin(systemUser);
         if (iSystemUser == null) {
             // Authenticated in the security system, but not in the graph
-            return new SystemUserNode(systemUser, null, null, true);
+            return SystemUserNode.builder().login(systemUser).build();
         } else {
             return iSystemUser;
         }
     }
 
-    @Transactional
+    //    @Transactional
     public SystemUser getSystemUser(String apiKey) {
         SystemUser su = systemUserService.findByApiKey(apiKey);
-        if (su == null)
+        if (su == null) {
             return getSystemUser();
+        }
         return su;
     }
 
     public Company resolveCompany(String apiKey) throws FlockException {
         Company c = securityHelper.getCompany(apiKey);
-        if (c == null)
+        if (c == null) {
             throw new FlockException("Invalid API Key");
+        }
         return c;
     }
 }

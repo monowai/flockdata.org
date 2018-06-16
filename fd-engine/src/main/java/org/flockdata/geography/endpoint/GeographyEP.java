@@ -21,10 +21,10 @@
 package org.flockdata.geography.endpoint;
 
 import org.flockdata.data.Company;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
+import org.flockdata.track.bean.FdTagResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

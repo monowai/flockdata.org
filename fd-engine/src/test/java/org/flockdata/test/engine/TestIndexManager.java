@@ -24,13 +24,13 @@ package org.flockdata.test.engine;
 import junit.framework.TestCase;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.data.graph.FortressNode;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.QueryParams;
+import org.flockdata.track.bean.FdTagResultBean;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

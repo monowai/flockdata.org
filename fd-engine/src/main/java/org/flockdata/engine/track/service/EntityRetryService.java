@@ -22,9 +22,9 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.data.Segment;
 import org.flockdata.engine.data.graph.DocumentNode;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.FdTagResultBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.graphdb.NotFoundException;

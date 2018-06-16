@@ -20,7 +20,6 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.company.service.CompanyService;
 import org.flockdata.data.Company;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.engine.data.graph.CompanyNode;
@@ -28,6 +27,7 @@ import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.services.CompanyService;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

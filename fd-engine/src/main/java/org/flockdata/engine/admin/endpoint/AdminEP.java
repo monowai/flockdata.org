@@ -20,10 +20,10 @@
 
 package org.flockdata.engine.admin.endpoint;
 
+import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.engine.admin.AdminResponse;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.helper.CompanyResolver;

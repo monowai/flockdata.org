@@ -2,3 +2,24 @@ org.flockdata.neo4j:
   uri: "bolt://localhost:7687"
   uesr: "neo4j"
   password: "password"
+
+spring:
+  application:
+    name: fd-graph
+  cache:
+    cache-names: tag,geoQuery,geoData,fortressUser,sysUserApiKey,company,documentType,labels,entityByCode,fortressSegment
+    caffeine:
+      spec: "maximumSize=200,expireAfterAccess=600s"
+  profiles:
+    include: fd-batch, fd-auth-test, fd-server
+  messages:
+    encoding: UTF-8
+  jackson:
+    serialization:
+      indent_output: true
+  rabbitmq:
+    password: guest
+    username: guest
+    host: localhost
+    port: 5672
+    virtual-host: /

@@ -23,11 +23,11 @@ package org.flockdata.engine.data.dao;
 import org.flockdata.data.Alias;
 import org.flockdata.data.Company;
 import org.flockdata.data.Tag;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.TagPayload;
+import org.flockdata.track.bean.FdTagResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

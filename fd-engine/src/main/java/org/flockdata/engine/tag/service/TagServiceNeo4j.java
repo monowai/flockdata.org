@@ -20,21 +20,21 @@
 
 package org.flockdata.engine.tag.service;
 
+import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.data.Company;
 import org.flockdata.data.Tag;
 import org.flockdata.engine.configure.EngineConfig;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.data.dao.ConceptDaoNeo;
 import org.flockdata.engine.data.dao.TagDaoNeo4j;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.data.graph.TagNode;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.TagPayload;
+import org.flockdata.track.bean.FdTagResultBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,7 +152,7 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Tag findTag(CompanyNode company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException {
+    public Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException {
         String suffix = engineConfig.getTagSuffix(company);
 
         Tag tag = tagDaoNeo4j.findTagNode(suffix, label, keyPrefix, tagCode, inflate);
@@ -196,7 +196,7 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Collection<TagNode> findTag(CompanyNode company, String code) {
+    public Collection<TagNode> findTag(Company company, String code) {
         Collection<TagNode>results = new ArrayList<>();
 
         TagNode t = (TagNode) findTag(company, null, code);

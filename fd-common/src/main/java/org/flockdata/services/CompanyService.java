@@ -18,26 +18,30 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.company.service;
-
+package org.flockdata.services;
 
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
-import org.flockdata.helper.FlockException;
-import org.flockdata.registration.RegistrationBean;
+
+import java.util.Collection;
 
 /**
  * @author mholdsworth
  * @since 22/08/2014
  */
-public interface RegistrationService {
-    SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException;
+public interface CompanyService {
+    Company findByName(String companyName);
 
-    SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException;
+    Company findByCode(String code);
 
-    Company resolveCompany(String apiKey) throws FlockException;
+    SystemUser getAdminUser(Company company, String name);
 
-    SystemUser getSystemUser(String apiKey);
+    Company create(String companyName);
 
-    SystemUser getSystemUser();
+//    @Cacheable(value = "companyKeys", unless = "#result == null")
+    Company findByApiKey(String apiKey);
+
+    Collection<Company> findCompanies(String userApiKey);
+
+    Collection<Company> findCompanies();
 }

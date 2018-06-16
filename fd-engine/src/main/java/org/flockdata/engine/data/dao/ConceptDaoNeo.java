@@ -29,7 +29,6 @@ import org.flockdata.engine.matrix.EdgeResult;
 import org.flockdata.engine.matrix.EdgeResults;
 import org.flockdata.engine.matrix.FdNode;
 import org.flockdata.engine.matrix.MatrixResults;
-import org.flockdata.engine.tag.FdTagResultBean;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.*;

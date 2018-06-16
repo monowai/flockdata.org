@@ -21,9 +21,9 @@
 package org.flockdata.company.endpoint;
 
 import org.flockdata.authentication.UserProfileService;
-import org.flockdata.company.service.RegistrationService;
 import org.flockdata.registration.LoginRequest;
 import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.services.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;

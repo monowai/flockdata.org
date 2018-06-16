@@ -20,16 +20,17 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.data.Company;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
 import org.flockdata.data.Fortress;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.services.ContentModelService;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.model.ExtractProfile;

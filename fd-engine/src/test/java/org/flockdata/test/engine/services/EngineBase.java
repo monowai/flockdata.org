@@ -20,10 +20,9 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.authentication.SystemUserService;
 import org.flockdata.company.endpoint.CompanyEP;
-import org.flockdata.company.service.CompanyService;
-import org.flockdata.company.service.RegistrationService;
 import org.flockdata.data.Company;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityLog;
@@ -33,7 +32,6 @@ import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.concept.service.TxService;
-import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.engine.data.graph.FortressNode;
@@ -48,6 +46,10 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.RegistrationBean;
+import org.flockdata.services.CompanyService;
+import org.flockdata.services.ContentModelService;
+import org.flockdata.services.RegistrationService;
+import org.flockdata.services.SchemaService;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
 import org.junit.Before;
@@ -252,13 +254,13 @@ public abstract class EngineBase {
     }
 
     public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception {
-        //org.flockdata.model.Company company = companyService.findByName(companyName);
-        //if ( company == null ) {
         logger.debug("Creating company {}", companyName);
         Company company = companyService.create(companyName);
-        //}
-        SystemUser su = regService.registerSystemUser(company, new RegistrationBean(accessUser).setIsUnique(false));
-//        SystemUser su = regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
+        SystemUser su = regService.registerSystemUser(company, RegistrationBean.builder()
+            .login(accessUser)
+            .name(accessUser)
+            .unique(false)
+            .build());
         logger.debug("Returning SU {}", su);
         return su;
     }

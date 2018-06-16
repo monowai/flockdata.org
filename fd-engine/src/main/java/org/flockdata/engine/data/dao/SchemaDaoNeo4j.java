@@ -20,8 +20,8 @@
 
 package org.flockdata.engine.data.dao;
 
+import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
-import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.helper.CypherHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +67,7 @@ public class SchemaDaoNeo4j {
     }
 
 
-    public Boolean ensureSystemConstraints(CompanyNode company) {
+    public Boolean ensureSystemConstraints(Company company) {
 
         //logger.debug("Creating system constraints for {} ", company.getName());
         runQuery("create constraint on (t:Country) assert t.key is unique");
