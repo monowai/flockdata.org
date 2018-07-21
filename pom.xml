@@ -50,7 +50,7 @@
         <org.springboot.version>1.5.9.RELEASE</org.springboot.version>
         <spring.version>4.3.18.RELEASE</spring.version>
         <org.springbatch.version>3.0.7.RELEASE</org.springbatch.version>
-        <org.springintegration.version>4.3.15.RELEASE</org.springintegration.version>
+        <org.springintegration.version>5.0.4.RELEASE</org.springintegration.version>
         <org.springsecurity.version>4.2.4.RELEASE</org.springsecurity.version>
 
         <!--<org.springcloud.release.train>Dalston.SR1</org.springcloud.release.train>-->
