@@ -102,11 +102,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.neo4j</groupId>-->
-        <!--<artifactId>neo4j-kernel</artifactId>-->
-        <!--<version>${neo4j.version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-neo4j</artifactId>
@@ -398,6 +393,16 @@
             <artifactId>hibernate-validator</artifactId>
             <version>5.2.4.Final</version>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
         <!--<dependency>-->
         <!--<groupId>org.springframework.cloud</groupId>-->
         <!--<artifactId>spring-cloud-starter-config</artifactId>-->
@@ -582,7 +587,6 @@
                                     <include>${project.build.finalName}.jar</include>
                                     <include>classes/application.yml</include>
 
-                                    <include>classes/log4j*</include>
                                     <include>classes/neo4j*.properties</include>
                                 </resource>
                             </resources>
