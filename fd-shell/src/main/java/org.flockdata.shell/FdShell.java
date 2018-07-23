@@ -16,7 +16,6 @@
 
 package org.flockdata.shell;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -34,13 +33,5 @@ public class FdShell {
     public static void main(String[] args) {
         SpringApplication.run(FdShell.class, args);
     }
-
-    private ShellCommands shellCommands;
-
-    @Autowired
-    void setShellCommands(ShellCommands shellCommands) {
-        this.shellCommands = shellCommands;
-    }
-
 
 }

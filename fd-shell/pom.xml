@@ -26,7 +26,7 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <artifactId>spring-boot-starter</artifactId>
             <version>1.5.10.RELEASE</version>
             <exclusions>
                 <exclusion>
@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.fusesource.jansi</groupId>
             <artifactId>jansi</artifactId>
-            <version>1.16</version>
+            <version>1.17.1</version>
         </dependency>
 
         <dependency>
