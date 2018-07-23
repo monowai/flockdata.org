@@ -1,4 +1,4 @@
-package org.flockdata.test.neo;
+package org.flockdata.test.neo.integ;
 
 import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.data.SystemUser;

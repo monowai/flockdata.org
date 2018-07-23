@@ -1,4 +1,4 @@
-package org.flockdata.test.neo;
+package org.flockdata.test.neo.integ;
 
 import org.junit.After;
 import org.junit.Before;

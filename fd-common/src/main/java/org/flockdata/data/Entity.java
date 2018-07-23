@@ -69,7 +69,7 @@ public interface Entity {
     String getSearchKey();
 
     /**
-     * @return callers unique identifier for the entity
+     * @return callers unique identifier for this type of entity
      */
     String getCode();
 
@@ -118,5 +118,10 @@ public interface Entity {
      */
     Integer getSearch();
 
+    /**
+     * Convenience method
+     *
+     * @return return Updated date in the Timezone of the Fortress
+     */
     DateTime getFortressUpdatedTz();
 }

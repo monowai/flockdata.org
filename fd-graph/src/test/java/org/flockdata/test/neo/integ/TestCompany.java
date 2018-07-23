@@ -1,4 +1,4 @@
-package org.flockdata.test.neo;
+package org.flockdata.test.neo.integ;
 
 import org.flockdata.data.Company;
 import org.flockdata.graph.DriverManager;

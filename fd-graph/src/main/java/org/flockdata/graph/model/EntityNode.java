@@ -1,14 +1,20 @@
 package org.flockdata.graph.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.FortressUser;
 import org.flockdata.data.Segment;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.neo4j.driver.v1.types.Node;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * @author mikeh
@@ -22,8 +28,23 @@ public class EntityNode implements Entity {
     private String code;
     private String key;
     private String type;
+    private String extKey;
+    @Builder.Default
+    private List<String> labels = Arrays.asList("Entity");
     private Integer search;
+    @Builder.Default
+    private long dateCreated = new DateTime().toDateTime(DateTimeZone.UTC).toDate().getTime();
+    private Long lastUpdate;
+    private Long fortressCreate;
+    private Long fortressLastWhen;
+    private String searchKey;
     private FortressUser lastUser;
+
+    @JsonIgnore
+    private Fortress fortress;
+    private Segment segment;
+    // transient
+    boolean newEntity;
 
     public static EntityNode build(Node node) {
         return EntityNode.builder()
@@ -34,9 +55,25 @@ public class EntityNode implements Entity {
             .build();
     }
 
+    public void bumpUpdate() {
+        if (id != null) {
+            lastUpdate = new DateTime().toDateTime(DateTimeZone.UTC).toDateTime().getMillis();
+        }
+    }
+
     @Override
-    public Long getLastUpdate() {
-        return null;
+    public String getSearchKey() {
+        return (searchKey == null ? code : searchKey);
+
+    }
+
+    public void setSearchKey(String searchKey) {
+        // By default the searchkey is the code. Let's save disk space
+        if (searchKey != null && searchKey.equals(code)) {
+            this.searchKey = null;
+        } else {
+            this.searchKey = searchKey;
+        }
     }
 
     @Override
@@ -55,21 +92,6 @@ public class EntityNode implements Entity {
     }
 
     @Override
-    public String getSearchKey() {
-        return null;
-    }
-
-    @Override
-    public long getDateCreated() {
-        return 0;
-    }
-
-    @Override
-    public org.joda.time.DateTime getFortressCreatedTz() {
-        return null;
-    }
-
-    @Override
     public boolean isNewEntity() {
         return false;
     }
@@ -80,24 +102,27 @@ public class EntityNode implements Entity {
     }
 
     @Override
-    public Fortress getFortress() {
-        return null;
-    }
-
-    @Override
-    public Segment getSegment() {
-        return null;
-    }
-
-    @Override
     public String getEvent() {
         return null;
     }
 
+    @JsonIgnore
+    public DateTime getFortressUpdatedTz() {
+        if (fortressLastWhen == null) {
+            return null;
+        }
+        return new DateTime(fortressLastWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(segment.getFortress().getTimeZone())));
+    }
 
     @Override
-    public org.joda.time.DateTime getFortressUpdatedTz() {
-        return null;
+    @JsonIgnore
+    public DateTime getFortressCreatedTz() {
+        return new DateTime(fortressCreate, DateTimeZone.forTimeZone(TimeZone.getTimeZone(segment.getFortress().getTimeZone())));
+    }
+
+    @Override
+    public Long getLastUpdate() {
+        return lastUpdate == null ? dateCreated : lastUpdate;
     }
 
 
