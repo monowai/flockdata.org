@@ -10,6 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
     <properties>
         <org.flockdata.common.version>0.98.9-SNAPSHOT</org.flockdata.common.version>
+        <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
+        <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>
     </properties>
 
     <artifactId>fd-security</artifactId>
