@@ -33,6 +33,12 @@ spring:
 server:
   port: 14002
 
+logging:
+  level:
+    org.flockdata: info
+    org.flockdata.client: debug
+    org.springframework: error
+
 es:
   clustername: es_flockdata
   nodes: 127.0.0.1:9300

@@ -60,7 +60,11 @@ spring:
 
 logging:
   level:
+    org.flockdata: info
     org.flockdata.client: debug
+    org.springframework: error
+    io.undertow: error
+    com.sun: error
 
 application:
   title: FlockData GraphWriter

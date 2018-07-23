@@ -17,6 +17,13 @@ eureka:
     serviceUrl:
       defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
 
+logging:
+  level:
+    org.flockdata: info
+    org.springframework: error
+    io.searchbox: error
+    com.docker: error
+    com.github: error
 
 spring:
   application:

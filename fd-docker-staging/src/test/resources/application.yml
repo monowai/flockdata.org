@@ -13,6 +13,10 @@ logging:
   level:
     org.flockdata.client: info
 
+spring:
+  profiles:
+    include: dev
+    
 # Message queues - Balance against ack/nack rate throughput
 # Thread-pools
 org.fd:

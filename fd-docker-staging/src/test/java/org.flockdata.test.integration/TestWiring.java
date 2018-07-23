@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
@@ -56,6 +57,7 @@ import static org.junit.Assert.assertNotNull;
 })
 @RunWith(SpringRunner.class)
 @Configuration
+@ActiveProfiles("dev")
 public class TestWiring {
     @Autowired
     private FdTemplate fdTemplate;
@@ -63,7 +65,7 @@ public class TestWiring {
     @Autowired
     private FdClientIo fdClientIo;
     @Test
-    public void wiringWorks() throws Exception{
+    public void wiringWorks() {
         assertNotNull(fdTemplate);
         assertNotNull(fdClientIo);
     }

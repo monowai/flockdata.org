@@ -27,7 +27,6 @@ WORKDIR /opt/flockdata
 COPY fd-engine-*.jar /opt/flockdata/engine.jar
 
 COPY classes/application.yml /opt/flockdata
-COPY classes/log4j* /opt/flockdata/conf
 COPY classes/neo*.properties /opt/flockdata
 COPY classes/application.yml /opt/flockdata/conf/application.yml
 

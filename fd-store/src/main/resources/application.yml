@@ -38,6 +38,12 @@ spring:
     port: 5672
     virtual-host: /
 
+logging:
+  level:
+    org.flockdata.client: debug
+    org.springframework: error
+    org.flockdata: info
+
 org.fd:
   store:
     system:

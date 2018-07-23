@@ -25,16 +25,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
@@ -46,14 +36,6 @@
             <artifactId>fd-security</artifactId>
             <version>${org.flockdata.security.version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--&lt;!&ndash;https://github.com/testcontainers/testcontainers-java/blob/master/docs/index.md&ndash;&gt;-->
-        <!--&lt;!&ndash;<groupId>org.testcontainers</groupId>&ndash;&gt;-->
-        <!--<groupId>com.github.testcontainers.testcontainers-java</groupId>-->
-        <!--<artifactId>testcontainers</artifactId>-->
-        <!--<version>${testcontainers.version}</version>-->
-        <!--<scope>test</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>

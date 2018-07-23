@@ -14,6 +14,13 @@ spring:
     active: dev
     include: fd-auth-test
 
+logging:
+  level:
+    org.flockdata: error
+    org.springframework: error
+    com.docker: error
+    com.github: error
+
 org.fd:
   engine:
     fortress:  # Defaults on creation of a fortress if not otherwise supplied

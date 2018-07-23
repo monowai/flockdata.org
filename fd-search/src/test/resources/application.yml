@@ -6,6 +6,17 @@ spring:
   profiles:
     active: dev
 
+logging:
+  level:
+    org.flockdata: error
+    org.springframework: error
+    io.searchbox: error
+    com.docker: error
+    com.github: error
+    org.elasticsearch: error
+    org.testcontainers: error
+
+
 es:
   clustername: fd-test
   http:

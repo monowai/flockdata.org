@@ -58,7 +58,6 @@ import java.util.*;
 
 import static junit.framework.TestCase.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_PASS;
 import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_USER;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
@@ -193,7 +192,7 @@ public class ITests {
     @Test
     public void registration() throws Exception {
         // An authorised user can create DataAccess users for a given company
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         assertNotNull(login);
@@ -211,7 +210,7 @@ public class ITests {
     @Test
     public void loadCountries() throws Exception {
 
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         clientConfiguration.setBatchSize(5);
@@ -267,7 +266,7 @@ public class ITests {
     @Test
     public void trackEntityOverHttp() throws Exception {
 
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
@@ -293,7 +292,7 @@ public class ITests {
     @Test
     public void trackEntityOverAmqpThenFindInSearch() throws Exception {
 
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
@@ -311,7 +310,7 @@ public class ITests {
         EntityResultBean entityResult = response.getResult();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
-        response = integrationHelper.waitForSearch(logger, "trackEntityOverAmqpThenFindInSearch", entityGet, 1, entityInputBean, null);
+        response = integrationHelper.waitForSearch(logger, "trackEntityOverAmqpThenFindInSearch", entityGet, entityInputBean, null);
         entityResult = response.getResult();
         assertFalse("Search was incorrectly suppressed", entityResult.isSearchSuppressed());
         assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityResult.getSearch());
@@ -343,7 +342,7 @@ public class ITests {
     @Test
     public void validateEntityLogs() throws Exception {
 
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
@@ -362,7 +361,7 @@ public class ITests {
                 .isNotNull()
                 .hasFieldOrProperty("key");
 
-        CommandResponse<EntityLogResult[]> elResponse = integrationHelper.waitForEntityLog(logger, "validateEntityLogs", entityLogsGet, 1, entityResult.getKey());
+        CommandResponse<EntityLogResult[]> elResponse = integrationHelper.waitForEntityLog(logger, entityLogsGet, 1, entityResult.getKey());
         assertNotNull(elResponse.getResult());
         assertEquals("Didn't find a log", 1, elResponse.getResult().length);
         assertNotNull("No data was returned", elResponse.getResult()[0].getData());
@@ -377,7 +376,7 @@ public class ITests {
 
         // Updating an existing entity
         fdTemplate.writeEntity(entityInputBean, true);
-        elResponse = integrationHelper.waitForEntityLog(logger, "validateEntityLogs", entityLogsGet, 2, response.getResult().getKey());
+        elResponse = integrationHelper.waitForEntityLog(logger, entityLogsGet, 2, response.getResult().getKey());
         assertEquals("Didn't find the second log", 2, elResponse.getResult().length);
         assertEquals("Didn't find the updated field as the first result", "updated", elResponse.getResult()[0].getData().get("key"));
         assertEquals("Didn't find the original field as the second result", "value", elResponse.getResult()[1].getData().get("key"));
@@ -386,7 +385,7 @@ public class ITests {
     @Test
     public void findByESPassThroughWithUTF8() throws Exception {
 
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
@@ -406,7 +405,7 @@ public class ITests {
                 .isNotNull()
                 .hasFieldOrProperty("key");
 
-        response = integrationHelper.waitForSearch(logger, "findByESPassThroughWithUTF8", entityGet, 1, entityInputBean, null);
+        response = integrationHelper.waitForSearch(logger, "findByESPassThroughWithUTF8", entityGet, entityInputBean, null);
         assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, response.getResult().getSearch());
 
         integrationHelper.shortSleep();
@@ -427,7 +426,7 @@ public class ITests {
     @Test
     public void simpleTags() throws Exception {
 
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         Collection<TagInputBean> tags = new ArrayList<>();
@@ -440,7 +439,7 @@ public class ITests {
         fdClientIo.writeTags(tags);
         integrationHelper.longSleep();  // Async delivery, so lets wait a bit....
 
-        CommandResponse<TagResultBean[]> tagResponse = integrationHelper.waitForTagCount(logger, "simpleTags", tagsGet, 2, tagLabel);
+        CommandResponse<TagResultBean[]> tagResponse = integrationHelper.waitForTagCount(logger, tagsGet, tagLabel);
 
         assertNull(tagResponse.getError());
         TagResultBean[] foundTags = tagResponse.getResult();
@@ -488,7 +487,7 @@ public class ITests {
 
     @Test
     public void bulkTagsDontBlock() throws Exception {
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         Collection<TagInputBean> setA = getRandomTags();
@@ -510,7 +509,7 @@ public class ITests {
 
     @Test
     public void purgeFortressRemovesEsIndex() throws Exception {
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
@@ -524,7 +523,7 @@ public class ITests {
 
 
         integrationHelper.waitForEntityKey(logger, "purgeFortressRemovesEsIndex", entityGet, entityInputBean, null);
-        integrationHelper.waitForSearch(logger, "purgeFortressRemovesEsIndex", entityGet, 1, entityInputBean, null);
+        integrationHelper.waitForSearch(logger, "purgeFortressRemovesEsIndex", entityGet, entityInputBean, null);
         integrationHelper.longSleep(); // Give ES time to commit
 
         QueryParams qp = new QueryParams("*");
@@ -547,7 +546,7 @@ public class ITests {
 
     @Test
     public void purgeSegmentRemovesOnlyTheSpecifiedOne() throws Exception {
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         DocumentTypeInputBean docType = new DocumentTypeInputBean("DeleteSearchDoc");
@@ -564,7 +563,7 @@ public class ITests {
 
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet, entityInputBean, null);
-        integrationHelper.waitForSearch(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet, 1, entityInputBean, null);
+        integrationHelper.waitForSearch(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet, entityInputBean, null);
 
         entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("purgeSegment")
@@ -577,7 +576,7 @@ public class ITests {
         fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet, entityInputBean, null);
-        integrationHelper.waitForSearch(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet, 1, entityInputBean, null);
+        integrationHelper.waitForSearch(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet, entityInputBean, null);
 
         integrationHelper.shortSleep(); // Give ES time to commit
 
@@ -652,7 +651,7 @@ public class ITests {
     @Test
     public void purgeSegmentEntitiesWithNoLogs() throws Exception {
 
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
         final String FORTRESS = "purgeSegmentEntitiesWithNoLogs";
         DocumentTypeInputBean docType = new DocumentTypeInputBean(FORTRESS);
@@ -668,7 +667,7 @@ public class ITests {
         fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentEntitiesWithNoLogs", entityGet, entityInputBean, null);
-        integrationHelper.waitForSearch(logger, "purgeSegmentEntitiesWithNoLogs", entityGet, 1, entityInputBean, null);
+        integrationHelper.waitForSearch(logger, "purgeSegmentEntitiesWithNoLogs", entityGet, entityInputBean, null);
 
         entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean(FORTRESS)
@@ -681,7 +680,7 @@ public class ITests {
         fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
 
         integrationHelper.waitForEntityKey(logger, "purgeSegmentEntitiesWithNoLogs", entityGet, entityInputBean, null);
-        integrationHelper.waitForSearch(logger, "purgeSegmentEntitiesWithNoLogs", entityGet, 1, entityInputBean, null);
+        integrationHelper.waitForSearch(logger, "purgeSegmentEntitiesWithNoLogs", entityGet, entityInputBean, null);
 
         integrationHelper.shortSleep(); // Give ES some extra time to commit
 
@@ -739,7 +738,7 @@ public class ITests {
 
     @Test
     public void getEntityFieldStructure() throws Exception {
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
@@ -758,7 +757,7 @@ public class ITests {
         EntityResultBean entityResult = response.getResult();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
-        response = integrationHelper.waitForSearch(logger, "getEntityFieldStructure", entityGet, 1, entityInputBean, response.getResult().getKey());
+        response = integrationHelper.waitForSearch(logger, "getEntityFieldStructure", entityGet, entityInputBean, response.getResult().getKey());
         assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, response.getResult().getSearch());
 
         // Searching with no parameters
@@ -774,7 +773,7 @@ public class ITests {
 
     @Test
     public void persistEntityRelationshipModel() throws Exception {
-        integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        integrationHelper.login();
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-entity-relationships.json");
         assertNotNull(contentModel);
         Collection<ContentModel> models = new ArrayList<>();
@@ -790,7 +789,7 @@ public class ITests {
     @Test
     public void versionableEntity() throws Exception {
 
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         Map<String, Object> dataMap = new HashMap<>();
@@ -835,7 +834,7 @@ public class ITests {
     @Test
     public void suppressVersionsOnByDocBasis() throws Exception {
 
-        SystemUserResultBean login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         Map<String, Object> dataMap = new HashMap<>();

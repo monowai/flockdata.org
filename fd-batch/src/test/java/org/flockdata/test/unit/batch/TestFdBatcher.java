@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
  * @author mholdsworth
  * @since 6/03/2016
  */
-@ActiveProfiles({"dev"})
+@ActiveProfiles("dev")
 public class TestFdBatcher extends AbstractImport {
 
     @Autowired

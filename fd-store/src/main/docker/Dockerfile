@@ -20,7 +20,6 @@ WORKDIR /opt/flockdata
 COPY fd-store-*.jar /opt/flockdata/store.jar
 
 COPY classes/application.yml /opt/flockdata
-COPY classes/log4j* /opt/flockdata/conf
 COPY classes/application.yml /opt/flockdata/conf/application.yml
 
 RUN bash -c 'touch /opt/flockdata/store.jar'

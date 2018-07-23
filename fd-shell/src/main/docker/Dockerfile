@@ -17,7 +17,6 @@ RUN mkdir /opt/flockdata && \
 
 WORKDIR /opt/flockdata
 # Add files.
-COPY classes/log4j* /opt/flockdata/conf/
 COPY classes/application.yml /opt/flockdata/conf/application.yml
 
 COPY fd-shell-*.jar /opt/flockdata/fd-shell.jar

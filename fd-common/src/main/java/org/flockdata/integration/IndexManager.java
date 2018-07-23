@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.Collection;
  * @since 23/07/2015
  */
 @Configuration
+@Profile({"fd-server", "dev"})
 public class IndexManager {
 
     private static final String SEPARATOR = ".";

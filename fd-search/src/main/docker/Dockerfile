@@ -16,9 +16,6 @@ WORKDIR /opt/flockdata
 
 ADD fd-search-*.jar /opt/flockdata/search.jar
 
-#ToDo: sort out where we pull logging configuration files from
-ADD classes/log4j* /opt/flockdata/conf
-
 # We don't need this. vars should be set in Compose. This will default to the properties stored within app.jar
 COPY classes/application.yml /opt/flockdata/conf/application.yml
 

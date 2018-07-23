@@ -11,6 +11,13 @@ spring:
     port: 5672
     virtual-host: /
 
+logging:
+  level:
+    org.flockdata: error
+    configuration: info
+    org.springframework: error
+    org.jline: error
+
 org.fd:
   client:
     # The API key is used to identify a user associated with the company.

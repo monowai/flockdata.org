@@ -21,7 +21,6 @@ import org.flockdata.client.FdClientIo;
 import org.flockdata.client.FdTemplate;
 import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.*;
-import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
@@ -44,11 +43,9 @@ import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.DockerComposeContainer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
@@ -87,10 +84,10 @@ class IntegrationHelper {
 
     // These are defined in docker-compose.yml
     static final String ADMIN_REGRESSION_USER = "integration";
-    static final String ADMIN_REGRESSION_PASS = "123";
-    static final int DEBUG_ENGINE = 61000;
-    static final int DEBUG_SEARCH = 61001;
-    static final int DEBUG_STORE = 61002;
+    private static final String ADMIN_REGRESSION_PASS = "123";
+    //    static final int DEBUG_ENGINE = 61000;
+//    static final int DEBUG_SEARCH = 61001;
+//    static final int DEBUG_STORE = 61002;
     static final int SERVICE_ENGINE = 8090;
     static final int SERVICE_SEARCH = 8091;
     static final int SERVICE_STORE = 8092;
@@ -164,7 +161,7 @@ class IntegrationHelper {
         this.storePing = storePing;
     }
 
-    Collection<EntityInputBean> toCollection(EntityInputBean entityInputBean) throws IOException {
+    Collection<EntityInputBean> toCollection(EntityInputBean entityInputBean) {
         Collection<EntityInputBean> entities = new ArrayList<>();
         entities.add(entityInputBean);
         return entities;
@@ -205,9 +202,9 @@ class IntegrationHelper {
 
     }
 
-    CommandResponse<EntityLogResult[]> waitForEntityLog(Logger logger, String function, EntityLogsGet entityLogs, int waitFor, String key) {
+    CommandResponse<EntityLogResult[]> waitForEntityLog(Logger logger, EntityLogsGet entityLogs, int waitFor, String key) {
         EntityLogReady ready = new EntityLogReady(entityLogs, waitFor, key);
-        waitUntil(logger, function, ready);
+        waitUntil(logger, "Entity Logs", ready);
         return ready.getResponse();
     }
 
@@ -219,65 +216,16 @@ class IntegrationHelper {
         return ready.getResponse();
     }
 
-    CommandResponse<EntityResultBean> waitForSearch(Logger logger, String function, EntityGet entityGet, int searchCount, EntityInputBean entityInputBean, String key) {
-        EntitySearchReady ready = new EntitySearchReady(entityGet, searchCount, entityInputBean, key);
+    CommandResponse<EntityResultBean> waitForSearch(Logger logger, String function, EntityGet entityGet, EntityInputBean entityInputBean, String key) {
+        EntitySearchReady ready = new EntitySearchReady(entityGet, 1, entityInputBean, key);
         waitUntil(logger, function, ready);
         return ready.getResponse();
     }
 
-    CommandResponse<TagResultBean[]> waitForTagCount(Logger logger, String function, TagsGet tagGet, int searchCount, String tagLabel) {
-        TagCountReady ready = new TagCountReady(tagGet, searchCount, tagLabel);
-        waitUntil(logger, function, ready);
+    CommandResponse<TagResultBean[]> waitForTagCount(Logger logger, TagsGet tagGet, String tagLabel) {
+        TagCountReady ready = new TagCountReady(tagGet, 2, tagLabel);
+        waitUntil(logger, "Tags", ready);
         return ready.getResponse();
-    }
-
-    private void waitForPong(Ping pingCommand, int waitCount) throws InterruptedException {
-        // A nice little status bar to show how long we've been hanging around
-        ProgressBar pb = new ProgressBar("Looking for services... ", waitCount);
-        pb.start();
-        int run = 0;
-        do {
-            run++;
-            pb.step();
-            // After waiting for 30% of the waitCount will try running the command if it exists
-            if (pingCommand != null && (((double) run) / waitCount) > .05) {
-                // After 1 minute we will ping to see if we can finish this early
-                CommandResponse<String> pingResponse = pingCommand.exec();
-                if (pingResponse.getError() == null && pingResponse.getResult().equals("pong")) {
-                    logger.info("finished after {}", run); // Early finish - yay!
-                    return;
-
-                }
-            } else {
-                shortSleep();
-            }
-
-        } while (run != waitCount);
-    }
-
-    private void waitForService(String service, Ping pingCommand, int countDown) throws InterruptedException {
-
-        if (stackFailed)
-            return;
-        logger.info("looking for [{}]", service);
-        CommandResponse<String> pingResponse = pingCommand.exec();
-        do {
-            countDown--;
-
-            if (pingResponse.getError() == null && !pingResponse.getResult().equals("pong")) {
-                int waitSecs = (stack == null ? 2 : 60);
-                logger.info("Waiting {} seconds for {} to come on-line", waitSecs, service);
-                waitForPong(pingCommand, waitSecs);
-            }
-
-        } while (!Objects.equals(pingResponse.getResult(), "pong") && countDown > 0);
-
-        if (pingResponse.worked() && !pingResponse.getResult().equals("pong")) {
-            setupComplete = true;
-            stackFailed = true;
-            fail("Failed to ping " + service + " before timeout");
-        }
-        logger.info("{} is running @ [{}]", service, pingCommand.getApi());
     }
 
     void waitForServices() {
@@ -340,7 +288,7 @@ class IntegrationHelper {
                 // Remap the API service URL due to the proxy activity that occurred above
                 fdClientIo.setServiceUrl(getEngine());
                 // If the services can't see each other, its not worth proceeding
-                SystemUserResultBean login = login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+                SystemUserResultBean login = login();
                 assertNotNull(login);
                 CommandResponse<Map<String, Object>> healthResponse = health.exec();
                 assertNull("Health Check", healthResponse.getError());
@@ -356,7 +304,7 @@ class IntegrationHelper {
                 logger.info(JsonUtils.pretty(healthResult));
 
 
-            } catch (InterruptedException | FlockException e) {
+            } catch (InterruptedException e) {
                 logger.error(e.getMessage());
                 setupComplete = true;
                 stackFailed = true;
@@ -392,22 +340,19 @@ class IntegrationHelper {
      * Logs in with the externally configured integration account and then
      * sets that user up as a DataAccessUser.
      *
-     * @param user integration
-     * @param pass 123
      * @return suresult
-     * @throws FlockException errors
      */
-    SystemUserResultBean login(String user, String pass) throws FlockException {
+    SystemUserResultBean login() {
         fdClientIo.setServiceUrl(getEngine());
-        SystemUserResultBean result = fdClientIo.login(user, pass);
+        SystemUserResultBean result = fdClientIo.login(IntegrationHelper.ADMIN_REGRESSION_USER, IntegrationHelper.ADMIN_REGRESSION_PASS);
         assertThat(result)
                 .isNotNull();
         if (result.getApiKey() == null) {
             // New data access user
-            CommandResponse<SystemUserResultBean> suResponse = registrationPost.exec(RegistrationBean.builder().companyName("TestCompany").login(user).build());
+            CommandResponse<SystemUserResultBean> suResponse = registrationPost.exec(RegistrationBean.builder().companyName("TestCompany").login(IntegrationHelper.ADMIN_REGRESSION_USER).build());
             assertEquals("Error registering data access user", null, suResponse.getError());
             result = suResponse.getResult();
-            assertNotNull(String.format("Failed to make the login [%s] a data access user", user), result.getApiKey());
+            assertNotNull(String.format("Failed to make the login [%s] a data access user", IntegrationHelper.ADMIN_REGRESSION_USER), result.getApiKey());
             clientConfiguration.setSystemUser(result);
         }
 
