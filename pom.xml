@@ -207,7 +207,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>19.0</version>
+                <version>23.6.1-jre</version>
             </dependency>
             <!--<dependency>-->
             <!--&lt;!&ndash; Despite looking unused, sub-modules use this dependency to get Eureka client files &ndash;&gt;-->
