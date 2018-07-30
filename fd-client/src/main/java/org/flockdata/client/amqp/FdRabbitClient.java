@@ -85,7 +85,7 @@ public class FdRabbitClient {
 
     }
 
-    private void initConnectionFactory() throws IOException, TimeoutException {
+    private void initConnectionFactory() {
         if (connectionFactory == null ) {
             logger.debug("Initializing Rabbit connection");
             entityProps = null;

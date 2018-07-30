@@ -20,7 +20,6 @@
 
 package org.flockdata.test.engine.mvc;
 
-import junit.framework.TestCase;
 import org.flockdata.engine.data.graph.FortressSegmentNode;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.FortressInputBean;
@@ -36,9 +35,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.Collection;
 import java.util.TimeZone;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.fail;
+import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -62,7 +59,7 @@ public class TestFortressEP extends MvcBase {
         Collection<FortressSegmentNode> segments = getDocumentWithSegments(mike(), fortress.getName());
         assertEquals(1, segments.size());
 
-        TestCase.assertTrue("Default segment not found", segments.iterator().next().getCode().equals("Default"));
+        assertEquals("Default segment not found", "Default", segments.iterator().next().getCode());
 
     }
 
@@ -224,7 +221,7 @@ public class TestFortressEP extends MvcBase {
     @Test
     public void null_FortressCode() throws Exception {
 
-        FortressResultBean fortress = makeFortress(mike(), "null_FortressCode");
+        makeFortress(mike(), "null_FortressCode");
 
         FortressInputBean update = new FortressInputBean(null);
 
