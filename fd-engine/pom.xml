@@ -24,8 +24,8 @@
         <jetty.version>9.2.9.v20150224</jetty.version>
         <neo4j.version>2.3.8</neo4j.version>
         <!-- spring data-neo4j wants this specific version -->
-        <springdata.commons>1.11.6.RELEASE</springdata.commons>
-        <org.springintegration.version>4.3.17.RELEASE</org.springintegration.version>
+        <springdata.commons>1.13.11.RELEASE</springdata.commons>
+        <org.springintegration.version>5.0.6.RELEASE</org.springintegration.version>
     </properties>
 
     <dependencies>
