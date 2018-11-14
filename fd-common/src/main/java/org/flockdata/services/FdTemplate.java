@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.flockdata.client;
+package org.flockdata.services;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.integration.ClientConfiguration;

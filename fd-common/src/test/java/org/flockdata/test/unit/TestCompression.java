@@ -29,10 +29,11 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -42,7 +43,7 @@ import static org.junit.Assert.assertTrue;
 public class TestCompression {
 
     @Test
-    public void compressed_Utf8() throws Exception{
+    public void compressed_Utf8() {
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
         CompressionResult dataBlock = ObjectHelper.compress(json);
 
@@ -71,14 +72,14 @@ public class TestCompression {
         ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
         JsonNode compareTo = mapper.valueToTree(content);
         JsonNode other = mapper.readTree(uncompressed);
-        Assert.assertTrue(compareTo.equals(other));
+        Assert.assertEquals(compareTo, other);
     }
 
 
     @Test
     public void uncompressed_notCompressed() throws Exception {
         String json = "{\"colname\": \"tinytext.......................\"}";
-        System.out.println("Before Compression" + json.getBytes("UTF-8").length);
+        System.out.println("Before Compression" + json.getBytes(StandardCharsets.UTF_8).length);
 
         CompressionResult result = ObjectHelper.compress(json);
         Assert.assertEquals(CompressionResult.Method.NONE, result.getMethod());
@@ -89,8 +90,7 @@ public class TestCompression {
         ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
         JsonNode compareTo = mapper.readTree(json);
         JsonNode other = mapper.readTree(uncompressed);
-        Assert.assertTrue(compareTo.equals(other));
-
+        Assert.assertEquals(compareTo, other);
     }
     @Test
     public void json_diff() throws Exception{
@@ -111,8 +111,7 @@ public class TestCompression {
         content.setAttachment(ContentDataHelper.getPdfDoc(), "pdf", "test.pdf");
         System.setProperty(ObjectHelper.PROP_COMPRESSION, "true");
         CompressionResult result = ObjectHelper.compress(content);
-        assertTrue(result.getMethod().equals(CompressionResult.Method.NONE));
-
+        assertEquals(result.getMethod(), CompressionResult.Method.NONE);
     }
 
 }

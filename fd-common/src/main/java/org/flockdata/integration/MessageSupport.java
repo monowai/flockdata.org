@@ -20,9 +20,9 @@
 
 package org.flockdata.integration;
 
-import com.google.common.net.MediaType;
 import org.flockdata.helper.JsonUtils;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.MediaType;
 import org.springframework.integration.json.JsonToObjectTransformer;
 import org.springframework.integration.json.ObjectToJsonTransformer;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
@@ -48,7 +48,7 @@ public class MessageSupport {
         objectToJsonTransformer = new ObjectToJsonTransformer(
                 new Jackson2JsonObjectMapper(JsonUtils.getMapper())
         );
-        objectToJsonTransformer.setContentType(MediaType.JSON_UTF_8.toString());
+        objectToJsonTransformer.setContentType(MediaType.APPLICATION_JSON_UTF8.getType());
 
         j2o = new JsonToObjectTransformer(
                 new Jackson2JsonObjectMapper( JsonUtils.getMapper())

@@ -18,7 +18,6 @@ package org.flockdata.test.integration;
 
 import me.tongfei.progressbar.ProgressBar;
 import org.flockdata.client.FdClientIo;
-import org.flockdata.client.FdTemplate;
 import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.*;
 import org.flockdata.helper.JsonUtils;
@@ -28,6 +27,7 @@ import org.flockdata.integration.FileProcessor;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagResultBean;
+import org.flockdata.services.FdTemplate;
 import org.flockdata.test.integration.matchers.*;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityLogResult;

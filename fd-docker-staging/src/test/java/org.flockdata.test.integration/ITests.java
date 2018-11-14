@@ -18,7 +18,6 @@ package org.flockdata.test.integration;
 
 import junit.framework.TestCase;
 import org.flockdata.client.FdClientIo;
-import org.flockdata.client.FdTemplate;
 import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.*;
 import org.flockdata.data.ContentModel;
@@ -35,6 +34,7 @@ import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.ContentStructure;
 import org.flockdata.search.EsSearchRequestResult;
 import org.flockdata.search.QueryParams;
+import org.flockdata.services.FdTemplate;
 import org.flockdata.track.bean.*;
 import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.json.ContentModelDeserializer;

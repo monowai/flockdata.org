@@ -112,11 +112,6 @@ public class FdRabbitClient {
                 }
 
                 @Override
-                public void handleFlowListenerException(Channel channel, Throwable exception) {
-                    logger.info(exception.getMessage());
-                }
-
-                @Override
                 public void handleConfirmListenerException(Channel channel, Throwable exception) {
                     logger.info(exception.getMessage());
                 }

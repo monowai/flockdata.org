@@ -51,14 +51,12 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -73,7 +71,6 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.util.AssertionErrors.fail;
 
 @RunWith(SpringRunner.class)
@@ -173,10 +170,6 @@ public class TestStoreService {
         return data;
     }
 
-    static RequestPostProcessor noUser() {
-        return user("noone");
-    }
-
     @Test
     public void autoWiredRepos () throws Exception{
         assertNotNull(inMemoryRepo);
@@ -188,7 +181,6 @@ public class TestStoreService {
     public void resetKvStore() {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(wac)
-                .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
     }
 
@@ -286,7 +278,7 @@ public class TestStoreService {
 
             validateContent("Validating result found via the service", contentResult);
 
-            contentResult = getContent(noUser(), storeToTest, index, type, key, MockMvcResultMatchers.status().isOk());
+            contentResult = getContent(storeToTest, index, type, key, MockMvcResultMatchers.status().isOk());
             validateContent("Validating result found via Mock MVC", contentResult);
 
             // Testing that cancel works
@@ -353,11 +345,10 @@ public class TestStoreService {
         }
     }
 
-    private StoredContent getContent(RequestPostProcessor user, Store store, String index, String type, Object key, ResultMatcher status) throws Exception {
+    private StoredContent getContent(Store store, String index, String type, Object key, ResultMatcher status) throws Exception {
         MvcResult response = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/v1/data/{store}/{index}/{type}/{key}", store.name(), index, type, key)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(user)
         ).andExpect(status).andReturn();
         String json = response.getResponse().getContentAsString();
 

@@ -17,13 +17,13 @@
 package org.flockdata.test.unit.client;
 
 import org.flockdata.client.FdClientIo;
-import org.flockdata.client.FdTemplate;
 import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.*;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.Exchanges;
 import org.flockdata.integration.FileProcessor;
+import org.flockdata.services.FdTemplate;
 import org.flockdata.transform.FdIoInterface;
 import org.junit.Test;
 import org.junit.runner.RunWith;

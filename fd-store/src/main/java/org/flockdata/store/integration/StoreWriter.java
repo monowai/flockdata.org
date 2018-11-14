@@ -30,12 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.integration.amqp.dsl.Amqp;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.dsl.amqp.Amqp;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.retry.interceptor.RetryOperationsInterceptor;
@@ -72,9 +72,9 @@ public class StoreWriter {
         return IntegrationFlows.from(
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdStoreQueue())
                         .outputChannel(startStoreWrite())
-                        .adviceChain(storeInterceptor)
-                        .maxConcurrentConsumers(exchanges.storeConcurrentConsumers())
-                        .prefetchCount(exchanges.storePreFetchCount())
+//                        .adviceChain(storeInterceptor)
+//                        .maxConcurrentConsumers(exchanges.storeConcurrentConsumers())
+//                        .prefetchCount(exchanges.storePreFetchCount())
         )
                 .handle(handler())
                 .get();

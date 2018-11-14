@@ -16,19 +16,15 @@
 
 package org.flockdata.authentication.stormpath;
 
-import com.stormpath.sdk.group.Group;
-import com.stormpath.spring.security.provider.GroupGrantedAuthorityResolver;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+//import com.stormpath.sdk.group.Group;
+//import com.stormpath.spring.security.provider.GroupGrantedAuthorityResolver;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Another sample implementation of the {@code GroupGrantedAuthorityResolver} interface that allows a Stormpath
- * {@link com.stormpath.sdk.group.Group} to be translated into Spring Security granted authorities where each
+ // * {@link com.stormpath.sdk.group.Group} to be translated into Spring Security granted authorities where each
  * href found is translated to domain-specific role names.
  * <h2>Overview</h2>
  * This implementation converts a Group into one or more granted authorities roles based on the configured mapping.
@@ -69,7 +65,7 @@ import java.util.Set;
  * your own set of business-specific roles to be used in your application.
  *
  */
-public class GroupRoleGrantedAuthorityResolver implements GroupGrantedAuthorityResolver {
+public class GroupRoleGrantedAuthorityResolver {//implements GroupGrantedAuthorityResolver {
 
     private Map<String, List<String>> rolesMap;
 
@@ -91,27 +87,27 @@ public class GroupRoleGrantedAuthorityResolver implements GroupGrantedAuthorityR
         this.rolesMap = roleMap;
     }
 
-    @Override
-    public Set<GrantedAuthority> resolveGrantedAuthorities(Group group) {
-
-        Set<GrantedAuthority> set = new HashSet<GrantedAuthority>();
-
-        String groupHref = group.getHref();
-
-        //REST resource hrefs should never ever be null:
-        if (groupHref == null) {
-            throw new IllegalStateException("Group does not have an href property. This should never happen.");
-        }
-
-        if (rolesMap.containsKey(groupHref)) {
-            for(String role : rolesMap.get(groupHref)) {
-                set.add(new SimpleGrantedAuthority(role));
-            }
-        } else {
-            throw new UnsupportedOperationException("No GrantedAuthority mapping found for " + group);
-        }
-
-        return set;
-    }
+//    @Override
+//    public Set<GrantedAuthority> resolveGrantedAuthorities(Group group) {
+//
+//        Set<GrantedAuthority> set = new HashSet<GrantedAuthority>();
+//
+//        String groupHref = group.getHref();
+//
+//        //REST resource hrefs should never ever be null:
+//        if (groupHref == null) {
+//            throw new IllegalStateException("Group does not have an href property. This should never happen.");
+//        }
+//
+//        if (rolesMap.containsKey(groupHref)) {
+//            for(String role : rolesMap.get(groupHref)) {
+//                set.add(new SimpleGrantedAuthority(role));
+//            }
+//        } else {
+//            throw new UnsupportedOperationException("No GrantedAuthority mapping found for " + group);
+//        }
+//
+//        return set;
+//    }
 
 }

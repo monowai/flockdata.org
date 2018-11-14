@@ -21,7 +21,6 @@
 package org.flockdata.search;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.integration.config.EnableIntegration;
 
@@ -32,9 +31,8 @@ import org.springframework.integration.config.EnableIntegration;
  * @since 16/12/2014
  * @tag Application, Search
  */
-@SpringBootApplication (scanBasePackages = {"org.flockdata.search.integration", "org.flockdata.search", "org.flockdata.integration", "org.flockdata.authentication"})
+@SpringBootApplication(scanBasePackages = {"org.flockdata.search.integration", "org.flockdata.search", "org.flockdata.integration"})
 @EnableIntegration
-@EnableAutoConfiguration
 public class FdSearch {
 
     public static void main(String[] args) {

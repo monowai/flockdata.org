@@ -40,12 +40,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.integration.amqp.dsl.Amqp;
 import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
 import org.springframework.integration.annotation.*;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.dsl.amqp.Amqp;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
@@ -128,9 +128,9 @@ public class WriteSearchChanges {
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
                     .outputChannel(writeSearchDoc())
                         .mappedRequestHeaders(ClientConfiguration.KEY_MSG_KEY, ClientConfiguration.KEY_MSG_TYPE)
-                        .adviceChain(searchInterceptor)
-                        .maxConcurrentConsumers(exchanges.searchConcurrentConsumers())
-                    .prefetchCount(exchanges.searchPreFetchCount())
+//                        .adviceChain(searchInterceptor)
+//                        .maxConcurrentConsumers(exchanges.searchConcurrentConsumers())
+//                    .prefetchCount(exchanges.searchPreFetchCount())
                 )
                 .handle(handler())
                 .get();

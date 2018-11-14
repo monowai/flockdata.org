@@ -14,27 +14,23 @@
 
     <properties>
         <license-text.header>GPL-3-header.txt</license-text.header>
+        <start-class>org.flockdata.engine.FdEngine</start-class>
         <docs.url>http://wiki.flockdata.com</docs.url>
         <org.flockdata.client.version>0.98.9-SNAPSHOT</org.flockdata.client.version>
         <org.flockdata.common.version>0.98.9-SNAPSHOT</org.flockdata.common.version>
         <org.flockdata.security.version>0.98.9-SNAPSHOT</org.flockdata.security.version>
         <neo4j.jersey.version>1.19.1</neo4j.jersey.version>
+        <org.springboot.version>1.5.9.RELEASE</org.springboot.version>
+        <org.spring.version>4.3.17.RELEASE</org.spring.version>
+        <org.springsecurity.version>4.2.4.RELEASE</org.springsecurity.version>
+        <!-- spring data-neo4j wants this specific version -->
         <org.springdata.neo4j>3.4.6.RELEASE</org.springdata.neo4j>
-        <start-class>org.flockdata.engine.FdEngine</start-class>
+        <springdata.commons>1.11.6.RELEASE</springdata.commons>
         <jetty.version>9.2.9.v20150224</jetty.version>
         <neo4j.version>2.3.8</neo4j.version>
-        <!-- spring data-neo4j wants this specific version -->
-        <springdata.commons>1.11.6.RELEASE</springdata.commons>
-        <org.springintegration.version>4.3.17.RELEASE</org.springintegration.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>1.5.9.RELEASE</version>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
@@ -42,8 +38,14 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${org.springboot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <version>${org.springboot.version}</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
@@ -70,23 +72,38 @@
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
-            <artifactId>fd-client</artifactId>
-            <version>${org.flockdata.client.version}</version>
+            <artifactId>fd-common</artifactId>
+            <type>test-jar</type>
+            <version>${org.flockdata.common.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-security</artifactId>
             <version>${org.flockdata.security.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.flockdata</groupId>
-            <artifactId>fd-common</artifactId>
-            <type>test-jar</type>
-            <version>${org.flockdata.common.version}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${org.spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${org.spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <version>${org.spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <version>${org.springsecurity.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.neo4j</groupId>
             <!--<artifactId>neo4j-enterprise</artifactId>-->
@@ -127,21 +144,6 @@
             </exclusions>
         </dependency>
 
-        <!--<dependency>-->
-        <!--<groupId>org.neo4j</groupId>-->
-        <!--<artifactId>neo4j-backup</artifactId>-->
-        <!--<version>${neo4j.version}</version>-->
-        <!--<exclusions>-->
-        <!--<exclusion>-->
-        <!--<groupId>ch.qos.logback</groupId>-->
-        <!--<artifactId>logback-classic</artifactId>-->
-        <!--</exclusion>-->
-        <!--<exclusion>-->
-        <!--<groupId>ch.qos.logback</groupId>-->
-        <!--<artifactId>logback-access</artifactId>-->
-        <!--</exclusion>-->
-        <!--</exclusions>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-kernel</artifactId>
@@ -304,6 +306,7 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
             <scope>test</scope>
+            <version>1.3</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -312,6 +315,14 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <version>1.10.19</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+            </exclusions>
+
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
@@ -325,10 +336,6 @@
             <version>1.2</version>
         </dependency>
         <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
         </dependency>
@@ -337,14 +344,9 @@
             <artifactId>spring-batch-core</artifactId>
         </dependency>
         <dependency>
-            <!--https://stackoverflow.com/questions/26754982/parsing-applicationcontext-xml-renders-a-java-lang-nosuchmethoderror-could-th-->
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
-            <version>2.3.1</version>
+            <version>2.6.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.retry</groupId>
@@ -353,6 +355,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+            <version>${org.spring.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -372,24 +375,6 @@
             <artifactId>spring-integration-amqp</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.integration</groupId>
-            <artifactId>spring-integration-stream</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <version>${org.springsecurity.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-web</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>5.2.4.Final</version>
@@ -407,17 +392,14 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.5</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.9.5</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.9.0</version>
         </dependency>
         <!--<dependency>-->
         <!--<groupId>org.springframework.cloud</groupId>-->

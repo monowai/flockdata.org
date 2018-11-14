@@ -21,7 +21,6 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
-import org.flockdata.client.FdTemplate;
 import org.flockdata.data.Entity;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.DocumentNode;
@@ -34,6 +33,7 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.store.Store;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
+import org.flockdata.test.unit.client.FdTemplateMock;
 import org.flockdata.track.bean.EntityLogResult;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfileHandler;
@@ -65,7 +65,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {
         Neo4jConfigTest.class,
-        FdTemplate.class,
+    FdTemplateMock.class,
         FdServerIo.class,
         MapBasedStorageProxy.class})
 @ActiveProfiles({"fd-auth-test", "dev" })

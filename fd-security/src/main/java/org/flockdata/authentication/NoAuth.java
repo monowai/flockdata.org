@@ -16,8 +16,7 @@
 
 package org.flockdata.authentication;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -44,9 +43,8 @@ import javax.annotation.PostConstruct;
 @Profile({"fd-no-auth"}) //
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@Slf4j
 public class NoAuth extends WebSecurityConfigurerAdapter {
-
-    private static Logger logger = LoggerFactory.getLogger("configuration");
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -65,7 +63,7 @@ public class NoAuth extends WebSecurityConfigurerAdapter {
 
     @PostConstruct
     void dumpConfig() {
-        logger.info("**** [NoAuth] - requests to endpoints are not secured");
+        log.info("**** [NoAuth] - requests to endpoints are not secured");
     }
 
     @Configuration

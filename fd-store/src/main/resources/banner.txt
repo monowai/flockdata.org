@@ -6,3 +6,5 @@ ${AnsiColor.CYAN}| |_ / _` |_____/ __| __/ _ \| '__/ _ \
 ${AnsiColor.CYAN}|  _| (_| |_____\__ \ || (_) | | |  __/
 ${AnsiColor.CYAN}|_|  \__,_|     |___/\__\___/|_|  \___|
 
+${AnsiColor.CYAN}:: Spring Boot :: version ${spring-boot.version}
+

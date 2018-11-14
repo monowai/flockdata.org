@@ -16,8 +16,7 @@
 
 package org.flockdata.authentication;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -45,9 +44,9 @@ import javax.annotation.PostConstruct;
 @Profile({"fd-auth-test"}) //
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@Slf4j
 public class SimpleAuth extends WebSecurityConfigurerAdapter {
 
-    private static Logger logger = LoggerFactory.getLogger("configuration");
     @Autowired
     SimpleUsers simpleUsers;
 
@@ -55,8 +54,8 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> ima = auth.inMemoryAuthentication();
         if (simpleUsers == null || simpleUsers.getUsers() == null) {
-            logger.info("**** [fd-auth-test] - attempting to use fd-auth-test but no users have been configured. Consider starting the service with -P fd-no-auth");
-            logger.info("**** [fd-auth-test] - a default user of mike will be created");
+            log.info("**** [fd-auth-test] - attempting to use fd-auth-test but no users have been configured. Consider starting the service with -P fd-no-auth");
+            log.info("**** [fd-auth-test] - a default user of mike will be created");
             simpleUsers.createDefault();
         }
         for (String login : simpleUsers.getUsers().keySet()) {
@@ -65,14 +64,14 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
                     .password(user.getPass())
                     .roles(user.getRoles().toArray(new String[0]));
 
-            logger.info("**** [fd-auth-test] - Added {}", login);
+            log.info("**** [fd-auth-test] - Added {}", login);
         }
 
     }
 
     @PostConstruct
     void dumpConfig() {
-        logger.info("**** [fd-auth-test] - Limited authorization (for testing) is being used");
+        log.info("**** [fd-auth-test] - Limited authorization (for testing) is being used");
     }
 
     @Configuration

@@ -20,7 +20,6 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.client.FdTemplate;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Entity;
 import org.flockdata.data.SystemUser;
@@ -35,6 +34,7 @@ import org.flockdata.registration.TagResultBean;
 import org.flockdata.services.ContentModelService;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
+import org.flockdata.test.unit.client.FdTemplateMock;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.json.ContentModelDeserializer;
@@ -60,10 +60,10 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {
-        Neo4jConfigTest.class,
-        FdTemplate.class,
-        FdServerIo.class,
-        MapBasedStorageProxy.class})
+    Neo4jConfigTest.class,
+    FdTemplateMock.class,
+    FdServerIo.class,
+    MapBasedStorageProxy.class})
 @ActiveProfiles({"dev", "fd-auth-test"})
 public class TestProfiles extends EngineBase {
 
@@ -110,7 +110,6 @@ public class TestProfiles extends EngineBase {
         DocumentNode documentType;
 
 
-
         Collection<TagResultBean> tags = tagService.findTags(su.getCompany());
 
         for (ContentModel contentModel : contentModels) {
@@ -132,7 +131,7 @@ public class TestProfiles extends EngineBase {
             TagInputBean topicB = new TagInputBean("alerts", "Topic");
             TagInputBean developerI = new TagInputBean("10759", "Developer");
             TagInputBean developerJ = new TagInputBean("65663", "Developer");
-            Collection<TagInputBean>tagsToMake = new ArrayList<>();
+            Collection<TagInputBean> tagsToMake = new ArrayList<>();
             tagsToMake.add(topicA);
             tagsToMake.add(topicB);
             tagsToMake.add(developerI);
