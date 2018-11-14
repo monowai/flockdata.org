@@ -46,10 +46,9 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <mockito.version>2.22.0</mockito.version>
-        <org.springboot.version>2.0.5.RELEASE</org.springboot.version>
+        <org.springboot.version>2.0.6.RELEASE</org.springboot.version>
         <org.spring.version>5.0.9.RELEASE</org.spring.version>
-        <org.spring-integration.version>5.0.9.RELEASE</org.spring-integration.version>
-        <org.springbatch.version>4.0.0.RELEASE</org.springbatch.version>
+        <org.springbatch.version>4.0.1.RELEASE</org.springbatch.version>
 
         <!--<org.springcloud.release.train>Dalston.SR1</org.springcloud.release.train>-->
         <surefire.version>2.22.1</surefire.version>
