@@ -35,7 +35,6 @@ services:
       _JAVA_OPTIONS: "-Xms256m -Xmx384m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61000"
       org.fd.engine.fortress.search: 'true'
       org.fd.engine.fortress.store: 'true'
-      logging.level.org.flockdata: DEBUG
       org.fd.engine.system.storage: memory
       org.fd.search.api: http://fdsearch:8091
       org.fd.store.api: http://fdstore:8092
@@ -72,7 +71,7 @@ services:
       server.port: 8092
       spring.jackson.serialization.indent_output: 'true'
       logging.level.org.flockdata: DEBUG
-      spring.profiles.active: fd-no-auth,memstore,fd-server
+      spring.profiles.active: memstore,fd-server
       spring.rabbitmq.host: rabbit
 
 
