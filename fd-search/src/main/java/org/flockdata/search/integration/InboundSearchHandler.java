@@ -20,20 +20,15 @@
 
 package org.flockdata.search.integration;
 
+import lombok.extern.slf4j.Slf4j;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.Exchanges;
-import org.flockdata.integration.MessageSupport;
 import org.flockdata.search.AdminRequest;
 import org.flockdata.search.SearchChanges;
-import org.flockdata.search.SearchResults;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.service.SearchAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
-import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,16 +36,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.dsl.Amqp;
-import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
-import org.springframework.integration.annotation.*;
+import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
-import org.springframework.retry.interceptor.RetryOperationsInterceptor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -65,30 +57,18 @@ import java.io.IOException;
 @Configuration
 @IntegrationComponentScan
 @Component
-public class WriteSearchChanges {
+@Slf4j
+public class InboundSearchHandler {
 
     // We only support ElasticSearch
     private final SearchWriter searchWriter;
     private final SearchAdmin searchAdmin;
     private Exchanges exchanges;
-    private AmqpRabbitConfig rabbitConfig;
-    private MessageSupport messageSupport;
-    private Logger logger = LoggerFactory.getLogger(WriteSearchChanges.class);
 
     @Autowired
-    public WriteSearchChanges(SearchAdmin searchAdmin, @Qualifier("esSearchWriter") SearchWriter searchWriter) {
+    public InboundSearchHandler(SearchAdmin searchAdmin, @Qualifier("esSearchWriter") SearchWriter searchWriter) {
         this.searchAdmin = searchAdmin;
         this.searchWriter = searchWriter;
-    }
-
-    @Autowired (required = false)
-    void setRabbitConfig(AmqpRabbitConfig rabbitConfig){
-        this.rabbitConfig = rabbitConfig;
-    }
-
-    @Autowired (required = false)
-    void setMessageSupport(MessageSupport messageSupport){
-        this.messageSupport = messageSupport;
     }
 
     @Autowired (required = false)
@@ -98,16 +78,11 @@ public class WriteSearchChanges {
 
     @PostConstruct
     void logStatus() {
-        logger.info("**** Deployed WriteSearchChanges");
+        log.info("**** Deployed WriteSearchChanges");
     }
 
     @Bean
     MessageChannel writeSearchDoc(){
-        return new DirectChannel();
-    }
-
-    @Bean
-    MessageChannel searchReply () {
         return new DirectChannel();
     }
 
@@ -123,14 +98,11 @@ public class WriteSearchChanges {
 
     @Bean
     @Profile("fd-server")
-    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory, RetryOperationsInterceptor searchInterceptor) {
+    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory) {
         return IntegrationFlows.from(
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
                     .outputChannel(writeSearchDoc())
                         .mappedRequestHeaders(ClientConfiguration.KEY_MSG_KEY, ClientConfiguration.KEY_MSG_TYPE)
-//                        .adviceChain(searchInterceptor)
-//                        .maxConcurrentConsumers(exchanges.searchConcurrentConsumers())
-//                    .prefetchCount(exchanges.searchPreFetchCount())
                 )
                 .handle(handler())
                 .get();
@@ -147,42 +119,17 @@ public class WriteSearchChanges {
                 else if ( oType.toString().equalsIgnoreCase("ADMIN")){
                     AdminRequest adminRequest =JsonUtils.toObject(((String)message.getPayload()).getBytes(),AdminRequest.class);
                     searchAdmin.deleteIndexes(adminRequest.getIndexesToDelete());
-                    logger.info("Got an admin request");
+                    log.debug("Got an admin request");
                 }
             } catch (IOException e) {
-                logger.error("Unable to de-serialize the payload. Rejecting due to [{}]", e.getMessage());
+                log.error("Unable to de-serialize the payload. Rejecting due to [{}]", e.getMessage());
                 throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
             }
 
         };
     }
 
-    @Transformer(inputChannel = "searchReply", outputChannel = "searchDocSyncResult")
-    @Profile("fd-server")
-    public Message<?> transformSearchResults( Message message) {
-        return messageSupport.toJson(message);
-    }
 
-    @Bean
-    @ServiceActivator(inputChannel = "searchDocSyncResult")
-    @Profile("fd-server")
-    public AmqpOutboundEndpoint writeEntitySearchResult(AmqpTemplate amqpTemplate) {
-        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
-        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setExchangeName(exchanges.fdExchangeName());
-        outbound.setRoutingKey(exchanges.fdEngineBinding());
-        outbound.setExpectReply(false);
-        return outbound;
-
-    }
-
-    @MessagingGateway
-    public interface EngineResultGateway {
-        @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
-        @Async("fd-search")
-        void writeEntitySearchResult(SearchResults searchResult);
-
-    }
 
 
 }

@@ -63,18 +63,18 @@ public class EntitySearchWriter {
     }
 
     // ToDo: Can we handle this more via the flow or handler?
-    @Transformer(inputChannel="sendEntityIndexRequest", outputChannel="writeSearchChanges")
+    @Transformer(inputChannel = "sendEntityIndexRequest", outputChannel = "indexSearchChanges")
     public Message<?> transformSearchChanges(Message theObject){
         return messageSupport.toJson(theObject);
     }
 
     @Bean
-    MessageChannel writeSearchChanges(){
+    MessageChannel indexSearchChanges() {
         return new DirectChannel();
     }
 
     @Bean
-    @ServiceActivator(inputChannel = "writeSearchChanges")
+    @ServiceActivator(inputChannel = "indexSearchChanges")
     public AmqpOutboundEndpoint fdSearchAMQPOutbound(AmqpTemplate amqpTemplate) {
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());

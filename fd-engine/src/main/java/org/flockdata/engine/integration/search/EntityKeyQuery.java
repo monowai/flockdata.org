@@ -21,7 +21,6 @@
 package org.flockdata.engine.integration.search;
 
 import org.flockdata.engine.admin.PlatformConfig;
-import org.flockdata.integration.MessageSupport;
 import org.flockdata.search.EntityKeyResults;
 import org.flockdata.search.QueryParams;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,25 +29,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessagingGateway;
-import org.springframework.integration.annotation.Transformer;
-import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.http.outbound.HttpRequestExecutingMessageHandler;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHandler;
+import org.springframework.integration.dsl.http.Http;
+import org.springframework.integration.dsl.support.Transformers;
+
+import java.nio.charset.StandardCharsets;
 
 /**
- *
  * Finds Keys for a given set of query parameters. This can be used to drive queries in the Graph as
  * the key will give you a starting point
  *
- * @tag Messaging, Search, Entity, Query, Gateway
  * @author mholdsworth
+ * @tag Messaging, Search, Entity, Query, Gateway
  * @since 14/02/2016
  */
 
@@ -57,54 +54,30 @@ import org.springframework.messaging.MessageHandler;
 @Profile({"fd-server"})
 public class EntityKeyQuery {
 
-    @Autowired
-    @Qualifier("engineConfig")
-    private PlatformConfig engineConfig;
+    private final PlatformConfig engineConfig;
 
     @Autowired
-    private MessageSupport messageSupport;
-
-    @Bean
-    MessageChannel receiveKeyReply(){
-        return new DirectChannel();
-    }
-
-    @Bean
-    MessageChannel keyResult () {
-        return new DirectChannel();
-    }
-
-    @Bean
-    MessageChannel doKeyQuery() {
-        return new DirectChannel();
-    }
-
-    // Must be public else SI won't pick it up and will throw a NotFoundException
-    @Transformer(inputChannel= "sendKeyQuery", outputChannel="doKeyQuery")
-    public Message<?> transformMkPayload(Message message){
-        return messageSupport.toJson(message);
+    public EntityKeyQuery(@Qualifier("engineConfig") PlatformConfig engineConfig) {
+        this.engineConfig = engineConfig;
     }
 
     @Bean
     IntegrationFlow fdKeyQueryFlow() {
-
-        return IntegrationFlows.from(doKeyQuery())
-                .handle(handler())
-                .get();
-    }
-
-    private MessageHandler handler() {
-        HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch()+ "/v1/query/keys");
-        handler.setExpectedResponseType(EntityKeyResults.class);
-        handler.setHttpMethod(HttpMethod.POST);
-//        handler.setOutputChannel(receiveKeyReply());
-        return handler;
+        return IntegrationFlows
+            .from("doKeyQuery")
+            .transform(Transformers.toJson(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .handle(Http.outboundGateway(engineConfig.getFdSearch() + "/v1/query/keys")
+                .charset(StandardCharsets.UTF_8.name())
+                .httpMethod(HttpMethod.POST)
+                .mappedRequestHeaders("*")
+                .extractPayload(true)
+                .expectedResponseType(EntityKeyResults.class))
+            .get();
     }
 
     @MessagingGateway
     public interface EntityKeyGateway {
-        @Gateway(requestChannel = "sendKeyQuery", replyChannel = "keyResult")
+        @Gateway(requestChannel = "doKeyQuery")
         EntityKeyResults keys(QueryParams queryParams);
     }
 }

@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class QueryParams implements QueryInterface {
     boolean searchTagsOnly = false;
-    private String searchText;
+    private String searchText = "*";
     private String segment;
     private String index;
     private ArrayList<String> fields;
@@ -114,9 +114,8 @@ public class QueryParams implements QueryInterface {
         return searchText;
     }
 
-    public QueryParams setSearchText(String searchText) {
+    public void setSearchText(String searchText) {
         this.searchText = searchText;
-        return this;
     }
 
     public String getCompany() {

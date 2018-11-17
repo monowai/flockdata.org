@@ -44,8 +44,8 @@ import org.springframework.web.client.ResourceAccessException;
  * Centralises methods that will support options to use on MatrixService etc.
  *
  * @author mholdsworth
- * @since 14/06/2014
  * @tag Query
+ * @since 14/06/2014
  */
 @Service
 @PreAuthorize(FdRoles.EXP_EITHER)
@@ -67,23 +67,25 @@ public class QueryService {
         this.fortressService = fortressService;
     }
 
-    @Autowired(required = false)// Functional tests don't require gateways
+    @Autowired(required = false)
+// Functional tests don't require gateways
     void setTagCloudGateway(TagCloudGateway tagCloudGateway) {
         this.tagCloudGateway = tagCloudGateway;
     }
 
-    @Autowired(required = false) // Functional tests don't require gateways
+    @Autowired(required = false)
+        // Functional tests don't require gateways
     void setEntityKeyGateway(EntityKeyGateway entityKeyGateway) {
         this.entityKeyGateway = entityKeyGateway;
     }
 
     @Autowired(required = false)
-    void setFdViewQueryGateway(FdViewQueryGateway fdViewQueryGateway){
+    void setFdViewQueryGateway(FdViewQueryGateway fdViewQueryGateway) {
         this.fdViewQueryGateway = fdViewQueryGateway;
     }
 
     @Autowired(required = false)
-    void setContentStoreEs(ContentStoreEs contentStoreEs){
+    void setContentStoreEs(ContentStoreEs contentStoreEs) {
         this.esStore = contentStoreEs;
     }
 
@@ -96,7 +98,7 @@ public class QueryService {
             queryParams.setIndex(indexManager.toIndex(queryParams));
         }
 
-        if (queryParams.isMatchAll() || queryParams.isSearchTagsOnly() || queryParams.getQuery() != null || queryParams.getAggs() != null ) {
+        if (queryParams.isMatchAll() || queryParams.isSearchTagsOnly() || queryParams.getQuery() != null || queryParams.getAggs() != null) {
             esSearchRequestResult = esStore.getData(queryParams);
         } else {
             if (fdViewQueryGateway == null) {
@@ -105,7 +107,7 @@ public class QueryService {
             } else {
                 try {
                     esSearchRequestResult = fdViewQueryGateway.fdSearch(queryParams);
-                } catch ( ResourceAccessException e){
+                } catch (ResourceAccessException e) {
                     throw new FlockServiceException("The search service is not currently available");
                 }
             }
@@ -117,8 +119,9 @@ public class QueryService {
 
     public TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException {
         FortressNode fortress = fortressService.findByCode(company, tagCloudParams.getFortress());
-        if (fortress == null)
+        if (fortress == null) {
             throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
+        }
         tagCloudParams.setFortress(fortress.getCode());
         tagCloudParams.setCompany(company.getCode());
         return tagCloudGateway.getTagCloud(tagCloudParams);

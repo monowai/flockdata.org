@@ -33,10 +33,7 @@ import org.flockdata.search.*;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.MatrixInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -84,7 +81,13 @@ public class QueryEP {
         return matrixService.getMatrix(company, matrixInput);
     }
 
-    @RequestMapping(value = "/es", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/key")
+    public EntityKeyResults getKeys(@RequestBody QueryParams queryParams, HttpServletRequest request) {
+        CompanyNode company = CompanyResolver.resolveCompany(request);
+        return queryService.getKeys(company, queryParams);
+    }
+
+    @PostMapping(value = "/es")
     public Map<String, Object> searchEsParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException, IOException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         queryParams.setEntityOnly(false);
@@ -101,17 +104,10 @@ public class QueryEP {
     }
 
     @RequestMapping(value = "/tagcloud", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public TagCloud getTagCloudEsParam(@RequestBody TagCloudParams tagCloudParams, HttpServletRequest request) throws FlockException {
+    public TagCloud getTagCloudEsParam(@RequestBody TagCloudParams tagCloudParams, HttpServletRequest request) {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         return queryService.getTagCloud(company, tagCloudParams);
     }
-
-    @RequestMapping(value = "/key", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public EntityKeyResults getKeys(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return queryService.getKeys(company, queryParams);
-    }
-
 
     @RequestMapping(value = "/documents", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     @Deprecated // fd-view is using this. it should point to the /doc/ EP

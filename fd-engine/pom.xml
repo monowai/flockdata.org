@@ -27,16 +27,11 @@
         <!-- spring data-neo4j wants this specific version -->
         <org.springdata.neo4j>3.4.6.RELEASE</org.springdata.neo4j>
         <springdata.commons>1.11.6.RELEASE</springdata.commons>
-        <jetty.version>9.2.9.v20150224</jetty.version>
+        <jetty.version>9.2.22.v20170606</jetty.version>
         <neo4j.version>2.3.8</neo4j.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons</artifactId>
-            <version>${springdata.commons}</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -104,7 +99,11 @@
             <version>${org.springsecurity.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+            <version>${springdata.commons}</version>
+        </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>
             <!--<artifactId>neo4j-enterprise</artifactId>-->
@@ -160,7 +159,7 @@
             <scope>test</scope>
             <!-- Introduced in 2.2.x-->
         </dependency>
-        <!-- SpringBoot upgrade Jetty, but Neo4j requires older version. Defining specific version -->
+        <!-- SpringBoot upgrades Jetty, but Neo4j requires older version. Defining specific version -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>

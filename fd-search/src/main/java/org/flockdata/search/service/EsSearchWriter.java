@@ -25,7 +25,7 @@ import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.IndexMappingService;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.base.TagChangeWriter;
-import org.flockdata.search.integration.WriteSearchChanges;
+import org.flockdata.search.integration.OutboundResultHandler;
 import org.flockdata.track.bean.SearchChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -62,7 +61,7 @@ public class EsSearchWriter implements SearchWriter {
 
     private boolean fdServer =false;
 
-    private WriteSearchChanges.EngineResultGateway engineResultGateway;
+    private OutboundResultHandler.GraphResultGateway graphResultGateway;
 
     private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
 
@@ -75,20 +74,18 @@ public class EsSearchWriter implements SearchWriter {
     }
 
     @Autowired(required = false)
-    void setEngineResultGateway (WriteSearchChanges.EngineResultGateway engineResultGateway){
-        this.engineResultGateway = engineResultGateway;
+    void setGraphResultGateway(OutboundResultHandler.GraphResultGateway graphResultGateway) {
+        this.graphResultGateway = graphResultGateway;
     }
 
     /**
-     * Triggered by the Engine, this is the payload that is required to be indexed
+     * Triggered by the Coordinator, this is the payload that is required to be indexed
      *
      * Handles scenarios where the content exists or doesn't
      *
      * @param changes to process
-     * @throws java.io.IOException if there is a problem with mapping files. This exception will keep
-     *                             the message on the queue until the mapping is fixed
      */
-    public SearchResults createSearchableChange(SearchChanges changes) throws IOException {
+    public SearchResults createSearchableChange(SearchChanges changes) {
         Iterable<SearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
 
@@ -138,7 +135,7 @@ public class EsSearchWriter implements SearchWriter {
             // Manually checking as @Profile does not seem to work with an @MessageGateway
             logger.debug( "Engine Result Gateway is not enabled. ");
         } else {
-            engineResultGateway.writeEntitySearchResult(results);
+            graphResultGateway.writeSearchResult(results);
             logger.debug("Processed {} requests. Returning [{}] SearchResults", results.getSearchResults().size(), results.getSearchResults().size());
 
         }
@@ -147,7 +144,7 @@ public class EsSearchWriter implements SearchWriter {
     }
     @PostConstruct
     void logStatus() {
-        logger.debug("**** Deployed EsSearchWriter.  EngineResultGateway {}" , engineResultGateway!=null);
+        logger.debug("**** Deployed EsSearchWriter.  EngineResultGateway {}", graphResultGateway != null);
     }
 
 }

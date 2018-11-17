@@ -22,7 +22,6 @@ import org.flockdata.search.QueryParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertNotNull;
@@ -35,26 +34,24 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
  * @since 31/05/2016
  */
 @Component
-public class SearchHelper {
+class SearchHelper {
 
     @Autowired
     private IndexManager indexManager;
-    
-    QueryParams getTagQuery(String company, String label, String searchText) throws IOException {
-        QueryParams qp= new QueryParams(searchText)
+
+    QueryParams getTagQuery(String company, String label, String searchText) {
+        return new QueryParams(searchText)
                 .searchTags()
                 .setIndex(indexManager.getTagIndexRoot(company, label))
                 .setTypes(label.toLowerCase());
-        return qp;
     }
 
-    QueryParams getTagMatchQuery(String company, String label, String field, String searchText ) throws IOException {
-        QueryParams qp= new QueryParams()
+    QueryParams getTagMatchQuery(String company, String label, String field, String searchText) {
+        return new QueryParams()
                 .searchTags()
                 .setIndex(indexManager.getTagIndexRoot(company, label))
                 .setTypes(label.toLowerCase())
                 .addTerm(field, searchText);
-        return qp;
     }
 
     void assertHitCount(String message, int expectedCount, Map<String, Object> esResult) {
@@ -63,7 +60,7 @@ public class SearchHelper {
         assertEquals(message + " got "+count, expectedCount, count);
     }
 
-    Integer getHitCount( Map<String, Object> esResult){
+    private Integer getHitCount(Map<String, Object> esResult) {
         Map hits = (Map) esResult.get("hits");
         assertNotNull(hits);
         return (Integer) hits.get("total");

@@ -20,7 +20,6 @@
 
 package org.flockdata.engine.integration.engine;
 
-import com.google.common.net.MediaType;
 import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
@@ -31,6 +30,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.MediaType;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -47,23 +47,22 @@ import java.io.IOException;
 
 /**
  * fd-search (outbound) to fd-engine (inbound)
- * @tag Track, Messaging, Search
+ *
  * @author mholdsworth
+ * @tag Track, Messaging, Search
  * @since 21/07/2015
  */
 @Service
 @Profile({"fd-server"})
-public class WriteEntityResult {
+public class WriteEntityIndexResult {
 
     private static final com.fasterxml.jackson.databind.ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
-    private final
-    SearchHandler searchHandler;
-    private final
-    Exchanges exchanges;
+    private final SearchHandler searchHandler;
+    private final Exchanges exchanges;
     private ObjectToJsonTransformer transformer;
 
     @Autowired
-    public WriteEntityResult(SearchHandler searchHandler, Exchanges exchanges) {
+    public WriteEntityIndexResult(SearchHandler searchHandler, Exchanges exchanges) {
         this.searchHandler = searchHandler;
         this.exchanges = exchanges;
     }
@@ -71,57 +70,43 @@ public class WriteEntityResult {
     @PostConstruct
     public void createTransformer() {
         transformer = new ObjectToJsonTransformer(
-                new Jackson2JsonObjectMapper(JsonUtils.getMapper())
+            new Jackson2JsonObjectMapper(JsonUtils.getMapper())
         );
-        transformer.setContentType(MediaType.JSON_UTF_8.toString());
+        transformer.setContentType(MediaType.APPLICATION_JSON_UTF8.getType());
     }
 
-    public ObjectToJsonTransformer getTransformer(){
+    public ObjectToJsonTransformer getTransformer() {
         return transformer;
     }
 
     @Bean
-    MessageChannel searchDocSyncResult () {
+    MessageChannel indexEntityResult() {
         return new DirectChannel();
     }
 
     @Bean
-    public IntegrationFlow writeSearchResultFlow(ConnectionFactory connectionFactory) {
+    public IntegrationFlow writeEntityIndexResultFlow(ConnectionFactory connectionFactory) {
         return IntegrationFlows.from(
-                Amqp.inboundAdapter(connectionFactory, exchanges.fdEngineQueue())
-                        .outputChannel(searchDocSyncResult())
-                        .maxConcurrentConsumers(exchanges.engineConcurrentConsumers())
-                        .prefetchCount(exchanges.enginePreFetchCount())
+            Amqp.inboundAdapter(connectionFactory, exchanges.fdEngineQueue())
+                .outputChannel(indexEntityResult())
+                .maxConcurrentConsumers(exchanges.engineConcurrentConsumers())
+                .prefetchCount(exchanges.enginePreFetchCount())
 
         )
-                .handle(handler())
-                .get();
+            .handle(handler())
+            .get();
     }
 
     @Bean
-    @ServiceActivator(inputChannel = "searchDocSyncResult")
+    @ServiceActivator(inputChannel = "indexEntityResult")
     public MessageHandler handler() {
         return message -> {
             try {
-                syncSearchResult(objectMapper.readValue((byte[])message.getPayload(), SearchResults.class));
+                searchHandler.handleResults(objectMapper.readValue(message.getPayload().toString(), SearchResults.class));
             } catch (IOException e) {
                 throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
             }
-
         };
     }
-
-    /**
-     * Callback handler that is invoked from fd-search. This routine ties the generated search document ID
-     * to the Entity
-     *
-     * ToDo: On completion of this, an outbound message should be posted so that the caller can be made aware(?)
-     *
-     * @param searchResults contains keys to tie the search to the entity
-     */
-    public void syncSearchResult(SearchResults searchResults) {
-        searchHandler.handleResults(searchResults);
-    }
-
 
 }
