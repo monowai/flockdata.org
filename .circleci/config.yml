@@ -29,7 +29,7 @@ jobs:
           command: 'mvn clean install -DskipTests=true'
 
       - run:
-          command: 'mvn test -f ./fd-common/pom.xml '
+          command: 'mvn install -f ./fd-common/pom.xml '
 
       - save_cache:
           paths:
