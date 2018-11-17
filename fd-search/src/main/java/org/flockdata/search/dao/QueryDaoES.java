@@ -316,7 +316,7 @@ public class QueryDaoES {
         return result.toString();
     }
 
-    public EsSearchRequestResult doFdViewSearch(QueryParams queryParams) throws FlockException {
+    public EsSearchRequestResult doFdViewSearch(QueryParams queryParams) {
         StopWatch watch = new StopWatch();
 
         watch.start(queryParams.toString());

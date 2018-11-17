@@ -40,7 +40,7 @@ jobs:
           path: ./target/test-results
 
       - store_artifacts:
-          path: ./fd-common/target/jars
+          path: /tmp/fd-jars
 
   build-client:
     machine:
@@ -63,7 +63,7 @@ jobs:
           path: fd-client/target/test-results
 
       - store_artifacts:
-          path: ./fd-client/target/jars
+          path: /tmp/fd-jars
 
   build-security:
     machine:
@@ -91,7 +91,7 @@ jobs:
           path: fd-security/target/test-results
 
       - store_artifacts:
-          path: ./fd-security/target/jars
+          path: /tmp/fd-jars
 
   build-search:
     machine:
@@ -114,7 +114,7 @@ jobs:
           path: fd-search/target/test-results
 
       - store_artifacts:
-          path: ./fd-search/target/*.jar
+          path: /tmp/fd-jars
 
   build-graph:
     machine:
@@ -137,7 +137,7 @@ jobs:
           path: fd-graph/target/test-results
 
       - store_artifacts:
-          path: ./fd-graph/target/*.jar
+          path: /tmp/fd-jars
 
   build-store:
     machine:
@@ -160,7 +160,7 @@ jobs:
           path: fd-store/target/test-results
 
       - store_artifacts:
-          path: ./fd-store/target/*.jar
+          path: /tmp/fd-jars
 
   build-batch:
     machine:
@@ -183,7 +183,7 @@ jobs:
           path: fd-batch/target/test-results
 
       - store_artifacts:
-          path: ./fd-batch/target/*.jar
+          path: /tmp/fd-jars
 
   build-shell:
     machine:
@@ -206,7 +206,7 @@ jobs:
           path: fd-shell/target/test-results
 
       - store_artifacts:
-          path: ./fd-shell/target/*.jar
+          path: /tmp/fd-jars
 
   build-engine:
     machine:
@@ -234,7 +234,7 @@ jobs:
           path: fd-engine/target/test-results
 
       - store_artifacts:
-          path: ./fd-engine/target/*.jar
+          path: /tmp/fd-jars
 
   stage-tests:
     machine:

@@ -75,7 +75,7 @@ public class TestFdQueries extends ESBase{
         
         QueryParams queryParams = new QueryParams(entity.getSegment());
         queryParams.setCompany(company);
-//        queryParams.setSearchText("*");
+        queryParams.setSearchText("*");
         // Exactly one document in the index
         EsSearchRequestResult queryResult = queryServiceEs.doFdViewSearch(queryParams);
         assertNotNull( queryResult.getResults());
@@ -152,7 +152,7 @@ public class TestFdQueries extends ESBase{
         QueryParams queryParams = new QueryParams(entity.getSegment());
         queryParams.setCompany(company);
         queryParams.setFortress(fortress);
-//        queryParams.setSearchText("*");
+        queryParams.setSearchText("*");
         // Locate 2 Entity Keys in the search index using wild card query
         EntityKeyResults queryResult = queryServiceEs.doKeyQuery(queryParams);
         assertNotNull(queryResult.getResults());
