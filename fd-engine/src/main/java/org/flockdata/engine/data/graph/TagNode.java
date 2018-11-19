@@ -179,25 +179,8 @@ public class TagNode implements Tag {
     }
 
     @Override
-    public boolean hasAlias(String theLabel, String code) {
-        if (aliases.isEmpty())
-            return false;
-        for (Alias alias : aliases) {
-            if (alias.getKey().equals(code) && alias.getLabel().equals(theLabel + "Alias"))
-                return true;
-        }
-        return false;
-    }
-
-    @Override
     public Set<Alias> getAliases() {
         return aliases;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isDefault() {
-        return getLabel() == null || DEFAULT_TAG.equals(getLabel());
     }
 
     @Override

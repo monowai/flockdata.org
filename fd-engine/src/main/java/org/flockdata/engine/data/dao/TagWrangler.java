@@ -168,7 +168,7 @@ public class TagWrangler {
         if (!aliases.isEmpty())
             template.fetch(startTag.getAliases());
         for (Alias alias : aliases) {
-            if (!startTag.hasAlias(label, alias.getKey())) {
+            if (!TagHelper.hasAlias(startTag.getAliases(), label, alias.getKey())) {
                 template.saveOnly(alias);
                 startTag.addAlias(alias);
             }
@@ -335,7 +335,7 @@ public class TagWrangler {
         String theLabel = TagHelper.suffixLabel(label, suffix);
         template.fetch(tag);
         template.fetch(tag.getAliases());
-        if (tag.hasAlias(theLabel, TagHelper.parseKey(aliasInput.getCode())))
+        if (TagHelper.hasAlias(tag.getAliases(), theLabel, TagHelper.parseKey(aliasInput.getCode())))
             return;
 
         Alias alias = new AliasNode(theLabel, aliasInput, TagHelper.parseKey(aliasInput.getCode()), tag);

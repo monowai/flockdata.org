@@ -16,11 +16,13 @@
 
 package org.flockdata.helper;
 
+import org.flockdata.data.Alias;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.Tag;
 import org.flockdata.registration.TagInputBean;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * Tag parsing support
@@ -86,6 +88,10 @@ public class TagHelper {
         return (index.equals("Country") || index.equals("City"));
     }
 
+    public static boolean isDefault(Tag tag) {
+        return tag != null && isDefault(tag.getLabel());
+    }
+
     public static String getLabel(ArrayList<String> labels) {
         for (String label : labels) {
             if (!NodeHelper.isInternalLabel(label))
@@ -94,4 +100,18 @@ public class TagHelper {
         return TAG;
 
     }
+
+    public static boolean hasAlias(Set<Alias> aliases, String theLabel, String code) {
+        if (aliases.isEmpty()) {
+            return false;
+        }
+        for (Alias alias : aliases) {
+            if (alias.getKey().equals(code) && alias.getLabel().equals(theLabel + "Alias")) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
 }

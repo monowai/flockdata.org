@@ -52,12 +52,7 @@ public interface Tag {
 
     String getLabel();
 
-    boolean hasAlias(String theLabel, String code);
-
     Set<Alias> getAliases();
-
-    @JsonIgnore
-    boolean isDefault();
 
     @JsonIgnore
     Boolean isNew();

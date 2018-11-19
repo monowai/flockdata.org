@@ -30,6 +30,7 @@ import org.flockdata.engine.matrix.EdgeResults;
 import org.flockdata.engine.matrix.FdNode;
 import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.*;
 import org.neo4j.graphalgo.impl.util.PathImpl;
@@ -254,7 +255,8 @@ public class ConceptDaoNeo {
             backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
     public ConceptNode registerTag(CompanyNode company, FdTagResultBean tagResultBean) {
         ConceptNode source;
-        if (tagResultBean.isNewTag() && !tagResultBean.getTag().isDefault()) {
+        TagHelper.isDefault(tagResultBean.getTag());
+        if (tagResultBean.isNewTag() && !TagHelper.isDefault(tagResultBean.getTag())) {
 
             ConceptInputBean conceptInputBean = new ConceptInputBean(tagResultBean);
             source = schemaTagDefExists(company, conceptInputBean);
