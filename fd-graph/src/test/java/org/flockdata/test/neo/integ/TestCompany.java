@@ -23,7 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
     DriverManager.class,
-    Base64.class, KeyGenService.class,
+    Base64.class,
+    KeyGenService.class,
     CompanyRepo.class}
 )
 
