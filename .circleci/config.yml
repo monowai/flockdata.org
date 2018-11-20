@@ -26,6 +26,9 @@ jobs:
             key: org-flockdata-v2a-{{ checksum "pom.xml" }}
 
       - run:
+          command: 'rm -rf ~/.m2/repository/org/flockdata'
+
+      - run:
           command: 'mvn clean install -DskipTests=true'
 
       - run:
