@@ -46,7 +46,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <mockito.version>2.22.0</mockito.version>
-        <org.springboot.version>2.0.6.RELEASE</org.springboot.version>
+        <org.springboot.version>2.1.0.RELEASE</org.springboot.version>
         <org.spring.version>5.0.9.RELEASE</org.spring.version>
         <org.springbatch.version>4.0.1.RELEASE</org.springbatch.version>
 
