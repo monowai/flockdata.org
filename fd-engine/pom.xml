@@ -21,7 +21,7 @@
         <org.flockdata.security.version>0.98.9-SNAPSHOT</org.flockdata.security.version>
         <org.spring-integration.version>4.3.17.RELEASE</org.spring-integration.version>
         <neo4j.jersey.version>1.19.1</neo4j.jersey.version>
-        <org.springboot.version>1.5.17.RELEASE</org.springboot.version>
+        <org.springboot.version>1.5.18.RELEASE</org.springboot.version>
         <org.spring.version>4.3.20.RELEASE</org.spring.version>
         <org.springsecurity.version>4.2.4.RELEASE</org.springsecurity.version>
         <!-- spring data-neo4j wants this specific version -->

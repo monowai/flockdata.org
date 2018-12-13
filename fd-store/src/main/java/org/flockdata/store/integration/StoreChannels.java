@@ -42,33 +42,6 @@ public class StoreChannels {
         return new DirectChannel();
     }
 
-    /**
-     *
-     * @return channel to start the transformation on
-     */
-    @Bean
-    MessageChannel doDataQuery(){
-        return new DirectChannel();
-    }
-
-    /**
-     *
-     * @return channel to dispatch the request on
-     */
-    @Bean
-    MessageChannel sendDataQuery(){
-        return new DirectChannel();
-    }
-
-    /**
-     *
-     * @return response channel
-     */
-    @Bean
-    MessageChannel receiveContentReply(){
-        return new DirectChannel();
-    }
-
     @Bean
     MessageChannel storePing () {
         return new DirectChannel();

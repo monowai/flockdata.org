@@ -31,7 +31,9 @@ import org.springframework.integration.config.EnableIntegration;
  * @since 16/12/2014
  * @tag Application, Search
  */
-@SpringBootApplication(scanBasePackages = {"org.flockdata.search.integration", "org.flockdata.search", "org.flockdata.integration"})
+@SpringBootApplication(scanBasePackages = {
+    "org.flockdata.search",
+    "org.flockdata.integration"})
 @EnableIntegration
 public class FdSearch {
 

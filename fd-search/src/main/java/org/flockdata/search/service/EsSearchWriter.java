@@ -25,7 +25,7 @@ import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.IndexMappingService;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.base.TagChangeWriter;
-import org.flockdata.search.integration.OutboundResultHandler;
+import org.flockdata.search.integration.GraphResultGateway;
 import org.flockdata.track.bean.SearchChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class EsSearchWriter implements SearchWriter {
 
     private boolean fdServer =false;
 
-    private OutboundResultHandler.GraphResultGateway graphResultGateway;
+    private GraphResultGateway graphGateway;
 
     private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
 
@@ -74,8 +74,8 @@ public class EsSearchWriter implements SearchWriter {
     }
 
     @Autowired(required = false)
-    void setGraphResultGateway(OutboundResultHandler.GraphResultGateway graphResultGateway) {
-        this.graphResultGateway = graphResultGateway;
+    void setGraphGateway(GraphResultGateway graphResultGateway) {
+        this.graphGateway = graphResultGateway;
     }
 
     /**
@@ -135,7 +135,7 @@ public class EsSearchWriter implements SearchWriter {
             // Manually checking as @Profile does not seem to work with an @MessageGateway
             logger.debug( "Engine Result Gateway is not enabled. ");
         } else {
-            graphResultGateway.writeSearchResult(results);
+            graphGateway.writeSearchResult(results);
             logger.debug("Processed {} requests. Returning [{}] SearchResults", results.getSearchResults().size(), results.getSearchResults().size());
 
         }
@@ -144,7 +144,7 @@ public class EsSearchWriter implements SearchWriter {
     }
     @PostConstruct
     void logStatus() {
-        logger.debug("**** Deployed EsSearchWriter.  EngineResultGateway {}", graphResultGateway != null);
+        logger.debug("**** Deployed EsSearchWriter.  EngineResultGateway {}", graphGateway != null);
     }
 
 }

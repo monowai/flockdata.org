@@ -22,15 +22,12 @@ package org.flockdata.store.integration;
 
 import org.flockdata.integration.AbstractIntegrationRequest;
 import org.flockdata.search.EsSearchRequestResult;
-import org.flockdata.search.QueryParams;
 import org.flockdata.store.service.FdStoreConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
-import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
-import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -39,8 +36,6 @@ import org.springframework.integration.http.outbound.HttpRequestExecutingMessage
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -102,11 +97,11 @@ public class EsStoreRequest extends AbstractIntegrationRequest {
         return objectToJson().transform(theObject);
     }
 
-    @MessagingGateway
-    public interface ContentStoreEs {
-        @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
-        @Gateway(requestChannel = "doDataQuery", replyChannel = "receiveContentReply")
-        EsSearchRequestResult getData(QueryParams queryParams);
-    }
+//    @MessagingGateway
+//    public interface ContentStoreEs {
+//        @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
+//        @Gateway(requestChannel = "doDataQuery", replyChannel = "receiveContentReply")
+//        EsSearchRequestResult getData(QueryParams queryParams);
+//    }
 
 }

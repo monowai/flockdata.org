@@ -32,8 +32,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication(scanBasePackages = {
         "org.flockdata.integration",
-        "org.flockdata.store",
-        "org.flockdata.authentication"})
+    "org.flockdata.store"})
 public class FdStore {
     public static void main(String[] args) {
         try {
