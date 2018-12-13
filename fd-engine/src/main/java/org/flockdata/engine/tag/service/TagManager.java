@@ -20,19 +20,18 @@
 
 package org.flockdata.engine.tag.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.flockdata.data.Tag;
 import org.flockdata.engine.data.dao.TagRepo;
 import org.flockdata.engine.data.graph.TagNode;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.track.TagKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import java.util.Collection;
@@ -45,13 +44,12 @@ import java.util.Map;
  * @author mholdsworth
  * @since 24/03/2016
  */
-@Repository
+@Service
+@Slf4j
 public class TagManager {
     private final TagRepo tagRepo;
 
     private final Neo4jTemplate template;
-
-    private Logger logger = LoggerFactory.getLogger(TagManager.class);
 
     @Autowired
     public TagManager(Neo4jTemplate template, TagRepo tagRepo) {
@@ -80,12 +78,12 @@ public class TagManager {
         if (tags.size() == 1) {
             TagNode tag = tags.iterator().next();
             if (tag.getLabel().equals(tagKey.getLabel()) || (tagKey.getLabel().equals(Tag.DEFAULT_TAG) || tagKey.getLabel().equals("_" + Tag.DEFAULT_TAG))) {
-                stopWatch(watch, tagKey.getLabel(), tagKey.getCode());
+                stopWatch(watch);
                 return tag;
             }
         }
 
-      //  logger.trace("{} Not found by key {}", multiTennantedLabel, tagKey);
+      //  log.trace("{} Not found by key {}", multiTennantedLabel, tagKey);
 
         // See if the tagKey is unique for the requested label
         TagNode tResult = null;
@@ -100,11 +98,11 @@ public class TagManager {
             }
         }
         if (tResult != null) {
-            stopWatch(watch, "byKey", tagKey.getLabel(), tagKey.getCode());
+            stopWatch(watch);
             return tResult;
         }
 
-        logger.trace("Locating by alias {}, {}", tagKey.getLabel(), tagKey.getCode());
+        log.trace("Locating by alias {}, {}", tagKey.getLabel(), tagKey.getCode());
 
         String query;
 
@@ -122,16 +120,16 @@ public class TagManager {
                 tagResult = getTag(mapResult);
             } else {
                 TagNode toDelete = getTag(mapResult);
-                logger.debug("Deleting duplicate {}", toDelete);
+                log.debug("Deleting duplicate {}", toDelete);
                 if (toDelete != null)
                     template.delete(toDelete);
             }
 
         }
         if (tagResult == null)
-            logger.trace("Not found {}, {}", tagKey.getLabel(), tagKey.getCode());
+            log.trace("Not found {}, {}", tagKey.getLabel(), tagKey.getCode());
         else
-            stopWatch(watch, "byAlias", tagKey.getLabel(), tagKey.getCode());
+            stopWatch(watch);
 
         return tagResult;
     }
@@ -139,19 +137,19 @@ public class TagManager {
     StopWatch getWatch(String id) {
         StopWatch watch = null;
 
-        if (logger.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             watch = new StopWatch(id);
             watch.start(id);
         }
         return watch;
     }
 
-    private void stopWatch(StopWatch watch, Object... args) {
+    private void stopWatch(StopWatch watch) {
         if (watch == null)
             return;
 
         watch.stop();
-        logger.info(watch.prettyPrint());
+        log.info(watch.prettyPrint());
     }
 
     private TagNode getTag(Map<String, Object> mapResult) {

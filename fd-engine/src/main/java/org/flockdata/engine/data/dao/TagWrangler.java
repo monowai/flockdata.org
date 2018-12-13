@@ -44,7 +44,7 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  * @tag Tag, Neo4j
  */
 
-@Repository
+@Service
 public class TagWrangler {
 
     private final Neo4jTemplate template;
@@ -87,7 +87,7 @@ public class TagWrangler {
     }
 
     // ToDo: Turn this in to ServerSide
-    FdTagResultBean save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> cachedValues, boolean suppressRelationships) {
+    private FdTagResultBean save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> cachedValues, boolean suppressRelationships) {
         // Check exists
         boolean isNew = false;
         FdTagResultBean tagResultBean;
@@ -115,7 +115,7 @@ public class TagWrangler {
                 isNew = true;
                 if (tagInput.getCode() == null)
                     throw new FlockDataTagException("The code property for a tag cannot be null {" + tagInput.toString());
-                startTag = createTag(company, tagInput, tagSuffix);
+                startTag = createTag(tagInput, tagSuffix);
             }
         } else {
             // Existing Tag. We only update certain properties. Code is immutable (or near enough to)
@@ -176,7 +176,7 @@ public class TagWrangler {
         }
     }
 
-    private TagNode createTag(Company company, TagInputBean tagInput, String suffix) {
+    private TagNode createTag(TagInputBean tagInput, String suffix) {
 
         logger.trace("createTag {}", tagInput);
         // ToDo: Should a label be suffixed with company in multi-tenanted? - more time to think!!
@@ -200,7 +200,7 @@ public class TagWrangler {
 
     }
 
-    public Map<String, Collection<FdTagResultBean>> findAllTags(Tag sourceTag, String relationship, String targetLabel) {
+    Map<String, Collection<FdTagResultBean>> findAllTags(Tag sourceTag, String relationship, String targetLabel) {
         String query = "match (t) -[" + (!relationship.equals("") ? "r:" + relationship : "r") + "]-(targetTag:" + targetLabel + ") where id(t)={id}  return r, targetTag";
         Map<String, Object> params = new HashMap<>();
         params.put("id", sourceTag.getId());
@@ -222,7 +222,7 @@ public class TagWrangler {
 
     }
 
-    public Collection<Tag> findDirectedTags(String tagSuffix, Tag startTag, Company company) {
+    Collection<Tag> findDirectedTags(String tagSuffix, Tag startTag, Company company) {
         //Long coTags = getCompanyTagManager(companyId);
         //"MATCH track<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
         String query =
@@ -331,7 +331,7 @@ public class TagWrangler {
         return key;
     }
 
-    public void createAlias(String suffix, Tag tag, String label, AliasInputBean aliasInput) {
+    void createAlias(String suffix, Tag tag, String label, AliasInputBean aliasInput) {
         String theLabel = TagHelper.suffixLabel(label, suffix);
         template.fetch(tag);
         template.fetch(tag.getAliases());
@@ -371,25 +371,5 @@ public class TagWrangler {
         return tagResults;
 
     }
-
-//    public Collection<Tag> findTags(String label, String code) {
-//        Collection<Tag> tagResults = new ArrayList<>();
-//        // ToDo: Match to company - something like this.....
-//        //match (t:Law)-[:_TagLabel]-(c:FDCompany) where id(c)=0  return t,c;
-//        //match (t:Law)-[*..2]-(c:FDCompany) where id(c)=0  return t,c;
-//        String query = "match (tag:`" + label + "`) where tag.key = {key} return distinct (tag) as tag";
-//        // Look at PAGE
-//        Map<String,Object>params = new HashMap<>();
-//        params.put("key", TagHelper.parseKey(null, code));
-//        Iterable<Map<String, Object>> results = template.query(query, params);
-//        for (Map<String, Object> row : results) {
-//            Object o = row.get("tag");
-//            Tag t = template.projectTo(o, Tag.class);
-//            tagResults.add(t);
-//
-//        }
-//        return tagResults;
-//    }
-
 
 }
