@@ -21,6 +21,7 @@
 *.zip
 *.war
 *.ear
+out.txt
 
 # Logs and databases #
 ######################
@@ -69,4 +70,5 @@ fd-engine/src/main/docker/container_settings.json
 fd-search/out
 fd-spring/conf/
 out.txt
+neo4j-home
 vpproject/
