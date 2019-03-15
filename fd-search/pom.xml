@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.flockdata</groupId>
         <artifactId>flockdata</artifactId>
-        <version>0.98.9-SNAPSHOT</version>
+        <version>0.98.9</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>fd-search</artifactId>
-    <version>0.98.9-SNAPSHOT</version>
+    <version>0.98.9</version>
     <packaging>jar</packaging>
     <properties>
         <es.version>5.6.9</es.version>
         <org.flockdata.client.version>0.98.9-SNAPSHOT</org.flockdata.client.version>
-        <org.flockdata.common.version>0.98.9-SNAPSHOT</org.flockdata.common.version>
-        <org.flockdata.security.version>0.98.9-SNAPSHOT</org.flockdata.security.version>
+        <org.flockdata.common.version>0.98.9</org.flockdata.common.version>
+        <org.flockdata.security.version>0.98.9</org.flockdata.security.version>
     </properties>
 
     <dependencies>
