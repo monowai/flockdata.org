@@ -4,17 +4,17 @@
     <parent>
         <groupId>org.flockdata</groupId>
         <artifactId>flockdata</artifactId>
-        <version>0.98.9</version>
+        <version>0.98.10-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <version>0.98.9</version>
+    <version>0.98.10-SNAPSHOT</version>
     <artifactId>fd-batch</artifactId>
     <properties>
         <license-text.header>apache_v2</license-text.header>
         <testcontainers.version>master-SNAPSHOT</testcontainers.version>
-        <org.flockdata.client.version>0.98.9</org.flockdata.client.version>
-        <org.flockdata.common.version>0.98.9</org.flockdata.common.version>
-        <org.flockdata.security.version>0.98.9</org.flockdata.security.version>
+        <org.flockdata.client.version>0.98.10-SNAPSHOT</org.flockdata.client.version>
+        <org.flockdata.common.version>0.98.10-SNAPSHOT</org.flockdata.common.version>
+        <org.flockdata.security.version>0.98.10-SNAPSHOT</org.flockdata.security.version>
     </properties>
 
     <dependencies>
