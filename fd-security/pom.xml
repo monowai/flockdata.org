@@ -25,6 +25,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -34,6 +35,7 @@
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
+            <scope>provided</scope>
             <version>${org.flockdata.common.version}</version>
         </dependency>
         <dependency>
