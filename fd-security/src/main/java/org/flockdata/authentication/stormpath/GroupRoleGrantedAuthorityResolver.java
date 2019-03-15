@@ -24,7 +24,6 @@ import java.util.Map;
 
 /**
  * Another sample implementation of the {@code GroupGrantedAuthorityResolver} interface that allows a Stormpath
- // * {@link com.stormpath.sdk.group.Group} to be translated into Spring Security granted authorities where each
  * href found is translated to domain-specific role names.
  * <h2>Overview</h2>
  * This implementation converts a Group into one or more granted authorities roles based on the configured mapping.
