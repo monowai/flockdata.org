@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <properties>
         <org.flockdata.common.version>0.98.10-SNAPSHOT</org.flockdata.common.version>
-        <org.springsecurity.version>4.2.4.RELEASE</org.springsecurity.version>
+        <org.springsecurity.version>4.2.13.RELEASE</org.springsecurity.version>
     </properties>
 
     <artifactId>fd-security</artifactId>
