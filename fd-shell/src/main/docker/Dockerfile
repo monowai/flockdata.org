@@ -17,17 +17,15 @@ RUN mkdir /opt/flockdata && \
 
 WORKDIR /opt/flockdata
 # Add files.
-COPY classes/application.yml /opt/flockdata/conf/application.yml
+COPY classes/application.yml ./application.yml
+COPY classes/countries.json /opt/flockdata/model/.
+COPY classes/fd-cow.txt /opt/flockdata/data/.
+COPY classes/states.json /opt/flockdata/model/.
+COPY classes/states.csv /opt/flockdata/data/.
 
 COPY fd-shell-*.jar /opt/flockdata/fd-shell.jar
-#COPY ../../fd-client/*.json /opt/flockdata/model/
-#COPY ../../fd-client/fd-cow.txt /opt/flockdata/data/
-#COPY ../../fd-client/states.csv /opt/flockdata/data/
-#COPY ../../fd-client/application.yml /opt/flockdata/
 
 ENV FD_BASE="/opt/flockdata"
-#RUN ln -s $FD_BASE/bin/fdshell /usr/local/bin/fdshell
-#RUN ln -s $FD_BASE/bin/fdutils /usr/local/bin/fdutils
 
 RUN alias ll='ls -la'
 
@@ -37,4 +35,4 @@ RUN alias ll='ls -la'
 RUN bash -c 'touch /opt/flockdata/fd-shell.jar'
 #RUN chmod +x  /opt/flockdata/bin/*
 
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-Dfile.encoding=UTF8", "-jar","/opt/flockdata/fd-shell.jar", "--profiles","fd-client"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-Dfile.encoding=UTF8", "-jar","/opt/flockdata/fd-shell.jar"]

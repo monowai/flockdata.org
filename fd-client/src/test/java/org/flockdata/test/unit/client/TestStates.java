@@ -16,6 +16,10 @@
 
 package org.flockdata.test.unit.client;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import junit.framework.TestCase;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
@@ -23,12 +27,8 @@ import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
- * General validation of states. Uses the resources from main/resources
+ * General validation of states
  *
  * @author mholdsworth
  * @since 9/03/2015
@@ -45,7 +45,7 @@ public class TestStates extends AbstractImport {
             assertEquals(1, stateTag.getTargets().size());
             TagInputBean country = stateTag.getTargets().get("region").iterator().next();
             assertNotNull(country);
-            assertTrue(stateTag.getKeyPrefix().equals(country.getCode()));
+          TestCase.assertEquals(stateTag.getKeyPrefix(), country.getCode());
             if (country.getCode().equals("US")){
                 // Randomly check a US state for Census aliases
                 if ( stateTag.getCode().equals("CA")){

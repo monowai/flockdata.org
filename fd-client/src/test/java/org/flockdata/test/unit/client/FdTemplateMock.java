@@ -17,8 +17,7 @@
 package org.flockdata.test.unit.client;
 
 import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.services.FdTemplate;
-import org.flockdata.transform.FdIoInterface;
+import org.flockdata.integration.FdTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -41,8 +40,8 @@ import org.springframework.stereotype.Service;
 public class FdTemplateMock extends FdTemplate {
 
     @Autowired
-    public FdTemplateMock(ClientConfiguration clientConfiguration, FdIoInterface fdIoInterface) {
-        super(clientConfiguration, fdIoInterface);
+    public FdTemplateMock(ClientConfiguration clientConfiguration) {
+      super(clientConfiguration);
     }
 
     /**

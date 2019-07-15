@@ -16,6 +16,19 @@
 
 package org.flockdata.test.integration;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_USER;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.flockdata.client.FdClientIo;
 import org.flockdata.client.amqp.FdRabbitClient;
@@ -24,6 +37,7 @@ import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.FdTemplate;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.model.ContentModelResult;
@@ -34,8 +48,12 @@ import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.ContentStructure;
 import org.flockdata.search.EsSearchRequestResult;
 import org.flockdata.search.QueryParams;
-import org.flockdata.services.FdTemplate;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityLogResult;
+import org.flockdata.track.bean.EntityResultBean;
+import org.flockdata.track.bean.TrackRequestResult;
 import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.json.ExtractProfileDeserializer;
@@ -53,14 +71,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.*;
-
-import static junit.framework.TestCase.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_USER;
-import static org.springframework.test.util.AssertionErrors.assertEquals;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * Establishes the integration test environment. Descendant classes use @Test functions against

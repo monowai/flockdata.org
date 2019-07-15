@@ -16,19 +16,42 @@
 
 package org.flockdata.test.integration;
 
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+import static org.springframework.test.util.AssertionErrors.fail;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import me.tongfei.progressbar.ProgressBar;
 import org.flockdata.client.FdClientIo;
 import org.flockdata.client.amqp.FdRabbitClient;
-import org.flockdata.client.commands.*;
+import org.flockdata.client.commands.CommandResponse;
+import org.flockdata.client.commands.EnginePing;
+import org.flockdata.client.commands.EntityGet;
+import org.flockdata.client.commands.EntityLogsGet;
+import org.flockdata.client.commands.Health;
+import org.flockdata.client.commands.RegistrationPost;
+import org.flockdata.client.commands.SearchEsPost;
+import org.flockdata.client.commands.SearchPing;
+import org.flockdata.client.commands.StorePing;
+import org.flockdata.client.commands.TagsGet;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
+import org.flockdata.integration.FdTemplate;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.services.FdTemplate;
-import org.flockdata.test.integration.matchers.*;
+import org.flockdata.test.integration.matchers.EntityKeyReady;
+import org.flockdata.test.integration.matchers.EntityLogReady;
+import org.flockdata.test.integration.matchers.EntitySearchReady;
+import org.flockdata.test.integration.matchers.ReadyMatcher;
+import org.flockdata.test.integration.matchers.TagCountReady;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityLogResult;
 import org.flockdata.track.bean.EntityResultBean;
@@ -42,15 +65,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.DockerComposeContainer;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.util.AssertionErrors.*;
 
 
 /**

@@ -1,0 +1,36 @@
+{
+  "contentType": "csv",
+  "tagModel": "true",
+  "code": "states",
+  "name": "Known states",
+  "content": {
+    "name": {
+      "tag": true,
+      "label": "State",
+      "code": "code",
+      "keyPrefix": "[country]",
+      "name": "name",
+      "targets": [
+        {
+          "code": "country",
+          "label": "Country",
+          "mustExist": true,
+          "relationship": "region"
+        }
+      ],
+      "aliases": [
+        {
+          "code": "us-census",
+          "description": "USCensus"
+        },
+        {
+          "code": "[name]",
+          "description": "StateName"
+        }
+      ]
+    },
+    "us-census": {
+      "dataType": "string"
+    }
+  }
+}

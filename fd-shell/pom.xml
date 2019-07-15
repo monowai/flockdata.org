@@ -192,8 +192,9 @@
                                     <directory>${project.build.directory}</directory>
                                     <include>${project.build.finalName}.jar</include>
                                     <include>classes/application.yml</include>
-
-                                    <include>classes/log4j*</include>
+                                    <include>classes/*.json</include>
+                                    <include>classes/*.txt</include>
+                                    <include>classes/*.csv</include>
                                 </resource>
                             </resources>
                         </configuration>

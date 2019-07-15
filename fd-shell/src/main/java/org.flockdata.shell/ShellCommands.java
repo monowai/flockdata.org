@@ -16,8 +16,18 @@
 
 package org.flockdata.shell;
 
+import static org.springframework.shell.standard.ShellOption.NULL;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import org.flockdata.client.Importer;
-import org.flockdata.client.commands.*;
+import org.flockdata.client.commands.CommandResponse;
+import org.flockdata.client.commands.EnginePing;
+import org.flockdata.client.commands.Health;
+import org.flockdata.client.commands.Login;
+import org.flockdata.client.commands.RegistrationPost;
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
 import org.flockdata.helper.JsonUtils;
@@ -35,13 +45,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-
-import static org.springframework.shell.standard.ShellOption.NULL;
 
 /**
  * Runs commands on behalf of the shell
@@ -239,9 +242,9 @@ public class ShellCommands {
 
 
     //, help = "Track data into the service"
-    // import-data --data "data/fd-cow.txt, profile/countries.json;data/states.csv, model/states.json"
-    @ShellMethod(value = "import-data")
-    public String importData(
+    // import --data "data/fd-cow.txt, profile/countries.json;data/states.csv, model/states.json"
+    @ShellMethod(value = "ingest")
+    public String ingest(
         @ShellOption(help = "--data \"datafile.txt,profile.json\" e.g. import \"data/fd-cow.txt, profile/countries.json;data/states.csv, model/states.json") final String data) {
 
         if (clientConfiguration.getApiKey() == null) {

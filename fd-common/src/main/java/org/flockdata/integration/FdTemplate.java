@@ -14,11 +14,17 @@
  *  limitations under the License.
  */
 
-package org.flockdata.services;
+package org.flockdata.integration;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.flockdata.helper.FlockException;
-import org.flockdata.integration.ClientConfiguration;
-import org.flockdata.integration.Template;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -27,10 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author mholdsworth
@@ -53,9 +55,8 @@ public class FdTemplate implements Template {
     }
 
     @Autowired
-    public FdTemplate(ClientConfiguration clientConfiguration, FdIoInterface fdIoInterface) {
+    public FdTemplate(ClientConfiguration clientConfiguration) {
         this.clientConfiguration = clientConfiguration;
-        this.fdIoInterface = fdIoInterface;
     }
 
     @Autowired
@@ -72,7 +73,7 @@ public class FdTemplate implements Template {
         return fdIoInterface;
     }
 
-    @Autowired
+  @Autowired(required = false)
     public void setFdIoInterface (FdIoInterface fdIoInterface){
         this.fdIoInterface = fdIoInterface;
     }

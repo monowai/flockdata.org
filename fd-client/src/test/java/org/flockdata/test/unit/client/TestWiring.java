@@ -16,14 +16,21 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.flockdata.client.FdClientIo;
 import org.flockdata.client.amqp.FdRabbitClient;
-import org.flockdata.client.commands.*;
+import org.flockdata.client.commands.Login;
+import org.flockdata.client.commands.ModelFieldStructure;
+import org.flockdata.client.commands.ModelGet;
+import org.flockdata.client.commands.ModelPost;
+import org.flockdata.client.commands.SearchEsPost;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.Exchanges;
+import org.flockdata.integration.FdTemplate;
 import org.flockdata.integration.FileProcessor;
-import org.flockdata.services.FdTemplate;
 import org.flockdata.transform.FdIoInterface;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,9 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author mike

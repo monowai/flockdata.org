@@ -16,6 +16,9 @@
 
 package org.flockdata.integration;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpAdmin;
@@ -28,10 +31,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.IntegrationComponentScan;
-
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Rabbit MQ / AMQP Configuration and channel initialization
@@ -170,7 +169,9 @@ public class AmqpRabbitConfig {
 
     @PostConstruct
     public String logStatus() {
-        String message = String.format("**** FlockData RabbitAMQP configuration deployed. rabbit.host set to [%s:%s], rabbit.user [%s]", getHost(), getPort(), getUser());
+      String message = String.format("**** FlockData RabbitAMQP configuration deployed. \r\n" +
+              "spring.rabbitmq.host set to [%s:%s], spring.rabbitmq.user [%s]",
+          getHost(), getPort(), getUser());
         logger.info(message);
         return message;
     }

@@ -17,6 +17,11 @@
 package org.flockdata.client;
 
 import com.rabbitmq.client.AlreadyClosedException;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.flockdata.client.amqp.FdRabbitClient;
 import org.flockdata.client.commands.CommandResponse;
@@ -46,12 +51,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Dispatches Entity and Tag data requests to a FlockData service
@@ -109,7 +108,9 @@ public class FdClientIo implements FdIoInterface {
     }
 
     public SystemUserResultBean me() {
-        return login.exec(clientConfiguration.getHttpUser(), clientConfiguration.getHttpPass()).getResult();
+        return login.exec(clientConfiguration.getHttpUser(),
+            clientConfiguration.getHttpPass())
+            .getResult();
     }
 
     private ClientConfiguration getClientConfiguration() {
@@ -180,12 +181,17 @@ public class FdClientIo implements FdIoInterface {
                 auth.getBytes(Charset.forName("UTF-8")));
         String authHeader = "Basic " + new String(encodedAuth);
 
-        if (httpHeaders != null && httpHeaders.get("Authorization") !=null && httpHeaders.get("Authorization").iterator().next().equals(authHeader))
+        if (httpHeaders != null && httpHeaders.get("Authorization") != null && httpHeaders
+            .get("Authorization")
+            .iterator()
+            .next()
+            .equals(authHeader))
             return httpHeaders;
 
         httpHeaders = new HttpHeaders() {
             {
-                if (clientConfiguration.getHttpUser() != null && clientConfiguration.getHttpPass() != null) {
+                if (clientConfiguration.getHttpUser() != null &&
+                    clientConfiguration.getHttpPass() != null) {
                     set("Authorization", authHeader);
                 }
 
