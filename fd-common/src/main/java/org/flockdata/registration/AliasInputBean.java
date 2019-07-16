@@ -31,7 +31,8 @@ public class AliasInputBean {
     private String code;
     private String description;
 
-    public AliasInputBean(){}
+    public AliasInputBean() {
+    }
 
     public AliasInputBean(String code) {
         this();
@@ -63,8 +64,12 @@ public class AliasInputBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AliasInputBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AliasInputBean)) {
+            return false;
+        }
 
         AliasInputBean that = (AliasInputBean) o;
 
@@ -81,8 +86,8 @@ public class AliasInputBean {
     @Override
     public String toString() {
         return "AliasInputBean{" +
-                "code='" + code + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+            "code='" + code + '\'' +
+            ", description='" + description + '\'' +
+            '}';
     }
 }

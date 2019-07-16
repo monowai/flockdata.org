@@ -19,14 +19,13 @@ package org.flockdata.transform.xml;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.transform.model.PayloadTransformer;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 /**
  * @author mholdsworth
@@ -34,8 +33,6 @@ import javax.xml.stream.XMLStreamReader;
  */
 public interface XmlMappable extends PayloadTransformer {
     /**
-     *
-     *
      * @return XML Data document type
      */
     @JsonIgnore

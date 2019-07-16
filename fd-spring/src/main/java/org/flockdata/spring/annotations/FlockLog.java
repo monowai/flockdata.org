@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author  nabil
+ * @author nabil
  * @since 11/08/2013
  */
 @Target(ElementType.METHOD)

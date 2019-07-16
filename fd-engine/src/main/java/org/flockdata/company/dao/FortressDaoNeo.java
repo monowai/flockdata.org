@@ -20,6 +20,8 @@
 
 package org.flockdata.company.dao;
 
+import java.util.Collection;
+import java.util.List;
 import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.Segment;
@@ -36,16 +38,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.List;
-
 /**
  * @author mholdsworth
- * @since 20/04/2013
  * @tag Fortress, Neo4j,
+ * @since 20/04/2013
  */
 @Repository
-public class FortressDaoNeo  {
+public class FortressDaoNeo {
     @Autowired
     Neo4jTemplate template;
     @Autowired
@@ -61,8 +60,9 @@ public class FortressDaoNeo  {
     private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
 
     public FortressNode save(Company company, FortressInputBean fortressInput) {
-        if ( fortressInput.isSearchEnabled()==null)
+        if (fortressInput.isSearchEnabled() == null) {
             fortressInput.setSearchEnabled(engineConfig.isSearchEnabled());
+        }
 
         FortressNode fortress = new FortressNode(fortressInput, company);
         fortress.setRootIndex(indexManager.getIndexRoot(fortress));
@@ -103,25 +103,26 @@ public class FortressDaoNeo  {
         return fortressRepo.getFortressByCode(companyId, fortressCode.toLowerCase());
     }
 
-    public Segment saveSegment(Segment segment){
-        Segment result= findSegment(segment.getFortress(), segment.getKey());
-        if ( result == null )
-            result = fortressSegmentRepo.save((FortressSegmentNode)segment);
+    public Segment saveSegment(Segment segment) {
+        Segment result = findSegment(segment.getFortress(), segment.getKey());
+        if (result == null) {
+            result = fortressSegmentRepo.save((FortressSegmentNode) segment);
+        }
         return result;
     }
 
-    public Segment getDefaultSegment(Fortress fortress){
-        FortressSegmentNode segment = (FortressSegmentNode)fortress.getDefaultSegment();
+    public Segment getDefaultSegment(Fortress fortress) {
+        FortressSegmentNode segment = (FortressSegmentNode) fortress.getDefaultSegment();
         template.fetch(segment);
         return segment;
     }
 
     public Collection<Segment> getSegments(Fortress fortress) {
-        return fortressSegmentRepo.findFortressSegments(fortress.getId()) ;
+        return fortressSegmentRepo.findFortressSegments(fortress.getId());
     }
 
-    Segment findSegment(Fortress fortress, String segmentKey){
-        return fortressSegmentRepo.findSegment(fortress.getId(),segmentKey);
+    Segment findSegment(Fortress fortress, String segmentKey) {
+        return fortressSegmentRepo.findSegment(fortress.getId(), segmentKey);
     }
 
     public void purgeFortress(Long fortressId) {

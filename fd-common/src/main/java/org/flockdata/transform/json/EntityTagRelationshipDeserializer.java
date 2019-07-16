@@ -25,15 +25,15 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.track.bean.EntityTagRelationshipDefinition;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.track.bean.EntityTagRelationshipDefinition;
 
 /**
  * JSON
+ *
  * @author mholdsworth
  * @since 29/07/2015
  */

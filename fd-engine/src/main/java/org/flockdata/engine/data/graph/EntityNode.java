@@ -22,7 +22,17 @@ package org.flockdata.engine.data.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.data.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
+import java.util.TimeZone;
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.FortressUser;
+import org.flockdata.data.Log;
+import org.flockdata.data.Segment;
 import org.flockdata.helper.FlockException;
 import org.flockdata.track.EntityHelper;
 import org.flockdata.track.bean.EntityInputBean;
@@ -31,15 +41,14 @@ import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.Fetch;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.Labels;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * @tag Entity, Node, Segment
@@ -118,14 +127,16 @@ public class EntityNode implements Serializable, Entity {
         labels.add(documentType.getName());
         this.key = key;
         this.noLogs = entityInput.isEntityOnly();
-        this.segment = (FortressSegmentNode)segment;
+        this.segment = (FortressSegmentNode) segment;
         // DAT-278
         String docType = documentType.getName();
-        if (docType == null)
+        if (docType == null) {
             docType = documentType.getCode();
+        }
 
-        if (docType == null)
+        if (docType == null) {
             throw new RuntimeException("Unable to resolve the doc type code [" + documentType + "] for  " + entityInput);
+        }
 
         newEntity = true;
 
@@ -134,10 +145,11 @@ public class EntityNode implements Serializable, Entity {
         extKey = EntityHelper.parseKey(this.segment.getFortress().getId(), documentType.getId(), (code != null ? code : this.key));
         //extKey = this.fortress.getId() + "." + documentType.getId() + "." + (code != null ? code : key);
 
-        if (entityInput.getName() == null || entityInput.getName().equals(""))
+        if (entityInput.getName() == null || entityInput.getName().equals("")) {
             this.name = (code == null ? docType : (docType + "." + code));
-        else
+        } else {
             this.name = entityInput.getName();
+        }
 
         if (entityInput.getProperties() != null && !entityInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(entityInput.getProperties());
@@ -145,14 +157,16 @@ public class EntityNode implements Serializable, Entity {
 
         Date when = entityInput.getWhen();
 
-        if (when == null)
+        if (when == null) {
             fortressCreate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.segment.getFortress().getTimeZone()))).getMillis();
-        else
+        } else {
             fortressCreate = new DateTime(when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(entityInput.getMetaTZ()))).toDate().getTime();
+        }
         if (entityInput.getLastChange() != null) {
             long fWhen = entityInput.getLastChange().getTime();
-            if (fWhen != fortressCreate)
+            if (fWhen != fortressCreate) {
                 fortressLastWhen = fWhen;
+            }
         }
 
         // Content date has the last say on when the update happened
@@ -161,8 +175,9 @@ public class EntityNode implements Serializable, Entity {
         }
 
         //lastUpdate = 0l;
-        if (entityInput.isEntityOnly())
+        if (entityInput.isEntityOnly()) {
             this.event = entityInput.getEvent();
+        }
         this.suppressSearch(entityInput.isSearchSuppressed());
 
     }
@@ -191,7 +206,7 @@ public class EntityNode implements Serializable, Entity {
     }
 
     public void setSegment(Segment segment) {
-        this.segment = (FortressSegmentNode)segment;
+        this.segment = (FortressSegmentNode) segment;
     }
 
     public String getExtKey() {
@@ -234,7 +249,7 @@ public class EntityNode implements Serializable, Entity {
     }
 
     public void setCreatedBy(FortressUser createdBy) {
-        this.createdBy = (FortressUserNode)createdBy;
+        this.createdBy = (FortressUserNode) createdBy;
     }
 
     @Override
@@ -259,15 +274,16 @@ public class EntityNode implements Serializable, Entity {
     @Override
     public String toString() {
         return "EntityNode{" +
-                "id=" + id +
-                ", key='" + key + '\'' +
-                ", name='" + name +
-                '}';
+            "id=" + id +
+            ", key='" + key + '\'' +
+            ", name='" + name +
+            '}';
     }
 
     public void bumpUpdate() {
-        if (id != null)
+        if (id != null) {
             lastUpdate = new DateTime().toDateTime(DateTimeZone.UTC).toDateTime().getMillis();
+        }
     }
 
     /**
@@ -296,10 +312,11 @@ public class EntityNode implements Serializable, Entity {
 
     public void setSearchKey(String searchKey) {
         // By default the searchkey is the code. Let's save disk space
-        if (searchKey != null && searchKey.equals(code))
+        if (searchKey != null && searchKey.equals(code)) {
             this.searchKey = null;
-        else
+        } else {
             this.searchKey = searchKey;
+        }
     }
 
     @Override
@@ -320,8 +337,9 @@ public class EntityNode implements Serializable, Entity {
 
     @JsonIgnore     // Don't persist ov
     public DateTime getFortressUpdatedTz() {
-        if (fortressLastWhen == null)
+        if (fortressLastWhen == null) {
             return null;
+        }
         return new DateTime(fortressLastWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(segment.getFortress().getTimeZone())));
     }
 
@@ -331,8 +349,12 @@ public class EntityNode implements Serializable, Entity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EntityNode)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EntityNode)) {
+            return false;
+        }
 
         EntityNode that = (EntityNode) o;
 
@@ -365,15 +387,18 @@ public class EntityNode implements Serializable, Entity {
         boolean modified = false;
         for (String s : properties.keySet()) {
             if (props.hasProperty(s)) {
-                if (props.getProperty(s) != properties.get(s))
+                if (props.getProperty(s) != properties.get(s)) {
                     modified = true;
-            } else
+                }
+            } else {
                 modified = true;
+            }
 
 
         }
-        if (modified)
+        if (modified) {
             props = new DynamicPropertiesContainer(properties);
+        }
         return modified;
     }
 

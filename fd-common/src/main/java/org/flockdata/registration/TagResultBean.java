@@ -18,19 +18,18 @@ package org.flockdata.registration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.data.Concept;
 import org.flockdata.data.Tag;
 import org.flockdata.track.bean.AliasResultBean;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Public facing view of a results of a tag track result
  *
- * @tag Tag, Json
  * @author mholdsworth
+ * @tag Tag, Json
  * @since 11/05/2015
  */
 public class TagResultBean {
@@ -50,13 +49,14 @@ public class TagResultBean {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     protected ArrayList<AliasResultBean> aliases = new ArrayList<>();
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    protected Map<String,Object> properties = new HashMap<>();
+    protected Map<String, Object> properties = new HashMap<>();
     @JsonInclude(JsonInclude.Include.NON_NULL)
     protected String description;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String relationship;
 
-    public TagResultBean(){}
+    public TagResultBean() {
+    }
 
     public TagResultBean(String code, String name, String label) {
         this.code = code;
@@ -112,10 +112,10 @@ public class TagResultBean {
     @Override
     public String toString() {
         return "TagResultBean{" +
-                "label='" + label + '\'' +
-                ", code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+            "label='" + label + '\'' +
+            ", code='" + code + '\'' +
+            ", name='" + name + '\'' +
+            '}';
     }
 
     public String getRelationship() {
@@ -128,14 +128,24 @@ public class TagResultBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TagResultBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TagResultBean)) {
+            return false;
+        }
 
         TagResultBean that = (TagResultBean) o;
 
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (key != null ? !key.equals(that.key) : that.key != null) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (key != null ? !key.equals(that.key) : that.key != null) {
+            return false;
+        }
         return label != null ? label.equals(that.label) : that.label == null;
 
     }

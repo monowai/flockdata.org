@@ -18,16 +18,21 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.data.*;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import org.flockdata.data.Company;
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityLog;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.TxRef;
 
 /**
  * Represents the internal in-memory state of a request to record a change in FlockData
  * This payload is passed around services enriched and returned.
- *
+ * <p>
  * TrackResultBean is not persisted and it's state is only guaranteed within FlockData
  *
  * @author mholdsworth
@@ -151,7 +156,7 @@ public class TrackResultBean implements Serializable {
     /**
      * If trackSuppressed is true, then mock EntityTags are created for the purpose
      * of building a search document. This method returns those mocked entity tags
-     *
+     * <p>
      * If you want actual EntityTags physically recorded against the Entity then use the
      * EntityTagService
      *
@@ -183,6 +188,7 @@ public class TrackResultBean implements Serializable {
 
     /**
      * EntityInput information provided when the track call was made
+     *
      * @return callers input data
      */
     public EntityInputBean getEntityInputBean() {
@@ -244,8 +250,8 @@ public class TrackResultBean implements Serializable {
     public boolean isLogIgnored() {
         // FixMe: Suspicious about the TRACK_ONLY status. One can ignore track and write to fd-search
         return logIgnored ||
-                getLogStatus() == ContentInputBean.LogStatus.IGNORE ||
-                getLogStatus() == ContentInputBean.LogStatus.TRACK_ONLY;
+            getLogStatus() == ContentInputBean.LogStatus.IGNORE ||
+            getLogStatus() == ContentInputBean.LogStatus.TRACK_ONLY;
     }
 
     public TxRef getTxReference() {
@@ -282,19 +288,24 @@ public class TrackResultBean implements Serializable {
     @Override
     public String toString() {
         return "TrackResultBean{" +
-                "entity=" + entity +
-                '}';
+            "entity=" + entity +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TrackResultBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TrackResultBean)) {
+            return false;
+        }
 
         TrackResultBean that = (TrackResultBean) o;
 
-        if (entityInputBean != null ? !entityInputBean.equals(that.entityInputBean) : that.entityInputBean != null)
+        if (entityInputBean != null ? !entityInputBean.equals(that.entityInputBean) : that.entityInputBean != null) {
             return false;
+        }
         return !(contentInput != null ? !contentInput.equals(that.contentInput) : that.contentInput != null);
 
     }

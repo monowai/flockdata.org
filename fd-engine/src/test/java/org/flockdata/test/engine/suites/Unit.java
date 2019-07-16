@@ -21,7 +21,13 @@
 package org.flockdata.test.engine.suites;
 
 import org.flockdata.test.engine.services.TestEntitySearch;
-import org.flockdata.test.engine.unit.*;
+import org.flockdata.test.engine.unit.TestApiKeyHelper;
+import org.flockdata.test.engine.unit.TestBatchSplitter;
+import org.flockdata.test.engine.unit.TestEdgeResults;
+import org.flockdata.test.engine.unit.TestEntityKeys;
+import org.flockdata.test.engine.unit.TestHashcodeAndEquality;
+import org.flockdata.test.engine.unit.TestInputBeans;
+import org.flockdata.test.engine.unit.TestQueryParameters;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.springframework.retry.annotation.EnableRetry;
@@ -35,19 +41,20 @@ import org.springframework.retry.annotation.EnableRetry;
 
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-        TestApiKeyHelper.class,
-        TestBatchSplitter.class,
-        TestEdgeResults.class,
-        TestEntityKeys.class,
-        TestEntitySearch.class,
-        TestHashcodeAndEquality.class,
-        TestInputBeans.class,
-        TestQueryParameters.class
+@Suite.SuiteClasses( {
+    TestApiKeyHelper.class,
+    TestBatchSplitter.class,
+    TestEdgeResults.class,
+    TestEntityKeys.class,
+    TestEntitySearch.class,
+    TestHashcodeAndEquality.class,
+    TestInputBeans.class,
+    TestQueryParameters.class
 })
 @EnableRetry
 public class Unit {
 
-    public Unit(){}
+    public Unit() {
+    }
 
 }

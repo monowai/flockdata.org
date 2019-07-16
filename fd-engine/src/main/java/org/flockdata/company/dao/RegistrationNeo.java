@@ -30,8 +30,8 @@ import org.springframework.stereotype.Repository;
 
 /**
  * @author mholdsworth
- * @since 20/04/2013
  * @tag SystemUser, Neo4j,
+ * @since 20/04/2013
  */
 @Repository
 public class RegistrationNeo {
@@ -46,13 +46,14 @@ public class RegistrationNeo {
     }
 
     public SystemUserNode save(SystemUser systemUser) {
-        return suRepo.save((SystemUserNode)systemUser);
+        return suRepo.save((SystemUserNode) systemUser);
     }
 
     @Cacheable(value = "sysUserApiKey", unless = "#result==null")
     public SystemUser findByApiKey(String apiKey) {
-        if (apiKey == null)
+        if (apiKey == null) {
             return null;
+        }
         return suRepo.findBySchemaPropertyValue("apiKey", apiKey);
     }
 

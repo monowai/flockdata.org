@@ -25,16 +25,17 @@ import java.util.Collection;
 
 /**
  * @author mholdsworth
- * @since 29/06/2015
  * @tag Contract, Query, Entity
+ * @since 29/06/2015
  */
 public class EntityResults {
 
     Collection<TrackResultBean> trackResults = new ArrayList<>();
 
-    public void addResult(TrackResultBean trackResult){
-        if ( !trackResults.contains(trackResult))
+    public void addResult(TrackResultBean trackResult) {
+        if (!trackResults.contains(trackResult)) {
             trackResults.add(trackResult);
+        }
     }
 
     public Collection<TrackResultBean> getTrackResults() {
@@ -43,8 +44,9 @@ public class EntityResults {
 
 
     public TrackResultBean getSingleResult() {
-        if ( trackResults.isEmpty())
+        if (trackResults.isEmpty()) {
             return null;
+        }
         return getTrackResults().iterator().next();
     }
 }

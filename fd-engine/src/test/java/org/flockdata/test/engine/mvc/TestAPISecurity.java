@@ -28,27 +28,27 @@ public class TestAPISecurity extends MvcBase {
 
     @Test
     public void invokeSecureAPIWithoutAPIKey_shouldThrowError()
-            throws Exception {
+        throws Exception {
         mvc().perform(MockMvcRequestBuilders
-                .get(MvcBase.apiPath + "/fortress/")
-                .with(noUser()))
+            .get(MvcBase.apiPath + "/fortress/")
+            .with(noUser()))
 
-                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                .andReturn();
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+            .andReturn();
     }
 
     @Test
     public void invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk()
-            throws Exception {
+        throws Exception {
         makeDataAccessProfile("invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk", sally_admin);
 
         mvc()
-                .perform(MockMvcRequestBuilders
-                        .get(MvcBase.apiPath + "/fortress/")
-                        .with(sally())
-                )
+            .perform(MockMvcRequestBuilders
+                .get(MvcBase.apiPath + "/fortress/")
+                .with(sally())
+            )
 
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
     }
 
     @Test
@@ -57,9 +57,9 @@ public class TestAPISecurity extends MvcBase {
         setSecurityEmpty();
 
         mvc().perform(
-                MockMvcRequestBuilders.get(MvcBase.apiPath + "/fortress/").header("api-key",
-                        apikey)
-                        .with(noUser()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            MockMvcRequestBuilders.get(MvcBase.apiPath + "/fortress/").header("api-key",
+                apikey)
+                .with(noUser()))
+            .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
     }
 }

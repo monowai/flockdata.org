@@ -16,6 +16,9 @@
 
 package org.flockdata.client.commands;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.transform.FdIoInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +30,11 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * HealthCheck to a service to see if it can see other services
  *
- * @tag Command, Administration
  * @author mholdsworth
+ * @tag Command, Administration
  * @since 4/04/2016
  */
 
@@ -51,7 +50,7 @@ public class Health {
 
     public CommandResponse<Map<String, Object>> exec() {
         String error = null;
-        Map<String,Object>result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         String exec = fdIoInterface.getUrl() + "/api/v1/admin/health/";
         HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
         try {
@@ -59,10 +58,11 @@ public class Health {
             response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
             result = JsonUtils.toMap(response.getBody());
         } catch (HttpClientErrorException e) {
-            if (e.getMessage().startsWith("401"))
+            if (e.getMessage().startsWith("401")) {
                 error = "auth";
-            else
+            } else {
                 error = e.getMessage();
+            }
         } catch (HttpServerErrorException | ResourceAccessException | IOException e) {
             error = e.getMessage();
         }

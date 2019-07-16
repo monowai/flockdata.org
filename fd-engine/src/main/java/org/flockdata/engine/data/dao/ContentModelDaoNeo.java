@@ -20,6 +20,9 @@
 
 package org.flockdata.engine.data.dao;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 import org.flockdata.data.Company;
 import org.flockdata.data.Document;
 import org.flockdata.data.Fortress;
@@ -30,15 +33,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
-
 /**
- * @tag neo4j, ContentModel
  * @author mholdsworth
- * @since 3/10/2014
+ * @tag neo4j, ContentModel
  * @tag Neo4j, ContentModel
+ * @since 3/10/2014
  */
 @Repository
 public class ContentModelDaoNeo {
@@ -58,12 +57,12 @@ public class ContentModelDaoNeo {
         return contentModelRepo.findTagModel(company.getId(), code);
     }
 
-    public ModelNode find (Fortress fortress, Document documentType ){
+    public ModelNode find(Fortress fortress, Document documentType) {
         return contentModelRepo.findTagModel(fortress.getId(), documentType.getId());
     }
 
     public Model save(Model modelToSave) {
-        ModelNode model = contentModelRepo.save((ModelNode)modelToSave);
+        ModelNode model = contentModelRepo.save((ModelNode) modelToSave);
         template.fetch(model.getDocument());
         template.fetch(model.getFortress());
         return model;
@@ -71,43 +70,52 @@ public class ContentModelDaoNeo {
 
     public Collection<ContentModelResult> find(Long companyId) {
         Collection<ModelNode> models = contentModelRepo.findCompanyModels(companyId);
-        Collection<ContentModelResult>results = new ArrayList<>(models.size());
+        Collection<ContentModelResult> results = new ArrayList<>(models.size());
         for (Model model : models) {
-            if ( model.getFortress() !=null)
+            if (model.getFortress() != null) {
                 template.fetch(model.getFortress());
-            if (model.getDocument() !=null )
+            }
+            if (model.getDocument() != null) {
                 template.fetch(model.getDocument());
+            }
             results.add(new ContentModelResult(model));
         }
         return results;
     }
 
-    public ContentModelResult findByKey(Long companyID, String key){
+    public ContentModelResult findByKey(Long companyID, String key) {
         ModelNode model = contentModelRepo.findByKey(key);
-        if ( model == null )
+        if (model == null) {
             return null;
+        }
 
-        if (!Objects.equals(model.getCompany().getId(), companyID))
+        if (!Objects.equals(model.getCompany().getId(), companyID)) {
             return null; // Somehow you have a key but it ain't for this company
+        }
 
         // Profiles can simply be stored against the company if they just import tags
-        if ( model.getFortress()!=null )
+        if (model.getFortress() != null) {
             template.fetch(model.getFortress());
-        if ( model.getDocument()!=null)
+        }
+        if (model.getDocument() != null) {
             template.fetch(model.getDocument());
-        if ( model.getCompany()!=null)
+        }
+        if (model.getCompany() != null) {
             template.fetch(model.getCompany());
+        }
 
         return new ContentModelResult(model);
     }
 
     public void delete(Company company, String key) {
         ModelNode model = contentModelRepo.findByKey(key);
-        if ( model == null )
-            return ;
+        if (model == null) {
+            return;
+        }
 
-        if (!Objects.equals(model.getCompany().getId(), company.getId()))
-            return ; // Somehow you have a key but it ain't for this company
+        if (!Objects.equals(model.getCompany().getId(), company.getId())) {
+            return; // Somehow you have a key but it ain't for this company
+        }
 
         contentModelRepo.delete(model);
 

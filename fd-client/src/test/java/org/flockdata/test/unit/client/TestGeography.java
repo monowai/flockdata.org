@@ -16,6 +16,12 @@
 
 package org.flockdata.test.unit.client;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.util.Collection;
+import java.util.List;
 import junit.framework.TestCase;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Tag;
@@ -31,20 +37,13 @@ import org.flockdata.transform.tag.TagPayloadTransformer;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-import java.util.Collection;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.slf4j.LoggerFactory.getLogger;
-
 /**
  * SPeL tests and custom properties for tags
  *
  * @author mholdsworth
  * @since 17/01/2015
  */
-public class TestGeography extends AbstractImport{
+public class TestGeography extends AbstractImport {
 
     private Logger logger = getLogger(TestGeography.class);
 
@@ -54,10 +53,10 @@ public class TestGeography extends AbstractImport{
         TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(contentModel);
 
         // We will purposefully suppress the capital city to test the conditional expressions
-        String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
+        String[] headers = new String[] {"ISO3166A2", "ISOen_name", "UNc_latitude", "UNc_longitude", "HasCapital", "BGN_capital"};
 
         // CsvImporter will convert Lon/Lat to doubles - ToDo: write CSV Import tests
-        String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
+        String[] data = new String[] {"NZ", "New Zealand", "-41.27", "174.71", "1", "Wellington"};
 
         tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)));
         assertEquals(1, tagTransformer.getTags().size());
@@ -65,21 +64,21 @@ public class TestGeography extends AbstractImport{
 
         assertNotNull(tag);
 
-        assertEquals("NZ", tag.getCode() );
-        assertEquals("New Zealand", tag.getName() );
+        assertEquals("NZ", tag.getCode());
+        assertEquals("New Zealand", tag.getName());
         assertEquals("Custom properties not being set", 2, tag.getProperties().size());
         boolean latitudeSet = false, longitudeSet = false;
         for (String key : tag.getProperties().keySet()) {
-            if ( key.equals("latitude")) {
+            if (key.equals("latitude")) {
                 latitudeSet = true;
                 assertEquals(-41.27f, tag.getProperties().get("latitude"));
-            } else if ( key.equals("longitude")){
+            } else if (key.equals("longitude")) {
                 assertEquals(174.71f, tag.getProperties().get("longitude"));
                 longitudeSet = true;
             }
         }
 
-        assertEquals("Latitude value not found",true, latitudeSet);
+        assertEquals("Latitude value not found", true, latitudeSet);
         assertEquals("Longitude value not found", true, longitudeSet);
 
     }
@@ -90,9 +89,9 @@ public class TestGeography extends AbstractImport{
         TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(contentModel);
 
         // We will purposefully suppress the capital city to test the conditional expressions
-        String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
+        String[] headers = new String[] {"ISO3166A2", "ISOen_name", "UNc_latitude", "UNc_longitude", "HasCapital", "BGN_capital"};
 
-        String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
+        String[] data = new String[] {"NZ", "New Zealand", "-41.27", "174.71", "1", "Wellington"};
 
         tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)));
         assertEquals(1, tagTransformer.getTags().size());
@@ -102,7 +101,7 @@ public class TestGeography extends AbstractImport{
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
 
-        data = new String[]{"NZ","New Zealand","-41.27","174.71","0", "Wellington" };
+        data = new String[] {"NZ", "New Zealand", "-41.27", "174.71", "0", "Wellington"};
         tagTransformer = TagPayloadTransformer.newInstance(contentModel); // Clear down the object
         tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)));
         tag = tagTransformer.getTags().iterator().next();
@@ -115,9 +114,9 @@ public class TestGeography extends AbstractImport{
         TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(contentModel);
 
         // We will purposefully suppress the capital city to test the conditional expressions
-        String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
+        String[] headers = new String[] {"ISO3166A2", "ISOen_name", "UNc_latitude", "UNc_longitude", "HasCapital", "BGN_capital"};
 
-        String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
+        String[] data = new String[] {"NZ", "New Zealand", "-41.27", "174.71", "1", "Wellington"};
 
         tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)));
         assertEquals(1, tagTransformer.getTags().size());
@@ -138,9 +137,9 @@ public class TestGeography extends AbstractImport{
         TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(contentModel);
 
         // We will purposefully suppress the capital city to test the conditional expressions
-        String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
+        String[] headers = new String[] {"ISO3166A2", "ISOen_name", "UNc_latitude", "UNc_longitude", "HasCapital", "BGN_capital"};
 
-        String[] data = new String[]{"NZ","New Zealand",null,null,"1", "Wellington" };
+        String[] data = new String[] {"NZ", "New Zealand", null, null, "1", "Wellington"};
 
         tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)));
         assertNotNull(tagTransformer);
@@ -166,7 +165,7 @@ public class TestGeography extends AbstractImport{
     public void geoTools() throws Exception {
         // http://epsg.io/2193
         // Goes in as Lat Lon
-        double [] coords = GeoSupport.convert(new GeoPayload("EPSG:2193", 1762370.616143, 5437327.768345));
+        double[] coords = GeoSupport.convert(new GeoPayload("EPSG:2193", 1762370.616143, 5437327.768345));
 
         //geoDataBean.
         TestCase.assertTrue(coords[1] < -40d);
@@ -179,7 +178,7 @@ public class TestGeography extends AbstractImport{
     }
 
     @Test
-    public void setPropertiesFromSource () throws Exception {
+    public void setPropertiesFromSource() throws Exception {
         String fileName = "/model/import-geo.json";
 
 
@@ -200,8 +199,8 @@ public class TestGeography extends AbstractImport{
         // Check that geo properties are set on nested tags
         TagInputBean mesh = tagInputBean.getTargets().get("mesh").iterator().next();
         assertEquals("Geo properties not set in to nested tag", 2, mesh.getProperties().size());
-        assertEquals(tagInputBean.getProperty(Tag.LON),mesh.getProperty(Tag.LON));
-        assertEquals(tagInputBean.getProperty(Tag.LAT),mesh.getProperty(Tag.LAT));
+        assertEquals(tagInputBean.getProperty(Tag.LON), mesh.getProperty(Tag.LON));
+        assertEquals(tagInputBean.getProperty(Tag.LAT), mesh.getProperty(Tag.LAT));
 
     }
 

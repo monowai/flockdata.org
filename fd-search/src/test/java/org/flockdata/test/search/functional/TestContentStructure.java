@@ -20,25 +20,28 @@
 
 package org.flockdata.test.search.functional;
 
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.flockdata.test.helper.MockDataFactory.DEFAULT_ET_NAME;
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.*;
+import org.flockdata.search.ContentStructure;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.EsColumn;
+import org.flockdata.search.QueryParams;
+import org.flockdata.search.SearchChanges;
 import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.test.helper.MockDataFactory;
 import org.flockdata.track.bean.EntityTagRelationshipInput;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.flockdata.test.helper.MockDataFactory.DEFAULT_ET_NAME;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author mholdsworth
@@ -48,7 +51,7 @@ import static org.junit.Assert.assertEquals;
 public class TestContentStructure extends ESBase {
 
     @Test
-    public void contentFieldsReturned() throws Exception{
+    public void contentFieldsReturned() throws Exception {
         Map<String, Object> json = ContentDataHelper.getBigJsonText(2);
 
         String fortress = "contentFieldsReturned";
@@ -64,7 +67,7 @@ public class TestContentStructure extends ESBase {
 
         Collection<EntityTag> tags = new ArrayList<>();
         TagInputBean tagInputBean = new TagInputBean("SomeCode", "SomeLabel",
-                new EntityTagRelationshipInput("blah"))
+            new EntityTagRelationshipInput("blah"))
             .setProperty("mynum", 100);
 
         EntityTag entityTag = MockDataFactory.getEntityTag(entity, tagInputBean);
@@ -86,19 +89,20 @@ public class TestContentStructure extends ESBase {
         queryParams.setFortress(fortress);
 
         ContentStructure dataStructure = contentService.getStructure(queryParams);
-        assertNotNull ( dataStructure);
+        assertNotNull(dataStructure);
         Collection<EsColumn> dataFields = dataStructure.getData();
-        assertEquals("Keyword string fields should not be returned",1, dataFields.size());
+        assertEquals("Keyword string fields should not be returned", 1, dataFields.size());
         assertEquals("Expected a tag and its numeric user defined property", 2, dataStructure.getLinks().size());
         Collection<EsColumn> linkFields = dataStructure.getLinks();
         for (EsColumn linkField : linkFields) {
-            if ( linkField.getDisplayName().startsWith(DEFAULT_ET_NAME+".somelabel.code"))
-                assertEquals (DEFAULT_ET_NAME+".somelabel.code", linkField.getDisplayName());
-            else
-                assertEquals (DEFAULT_ET_NAME+".somelabel.mynum", linkField.getDisplayName());
+            if (linkField.getDisplayName().startsWith(DEFAULT_ET_NAME + ".somelabel.code")) {
+                assertEquals(DEFAULT_ET_NAME + ".somelabel.code", linkField.getDisplayName());
+            } else {
+                assertEquals(DEFAULT_ET_NAME + ".somelabel.mynum", linkField.getDisplayName());
+            }
         }
 
-        Collection<EsColumn>fdFields = dataStructure.getSystem();
+        Collection<EsColumn> fdFields = dataStructure.getSystem();
         assertEquals(3, fdFields.size());
     }
 

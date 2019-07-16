@@ -29,6 +29,7 @@ package org.flockdata.data;
  */
 public interface Company {
     String getName();
+
     String getCode();
 
     Long getId();

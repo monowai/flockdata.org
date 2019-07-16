@@ -20,6 +20,10 @@
 
 package org.flockdata.engine.track.service;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.flockdata.data.Document;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Fortress;
@@ -30,11 +34,6 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * @author mholdsworth

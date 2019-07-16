@@ -18,15 +18,13 @@ package org.flockdata.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import lombok.Data;
 
 /**
- *
  * Transfer object containing SearchResultInterface
- * 
+ *
  * @author mholdsworth
  * @since 28/05/2014
  */
@@ -34,16 +32,17 @@ import java.util.Collection;
 public class SearchResults {
 
     @JsonDeserialize(contentAs = EsSearchResult.class)
-    private Collection<SearchResult>searchResults = new ArrayList<>();
+    private Collection<SearchResult> searchResults = new ArrayList<>();
+
     public SearchResults() {
 
     }
 
-    public SearchResults(Collection<SearchResult>searchResults){
+    public SearchResults(Collection<SearchResult> searchResults) {
         setSearchResults(searchResults);
     }
 
-    public void addSearchResult(SearchResult result){
+    public void addSearchResult(SearchResult result) {
         searchResults.add(result);
     }
 

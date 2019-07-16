@@ -16,6 +16,12 @@
 
 package org.flockdata.test.unit;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.data.Alias;
 import org.flockdata.data.Tag;
 import org.flockdata.helper.JsonUtils;
@@ -27,13 +33,6 @@ import org.flockdata.search.TagSearchChange;
 import org.flockdata.test.helper.MockDataFactory;
 import org.flockdata.track.bean.SearchChange;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author mholdsworth
@@ -50,24 +49,24 @@ public class TestTagChanges {
     }
 
     @Test
-    public void serializationTagSearchChange () throws Exception {
+    public void serializationTagSearchChange() throws Exception {
         TagSearchChange searchChange = getSimpleTagInput("testIndex", "TheCode", "TheLabel");
 
         String json = JsonUtils.toJson(searchChange);
         assertNotNull(json);
-        Collection<SearchChange>changes = new ArrayList<>();
+        Collection<SearchChange> changes = new ArrayList<>();
         TagSearchChange deserializedChange = JsonUtils.toObject(json.getBytes(), TagSearchChange.class);
-        assertEquals (searchChange.getType(), deserializedChange.getType());
+        assertEquals(searchChange.getType(), deserializedChange.getType());
         assertEquals(searchChange.getAliases().size(), deserializedChange.getAliases().size());
 
         changes.add(searchChange);
         SearchChanges searchChanges = new SearchChanges(changes);
         json = JsonUtils.toJson(searchChanges);
 
-        SearchChanges deserializedChanges =JsonUtils.toObject(json.getBytes(), SearchChanges.class);
-        assertNotNull( deserializedChanges);
+        SearchChanges deserializedChanges = JsonUtils.toObject(json.getBytes(), SearchChanges.class);
+        assertNotNull(deserializedChanges);
         assertEquals(1, deserializedChanges.getChanges().size());
-        assertTrue (deserializedChanges.getChanges().iterator().next() instanceof TagSearchChange);
+        assertTrue(deserializedChanges.getChanges().iterator().next() instanceof TagSearchChange);
 
 
     }

@@ -20,6 +20,10 @@
 
 package org.flockdata.test.engine.services;
 
+import static junit.framework.TestCase.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
@@ -31,11 +35,6 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static junit.framework.TestCase.assertEquals;
 
 /**
  * @author mholdsworth
@@ -55,10 +54,10 @@ public class TestEntitySearch extends EngineBase {
         FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
 
         EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
-                new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
+            new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
         EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
-                new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
+            new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
         Collection<EntityInputBean> beans = new ArrayList<>();
         beans.add(beanA);
@@ -78,12 +77,12 @@ public class TestEntitySearch extends EngineBase {
         FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
 
         EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
-                new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
+            new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
         mediationFacade.trackEntity(su.getCompany(), beanA); // Handle beanA as an existing entity
         // Now add a new one
         EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
-                new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
+            new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
 
         ArrayList<EntityInputBean> beans = new ArrayList<>();

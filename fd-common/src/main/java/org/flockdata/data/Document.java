@@ -19,14 +19,14 @@ package org.flockdata.data;
 
 /**
  * FD organises system data into sub-documents
- *
+ * <p>
  * Each Entity is classified as being of a "DocumentType"
- *
+ * <p>
  * For example, Invoice, Customer, Person etc.
  *
  * @author mholdsworth
- * @since 30/06/2013
  * @tag DocumentType
+ * @since 30/06/2013
  */
 
 public interface Document {
@@ -52,7 +52,7 @@ public interface Document {
 
     /**
      * Set the version strategy on a per DocumentType basis
-     *
+     * <p>
      * Enable version control when segment.storeEnabled== false
      * Suppress when your segment.storeEnabled== true and you don't want to version
      * Fortress (default) means use whatever the segment default is

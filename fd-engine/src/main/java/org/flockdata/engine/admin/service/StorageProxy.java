@@ -36,7 +36,7 @@ public interface StorageProxy {
 
     StoredContent read(Entity entity, Log lastChange);
 
-    StoredContent read(LogRequest logRequest) ;
+    StoredContent read(LogRequest logRequest);
 
     boolean compare(Entity entity, Log lastLog, Log preparedLog);
 

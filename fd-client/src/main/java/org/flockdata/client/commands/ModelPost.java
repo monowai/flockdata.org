@@ -16,6 +16,7 @@
 
 package org.flockdata.client.commands;
 
+import java.util.Collection;
 import org.flockdata.data.ContentModel;
 import org.flockdata.model.ContentModelResult;
 import org.flockdata.transform.FdIoInterface;
@@ -29,12 +30,11 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.util.Collection;
-
 /**
  * Store a ContentModel in the service
- * @tag Command, ContentModel
+ *
  * @author mholdsworth
+ * @tag Command, ContentModel
  * @since 17/04/2016
  */
 @Component
@@ -49,19 +49,20 @@ public class ModelPost {
 
 
     public CommandResponse<Collection<ContentModelResult>> exec(Collection<ContentModel> models) {
-        Collection<ContentModelResult> results=null;
-        String error =null;
+        Collection<ContentModelResult> results = null;
+        String error = null;
         try {
 
             HttpEntity requestEntity = new HttpEntity<>(models, fdIoInterface.getHeaders());
-            ParameterizedTypeReference<Collection<ContentModelResult>> responseType = new ParameterizedTypeReference<Collection<ContentModelResult>>() {};
+            ParameterizedTypeReference<Collection<ContentModelResult>> responseType = new ParameterizedTypeReference<Collection<ContentModelResult>>() {
+            };
             ResponseEntity<Collection<ContentModelResult>> response;
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+ "/api/v1/model/", HttpMethod.POST, requestEntity, responseType);
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/model/", HttpMethod.POST, requestEntity, responseType);
 
 
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error= e.getMessage();
+            error = e.getMessage();
         }
         return new CommandResponse<>(error, results);// Everything worked
     }

@@ -20,6 +20,11 @@
 
 package org.flockdata.test.search.functional;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+
 import io.searchbox.action.Action;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
@@ -31,6 +36,10 @@ import io.searchbox.core.Suggest;
 import io.searchbox.core.SuggestResult;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -61,16 +70,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
-
 /**
  * @author mholdsworth
  * @tag Test, ElasticSearch, Search
@@ -78,7 +77,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  */
 @Component
 @SpringBootTest(classes = FdSearch.class)
-@ActiveProfiles({"dev"})
+@ActiveProfiles( {"dev"})
 public class ESBase {
     static JestClient esClient;
     private static Logger logger = LoggerFactory.getLogger(TestMappings.class);
@@ -180,9 +179,9 @@ public class ESBase {
     /**
      * Term query on a non-analyzed field
      *
-     * @param index to search
-     * @param field to query
-     * @param queryString for
+     * @param index            to search
+     * @param field            to query
+     * @param queryString      for
      * @param expectedHitCount how many?
      * @param exceptionMessage display this error
      * @return ES JSON result
@@ -199,12 +198,13 @@ public class ESBase {
 
             runCount++;
             String query = getTermQuery(field, queryString);
-            if (type != null && type.equals("*"))
+            if (type != null && type.equals("*")) {
                 type = null;
+            }
             Search search = new Search.Builder(query)
-                    .addIndex(index)
-                    .addType(type)
-                    .build();
+                .addIndex(index)
+                .addType(type)
+                .build();
 
             result = esClient.execute(search);
             TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
@@ -215,17 +215,18 @@ public class ESBase {
 
         logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
         logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
-        if (exceptionMessage == null)
+        if (exceptionMessage == null) {
             exceptionMessage = result.getJsonString();
+        }
         Assert.assertEquals(exceptionMessage, expectedHitCount, nbrResult);
         if (nbrResult != 0) {
             return result.getJsonObject()
-                    .getAsJsonObject("hits")
-                    .getAsJsonArray("hits")
-                    .getAsJsonArray()
-                    .iterator()
-                    .next()
-                    .getAsJsonObject().get("_source").toString();
+                .getAsJsonObject("hits")
+                .getAsJsonArray("hits")
+                .getAsJsonArray()
+                .iterator()
+                .next()
+                .getAsJsonObject().get("_source").toString();
         } else {
             return null;
         }
@@ -233,20 +234,20 @@ public class ESBase {
 
     private String getTermQuery(String field, String queryString) {
         return "{\n" +
-                        "    \"query\": {\n" +
-                        "          \"term\" : {\n" +
-                        "              \"" + field + "\" : \"" + queryString + "\"\n" +
-                        "           }\n" +
-                        "      }\n" +
-                        "}";
+            "    \"query\": {\n" +
+            "          \"term\" : {\n" +
+            "              \"" + field + "\" : \"" + queryString + "\"\n" +
+            "           }\n" +
+            "      }\n" +
+            "}";
     }
 
     /**
      * Scans an analyzed field looking for the queryString
      *
-     * @param entity calculate the index from this
-     * @param field to query
-     * @param queryString for
+     * @param entity           calculate the index from this
+     * @param field            to query
+     * @param queryString      for
      * @param expectedHitCount how many?
      * @param exceptionMessage display this error
      * @return ES JSON result
@@ -263,7 +264,7 @@ public class ESBase {
             String query = getTermQuery(field, queryString);
             Search search = new Search.Builder(query)
                 .addIndex(searchConfig.getIndexManager().toIndex(entity))
-                    .build();
+                .build();
 
             result = esClient.execute(search);
             TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
@@ -274,17 +275,18 @@ public class ESBase {
 
         logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
         logger.trace("searching index [{}] field [{}] for [{}]", searchConfig.getIndexManager().toIndex(entity), field, queryString);
-        if (exceptionMessage == null)
+        if (exceptionMessage == null) {
             exceptionMessage = result.getJsonString();
+        }
         Assert.assertEquals(exceptionMessage, expectedHitCount, nbrResult);
         if (nbrResult != 0) {
             return result.getJsonObject()
-                    .getAsJsonObject("hits")
-                    .getAsJsonArray("hits")
-                    .getAsJsonArray()
-                    .iterator()
-                    .next()
-                    .getAsJsonObject().get("_source").toString();
+                .getAsJsonObject("hits")
+                .getAsJsonArray("hits")
+                .getAsJsonArray()
+                .iterator()
+                .next()
+                .getAsJsonObject().get("_source").toString();
         } else {
             return null;
         }
@@ -296,18 +298,18 @@ public class ESBase {
         SuggestResult result;
 
         String query = "{" +
-                "    \"tags\" : {\n" +
-                "        \"text\" : \"" + queryString + "\",\n" +
-                "        \"completion\" : {\n" +
-                "            \"field\" : \"" + SearchSchema.ALL_TAGS +".suggest"+ "\"\n" +
-                "        }\n" +
-                "    }" +
-                "}";
+            "    \"tags\" : {\n" +
+            "        \"text\" : \"" + queryString + "\",\n" +
+            "        \"completion\" : {\n" +
+            "            \"field\" : \"" + SearchSchema.ALL_TAGS + ".suggest" + "\"\n" +
+            "        }\n" +
+            "    }" +
+            "}";
 
 
         Suggest search = new Suggest.Builder(query).
             addIndex(searchConfig.getIndexManager().toIndex(entity)).
-                build();
+            build();
         result = esClient.execute(search);
         TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
 
@@ -333,19 +335,20 @@ public class ESBase {
         do {
 
             String query = "{\n" +
-                    "    \"query\": {\n" +
-                    "          \"query_string\" : {\n" +
-                    "              \"query\" : \"" + queryString + "\"" +
-                    "           }\n" +
-                    "      }\n" +
-                    "}";
+                "    \"query\": {\n" +
+                "          \"query_string\" : {\n" +
+                "              \"query\" : \"" + queryString + "\"" +
+                "           }\n" +
+                "      }\n" +
+                "}";
 
             //
             Search.Builder builder = new Search.Builder(query)
-                    .addIndex(index);
+                .addIndex(index);
 
-            if (type != null && !type.equals("*"))
+            if (type != null && !type.equals("*")) {
                 builder.addType(type);
+            }
 
             Search search = builder.build();
             jResult = esClient.execute(search);
@@ -373,8 +376,9 @@ public class ESBase {
         String indexName = searchConfig.getIndexManager().toIndex(entity);
         Action getMapping = new GetMapping.Builder().addIndex(indexName).build();
         JestResult result = esClient.execute(getMapping);
-        if ( result == null )
+        if (result == null) {
             return null;
+        }
         return result.getJsonString();
     }
 
@@ -386,16 +390,16 @@ public class ESBase {
 
             runCount++;
             String query = "{\n" +
-                    "    \"query\" : {\n" +
-                    "                \"term\" : {\n" +
-                    "                    \"" + field + "\" : \"" + queryString + "\"\n" +
-                    "                }\n" +
-                    "    }\n" +
-                    "}\n";
+                "    \"query\" : {\n" +
+                "                \"term\" : {\n" +
+                "                    \"" + field + "\" : \"" + queryString + "\"\n" +
+                "                }\n" +
+                "    }\n" +
+                "}\n";
             Search search = new Search.Builder(query)
                 .addIndex(searchConfig.getIndexManager().toIndex(entity))
                 .addType(searchConfig.getIndexManager().parseType(entity))
-                    .build();
+                .build();
 
             result = esClient.execute(search);
             String message = searchConfig.getIndexManager().toIndex(entity) + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
@@ -407,19 +411,20 @@ public class ESBase {
         } while (nbrResult != 1 && runCount < 5);
 
         Assert.assertEquals("Unexpected hit count searching '" + searchConfig.getIndexManager().toIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", 1, nbrResult);
-        if (nbrResult != 0)
+        if (nbrResult != 0) {
             return result.getJsonObject()
-                    .getAsJsonObject("hits")
-                    .getAsJsonArray("hits")
-                    .getAsJsonArray()
-                    .iterator()
-                    .next()
-                    .getAsJsonObject().get("_source").toString();
-        else
+                .getAsJsonObject("hits")
+                .getAsJsonArray("hits")
+                .getAsJsonArray()
+                .iterator()
+                .next()
+                .getAsJsonObject().get("_source").toString();
+        } else {
             return result.getJsonObject()
-                    .getAsJsonObject("hits")
-                    .getAsJsonArray("hits")
-                    .getAsJsonArray().toString();
+                .getAsJsonObject("hits")
+                .getAsJsonArray("hits")
+                .getAsJsonArray().toString();
+        }
     }
 
     String doDescriptionQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
@@ -431,16 +436,16 @@ public class ESBase {
 
             runCount++;
             String query = "{\n" +
-                    "    \"query\": {\n" +
-                    "          \"query_string\" : {\n" +
-                    "              \"default_field\" : \"" + field + "\",\n" +
-                    "              \"query\" : \"" + queryString + "\"\n" +
-                    "           }\n" +
-                    "      }\n" +
-                    "}";
+                "    \"query\": {\n" +
+                "          \"query_string\" : {\n" +
+                "              \"default_field\" : \"" + field + "\",\n" +
+                "              \"query\" : \"" + queryString + "\"\n" +
+                "           }\n" +
+                "      }\n" +
+                "}";
             Search search = new Search.Builder(query)
                 .addIndex(searchConfig.getIndexManager().toIndex(entity))
-                    .build();
+                .build();
 
             result = esClient.execute(search);
             String message = entity + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
@@ -453,19 +458,20 @@ public class ESBase {
 
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
         Assert.assertEquals("Unexpected hit count searching '" + entity + "' for [" + queryString + "] in field [" + field + "]", expectedHitCount, nbrResult);
-        if (nbrResult != 0)
+        if (nbrResult != 0) {
             return result.getJsonObject()
-                    .getAsJsonObject("hits")
-                    .getAsJsonArray("hits")
-                    .getAsJsonArray()
-                    .iterator()
-                    .next()
-                    .getAsJsonObject().get("_source").toString();
-        else
+                .getAsJsonObject("hits")
+                .getAsJsonArray("hits")
+                .getAsJsonArray()
+                .iterator()
+                .next()
+                .getAsJsonObject().get("_source").toString();
+        } else {
             return result.getJsonObject()
-                    .getAsJsonObject("hits")
-                    .getAsJsonArray("hits")
-                    .getAsJsonArray().toString();
+                .getAsJsonObject("hits")
+                .getAsJsonArray("hits")
+                .getAsJsonArray().toString();
+        }
     }
 
     public Entity getEntity(String comp, String fort, String userName, String docType) throws FlockException {

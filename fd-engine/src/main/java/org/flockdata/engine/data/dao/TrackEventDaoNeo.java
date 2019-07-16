@@ -20,6 +20,9 @@
 
 package org.flockdata.engine.data.dao;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.flockdata.data.ChangeEvent;
 import org.flockdata.engine.data.graph.ChangeEventNode;
 import org.flockdata.engine.data.graph.CompanyNode;
@@ -28,17 +31,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * @author mholdsworth
- * @since 28/06/2013
  * @tag Neo4j, Event
+ * @since 28/06/2013
  */
 @Repository
-public class TrackEventDaoNeo  {
+public class TrackEventDaoNeo {
     final
     private Neo4jTemplate template;
 
@@ -59,12 +58,12 @@ public class TrackEventDaoNeo  {
     @Cacheable(value = "companyEvent", unless = "#result == null")
     public ChangeEvent createEvent(CompanyNode company, String eventCode) {
         ChangeEvent ev = findEvent(company, eventCode);
-        if (ev == null ) {
+        if (ev == null) {
             String cypher = "merge (event:_Event :Event{code:{code}, name:{name}}) " +
-                    "with event " +
-                    "match (c:FDCompany) where id(c) = {coId} " +
-                    "merge (c)-[:COMPANY_EVENT]->(event) " +
-                    "return event";
+                "with event " +
+                "match (c:FDCompany) where id(c) = {coId} " +
+                "merge (c)-[:COMPANY_EVENT]->(event) " +
+                "return event";
 
             Map<String, Object> params = new HashMap<>();
             params.put("code", eventCode.toLowerCase());

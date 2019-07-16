@@ -23,10 +23,10 @@ import org.flockdata.data.Tag;
  * Associates a Tag with an Entity
  *
  * @author mholdsworth
- * @since 28/06/2013
  * @tag Contract, Tag, Entity, Geo
+ * @since 28/06/2013
  */
-public class EntityTagInputBean{
+public class EntityTagInputBean {
     private String tagCode;
     private String key;
     private String type;
@@ -39,19 +39,19 @@ public class EntityTagInputBean{
     }
 
     /**
-     * @param key          key for an existing entity
+     * @param key              key for an existing entity
      * @param tagCode          name of an existing tag
      * @param relationshipName relationship name to create
-     *
      */
     public EntityTagInputBean(String key, String tagCode, String relationshipName) {
         this();
         this.key = key;
         this.tagCode = tagCode;
-        if (relationshipName == null)
+        if (relationshipName == null) {
             this.type = "general";
-        else
+        } else {
             this.type = relationshipName;
+        }
     }
 
     public String getKey() {
@@ -72,10 +72,11 @@ public class EntityTagInputBean{
     }
 
     public String getIndex() {
-        if (index==null ||"".equals(index))
+        if (index == null || "".equals(index)) {
             return Tag.DEFAULT;
-        else
+        } else {
             return index;
+        }
     }
 
     public void setIndex(String index) {
@@ -88,6 +89,7 @@ public class EntityTagInputBean{
 
     /**
      * When connecting the tag to the entity, tell FD to record a timestamp as a user defined property
+     *
      * @param since yes/no
      * @return this
      */

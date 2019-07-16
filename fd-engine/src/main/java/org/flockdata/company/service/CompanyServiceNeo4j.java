@@ -21,6 +21,7 @@
 package org.flockdata.company.service;
 
 
+import java.util.Collection;
 import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.company.dao.CompanyDaoNeo;
 import org.flockdata.data.Company;
@@ -34,8 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collection;
 
 /**
  * @tag Service, Company, Security
@@ -51,7 +50,7 @@ public class CompanyServiceNeo4j implements CompanyService {
     private final SecurityHelper securityHelper;
 
     @Autowired
-    public CompanyServiceNeo4j(CompanyDaoNeo companyDao, SecurityHelper securityHelper, FortressService fortressService, KeyGenService keyGenService ) {
+    public CompanyServiceNeo4j(CompanyDaoNeo companyDao, SecurityHelper securityHelper, FortressService fortressService, KeyGenService keyGenService) {
         this.companyDao = companyDao;
         this.securityHelper = securityHelper;
         this.fortressService = fortressService;
@@ -62,7 +61,7 @@ public class CompanyServiceNeo4j implements CompanyService {
     @Transactional
     public Company findByName(String companyName) {
         //return companyDao.findByPropertyValue("name", companyName);
-        Company company=  companyDao.findByPropertyValue("name", companyName);
+        Company company = companyDao.findByPropertyValue("name", companyName);
         logger.debug("Looking for company {}. Found {} ", companyName, company);
         return company;
     }
@@ -82,8 +81,8 @@ public class CompanyServiceNeo4j implements CompanyService {
     public Company create(String companyName) {
         // Change to async event via spring events
         //schemaService.ensureSystemIndexes(null);
-        CompanyNode company = (CompanyNode)findByName(companyName);
-        if ( company == null ) {
+        CompanyNode company = (CompanyNode) findByName(companyName);
+        if (company == null) {
             logger.debug("Saving company {}", companyName);
             company = new CompanyNode(companyName, keyGenService.getUniqueKey());
 
@@ -94,10 +93,10 @@ public class CompanyServiceNeo4j implements CompanyService {
     }
 
     @Transactional
-    public Company create(Company company){
+    public Company create(Company company) {
         company = companyDao.create(company);
         fortressService.findInternalFortress(company);// Create this at the outset
-        logger.debug("Created company {}",company);
+        logger.debug("Created company {}", company);
         return company;
 
     }
@@ -114,8 +113,9 @@ public class CompanyServiceNeo4j implements CompanyService {
     public Collection<Company> findCompanies(String userApiKey) {
         if (userApiKey == null) {
             SystemUser su = securityHelper.getSysUser(true);
-            if (su != null)
+            if (su != null) {
                 userApiKey = su.getApiKey();
+            }
         }
         if (userApiKey == null) {
             throw new SecurityException("Unable to resolve user API key");
@@ -128,8 +128,9 @@ public class CompanyServiceNeo4j implements CompanyService {
     @Transactional
     public Collection<Company> findCompanies() {
         SystemUser su = securityHelper.getSysUser(true);
-        if (su == null)
+        if (su == null) {
             return null;
+        }
 
         return companyDao.findCompanies(su.getId());
     }

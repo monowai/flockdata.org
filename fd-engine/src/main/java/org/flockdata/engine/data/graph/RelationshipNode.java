@@ -22,20 +22,20 @@ package org.flockdata.engine.data.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Collection;
+import java.util.HashSet;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 /**
  * Meta data - stores a representation of a Relationship
+ *
  * @author mholdsworth
- * @since 16/06/2014
  * @tag Schema, Entity
+ * @since 16/06/2014
  */
 @NodeEntity
 @TypeAlias("Relationship")
@@ -43,11 +43,12 @@ public class RelationshipNode implements Comparable<RelationshipNode> {
     @GraphId
     Long id;
 
-    @RelatedTo(elementClass = DocumentNode.class, type="DOC_RELATIONSHIP", direction = Direction.OUTGOING)
+    @RelatedTo(elementClass = DocumentNode.class, type = "DOC_RELATIONSHIP", direction = Direction.OUTGOING)
     Collection<DocumentNode> documentTypes;
     private String name;
 
-    RelationshipNode(){}
+    RelationshipNode() {
+    }
 
     public RelationshipNode(String relationship, DocumentNode documentType) {
         this();
@@ -56,7 +57,7 @@ public class RelationshipNode implements Comparable<RelationshipNode> {
     }
 
     public void addDocumentType(DocumentNode documentType) {
-        if (documentTypes == null ){
+        if (documentTypes == null) {
             documentTypes = new HashSet<>();
         }
         documentTypes.add(documentType);
@@ -65,17 +66,19 @@ public class RelationshipNode implements Comparable<RelationshipNode> {
     @Override
     public String toString() {
         return "RelationshipNode{" +
-                "name='" + name + '\'' +
-                ", id=" + id +
-                '}';
+            "name='" + name + '\'' +
+            ", id=" + id +
+            '}';
     }
 
     public boolean hasDocumentType(DocumentNode document) {
-        if ( documentTypes == null )
+        if (documentTypes == null) {
             return false;
+        }
         for (DocumentNode documentType : documentTypes) {
-            if ( documentType.getId().equals(document.getId()))
+            if (documentType.getId().equals(document.getId())) {
                 return true;
+            }
         }
         return false;
     }
@@ -94,14 +97,15 @@ public class RelationshipNode implements Comparable<RelationshipNode> {
     }
 
     @JsonIgnore
-    public Collection<DocumentNode> getDocumentTypes(){
+    public Collection<DocumentNode> getDocumentTypes() {
         return documentTypes;
     }
 
     @Override
     public int compareTo(RelationshipNode o) {
-        if ( o== null || name == null )
+        if (o == null || name == null) {
             return -1;
+        }
         // ToDO: Review this implementation
         //int d =  (concept== null ?0:concept.getDocumentTypes().getCode().compareTo(o.getConcept().getDocumentTypes().getCode()));
         //if ( d==0)

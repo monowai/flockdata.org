@@ -20,6 +20,11 @@
 
 package org.flockdata.engine.tag.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import javax.transaction.HeuristicRollbackException;
 import org.flockdata.data.Company;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.IndexRetryService;
@@ -41,16 +46,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.HeuristicRollbackException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 /**
  * @author mholdsworth
- * @since 26/09/2014
  * @tag Tag, Track
+ * @since 26/09/2014
  */
 
 @Service
@@ -69,28 +68,29 @@ public class TagRetryService {
         this.indexRetryService = indexRetryService;
     }
 
-    @Autowired (required = false)
-    void setSearchServiceFacade (SearchServiceFacade searchService){
+    @Autowired(required = false)
+    void setSearchServiceFacade(SearchServiceFacade searchService) {
         this.searchService = searchService;
     }
 
     @Retryable(include = {FlockException.class,
-            HeuristicRollbackException.class,
-            DataIntegrityViolationException.class,
-            EntityNotFoundException.class,
-            IllegalStateException.class,
-            ConcurrencyFailureException.class,
-            DeadlockDetectedException.class,
-            ConstraintViolationException.class,
-            TransactionFailureException.class},
-            maxAttempts = 15,
-            backoff = @Backoff(delay = 300, multiplier = 3, random = true))
+        HeuristicRollbackException.class,
+        DataIntegrityViolationException.class,
+        EntityNotFoundException.class,
+        IllegalStateException.class,
+        ConcurrencyFailureException.class,
+        DeadlockDetectedException.class,
+        ConstraintViolationException.class,
+        TransactionFailureException.class},
+        maxAttempts = 15,
+        backoff = @Backoff(delay = 300, multiplier = 3, random = true))
 
     @Async("fd-tag")
     public Future<Collection<FdTagResultBean>> createTags(Company company, Collection<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
-        if (tagInputBeans == null || tagInputBeans.isEmpty())
+        if (tagInputBeans == null || tagInputBeans.isEmpty()) {
             return new AsyncResult<>(new ArrayList<>());
+        }
 
         boolean schemaReady;
         do {
@@ -98,10 +98,11 @@ public class TagRetryService {
         } while (!schemaReady);
 
 
-        if (tagInputBeans.isEmpty())
+        if (tagInputBeans.isEmpty()) {
             return new AsyncResult<>(new ArrayList<>());
+        }
         Collection<FdTagResultBean> tagResults = tagService.createTags(company, tagInputBeans);
-        if (searchService!=null){
+        if (searchService != null) {
             searchService.makeTagsSearchable(company, tagResults);
         }
         return new AsyncResult<>(tagResults);

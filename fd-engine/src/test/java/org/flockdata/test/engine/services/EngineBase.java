@@ -20,6 +20,12 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.Map;
 import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.authentication.SystemUserService;
 import org.flockdata.company.endpoint.CompanyEP;
@@ -40,7 +46,13 @@ import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.engine.tag.service.TagService;
-import org.flockdata.engine.track.service.*;
+import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.track.service.EntityService;
+import org.flockdata.engine.track.service.EntityTagService;
+import org.flockdata.engine.track.service.FortressService;
+import org.flockdata.engine.track.service.LogRetryService;
+import org.flockdata.engine.track.service.LogService;
+import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
@@ -71,22 +83,19 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 
-import java.util.Map;
-
-import static org.junit.Assert.*;
-
 /**
  * Base test class for Neo4j functional testing
+ *
  * @author mholdsworth
- * @since 16/06/2014
  * @tag Test, Neo4j, Engine
+ * @since 16/06/2014
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {FdEngine.class,
-        Neo4jConfigTest.class,
-        MapBasedStorageProxy.class})
+    Neo4jConfigTest.class,
+    MapBasedStorageProxy.class})
 
-@ActiveProfiles({"dev", "fd-auth-test"})
+@ActiveProfiles( {"dev", "fd-auth-test"})
 public abstract class EngineBase {
 
     protected static final String mike_admin = "mike"; // Admin role
@@ -146,9 +155,9 @@ public abstract class EngineBase {
     MatrixService matrixService;
     @Autowired
     @Deprecated // Use companyService instead
-    CompanyEP companyEP;
+        CompanyEP companyEP;
     @Autowired
-    SearchServiceFacade searchService ;
+    SearchServiceFacade searchService;
     @Autowired
     StorageProxy storageService;
     @Autowired
@@ -160,7 +169,7 @@ public abstract class EngineBase {
     @Autowired
     ContentModelService contentModelService;
     Authentication authDefault = new UsernamePasswordAuthenticationToken(
-            mike_admin, "123");
+        mike_admin, "123");
 
     public static void setSecurity(Authentication auth) {
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -186,10 +195,12 @@ public abstract class EngineBase {
 
     public static void waitAWhile(String message) throws Exception {
         String ss = System.getProperty("sleepSeconds");
-        if (ss == null || ss.equals(""))
+        if (ss == null || ss.equals("")) {
             ss = "1";
-        if (message == null)
+        }
+        if (message == null) {
             message = "Slept for {} seconds";
+        }
         waitAWhile(message, Long.decode(ss) * 1000);
     }
 
@@ -205,7 +216,7 @@ public abstract class EngineBase {
      * @throws Exception problems
      */
     public static void waitAWhile(String message, long milliseconds)
-            throws Exception {
+        throws Exception {
         Thread.sleep(milliseconds);
         logger.trace(message, milliseconds / 1000d);
     }
@@ -279,16 +290,19 @@ public abstract class EngineBase {
 
             EntityLog log = entityService.getLastEntityLog(company, updateEntity.getKey());
             // We have at least one log?
-            if (count == expectedCount)
+            if (count == expectedCount) {
                 return log;
+            }
             Thread.yield();
-            if (i > 20)
+            if (i > 20) {
                 waitAWhile("Waiting for the log to update {}");
+            }
             i++;
         }
-        if (i > 22)
+        if (i > 22) {
             logger.info("Wait for log got to [{}] for metaId [{}]", i,
-                    entity.getId());
+                entity.getId());
+        }
         throw new Exception(String.format("Timeout waiting for the defined log count of %s. We found %s", expectedCount, count));
     }
 
@@ -302,23 +316,26 @@ public abstract class EngineBase {
         int timeout = 100;
         while (i <= timeout) {
             EntityLog log = entityService.getLastEntityLog(company, entity.getKey());
-            if (log != null)
+            if (log != null) {
                 return i;
+            }
             Thread.yield();
-            if (i > 20)
+            if (i > 20) {
                 waitAWhile("Waiting for the log to arrive {}");
+            }
             i++;
         }
-        if (i > 22)
+        if (i > 22) {
             logger.info("Wait for log got to [{}] for metaId [{}]", i,
-                    entity.getId());
+                entity.getId());
+        }
         return System.currentTimeMillis() - thenTime;
     }
 
 
     public void testJson() throws Exception {
         FortressNode fortressNode = new FortressNode(new FortressInputBean(
-                "testing"), new CompanyNode("testCompany"));
+            "testing"), new CompanyNode("testCompany"));
         byte[] bytes = JsonUtils.toJsonBytes(fortressNode);
         FortressNode f = JsonUtils.toObject(bytes, FortressNode.class);
         assertNotNull(f);
@@ -331,7 +348,7 @@ public abstract class EngineBase {
     }
 
     public void assertNodeDoesNotExist(String message, Long nodeId) {
-        Result<Map<String, Object>> results = neo4jTemplate.query("match (n) where id(n)= " + nodeId +" return n", null);
+        Result<Map<String, Object>> results = neo4jTemplate.query("match (n) where id(n)= " + nodeId + " return n", null);
         assertFalse(message, results.iterator().hasNext());
 
     }

@@ -20,7 +20,12 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.data.*;
+import java.util.Collection;
+import org.flockdata.data.Company;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.data.graph.FortressUserNode;
@@ -30,8 +35,6 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
-
-import java.util.Collection;
 
 /**
  * @author mholdsworth
@@ -81,7 +84,7 @@ public interface FortressService {
 
     EntityTag.TAG_STRUCTURE getTagStructureFinder(Entity entity);
 
-    Segment getDefaultSegment (Fortress fortress);
+    Segment getDefaultSegment(Fortress fortress);
 
     Segment addSegment(Segment segment);
 

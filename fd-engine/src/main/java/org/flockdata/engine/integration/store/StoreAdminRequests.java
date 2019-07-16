@@ -27,6 +27,8 @@ package org.flockdata.engine.integration.store;
  * @since 21/07/2015
  */
 
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.engine.configure.EngineConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -45,9 +47,6 @@ import org.springframework.integration.http.outbound.HttpRequestExecutingMessage
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Ping fd-store
  *
@@ -57,7 +56,7 @@ import java.util.Map;
 
 @Configuration
 @IntegrationComponentScan
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class StoreAdminRequests {
 
     private final EngineConfig engineConfig;
@@ -68,12 +67,12 @@ public class StoreAdminRequests {
     }
 
     @Bean
-    MessageChannel storePing(){
+    MessageChannel storePing() {
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel storePingEngine(){
+    MessageChannel storePingEngine() {
         return new DirectChannel();
     }
 
@@ -81,13 +80,13 @@ public class StoreAdminRequests {
     IntegrationFlow storePingFlow() {
 
         return IntegrationFlows.from(storePing())
-                .handle(pingRequest())
-                .get();
+            .handle(pingRequest())
+            .get();
     }
 
     private MessageHandler pingRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/admin/ping");
+            new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/admin/ping");
         handler.setExpectedResponseType(String.class);
         handler.setHttpMethod(HttpMethod.GET);
 
@@ -98,13 +97,13 @@ public class StoreAdminRequests {
     IntegrationFlow storePingEngineFlow() {
 
         return IntegrationFlows.from(storePingEngine())
-                .handle(pingStoreEngineRequest())
-                .get();
+            .handle(pingStoreEngineRequest())
+            .get();
     }
 
     private MessageHandler pingStoreEngineRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/admin/ping/{storeService}");
+            new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/admin/ping/{storeService}");
         SpelExpressionParser expressionParser = new SpelExpressionParser();
         Map<String, Expression> vars = new HashMap<>();
         vars.put("storeService", expressionParser.parseExpression("payload"));

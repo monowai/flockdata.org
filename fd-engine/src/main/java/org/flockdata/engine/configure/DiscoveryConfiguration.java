@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.configure;
 
+import javax.annotation.PostConstruct;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +29,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 /**
- * @tag Configuration, DiscoveryClient
  * @author mholdsworth
+ * @tag Configuration, DiscoveryClient
  * @since 7/05/2016
  */
 //@EnableDiscoveryClient

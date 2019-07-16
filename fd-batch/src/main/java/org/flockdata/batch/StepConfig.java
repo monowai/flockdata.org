@@ -34,9 +34,10 @@ public class StepConfig {
 
     private ContentModel contentModel;
 
-    StepConfig (){}
+    StepConfig() {
+    }
 
-    StepConfig (String step, String modelKey, String query){
+    StepConfig(String step, String modelKey, String query) {
         this();
         this.query = query;
         this.step = step;
@@ -56,7 +57,6 @@ public class StepConfig {
     }
 
     /**
-     *
      * @return endpoint to look for serverside content model
      */
     String getModelKey() {
@@ -67,7 +67,7 @@ public class StepConfig {
         return contentModel;
     }
 
-    public StepConfig setContentModel(ContentModel contentModel){
+    public StepConfig setContentModel(ContentModel contentModel) {
         this.contentModel = contentModel;
         return this;
     }
@@ -75,19 +75,25 @@ public class StepConfig {
     @Override
     public String toString() {
         return "StepConfig{" +
-                "step='" + step + '\'' +
-                ", model='" + model + '\'' +
-                '}';
+            "step='" + step + '\'' +
+            ", model='" + model + '\'' +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof StepConfig)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof StepConfig)) {
+            return false;
+        }
 
         StepConfig that = (StepConfig) o;
 
-        if (step != null ? !step.equals(that.step) : that.step != null) return false;
+        if (step != null ? !step.equals(that.step) : that.step != null) {
+            return false;
+        }
         return model != null ? model.equals(that.model) : that.model == null;
 
     }

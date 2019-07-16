@@ -16,6 +16,11 @@
 
 package org.flockdata.test.unit.client;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Collection;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.Transformer;
@@ -23,29 +28,23 @@ import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.flockdata.transform.tag.TagPayloadTransformer;
 
-import java.util.Collection;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * @author mholdsworth
  * @since 20/06/2014
  */
 public class TestCSVConcepts {
     @org.junit.Test
-    public void csvTags() throws Exception{
+    public void csvTags() throws Exception {
         ContentModel model = ContentModelDeserializer.getContentModel("/model/csv-tag-import.json");
-        String[] headers= new String[]{"company_name", "device_name",  "device_code", "type",         "city", "ram", "tags"};
-        String[] data = new String[]{  "Samsoon",      "Palaxy",       "PX",          "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};
+        String[] headers = new String[] {"company_name", "device_name", "device_code", "type", "city", "ram", "tags"};
+        String[] data = new String[] {"Samsoon", "Palaxy", "PX", "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};
 
         TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(model);
-        Map<String,Object> json = tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(model)));
+        Map<String, Object> json = tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(model)));
         assertEquals(1, tagTransformer.getTags().size());
         TagInputBean tag = tagTransformer.getTags().iterator().next();
 
-        assertNotNull (json);
+        assertNotNull(json);
         Map<String, Collection<TagInputBean>> allTargets = tag.getTargets();
         assertNotNull(allTargets);
         assertEquals(3, allTargets.size());

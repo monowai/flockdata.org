@@ -18,6 +18,14 @@ package org.flockdata.batch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.transform.FdIoInterface;
 import org.flockdata.transform.json.ContentModelDeserializer;
@@ -32,34 +40,25 @@ import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * FlockData spring-batch configuration class
- *
+ * <p>
  * creates a configured instance with an FdTemplate to communicate with FlockData
  * Loads org.fd.client.configs from your fd-batch.properties file that will in-turn read a
  * YAML file for mapping between an SQL query and a ContentProfile
  *
- * @tag Batch, Integration, Configuration, FdClient
  * @author mholdsworth
- * @since 24/01/2016
+ * @tag Batch, Integration, Configuration, FdClient
  * @see org.flockdata.integration.ClientConfiguration
  * @see FdIoInterface
  * @see org.flockdata.integration.Template
+ * @since 24/01/2016
  */
-@PropertySources({
-        @PropertySource(value = "classpath:/fd-batch.properties"),
-        @PropertySource(value = "file:${org.fd.batch.properties}", ignoreResourceNotFound = true)
+@PropertySources( {
+    @PropertySource(value = "classpath:/fd-batch.properties"),
+    @PropertySource(value = "file:${org.fd.batch.properties}", ignoreResourceNotFound = true)
 })
-@Profile({"fd-batch", "fd-batch-dev"})
+@Profile( {"fd-batch", "fd-batch-dev"})
 @Service
 public class BatchConfig {
     private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -182,10 +181,11 @@ public class BatchConfig {
             throw new IllegalArgumentException("The requested step configuration " + stepName + " does not exist. Known configs are [" + Arrays.toString(config.values().toArray()) + "]");
         }
         try {
-            if (stepConfig.getContentModel() == null)
+            if (stepConfig.getContentModel() == null) {
                 stepConfig.setContentModel(getModelForStep(stepConfig));
-        } catch (IOException e){
-            logger.error ( "Failed to resolve content model for "+stepName);
+            }
+        } catch (IOException e) {
+            logger.error("Failed to resolve content model for " + stepName);
             throw new RuntimeException(e);
         }
         return stepConfig;
@@ -197,8 +197,10 @@ public class BatchConfig {
         try {
             file = getClass().getClassLoader().getResourceAsStream(fileName);
             if (file == null)
-                // running from JUnit can only read this as a file input stream
+            // running from JUnit can only read this as a file input stream
+            {
                 file = new FileInputStream(fileName);
+            }
             stepConfig = loadStepConfig(file);
         } catch (IOException e) {
             logger.info("Unable to read {} as a file. Error {} \r\n, trying as a URL...", fileName, e.getMessage());
@@ -212,16 +214,18 @@ public class BatchConfig {
 
     }
 
-    private ContentModel getModelForStep(StepConfig stepConfig) throws IOException{
-        ContentModel contentModel =null;
+    private ContentModel getModelForStep(StepConfig stepConfig) throws IOException {
+        ContentModel contentModel = null;
         if (stepConfig.getModel() != null) {
             // Resolve from local file system
-             contentModel = ContentModelDeserializer.getContentModel(stepConfig.getModel());
-            if ( contentModel == null )
-                // Check the server
+            contentModel = ContentModelDeserializer.getContentModel(stepConfig.getModel());
+            if (contentModel == null)
+            // Check the server
+            {
                 contentModel = fdIoInterface.getContentModel(stepConfig.getModel());
+            }
             stepConfig.setContentModel(contentModel);
-        } else if ( stepConfig.getModelKey()!=null){
+        } else if (stepConfig.getModelKey() != null) {
             contentModel = fdIoInterface.getContentModel(stepConfig.getModelKey());
         }
         return contentModel;

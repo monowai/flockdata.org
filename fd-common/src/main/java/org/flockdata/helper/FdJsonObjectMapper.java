@@ -23,7 +23,6 @@ package org.flockdata.helper;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,23 +32,22 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author mholdsworth
- * @since 28/10/2014
  * @tag Json, Serialization
+ * @since 28/10/2014
  */
 public class FdJsonObjectMapper extends JsonFactory {
     private static ObjectMapper objectMapper = null;
     private static Lock l = new ReentrantLock();
 
     /**
-     *
      * @return Jackson 2.0 mapper with comments enabled
      */
-    public static ObjectMapper getObjectMapper(){
-        if ( objectMapper == null ){
+    public static ObjectMapper getObjectMapper() {
+        if (objectMapper == null) {
             try {
                 l.lock();
-                if ( objectMapper == null ){
-                    objectMapper = new ObjectMapper( new FdJsonObjectMapper());
+                if (objectMapper == null) {
+                    objectMapper = new ObjectMapper(new FdJsonObjectMapper());
                     //objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
                 }
 

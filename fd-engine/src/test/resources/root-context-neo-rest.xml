@@ -23,7 +23,7 @@
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
 
-	<!--<bean id="apiKeyInterceptor" class="ApiKeyInterceptor"/>-->
+    <!--<bean id="apiKeyInterceptor" class="ApiKeyInterceptor"/>-->
 
 
 </beans>

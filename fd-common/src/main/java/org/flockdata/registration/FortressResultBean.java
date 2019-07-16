@@ -17,12 +17,11 @@
 package org.flockdata.registration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.Segment;
 import org.flockdata.track.bean.SegmentResultBean;
-
-import java.io.Serializable;
 
 /**
  * @author mholdsworth

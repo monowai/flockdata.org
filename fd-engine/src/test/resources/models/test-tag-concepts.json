@@ -1,35 +1,33 @@
 {
-    "tagModel": true,
-    "content": {
-        "zip": {
-            "tag": true,
-            "relationship": "lives",
-            "label": "ZipCode",
-            "targets": [
+  "tagModel": true,
+  "content": {
+    "zip": {
+      "tag": true,
+      "relationship": "lives",
+      "label": "ZipCode",
+      "targets": [
+        {
+          "relationship": "located",
+          "code": "city",
+          "label": "City",
+          "targets": [
+            {
+              "relationship": "city",
+              "code": "state",
+              "label": "State",
+              "targets": [
                 {
-                    "relationship": "located",
-                    "code": "city",
-                    "label": "City",
-                    "targets": [
-                        {
-                            "relationship": "city",
-                            "code": "state",
-                            "label": "State",
-                            "targets": [
-                                {
-                                    "relationship": "state",
-                                    "code": "country",
-                                    "label": "Country"
-                                }
-                            ]
-
-                        }
-                    ]
+                  "relationship": "state",
+                  "code": "country",
+                  "label": "Country"
                 }
-            ]
+              ]
+            }
+          ]
         }
+      ]
     }
-
+  }
 }
 
 

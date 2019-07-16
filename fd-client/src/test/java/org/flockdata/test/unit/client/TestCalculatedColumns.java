@@ -16,7 +16,10 @@
 
 package org.flockdata.test.unit.client;
 
+import static org.junit.Assert.assertEquals;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import junit.framework.TestCase;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
@@ -24,10 +27,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author mholdsworth

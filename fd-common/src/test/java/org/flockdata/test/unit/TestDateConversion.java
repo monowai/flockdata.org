@@ -16,14 +16,14 @@
 
 package org.flockdata.test.unit;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
+
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.ExpressionHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
-
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
 
 /**
  * @author mholdsworth
@@ -32,7 +32,7 @@ import static junit.framework.TestCase.assertTrue;
 public class TestDateConversion {
 
     @Test
-    public void longFormDateTime() throws Exception{
+    public void longFormDateTime() throws Exception {
         String convert = "Fri Sep 10 18:14:22 +0100 2010";
 
         ColumnDefinition columnDefinition = new ColumnDefinition();
@@ -40,7 +40,7 @@ public class TestDateConversion {
         columnDefinition.setDateFormat("Automatic");
 
         Long converted = ExpressionHelper.parseDate(columnDefinition, convert);
-        assertTrue("Didn't resolve", converted!=0L);
+        assertTrue("Didn't resolve", converted != 0L);
 
 
         DateTime resolved = new DateTime(converted, DateTimeZone.forID("UTC"));
@@ -53,7 +53,7 @@ public class TestDateConversion {
     }
 
     @Test
-    public void customFormat() throws Exception{
+    public void customFormat() throws Exception {
         String convert = "2015-12-01";
 
         ColumnDefinition columnDefinition = new ColumnDefinition();
@@ -61,7 +61,7 @@ public class TestDateConversion {
         columnDefinition.setDateFormat("yyyy-MM-dd");
 
         Long converted = ExpressionHelper.parseDate(columnDefinition, convert);
-        assertTrue("Didn't resolve", converted!=0L);
+        assertTrue("Didn't resolve", converted != 0L);
 
         DateTime resolved = new DateTime(converted);
         assertEquals(2015, resolved.getYear());
@@ -70,7 +70,7 @@ public class TestDateConversion {
     }
 
     @Test
-    public void customFormatDmy() throws Exception{
+    public void customFormatDmy() throws Exception {
         String convert = "01/10/2015";
 
         ColumnDefinition columnDefinition = new ColumnDefinition();
@@ -78,7 +78,7 @@ public class TestDateConversion {
         columnDefinition.setDateFormat("dd/MM/yyyy");
 
         Long converted = ExpressionHelper.parseDate(columnDefinition, convert);
-        assertTrue("Didn't resolve", converted!=0L);
+        assertTrue("Didn't resolve", converted != 0L);
 
         DateTime resolved = new DateTime(converted);
         assertEquals(2015, resolved.getYear());
@@ -87,8 +87,8 @@ public class TestDateConversion {
     }
 
     @Test
-    public void convertFromEpoc () throws Exception {
-        String epoc = Long.toString(System.currentTimeMillis()/1000);  // Linux epoc
+    public void convertFromEpoc() throws Exception {
+        String epoc = Long.toString(System.currentTimeMillis() / 1000);  // Linux epoc
 
         DateTime now = new DateTime();
 
@@ -97,7 +97,7 @@ public class TestDateConversion {
         columnDefinition.setDateFormat("epoc");
 
         Long converted = ExpressionHelper.parseDate(columnDefinition, epoc);
-        assertTrue("Didn't resolve", converted!=0L);
+        assertTrue("Didn't resolve", converted != 0L);
         DateTime resolved = new DateTime(converted);
         assertEquals(now.getYear(), resolved.getYear());
         assertEquals(now.getMonthOfYear(), resolved.getMonthOfYear());

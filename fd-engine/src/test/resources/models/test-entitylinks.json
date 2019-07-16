@@ -6,8 +6,8 @@
   "delimiter": ",",
   "header": true,
   "content": {
-    "Id":{
-      "callerRef":true
+    "Id": {
+      "callerRef": true
     },
     "EmployeeNumber": {
       "dataType": "string",

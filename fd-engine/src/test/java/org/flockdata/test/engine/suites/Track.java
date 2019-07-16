@@ -20,7 +20,13 @@
 
 package org.flockdata.test.engine.suites;
 
-import org.flockdata.test.engine.services.*;
+import org.flockdata.test.engine.services.TestAdmin;
+import org.flockdata.test.engine.services.TestCallerCode;
+import org.flockdata.test.engine.services.TestEntitySearch;
+import org.flockdata.test.engine.services.TestEntityTrack;
+import org.flockdata.test.engine.services.TestLogCounts;
+import org.flockdata.test.engine.services.TestTrackEvents;
+import org.flockdata.test.engine.services.TestTxReference;
 import org.flockdata.test.engine.unit.TestBatchSplitter;
 import org.flockdata.test.engine.unit.TestInputBeans;
 import org.junit.runner.RunWith;
@@ -31,17 +37,18 @@ import org.junit.runners.Suite;
  * @since 2/04/2015
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-        TestAdmin.class,
-        TestInputBeans.class,
-        TestTxReference.class,
-        TestEntityTrack.class,
-        TestBatchSplitter.class,
-        TestLogCounts.class,
-        TestEntitySearch.class,
-        TestCallerCode.class,
-        TestTrackEvents.class
+@Suite.SuiteClasses( {
+    TestAdmin.class,
+    TestInputBeans.class,
+    TestTxReference.class,
+    TestEntityTrack.class,
+    TestBatchSplitter.class,
+    TestLogCounts.class,
+    TestEntitySearch.class,
+    TestCallerCode.class,
+    TestTrackEvents.class
 })
 public class Track {
-    Track(){}
+    Track() {
+    }
 }

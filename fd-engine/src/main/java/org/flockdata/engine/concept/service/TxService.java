@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.concept.service;
 
+import java.util.Map;
+import java.util.Set;
 import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.authentication.SystemUserService;
 import org.flockdata.data.SystemUser;
@@ -32,9 +34,6 @@ import org.flockdata.track.bean.ContentInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author mholdsworth
@@ -89,18 +88,21 @@ public class TxService {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByLogin(userName);
 
-        if (su == null)
+        if (su == null) {
             throw new SecurityException("Not authorised");
+        }
         TxRef tx = trackDao.findTxTag(txRef, su.getCompany());
-        if (tx == null)
+        if (tx == null) {
             return null;
+        }
         return tx;
     }
 
     public Set<EntityNode> findTxEntities(String txName) {
         TxRef txRef = findTx(txName);
-        if (txRef == null)
+        if (txRef == null) {
             return null;
+        }
         return trackDao.findEntitiesByTxRef(txRef.getId());
     }
 

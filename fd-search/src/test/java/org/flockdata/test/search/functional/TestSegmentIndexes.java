@@ -20,6 +20,8 @@
 
 package org.flockdata.test.search.functional;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import junit.framework.TestCase;
 import org.flockdata.data.Entity;
 import org.flockdata.search.EntitySearchChange;
@@ -28,11 +30,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 /**
  * Search tests related to data stored in data segments
+ *
  * @author mholdsworth
  * @since 23/10/2015
  */
@@ -44,10 +44,9 @@ public class TestSegmentIndexes extends ESBase {
      * This approach let's us break up the ElasticSearch indexes in to
      * segmentation boundaries such as 2015-Jan, 2014, "anytext" that is meaningful
      * to the usecase. If you don't supply the data with a segment then the default of "" is used.
-     *
+     * <p>
      * Consider segmenting annual datasets and transactions. Segmenting master data (i.e. Customer) doesn't really
      * make any sense unless you want to break things up by Branch for instance.
-     *
      */
     @Test
     public void test_segmentedIndexes() throws Exception {
@@ -56,7 +55,7 @@ public class TestSegmentIndexes extends ESBase {
         String company = "company";
         String user = "mike";
 
-        Entity entity = getEntity(company, fortress, user, "Invoice", "123","2014");
+        Entity entity = getEntity(company, fortress, user, "Invoice", "123", "2014");
         deleteEsIndex(entity);
         TestCase.assertEquals("2014", entity.getSegment().getCode());
 
@@ -66,7 +65,7 @@ public class TestSegmentIndexes extends ESBase {
         esSearchWriter.createSearchableChange(new SearchChanges(change));
 
         // Each entity will be written to it's own segment
-        Entity entityOtherSegment = getEntity(company, fortress, user, "Invoice", "123","2015");
+        Entity entityOtherSegment = getEntity(company, fortress, user, "Invoice", "123", "2015");
         deleteEsIndex(entityOtherSegment);
         TestCase.assertEquals("2015", entityOtherSegment.getSegment().getCode());
 
@@ -83,10 +82,11 @@ public class TestSegmentIndexes extends ESBase {
         doQuery(entityOtherSegment, entityOtherSegment.getKey());
         // Scanning across segmented indexes
         String index;
-        if (searchConfig.getIndexManager().isSuffixed())
+        if (searchConfig.getIndexManager().isSuffixed()) {
             index = entity.getSegment().getFortress().getRootIndex() + ".invoice.*";
-        else
+        } else {
             index = entity.getSegment().getFortress().getRootIndex() + ".*";
+        }
         doQuery(index, "invoice", "*", 2);
 
     }

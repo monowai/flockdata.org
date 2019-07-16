@@ -26,10 +26,10 @@ import org.springframework.integration.config.EnableIntegration;
 
 /**
  * Starts fd-search as a SB app
- * 
+ *
  * @author mholdsworth
- * @since 16/12/2014
  * @tag Application, Search
+ * @since 16/12/2014
  */
 @SpringBootApplication(scanBasePackages = {
     "org.flockdata.search",
@@ -40,7 +40,7 @@ public class FdSearch {
     public static void main(String[] args) {
         try {
             SpringApplication.run(FdSearch.class, args);
-        } catch ( Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getLocalizedMessage());
         }
 

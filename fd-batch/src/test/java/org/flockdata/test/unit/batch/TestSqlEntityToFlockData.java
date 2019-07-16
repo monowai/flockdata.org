@@ -16,9 +16,17 @@
 
 package org.flockdata.test.unit.batch;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import junit.framework.TestCase;
 import org.flockdata.batch.BatchConfig;
-import org.flockdata.batch.resources.*;
+import org.flockdata.batch.resources.FdBatchResources;
+import org.flockdata.batch.resources.FdEntityProcessor;
+import org.flockdata.batch.resources.FdEntityWriter;
+import org.flockdata.batch.resources.FdRowMapper;
+import org.flockdata.batch.resources.FdTagProcessor;
 import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.Template;
 import org.flockdata.test.unit.client.FdMockIo;
@@ -39,31 +47,27 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * FdClient SpringBatch test runner
  *
  * @tag Batch, FdClient, Test
  */
 @RunWith(SpringRunner.class)
-@ActiveProfiles({"dev", "fd-batch-dev"})
+@ActiveProfiles( {"dev", "fd-batch-dev"})
 @ContextConfiguration(classes = {BatchConfig.class,
-        FdBatchResources.class,
-        ClientConfiguration.class,
-        FdMockIo.class,
-        FdTemplateMock.class,
-        FdTagProcessor.class,
-        FdEntityProcessor.class,
-        FdEntityWriter.class,
-        FdRowMapper.class,
-        HsqlDataSource.class,
-        JobLauncherTestUtils.class,
-        SqlEntityStep.class
+    FdBatchResources.class,
+    ClientConfiguration.class,
+    FdMockIo.class,
+    FdTemplateMock.class,
+    FdTagProcessor.class,
+    FdEntityProcessor.class,
+    FdEntityWriter.class,
+    FdRowMapper.class,
+    HsqlDataSource.class,
+    JobLauncherTestUtils.class,
+    SqlEntityStep.class
 })
-@TestPropertySource({"/fd-batch.properties", "/application_dev.properties"})
+@TestPropertySource( {"/fd-batch.properties", "/application_dev.properties"})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class TestSqlEntityToFlockData extends AbstractTransactionalJUnit4SpringContextTests {
 
@@ -77,7 +81,7 @@ public class TestSqlEntityToFlockData extends AbstractTransactionalJUnit4SpringC
     private Template fdTemplate;
 
     @Test
-    @Sql({"/batch/sql/entity.sql", "/batch/sql/entity-data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
+    @Sql( {"/batch/sql/entity.sql", "/batch/sql/entity-data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
     @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = {"classpath:org/springframework/batch/core/schema-drop-hsqldb.sql"})
     public void testDummy() throws Exception {
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();

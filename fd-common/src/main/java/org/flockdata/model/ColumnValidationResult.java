@@ -16,9 +16,8 @@
 
 package org.flockdata.model;
 
-import org.flockdata.transform.ColumnDefinition;
-
 import java.util.Collection;
+import org.flockdata.transform.ColumnDefinition;
 
 /**
  * Encapsulates the result of a single validation run
@@ -63,8 +62,8 @@ public class ColumnValidationResult {
     @Override
     public String toString() {
         return "ContentValidationResult{" +
-                "sourceColumn=" + sourceColumn +
-                '}';
+            "sourceColumn=" + sourceColumn +
+            '}';
     }
 
     public String getExpression() {

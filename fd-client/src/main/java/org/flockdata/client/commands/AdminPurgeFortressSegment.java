@@ -28,9 +28,10 @@ import org.springframework.web.client.ResourceAccessException;
 
 /**
  * Removes data from a Fortress Segment
+ *
  * @author mholdsworth
- * @since 4/04/2016
  * @tag Command, Fortress, Administration, Segment
+ * @since 4/04/2016
  */
 
 @Component
@@ -44,19 +45,20 @@ public class AdminPurgeFortressSegment {
     }
 
     public CommandResponse<String> exec(String fortress, String docType, String segment) {
-        String exec = fdIoInterface.getUrl()+ "/api/v1/admin/{fortress}/{docType}/{segment}";
-        String result=null;
-        String error =null;
+        String exec = fdIoInterface.getUrl() + "/api/v1/admin/{fortress}/{docType}/{segment}";
+        String result = null;
+        String error = null;
         HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
         try {
             ResponseEntity<String> response;
-            response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress,docType,segment);
+            response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress, docType, segment);
             result = response.getBody();
         } catch (HttpClientErrorException e) {
-            if (e.getMessage().startsWith("401"))
+            if (e.getMessage().startsWith("401")) {
                 error = "auth";
-            else
+            } else {
                 error = e.getMessage();
+            }
         } catch (HttpServerErrorException | ResourceAccessException e) {
             error = e.getMessage();
         }

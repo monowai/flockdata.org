@@ -24,35 +24,35 @@ import org.springframework.web.client.RestTemplate;
  * @since 7/10/17
  */
 @ContextConfiguration(classes = {
-        ClientConfiguration.class,
-        IndexManager.class,
-        FileProcessor.class,
-        FdTemplate.class,
-        FdClientIo.class,
-        FdRabbitClient.class,
-        EnginePing.class,
-        StorePing.class,
-        SearchPing.class,
-        RegistrationPost.class,
-        EntityLogsGet.class,
-        SearchEsPost.class,
-        SearchFdPost.class,
-        EntityData.class,
-        Health.class,
-        EntityGet.class,
-        Login.class,
-        ModelGet.class,
-        ModelPost.class,
-        ModelFieldStructure.class,
-        TagGet.class,
-        TagsGet.class,
-        AdminPurgeFortressSegment.class,
-        AdminPurgeFortress.class,
-        AmqpRabbitConfig.class,
-        RestTemplate.class,
-        TrackEntityPost.class,
-        SearchHelper.class,
-        IntegrationHelper.class
+    ClientConfiguration.class,
+    IndexManager.class,
+    FileProcessor.class,
+    FdTemplate.class,
+    FdClientIo.class,
+    FdRabbitClient.class,
+    EnginePing.class,
+    StorePing.class,
+    SearchPing.class,
+    RegistrationPost.class,
+    EntityLogsGet.class,
+    SearchEsPost.class,
+    SearchFdPost.class,
+    EntityData.class,
+    Health.class,
+    EntityGet.class,
+    Login.class,
+    ModelGet.class,
+    ModelPost.class,
+    ModelFieldStructure.class,
+    TagGet.class,
+    TagsGet.class,
+    AdminPurgeFortressSegment.class,
+    AdminPurgeFortress.class,
+    AmqpRabbitConfig.class,
+    RestTemplate.class,
+    TrackEntityPost.class,
+    SearchHelper.class,
+    IntegrationHelper.class
 
 })
 @RunWith(SpringRunner.class)
@@ -64,6 +64,7 @@ public class TestWiring {
 
     @Autowired
     private FdClientIo fdClientIo;
+
     @Test
     public void wiringWorks() {
         assertNotNull(fdTemplate);

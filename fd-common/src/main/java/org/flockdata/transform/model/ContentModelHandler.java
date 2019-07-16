@@ -22,13 +22,12 @@ package org.flockdata.transform.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.json.ContentModelDeserializer;
-
-import java.util.Map;
 
 /**
  * How data is transformed
@@ -37,19 +36,19 @@ import java.util.Map;
  * @since 24/06/2016
  */
 
-@JsonDeserialize(using =ContentModelDeserializer.class)
+@JsonDeserialize(using = ContentModelDeserializer.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ContentModelHandler implements ContentModel {
-    protected DocumentTypeInputBean documentType=null;
+    protected DocumentTypeInputBean documentType = null;
 
     private String fortressName = null;
     private String name = null; // User supplied description of this profile
     private String code = null; // Mandatory for tags and null for entity
     private FortressInputBean fortress = null;
-    private Boolean entityOnly =null;
+    private Boolean entityOnly = null;
     private Boolean archiveTags = true;
     private String event = null;
-    private Boolean emptyIgnored =null;
+    private Boolean emptyIgnored = null;
     private Map<String, Object> properties;
     private String segmentExpression;
     private String fortressUser;
@@ -92,8 +91,9 @@ public class ContentModelHandler implements ContentModel {
 
     @Override
     public ColumnDefinition getColumnDef(String column) {
-        if (content == null)
+        if (content == null) {
             return null;
+        }
         return content.get(column);
     }
 
@@ -104,22 +104,24 @@ public class ContentModelHandler implements ContentModel {
 
     @Override
     public void setContent(Map<String, ColumnDefinition> columns) {
-        if (content == null)
+        if (content == null) {
             content = columns;
-        else
-            // Adding in only the new ColumnDefinition
+        } else
+        // Adding in only the new ColumnDefinition
+        {
             columns.keySet().stream().filter(
-                    column -> !content.containsKey(column))
-                    .forEachOrdered(column -> content.put(column, columns.get(column)
-                    ));
+                column -> !content.containsKey(column))
+                .forEachOrdered(column -> content.put(column, columns.get(column)
+                ));
+        }
     }
 
     @Override
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public ContentModel setName(String name){
+    public ContentModel setName(String name) {
         this.name = name;
         return this;
     }
@@ -245,26 +247,43 @@ public class ContentModelHandler implements ContentModel {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ContentModelHandler)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ContentModelHandler)) {
+            return false;
+        }
 
         ContentModelHandler that = (ContentModelHandler) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (entityOnly != null ? !entityOnly.equals(that.entityOnly) : that.entityOnly != null) return false;
-        if (archiveTags != null ? !archiveTags.equals(that.archiveTags) : that.archiveTags != null) return false;
-        if (event != null ? !event.equals(that.event) : that.event != null) return false;
-        if (emptyIgnored != null ? !emptyIgnored.equals(that.emptyIgnored) : that.emptyIgnored != null) return false;
-        if (segmentExpression != null ? !segmentExpression.equals(that.segmentExpression) : that.segmentExpression != null)
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
-        if (handler != null ? !handler.equals(that.handler) : that.handler != null) return false;
+        }
+        if (entityOnly != null ? !entityOnly.equals(that.entityOnly) : that.entityOnly != null) {
+            return false;
+        }
+        if (archiveTags != null ? !archiveTags.equals(that.archiveTags) : that.archiveTags != null) {
+            return false;
+        }
+        if (event != null ? !event.equals(that.event) : that.event != null) {
+            return false;
+        }
+        if (emptyIgnored != null ? !emptyIgnored.equals(that.emptyIgnored) : that.emptyIgnored != null) {
+            return false;
+        }
+        if (segmentExpression != null ? !segmentExpression.equals(that.segmentExpression) : that.segmentExpression != null) {
+            return false;
+        }
+        if (handler != null ? !handler.equals(that.handler) : that.handler != null) {
+            return false;
+        }
         return condition != null ? condition.equals(that.condition) : that.condition == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result =(name != null ? name.hashCode() : 0);
+        int result = (name != null ? name.hashCode() : 0);
         result = 31 * result + (entityOnly != null ? entityOnly.hashCode() : 0);
         result = 31 * result + (archiveTags != null ? archiveTags.hashCode() : 0);
         result = 31 * result + (event != null ? event.hashCode() : 0);

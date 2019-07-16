@@ -20,15 +20,18 @@
 
 package org.flockdata.search.service;
 
+import java.io.IOException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.search.*;
+import org.flockdata.search.EntityKeyResults;
+import org.flockdata.search.EsSearchRequestResult;
+import org.flockdata.search.QueryParams;
+import org.flockdata.search.TagCloud;
+import org.flockdata.search.TagCloudParams;
 import org.flockdata.search.base.QueryService;
 import org.flockdata.search.dao.QueryDaoES;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
 
 /**
  * @author mholdsworth

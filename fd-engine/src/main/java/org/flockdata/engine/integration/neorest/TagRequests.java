@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.integration.neorest;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.AliasPayload;
 import org.flockdata.track.bean.TagResults;
@@ -34,9 +36,6 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.http.outbound.HttpRequestExecutingMessageHandler;
 import org.springframework.messaging.MessageHandler;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * SDN4 UMX requests
@@ -54,14 +53,14 @@ public class TagRequests extends NeoRequestBase {
     public IntegrationFlow makeTags() {
 
         return IntegrationFlows.from(channels.neoFdMakeTags())
-                .transform(getTransformer())
-                .handle(fdMakeTagsRequest())
-                .get();
+            .transform(getTransformer())
+            .handle(fdMakeTagsRequest())
+            .get();
     }
 
     private MessageHandler fdMakeTagsRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getTagUrl());
+            new HttpRequestExecutingMessageHandler(getTagUrl());
 
         handler.setExpectedResponseType(TagResults.class);
         return handler;
@@ -71,8 +70,8 @@ public class TagRequests extends NeoRequestBase {
     public IntegrationFlow findTag() {
 
         return IntegrationFlows.from(channels.neoFdFindTag())
-                .handle(fdFindTagsRequest())
-                .get();
+            .handle(fdFindTagsRequest())
+            .get();
     }
 
     private MessageHandler fdFindTagsRequest() {
@@ -80,7 +79,7 @@ public class TagRequests extends NeoRequestBase {
         SpelExpressionParser expressionParser = new SpelExpressionParser();
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getFindTagUrl());
+            new HttpRequestExecutingMessageHandler(getFindTagUrl());
 
         handler.setExpectedResponseType(TagResultBean.class);
         Map<String, Expression> vars = new HashMap<>();
@@ -96,19 +95,18 @@ public class TagRequests extends NeoRequestBase {
     public IntegrationFlow makeAlias() {
 
         return IntegrationFlows.from(channels.neoFdMakeAlias())
-                .transform(getTransformer())
-                .handle(fdMakeAliasRequest())
-                .get();
+            .transform(getTransformer())
+            .handle(fdMakeAliasRequest())
+            .get();
     }
 
     private MessageHandler fdMakeAliasRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getAliasUrl());
+            new HttpRequestExecutingMessageHandler(getAliasUrl());
 
         handler.setExpectedResponseType(AliasPayload.class);
         return handler;
     }
-
 
 
 }

@@ -16,12 +16,12 @@
 
 package org.flockdata.test.unit;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.AdminRequest;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author mholdsworth
@@ -36,9 +36,9 @@ public class TestAdminRequest {
 
         assertEquals(1, adminRequest.getIndexesToDelete().size());
         String json = JsonUtils.toJson(adminRequest);
-        assertNotNull ( json);
+        assertNotNull(json);
         AdminRequest deserialized = JsonUtils.toObject(json.getBytes(), AdminRequest.class);
-        assertNotNull( deserialized.getIndexesToDelete());
+        assertNotNull(deserialized.getIndexesToDelete());
         assertEquals(1, deserialized.getIndexesToDelete().size());
         assertEquals(adminRequest.getIndexesToDelete().iterator().next(), deserialized.getIndexesToDelete().iterator().next());
 

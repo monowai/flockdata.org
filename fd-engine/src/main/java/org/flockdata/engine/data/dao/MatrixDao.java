@@ -27,8 +27,8 @@ import org.flockdata.track.bean.MatrixInputBean;
 
 /**
  * @author mholdsworth
- * @since 5/04/2014
  * @tag Matrix, Query, Interface
+ * @since 5/04/2014
  */
 public interface MatrixDao {
 

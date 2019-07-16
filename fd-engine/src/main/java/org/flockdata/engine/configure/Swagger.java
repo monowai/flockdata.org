@@ -20,7 +20,12 @@
 
 package org.flockdata.engine.configure;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static springfox.documentation.schema.AlternateTypeRules.newRule;
+
 import com.fasterxml.classmate.TypeResolver;
+import java.time.LocalDate;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +43,6 @@ import springfox.documentation.schema.WildcardType;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import javax.annotation.PostConstruct;
-import java.time.LocalDate;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static springfox.documentation.schema.AlternateTypeRules.newRule;
 
 /**
  * @author mike
@@ -68,29 +67,30 @@ public class Swagger {
     void logStatus() {
         logger.info("**** Swagger configuration deployed");
     }
+
     @Bean
     public Docket petApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
-                .build()
-                .pathMapping("/")
-                .directModelSubstitute(LocalDate.class,
-                        String.class)
-                .genericModelSubstitutes(ResponseEntity.class)
-                .alternateTypeRules(
-                        newRule(typeResolver.resolve(DeferredResult.class,
-                                typeResolver.resolve(ResponseEntity.class, WildcardType.class)),
-                                typeResolver.resolve(WildcardType.class)))
-                .useDefaultResponseMessages(false)
-                .globalResponseMessage(RequestMethod.GET,
-                        newArrayList(new ResponseMessageBuilder()
-                                .code(500)
-                                .message("500 message")
-                                .responseModel(new ModelRef("Error"))
-                                .build()))
-                .enableUrlTemplating(true);
+            .select()
+            .apis(RequestHandlerSelectors.any())
+            .paths(PathSelectors.any())
+            .build()
+            .pathMapping("/")
+            .directModelSubstitute(LocalDate.class,
+                String.class)
+            .genericModelSubstitutes(ResponseEntity.class)
+            .alternateTypeRules(
+                newRule(typeResolver.resolve(DeferredResult.class,
+                    typeResolver.resolve(ResponseEntity.class, WildcardType.class)),
+                    typeResolver.resolve(WildcardType.class)))
+            .useDefaultResponseMessages(false)
+            .globalResponseMessage(RequestMethod.GET,
+                newArrayList(new ResponseMessageBuilder()
+                    .code(500)
+                    .message("500 message")
+                    .responseModel(new ModelRef("Error"))
+                    .build()))
+            .enableUrlTemplating(true);
     }
 
 }

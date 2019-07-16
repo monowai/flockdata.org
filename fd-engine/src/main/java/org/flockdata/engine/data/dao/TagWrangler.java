@@ -20,6 +20,13 @@
 
 package org.flockdata.engine.data.dao;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.flockdata.data.Alias;
 import org.flockdata.data.Company;
@@ -46,15 +53,12 @@ import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 /**
  * Move to Neo4j server extension
  *
  * @author mholdsworth
- * @since 20/06/2015
  * @tag Tag, Neo4j
+ * @since 20/06/2015
  */
 
 @Service
@@ -81,7 +85,7 @@ public class TagWrangler {
         Collection<FdTagResultBean> results = new ArrayList<>(payload.getTags().size());
         List<String> createdValues = new ArrayList<>();
         results.addAll(payload.getTags().stream().map(tagInputBean ->
-                save(payload.getCompany(), tagInputBean, payload.getTenant(), createdValues, payload.isIgnoreRelationships())).collect(Collectors.toList()));
+            save(payload.getCompany(), tagInputBean, payload.getTenant(), createdValues, payload.isIgnoreRelationships())).collect(Collectors.toList()));
         return results;
 
     }
@@ -99,7 +103,7 @@ public class TagWrangler {
                 tagInput.setServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
                 if (tagInput.getNotFoundCode() != null && !tagInput.getNotFoundCode().equals("")) {
                     TagInputBean notFound = new TagInputBean(tagInput.getNotFoundCode())
-                            .setLabel(tagInput.getLabel());
+                        .setLabel(tagInput.getLabel());
 
                     tagInput.setServiceMessage("Tag [" + tagInput + "] should exist as a [" + tagInput.getLabel() + "] but doesn't. Assigning to [" + tagInput.getNotFoundCode() + "]. An alias is been created for " + tagInput.getCode());
                     logger.info(tagInput.setServiceMessage());
@@ -108,23 +112,26 @@ public class TagWrangler {
                     aliases.add(new AliasInputBean(tagInput.getCode()));
                     notFound.setAliases(aliases);
                     tagResultBean = save(company, notFound, tagSuffix, cachedValues, suppressRelationships);
-                    startTag = (TagNode)tagResultBean.getTag();
-                } else
+                    startTag = (TagNode) tagResultBean.getTag();
+                } else {
                     return new FdTagResultBean(tagInput);
+                }
             } else {
                 isNew = true;
-                if (tagInput.getCode() == null)
+                if (tagInput.getCode() == null) {
                     throw new FlockDataTagException("The code property for a tag cannot be null {" + tagInput.toString());
+                }
                 startTag = createTag(tagInput, tagSuffix);
             }
         } else {
             // Existing Tag. We only update certain properties. Code is immutable (or near enough to)
             if (tagInput.isMerge()) {
-                if (tagInput.hasTagProperties())
+                if (tagInput.hasTagProperties()) {
                     for (String key : tagInput.getProperties().keySet()) {
                         startTag.addProperty(key, tagInput.getProperty(key));
                         changed = true;
                     }
+                }
 
                 if (tagInput.getName() != null && !tagInput.getName().equals(startTag.getName())) {
                     startTag.setName(tagInput.getName());
@@ -165,8 +172,9 @@ public class TagWrangler {
             alias.setTag(startTag);
             aliases.add(alias);
         }
-        if (!aliases.isEmpty())
+        if (!aliases.isEmpty()) {
             template.fetch(startTag.getAliases());
+        }
         for (Alias alias : aliases) {
             if (!TagHelper.hasAlias(startTag.getAliases(), label, alias.getKey())) {
                 template.saveOnly(alias);
@@ -183,9 +191,9 @@ public class TagWrangler {
         //       do we care that one company can see another companies tag value? Certainly not the
         //       track data.
         String label;
-        if (tagInput.isDefault())
+        if (tagInput.isDefault()) {
             label = Tag.DEFAULT_TAG + suffix;
-        else {
+        } else {
             label = tagInput.getLabel();
         }
 
@@ -226,15 +234,16 @@ public class TagWrangler {
         //Long coTags = getCompanyTagManager(companyId);
         //"MATCH track<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
         String query =
-                " match (tag:Tag)-[]->(otherTag" + Tag.DEFAULT + tagSuffix + ") " +
-                        "   where id(tag)={tagId} return otherTag";
+            " match (tag:Tag)-[]->(otherTag" + Tag.DEFAULT + tagSuffix + ") " +
+                "   where id(tag)={tagId} return otherTag";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
 
         Iterable<Map<String, Object>> result = template.query(query, params);
 
-        if (!((Result) result).iterator().hasNext())
+        if (!((Result) result).iterator().hasNext()) {
             return new ArrayList<>();
+        }
 
         Iterator<Map<String, Object>> rows = result.iterator();
 
@@ -250,8 +259,9 @@ public class TagWrangler {
 
     private void resolveKeyPrefix(String suffix, TagInputBean tagInput) {
         String prefix = resolveKeyPrefix(tagInput.getKeyPrefix(), suffix);
-        if (prefix != null)
+        if (prefix != null) {
             tagInput.setKeyPrefix(prefix);
+        }
     }
 
     private String resolveKeyPrefix(String keyPrefix, String suffix) {
@@ -275,22 +285,25 @@ public class TagWrangler {
     }
 
     TagNode findTag(String suffix, String label, String keyPrefix, String tagCode, boolean inflate) {
-        if (tagCode == null)
+        if (tagCode == null) {
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
+        }
 
         String multiTennantedLabel = TagHelper.suffixLabel(label, suffix);
         String kp = resolveKeyPrefix(keyPrefix, suffix);
 
         TagNode tag = tagManager.tagByKey(new TagKey(multiTennantedLabel, kp, tagCode));
-        if (tag != null && inflate)
+        if (tag != null && inflate) {
             template.fetch(tag.getAliases());
+        }
         logger.trace("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
         return tag;
     }
 
     /**
      * Create unique relationship between the tag and the node
-     *  @param company               associate the tag with this company
+     *
+     * @param company               associate the tag with this company
      * @param tagSuffix
      * @param startTag              notional start node
      * @param associatedTag         tag to make or get
@@ -301,19 +314,22 @@ public class TagWrangler {
     private void processAssociatedTags(Company company, String tagSuffix, FdTagResultBean startTag, TagInputBean associatedTag, String rlxName, Collection<String> cachedValues, boolean suppressRelationships) {
 
         FdTagResultBean endTag = save(company, associatedTag, tagSuffix, cachedValues, suppressRelationships);
-        if (suppressRelationships)
+        if (suppressRelationships) {
             return;
+        }
         //Node endNode = template.getNode(tag.getId());
 
         Tag startId = (!associatedTag.isReverse() ? startTag.getTag() : endTag.getTag());
         Tag endId = (!associatedTag.isReverse() ? endTag.getTag() : startTag.getTag());
 
-        if ( endId == null || startId== null )
+        if (endId == null || startId == null) {
             return;
+        }
 
         String key = rlxName + ":" + startId.getId() + ":" + endId.getId();
-        if (cachedValues.contains(key))
+        if (cachedValues.contains(key)) {
             return;
+        }
 
         cachedValues.add(createRelationship(rlxName, startId, endId, key));
         startTag.addTargetResult(rlxName, endTag);
@@ -335,8 +351,9 @@ public class TagWrangler {
         String theLabel = TagHelper.suffixLabel(label, suffix);
         template.fetch(tag);
         template.fetch(tag.getAliases());
-        if (TagHelper.hasAlias(tag.getAliases(), theLabel, TagHelper.parseKey(aliasInput.getCode())))
+        if (TagHelper.hasAlias(tag.getAliases(), theLabel, TagHelper.parseKey(aliasInput.getCode()))) {
             return;
+        }
 
         Alias alias = new AliasNode(theLabel, aliasInput, TagHelper.parseKey(aliasInput.getCode()), tag);
 

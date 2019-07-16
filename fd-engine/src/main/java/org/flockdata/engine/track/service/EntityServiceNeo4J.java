@@ -20,13 +20,33 @@
 
 package org.flockdata.engine.track.service;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.flockdata.authentication.SecurityHelper;
-import org.flockdata.data.*;
+import org.flockdata.data.Company;
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Log;
+import org.flockdata.data.Segment;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.data.dao.EntityDaoNeo;
-import org.flockdata.engine.data.graph.*;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.data.graph.EntityLog;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.FortressUserNode;
+import org.flockdata.engine.data.graph.LogNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.integration.IndexManager;
@@ -34,7 +54,15 @@ import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.SearchResult;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.DocumentTypeInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.track.bean.EntityLogResult;
+import org.flockdata.track.bean.EntitySummaryBean;
+import org.flockdata.track.bean.EntityToEntityLinkInput;
+import org.flockdata.track.bean.FdTagResultBean;
+import org.flockdata.track.bean.LogDetailBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -45,11 +73,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Transactional services to support record and working with entities and logs
@@ -121,14 +144,16 @@ public class EntityServiceNeo4J implements EntityService {
             EntityLog log = getLastEntityLog(entity.getId());
             if (log != null) {
                 StoredContent content = storageProxy.read(entity, log.getLog());
-                if (content == null)
-                    throw new FlockException("Unable to locate content for [" + entity.getKey() + "]. Log found [" + log +"]");
+                if (content == null) {
+                    throw new FlockException("Unable to locate content for [" + entity.getKey() + "]. Log found [" + log + "]");
+                }
                 return content.getData();
             } else {
                 // Look for Entity data, not log history
-                StoredContent content = storageProxy.read( new LogRequest(entity));
-                if (content == null)
+                StoredContent content = storageProxy.read(new LogRequest(entity));
+                if (content == null) {
                     throw new FlockException("Unable to locate content for [" + entity.getKey() + "]. ");
+                }
                 return content.getData();
 
             }
@@ -161,8 +186,9 @@ public class EntityServiceNeo4J implements EntityService {
             entity = getEntity(segment.getCompany(), entityInput.getKey());
         }
 
-        if (entity == null && (entityInput.getCode() != null && !entityInput.getCode().equals(EMPTY)))
-            entity = (EntityNode)findByCode(segment.getFortress(), documentType, entityInput.getCode());
+        if (entity == null && (entityInput.getCode() != null && !entityInput.getCode().equals(EMPTY))) {
+            entity = (EntityNode) findByCode(segment.getFortress(), documentType, entityInput.getCode());
+        }
 
         if (entity != null) {
             logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInput.getCode(), entity.getKey());
@@ -200,15 +226,16 @@ public class EntityServiceNeo4J implements EntityService {
             }
 
 
-            if (saveEntity)
+            if (saveEntity) {
                 entityDao.save(entity);
+            }
             // Could be rewriting tags
             // DAT-153 - move this to the end of the process?
             EntityLog entityLog = entityDao.getLastEntityLog(entity);
             getTags(tags);
             Company company = segment.getCompany();
             trackResult.setTags(
-                    entityTagService.associateTags(company, entity, entityLog, entityInput)
+                entityTagService.associateTags(company, entity, entityLog, entityInput)
             );
             if (!entityInput.getEntityLinks().isEmpty()) {
                 EntityKeyBean thisEntity = new EntityKeyBean(entity, indexManager.toIndex(entity));
@@ -236,7 +263,7 @@ public class EntityServiceNeo4J implements EntityService {
         trackResult.setNewEntity();
 
         trackResult.setTags(
-                entityTagService.associateTags(segment.getCompany(), entity, null, entityInput)
+            entityTagService.associateTags(segment.getCompany(), entity, null, entityInput)
         );
 
         trackResult.setContentInput(entityInput.getContent());
@@ -246,8 +273,9 @@ public class EntityServiceNeo4J implements EntityService {
             // ASAP
             // Minimal defaults that are otherwise set in the LogService
             FortressUserNode contentUser = null;
-            if (entityInput.getContent().getFortressUser() != null)
+            if (entityInput.getContent().getFortressUser() != null) {
                 contentUser = fortressService.getFortressUser(segment.getFortress(), entityInput.getContent().getFortressUser());
+            }
 
             if (entityInput.getContent().getEvent() == null) {
                 entityInput.getContent().setEvent(LogNode.CREATE);
@@ -270,29 +298,32 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     public Collection<FdTagResultBean> getTags(Future<Collection<FdTagResultBean>> tags) throws FlockException {
-        if (tags != null)
+        if (tags != null) {
             try {
                 return tags.get();
             } catch (InterruptedException | ExecutionException e) {
                 throw new FlockException(e.getMessage());
             }
+        }
         return null;
     }
 
     private EntityNode makeEntity(Segment segment, DocumentNode documentType, EntityInputBean entityInput) throws FlockException {
         String fortressUser = entityInput.getFortressUser();
-        if (fortressUser == null && entityInput.getContent() != null)
+        if (fortressUser == null && entityInput.getContent() != null) {
             fortressUser = entityInput.getContent().getFortressUser();
+        }
 
         FortressUserNode entityUser = null;
-        if (fortressUser != null)
+        if (fortressUser != null) {
             entityUser = fortressService.getFortressUser(segment.getFortress(), fortressUser);
+        }
 
 
         EntityNode entity = entityDao.create(entityInput, segment, entityUser, documentType);
-        if (entity.getId() == null)
+        if (entity.getId() == null) {
             entityInput.setKey("NT " + segment.getFortress().getId()); // We ain't tracking this
-        else if (!entityInput.getEntityLinks().isEmpty()) {
+        } else if (!entityInput.getEntityLinks().isEmpty()) {
             // DAT-525
             EntityKeyBean thisEntity = new EntityKeyBean(entity, indexManager.toIndex(entity));
             for (String relationship : entityInput.getEntityLinks().keySet()) {
@@ -307,12 +338,14 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Override
     public EntityNode getEntity(Company company, String key) {
-        if (company == null)
+        if (company == null) {
             throw new NotFoundException("Illegal Company");
+        }
 
         EntityNode entity = getEntity(company, key, true);
-        if (entity == null)
+        if (entity == null) {
             throw new NotFoundException("Unable to find the requested Entity by the key " + key);
+        }
         return entity;
     }
 
@@ -323,11 +356,13 @@ public class EntityServiceNeo4J implements EntityService {
             return getEntity(securityHelper.getCompany(), key);
         }
         EntityNode entity = entityDao.findEntity(key, inflate);
-        if (entity == null || entity.getSegment() == null)
+        if (entity == null || entity.getSegment() == null) {
             return null;
+        }
 
-        if (!(entity.getSegment().getFortress().getCompany().getId().equals(company.getId())))
+        if (!(entity.getSegment().getFortress().getCompany().getId().equals(company.getId()))) {
             throw new SecurityException("CompanyNode mismatch. [" + key + "] working for [" + company.getName() + "] cannot write Entities for [" + entity.getSegment().getFortress().getCompany().getName() + "]");
+        }
         return entity;
     }
 
@@ -413,11 +448,12 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public EntitySearchChange cancelLastLog(Company company, EntityNode entity) throws IOException, FlockException {
         org.flockdata.data.EntityLog existingLog = getLastEntityLog(entity.getId());
-        if (existingLog == null)
+        if (existingLog == null) {
             return null;
+        }
 
-        LogNode currentLog = (LogNode)existingLog.getLog();
-        LogNode fromLog = (LogNode)currentLog.getPreviousLog();
+        LogNode currentLog = (LogNode) existingLog.getLog();
+        LogNode fromLog = (LogNode) currentLog.getPreviousLog();
         String searchKey = entity.getSearchKey();
         EntityLog newEntityLog = null;
         if (fromLog != null) {
@@ -487,8 +523,9 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public Entity findByCode(Company company, String fortress, String documentCode, String code) throws NotFoundException {
         FortressNode iFortress = fortressService.findByName(company, fortress);
-        if (iFortress == null)
+        if (iFortress == null) {
             return null;
+        }
 
         return findByCode(iFortress, documentCode, code);
     }
@@ -550,8 +587,9 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException {
         Entity entity = getEntity(company, key, true);
-        if (entity == null)
+        if (entity == null) {
             throw new FlockException("Invalid entity key [" + key + "]");
+        }
         Collection<org.flockdata.data.EntityLog> changes = getEntityLogs(entity);
         Collection<EntityTag> tags = entityTagService.findEntityTagsWithGeo(entity);
         EntitySummaryBean esb = new EntitySummaryBean(entity, changes, tags);
@@ -562,11 +600,12 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public LogDetailBean getFullDetail(Company company, String key, Long logId) {
         EntityNode entity = getEntity(company, key, true);
-        if (entity == null)
+        if (entity == null) {
             return null;
+        }
 
         EntityLog entityLog = entityDao.getLog(entity, logId);
-        entityDao.fetch((LogNode)entityLog.getLog());
+        entityDao.fetch((LogNode) entityLog.getLog());
         StoredContent what = contentReader.read(new LogRequest(entity, entityLog.getLog()));
 
         return new LogDetailBean(entityLog, what);
@@ -577,23 +616,25 @@ public class EntityServiceNeo4J implements EntityService {
         if (entity != null) {
 
             EntityLog entityLog = entityDao.getLog(entity, logId);
-            if (!entityLog.getEntity().getId().equals(entity.getId()))
+            if (!entityLog.getEntity().getId().equals(entity.getId())) {
                 return null;
+            }
 
-            entityDao.fetch((LogNode)entityLog.getLog());
+            entityDao.fetch((LogNode) entityLog.getLog());
             return entityLog;
         }
         return null;
     }
 
     @Override
-    public Collection<TrackResultBean> trackEntities(DocumentNode documentType, Segment segment, Collection<EntityInputBean> entityInputs, Future<Collection<FdTagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException{
+    public Collection<TrackResultBean> trackEntities(DocumentNode documentType, Segment segment, Collection<EntityInputBean> entityInputs, Future<Collection<FdTagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException {
         Collection<TrackResultBean> arb = new ArrayList<>();
         for (EntityInputBean inputBean : entityInputs) {
 
             TrackResultBean result = createEntity(documentType, segment, inputBean, tags);
-            if (result.getEntity() != null)
+            if (result.getEntity() != null) {
                 logger.trace("Batch Processed {}, code=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentType().getName());
+            }
             arb.add(result);
         }
 
@@ -603,7 +644,8 @@ public class EntityServiceNeo4J implements EntityService {
 
     /**
      * Cross references to Entities to create a link
-     *  @param company          validated company the caller is authorised to work with
+     *
+     * @param company          validated company the caller is authorised to work with
      * @param key              source from which a xref will be created
      * @param xRef             target for the xref
      * @param relationshipName name of the relationship
@@ -654,23 +696,27 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public Collection<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> entityKeys, String linkName) throws FlockException {
         FortressNode fortress = fortressService.findByCode(company, sourceKey.getFortressName());
-        if (fortress == null)
+        if (fortress == null) {
             throw new FlockException("Unable to locate the fortress " + sourceKey.getFortressName());
+        }
         Entity sourceEntity;
-        if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
+        if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*")) {
             sourceEntity = entityDao.findByCodeUnique(fortress.getId(), sourceKey.getCode());
-        else {
+        } else {
             DocumentNode document = conceptService.resolveByDocCode(fortress, sourceKey.getDocumentType(), false);
             sourceKey.setResolvedDocument(document);
-            if (sourceKey.getKey() != null)
+            if (sourceKey.getKey() != null) {
                 sourceEntity = entityDao.findEntity(sourceKey.getKey(), true);
-            else
+            } else {
                 sourceEntity = entityDao.findByCode(fortress.getId(), document, sourceKey.getCode());
+            }
             sourceKey.setResolvedEntity(sourceEntity);
         }
         if (sourceEntity == null)
-            // ToDo: Should we create it??
+        // ToDo: Should we create it??
+        {
             throw new FlockException("Unable to locate the source Entity [" + sourceKey + "]");
+        }
 
         Collection<Entity> targets = new ArrayList<>();
         List<EntityKeyBean> ignored = new ArrayList<>();
@@ -679,9 +725,9 @@ public class EntityServiceNeo4J implements EntityService {
             int count = 1;
 
             Collection<Entity> entities = new ArrayList<>();
-            if (targetKey.getDocumentType().equals("*") || targetKey.getDocumentType().equalsIgnoreCase("entity"))
+            if (targetKey.getDocumentType().equals("*") || targetKey.getDocumentType().equalsIgnoreCase("entity")) {
                 entities = findByCode(fortress, targetKey.getCode());
-            else {
+            } else {
                 Entity entity = findByCode(fortressService.findByCode(company, targetKey.getFortressName()), targetKey.getDocumentType(), targetKey.getCode());
                 if (entity == null) {
                     if (targetKey.getMissingAction() == EntityKeyBean.ACTION.CREATE) {
@@ -701,17 +747,19 @@ public class EntityServiceNeo4J implements EntityService {
                 }
                 if (entity != null) {
                     targetKey.setResolvedEntity(entity);
-                    if (targetKey.getResolvedDocument() == null)
+                    if (targetKey.getResolvedDocument() == null) {
                         targetKey.setResolvedDocument(conceptService.findDocumentType(entity.getFortress(), targetKey.getDocumentType()));
+                    }
                     entities.add(entity);
                 }
             }
             if (!entities.isEmpty()) {
                 for (Entity entity : entities) {
-                    if (count > 1 || count == 0)
+                    if (count > 1 || count == 0) {
                         ignored.add(targetKey);
-                    else
+                    } else {
                         targets.add(entity);
+                    }
                     count++;
                 }
             }
@@ -806,8 +854,9 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public Collection<EntityTag> getLastLogTags(Company company, String key) throws FlockException {
         org.flockdata.data.EntityLog lastLog = getLastEntityLog(company, key);
-        if (lastLog == null)
+        if (lastLog == null) {
             return new ArrayList<>();
+        }
 
         return getLogTags(company, lastLog.getLog());
     }
@@ -815,8 +864,9 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public EntityLog getLastEntityLog(Company company, String key) throws FlockException {
         EntityNode entity = getEntity(company, key);
-        if (entity == null)
+        if (entity == null) {
             throw new NotFoundException("Unable to locate the requested Entity for key " + key);
+        }
         return entityDao.getLastEntityLog(entity);
     }
 
@@ -830,11 +880,13 @@ public class EntityServiceNeo4J implements EntityService {
         EntityNode entity = getEntity(company, key);
         org.flockdata.data.EntityLog log = entityDao.getLog(entity, logId);
 
-        if (log == null)
+        if (log == null) {
             throw new FlockException(String.format("Invalid logId %d for %s ", logId, key));
+        }
 
-        if (!log.getEntity().getId().equals(entity.getId()))
+        if (!log.getEntity().getId().equals(entity.getId())) {
             throw new FlockException(String.format("Invalid logId %d for %s ", logId, key));
+        }
         return log;
     }
 
@@ -845,14 +897,14 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Override
     public Collection<EntityToEntityLinkInput> linkEntities(Company
-                                                                    company, Collection<EntityToEntityLinkInput> entityLinks) {
+                                                                company, Collection<EntityToEntityLinkInput> entityLinks) {
         for (EntityToEntityLinkInput entityLink : entityLinks) {
             Map<String, List<EntityKeyBean>> references = entityLink.getReferences();
             for (String xRefName : references.keySet()) {
                 try {
                     Collection<EntityKeyBean> notFound = linkEntities(company,
-                            new EntityKeyBean(entityLink),
-                            references.get(xRefName), xRefName);
+                        new EntityKeyBean(entityLink),
+                        references.get(xRefName), xRefName);
                     entityLink.setIgnored(xRefName, notFound);
 //                    references.put(relationship, notFound);
                 } catch (FlockException de) {

@@ -20,6 +20,14 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Collection;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.data.graph.FortressNode;
@@ -30,12 +38,9 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import java.util.Collection;
-
-import static org.junit.Assert.*;
-
 /**
  * Schema related tests
+ *
  * @author mholdsworth
  * @since 3/04/2014
  */

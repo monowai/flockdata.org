@@ -21,7 +21,11 @@
 package org.flockdata.search.endpoint;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.search.*;
+import org.flockdata.search.EntityKeyResults;
+import org.flockdata.search.EsSearchRequestResult;
+import org.flockdata.search.QueryParams;
+import org.flockdata.search.TagCloud;
+import org.flockdata.search.TagCloudParams;
 import org.flockdata.search.base.QueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

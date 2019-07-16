@@ -18,15 +18,14 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.data.ChangeEvent;
-import org.flockdata.data.EntityContent;
-import org.flockdata.helper.FlockException;
-import org.joda.time.DateTime;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.flockdata.data.ChangeEvent;
+import org.flockdata.data.EntityContent;
+import org.flockdata.helper.FlockException;
+import org.joda.time.DateTime;
 
 /**
  * This object tracks source system content data to be tracked
@@ -71,8 +70,9 @@ public class ContentInputBean implements EntityContent, Serializable {
     public ContentInputBean(String fortressUser, DateTime fortressWhen) {
         this();
         this.fortressUser = fortressUser;
-        if (fortressWhen != null)
+        if (fortressWhen != null) {
             this.when = fortressWhen.toDate();
+        }
     }
 
     /**
@@ -164,10 +164,11 @@ public class ContentInputBean implements EntityContent, Serializable {
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public void setData(Map<String, Object> data) throws FlockException {
-        if (data == null)
+        if (data == null) {
             this.data.clear();
-        else
+        } else {
             this.data = data;
+        }
 
     }
 
@@ -176,7 +177,7 @@ public class ContentInputBean implements EntityContent, Serializable {
         return comment;
     }
 
-    public ContentInputBean setComment(String comment){
+    public ContentInputBean setComment(String comment) {
         this.comment = comment;
         return this;
     }
@@ -219,16 +220,15 @@ public class ContentInputBean implements EntityContent, Serializable {
      * @param txRef TX Key Reference to use
      */
     public void setTxRef(String txRef) {
-        if (txRef != null && txRef.equals(""))
+        if (txRef != null && txRef.equals("")) {
             this.txRef = null;
-        else {
+        } else {
             this.txRef = txRef;
             setTransactional(true);
         }
     }
 
     /**
-     *
      * @param fdMessage server side result of the track request
      */
     public void setFdMessage(String fdMessage) {
@@ -338,26 +338,42 @@ public class ContentInputBean implements EntityContent, Serializable {
     @Override
     public String toString() {
         return "LogInputBean{" +
-                "event='" + event + '\'' +
-                ", documentType='" + documentType + '\'' +
-                ", code='" + code + '\'' +
-                ", key='" + key + '\'' +
-                '}';
+            "event='" + event + '\'' +
+            ", documentType='" + documentType + '\'' +
+            ", code='" + code + '\'' +
+            ", key='" + key + '\'' +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ContentInputBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ContentInputBean)) {
+            return false;
+        }
 
         ContentInputBean that = (ContentInputBean) o;
 
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (contentType != null ? !contentType.equals(that.contentType) : that.contentType != null) return false;
-        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
-        if (fortress != null ? !fortress.equals(that.fortress) : that.fortress != null) return false;
-        if (key != null ? !key.equals(that.key) : that.key != null) return false;
-        if (txRef != null ? !txRef.equals(that.txRef) : that.txRef != null) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) {
+            return false;
+        }
+        if (contentType != null ? !contentType.equals(that.contentType) : that.contentType != null) {
+            return false;
+        }
+        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) {
+            return false;
+        }
+        if (fortress != null ? !fortress.equals(that.fortress) : that.fortress != null) {
+            return false;
+        }
+        if (key != null ? !key.equals(that.key) : that.key != null) {
+            return false;
+        }
+        if (txRef != null ? !txRef.equals(that.txRef) : that.txRef != null) {
+            return false;
+        }
         return !(when != null ? !when.equals(that.when) : that.when != null);
 
     }

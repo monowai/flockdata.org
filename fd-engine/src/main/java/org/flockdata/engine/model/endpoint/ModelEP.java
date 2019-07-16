@@ -20,6 +20,10 @@
 
 package org.flockdata.engine.model.endpoint;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
 import org.flockdata.data.Fortress;
@@ -40,17 +44,17 @@ import org.flockdata.services.ContentModelService;
 import org.flockdata.transform.DataConversionRequest;
 import org.flockdata.transform.Transformer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author mholdsworth
- * @since 8/11/2013
  * @tag Endpoint, ContentModel
+ * @since 8/11/2013
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/model")
@@ -63,7 +67,7 @@ public class ModelEP {
 
 
     @Autowired
-    public ModelEP(ContentService contentService,ContentModelService contentModelService, FortressService fortressService, ConceptService conceptService) {
+    public ModelEP(ContentService contentService, ContentModelService contentModelService, FortressService fortressService, ConceptService conceptService) {
         this.contentModelService = contentModelService;
         this.fortressService = fortressService;
         this.conceptService = conceptService;
@@ -71,26 +75,26 @@ public class ModelEP {
     }
 
     @RequestMapping(value = "/",
-            produces = "application/json",
-            method = RequestMethod.GET)
+        produces = "application/json",
+        method = RequestMethod.GET)
     public Collection<ContentModelResult> getModels(HttpServletRequest request) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         return contentModelService.find(company);
     }
 
     @RequestMapping(value = "/",
-            produces = "application/json",
-            consumes = "application/json",
-            method = RequestMethod.POST)
+        produces = "application/json",
+        consumes = "application/json",
+        method = RequestMethod.POST)
     public Collection<ContentModelResult> storeModels(@RequestBody Collection<ContentModel> contentModels, HttpServletRequest request) throws FlockException {
 
         CompanyNode company = CompanyResolver.resolveCompany(request);
         Collection<ContentModelResult> results = new ArrayList<>();
         for (ContentModel contentModel : contentModels) {
             ContentModelResult result;
-            if (contentModel.isTagModel())
+            if (contentModel.isTagModel()) {
                 result = saveContentModel(request, contentModel.getCode(), contentModel);
-            else {
+            } else {
                 FortressNode fortress = fortressService.registerFortress(company, contentModel.getFortress());
                 conceptService.save(new DocumentNode(fortress.getDefaultSegment(), contentModel));
                 result = saveContentModel(request, contentModel.getFortress().getName(), contentModel.getDocumentType().getName(), contentModel);
@@ -101,33 +105,34 @@ public class ModelEP {
     }
 
     @RequestMapping(value = "/download",
-            produces = "application/json",
-            consumes = "application/json",
-            method = RequestMethod.POST)
+        produces = "application/json",
+        consumes = "application/json",
+        method = RequestMethod.POST)
     public Collection<ContentModel> getModels(@RequestBody Collection<String> modelKeys, HttpServletRequest request) throws FlockException {
 
         CompanyNode company = CompanyResolver.resolveCompany(request);
         Collection<ContentModel> results = new ArrayList<>();
         for (String modelKey : modelKeys) {
             ContentModelResult cmr = contentModelService.find(company, modelKey);
-            if (cmr != null)
+            if (cmr != null) {
                 results.add(cmr.getContentModel());
+            }
         }
         return results;
     }
 
 
     @RequestMapping(value = "/{key}",
-            produces = "application/json",
-            method = RequestMethod.DELETE)
+        produces = "application/json",
+        method = RequestMethod.DELETE)
     public void deleteModelKey(HttpServletRequest request, @PathVariable("key") String key) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         contentModelService.delete(company, key);
     }
 
     @RequestMapping(value = "/{key}",
-            produces = "application/json",
-            method = RequestMethod.GET)
+        produces = "application/json",
+        method = RequestMethod.GET)
     public ContentModelResult getContentModelByKey(HttpServletRequest request, @PathVariable("key") String key) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         return contentModelService.find(company, key);
@@ -135,32 +140,34 @@ public class ModelEP {
 
 
     @RequestMapping(value = "/{fortressCode}/{docTypeName}",
-            produces = "application/json", method = RequestMethod.GET)
+        produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
     public ContentModel getContentModel(
-            HttpServletRequest request,
-            @PathVariable("fortressCode") String fortressCode,
-            @PathVariable("docTypeName") String docTypeName) throws FlockException {
+        HttpServletRequest request,
+        @PathVariable("fortressCode") String fortressCode,
+        @PathVariable("docTypeName") String docTypeName) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
 
         Fortress fortress = fortressService.getFortress(company, fortressCode);
-        if (fortress == null)
+        if (fortress == null) {
             throw new IllegalArgumentException("Unable to locate the fortress " + fortressCode);
+        }
 
         Document documentType = conceptService.resolveByDocCode(fortress, docTypeName, Boolean.FALSE);
-        if (documentType == null)
+        if (documentType == null) {
             throw new IllegalArgumentException("Unable to locate the document " + docTypeName);
+        }
 
         return contentModelService.get(company, fortress, documentType);
 
     }
 
     @RequestMapping(value = "/tag/{code}",
-            produces = "application/json", method = RequestMethod.GET)
+        produces = "application/json", method = RequestMethod.GET)
     @ResponseBody
     public ContentModel getContentModel(
-            HttpServletRequest request,
-            @PathVariable("code") String code) throws FlockException {
+        HttpServletRequest request,
+        @PathVariable("code") String code) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
 
 
@@ -169,9 +176,9 @@ public class ModelEP {
     }
 
     @RequestMapping(value = "/{fortressCode}/{docTypeName}",
-            produces = "application/json",
-            consumes = "application/json",
-            method = RequestMethod.POST)
+        produces = "application/json",
+        consumes = "application/json",
+        method = RequestMethod.POST)
     public ContentModelResult saveContentModel(HttpServletRequest request,
                                                @PathVariable("fortressCode") String fortressCode,
                                                @PathVariable("docTypeName") String docTypeName,
@@ -179,12 +186,13 @@ public class ModelEP {
         CompanyNode company = CompanyResolver.resolveCompany(request);
 
         FortressNode fortress = fortressService.registerFortress(company, contentModel.getFortress(), false);
-        if (fortress == null && contentModel.getFortress() !=null){
+        if (fortress == null && contentModel.getFortress() != null) {
             fortress = fortressService.registerFortress(company, contentModel.getFortress(), true);
         }
 
-        if (fortress == null)
+        if (fortress == null) {
             throw new IllegalArgumentException("Unable to locate the fortress " + fortressCode);
+        }
 
         DocumentNode documentType = conceptService.resolveByDocCode(fortress, docTypeName, false);
 
@@ -192,8 +200,9 @@ public class ModelEP {
             documentType = conceptService.findOrCreate(fortress, new DocumentNode(fortress, contentModel));
         }
 
-        if (documentType == null)
+        if (documentType == null) {
             throw new IllegalArgumentException("Unable to locate the document " + docTypeName);
+        }
 
         return contentModelService.saveEntityModel(company, fortress, documentType, contentModel);
 
@@ -207,24 +216,26 @@ public class ModelEP {
                                      HttpServletRequest request) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         FortressNode fortress = fortressService.findByCode(company, fortressName);
-        if ( fortress == null )
+        if (fortress == null) {
             throw new NotFoundException("Unable to locate fortress " + fortressName);
+        }
 
 
         return contentService.getStructure(company, fortress, documentType);
     }
 
     @RequestMapping(value = "/tag/{code}",
-            produces = "application/json",
-            consumes = "application/json",
-            method = RequestMethod.POST)
+        produces = "application/json",
+        consumes = "application/json",
+        method = RequestMethod.POST)
     public ContentModelResult saveContentModel(HttpServletRequest request,
                                                @PathVariable("code") String code,
                                                @RequestBody ContentModel contentModel) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
 
-        if (code == null || code.equals(""))
+        if (code == null || code.equals("")) {
             throw new IllegalArgumentException("No key code was provided for the model");
+        }
 
 
         return contentModelService.saveTagModel(company, code, contentModel);
@@ -233,9 +244,9 @@ public class ModelEP {
 
 
     @RequestMapping(value = "/validate",
-            produces = "application/json",
-            consumes = "application/json",
-            method = RequestMethod.POST)
+        produces = "application/json",
+        consumes = "application/json",
+        method = RequestMethod.POST)
     public ContentValidationResults validateContent(HttpServletRequest request,
                                                     @RequestBody ContentValidationRequest contentRequest) throws FlockException {
         CompanyResolver.resolveCompany(request);
@@ -245,24 +256,23 @@ public class ModelEP {
     }
 
     @RequestMapping(value = "/default",
-            produces = "application/json",
-            consumes = "application/json",
-            method = RequestMethod.POST)
+        produces = "application/json",
+        consumes = "application/json",
+        method = RequestMethod.POST)
     public ContentModel defaultContentModel(HttpServletRequest request,
-                                            @RequestBody ContentValidationRequest contentRequest)
-            throws FlockException {
+                                            @RequestBody ContentValidationRequest contentRequest) {
         CompanyResolver.resolveCompany(request);
         return contentModelService.createDefaultContentModel(contentRequest);
     }
 
 
     @RequestMapping(value = "/map",
-            produces = "application/json",
-            consumes = "application/json",
-            method = RequestMethod.POST)
+        produces = "application/json",
+        consumes = "application/json",
+        method = RequestMethod.POST)
     public Collection<Map<String, Object>> dataMap(HttpServletRequest request,
                                                    @RequestBody DataConversionRequest conversionRequest)
-            throws FlockException {
+        throws FlockException {
         CompanyResolver.resolveCompany(request);
         return Transformer.convertToMap(conversionRequest);
     }

@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.configure;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
@@ -32,20 +34,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * @author mholdsworth
- * @since 15/03/2014
  * @tag Configuration, Security, APIKey
+ * @since 15/03/2014
  */
 @Configuration
 public class ApiKeyInterceptor implements HandlerInterceptor {
     public static final String COMPANY = "company";
     public static final String API_KEY = "api-key";
     private static final Logger logger = LoggerFactory
-            .getLogger(ApiKeyInterceptor.class);
+        .getLogger(ApiKeyInterceptor.class);
     @Autowired
     private SecurityHelper securityHelper;
 
@@ -53,8 +52,9 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
 
-        if (HttpMethod.OPTIONS == HttpMethod.resolve(request.getMethod()))
+        if (HttpMethod.OPTIONS == HttpMethod.resolve(request.getMethod())) {
             return true; // CORS - this interceptor does not handle OPTIONS requests
+        }
         String apiKey = request.getHeader(API_KEY);
         SystemUser su = null;
         if (noApiKey(apiKey)) {
@@ -62,7 +62,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
                 // Data access requests require a company
                 // Resolve the user from the currently logged in user
                 su = securityHelper.getSysUser(false);
-                if ( isValidSu(su)){
+                if (isValidSu(su)) {
                     request.setAttribute(COMPANY, su.getCompany());
                     request.setAttribute(API_KEY, su.getApiKey());
                     return true;
@@ -81,16 +81,17 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
             }
         }
 
-        if ( su == null )
+        if (su == null) {
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "You require an authorized account to access this service.");
-        else
-            response.sendError(HttpStatus.FORBIDDEN.value(),  "You are an authenticated user but your account has has no data access privileges. Please ensure this account has been configured with an API key");
+        } else {
+            response.sendError(HttpStatus.FORBIDDEN.value(), "You are an authenticated user but your account has has no data access privileges. Please ensure this account has been configured with an API key");
+        }
         return false;
     }
 
     private boolean isValidSu(SystemUser su) {
         if (su != null) {
-            if (su.isActive() && (su.getCompany() != null && su.getApiKey()!=null)) {
+            if (su.isActive() && (su.getCompany() != null && su.getApiKey() != null)) {
                 return true;
             }
         } // Falls through to Forbidden
@@ -100,20 +101,20 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     private boolean isDataAccessRequest(HttpServletRequest request) {
         String url = request.getRequestURL().toString();
         return !(url.contains("/api/v1/admin/health")
-                    || url.contains("/api/v1/admin/ping"))
-                && (url.contains("/api/v1/company")
-                    || url.contains("/api/v1/track")
-                    || url.contains("/api/v1/admin")
-                    || url.contains("/api/v1/concept")
-                    || url.contains("/api/v1/entity")
-                    || url.contains("/api/v1/fortress")
-                    || url.contains("/api/v1/tag")
-                    || url.contains("/api/v1/batch")
-                    || url.contains("/api/v1/model")
-                    || url.contains("/api/v1/path")
-                    || url.contains("/api/v1/query")
-                    || url.contains("/api/v1/doc")
-                    || url.contains("/api/v1/geo"));
+            || url.contains("/api/v1/admin/ping"))
+            && (url.contains("/api/v1/company")
+            || url.contains("/api/v1/track")
+            || url.contains("/api/v1/admin")
+            || url.contains("/api/v1/concept")
+            || url.contains("/api/v1/entity")
+            || url.contains("/api/v1/fortress")
+            || url.contains("/api/v1/tag")
+            || url.contains("/api/v1/batch")
+            || url.contains("/api/v1/model")
+            || url.contains("/api/v1/path")
+            || url.contains("/api/v1/query")
+            || url.contains("/api/v1/doc")
+            || url.contains("/api/v1/geo"));
     }
 
     private boolean noApiKey(String apiKey) {
@@ -134,14 +135,13 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request,
                                 HttpServletResponse response, Object handler, Exception ex)
-            throws Exception {
+        throws Exception {
     }
 
     /**
      * API key precedence
      *
      * @author mholdsworth
-
      */
     public static class ApiKeyHelper {
         /**
@@ -154,9 +154,12 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
         public static String resolveKey(String headerKey, String requestKey) {
             String key = requestKey;
             if (headerKey != null && (headerKey.startsWith("{{") && headerKey.endsWith("}}"))) // Postman "not-set" value
+            {
                 headerKey = null;
-            if (headerKey != null)
+            }
+            if (headerKey != null) {
                 key = headerKey;
+            }
             return key;
         }
     }

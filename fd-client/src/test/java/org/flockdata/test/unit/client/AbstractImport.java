@@ -16,6 +16,9 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+
 import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.integration.Template;
@@ -28,9 +31,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-
 /**
  * Simple ancestor for encapsulating profile and writer functionality
  *
@@ -38,14 +38,14 @@ import static junit.framework.TestCase.assertTrue;
  * @since 12/02/2015
  */
 @RunWith(SpringRunner.class)
-@ActiveProfiles({"dev"})
+@ActiveProfiles( {"dev"})
 @ContextConfiguration(classes = {
-        ClientConfiguration.class,
-        FdTemplateMock.class,
-        FileProcessor.class,
-        FdMockIo.class,
+    ClientConfiguration.class,
+    FdTemplateMock.class,
+    FileProcessor.class,
+    FdMockIo.class,
 })
-@TestPropertySource({"/application_dev.properties"})
+@TestPropertySource( {"/application_dev.properties"})
 public class AbstractImport {
     // Re-implement an FdWriter class if you want to validate data in the flush routines
 
@@ -62,20 +62,20 @@ public class AbstractImport {
 
     /**
      * Clear out any cached data in the template
-     *
+     * <p>
      * For testing purposes we need to analyse the batched payload without flushing
      * If we don't reset the batched payload then any previous runs contents will also be in the result
      */
     @Before
-    public void clearLoader(){
+    public void clearLoader() {
         fdTemplate.reset();
         assertNotNull(fdTemplate.getFdIoInterface());
     }
 
     @Test
-    public void autoWiringWorks(){
+    public void autoWiringWorks() {
         assertNotNull(clientConfiguration);
-        assertTrue(""+clientConfiguration.getBatchSize(),clientConfiguration.getBatchSize()>10);
+        assertTrue("" + clientConfiguration.getBatchSize(), clientConfiguration.getBatchSize() > 10);
         assertNotNull(fdTemplate);
         assertNotNull(fileProcessor);
     }

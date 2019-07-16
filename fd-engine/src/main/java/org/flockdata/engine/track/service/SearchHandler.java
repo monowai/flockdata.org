@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.track.service;
 
+import java.util.Collection;
 import org.flockdata.helper.FlockException;
 import org.flockdata.search.SearchResult;
 import org.flockdata.search.SearchResults;
@@ -27,8 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
 
 /**
  * Invoked when a results are returned from fd-search. Extracted to support unit testing
@@ -42,11 +41,6 @@ public class SearchHandler {
     private EntityService entityService;
     private Logger logger = LoggerFactory.getLogger(SearchHandler.class);
 
-    @Autowired
-    public void setEntityService(EntityService entityService) {
-        this.entityService = entityService;
-    }
-
     public void handleResults(SearchResults searchResults) {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
         int count = 0;
@@ -56,8 +50,9 @@ public class SearchHandler {
             count++;
             logger.debug("Updating {}/{} from search key =[{}]", count, size, searchResult);
             Long entityId = searchResult.getEntityId();
-            if (entityId == null)
+            if (entityId == null) {
                 return;
+            }
 
             try {
                 entityService.recordSearchResult(searchResult, entityId);
@@ -70,6 +65,11 @@ public class SearchHandler {
 
     public EntityService getEntityService() {
         return entityService;
+    }
+
+    @Autowired
+    public void setEntityService(EntityService entityService) {
+        this.entityService = entityService;
     }
 
 }

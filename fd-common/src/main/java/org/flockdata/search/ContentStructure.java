@@ -21,16 +21,16 @@
 package org.flockdata.search;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
 /**
  * Meta structure of a search index
  * Groups fields in to FlockData tags, data elements and ElasticSearch internal types
+ *
  * @author mholdsworth
- * @since 31/08/2016
  * @tag Search
+ * @since 31/08/2016
  */
 public class ContentStructure {
     @JsonProperty
@@ -44,7 +44,8 @@ public class ContentStructure {
     @JsonProperty
     private Collection<EsColumn> system = new ArrayList<>();
 
-    public ContentStructure(){}
+    public ContentStructure() {
+    }
 
     public ContentStructure(String index, String type) {
         this();
@@ -52,17 +53,17 @@ public class ContentStructure {
         this.type = type;
     }
 
-    public ContentStructure addData(EsColumn column){
+    public ContentStructure addData(EsColumn column) {
         data.add(column);
         return this;
     }
 
-    public ContentStructure addLink(EsColumn column){
+    public ContentStructure addLink(EsColumn column) {
         links.add(column);
         return this;
     }
 
-    public ContentStructure addFd(EsColumn column){
+    public ContentStructure addFd(EsColumn column) {
         system.add(column);
         return this;
     }

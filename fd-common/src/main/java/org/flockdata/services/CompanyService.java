@@ -20,10 +20,9 @@
 
 package org.flockdata.services;
 
+import java.util.Collection;
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
-
-import java.util.Collection;
 
 /**
  * @author mholdsworth
@@ -38,7 +37,7 @@ public interface CompanyService {
 
     Company create(String companyName);
 
-//    @Cacheable(value = "companyKeys", unless = "#result == null")
+    //    @Cacheable(value = "companyKeys", unless = "#result == null")
     Company findByApiKey(String apiKey);
 
     Collection<Company> findCompanies(String userApiKey);

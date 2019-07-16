@@ -20,13 +20,13 @@
 
 package org.flockdata.test.search.functional;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.flockdata.data.Entity;
 import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.endpoint.FdQueryEP;
 import org.flockdata.test.helper.ContentDataHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author mholdsworth
@@ -37,7 +37,7 @@ public class AttachmentTests extends ESBase {
     @Autowired
     FdQueryEP searchEP;
 
-//    @Test  DAT-521
+    //    @Test  DAT-521
     public void attachment_PdfIndexedAndFound() throws Exception {
         // ToDo: FixMe Not working since ES 1.6
         // https://github.com/elastic/elasticsearch-mapper-attachments/issues/20131
@@ -58,7 +58,6 @@ public class AttachmentTests extends ESBase {
         doQuery(entity, "brown");
 
     }
-
 
 
 }

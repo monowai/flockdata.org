@@ -16,7 +16,21 @@
 
 package org.flockdata.client.amqp;
 
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.ExceptionHandler;
+import com.rabbitmq.client.Method;
+import com.rabbitmq.client.TopologyRecoveryException;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.concurrent.TimeoutException;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
@@ -26,20 +40,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.concurrent.TimeoutException;
-
 /**
  * Writes entity and tag payloads to FlockData over AMQP
  *
  * @author mholdsworth
- * @since 27/11/2014
  * @tag FdClient, Rabbit, Messaging
+ * @since 27/11/2014
  */
 @Service
 public class FdRabbitClient {
@@ -76,17 +82,17 @@ public class FdRabbitClient {
         try {
             initConnectionFactory();
 
-            if ( (trackChannel ==null ||connection== null) || ! (connection.isOpen() && trackChannel.isOpen())){
+            if ((trackChannel == null || connection == null) || !(connection.isOpen() && trackChannel.isOpen())) {
                 openConnection();
             }
-        } catch (TimeoutException | IOException e ) {
+        } catch (TimeoutException | IOException e) {
             logger.error("Unexpected error initializing Rabbit connection. Is it running @ {}:{}? {}", rabbitConfig.getHost(), rabbitConfig.getPort(), e.getMessage());
         }
 
     }
 
     private void initConnectionFactory() {
-        if (connectionFactory == null ) {
+        if (connectionFactory == null) {
             logger.debug("Initializing Rabbit connection");
             entityProps = null;
             tagProps = null;
@@ -145,8 +151,9 @@ public class FdRabbitClient {
     }
 
     private void openConnection() throws IOException, TimeoutException {
-        if ( connectionFactory == null )
+        if (connectionFactory == null) {
             initConnectionFactory();
+        }
 
         connection = connectionFactory.newConnection();
         connection.addShutdownListener(cause -> {
@@ -169,29 +176,32 @@ public class FdRabbitClient {
     }
 
     private String getApiKey() {
-        if (configuration.getApiKey() == null || configuration.getApiKey().equals(""))
+        if (configuration.getApiKey() == null || configuration.getApiKey().equals("")) {
             throw new RuntimeException("No API key is set. Please configure one and try again");
+        }
         return configuration.getApiKey();
 
     }
 
     private AMQP.BasicProperties getTagProps() {
-        if (tagProps == null)
+        if (tagProps == null) {
             tagProps =
-                    new AMQP.BasicProperties().builder()
-                            .headers(getHeaders("T", getApiKey()))
-                            .deliveryMode(rabbitConfig.getPersistentDelivery() ? 2 : null)
-                            .replyTo("nullChannel").build();
+                new AMQP.BasicProperties().builder()
+                    .headers(getHeaders("T", getApiKey()))
+                    .deliveryMode(rabbitConfig.getPersistentDelivery() ? 2 : null)
+                    .replyTo("nullChannel").build();
+        }
         return tagProps;
     }
 
     private AMQP.BasicProperties getEntityProps() {
-        if (entityProps == null)
+        if (entityProps == null) {
             entityProps =
-                    new AMQP.BasicProperties().builder()
-                            .headers(getHeaders("E", getApiKey()))
-                            .deliveryMode(rabbitConfig.getPersistentDelivery() ? 2 : null)
-                            .replyTo("nullChannel").build();
+                new AMQP.BasicProperties().builder()
+                    .headers(getHeaders("E", getApiKey()))
+                    .deliveryMode(rabbitConfig.getPersistentDelivery() ? 2 : null)
+                    .replyTo("nullChannel").build();
+        }
         return entityProps;
     }
 
@@ -199,22 +209,23 @@ public class FdRabbitClient {
         verifyConnection();
         assert trackChannel.isOpen();
         trackChannel.basicPublish(
-                configuration.getFdExchange(),
-                configuration.getTrackRoutingKey(),
-                getEntityProps(),
-                JsonUtils.toJsonBytes(entityInputs));
+            configuration.getFdExchange(),
+            configuration.getTrackRoutingKey(),
+            getEntityProps(),
+            JsonUtils.toJsonBytes(entityInputs));
     }
 
     public void publishTags(Collection<TagInputBean> tagInputs) throws IOException {
         verifyConnection();
-        if ( trackChannel == null )
+        if (trackChannel == null) {
             throw new RuntimeException(String.format("Failed to connect to Rabbit. Is it running @ %s:%s", rabbitConfig.getHost(), rabbitConfig.getPort()));
-        else
+        } else {
             trackChannel.basicPublish(
-                    configuration.getFdExchange(),
-                    configuration.getTrackRoutingKey(),
-                    getTagProps(),
-                    JsonUtils.toJsonBytes(tagInputs));
+                configuration.getFdExchange(),
+                configuration.getTrackRoutingKey(),
+                getTagProps(),
+                JsonUtils.toJsonBytes(tagInputs));
+        }
     }
 
     private HashMap<String, Object> getHeaders(String type, String apiKey) {

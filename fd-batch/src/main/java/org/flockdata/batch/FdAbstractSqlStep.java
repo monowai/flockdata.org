@@ -16,15 +16,14 @@
 
 package org.flockdata.batch;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import org.flockdata.batch.resources.FdBatchResources;
 import org.flockdata.integration.ClientConfiguration;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
-
-import java.io.IOException;
-import java.sql.SQLException;
 
 /**
  * @author mholdsworth

@@ -25,7 +25,11 @@ import org.flockdata.data.Fortress;
 import org.flockdata.data.FortressUser;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.Fetch;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * Unique to a given fortress, the FortressUser is not a SystemUser. It is a foreign account in a
@@ -40,12 +44,12 @@ public class FortressUserNode implements FortressUser {
     Long id;
 
     //@Relationship( type = "BELONGS_TO", direction = Relationship.OUTGOING)
-    @RelatedTo( type = "BELONGS_TO", direction = Direction.OUTGOING)
+    @RelatedTo(type = "BELONGS_TO", direction = Direction.OUTGOING)
     @Fetch
     private FortressNode fortress;
 
     @Indexed(unique = true)
-    private String key = null ;
+    private String key = null;
 
     @Indexed
     private String code = null;
@@ -58,8 +62,8 @@ public class FortressUserNode implements FortressUser {
     public FortressUserNode(Fortress fortress, String fortressUserName) {
         this();
         setCode(fortressUserName);
-        key =fortress.getId()+"."+getCode();
-        setFortress((FortressNode)fortress);
+        key = fortress.getId() + "." + getCode();
+        setFortress((FortressNode) fortress);
     }
 
     public Long getId() {
@@ -71,7 +75,7 @@ public class FortressUserNode implements FortressUser {
     }
 
     public void setCode(String code) {
-        if (code != null ) {
+        if (code != null) {
             this.code = code.toLowerCase();
             this.name = code;
         }
@@ -88,9 +92,9 @@ public class FortressUserNode implements FortressUser {
     @Override
     public String toString() {
         return "FortressUser{" +
-                "id=" + id +
-                ", name='" + code + '\'' +
-                '}';
+            "id=" + id +
+            ", name='" + code + '\'' +
+            '}';
     }
 
     public String getName() {

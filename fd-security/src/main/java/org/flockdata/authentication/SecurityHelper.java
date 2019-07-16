@@ -29,8 +29,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
- * @tag Helper, Security, APIKey
  * @author mholdsworth
+ * @tag Helper, Security, APIKey
  * @since 17/04/2013
  */
 @Service
@@ -49,23 +49,27 @@ public class SecurityHelper {
 
     public String getLoggedInUser() {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
-        if (a == null)
+        if (a == null) {
             throw new SecurityException("User is not authenticated");
+        }
         return a.getName();
     }
 
     public String getUserName(boolean exceptionOnNull, boolean isSysUser) {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
-        if (a == null)
-            if (exceptionOnNull)
+        if (a == null) {
+            if (exceptionOnNull) {
                 throw new SecurityException("User is not authenticated");
-            else
+            } else {
                 return null;
+            }
+        }
 
         if (isSysUser) {
             SystemUser su = getSysUser(a.getName());
-            if (su == null)
+            if (su == null) {
                 throw new IllegalArgumentException("Not authorised");
+            }
         }
         return a.getName();
     }
@@ -73,11 +77,13 @@ public class SecurityHelper {
     public SystemUser getSysUser(boolean exceptionOnNull) {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
 
-        if (a == null)
-            if (exceptionOnNull)
+        if (a == null) {
+            if (exceptionOnNull) {
                 throw new SecurityException("User is not authenticated");
-            else
+            } else {
                 return null;
+            }
+        }
 
         return sysUserService.findByLogin(a.getName());
     }
@@ -90,20 +96,23 @@ public class SecurityHelper {
         String userName = getLoggedInUser();
         SystemUser su = sysUserService.findByLogin(userName);
 
-        if (su == null)
+        if (su == null) {
             throw new SecurityException("Not authorised");
+        }
 
         return su.getCompany();
     }
 
     @Cacheable(value = "company", unless = "#result == null")
     public Company getCompany(String usersApiKey) {
-        if (usersApiKey == null)
+        if (usersApiKey == null) {
             return getCompany();
+        }
 
         SystemUser su = sysUserService.findByApiKey(usersApiKey);
-        if ( su == null )
+        if (su == null) {
             return null;
+        }
         return su.getCompany();
     }
 }

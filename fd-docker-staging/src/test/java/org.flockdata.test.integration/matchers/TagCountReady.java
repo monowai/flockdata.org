@@ -41,7 +41,7 @@ public class TagCountReady implements ReadyMatcher {
     @Override
     public boolean isReady(FdIoInterface fdIoInterface) {
         response = tags.exec(tagLabel);
-        return response.getResult() != null && response.getResult().length >= waitFor ;
+        return response.getResult() != null && response.getResult().length >= waitFor;
     }
 
     @Override

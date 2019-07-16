@@ -20,7 +20,18 @@
 
 package org.flockdata.test.engine.mvc;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+
 import au.com.bytecode.opencsv.CSVReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
 import org.flockdata.engine.matrix.EdgeResult;
@@ -47,17 +58,9 @@ import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import static junit.framework.TestCase.*;
-import static org.springframework.test.util.AssertionErrors.assertEquals;
-
 /**
  * Content Model storage and retrieval
+ *
  * @author mholdsworth
  * @since 14/04/2016
  */
@@ -76,10 +79,10 @@ public class TestContentModel extends MvcBase {
 
         makeDocuments(mike(), companyAFortress, new DocumentTypeInputBean(docName));
         ContentModelResult modelCompanyA = makeContentModel(mike(),
-                companyAFortress.getCode(),
-                docName,
-                entityModel,
-                MockMvcResultMatchers.status().isOk());
+            companyAFortress.getCode(),
+            docName,
+            entityModel,
+            MockMvcResultMatchers.status().isOk());
         assertNotNull(modelCompanyA);
         assertEquals("Mismatch on name", entityModel.getName(), modelCompanyA.getName());
 
@@ -87,11 +90,11 @@ public class TestContentModel extends MvcBase {
 
         FortressResultBean companyBFortress = makeFortress(sally(), new FortressInputBean("models_ByCompany"));
         makeDocuments(sally(), companyBFortress, new DocumentTypeInputBean(docName));
-        ContentModelResult modelCompanyB= makeContentModel(sally(),
-                companyBFortress.getCode(),
-                docName,
-                entityModel,
-                MockMvcResultMatchers.status().isOk());
+        ContentModelResult modelCompanyB = makeContentModel(sally(),
+            companyBFortress.getCode(),
+            docName,
+            entityModel,
+            MockMvcResultMatchers.status().isOk());
         assertNotNull(modelCompanyA);
 
         assertEquals("Mismatch on name", entityModel.getName(), modelCompanyB.getName());
@@ -99,40 +102,41 @@ public class TestContentModel extends MvcBase {
         // Two models in the DB, but for different companies. Only one should be found for each
         Collection<ContentModelResult> companyAResults = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
         assertNotNull(companyAResults);
-        assertEquals("Only one Entity model should be found for this users company", 1, companyAResults.size() );
+        assertEquals("Only one Entity model should be found for this users company", 1, companyAResults.size());
 
         Collection<ContentModelResult> companyBResults = findContentModels(sally(), MockMvcResultMatchers.status().isOk());
         assertNotNull(companyBResults);
-        assertEquals("Only one Entity model should be found for this users company", 1, companyBResults.size() );
+        assertEquals("Only one Entity model should be found for this users company", 1, companyBResults.size());
 
         makeTagModel(mike(), "Blah", tagModel, OK);
         companyAResults = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
         assertEquals("One Entity and one Tag model", 2, companyAResults.size());
 
         companyBResults = findContentModels(sally(), MockMvcResultMatchers.status().isOk());
-        assertEquals("Tag model should not be associated with this company", 1, companyBResults.size() );
+        assertEquals("Tag model should not be associated with this company", 1, companyBResults.size());
     }
 
     @Test
-    public void documentTypeFlagChecksFromModel() throws Exception{
+    public void documentTypeFlagChecksFromModel() throws Exception {
         String test = "documentTypeFlagChecksFromModel";
         ContentModel model = new ContentModelHandler();
-        model.setDocumentType( new DocumentTypeInputBean(test)
-                    .setVersionStrategy(Document.VERSION.DISABLE))
-                .setTrackSuppressed(true) // Suppress on a model basis
-                .setSearchSuppressed(true) // Suppress on a model basis
-                .setTagModel(false)
-                .setFortress( new FortressInputBean(test)
-                        .setStoreEnabled(true)
-                        .setSearchEnabled(true));
+        model.setDocumentType(new DocumentTypeInputBean(test)
+            .setVersionStrategy(Document.VERSION.DISABLE))
+            .setTrackSuppressed(true) // Suppress on a model basis
+            .setSearchSuppressed(true) // Suppress on a model basis
+            .setTagModel(false)
+            .setFortress(new FortressInputBean(test)
+                .setStoreEnabled(true)
+                .setSearchEnabled(true));
 
         makeDataAccessProfile("test", "mike");
-        makeContentModel(mike(),test,test, model, OK );
+        makeContentModel(mike(), test, test, model, OK);
         DocumentResultBean documentResultBean = getDocument(mike(), test, test);
-        assertNotNull (documentResultBean);
-        assertNotNull ( "Property did not default to true from the content model to the documentType", documentResultBean.getStoreEnabled());
+        assertNotNull(documentResultBean);
+        assertNotNull("Property did not default to true from the content model to the documentType",
+            documentResultBean.getStoreEnabled());
         assertFalse("Document did not override the fortress setting", documentResultBean.getStoreEnabled());
-        assertNotNull ( documentResultBean.getSearchEnabled());
+        assertNotNull(documentResultBean.getSearchEnabled());
         assertFalse("Search should have been disabled for the DocumentType ", documentResultBean.getSearchEnabled());
 
     }
@@ -143,7 +147,7 @@ public class TestContentModel extends MvcBase {
         String docName = "testSaveRetrieveModel";
         contentModel.setFortressName(docName);
 
-        contentModel.setDocumentType( new DocumentTypeInputBean(docName));
+        contentModel.setDocumentType(new DocumentTypeInputBean(docName));
         makeDataAccessProfile("TestContentProfileStorage", "mike");
 
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean(docName));
@@ -151,19 +155,19 @@ public class TestContentModel extends MvcBase {
         makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean(docName));
 
         ContentModelResult result = makeContentModel(mike(),
-                fortressResultBean.getCode(),
-                docName,
-                contentModel,
-                MockMvcResultMatchers.status().isOk());
+            fortressResultBean.getCode(),
+            docName,
+            contentModel,
+            MockMvcResultMatchers.status().isOk());
 
         assertNotNull(result);
         assertNotNull(result.getDocumentType());
         assertNotNull(result.getFortress());
 
         ContentModel contentResult = getContentModel(mike(),
-                fortressResultBean.getCode(),
-                docName,
-                MockMvcResultMatchers.status().isOk());
+            fortressResultBean.getCode(),
+            docName,
+            MockMvcResultMatchers.status().isOk());
 
         assertNotNull(contentResult);
 //        assertNull(contentResult.getPreParseRowExp());
@@ -179,9 +183,9 @@ public class TestContentModel extends MvcBase {
 
         exception.expect(IllegalArgumentException.class);
         getContentModel(mike(),
-                fortressResultBean.getCode(),
-                "NonExistent",
-                MockMvcResultMatchers.status().isBadRequest());
+            fortressResultBean.getCode(),
+            "NonExistent",
+            MockMvcResultMatchers.status().isBadRequest());
 
 
     }
@@ -193,12 +197,12 @@ public class TestContentModel extends MvcBase {
 
         String[] headers = {"Athlete", "Age", "Country", "Year", "Sport", "Gold Medals", "Silver Medals", "Bronze Medals"};
         String[] values = {"Michael Phelps", "23", "United States", "2008", "Swimming", "8", "0", "0", "8"};
-        Map<String,Object> row = Transformer.convertToMap(headers, values, new ExtractProfileHandler(contentModel));
+        Map<String, Object> row = Transformer.convertToMap(headers, values, new ExtractProfileHandler(contentModel));
 
-        Collection<Map<String,Object>>rows = new ArrayList<>();
+        Collection<Map<String, Object>> rows = new ArrayList<>();
         rows.add(row);
 
-        ContentValidationRequest validationRequest = new ContentValidationRequest(contentModel,rows);
+        ContentValidationRequest validationRequest = new ContentValidationRequest(contentModel, rows);
 
         String json = JsonUtils.toJson(validationRequest);
         assertNotNull(json);
@@ -223,10 +227,10 @@ public class TestContentModel extends MvcBase {
 
         makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean(docName));
         ContentModelResult result = makeContentModel(mike(),
-                fortressResultBean.getCode(),
-                docName,
-                contentModel,
-                MockMvcResultMatchers.status().isOk());
+            fortressResultBean.getCode(),
+            docName,
+            contentModel,
+            MockMvcResultMatchers.status().isOk());
         assertNotNull(result);
 
         assertEquals("Mismatch on name", contentModel.getName(), result.getName());
@@ -246,10 +250,10 @@ public class TestContentModel extends MvcBase {
         // Update the name
         contentModel.setName("Updated Name");
         result = makeContentModel(mike(),
-                fortressResultBean.getCode(),
-                docName,
-                contentModel,
-                MockMvcResultMatchers.status().isOk());
+            fortressResultBean.getCode(),
+            docName,
+            contentModel,
+            MockMvcResultMatchers.status().isOk());
 
         assertEquals("Updated name did not persist", contentModel.getName(), result.getName());
 
@@ -267,56 +271,56 @@ public class TestContentModel extends MvcBase {
         DocumentTypeInputBean docType = new DocumentTypeInputBean(docName);
         contentModel.setDocumentType(docType);
         makeDataAccessProfile("find_CompanyProfiles", "mike");
-        FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("updateEntityLinkPropertyForExistingModel"));
-        contentModel.setFortress( new FortressInputBean(fortressResultBean.getName()));
+        FortressResultBean fortressResultBean = makeFortress(mike(),
+            new FortressInputBean("updateEntityLinkPropertyForExistingModel"));
+        contentModel.setFortress(new FortressInputBean(fortressResultBean.getName()));
 
         makeDocuments(mike(), fortressResultBean, docType);
         ContentModelResult result = makeContentModel(mike(),
-                fortressResultBean.getCode(),
-                docType.getName(),
-                contentModel,
-                MockMvcResultMatchers.status().isOk());
+            fortressResultBean.getCode(),
+            docType.getName(),
+            contentModel,
+            MockMvcResultMatchers.status().isOk());
         assertNotNull(result);
 
         assertEquals("Mismatch on name", contentModel.getName(), result.getName());
 
         ContentModel retrieved = getContentModel(mike(),
-                fortressResultBean.getCode(),
-                docType.getName(),
-                MockMvcResultMatchers.status().isOk());
+            fortressResultBean.getCode(),
+            docType.getName(),
+            MockMvcResultMatchers.status().isOk());
         assertNotNull(retrieved);
         ColumnDefinition issuer = retrieved.getContent().get("issuerID");
-        assertNotNull ( issuer);
-        assertFalse("No entity links existed", issuer.getEntityLinks() == null );
+        assertNotNull(issuer);
+        assertFalse("No entity links existed", issuer.getEntityLinks() == null);
         Collection<EntityKeyBean> links = retrieved.getContent().get("issuerID").getEntityLinks();
         assertEquals("Only 1 link was expected", 1, links.size());
         EntityKeyBean entitylink = links.iterator().next();
-        assertFalse("value should be false in the model on disk",entitylink.isParent());
+        assertFalse("value should be false in the model on disk", entitylink.isParent());
         entitylink.setParent(true); // Toggling the value
 
         // Update the content model having changed the parent entitylink value from false to true
         makeContentModel(mike(),
-                fortressResultBean.getCode(),
-                docType.getName(),
-                retrieved,
-                MockMvcResultMatchers.status().isOk());
+            fortressResultBean.getCode(),
+            docType.getName(),
+            retrieved,
+            MockMvcResultMatchers.status().isOk());
 
         retrieved = getContentModel(mike(),
-                fortressResultBean.getCode(),
-                docType.getName(),
-                MockMvcResultMatchers.status().isOk());
+            fortressResultBean.getCode(),
+            docType.getName(),
+            MockMvcResultMatchers.status().isOk());
 
         links = retrieved.getContent().get("issuerID").getEntityLinks();
         assertEquals("Only 1 link was expected", 1, links.size());
         entitylink = links.iterator().next();
-        assertTrue("parent property set to true did not persist",entitylink.isParent());
+        assertTrue("parent property set to true did not persist", entitylink.isParent());
 
     }
 
     @Test
     public void create_DefaultProfile() throws Exception {
         makeDataAccessProfile("create_DefaultProfile", "mike");
-//        ContentProfile profile = ContentProfileDeserializer.getContentModel("/data/test-default-content.csv");
 
         Reader reader = FileProcessor.getReader("/data/test-default-content.csv");
         CSVReader csvReader = new CSVReader(reader);
@@ -324,32 +328,41 @@ public class TestContentModel extends MvcBase {
 
 
         int count = 0;
-        String[] headers=null;
-        String[] dataRow=null;
+        String[] headers = null;
+        String[] dataRow = null;
         for (String[] strings : data) {
-            if ( count ==0) {
+            if (count == 0) {
                 headers = strings;
-            } else
+            } else {
                 dataRow = strings;
+            }
             count++;
         }
-        Map<String,Object> dataMap = Transformer.convertToMap(headers, dataRow);
+        Map<String, Object> dataMap = Transformer.convertToMap(headers, dataRow);
         ContentValidationRequest validationRequest = new ContentValidationRequest(dataMap);
         String json = JsonUtils.toJson(validationRequest);
         assertNotNull(json);
+
         ContentValidationRequest valRequest = JsonUtils.toObject(json.getBytes(), ContentValidationRequest.class);
         assertNotNull(valRequest);
-        assertEquals("Rows did not reconcile after Json deserialization", 1, valRequest.getRows().size());
-        ContentModel result = getDefaultContentModel(mike(), valRequest);
-        assertNotNull(result);
-        assertNotNull(result.getContent());
-        assertEquals("Incorrect content column definitions", 42, result.getContent().size());
-        // Spot checks
-        ColumnDefinition drumID = result.getColumnDef("drumID");
-        assertNotNull(drumID);
-        assertEquals("ColDef was not computed to a number", "number", drumID.getDataType());
 
-        ColumnDefinition custodianID = result.getColumnDef("custodianID");
+        assertEquals("Rows did not reconcile after Json deserialization",
+            1,
+            valRequest.getRows().size());
+
+        ContentModel contentModel = getDefaultContentModel(mike(), valRequest);
+
+        assertThat(contentModel).isNotNull().hasFieldOrProperty("content");
+
+        assertEquals("Incorrect content column definitions", 42, contentModel.getContent().size());
+        // Spot checks
+        ColumnDefinition drumID = contentModel.getColumnDef("drumID");
+        assertNotNull(drumID);
+        assertEquals("ColDef was not computed to a number",
+            "number",
+            drumID.getDataType());
+
+        ColumnDefinition custodianID = contentModel.getColumnDef("custodianID");
         assertNotNull(custodianID);
         // Even though it could be a number, blank values are set to a string by default
         assertEquals("Not set value did not return as a string", "string", custodianID.getDataType());
@@ -365,16 +378,17 @@ public class TestContentModel extends MvcBase {
         List<String[]> data = csvReader.readAll();
 
         int count = 0;
-        String[] headers=null;
-        String[] dataRow=null;
+        String[] headers = null;
+        String[] dataRow = null;
         for (String[] strings : data) {
-            if ( count ==0) {
+            if (count == 0) {
                 headers = strings;
-            } else
+            } else {
                 dataRow = strings;
+            }
             count++;
         }
-        Map<String,Object> dataMap = Transformer.convertToMap(headers, dataRow);
+        Map<String, Object> dataMap = Transformer.convertToMap(headers, dataRow);
         assertFalse(dataMap.isEmpty());
         ContentValidationRequest validationRequest = new ContentValidationRequest(dataMap);
         String json = JsonUtils.toJson(validationRequest);
@@ -383,12 +397,13 @@ public class TestContentModel extends MvcBase {
         assertNotNull(valRequest);
 
         ContentModel model = getDefaultContentModel(mike(), valRequest);
-        model.setDocumentType( new DocumentTypeInputBean("Entity"));
+        model.setDocumentType(new DocumentTypeInputBean("Entity"));
         assertNotNull(model);
         assertNotNull(model.getContent());
 
         ColumnDefinition columnDefinition = model.getContent().get("drumID.key");
-        assertEquals("Elastic does not accept columns with a period. FD should remove the character", "drumIDkey", columnDefinition.getTarget());
+        assertEquals("Elastic does not accept columns with a period. FD should remove the character", "drumIDkey",
+            columnDefinition.getTarget());
     }
 
     @Test
@@ -400,16 +415,17 @@ public class TestContentModel extends MvcBase {
         List<String[]> data = csvReader.readAll();
 
         int count = 0;
-        String[] headers=null;
-        String[] dataRow=null;
+        String[] headers = null;
+        String[] dataRow = null;
         for (String[] strings : data) {
-            if ( count ==0) {
+            if (count == 0) {
                 headers = strings;
-            } else
+            } else {
                 dataRow = strings;
+            }
             count++;
         }
-        Map<String,Object> dataMap = Transformer.convertToMap(headers, dataRow);
+        Map<String, Object> dataMap = Transformer.convertToMap(headers, dataRow);
         assertFalse(dataMap.isEmpty());
         ContentValidationRequest validationRequest = new ContentValidationRequest(dataMap);
         String json = JsonUtils.toJson(validationRequest);
@@ -426,7 +442,7 @@ public class TestContentModel extends MvcBase {
         columnDefinition.setTitle(true);// make sure it gets evaluated;
         model.getContent().put("illegalExpression", columnDefinition);
 
-        model.setDocumentType( new DocumentTypeInputBean("Entity"));
+        model.setDocumentType(new DocumentTypeInputBean("Entity"));
         model.setTagModel(false);
 
         columnDefinition = model.getContent().get("drumID.key");
@@ -434,18 +450,24 @@ public class TestContentModel extends MvcBase {
         ContentValidationResults valResults = validateContentModel(mike(), validationRequest.setContentModel(model), OK);
         assertNotNull(valResults);
         assertEquals("One data row, one result", 1, valResults.getResults().size());
-        assertNotNull ( valResults);
+        assertNotNull(valResults);
         Collection<ColumnValidationResult> columnValidationResults = valResults.getResults().get(0);
         for (ColumnValidationResult columnValidationResult : columnValidationResults) {
             switch (columnValidationResult.getSourceColumn()) {
                 case "drumID.key":
-                    assertEquals("Expected a validation error message", 1, columnValidationResult.getMessages().size());
+                    assertEquals("Expected a validation error message",
+                        1,
+                        columnValidationResult.getMessages().size());
                     break;
                 case "illegalExpression":
-                    assertEquals("Expected and illegal expression message", 1, columnValidationResult.getMessages().size());
+                    assertEquals("Expected and illegal expression message",
+                        1,
+                        columnValidationResult.getMessages().size());
                     break;
                 default:
-                    assertEquals("Didn't expect a validation error message", 0, columnValidationResult.getMessages().size());
+                    assertEquals("Didn't expect a validation error message",
+                        0,
+                        columnValidationResult.getMessages().size());
                     break;
             }
         }
@@ -457,15 +479,15 @@ public class TestContentModel extends MvcBase {
         makeDataAccessProfile("delete_TagProfile", "mike");
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-tag-model.json");
         ContentModelResult result = makeTagModel(mike(),
-                "Countries",
-                contentModel,
-                MockMvcResultMatchers.status().isOk());
+            "Countries",
+            contentModel,
+            MockMvcResultMatchers.status().isOk());
 
         assertNotNull(result);
 
         OK = MockMvcResultMatchers.status().isOk();
         ContentModelResult keyResult = findContentModelByKey(mike(), result.getKey(), OK);
-        assertNotNull (keyResult);
+        assertNotNull(keyResult);
 
         Collection<ContentModelResult> contentModels = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
         assertEquals("Didn't find a content model", 1, contentModels.size());
@@ -481,19 +503,22 @@ public class TestContentModel extends MvcBase {
         makeDataAccessProfile("create_TagProfile", "mike");
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-tag-model.json");
         ContentModelResult result = makeTagModel(mike(),
-                "Countries",
-                contentModel,
-                MockMvcResultMatchers.status().isOk());
+            "Countries",
+            contentModel,
+            MockMvcResultMatchers.status().isOk());
 
         assertNotNull(result);
 
-        ContentModelResult keyResult = findContentModelByKey(mike(), result.getKey(),  MockMvcResultMatchers.status().isOk());
-        assertEquals("Tag profiles are connected to a pseudo fortress - Tag", "Tag", keyResult.getFortress());
-        assertNotNull (keyResult);
+        ContentModelResult keyResult = findContentModelByKey(mike(), result.getKey(), MockMvcResultMatchers.status().isOk());
+        assertEquals("Tag profiles are connected to a pseudo fortress - Tag",
+            "Tag",
+            keyResult.getFortress());
+
+        assertNotNull(keyResult);
 
         ContentModel contentResult = getContentModel(mike(),
-                "countries",
-                MockMvcResultMatchers.status().isOk());
+            "countries",
+            MockMvcResultMatchers.status().isOk());
 
         assertNotNull(contentResult);
         assertTrue(contentResult.isTagModel());
@@ -503,7 +528,7 @@ public class TestContentModel extends MvcBase {
     @Test
     public void create_BulkContentProfiles() throws Exception {
         makeDataAccessProfile("create_BulkContentProfiles", "mike");
-        Collection<ContentModel>models = new ArrayList<>();
+        Collection<ContentModel> models = new ArrayList<>();
 
         ContentModel tagModel = ContentModelDeserializer.getContentModel("/models/test-tag-model.json");
         assertNotNull(tagModel.getCode());
@@ -513,23 +538,23 @@ public class TestContentModel extends MvcBase {
         models.add(entityModel);
 
         Collection<ContentModelResult> results = makeContentModels(mike(),
-                models,
-                MockMvcResultMatchers.status().isOk());
+            models,
+            MockMvcResultMatchers.status().isOk());
 
         assertNotNull(results);
-        assertEquals ("Request to create multiple models failed", 2, results.size());
+        assertEquals("Request to create multiple models failed", 2, results.size());
 
-        Collection<String>modelKeys = new ArrayList<>();
+        Collection<String> modelKeys = new ArrayList<>();
 
         for (ContentModelResult result : results) {
-            ContentModelResult keyResult = findContentModelByKey(mike(), result.getKey(),  MockMvcResultMatchers.status().isOk());
-            assertNotNull ( keyResult);
+            ContentModelResult keyResult = findContentModelByKey(mike(), result.getKey(), MockMvcResultMatchers.status().isOk());
+            assertNotNull(keyResult);
             modelKeys.add(keyResult.getKey());
         }
-        Collection<ContentModelResult>contentModelResults = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
+        Collection<ContentModelResult> contentModelResults = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
         assertEquals("Didn't find the two we just created", 2, contentModelResults.size());
 
-        Collection<ContentModel> download = findContentModels(mike(),modelKeys, MockMvcResultMatchers.status().isOk());
+        Collection<ContentModel> download = findContentModels(mike(), modelKeys, MockMvcResultMatchers.status().isOk());
         assertEquals("Should have downloaded two content models", 2, download.size());
 
     }
@@ -545,10 +570,10 @@ public class TestContentModel extends MvcBase {
 
         makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean(docName));
         ContentModelResult result = makeContentModel(mike(),
-                fortressResultBean.getCode(),
-                docName,
-                contentModel,
-                MockMvcResultMatchers.status().isOk());
+            fortressResultBean.getCode(),
+            docName,
+            contentModel,
+            MockMvcResultMatchers.status().isOk());
         assertNotNull(result);
 
         Collection<ContentModelResult> profileResults = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
@@ -560,19 +585,20 @@ public class TestContentModel extends MvcBase {
         }
 
         ContentModelResult foundResult = findContentModelByKey(mike(), result.getKey(), MockMvcResultMatchers.status().isOk());
-        assertNotNull (foundResult);
+        assertNotNull(foundResult);
         deleteFortress(mike(), fortressResultBean.getName(), MockMvcResultMatchers.status().isAccepted());
         Thread.sleep(500); // Purge is async
         Collection<ContentModelResult> contentModels = findContentModels(mike(), MockMvcResultMatchers.status().isOk());
         assertFalse(contentModels.isEmpty());
         foundResult = findContentModelByKey(mike(), result.getKey(), MockMvcResultMatchers.status().isOk());
-        assertNotNull (foundResult);
-        assertNotNull( "Document Type not resolved from the document it used to be associated with", foundResult.getDocumentType());
+        assertNotNull(foundResult);
+        assertNotNull("Document Type not resolved from the document it used to be associated with",
+            foundResult.getDocumentType());
 
     }
 
     @Test
-    public void trackSuppressedCreatesConceptStructure () throws Exception {
+    public void trackSuppressedCreatesConceptStructure() throws Exception {
         engineConfig.setConceptsEnabled(true);
         String docName = "trackSuppressedCreatesConceptStructure";
 
@@ -583,9 +609,9 @@ public class TestContentModel extends MvcBase {
 
         EntityInputBean eib = new EntityInputBean(fortressResultBean, new DocumentTypeInputBean(documentResultBean));
         eib.setTrackSuppressed(true);
-        Collection<TagInputBean>tags = new ArrayList<>();
-        TagInputBean tagA= new TagInputBean("MyCode", "LabelToFind", "simple");
-        TagInputBean tagB= new TagInputBean("MyCode", "LabelToFind", "complex");
+        Collection<TagInputBean> tags = new ArrayList<>();
+        TagInputBean tagA = new TagInputBean("MyCode", "LabelToFind", "simple");
+        TagInputBean tagB = new TagInputBean("MyCode", "LabelToFind", "complex");
         tags.add(tagA);
         tags.add(tagB);
         eib.setTags(tags);
@@ -593,20 +619,22 @@ public class TestContentModel extends MvcBase {
         Thread.sleep(1000);// Concepts are created in a separate thread so wait a bit
 
         MatrixResults contentStructure = getContentStructure(mike(), docName, OK);
-        assertNotNull (contentStructure);
+        assertNotNull(contentStructure);
         assertEquals("Expected 1 document and 1 concept", 2, contentStructure.getNodes().size());
-        assertEquals ("2 edge relationships are expected", 2, contentStructure.getEdges().size());
-        boolean simpleFound=false, complexFound = false;
+        assertEquals("2 edge relationships are expected", 2, contentStructure.getEdges().size());
+        boolean simpleFound = false, complexFound = false;
         for (EdgeResult edgeResult : contentStructure.getEdges()) {
-            if (edgeResult.getRelationship().equals("simple"))
+            if (edgeResult.getRelationship().equals("simple")) {
                 simpleFound = true;
-            if (edgeResult.getRelationship().equals("complex"))
+            }
+            if (edgeResult.getRelationship().equals("complex")) {
                 complexFound = true;
+            }
 
         }
 
-        assertTrue ("Didn't find the simple relationship name", simpleFound);
-        assertTrue ("Didn't find the complex relationship name", complexFound);
+        assertTrue("Didn't find the simple relationship name", simpleFound);
+        assertTrue("Didn't find the complex relationship name", complexFound);
 
     }
 }

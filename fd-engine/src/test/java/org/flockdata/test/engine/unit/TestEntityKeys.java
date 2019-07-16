@@ -20,20 +20,20 @@
 
 package org.flockdata.test.engine.unit;
 
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+
 import org.flockdata.track.bean.EntityKeyBean;
 import org.junit.Test;
 
-import static org.springframework.test.util.AssertionErrors.assertEquals;
-
 /**
  * @author mholdsworth
- * @since 28/07/2014
  * @tag Test, Entity
+ * @since 28/07/2014
  */
 public class TestEntityKeys {
 
     @Test
-    public void equalityAndDefaults() throws Exception{
+    public void equalityAndDefaults() throws Exception {
 
         // ToDo: Case sensitivity
         EntityKeyBean entityKeyA = new EntityKeyBean("123", "abc", "456");

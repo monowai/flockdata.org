@@ -33,8 +33,8 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
  * A structural node that represents a type of Tag that exists in the Graph.
  *
  * @author mholdsworth
- * @since 16/06/2014
  * @tag Node, Concept, Tag
+ * @since 16/06/2014
  */
 @NodeEntity
 @TypeAlias("Concept")
@@ -79,19 +79,25 @@ public class ConceptNode implements Concept {
     @Override
     public String toString() {
         return "Concept{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+            "id=" + id +
+            ", name='" + name + '\'' +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ConceptNode)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ConceptNode)) {
+            return false;
+        }
 
         ConceptNode that = (ConceptNode) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
         return !(name != null ? !name.equals(that.name) : that.name != null);
 
     }

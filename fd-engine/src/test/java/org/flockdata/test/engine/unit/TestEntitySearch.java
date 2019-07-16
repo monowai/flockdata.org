@@ -20,8 +20,20 @@
 
 package org.flockdata.test.engine.unit;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import org.flockdata.data.EntityTag;
-import org.flockdata.engine.data.graph.*;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.EntityTagOut;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.FortressUserNode;
+import org.flockdata.engine.data.graph.TagNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
@@ -31,34 +43,27 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * @author mholdsworth
  * @since 1/10/2014
  */
 public class TestEntitySearch {
     @Test
-    public void tags_ArrayWork() throws Exception{
+    public void tags_ArrayWork() throws Exception {
         Collection<EntityTag> tags = new ArrayList<>();
 
         EntityNode e = getEntity("test", "blah", "asdf", "don'tcare");
         String relationship = "dupe";
 
         // ToDo: What is the diff between these relationships
-        tags.add( new EntityTagOut(e, getTag("NameA", relationship), relationship, null ));
-        tags.add( new EntityTagOut(e, getTag("NameB", "Dupe"), "Dupe", null ));
+        tags.add(new EntityTagOut(e, getTag("NameA", relationship), relationship, null));
+        tags.add(new EntityTagOut(e, getTag("NameB", "Dupe"), "Dupe", null));
         tags.add(new EntityTagOut(e, getTag("NameC", relationship), relationship, null));
 
         EntitySearchChange entitySearchChange = new EntitySearchChange(e, "");
 
-        entitySearchChange.setStructuredTags( tags);
-        assertEquals(1,entitySearchChange.getTagValues().size());
+        entitySearchChange.setStructuredTags(tags);
+        assertEquals(1, entitySearchChange.getTagValues().size());
         // Find by relationship
         Map<String, ArrayList<SearchTag>> values = entitySearchChange.getTagValues().get(relationship);
         //assertTrue (values.get("code") instanceof Collection);
@@ -66,12 +71,12 @@ public class TestEntitySearch {
         Collection mValues = values.get("tag");
         // Each entry has a Name and Code value
         assertNotNull("Could not find the Tag in the result set", mValues);
-        assertEquals("Incorrect Values found for the relationship. Not ignoring case?", 3, mValues.size() );
+        assertEquals("Incorrect Values found for the relationship. Not ignoring case?", 3, mValues.size());
 
         System.out.println(entitySearchChange.getTagValues());
     }
 
-    TagNode getTag (String tagName, String rlxName){
+    TagNode getTag(String tagName, String rlxName) {
         TagInputBean tagInputBean = new TagInputBean(tagName, null, rlxName);
         return new TagNode(tagInputBean);
     }
@@ -92,10 +97,10 @@ public class TestEntitySearch {
     EntityInputBean getEntityInputBean(DocumentNode docType, FortressUserNode fortressUser, String code, DateTime now) {
 
         return new EntityInputBean(fortressUser.getFortress(),
-                fortressUser.getCode(),
-                docType.getName(),
-                now,
-                code);
+            fortressUser.getCode(),
+            docType.getName(),
+            now,
+            code);
 
     }
 }

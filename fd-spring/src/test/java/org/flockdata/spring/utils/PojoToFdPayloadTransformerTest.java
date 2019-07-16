@@ -16,6 +16,7 @@
 
 package org.flockdata.spring.utils;
 
+import java.io.IOException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.spring.annotations.FdCallerRef;
 import org.flockdata.spring.annotations.FdUid;
@@ -23,8 +24,6 @@ import org.flockdata.spring.annotations.Trackable;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.IOException;
 
 public class PojoToFdPayloadTransformerTest {
 

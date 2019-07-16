@@ -20,24 +20,30 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.test.helper.ContentDataHelper;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityTagRelationshipInput;
+import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static org.junit.Assert.*;
 
 /**
  * Functional tests for AdminServices
@@ -333,8 +339,8 @@ public class TestAdmin extends EngineBase {
 
 
         mediationFacade.purge(su.getCompany(), fortress.getCode(),
-                trackBean.getDocumentType().getCode(),
-                "SegmentA");
+            trackBean.getDocumentType().getCode(),
+            "SegmentA");
         EngineBase.waitAWhile("Waiting for Async processing to complete");
         exception.expect(NotFoundException.class);
         entityService.getEntity(su.getCompany(), resultA);
@@ -386,8 +392,8 @@ public class TestAdmin extends EngineBase {
 
 
         mediationFacade.purge(su.getCompany(), fortress.getCode(),
-                trackBean.getDocumentType().getCode(),
-                segment);
+            trackBean.getDocumentType().getCode(),
+            segment);
 
         EngineBase.waitAWhile("Waiting for Async processing to complete");
 

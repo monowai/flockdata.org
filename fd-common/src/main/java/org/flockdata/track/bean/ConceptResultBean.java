@@ -53,22 +53,27 @@ public class ConceptResultBean {
     }
 
     public ConceptResultBean addRelationship(RelationshipResultBean relationship) {
-        if (!relationships.contains(relationship))
+        if (!relationships.contains(relationship)) {
             relationships.add(relationship);
+        }
         return this;
     }
 
     @Override
     public String toString() {
         return "ConceptResultBean{" +
-                "name='" + name + '\'' +
-                '}';
+            "name='" + name + '\'' +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ConceptResultBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ConceptResultBean)) {
+            return false;
+        }
 
         ConceptResultBean that = (ConceptResultBean) o;
 

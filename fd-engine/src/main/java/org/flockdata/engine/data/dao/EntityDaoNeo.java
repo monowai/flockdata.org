@@ -20,10 +20,34 @@
 
 package org.flockdata.engine.data.dao;
 
-import org.flockdata.data.*;
+import static org.flockdata.store.StoreHelper.isMockable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.flockdata.data.Company;
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Log;
+import org.flockdata.data.Segment;
+import org.flockdata.data.TxRef;
 import org.flockdata.engine.admin.PlatformConfig;
-import org.flockdata.engine.data.graph.*;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.data.graph.EntityLog;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.FortressUserNode;
+import org.flockdata.engine.data.graph.LogNode;
+import org.flockdata.engine.data.graph.TxRefNode;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.EntityTagService;
 import org.flockdata.engine.track.service.FortressService;
@@ -33,9 +57,17 @@ import org.flockdata.integration.IndexManager;
 import org.flockdata.integration.KeyGenService;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoreHelper;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.track.bean.EntityTXResult;
+import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.DynamicRelationshipType;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,10 +76,6 @@ import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-
-import static org.flockdata.store.StoreHelper.isMockable;
 
 /**
  * Access to Entity objects stored in Neo4j
@@ -143,8 +171,9 @@ public class EntityDaoNeo {
      * @return saved entity
      */
     public EntityNode save(EntityNode entity, boolean quietly) {
-        if (!quietly)
+        if (!quietly) {
             entity.bumpUpdate();
+        }
         return entityRepo.save(entity);
 
     }
@@ -154,8 +183,9 @@ public class EntityDaoNeo {
     }
 
     public EntityNode findEntity(String key, boolean inflate) {
-        if (key == null)
+        if (key == null) {
             return null;
+        }
 
         EntityNode entity = entityRepo.findByKey(key);
         if (inflate && entity != null) {
@@ -177,10 +207,13 @@ public class EntityDaoNeo {
         for (Entity entity : entities) {
             count++;
             result = entity;
-            if (count > 1) break;
+            if (count > 1) {
+                break;
+            }
         }
-        if (count > 1)
+        if (count > 1) {
             throw new FlockException("Unable to find exactly one record for the code [" + code + "]. Found " + count);
+        }
 
         return result;
 
@@ -188,8 +221,9 @@ public class EntityDaoNeo {
 
     //    @Cacheable (value = "entityByCode", unless = "#result == null")
     public Entity findByCode(Long fortressId, Document document, String code) {
-        if (logger.isTraceEnabled())
+        if (logger.isTraceEnabled()) {
             logger.trace("findByCode fortressUser [" + fortressId + "] docType[" + document + "], code[" + code + "]");
+        }
 
         Entity result;
         if (document == null || document.getName().equalsIgnoreCase("entity")) {
@@ -220,10 +254,12 @@ public class EntityDaoNeo {
 
     public Entity fetch(Entity entity) {
         if (entity != null) {
-            if (entity.getCreatedBy() != null)
+            if (entity.getCreatedBy() != null) {
                 template.fetch(entity.getCreatedBy());
-            if (entity.getLastUpdate() != null)
+            }
+            if (entity.getLastUpdate() != null) {
                 template.fetch(entity.getLastUser());
+            }
         }
 
         return entity;
@@ -280,12 +316,14 @@ public class EntityDaoNeo {
 
     public Collection<org.flockdata.data.EntityLog> getLogs(Entity entity) {
         DocumentNode doc = conceptService.findDocumentType(entity.getFortress(), entity.getType(), false);
-        if ( isMockable(entity, doc))
+        if (isMockable(entity, doc)) {
             return mockLogs(entity, doc);
-        
+        }
+
         Set<EntityLog> found = trackLogRepo.findLogs(entity.getId());
-        if ( found.isEmpty())
-            return mockLogs(entity, doc );
+        if (found.isEmpty()) {
+            return mockLogs(entity, doc);
+        }
         Collection<org.flockdata.data.EntityLog> results = new ArrayList<>();
         for (EntityLog result : found) {
             result.setEntity((EntityNode) entity);
@@ -297,7 +335,7 @@ public class EntityDaoNeo {
     private Collection<org.flockdata.data.EntityLog> mockLogs(Entity entity, DocumentNode documentType) {
 //        DocumentNode documentType = conceptService.findDocumentType(entity.getFortress(), entity.getType(), false);
         boolean mock = isMockable(entity, documentType);
-        if ( mock) {
+        if (mock) {
             EntityLog mockLog = getMockLog(entity);
             if (mockLog != null) {
                 Set<org.flockdata.data.EntityLog> results = new HashSet<>();
@@ -323,9 +361,9 @@ public class EntityDaoNeo {
         //Example showing how to use cypher and extract
 
         String findByTagRef = " match (tag)-[:AFFECTED]->log<-[logs:LOGGED]-(track) " +
-                "              where id(tag)={txRef}" +
-                "             return logs, track, log " +
-                "           order by logs.sysWhen";
+            "              where id(tag)={txRef}" +
+            "             return logs, track, log " +
+            "           order by logs.sysWhen";
         Map<String, Object> params = new HashMap<>();
         params.put("txRef", txRef.getId());
 
@@ -356,8 +394,9 @@ public class EntityDaoNeo {
 
     public org.flockdata.data.EntityLog save(EntityLog log) {
         // DAT-349 - don't persist mocked logs
-        if (log.isMocked())
+        if (log.isMocked()) {
             return log;
+        }
         logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getLog().getId());
         return template.save(log);
     }
@@ -369,11 +408,12 @@ public class EntityDaoNeo {
     public EntityLog getLog(EntityNode entity, Long logId) {
 
         EntityLog mockLog = getMockLog(entity);
-        if (mockLog != null)
+        if (mockLog != null) {
             return mockLog;
+        }
 
         Relationship change = template.getRelationship(logId);
-        if (change != null)
+        if (change != null) {
             try {
                 return (EntityLog) template.getDefaultConverter().convert(change, EntityLog.class);
             } catch (NotFoundException nfe) {
@@ -381,6 +421,7 @@ public class EntityDaoNeo {
                 logger.error("Error converting relationship to a LoggedRelationship");
                 return null;
             }
+        }
         return null;
     }
 
@@ -390,8 +431,9 @@ public class EntityDaoNeo {
     }
 
     public Log fetch(LogNode lastChange) {
-        if (lastChange.getId() == null || lastChange.isMocked())
+        if (lastChange.getId() == null || lastChange.isMocked()) {
             return lastChange;
+        }
         return template.fetch(lastChange);
     }
 
@@ -401,10 +443,13 @@ public class EntityDaoNeo {
         EntityLog entityLog = new EntityLog(trackResultBean, store, newLog, fortressWhen);
 
         if (entity.getId() == null)// Graph tracking is suppressed; caller is only creating search docs
+        {
             return entityLog;
+        }
 
-        if (store.equals(Store.NONE))
+        if (store.equals(Store.NONE)) {
             return entityLog;
+        }
 
         logger.debug(entity.getKey());
 
@@ -413,11 +458,13 @@ public class EntityDaoNeo {
         // Easiest way to test is when there is not fortress and you track the first request in to it.
         // DAT-419
 
-        while (currentState.getKey() == null)
+        while (currentState.getKey() == null) {
             currentState = template.fetch(entity);
+        }
 
-        if (entity.getKey() == null)
+        if (entity.getKey() == null) {
             throw new FlockException("Where has the key gone?");
+        }
 
         entity.setLastUser((FortressUserNode) newLog.getMadeBy());
         entity.setLastChange((LogNode) newLog);
@@ -447,11 +494,13 @@ public class EntityDaoNeo {
 
 
         for (org.flockdata.data.EntityLog entityLog : entityLogs) {
-            if (latest == null || entityLog.getFortressWhen() > latest.getFortressWhen())
+            if (latest == null || entityLog.getFortressWhen() > latest.getFortressWhen()) {
                 latest = entityLog;
+            }
         }
-        if (latest == null)
+        if (latest == null) {
             return;
+        }
         moreRecent = (latest.getLog().getEntityLog().getFortressWhen() > entity.getFortressUpdatedTz().getMillis());
         if (moreRecent) {
             logger.debug("Detected a more recent change ", new DateTime(latest.getFortressWhen()), entity.getId(), latest.getFortressWhen());
@@ -471,8 +520,9 @@ public class EntityDaoNeo {
         Node target = template.getPersistentState(entity);
         for (Entity sourceEntity : entities) {
             Node dest = template.getPersistentState(sourceEntity);
-            if (template.getRelationshipBetween(dest, target, refName) == null)
+            if (template.getRelationshipBetween(dest, target, refName) == null) {
                 template.createRelationshipBetween(dest, target, refName, null);
+            }
         }
     }
 
@@ -496,8 +546,9 @@ public class EntityDaoNeo {
         Collection<EntityNode> foundEntities = entityRepo.findEntities(company.getId(), keys);
         Map<String, EntityNode> unsorted = new HashMap<>();
         for (EntityNode foundEntity : foundEntities) {
-            if (foundEntity.getSegment().getFortress().getCompany().getId().equals(company.getId()))
+            if (foundEntity.getSegment().getFortress().getCompany().getId().equals(company.getId())) {
                 unsorted.put(foundEntity.getKey(), foundEntity);
+            }
         }
         return unsorted;
     }
@@ -580,9 +631,9 @@ public class EntityDaoNeo {
         params.put("1", segmentId);
         params.put("2", limit);
         String query = " match (fortress:Fortress)-[:DEFINES]-(fs:FortressSegment)-[:TRACKS]->(entity:`" + documentType.getName() + "`) " +
-                " where id(fortress)={0} and id(fs)={1}" +
-                " return entity.key " +
-                " limit {2} ";
+            " where id(fortress)={0} and id(fs)={1}" +
+            " return entity.key " +
+            " limit {2} ";
         Result<Map<String, Object>> keys = template.query(query, params);
         for (Map<String, Object> key : keys) {
             results.add(key.get("entity.key").toString());
@@ -628,8 +679,8 @@ public class EntityDaoNeo {
             if (entity != null) {
                 Collection<EntityTag> entityTags = entityTagService.findEntityTagsWithGeo(entity);
                 results.add(
-                        new EntityKeyBean(entity, entityTags, indexManager.toIndex(entity)).addRelationship(entityKey.getRelationshipName())
-                                .setParent(entityKey.isParent()));
+                    new EntityKeyBean(entity, entityTags, indexManager.toIndex(entity)).addRelationship(entityKey.getRelationshipName())
+                        .setParent(entityKey.isParent()));
 
             }
 
@@ -654,17 +705,19 @@ public class EntityDaoNeo {
      */
     public Collection<EntityKeyBean> getNestedParentEntities(Entity entity, Document docType) {
         Map<String, DocumentResultBean> parents = conceptService.getParents(docType);
-        if (parents.isEmpty())
+        if (parents.isEmpty()) {
             return new ArrayList<>();
+        }
 
         String query = "match (e:Entity) where id(e) = {entity} with e match (e) ";
         String cypherReturn = null;
         for (String relationship : parents.keySet()) {
             query = query + "-[:" + relationship + "]-(" + relationship + ":" + parents.get(relationship).getName() + ")";
-            if (cypherReturn == null)
+            if (cypherReturn == null) {
                 cypherReturn = " return " + relationship;
-            else
+            } else {
                 cypherReturn = cypherReturn + "," + relationship;
+            }
         }
 
         Map<String, Object> params = new HashMap<>();
@@ -680,7 +733,7 @@ public class EntityDaoNeo {
                 Node node = (Node) row.get(relationship);
                 EntityNode e = getEntity(node.getId());
                 connected.add(new EntityKeyBean(e, entityTagService.findEntityTagsWithGeo(e), indexManager.toIndex(e))
-                        .setRelationshipName(relationship));
+                    .setRelationshipName(relationship));
             }
         }
         return connected;

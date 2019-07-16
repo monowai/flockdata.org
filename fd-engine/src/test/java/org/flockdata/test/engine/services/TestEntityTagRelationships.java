@@ -20,6 +20,10 @@
 
 package org.flockdata.test.engine.services;
 
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
@@ -41,10 +45,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author mholdsworth
  * @since 13/07/2016
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertEquals;
     FdTemplateMock.class,
     FdServerIo.class,
     MapBasedStorageProxy.class})
-@ActiveProfiles({"dev", "fd-auth-test"})
+@ActiveProfiles( {"dev", "fd-auth-test"})
 public class TestEntityTagRelationships extends EngineBase {
 
     @Autowired

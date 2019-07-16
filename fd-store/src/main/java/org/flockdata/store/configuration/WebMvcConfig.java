@@ -44,7 +44,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 
     @RequestMapping("/api")
-    String api () {
+    String api() {
         return home();
     }
 
@@ -63,7 +63,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
             ;
 
 
-            //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side/
+            //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side
             //https://github.com/aditzel/spring-security-csrf-token-interceptor
             http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
             http.httpBasic();

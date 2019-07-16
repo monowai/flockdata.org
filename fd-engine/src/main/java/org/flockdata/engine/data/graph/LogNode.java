@@ -32,7 +32,12 @@ import org.flockdata.track.bean.ContentInputBean;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.Fetch;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.RelatedToVia;
 
 /**
  * Captures properties about a track event for an entity
@@ -63,11 +68,11 @@ public class LogNode implements Log {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String comment;
     private String storage;  // ENUMS are not serializable
-    private String checkSum=null;
+    private String checkSum = null;
     private Double profileVersion = 1d;
-    @Indexed (unique =  true)
+    @Indexed(unique = true)
     private String logKey;
-    private String contentType ;
+    private String contentType;
     private String fileName;
     private boolean compressed = false;
     @RelatedTo(type = "PREVIOUS_LOG", direction = Direction.OUTGOING)
@@ -81,14 +86,15 @@ public class LogNode implements Log {
 
     /**
      * Creates a Mock non-persistent node
+     *
      * @param entity record log against
      */
-    public LogNode(Entity entity){
+    public LogNode(Entity entity) {
         //DAT-349 creates a mock node when storage is disabled
         this.id = entity.getId();
         this.mocked = true;
-        this.madeBy = (entity.getCreatedBy()==null ? new FortressUserNode(entity.getSegment().getFortress(), null) : (FortressUserNode) entity.getCreatedBy());
-        this.event = (entity.getEvent() == null ? "Create":entity.getEvent());
+        this.madeBy = (entity.getCreatedBy() == null ? new FortressUserNode(entity.getSegment().getFortress(), null) : (FortressUserNode) entity.getCreatedBy());
+        this.event = (entity.getEvent() == null ? "Create" : entity.getEvent());
         this.storage = Store.NONE.name();
     }
 
@@ -103,8 +109,9 @@ public class LogNode implements Log {
     }
 
     public String getContentType() {
-        if (contentType == null)
+        if (contentType == null) {
             contentType = "json";
+        }
         return contentType;
     }
 
@@ -124,10 +131,10 @@ public class LogNode implements Log {
     @Override
     public String toString() {
         return "Log{" +
-                "id=" + id +
-                ", madeBy=" + madeBy +
-                ", event=" + event +
-                '}';
+            "id=" + id +
+            ", madeBy=" + madeBy +
+            ", event=" + event +
+            '}';
     }
 
     @Override
@@ -141,7 +148,7 @@ public class LogNode implements Log {
         return checkSum;
     }
 
-    public void setChecksum(String checksum){
+    public void setChecksum(String checksum) {
         this.checkSum = checksum;
     }
 
@@ -178,8 +185,9 @@ public class LogNode implements Log {
 
     public ChangeEvent getEvent() {
         // DAT-344
-        if ( event== null )
+        if (event == null) {
             return null;
+        }
 
         return new ChangeEventNode(event);
     }
@@ -209,8 +217,8 @@ public class LogNode implements Log {
 
     public boolean equals(Object other) {
         return this == other || id != null
-                && other instanceof LogNode
-                && id.equals(((LogNode) other).id);
+            && other instanceof LogNode
+            && id.equals(((LogNode) other).id);
 
     }
 
@@ -226,7 +234,7 @@ public class LogNode implements Log {
     public void setEntityLog(EntityLog entityLog) {
         // DAT-288 DAT-465
         // logKey assumes that an entity will have exactly one change on the FortressWhen date
-        this.logKey = ""+entityLog.getEntity().getId() +"."+ entityLog.getFortressWhen();
+        this.logKey = "" + entityLog.getEntity().getId() + "." + entityLog.getFortressWhen();
         //this.entityLog = entityLog;
     }
 

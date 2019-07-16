@@ -22,6 +22,7 @@ package org.flockdata.test.engine.suites;
 
 /**
  * Primarily focused on Entities
+ *
  * @author mholdsworth
  * @since 2/04/2015
  */
@@ -37,15 +38,16 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-        TestHashcodeAndEquality.class,
-        TestEntityKeys.class,
-        TestEntitySearch.class,
-        TestCallerCode.class,
-        TestEntityUsers.class,
-        TestEntityCrossLink.class,
-        TestEntityLinks.class
+@Suite.SuiteClasses( {
+    TestHashcodeAndEquality.class,
+    TestEntityKeys.class,
+    TestEntitySearch.class,
+    TestCallerCode.class,
+    TestEntityUsers.class,
+    TestEntityCrossLink.class,
+    TestEntityLinks.class
 })
 public class Entity {
-    Entity(){}
+    Entity() {
+    }
 }

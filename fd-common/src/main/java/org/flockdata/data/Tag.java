@@ -18,7 +18,6 @@ package org.flockdata.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;

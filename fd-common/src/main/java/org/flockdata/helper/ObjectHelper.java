@@ -22,12 +22,17 @@ package org.flockdata.helper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.data.EntityContent;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import org.flockdata.data.EntityContent;
 
 /**
  * @author mholdsworth
@@ -80,18 +85,21 @@ public class ObjectHelper {
 
     public static String decompress(CompressionResult result) {
         try {
-            if (result.getBytes() == null)
+            if (result.getBytes() == null) {
                 return null;
-            if (result.getMethod().equals(CompressionResult.Method.NONE))
+            }
+            if (result.getMethod().equals(CompressionResult.Method.NONE)) {
                 return new String(result.getBytes(), charSet);
+            }
 
             InputStream in = new GZIPInputStream(new ByteArrayInputStream(result.getBytes()));
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
             byte[] buffer = new byte[8192];
             int len;
-            while ((len = in.read(buffer)) > 0)
+            while ((len = in.read(buffer)) > 0) {
                 baos.write(buffer, 0, len);
+            }
             return new String(baos.toByteArray(), charSet);
         } catch (IOException e) {
             throw new AssertionError(e);

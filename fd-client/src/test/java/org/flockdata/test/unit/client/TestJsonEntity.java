@@ -16,8 +16,14 @@
 
 package org.flockdata.test.unit.client;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
@@ -28,18 +34,11 @@ import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * @author mholdsworth
  * @since 10/12/2014
  */
-public class TestJsonEntity extends AbstractImport{
+public class TestJsonEntity extends AbstractImport {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(TestCsvEntity.class);
 
@@ -58,18 +57,18 @@ public class TestJsonEntity extends AbstractImport{
             assertEquals("hr", entity.getDocumentType().getName());
             assertNotNull(entity.getName());
             for (TagInputBean tagInputBean : entity.getTags()) {
-                if ( tagInputBean.getEntityTagLinks().get("sponsors")!=null ) {
+                if (tagInputBean.getEntityTagLinks().get("sponsors") != null) {
                     assertNotNull(tagInputBean.getTargets().get("located"));
                     Collection<TagInputBean> states = tagInputBean.getTargets().get("located");
                     for (TagInputBean state : states) {
                         assertEquals("TX", state.getCode());
                         assertNotNull(state.getTargets().get("represents"));
                     }
-                }
-
-                else if ( tagInputBean.getEntityTagLinks().get("cosponsors")!=null )
-                    //assertEquals(5,  );
+                } else if (tagInputBean.getEntityTagLinks().get("cosponsors") != null)
+                //assertEquals(5,  );
+                {
                     logger.info("Validate CoSponsor {}", tagInputBean.toString());
+                }
 
             }
         } catch (IOException e) {
@@ -79,12 +78,11 @@ public class TestJsonEntity extends AbstractImport{
         }
 
 
-
     }
 
     @Test
-    public void object_ImportJsonEntity() throws Exception{
-        ContentModel model= ContentModelDeserializer.getContentModel("/model/gov.json");
+    public void object_ImportJsonEntity() throws Exception {
+        ContentModel model = ContentModelDeserializer.getContentModel("/model/gov.json");
         ExtractProfile extractProfile = new ExtractProfileHandler(model);
         extractProfile.setContentType(ExtractProfile.ContentType.JSON);
 
@@ -95,8 +93,8 @@ public class TestJsonEntity extends AbstractImport{
     }
 
     @Test
-    public void array_ImportJsonEntities() throws Exception{
-        ContentModel model= ContentModelDeserializer.getContentModel("/model/gov.json");
+    public void array_ImportJsonEntities() throws Exception {
+        ContentModel model = ContentModelDeserializer.getContentModel("/model/gov.json");
         ExtractProfile extractProfile = new ExtractProfileHandler(model);
         extractProfile.setContentType(ExtractProfile.ContentType.JSON);
         model.setFortress(new FortressInputBean("testing"));
@@ -104,7 +102,6 @@ public class TestJsonEntity extends AbstractImport{
         long rows = fileProcessor.processFile(extractProfile, "/model/gov-array-example.json");
         assertEquals("Should have processed the file as an array of JSON objects", 1, rows);
     }
-
 
 
 }

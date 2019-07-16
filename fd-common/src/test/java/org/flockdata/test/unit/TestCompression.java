@@ -16,10 +16,15 @@
 
 package org.flockdata.test.unit;
 
+import static org.junit.Assert.assertEquals;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.helper.CompressionResult;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.ObjectHelper;
@@ -28,12 +33,6 @@ import org.flockdata.track.bean.ContentInputBean;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -51,9 +50,10 @@ public class TestCompression {
         Assert.assertEquals(uncompressed, json);
 
     }
+
     @Test
     public void compressed_bytesAreSquashed() throws Exception {
-        Map<String,Object> json = ContentDataHelper.getBigJsonText(99);
+        Map<String, Object> json = ContentDataHelper.getBigJsonText(99);
         //System.out.println("Pretty JSON          - " + json.getBytes("UTF-8").length);
         //ContentInputBean content = ;
 //        KvContent content = new KvContentBean(json);
@@ -92,8 +92,9 @@ public class TestCompression {
         JsonNode other = mapper.readTree(uncompressed);
         Assert.assertEquals(compareTo, other);
     }
+
     @Test
-    public void json_diff() throws Exception{
+    public void json_diff() throws Exception {
         String jsonA = "{\"house\": \"red\", \"bedrooms\": 2, \"list\": [3,2,1]}";
         String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
         Map mapA, mapB;
@@ -106,7 +107,7 @@ public class TestCompression {
     }
 
     @Test
-    public void compressionDisabled(){
+    public void compressionDisabled() {
         ContentInputBean content = new ContentInputBean("mike", new DateTime());
         content.setAttachment(ContentDataHelper.getPdfDoc(), "pdf", "test.pdf");
         System.setProperty(ObjectHelper.PROP_COMPRESSION, "true");

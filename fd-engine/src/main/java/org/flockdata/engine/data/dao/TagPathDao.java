@@ -20,6 +20,11 @@
 
 package org.flockdata.engine.data.dao;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import org.flockdata.data.Tag;
 import org.flockdata.helper.TagResultBuilder;
 import org.flockdata.registration.TagResultBean;
@@ -34,12 +39,10 @@ import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-
 /**
  * @author mholdsworth
- * @since 28/12/2015
  * @tag Tag, Neo4j
+ * @since 28/12/2015
  */
 @Service
 public class TagPathDao {
@@ -54,7 +57,7 @@ public class TagPathDao {
     }
 
     public Collection<Map<String, Object>> getPaths(Tag tag, int length, String label) {
-        String query = "match p=(t) -[*.."+length+"]->(targetTag:`"+label+"`) where id(t)= {0}   return p";
+        String query = "match p=(t) -[*.." + length + "]->(targetTag:`" + label + "`) where id(t)= {0}   return p";
         Map<String, Object> params = new HashMap<>();
         params.put("0", tag.getId());
         Collection<Map<String, Object>> results = new ArrayList<>();
@@ -72,7 +75,7 @@ public class TagPathDao {
                 if (pc instanceof Node) {
                     TagResultBean tagResultBean = TagResultBuilder.make((Node) pc);
                     path.put((pathCount++).toString(), tagResultBean);
-                    if ( iterator.hasNext()) {
+                    if (iterator.hasNext()) {
                         Relationship rel = (Relationship) iterator.next(); // Get the relationship
                         relationship = rel.getType().name();
                         tagResultBean.setRelationship(relationship);

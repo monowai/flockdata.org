@@ -21,7 +21,6 @@
 package org.flockdata.transform;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.util.Map;
 
 /**

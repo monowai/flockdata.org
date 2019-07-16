@@ -47,14 +47,14 @@ public class TestBigXmlToJson {
 //        map.put("PARTIES", parties.getJSONArray("PARTY"));
 
 //        String parsedJson = mapper.writeValueAsString(map);
-  //      System.out.println(parsedJson);
+        //      System.out.println(parsedJson);
 
         //assertEquals ("Walnes", jsonObject.getJSONObject("person").get("lastname"));
     }
 
-    public String getXml (){
+    public String getXml() {
         return
-                "<MESSAGE>\n" +
+            "<MESSAGE>\n" +
                 "\t<HEADER>\n" +
                 "\t\t<HEADER_DETAIL>\n" +
                 "\t\t\t<MessageIdentifier>52C55B33-B048-8BBB-9980-3E1886C6AB9B</MessageIdentifier>\n" +

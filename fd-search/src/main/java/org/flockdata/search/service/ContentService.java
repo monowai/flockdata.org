@@ -20,6 +20,9 @@
 
 package org.flockdata.search.service;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -35,14 +38,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
 /**
  * @author mholdsworth
- * @since 31/08/2016
  * @tag Structure
+ * @since 31/08/2016
  */
 @Service
 public class ContentService {
@@ -58,11 +57,11 @@ public class ContentService {
     }
 
 
-    public ContentStructure getStructure (QueryParams queryParams) throws FlockException {
+    public ContentStructure getStructure(QueryParams queryParams) throws FlockException {
         try {
             String[] indexes = indexManager.getIndices(queryParams);
             GetFieldMappingsRequestBuilder fieldMappings = searchConfig.getClient().admin().indices().prepareGetFieldMappings(indexes);
-            fieldMappings.setFields("data.*","tag.*", "e.*", "up.*", SearchSchema.PROPS, SearchSchema.CREATED, SearchSchema.UPDATED, SearchSchema.DOC_TYPE);
+            fieldMappings.setFields("data.*", "tag.*", "e.*", "up.*", SearchSchema.PROPS, SearchSchema.CREATED, SearchSchema.UPDATED, SearchSchema.DOC_TYPE);
             ListenableActionFuture<GetFieldMappingsResponse> future = fieldMappings.execute();
             GetFieldMappingsResponse result = future.get();
             Map<String, Map<String, Map<String, GetFieldMappingsResponse.FieldMappingMetaData>>> mappings = result.mappings();
@@ -87,19 +86,19 @@ public class ContentService {
 
     private void handle(ContentStructure contentStructure, GetFieldMappingsResponse.FieldMappingMetaData fieldMappingMetaData) {
         String name = fieldMappingMetaData.fullName();
-        boolean link=false, fd =false, data=false;
-        if ( name.startsWith("e.") || name.startsWith("tag."))
+        boolean link = false, fd = false, data = false;
+        if (name.startsWith("e.") || name.startsWith("tag.")) {
             link = true;
-        else if (name.startsWith("data."))
+        } else if (name.startsWith("data.")) {
             data = true;
-        else if (name.startsWith("up."))
+        } else if (name.startsWith("up.")) {
             data = true;
-
-        else
+        } else {
             fd = true;
+        }
 
         EsColumn column = null;
-        if ( !fd ) {
+        if (!fd) {
             Map<String, Object> source = fieldMappingMetaData.sourceAsMap();
             if (link && isKeyword(source)) {
                 column = new EsColumn(name, "string");
@@ -109,36 +108,41 @@ public class ContentService {
                     Map<String, Object> props = (Map<String, Object>) key;
                     if (props.containsKey("type")) {
                         String dataType = props.get("type").toString();
-                        if (dataType.equals("date") || dataType.equals("long")|| dataType.equals("number") || dataType.equals("double"))
+                        if (dataType.equals("date") || dataType.equals("long") || dataType.equals("number") || dataType.equals("double")) {
                             column = new EsColumn(name, dataType);
+                        }
                     }
 
                 }
             }
         } else {
-            if( name.startsWith("when"))
+            if (name.startsWith("when")) {
                 column = new EsColumn(name, "date");
-            else
+            } else {
                 column = new EsColumn(name, "string");
+            }
         }
-        if ( column != null ){
-            if ( link)
+        if (column != null) {
+            if (link) {
                 contentStructure.addLink(column);
-            else if (data)
+            } else if (data) {
                 contentStructure.addData(column);
-            else
+            } else {
                 contentStructure.addFd(column);
+            }
         }
     }
 
     private boolean isKeyword(Map<String, Object> source) {
-        if (source.containsKey("keyword"))
+        if (source.containsKey("keyword")) {
             return true;
-        Map<String,Object> defn = (Map<String, Object>) source.values().iterator().next();
-        if ( defn.containsKey("type") && defn.get("type").equals("keyword"))
+        }
+        Map<String, Object> defn = (Map<String, Object>) source.values().iterator().next();
+        if (defn.containsKey("type") && defn.get("type").equals("keyword")) {
             return true;
-        if ( defn.containsKey("fields")){
-            Map<String,Object> candidate = (Map<String, Object>) defn.get("fields");
+        }
+        if (defn.containsKey("fields")) {
+            Map<String, Object> candidate = (Map<String, Object>) defn.get("fields");
             return candidate.containsKey("keyword");
         }
         return false;

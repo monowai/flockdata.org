@@ -16,6 +16,9 @@
 
 package org.flockdata.test.unit.batch;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Map;
 import org.flockdata.batch.FdAbstractSqlStep;
 import org.flockdata.batch.resources.FdEntityProcessor;
 import org.flockdata.batch.resources.FdEntityWriter;
@@ -35,10 +38,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Map;
-
 /**
  * Simple test job t
  *
@@ -47,7 +46,7 @@ import java.util.Map;
  */
 @Configuration
 @EnableBatchProcessing
-@Profile({"fd-batch-dev", "dev"})
+@Profile( {"fd-batch-dev", "dev"})
 public class SqlEntityStep extends FdAbstractSqlStep {
 
     @Autowired
@@ -61,11 +60,11 @@ public class SqlEntityStep extends FdAbstractSqlStep {
     @Bean
     public Job runEntityQuery(JobBuilderFactory jobs, @Qualifier("readEntitySql") Step s1, JobExecutionListener listener) {
         return jobs.get(getStepName())
-                .incrementer(new RunIdIncrementer())
-                .listener(listener)
-                .flow(s1)
-                .end()
-                .build();
+            .incrementer(new RunIdIncrementer())
+            .listener(listener)
+            .flow(s1)
+            .end()
+            .build();
     }
 
     @Bean
@@ -73,11 +72,11 @@ public class SqlEntityStep extends FdAbstractSqlStep {
                               FdEntityWriter fdEntityWriter, FdEntityProcessor fdEntityProcessor) {
 
         return stepBuilderFactory.get(getStepName())
-                .<Map<String, Object>, EntityInputBean> chunk(10)
-                .reader(entityItemReader)
-                .processor(fdEntityProcessor)
-                .writer(fdEntityWriter)
-                .build();
+            .<Map<String, Object>, EntityInputBean>chunk(10)
+            .reader(entityItemReader)
+            .processor(fdEntityProcessor)
+            .writer(fdEntityWriter)
+            .build();
     }
 
     @Bean

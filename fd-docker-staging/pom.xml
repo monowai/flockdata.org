@@ -16,6 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <org.flockdata.client.version>0.98.10-SNAPSHOT</org.flockdata.client.version>
+        <org.flockdata.shell.version>0.98.10-SNAPSHOT</org.flockdata.shell.version>
         <org.flockdata.common.version>0.98.10-SNAPSHOT</org.flockdata.common.version>
         <org.flockdata.security.version>0.98.10-SNAPSHOT</org.flockdata.security.version>
     </properties>
@@ -38,7 +39,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>1.7.3</version>
+            <version>1.11.4</version>
         </dependency>
         <dependency>
             <groupId>net.jcip</groupId>
@@ -50,6 +51,12 @@
             <artifactId>fd-client</artifactId>
             <version>${org.flockdata.client.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.flockdata</groupId>
+            <artifactId>fd-shell</artifactId>
+            <version>${org.flockdata.shell.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>me.tongfei</groupId>
             <artifactId>progressbar</artifactId>

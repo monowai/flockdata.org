@@ -17,14 +17,13 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.flockdata.data.EntityTag;
-
 import java.util.Map;
+import org.flockdata.data.EntityTag;
 
 /**
  * @author mholdsworth
- * @since 21/04/2013
  * @tag Search, Contract, Entity
+ * @since 21/04/2013
  */
 public interface SearchChange<T> {
 
@@ -32,7 +31,6 @@ public interface SearchChange<T> {
     boolean isType(Type type);
 
     /**
-     *
      * @return String representation of the Type of searchChange that this represents (entity/tag)
      */
     String getType();
@@ -66,7 +64,6 @@ public interface SearchChange<T> {
     String getCode();
 
     /**
-     *
      * @return unique identify number in fd-engine
      */
     Long getId();
@@ -94,12 +91,11 @@ public interface SearchChange<T> {
     boolean isForceReindex();
 
     /**
-     *
      * @return if the searchKey should be removed
      */
     Boolean isDelete();
 
-    Map<String,Object> getProps();
+    Map<String, Object> getProps();
 
     EntityTag.TAG_STRUCTURE getTagStructure();
 

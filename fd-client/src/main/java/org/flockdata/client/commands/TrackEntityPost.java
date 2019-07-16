@@ -31,8 +31,8 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * Track an EntityInputBean into FlockData
  *
- * @tag Command, Entity, Track
  * @author mholdsworth
+ * @tag Command, Entity, Track
  * @since 17/04/2016
  */
 @Component
@@ -47,15 +47,15 @@ public class TrackEntityPost {
 
 
     public CommandResponse<TrackRequestResult> exec(EntityInputBean entityInputBean) {
-        TrackRequestResult result=null;
-        String error =null;
+        TrackRequestResult result = null;
+        String error = null;
         HttpEntity<EntityInputBean> requestEntity = new HttpEntity<>(entityInputBean, fdIoInterface.getHeaders());
 
         try {
-            ResponseEntity<TrackRequestResult> restResult = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+"/api/v1/track/", HttpMethod.POST, requestEntity, TrackRequestResult.class);
+            ResponseEntity<TrackRequestResult> restResult = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/track/", HttpMethod.POST, requestEntity, TrackRequestResult.class);
             result = restResult.getBody();
-        }catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error= e.getMessage();
+        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+            error = e.getMessage();
         }
         return new CommandResponse<>(error, result);
     }

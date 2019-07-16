@@ -20,6 +20,10 @@
 
 package org.flockdata.engine.tag.service;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.flockdata.data.Tag;
 import org.flockdata.engine.data.dao.TagRepo;
@@ -34,13 +38,9 @@ import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * Put in place to enable caching. This could may be serve better as a Neo4j extenstion?
+ *
  * @author mholdsworth
  * @since 24/03/2016
  */
@@ -60,18 +60,19 @@ public class TagManager {
     /**
      * Attempts to find tag.key by prefix.tagcode. If that doesn't exist, then it will
      * attempt to locate the alias based on tagcode
-     *
+     * <p>
      * ToDo: A version to located by user defined AliasLabel
      *
-     * @param tagKey   Properties that represent a unique key
+     * @param tagKey Properties that represent a unique key
      * @return resolved tag
      */
     @Cacheable(value = "tag", unless = "#result== null")
     public TagNode tagByKey(TagKey tagKey) {
-        if (tagKey.getPrefix() != null && tagKey.getPrefix().contains(":"))
+        if (tagKey.getPrefix() != null && tagKey.getPrefix().contains(":")) {
             throw new AmqpRejectAndDontRequeueException(String.format("Unresolved indirection %s %s for %s", tagKey.getLabel(), tagKey.getCode(), tagKey.getPrefix()));
+        }
         String parsedKey = TagHelper.parseKey(tagKey.getPrefix(), tagKey.getCode());
-        StopWatch watch = getWatch(tagKey.getLabel()+ " / " + parsedKey);
+        StopWatch watch = getWatch(tagKey.getLabel() + " / " + parsedKey);
 
         Collection<TagNode> tags = tagRepo.findByKey(parsedKey);
 
@@ -83,7 +84,7 @@ public class TagManager {
             }
         }
 
-      //  log.trace("{} Not found by key {}", multiTennantedLabel, tagKey);
+        //  log.trace("{} Not found by key {}", multiTennantedLabel, tagKey);
 
         // See if the tagKey is unique for the requested label
         TagNode tResult = null;
@@ -121,15 +122,17 @@ public class TagManager {
             } else {
                 TagNode toDelete = getTag(mapResult);
                 log.debug("Deleting duplicate {}", toDelete);
-                if (toDelete != null)
+                if (toDelete != null) {
                     template.delete(toDelete);
+                }
             }
 
         }
-        if (tagResult == null)
+        if (tagResult == null) {
             log.trace("Not found {}, {}", tagKey.getLabel(), tagKey.getCode());
-        else
+        } else {
             stopWatch(watch);
+        }
 
         return tagResult;
     }
@@ -145,8 +148,9 @@ public class TagManager {
     }
 
     private void stopWatch(StopWatch watch) {
-        if (watch == null)
+        if (watch == null) {
             return;
+        }
 
         watch.stop();
         log.info(watch.prettyPrint());
@@ -155,9 +159,9 @@ public class TagManager {
     private TagNode getTag(Map<String, Object> mapResult) {
         TagNode tagResult;
         Object o = null;
-        if (mapResult.get("a") != null)
+        if (mapResult.get("a") != null) {
             o = mapResult.get("a");
-        else if (mapResult.get("t") != null) { // Tag found by alias
+        } else if (mapResult.get("t") != null) { // Tag found by alias
             o = mapResult.get("t");
         }
 
@@ -171,6 +175,6 @@ public class TagManager {
     }
 
     public TagNode save(Tag startTag) {
-        return template.save((TagNode)startTag);
+        return template.save((TagNode) startTag);
     }
 }

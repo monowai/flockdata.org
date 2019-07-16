@@ -20,6 +20,8 @@
 
 package org.flockdata.store.configuration;
 
+import java.util.Map;
+import java.util.TreeMap;
 import org.flockdata.integration.VersionHelper;
 import org.flockdata.store.Store;
 import org.flockdata.store.service.FdStoreConfig;
@@ -28,9 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * @author mholdsworth
@@ -51,13 +50,13 @@ class StoreConfig implements FdStoreConfig {
     private Store kvStore = null;
     @Value("${riak.hosts:127.0.0.1}")
     private String riakHosts;
-    @Value ("${redis.port:6379}")
+    @Value("${redis.port:6379}")
     private int redisPort;
-    @Value ("${redis.host:localhost}")
+    @Value("${redis.host:localhost}")
     private String redisHost;
 
     public String fdSearchUrl() {
-        return fdSearchUrl +"/api";
+        return fdSearchUrl + "/api";
     }
 
     public String riakHosts() {
@@ -72,9 +71,10 @@ class StoreConfig implements FdStoreConfig {
     @Override
     public Map<String, String> health() {
 
-        String version =  "";
-        if ( versionHelper!=null )
+        String version = "";
+        if (versionHelper != null) {
             version = versionHelper.getFdVersion();
+        }
         Map<String, String> healthResults = new TreeMap<>();
         healthResults.put("fd.store.version", version);
 

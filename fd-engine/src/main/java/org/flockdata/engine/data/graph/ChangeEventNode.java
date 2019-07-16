@@ -31,8 +31,8 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * @author mholdsworth
- * @since 29/06/2013
  * @tag Node, ChangeEvent
+ * @since 29/06/2013
  */
 @NodeEntity
 @TypeAlias("Event")
@@ -58,9 +58,9 @@ public class ChangeEventNode implements ChangeEvent {
     @Override
     public String toString() {
         return "ChangeEventNode{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
-                '}';
+            "id=" + id +
+            ", code='" + code + '\'' +
+            '}';
     }
 
     @Override

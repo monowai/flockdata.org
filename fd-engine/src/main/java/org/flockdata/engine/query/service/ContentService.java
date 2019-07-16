@@ -38,15 +38,15 @@ public class ContentService {
     private ContentStructureRequest.ContentStructureGateway gateway;
 
     @Autowired
-    void setGateway(ContentStructureRequest.ContentStructureGateway gateway){
+    void setGateway(ContentStructureRequest.ContentStructureGateway gateway) {
         this.gateway = gateway;
     }
 
     public ContentStructure getStructure(Company company, Fortress fortress, String docType) {
         QueryParams qp = new QueryParams()
-                .setCompany(company.getName())
-                .setFortress(fortress.getName())
-                .setTypes(docType);
+            .setCompany(company.getName())
+            .setFortress(fortress.getName())
+            .setTypes(docType);
         return gateway.getStructure(qp);
 //        return gateway.getStructure(company.getName(), fortress.getName(), docType);
 

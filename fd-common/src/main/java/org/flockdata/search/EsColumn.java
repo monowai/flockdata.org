@@ -39,21 +39,25 @@ public class EsColumn {
         this.type = type;
         this.displayName = name;
         // Compute a user friendly display name by removing general constants
-        if (name.startsWith(SearchSchema.TAG_FIELD))
+        if (name.startsWith(SearchSchema.TAG_FIELD)) {
             displayName = name.substring(SearchSchema.TAG_FIELD.length());
-        else if (name.startsWith(SearchSchema.ENTITY_FIELD))
+        } else if (name.startsWith(SearchSchema.ENTITY_FIELD)) {
             displayName = name.substring(SearchSchema.ENTITY_FIELD.length());
-        else if (name.startsWith(SearchSchema.DATA_FIELD))
+        } else if (name.startsWith(SearchSchema.DATA_FIELD)) {
             displayName = name.substring(SearchSchema.DATA_FIELD.length());
+        }
 
-        if ( name.endsWith(SearchSchema.FACET_FIELD))
-            displayName = displayName.substring(0, displayName.length()-SearchSchema.FACET_FIELD.length());
+        if (name.endsWith(SearchSchema.FACET_FIELD)) {
+            displayName = displayName.substring(0, displayName.length() - SearchSchema.FACET_FIELD.length());
+        }
 
-        if ( name.equals(SearchSchema.DOC_TYPE))
+        if (name.equals(SearchSchema.DOC_TYPE)) {
             displayName = "type";
+        }
 
-        if ( displayName.contains(SearchSchema.TAG_UDP))
-            displayName = displayName.replace(SearchSchema.TAG_UDP,"");
+        if (displayName.contains(SearchSchema.TAG_UDP)) {
+            displayName = displayName.replace(SearchSchema.TAG_UDP, "");
+        }
 
     }
 
@@ -91,8 +95,12 @@ public class EsColumn {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EsColumn)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EsColumn)) {
+            return false;
+        }
         EsColumn esColumn = (EsColumn) o;
         return Objects.equals(name, esColumn.name);
     }
@@ -105,8 +113,8 @@ public class EsColumn {
     @Override
     public String toString() {
         return "EsColumn{" +
-                "name='" + name + '\'' +
-                ", displayName='" + displayName + '\'' +
-                '}';
+            "name='" + name + '\'' +
+            ", displayName='" + displayName + '\'' +
+            '}';
     }
 }

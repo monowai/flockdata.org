@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.schema;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
 import org.flockdata.engine.data.dao.SchemaDaoNeo4j;
@@ -31,13 +33,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 /**
  * @author mholdsworth
- * @since 16/06/2014
  * @tag Administration, Neo4j, Index
+ * @since 16/06/2014
  */
 @Service
 public class SchemaServiceNeo4j implements SchemaService {
@@ -61,7 +60,7 @@ public class SchemaServiceNeo4j implements SchemaService {
 
     /**
      * Ensures unique indexes exist for the payload
-     *
+     * <p>
      * Being a schema alteration function this is synchronised to avoid concurrent modifications
      *
      * @param tagPayload collection to process
@@ -78,8 +77,9 @@ public class SchemaServiceNeo4j implements SchemaService {
             logger.debug("Made " + size + " constraints");
             labels.forEach(schemaDao::ensureUniqueIndex);
 
-        } else
+        } else {
             logger.debug("No label constraints required");
+        }
         return Boolean.TRUE;
     }
 
@@ -98,15 +98,16 @@ public class SchemaServiceNeo4j implements SchemaService {
                 }
                 if (tagInput.hasTargets()) {
                     tagInput.getTargets()
-                            .keySet()
-                            .stream()
-                            .filter(key
-                                    -> key != null)
-                            .forEach(key
-                                    -> toCreate.addAll(getLabelsToCreate(tagInput.getTargets().get(key), knownLabels)));
+                        .keySet()
+                        .stream()
+                        .filter(key
+                            -> key != null)
+                        .forEach(key
+                            -> toCreate.addAll(getLabelsToCreate(tagInput.getTargets().get(key), knownLabels)));
                 }
-            } else
+            } else {
                 logger.debug("Why is this null?");
+            }
 
         }
         return toCreate;

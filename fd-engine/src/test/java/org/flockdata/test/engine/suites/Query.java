@@ -32,11 +32,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-        TestQuery.class,
-        TestQueryResults.class,
-        TestQueryParameters.class
+@Suite.SuiteClasses( {
+    TestQuery.class,
+    TestQueryResults.class,
+    TestQueryParameters.class
 })
 public class Query {
-    Query(){}
+    Query() {
+    }
 }

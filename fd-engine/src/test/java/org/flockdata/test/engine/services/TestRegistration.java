@@ -20,6 +20,16 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Collection;
+import java.util.TimeZone;
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.FortressNode;
@@ -29,11 +39,6 @@ import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.RegistrationBean;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Collection;
-import java.util.TimeZone;
-
-import static org.junit.Assert.*;
 
 public class TestRegistration extends EngineBase {
 
@@ -123,9 +128,9 @@ public class TestRegistration extends EngineBase {
         //BDDMockito.when(request.getAttribute("company")).thenReturn(company);
 
         //Should be seeing different fortresses
-        assertNotSame(fA.getId(), fortressService.registerFortress(suB.getCompany(), new FortressInputBean( "FortressA")).getId());
-        assertNotSame(fB.getId(), fortressService.registerFortress(suB.getCompany(), new FortressInputBean( "FortressB")).getId());
-        assertNotSame(fC.getId(), fortressService.registerFortress(suB.getCompany(), new FortressInputBean( "FortressC")).getId());
+        assertNotSame(fA.getId(), fortressService.registerFortress(suB.getCompany(), new FortressInputBean("FortressA")).getId());
+        assertNotSame(fB.getId(), fortressService.registerFortress(suB.getCompany(), new FortressInputBean("FortressB")).getId());
+        assertNotSame(fC.getId(), fortressService.registerFortress(suB.getCompany(), new FortressInputBean("FortressC")).getId());
 
     }
 
@@ -146,7 +151,7 @@ public class TestRegistration extends EngineBase {
         assertNotNull(systemUser);
 
         Company company = securityHelper.getCompany(systemUser.getApiKey());
-        
+
         FortressNode fortress = fortressService.registerFortress(company, new FortressInputBean("auditbucket"));
         assertNotNull(fortress);
 
@@ -196,7 +201,7 @@ public class TestRegistration extends EngineBase {
     public void twoDifferentCompanyFortressSameName() throws Exception {
         setSecurity(mike_admin);
         SystemUser su = registerSystemUser("companya", mike_admin);
-        FortressNode fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortress-same",true));
+        FortressNode fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortress-same", true));
         FortressUserNode fua = fortressService.getFortressUser(fortressA, mike_admin);
 
         setSecurity(sally_admin);
@@ -311,13 +316,13 @@ public class TestRegistration extends EngineBase {
         String company = "defaults_FortressBooleanValues";
         SystemUser su = registerSystemUser(company, mike_admin);
         FortressNode f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestName", true));
-        assertTrue (f.isEnabled());
-        assertFalse (f.isSystem());
+        assertTrue(f.isEnabled());
+        assertFalse(f.isSystem());
 
     }
 
     @Test
-    public void delete_Fortress () throws Exception {
+    public void delete_Fortress() throws Exception {
         setSecurity();
         String company = "defaults_FortressBooleanValues";
         SystemUser su = registerSystemUser(company, mike_admin);

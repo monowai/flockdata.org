@@ -1,6 +1,10 @@
 package org.flockdata.graph.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import lombok.Builder;
 import lombok.Data;
 import org.flockdata.data.Entity;
@@ -11,11 +15,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.driver.v1.types.Node;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
 /**
  * @author mikeh
  * @since 10/06/18
@@ -23,6 +22,8 @@ import java.util.TimeZone;
 @Data
 @Builder
 public class EntityNode implements Entity {
+    // transient
+    boolean newEntity;
     private Long id;
     private String name;
     private String code;
@@ -39,12 +40,9 @@ public class EntityNode implements Entity {
     private Long fortressLastWhen;
     private String searchKey;
     private FortressUser lastUser;
-
     @JsonIgnore
     private Fortress fortress;
     private Segment segment;
-    // transient
-    boolean newEntity;
 
     public static EntityNode build(Node node) {
         return EntityNode.builder()

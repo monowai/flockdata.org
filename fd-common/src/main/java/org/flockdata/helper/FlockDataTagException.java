@@ -22,6 +22,7 @@ package org.flockdata.helper;
 
 /**
  * Created with IntelliJ IDEA.
+ *
  * @author mholdsworth
  * @since 7/03/2014
  */

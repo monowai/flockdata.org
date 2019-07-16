@@ -16,6 +16,9 @@
 
 package org.flockdata.test.unit.batch;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Map;
 import org.flockdata.batch.FdAbstractSqlStep;
 import org.flockdata.batch.resources.FdRowMapper;
 import org.flockdata.batch.resources.FdTagProcessor;
@@ -35,10 +38,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Map;
-
 /**
  * Simple test job t
  *
@@ -47,7 +46,7 @@ import java.util.Map;
  */
 @Configuration
 @EnableBatchProcessing
-@Profile({"fd-batch-dev", "dev"})
+@Profile( {"fd-batch-dev", "dev"})
 public class SqlTagStep extends FdAbstractSqlStep {
 
     @Autowired
@@ -61,11 +60,11 @@ public class SqlTagStep extends FdAbstractSqlStep {
     @Bean
     public Job runEntityQuery(JobBuilderFactory jobs, @Qualifier("testReadTagFromSQL") Step s1, JobExecutionListener listener) {
         return jobs.get(getStepName())
-                .incrementer(new RunIdIncrementer())
-                .listener(listener)
-                .flow(s1)
-                .end()
-                .build();
+            .incrementer(new RunIdIncrementer())
+            .listener(listener)
+            .flow(s1)
+            .end()
+            .build();
     }
 
     @Bean
@@ -73,11 +72,11 @@ public class SqlTagStep extends FdAbstractSqlStep {
                                    FdTagProcessor fdTagProcessor) {
 
         return stepBuilderFactory.get(getStepName())
-                .<Map<String, Object>, TagInputBean> chunk(10)
-                .reader(tagItemReader)
-                .processor(fdTagProcessor)
-                .writer(fdTagWriter)
-                .build();
+            .<Map<String, Object>, TagInputBean>chunk(10)
+            .reader(tagItemReader)
+            .processor(fdTagProcessor)
+            .writer(fdTagWriter)
+            .build();
     }
 
     @Bean

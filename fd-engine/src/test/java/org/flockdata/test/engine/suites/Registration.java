@@ -31,10 +31,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-        TestProfiles.class,
-        TestRegistration.class
+@Suite.SuiteClasses( {
+    TestProfiles.class,
+    TestRegistration.class
 })
 public class Registration {
-    Registration(){}
+    Registration() {
+    }
 }

@@ -21,13 +21,12 @@
 package org.flockdata.engine.integration.neorest;
 
 import com.google.common.net.MediaType;
+import javax.annotation.PostConstruct;
 import org.flockdata.helper.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.json.ObjectToJsonTransformer;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @author mholdsworth
@@ -41,75 +40,75 @@ public class NeoRequestBase {
     private ObjectToJsonTransformer transformer;
 
     public String getEntityUrl() {
-        return channels.getUriRoot() +"/entity";
+        return channels.getUriRoot() + "/entity";
     }
 
     public String getEntityTagUrl() {
-        return channels.getUriRoot() +"/entitytag";
+        return channels.getUriRoot() + "/entitytag";
     }
 
     public String getLogUrl() {
-        return channels.getUriRoot() +"/log";
+        return channels.getUriRoot() + "/log";
     }
 
     public String getLastLog() {
-        return getForEntity() +"/last";
+        return getForEntity() + "/last";
     }
 
     public String getEntityLog() {
-        return getForEntity() +"/{logId}";
+        return getForEntity() + "/{logId}";
     }
 
     public String getForEntity() {
-        return getLogUrl() +"/{entityId}";
+        return getLogUrl() + "/{entityId}";
     }
 
     public String getFindLogsBeforeUrl() {
-        return getForEntity() +"/before/{time}";
+        return getForEntity() + "/before/{time}";
     }
 
     public String getTagUrl() {
-        return channels.getUriRoot() +"/tag";
+        return channels.getUriRoot() + "/tag";
     }
 
     public String getFindTagUrl() {
-        return getTagUrl() +"/{label}/{code}";
+        return getTagUrl() + "/{label}/{code}";
     }
 
     public String getAliasUrl() {
-        return getTagUrl() +"/alias";
+        return getTagUrl() + "/alias";
     }
 
     public String getKeyUrl() {
-        return getEntityUrl() +"/{key}";
+        return getEntityUrl() + "/{key}";
     }
 
     public String getLabelFindUrl() {
-        return getEntityUrl() +"/admin/{fortressId}/{label}/{skipCount}";
+        return getEntityUrl() + "/admin/{fortressId}/{label}/{skipCount}";
     }
 
     public String getCallerRefUrl() {
-        return getEntityUrl() +"/{fortressId}/{docId}/{callerRef}";
+        return getEntityUrl() + "/{fortressId}/{docId}/{callerRef}";
     }
 
     public String getEntityTag() {
-        return getEntityTagUrl() +"/{entityId}/{tagType}/{tagCode}/{relationshipType}";
+        return getEntityTagUrl() + "/{entityId}/{tagType}/{tagCode}/{relationshipType}";
     }
 
     public String getEntityTags() {
-        return getEntityTagUrl() +"/{entityId}";
+        return getEntityTagUrl() + "/{entityId}";
     }
 
     @PostConstruct
     public void createTransformer() {
         transformer = new ObjectToJsonTransformer(
-                new Jackson2JsonObjectMapper(JsonUtils.getMapper())
+            new Jackson2JsonObjectMapper(JsonUtils.getMapper())
         );
         transformer.setContentType(MediaType.JSON_UTF_8.toString());
         //return transformer;
     }
 
-    public ObjectToJsonTransformer getTransformer(){
+    public ObjectToJsonTransformer getTransformer() {
         return transformer;
     }
 

@@ -1,13 +1,17 @@
 package org.flockdata.graph.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 import org.flockdata.data.Alias;
 import org.flockdata.data.Tag;
 import org.flockdata.helper.TagHelper;
-
-import java.util.*;
 
 /**
  * @author mikeh
@@ -16,6 +20,7 @@ import java.util.*;
 @Data
 @Builder
 public class TagNode implements Tag {
+    Map<String, Collection<Tag>> subTags = new HashMap<>();
     private Long id;
     private String code;
     private String name;
@@ -26,7 +31,6 @@ public class TagNode implements Tag {
     //    @RelatedTo(elementClass = AliasNode.class, type = "HAS_ALIAS")
     private Set<Alias> aliases = new HashSet<>();
     private Boolean isNew = true;
-    Map<String, Collection<Tag>> subTags = new HashMap<>();
 
     @Override
     @JsonIgnore

@@ -20,6 +20,17 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.flockdata.data.EntityLog;
 import org.flockdata.data.Log;
 import org.flockdata.data.SystemUser;
@@ -36,31 +47,24 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import static org.junit.Assert.*;
-
 /**
  * @author mholdsworth
  * @since 15/06/2013
  */
 public class TestTxReference extends EngineBase {
 
-    private static  Map<String, Object> escJsonA;
-    private static  Map<String, Object> escJsonB;
+    private static Map<String, Object> escJsonA;
+    private static Map<String, Object> escJsonB;
 
-    static{
+    static {
         escJsonA = new HashMap<>();
         escJsonB = new HashMap<>();
-        escJsonA.put("blah", 1 );
-        escJsonB.put("blah", 2 );
+        escJsonA.put("blah", 1);
+        escJsonB.put("blah", 2);
     }
 
     @org.junit.Before
-    public void testMode(){
+    public void testMode() {
         cleanUpGraph();
         engineConfig.setTestMode(true);
     }
@@ -87,7 +91,7 @@ public class TestTxReference extends EngineBase {
 
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
-        FortressNode fortressCBA = fortressService.registerFortress(suCBA.getCompany(), new FortressInputBean("cbaTest",true));
+        FortressNode fortressCBA = fortressService.registerFortress(suCBA.getCompany(), new FortressInputBean("cbaTest", true));
         EntityInputBean cbaEntity = new EntityInputBean(fortressCBA, "wally", "TestTrack", new DateTime(), "ABC123");
         String cbaKey = mediationFacade.trackEntity(suCBA.getCompany(), cbaEntity).getEntity().getKey();
 

@@ -31,7 +31,8 @@ public interface FdStoreRepo {
 
     StoredContent read(String index, String type, String id);
 
-    @Deprecated  // Use read(String index, String type, Object id);
+    @Deprecated
+        // Use read(String index, String type, Object id);
     StoredContent read(LogRequest logRequest);
 
     void delete(LogRequest logRequest);

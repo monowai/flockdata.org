@@ -20,11 +20,10 @@
 
 package org.flockdata.services;
 
+import java.util.Collection;
 import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
 import org.flockdata.registration.TagInputBean;
-
-import java.util.Collection;
 
 /**
  * @author mholdsworth
@@ -43,7 +42,7 @@ public interface SchemaService {
     /**
      * Deletes the majority of the structural associations between a fortress and data in FlockData
      * Does not delete the DocumentType
-     *
+     * <p>
      * You probably want to be calling adminService.purge() which in turn calls this
      *
      * @param fortress computer system to purge

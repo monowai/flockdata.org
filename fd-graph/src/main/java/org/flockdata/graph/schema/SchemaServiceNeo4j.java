@@ -20,6 +20,8 @@
 
 package org.flockdata.graph.schema;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.data.Fortress;
 import org.flockdata.graph.model.CompanyNode;
 import org.flockdata.helper.TagHelper;
@@ -28,9 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * @author mholdsworth
@@ -74,7 +73,7 @@ public class SchemaServiceNeo4j implements SchemaService {
 
         if (size > 0) {
             logger.debug("Made " + size + " constraints");
-            labels.forEach(schemaDao :: ensureUniqueIndex);
+            labels.forEach(schemaDao::ensureUniqueIndex);
 
         } else {
             logger.debug("No label constraints required");

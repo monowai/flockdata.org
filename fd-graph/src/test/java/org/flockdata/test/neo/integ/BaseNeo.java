@@ -1,12 +1,11 @@
 package org.flockdata.test.neo.integ;
 
+import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-
-import java.io.File;
 
 /**
  * @author mikeh

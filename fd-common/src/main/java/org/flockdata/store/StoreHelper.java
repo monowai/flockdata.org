@@ -29,29 +29,33 @@ import org.flockdata.track.bean.TrackResultBean;
 public class StoreHelper {
 
     public static Store resolveStore(TrackResultBean trackResult, Store defaultStore) {
-        if ( trackResult.getDocumentType()== null)
+        if (trackResult.getDocumentType() == null) {
             return Store.NONE;
+        }
 
-        if (trackResult.getDocumentType().getVersionStrategy() == Document.VERSION.ENABLE)
+        if (trackResult.getDocumentType().getVersionStrategy() == Document.VERSION.ENABLE) {
             return defaultStore;
+        }
 
-        if (trackResult.getDocumentType().getVersionStrategy() == Document.VERSION.DISABLE)
+        if (trackResult.getDocumentType().getVersionStrategy() == Document.VERSION.DISABLE) {
             return Store.NONE;
+        }
 
         Entity entity = trackResult.getEntity();
         Segment segment = entity.getSegment();
 
         // Check against the fortress default
         Store storage;
-        if (segment.getFortress().isStoreEnabled())
+        if (segment.getFortress().isStoreEnabled()) {
             storage = defaultStore;
-        else
+        } else {
             storage = Store.NONE;
+        }
         return storage;
     }
 
     public static boolean isMockable(Entity entity, Document documentType) {
-        return documentType.getVersionStrategy()== Document.VERSION.DISABLE || (documentType.getVersionStrategy()== Document.VERSION.FORTRESS && !entity.getFortress().isStoreEnabled());
+        return documentType.getVersionStrategy() == Document.VERSION.DISABLE || (documentType.getVersionStrategy() == Document.VERSION.FORTRESS && !entity.getFortress().isStoreEnabled());
     }
 
 }

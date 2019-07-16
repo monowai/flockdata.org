@@ -16,7 +16,13 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collection;
+import java.util.List;
 import junit.framework.TestCase;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
@@ -26,15 +32,9 @@ import org.flockdata.transform.json.ExtractProfileDeserializer;
 import org.flockdata.transform.model.ExtractProfile;
 import org.junit.Test;
 
-import java.util.Collection;
-import java.util.List;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
 /**
  * tags from files with no headers
+ *
  * @author mholdsworth
  * @since 27/01/2015
  */
@@ -45,7 +45,7 @@ public class TestCSVTagsWithDelimiter extends AbstractImport {
         String file = "/model/no-header.json";
 
         ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
-        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/csv-tags-with-delimiter.json",contentModel);
+        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/csv-tags-with-delimiter.json", contentModel);
         //assertEquals('|', params.getDelimiter());
         assertEquals(false, extractProfile.hasHeader());
         long rows = fileProcessor.processFile(extractProfile, "/data/no-header.txt");
@@ -59,7 +59,7 @@ public class TestCSVTagsWithDelimiter extends AbstractImport {
             TestCase.assertEquals(1, tagInputBean.getTargets().size());
             assertFalse("non-persistent mapping was not ignored", tagInputBean.hasTagProperties());
             Collection<TagInputBean> targets = tagInputBean.getTargets().get("represents");
-            for (TagInputBean represents : targets ) {
+            for (TagInputBean represents : targets) {
                 assertFalse(represents.getCode().contains("|"));
                 assertTrue(represents.isMustExist());
 

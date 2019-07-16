@@ -20,6 +20,11 @@
 
 package org.flockdata.test.engine.services;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Collection;
 import junit.framework.TestCase;
 import org.flockdata.data.Entity;
 import org.flockdata.data.SystemUser;
@@ -45,30 +50,24 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Collection;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * Creates a threaded Entity importer to debug suspicious behaviour identified
  * when importing a particular dataset. Periodically we see extra logs get created
- *
+ * <p>
  * This is a useful test to demonstrate how you can emulate the CSV import functionality
  * in a functional test
  *
  * @author mholdsworth
+ * @tag Test, Track, DelimitedFile
  * @since 10/10/2014
- * @tag Test,Track,DelimitedFile
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {
-        Neo4jConfigTest.class,
+    Neo4jConfigTest.class,
     FdTemplateMock.class,
-        FdServerIo.class,
-        MapBasedStorageProxy.class})
-@ActiveProfiles({"fd-auth-test", "dev" })
+    FdServerIo.class,
+    MapBasedStorageProxy.class})
+@ActiveProfiles( {"fd-auth-test", "dev"})
 public class TestCsvImportIntegration extends EngineBase {
 
     @Autowired
@@ -111,7 +110,7 @@ public class TestCsvImportIntegration extends EngineBase {
             logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
             Thread.yield();
             assertEquals("Run " + i + " Log was not set to the most recent", new DateTime(1235020128000l), new DateTime(log.getFortressWhen()));
-            assertEquals( "Run "+i+" has wrong log count", 6, entityService.getLogCount(su.getCompany(), entityA.getKey()));
+            assertEquals("Run " + i + " has wrong log count", 6, entityService.getLogCount(su.getCompany(), entityA.getKey()));
             i++;
         } while (i <= maxRuns);
     }

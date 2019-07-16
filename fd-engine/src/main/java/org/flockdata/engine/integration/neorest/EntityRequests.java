@@ -20,6 +20,9 @@
 
 package org.flockdata.engine.integration.neorest;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.track.bean.EntityResults;
 import org.springframework.context.annotation.Bean;
@@ -33,10 +36,6 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.http.outbound.HttpRequestExecutingMessageHandler;
 import org.springframework.messaging.MessageHandler;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * SDN4 UMX Entity requests
@@ -52,15 +51,15 @@ public class EntityRequests extends NeoRequestBase {
     @Bean
     public IntegrationFlow makeEntities() {
         return IntegrationFlows.from(channels.neoFdMakeEntity())
-                .transform(getTransformer())
-                .handle(fdMakeEntityRequest())
-                .get();
+            .transform(getTransformer())
+            .handle(fdMakeEntityRequest())
+            .get();
     }
 
     private MessageHandler fdMakeEntityRequest() {
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getEntityUrl());
+            new HttpRequestExecutingMessageHandler(getEntityUrl());
         handler.setExpectedResponseType(EntityResults.class);
 
         return handler;
@@ -69,15 +68,15 @@ public class EntityRequests extends NeoRequestBase {
     @Bean
     public IntegrationFlow findEntityByKey() {
         return IntegrationFlows.from(channels.neoFdFindEntity())
-                .handle(fdFindByKey())
-                .get();
+            .handle(fdFindByKey())
+            .get();
     }
 
     private MessageHandler fdFindByKey() {
         SpelExpressionParser expressionParser = new SpelExpressionParser();
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getKeyUrl());
+            new HttpRequestExecutingMessageHandler(getKeyUrl());
 
         handler.setExpectedResponseType(EntityNode.class);
         Map<String, Expression> vars = new HashMap<>();
@@ -91,15 +90,15 @@ public class EntityRequests extends NeoRequestBase {
     @Bean
     public IntegrationFlow findLabeledEntities() {
         return IntegrationFlows.from(channels.neoFdFindLabeledEntities())
-                .handle(fdFindByLabeledEntities())
-                .get();
+            .handle(fdFindByLabeledEntities())
+            .get();
     }
 
     private MessageHandler fdFindByLabeledEntities() {
         SpelExpressionParser expressionParser = new SpelExpressionParser();
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getLabelFindUrl());
+            new HttpRequestExecutingMessageHandler(getLabelFindUrl());
 
         handler.setExpectedResponseType(ArrayList.class);
         Map<String, Expression> vars = new HashMap<>();
@@ -115,15 +114,15 @@ public class EntityRequests extends NeoRequestBase {
     @Bean
     public IntegrationFlow findByCode() {
         return IntegrationFlows.from(channels.neoFdFindByCallerRef())
-                .handle(fdFindByCode())
-                .get();
+            .handle(fdFindByCode())
+            .get();
     }
 
     private MessageHandler fdFindByCode() {
         SpelExpressionParser expressionParser = new SpelExpressionParser();
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getCallerRefUrl());
+            new HttpRequestExecutingMessageHandler(getCallerRefUrl());
 
         handler.setExpectedResponseType(EntityNode.class);
         Map<String, Expression> vars = new HashMap<>();

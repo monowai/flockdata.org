@@ -40,10 +40,10 @@ spring:
       spec: "maximumSize=200,expireAfterAccess=600s"
   profiles:
     include: fd-batch, fd-auth-test, fd-server
-#  Run with the "discovery" profile active to connect
-#  cloud:
-#    discovery:
-#      enabled: false
+  #  Run with the "discovery" profile active to connect
+  #  cloud:
+  #    discovery:
+  #      enabled: false
   messages:
     encoding: UTF-8
   jackson:
@@ -98,8 +98,8 @@ org.fd:
   # Used for handling incoming data
   track:
     executor:
-        poolSize: 8-15
-        queueCapacity: 3
+      poolSize: 8-15
+      queueCapacity: 3
     messaging:
       concurrentConsumers: 2
       queueCapacity: 10
@@ -133,25 +133,25 @@ org.fd:
       poolSize: 5-10
       queueCapacity: 30
 
-## These should be enabled in your environment. If no users are provided then an account with the credentials mike/123 will be created
+  ## These should be enabled in your environment. If no users are provided then an account with the credentials mike/123 will be created
   auth:
     simple:
       login:
         method: basic
         form: /#/login
 
-#      users:
-#        admin:
-#          pass: 123
-#          roles: FD_USER;FD_ADMIN
+    #      users:
+    #        admin:
+    #          pass: 123
+    #          roles: FD_USER;FD_ADMIN
 
     stormpath:
-      #apiKeyFile: '${FD_HOME}/conf/apiKey.properties'
-      #application: https://api.stormpath.com/v1/applications/2vD7nBoKANqpIFSDvXxfWY
-      #group:
-      #  user: https://api.stormpath.com/v1/groups/6vxWqi44N3qr7gETXfLbsk
-      #group:
-      #  admin: https://api.stormpath.com/v1/groups/2Xro288t4Yza6CBuCoFAru
+    #apiKeyFile: '${FD_HOME}/conf/apiKey.properties'
+    #application: https://api.stormpath.com/v1/applications/2vD7nBoKANqpIFSDvXxfWY
+    #group:
+    #  user: https://api.stormpath.com/v1/groups/6vxWqi44N3qr7gETXfLbsk
+    #group:
+    #  admin: https://api.stormpath.com/v1/groups/2Xro288t4Yza6CBuCoFAru
 
 org:
   neo4j:
@@ -159,7 +159,7 @@ org:
     path: fd-engine/src/main/resources
     # where to write the db files to - required
     server.database.location: data/neo4j
-#    dbms.pagecache.memory: 1g
+    #    dbms.pagecache.memory: 1g
     # Disable the neo4j browser by setting the port to 0
     server:
       webserver:

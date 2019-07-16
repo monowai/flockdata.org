@@ -26,12 +26,12 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 
 /**
  * @author mholdsworth
- * @since 16/06/2014
  * @tag GraphRepository, Query, Neo4j, Tag
+ * @since 16/06/2014
  */
 public interface ConceptTypeRepo extends GraphRepository<ConceptNode> {
 
-    @Query (value = "match ( c:Concept) where c.key ={0} return c")
+    @Query(value = "match ( c:Concept) where c.key ={0} return c")
     ConceptNode findByLabel(String key);
 
 //    @Query( value =

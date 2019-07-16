@@ -36,9 +36,10 @@ public class ChangeEventResultBean implements ChangeEvent {
     private String name;
     private String code;
 
-    ChangeEventResultBean(){}
+    ChangeEventResultBean() {
+    }
 
-    ChangeEventResultBean(ChangeEvent changeEventInterface){
+    ChangeEventResultBean(ChangeEvent changeEventInterface) {
         this();
         this.name = changeEventInterface.getName();
         this.code = changeEventInterface.getCode();

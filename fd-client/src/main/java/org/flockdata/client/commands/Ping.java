@@ -30,37 +30,35 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * Simple ping which replies with pong
  *
- * @tag Command, Administration
  * @author mholdsworth
+ * @tag Command, Administration
  * @since 4/04/2016
  */
 
 public class Ping {
 
     private static Logger logger = LoggerFactory.getLogger(Ping.class);
-
+    String api = null;
     private FdIoInterface fdIoInterface;
+
 
     @Autowired
     public Ping(FdIoInterface fdIoInterface) {
         this.fdIoInterface = fdIoInterface;
     }
 
-
-
-    String api = null;
-
-    public String getPath(){
+    public String getPath() {
         return "/api/v1/admin/ping/";
     }
 
     public CommandResponse<String> exec() {
         String result = null;
-        String error ;
+        String error;
 
-        if ( getApi()== null)
+        if (getApi() == null) {
             this.api = fdIoInterface.getUrl();
-        
+        }
+
         String exec = getApi() + getPath();
         logger.debug("Pinging [{}]", getApi());
         HttpEntity requestEntity = new HttpEntity<>(null);
@@ -69,10 +67,11 @@ public class Ping {
             result = response.getBody();
             error = null;
         } catch (HttpClientErrorException e) {
-            if (e.getMessage().startsWith("401"))
+            if (e.getMessage().startsWith("401")) {
                 error = "auth";
-            else
+            } else {
                 error = e.getMessage();
+            }
         } catch (HttpServerErrorException | ResourceAccessException e) {
             error = e.getMessage();
         }

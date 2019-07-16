@@ -22,10 +22,11 @@ package org.flockdata.store;
 
 /**
  * ENUM and Log preparation helpers
+ *
  * @author mholdsworth
  * @since 17/02/2016
  */
 public enum Store {
-    REDIS, RIAK, MEMORY, NONE ;
+    REDIS, RIAK, MEMORY, NONE;
 
 }

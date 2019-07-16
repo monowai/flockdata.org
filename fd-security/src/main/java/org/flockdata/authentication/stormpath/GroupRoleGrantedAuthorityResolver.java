@@ -31,7 +31,7 @@ import java.util.Map;
  * <h2>Usage</h2>
  * The configured mapping must have href groups as the key of the map. The value of each key is a list of roles that such
  * key will be translated to.
- *
+ * <p>
  * For stormpath, in code:
  * <pre>
  * Map&lt;String, List&lt;String&gt;&gt; rolesMap = new HashMap&lt;String, List&lt;String&gt;&gt;();
@@ -41,7 +41,7 @@ import java.util.Map;
  * rolesMap.put("https://api.stormpath.com/v1/groups/d8UDkz9QPcn2z73j93m6Z", roles);
  * new GroupRoleGrantedAuthorityResolver(rolesMap);
  * </pre>
- *
+ * <p>
  * Or maybe in spring.xml:
  * {@literal
  * <pre>
@@ -62,7 +62,6 @@ import java.util.Map;
  * In the above configuration, the https://api.stormpath.com/v1/groups/d8UDkz9QPcn2z73j93m6Z group translates into two granted
  * authorities: ROLE_A and ROLE_C. This allows your Spring Security application to remain Stormpath-agnostic and thus allowing
  * your own set of business-specific roles to be used in your application.
- *
  */
 public class GroupRoleGrantedAuthorityResolver {//implements GroupGrantedAuthorityResolver {
 

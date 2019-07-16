@@ -20,22 +20,21 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.data.SystemUser;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.FdTagResultBean;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author mholdsworth
  * @since 29/05/2016
  */
-public class TestTagsToSearch  extends EngineBase  {
+public class TestTagsToSearch extends EngineBase {
     @Test
     public void searchTags() throws Exception {
         engineConfig.setMultiTenanted(false);

@@ -20,9 +20,20 @@
 
 package org.flockdata.search.service;
 
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
@@ -38,24 +49,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-
 /**
  * Maintenance routines for FD
  *
  * @author mholdsworth
- * @since 10/09/2015
  * @tag ElasticSearch, Search
+ * @since 10/09/2015
  */
 @Service
 @Scope("singleton")
@@ -64,7 +63,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     private SearchConfig searchConfig;
 
     private Logger logger = LoggerFactory.getLogger(IndexMappingServiceEs.class);
-    private Collection<String>knownIndexes = new ArrayList<>();
+    private Collection<String> knownIndexes = new ArrayList<>();
     private Map<String, Object> defaultSettings = null;
 
     @Autowired
@@ -99,7 +98,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
         try {
             searchConfig.getClient().admin().indices().delete(new DeleteIndexRequest(index)).get();
             logger.info("deleted [{}]", index);
-        } catch (ExecutionException |InterruptedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             logger.error(e.getMessage());
         }
     }
@@ -107,8 +106,9 @@ public class IndexMappingServiceEs implements IndexMappingService {
     private synchronized void makeIndex(String indexName, String documentType, SearchChange change) {
         logger.debug("Ensuring index {}, {}", indexName, documentType);
         String key = change.getIndexName() + "/" + change.getDocumentType();
-        if ( knownIndexes.contains(key))
+        if (knownIndexes.contains(key)) {
             return;
+        }
 
         XContentBuilder esMapping = getMapping(change);
         // create Index  and Set Mapping
@@ -119,23 +119,23 @@ public class IndexMappingServiceEs implements IndexMappingService {
             try {
                 if (esSettings != null) {
                     searchConfig.getClient().admin()
-                            .indices()
-                            .prepareCreate(indexName)
-                            .addMapping(documentType, esMapping)
-                            .setSettings(esSettings)
-                            .execute()
-                            .actionGet();
+                        .indices()
+                        .prepareCreate(indexName)
+                        .addMapping(documentType, esMapping)
+                        .setSettings(esSettings)
+                        .execute()
+                        .actionGet();
                 } else {
                     searchConfig.getClient().admin()
-                            .indices()
-                            .prepareCreate(indexName)
-                            .addMapping(documentType, esMapping)
-                            .execute()
-                            .actionGet();
+                        .indices()
+                        .prepareCreate(indexName)
+                        .addMapping(documentType, esMapping)
+                        .execute()
+                        .actionGet();
                 }
             } catch (ElasticsearchException esx) {
 //                if (!(esx instanceof IndexAlreadyExistsException)) {
-                    logger.error("Error while ensuring index.... " + indexName, esx);
+                logger.error("Error while ensuring index.... " + indexName, esx);
 //                    throw esx;
 //                }
             }
@@ -158,11 +158,11 @@ public class IndexMappingServiceEs implements IndexMappingService {
         indexNames[0] = change.getIndexName();
 
         boolean hasIndexMapping = searchConfig.getClient().admin()
-                .indices()
-                //.exists( new IndicesExistsRequest(indexNames))
-                .typesExists(new TypesExistsRequest(indexNames, documentType))
-                .actionGet()
-                .isExists();
+            .indices()
+            //.exists( new IndicesExistsRequest(indexNames))
+            .typesExists(new TypesExistsRequest(indexNames, documentType))
+            .actionGet()
+            .isExists();
 
         if (!hasIndexMapping) {
             XContentBuilder mapping = getMapping(change);
@@ -173,26 +173,27 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     private synchronized void makeMapping(String documentType, String[] indexNames, XContentBuilder mapping) {
         if (!searchConfig.getClient().admin()
-                .indices()
-                //.exists( new IndicesExistsRequest(indexNames))
-                .typesExists(new TypesExistsRequest(indexNames, documentType))
-                .actionGet()
-                .isExists())
+            .indices()
+            //.exists( new IndicesExistsRequest(indexNames))
+            .typesExists(new TypesExistsRequest(indexNames, documentType))
+            .actionGet()
+            .isExists()) {
             searchConfig.getClient().admin().indices()
-                    .preparePutMapping(indexNames[0])
-                    .setType(documentType)
-                    .setSource(mapping)
-                    .execute().actionGet();
+                .preparePutMapping(indexNames[0])
+                .setType(documentType)
+                .setSource(mapping)
+                .execute().actionGet();
+        }
 
     }
 
     private boolean hasIndex(SearchChange change) {
         String indexName = change.getIndexName();
         boolean hasIndex = searchConfig.getClient()
-                .admin()
-                .indices()
-                .exists(new IndicesExistsRequest(indexName))
-                .actionGet().isExists();
+            .admin()
+            .indices()
+            .exists(new IndicesExistsRequest(indexName))
+            .actionGet().isExists();
         if (hasIndex) {
             logger.trace("Index {} ", indexName);
             return true;
@@ -214,9 +215,12 @@ public class IndexMappingServiceEs implements IndexMappingService {
                     logger.info("No default settings exists. Using FD defaults /fd-default-settings.json");
 
                     if (file == null) // for JUnit tests
+                    {
                         file = new FileInputStream(settings);
-                } else
+                    }
+                } else {
                     logger.debug("Overriding default settings with file on disk {}", settings);
+                }
                 defaultSettings = getMap(file);
                 file.close();
                 logger.debug("Initialised settings {} with {} keys", settings, defaultSettings.keySet().size());
@@ -261,8 +265,9 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     private String getKeyName(SearchChange change) {
         String fileName = change.getIndexName();
-        if (fileName.startsWith("."))
+        if (fileName.startsWith(".")) {
             fileName = fileName.substring(1);
+        }
         return fileName + "/" + change.getDocumentType() + ".json";
     }
 
@@ -302,8 +307,10 @@ public class IndexMappingServiceEs implements IndexMappingService {
         try {
             file = getClass().getClassLoader().getResourceAsStream(fileName);
             if (file == null)
-                // running from JUnit can only read this as a file input stream
+            // running from JUnit can only read this as a file input stream
+            {
                 file = new FileInputStream(fileName);
+            }
             return getMap(file);
             //return getMap(new URL(fileName));
         } finally {

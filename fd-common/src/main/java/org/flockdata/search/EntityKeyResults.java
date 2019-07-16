@@ -21,7 +21,6 @@
 package org.flockdata.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -60,8 +59,9 @@ public class EntityKeyResults {
     }
 
     public void add(Object value) {
-        if ( value == null )
+        if (value == null) {
             return;
+        }
         results.add(value.toString());
     }
 }

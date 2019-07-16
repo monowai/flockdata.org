@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.integration.search;
 
+import java.io.IOException;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.MessageSupport;
@@ -42,15 +43,13 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
-import java.io.IOException;
-
 /**
  * @author mholdsworth
+ * @tag Messaging, Query, Search, Gateway, Integration, TagCloud
  * @since 13/02/2016
- *  @tag Messaging, Query, Search, Gateway, Integration, TagCloud
  */
 @Configuration
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class TagCloudRequest {
 
     @Autowired
@@ -71,8 +70,8 @@ public class TagCloudRequest {
     }
 
     // ToDo: Can we handle this more via the flow or handler?
-    @Transformer(inputChannel="sendTagCloudRequest", outputChannel="doTagCloudQuery")
-    public Message<?> transformTagCloudParams(Message theObject){
+    @Transformer(inputChannel = "sendTagCloudRequest", outputChannel = "doTagCloudQuery")
+    public Message<?> transformTagCloudParams(Message theObject) {
         return messageSupport.toJson(theObject);
     }
 
@@ -80,13 +79,13 @@ public class TagCloudRequest {
     IntegrationFlow tagCloudQuery() {
 
         return IntegrationFlows.from("doTagCloudQuery")
-                .handle(tagCloudHandler())
-                .get();
+            .handle(tagCloudHandler())
+            .get();
     }
 
     private MessageHandler tagCloudHandler() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch()+ "/v1/query/tagCloud");
+            new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/query/tagCloud");
         handler.setExpectedResponseType(String.class);
         handler.setHttpMethod(HttpMethod.POST);
         handler.setOutputChannel(tagCloudReply());
@@ -94,14 +93,14 @@ public class TagCloudRequest {
     }
 
     // ToDo: Can this be integrated to the handler?
-    @Transformer(inputChannel= "tagCloudReply", outputChannel="tagCloudResult")
+    @Transformer(inputChannel = "tagCloudReply", outputChannel = "tagCloudResult")
     public TagCloud transformTagCloudResponse(Message<String> theObject) throws IOException {
         return JsonUtils.toObject(theObject.getPayload().getBytes(), TagCloud.class);
     }
 
     @MessagingGateway
 //    @Profile({"fd-server"})
-    public interface TagCloudGateway  {
+    public interface TagCloudGateway {
         @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "tagCloudResult")
         TagCloud getTagCloud(TagCloudParams tagCloudParams);
     }

@@ -20,6 +20,11 @@
 
 package org.flockdata.engine.track.service;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.flockdata.data.Document;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Fortress;
@@ -41,12 +46,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * @author mholdsworth
@@ -92,14 +91,16 @@ public class LogServiceNeo4j implements LogService {
 
     private void processLogFromResult(Fortress fortress, TrackResultBean resultBean) throws FlockException, ExecutionException, InterruptedException {
         // ToDo: Service Activator
-        if (resultBean.getContentInput() == null)
+        if (resultBean.getContentInput() == null) {
             return;
+        }
 
         ContentInputBean contentInputBean = resultBean.getContentInput();
         logger.debug("writeLog {}", contentInputBean);
         logRetryService.writeLog((FortressNode) fortress, resultBean);
-        if (resultBean.getLogStatus() == ContentInputBean.LogStatus.NOT_FOUND)
+        if (resultBean.getLogStatus() == ContentInputBean.LogStatus.NOT_FOUND) {
             throw new FlockException("Unable to find Entity ");
+        }
 
         if (resultBean.getContentInput() != null && !resultBean.isLogIgnored()) {
             // Log is now prepared (why not just get KvContent??
@@ -124,8 +125,9 @@ public class LogServiceNeo4j implements LogService {
     @Override
     @Transactional
     public EntityLog getLastLog(Entity entity) throws FlockException {
-        if (entity == null || entity.getId() == null)
+        if (entity == null || entity.getId() == null) {
             return null;
+        }
         logger.trace("Getting lastLog MetaID [{}]", entity.getId());
         return entityDao.getLastLog(entity.getId());
     }
@@ -134,7 +136,6 @@ public class LogServiceNeo4j implements LogService {
     public StoredContent getContent(Entity entity, LogNode log) {
         return storageProxy.read(entity, log);
     }
-
 
 
 }

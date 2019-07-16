@@ -21,10 +21,9 @@
 package org.flockdata.search;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.flockdata.track.bean.SearchChange;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import org.flockdata.track.bean.SearchChange;
 
 /**
  * @author mholdsworth
@@ -33,9 +32,10 @@ import java.util.Collection;
 @JsonDeserialize(using = SearchChangesDeserializer.class)
 public class SearchChanges {
 
-    Collection <SearchChange> searchChanges = new ArrayList<>();
+    Collection<SearchChange> searchChanges = new ArrayList<>();
 
-    public SearchChanges(){}
+    public SearchChanges() {
+    }
 
     public SearchChanges(Collection<SearchChange> searchDocuments) {
         this();

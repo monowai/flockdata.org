@@ -20,6 +20,9 @@
 
 package org.flockdata.engine.track.service;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.data.Company;
 import org.flockdata.data.ContentModel;
@@ -39,16 +42,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.concurrent.ExecutionException;
-
 /**
  * Server side IO writer that uses injected services rather than HTTP/AMQP communication mechanisms
  * Used to support server side processing of data files
  *
- * @tag Batch, Entity, Tag
  * @author mholdsworth
+ * @tag Batch, Entity, Tag
  * @since 8/10/2014
  */
 @Service
@@ -114,14 +113,14 @@ public class FdServerIo implements FdIoInterface {
     public ContentModel getContentModel(String modelKey) throws IOException {
         String[] args = modelKey.split(":");
         // ToDo: this is not yet properly supported - needs to be tested with Tag fortress - which is logical
-        if ( args.length == 2){
+        if (args.length == 2) {
             Company company = securityHelper.getCompany();
             Fortress fortress = fortressService.getFortress(company, args[0]);
             DocumentNode docType = conceptService.findDocumentType(fortress, args[1]);
             try {
                 return contentModelService.get(company, fortress, docType);
             } catch (FlockException e) {
-                throw new IOException("Problem locating content model ["+ modelKey +"]");
+                throw new IOException("Problem locating content model [" + modelKey + "]");
             }
 
         }

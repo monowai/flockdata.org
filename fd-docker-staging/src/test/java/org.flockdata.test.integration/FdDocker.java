@@ -16,6 +16,12 @@
 
 package org.flockdata.test.integration;
 
+import static org.flockdata.test.integration.IntegrationHelper.SERVICE_ENGINE;
+import static org.flockdata.test.integration.IntegrationHelper.SERVICE_SEARCH;
+import static org.flockdata.test.integration.IntegrationHelper.SERVICE_STORE;
+
+import java.io.File;
+import java.time.Duration;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
@@ -24,14 +30,9 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
-import java.io.File;
-import java.time.Duration;
-
-import static org.flockdata.test.integration.IntegrationHelper.*;
-
 /**
  * see http://testcontainers.viewdocs.io/testcontainers-java/usage/docker_compose/
- *
+ * <p>
  * Centralised Docker management config in this class
  *
  * @author mholdsworth
@@ -42,21 +43,21 @@ public class FdDocker extends ExternalResource {
     // To debug without test containers, i.e. externally started stack, set stack to null
 //    static DockerComposeContainer stack = null;
 
-    static DockerComposeContainer stack   =
-            new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"))
-                .withPull(false)
-                .withExposedService("rabbit_1", 5672)
-                .withExposedService("rabbit_1", 15672)
-                .withExposedService("elasticsearch_1", 9200, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(50)))
-                .withExposedService("elasticsearch_1", 9300)
-                .withLogConsumer("fdengine", (new Slf4jLogConsumer(LoggerFactory.getLogger("🐳 fdengine"))))
-                .withLogConsumer("fdstore", (new Slf4jLogConsumer(LoggerFactory.getLogger("🐳 fdstore"))))
-                .withLogConsumer("fdsearch", (new Slf4jLogConsumer(LoggerFactory.getLogger("🐳 fdsearch"))))
-                .withExposedService("fdstore_1", SERVICE_STORE, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(180)))
+    static DockerComposeContainer stack =
+        new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"))
+            .withPull(false)
+            .withExposedService("rabbit_1", 5672)
+            .withExposedService("rabbit_1", 15672)
+            .withExposedService("elasticsearch_1", 9200, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(50)))
+            .withExposedService("elasticsearch_1", 9300)
+            .withLogConsumer("fdengine", (new Slf4jLogConsumer(LoggerFactory.getLogger("🐳 fdengine"))))
+            .withLogConsumer("fdstore", (new Slf4jLogConsumer(LoggerFactory.getLogger("🐳 fdstore"))))
+            .withLogConsumer("fdsearch", (new Slf4jLogConsumer(LoggerFactory.getLogger("🐳 fdsearch"))))
+            .withExposedService("fdstore_1", SERVICE_STORE, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(180)))
 //                .withExposedService("fdstore_1", DEBUG_STORE, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(240)))
-                .withExposedService("fdsearch_1", SERVICE_SEARCH, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(180)))
+            .withExposedService("fdsearch_1", SERVICE_SEARCH, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(180)))
 //                .withExposedService("fdsearch_1", DEBUG_SEARCH, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(240)))
-                .withExposedService("fdengine_1", SERVICE_ENGINE, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(240)));
+            .withExposedService("fdengine_1", SERVICE_ENGINE, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(240)));
 //                .withExposedService("fdengine_1", DEBUG_ENGINE, Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(240)));
 
     private static Logger logger = LoggerFactory.getLogger(FdDocker.class);
@@ -67,15 +68,17 @@ public class FdDocker extends ExternalResource {
     }
 
     @Override
-    protected void before() throws Throwable {
-        if (stack != null)
+    protected void before() {
+        if (stack != null) {
             stack.starting(Description.EMPTY);
+        }
     }
 
     @Override
     protected void after() {
         logger.debug("Stopping FD full docker stack");
-        if (stack != null)
+        if (stack != null) {
             stack.finished(Description.EMPTY);
+        }
     }
 }

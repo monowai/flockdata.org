@@ -21,12 +21,15 @@
 package org.flockdata.transform.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
-import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.transform.ColumnDefinition;
-
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
+import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.transform.ColumnDefinition;
 
 /**
  * @author mholdsworth
@@ -34,9 +37,9 @@ import java.util.ArrayList;
  */
 public class ColumnDeserializer extends JsonDeserializer<ArrayList<ColumnDefinition>> {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper( new FdJsonObjectMapper())
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .enable(JsonParser.Feature.ALLOW_COMMENTS);
+    private static final ObjectMapper objectMapper = new ObjectMapper(new FdJsonObjectMapper())
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .enable(JsonParser.Feature.ALLOW_COMMENTS);
 
     @Override
     public ArrayList<ColumnDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {

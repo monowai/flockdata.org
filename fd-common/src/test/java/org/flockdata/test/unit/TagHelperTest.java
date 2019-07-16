@@ -1,12 +1,11 @@
 package org.flockdata.test.unit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.ArrayList;
 import org.flockdata.data.Tag;
 import org.flockdata.helper.TagHelper;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author mikeh

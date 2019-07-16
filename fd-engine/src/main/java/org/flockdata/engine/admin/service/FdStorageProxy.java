@@ -49,7 +49,7 @@ import org.springframework.web.client.HttpClientErrorException;
  * @since 17/02/2016
  */
 @Service
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class FdStorageProxy implements StorageProxy {
 
     private StorageReader.StorageReaderGateway readGateway;
@@ -64,17 +64,17 @@ public class FdStorageProxy implements StorageProxy {
     }
 
     @Autowired(required = false)
-    void setStorageWriter(StorageWriter.StorageWriterGateway writer){
+    void setStorageWriter(StorageWriter.StorageWriterGateway writer) {
         this.writeGateway = writer;
     }
 
     @Autowired(required = false)
-    void setEsRepo ( EsRepo esRepo){
+    void setEsRepo(EsRepo esRepo) {
         this.esRepo = esRepo;
     }
 
     @Autowired
-    void setIndexManager(IndexManager indexManager){
+    void setIndexManager(IndexManager indexManager) {
         this.indexManager = indexManager;
     }
 
@@ -106,9 +106,9 @@ public class FdStorageProxy implements StorageProxy {
         } else {
             try {
                 contentResult = readGateway.read(logRequest.getStore(),
-                        index,
-                        type,
-                        key);
+                    index,
+                    type,
+                    key);
             } catch (HttpClientErrorException nfe) {
                 logger.debug("Request caused error - {} - for {}/{}/{} was not found", nfe.getMessage(), index, type, key);
                 return null;
@@ -137,18 +137,20 @@ public class FdStorageProxy implements StorageProxy {
 
     /**
      * Determine if the Log Content has changed
-     * @tag Delta, Storage
+     *
      * @return false if different, true if same
+     * @tag Delta, Storage
      */
     private boolean isSame(LogRequest logRequest, Log compareTo, StoredContent existingContent) {
-        if (logRequest.getLogId() == null)
+        if (logRequest.getLogId() == null) {
             return false;
+        }
 
         boolean sameContentType = logRequest.getContentType().equals(compareTo.getContentType());
 
         return sameContentType &&
-                (sameCheckSum(logRequest.getCheckSum(), compareTo) || logRequest.getContentType().equals("json") &&
-                        sameJson(existingContent, compareTo.getContent()));
+            (sameCheckSum(logRequest.getCheckSum(), compareTo) || logRequest.getContentType().equals("json") &&
+                sameJson(existingContent, compareTo.getContent()));
 
     }
 
@@ -158,8 +160,9 @@ public class FdStorageProxy implements StorageProxy {
 
     private boolean sameJson(StoredContent compareFrom, StoredContent compareTo) {
 
-        if (compareFrom.getData().size() != compareTo.getData().size())
+        if (compareFrom.getData().size() != compareTo.getData().size()) {
             return false;
+        }
 //        logger.trace("Comparing [{}] with [{}]", compareFrom, compareTo.getData());
         JsonNode jCompareFrom = FdJsonObjectMapper.getObjectMapper().valueToTree(compareFrom.getData());
         JsonNode jCompareWith = FdJsonObjectMapper.getObjectMapper().valueToTree(compareTo.getData());

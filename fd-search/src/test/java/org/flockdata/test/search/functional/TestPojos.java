@@ -20,13 +20,13 @@
 
 package org.flockdata.test.search.functional;
 
+import static org.junit.Assert.assertFalse;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+
 import org.flockdata.search.QueryParams;
 import org.flockdata.search.helper.QueryGenerator;
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * @author mholdsworth
@@ -42,6 +42,7 @@ public class TestPojos {
         query = QueryGenerator.getSimpleQuery(new QueryParams("test quotes"), false);
         assertFalse("Text should not have been quoted", query.contains("\\\"test quotes\\\""));
     }
+
     @Test
     public void testGetSimpleQuery_withoutHighlight() throws Exception {
         String query = QueryGenerator.getSimpleQuery(new QueryParams("test"), false);
@@ -50,7 +51,7 @@ public class TestPojos {
 
     @Test
     public void testGetSimpleQuery_withHighlight() throws Exception {
-        String query = QueryGenerator.getSimpleQuery(new QueryParams("test"),true);
+        String query = QueryGenerator.getSimpleQuery(new QueryParams("test"), true);
         Assert.assertTrue(query.contains("highlight"));
     }
 

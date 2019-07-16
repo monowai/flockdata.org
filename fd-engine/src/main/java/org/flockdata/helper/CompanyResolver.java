@@ -20,30 +20,32 @@
 
 package org.flockdata.helper;
 
+import javax.servlet.http.HttpServletRequest;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.engine.data.graph.CompanyNode;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * @author mholdsworth
- * @since 28/08/2014
  * @tag Company, Endpoint, Security
+ * @since 28/08/2014
  */
 public class CompanyResolver {
     public static CompanyNode resolveCompany(HttpServletRequest request) {
         CompanyNode company = (CompanyNode) request.getAttribute(ApiKeyInterceptor.COMPANY);
-        if (company == null )
-            // If you're seeing this, then check that ApiKeyInterceptor is configured to handle
-            // the endpoint you are requesting
+        if (company == null)
+        // If you're seeing this, then check that ApiKeyInterceptor is configured to handle
+        // the endpoint you are requesting
+        {
             throw new NotFoundException("Unable to identify any Company that you are authorised to work with");
+        }
         return company;
     }
 
-    public static String resolveCallerApiKey(HttpServletRequest request)  throws FlockException {
-        String apiKey= (String )  request.getAttribute(ApiKeyInterceptor.API_KEY);
-        if (apiKey == null )
+    public static String resolveCallerApiKey(HttpServletRequest request) throws FlockException {
+        String apiKey = (String) request.getAttribute(ApiKeyInterceptor.API_KEY);
+        if (apiKey == null) {
             throw new NotFoundException("Unable to identify the ApiKey that you are calling with");
+        }
         return apiKey;
     }
 }

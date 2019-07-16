@@ -20,6 +20,9 @@
 
 package org.flockdata.engine.track.service;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 import org.flockdata.data.Company;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
@@ -41,10 +44,6 @@ import org.flockdata.transform.tag.TagPayloadTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * @author mholdsworth
@@ -90,18 +89,21 @@ class BatchServiceRunner implements BatchService {
     public void process(CompanyNode company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
         FortressNode fortress = fortressService.findByCode(company, fortressCode);
         DocumentNode documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
-        if (documentType == null)
+        if (documentType == null) {
             throw new NotFoundException("Unable to resolve document type ");
+        }
         process(company, fortress, documentType, file, async);
     }
 
     public int process(Company company, FortressNode fortress, Document documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
         ContentModel profile = profileService.get(company, fortress, documentType);
         // Users PUT params override those of the contentProfile
-        if (!profile.getFortress().getName().equalsIgnoreCase(fortress.getName()))
+        if (!profile.getFortress().getName().equalsIgnoreCase(fortress.getName())) {
             profile.setFortress(new FortressInputBean(fortress.getName(), !fortress.isSearchEnabled()));
-        if (!profile.getDocumentType().getName().equalsIgnoreCase(documentType.getName()))
+        }
+        if (!profile.getDocumentType().getName().equalsIgnoreCase(documentType.getName())) {
             profile.setDocumentName(documentType.getName());
+        }
         FileProcessor.validateArgs(file);
         ClientConfiguration defaults = new ClientConfiguration();
         defaults.setBatchSize(1);
@@ -114,19 +116,22 @@ class BatchServiceRunner implements BatchService {
             throw new NotFoundException("Unable to process filename " + fileName);
         }
         FortressNode fortress = fortressService.findByCode(company, fortressCode);
-        if (fortress == null)
+        if (fortress == null) {
             throw new NotFoundException("Unable to locate the fortress " + fortressCode);
+        }
         DocumentNode documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
-        if (documentType == null)
+        if (documentType == null) {
             throw new NotFoundException("Unable to resolve document type " + documentCode);
+        }
 
 
     }
 
     @Override
     public ContentValidationRequest process(CompanyNode company, ContentValidationRequest validationRequest) {
-       if ( validationRequest.getContentModel().isTagModel())
-           return trackTags(company, validationRequest);
+        if (validationRequest.getContentModel().isTagModel()) {
+            return trackTags(company, validationRequest);
+        }
 
         return null;
     }
@@ -134,21 +139,22 @@ class BatchServiceRunner implements BatchService {
     private ContentValidationRequest trackTags(CompanyNode company, ContentValidationRequest validationRequest) {
         int rowCount = 0;
         TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(validationRequest.getContentModel());
-        for (Map<String,Object> row : validationRequest.getRows()) {
+        for (Map<String, Object> row : validationRequest.getRows()) {
             try {
                 tagTransformer.transform(row);
                 Collection<FdTagResultBean> tagResultBeans = tagService.createTags(company, tagTransformer.getTags());
                 for (TagResultBean result : tagResultBeans) {
-                    if ( result.isNewTag() )
-                        validationRequest.addResult(rowCount,"Previously Unknown");
-                    else
-                        validationRequest.addResult(rowCount,"Known");
+                    if (result.isNewTag()) {
+                        validationRequest.addResult(rowCount, "Previously Unknown");
+                    } else {
+                        validationRequest.addResult(rowCount, "Known");
+                    }
                 }
-            } catch ( FlockException e) {
+            } catch (FlockException e) {
                 validationRequest.addResult(rowCount, e.getMessage());
                 // log an error
             }
-            rowCount ++;
+            rowCount++;
         }
         return validationRequest;
     }

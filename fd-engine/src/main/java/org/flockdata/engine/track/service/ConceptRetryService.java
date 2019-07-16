@@ -20,6 +20,9 @@
 
 package org.flockdata.engine.track.service;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import javax.transaction.HeuristicRollbackException;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.track.bean.TrackResultBean;
@@ -36,10 +39,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.transaction.HeuristicRollbackException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * @author mholdsworth
@@ -61,25 +60,25 @@ public class ConceptRetryService {
     }
 
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20,
-            backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
+        backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
     @Async("fd-tag")
     public Future<Void> trackConcepts(Iterable<TrackResultBean> resultBeans)
-            throws InterruptedException, ExecutionException, FlockException {
+        throws InterruptedException, ExecutionException, FlockException {
         doRegister(resultBeans);
         return new AsyncResult<>(null);
     }
 
     @Transactional
     void doRegister(Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException {
-        if (!engineConfig.isConceptsEnabled())
+        if (!engineConfig.isConceptsEnabled()) {
             return;
+        }
 
         logger.debug("Register concepts");
         conceptService.registerConcepts(resultBeans);
         logger.debug("Completed concept registrations");
 
     }
-
 
 
 }

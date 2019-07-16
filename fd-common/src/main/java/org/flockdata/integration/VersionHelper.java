@@ -16,6 +16,7 @@
 
 package org.flockdata.integration;
 
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,18 +24,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Build properties
  *
- * @tag Configuration, Version, GIT
  * @author mholdsworth
+ * @tag Configuration, Version, GIT
  * @since 29/08/2013
  */
 @Configuration
 @Profile("fd-server")
-@PropertySource(value = {"version.properties","git.properties"},ignoreResourceNotFound = true)
+@PropertySource(value = {"version.properties", "git.properties"}, ignoreResourceNotFound = true)
 public class VersionHelper {
 
     @Value("${git.build.version:na}")
@@ -50,15 +49,16 @@ public class VersionHelper {
     private Logger logger = LoggerFactory.getLogger("configuration");
 
     @PostConstruct
-    public void logVersion(){
+    public void logVersion() {
         logger.info("**** " + getFdVersion());
-        logger.debug (commitMessage);
+        logger.debug(commitMessage);
     }
 
-    public  String getFdVersion() {
-        if ( version.contains("SNAPSHOT"))
-            return version + " (" + branch + "/" + gitCommit +")" ;
-        else
-            return version + " (" +gitCommit +")" ;
+    public String getFdVersion() {
+        if (version.contains("SNAPSHOT")) {
+            return version + " (" + branch + "/" + gitCommit + ")";
+        } else {
+            return version + " (" + gitCommit + ")";
+        }
     }
 }

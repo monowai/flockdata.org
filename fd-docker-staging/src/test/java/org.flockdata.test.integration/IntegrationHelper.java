@@ -77,34 +77,34 @@ import org.testcontainers.containers.DockerComposeContainer;
 @Service
 @Configuration
 @ContextConfiguration(classes = {
-        ClientConfiguration.class,
-        FileProcessor.class,
-        FdTemplate.class,
-        FdClientIo.class,
-        FdRabbitClient.class,
-        EnginePing.class,
-        StorePing.class,
-        SearchPing.class,
-        RegistrationPost.class,
-        SearchEsPost.class,
-        Health.class,
-        AmqpRabbitConfig.class,
-        RestTemplate.class,
-        SearchHelper.class,
-        IntegrationHelper.class
+    ClientConfiguration.class,
+    FileProcessor.class,
+    FdTemplate.class,
+    FdClientIo.class,
+    FdRabbitClient.class,
+    EnginePing.class,
+    StorePing.class,
+    SearchPing.class,
+    RegistrationPost.class,
+    SearchEsPost.class,
+    Health.class,
+    AmqpRabbitConfig.class,
+    RestTemplate.class,
+    SearchHelper.class,
+    IntegrationHelper.class
 
 })
 class IntegrationHelper {
 
     // These are defined in docker-compose.yml
     static final String ADMIN_REGRESSION_USER = "integration";
-    private static final String ADMIN_REGRESSION_PASS = "123";
     //    static final int DEBUG_ENGINE = 61000;
 //    static final int DEBUG_SEARCH = 61001;
 //    static final int DEBUG_STORE = 61002;
     static final int SERVICE_ENGINE = 8090;
     static final int SERVICE_SEARCH = 8091;
     static final int SERVICE_STORE = 8092;
+    private static final String ADMIN_REGRESSION_PASS = "123";
     private static DockerComposeContainer stack = FdDocker.getStack();
     private static Logger logger = LoggerFactory.getLogger(IntegrationHelper.class);
     private static boolean setupComplete = false;
@@ -143,8 +143,9 @@ class IntegrationHelper {
     private static String getIpAddress() {
         if (stack == null) {
             return "localhost";
-        } else
+        } else {
             return stack.getServiceHost("fdengine_1", SERVICE_ENGINE);
+        }
 
         //return DockerClientFactory.instance().dockerHostIpAddress();
     }
@@ -198,8 +199,9 @@ class IntegrationHelper {
                     }
 
                     Thread.sleep(shortSleep);
-                    if (pb != null)
+                    if (pb != null) {
                         pb.stepBy(1);
+                    }
                     count++;
 
                 }
@@ -244,10 +246,12 @@ class IntegrationHelper {
 
     void waitForServices() {
 
-        if (stackFailed)
+        if (stackFailed) {
             fail("Stack has failed to startup cleanly - test will fail");
-        if (setupComplete)
+        }
+        if (setupComplete) {
             return; // This method is called before every @Test - it's expensive :o)
+        }
 
         logger.info("Waiting for containers to come on-line. Service URL {}", fdClientIo.getUrl());
 
@@ -261,16 +265,17 @@ class IntegrationHelper {
         startServices();
         setupComplete = true;
         fdClientIo.resetRabbitClient(getRabbit(), getRabbitPort());
-        if (!stackFailed)
+        if (!stackFailed) {
             logger.info("Stack is running");
-        else
+        } else {
             logger.error("Failed to start the stack");
+        }
 
 
     }
 
     void startServices() {
-        if (stack != null)
+        if (stack != null) {
             try {
                 boolean gotPorts = false;
                 while (!gotPorts) {
@@ -290,14 +295,7 @@ class IntegrationHelper {
                 logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine());
                 logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch());
                 logger.info("FDStore  - {} - reachable @ {}", SERVICE_STORE, getStore());
-//                logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, getService("fdengine_1", DEBUG_ENGINE));
-//                logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_SEARCH, getService("fdsearch_1", DEBUG_SEARCH));
-//                logger.info("FDStore-Debug - {} - reachable @ {}", DEBUG_STORE, getService("fdstore_1", DEBUG_STORE));
                 logger.info("Rabbit Admin on http://{}:{}", getRabbit(), getRabbitAdmin());
-//                waitForPong(enginePing, waitSeconds);
-//
-//                waitForService("fd-search", searchPing, 30);
-//                waitForService("fd-store", storePing, 30);
                 logger.info("HealthChecks");
                 // Remap the API service URL due to the proxy activity that occurred above
                 fdClientIo.setServiceUrl(getEngine());
@@ -311,10 +309,12 @@ class IntegrationHelper {
                 assertTrue("Should be more than 1 entry in the health results", healthResult.size() > 1);
                 assertNotNull("Could not find an entry for fd-search", healthResult.get("fd-search"));
                 String searchStatus = ((Map<String, Object>) healthResult.get("fd-search")).get("status").toString();
-                assertTrue("Failure for fd-engine to connect to fd-search in the container " + searchStatus, searchStatus.toLowerCase().startsWith("ok"));
+                assertTrue("Failure for fd-engine to connect to fd-search in the container " + searchStatus,
+                    searchStatus.toLowerCase().startsWith("ok"));
                 assertNotNull("Could not find an entry for fd-store", healthResult.get("fd-store"));
                 String storeStatus = ((Map<String, Object>) healthResult.get("fd-store")).get("status").toString();
-                assertTrue("Failure for fd-engine to connect to fd-store in the container " + storeStatus, storeStatus.toLowerCase().startsWith("ok"));
+                assertTrue("Failure for fd-engine to connect to fd-store in the container " + storeStatus,
+                    storeStatus.toLowerCase().startsWith("ok"));
                 logger.info(JsonUtils.pretty(healthResult));
 
 
@@ -323,6 +323,7 @@ class IntegrationHelper {
                 setupComplete = true;
                 stackFailed = true;
             }
+        }
 
     }
 
@@ -331,8 +332,9 @@ class IntegrationHelper {
     }
 
     String getRabbit() throws IllegalStateException {
-        if (stack != null)
+        if (stack != null) {
             return stack.getServiceHost("rabbit_1", 5672);
+        }
         return getIpAddress();
     }
 
@@ -360,7 +362,7 @@ class IntegrationHelper {
         fdClientIo.setServiceUrl(getEngine());
         SystemUserResultBean result = fdClientIo.login(IntegrationHelper.ADMIN_REGRESSION_USER, IntegrationHelper.ADMIN_REGRESSION_PASS);
         assertThat(result)
-                .isNotNull();
+            .isNotNull();
         if (result.getApiKey() == null) {
             // New data access user
             CommandResponse<SystemUserResultBean> suResponse = registrationPost.exec(RegistrationBean.builder().companyName("TestCompany").login(IntegrationHelper.ADMIN_REGRESSION_USER).build());

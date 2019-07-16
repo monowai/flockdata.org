@@ -16,7 +16,16 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.TagInputBean;
@@ -27,18 +36,9 @@ import org.flockdata.transform.model.ExtractProfile;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotSame;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-
 /**
  * nested tags
+ *
  * @author mholdsworth
  * @since 6/05/2015
  */
@@ -71,7 +71,7 @@ public class TestEntityProperties extends AbstractImport {
                         assertFalse(igRlx.isEmpty());
                         EntityTagRelationshipInput valueMap = igRlx.get("contributed");
                         assertTrue(valueMap.getProperties().containsKey("value"));
-                        assertTrue(Double.parseDouble(valueMap.getProperties().get("value").toString()) ==500);
+                        assertTrue(Double.parseDouble(valueMap.getProperties().get("value").toString()) == 500);
 
                         break;
                     case "OSCategory":
@@ -82,7 +82,7 @@ public class TestEntityProperties extends AbstractImport {
                         assertFalse(rlx.isEmpty());
                         EntityTagRelationshipInput valMap = rlx.get("received");
                         assertTrue(valMap.getProperties().containsKey("value"));
-                        assertTrue(Double.parseDouble(valMap.getProperties().get("value").toString()) ==500);
+                        assertTrue(Double.parseDouble(valMap.getProperties().get("value").toString()) == 500);
                         break;
                     case "ZipCode":
                         assertEquals("Zip code should not be turned to a number. Should be preserved as a string", "07450", tagInputBean.getCode());

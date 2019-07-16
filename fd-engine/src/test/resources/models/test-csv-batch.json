@@ -1,45 +1,45 @@
 {
-    "entityOnly": false,
-    "fortress": {"name":"Sales","searchEnabled":false},
-    "content": {
-        "id": {
-            "callerRef": true
-        },
-        "zip": {
-            "tag": true,
-            "relationship": "lives",
-            "label": "ZipCode",
-            "targets": [
+  "entityOnly": false,
+  "fortress": {
+    "name": "Sales",
+    "searchEnabled": false
+  },
+  "content": {
+    "id": {
+      "callerRef": true
+    },
+    "zip": {
+      "tag": true,
+      "relationship": "lives",
+      "label": "ZipCode",
+      "targets": [
+        {
+          "relationship": "located",
+          "code": "city",
+          "label": "City",
+          "targets": [
+            {
+              "relationship": "city",
+              "code": "state",
+              "label": "State",
+              "targets": [
                 {
-                    "relationship": "located",
-                    "code": "city",
-                    "label": "City",
-                    "targets": [
-                        {
-                            "relationship": "city",
-                            "code": "state",
-                            "label": "State",
-                            "targets": [
-                                {
-                                    "relationship": "state",
-                                    "code": "country",
-                                    "label": "Countryx"
-                                }
-                            ]
-
-                        }
-                    ]
+                  "relationship": "state",
+                  "code": "country",
+                  "label": "Countryx"
                 }
-            ]
-        },
-
-        "name": {
-            "tag" :true,
-            "relationship":"blah",
-            "label": "Wow"
+              ]
+            }
+          ]
         }
+      ]
+    },
+    "name": {
+      "tag": true,
+      "relationship": "blah",
+      "label": "Wow"
     }
-
+  }
 }
 
 

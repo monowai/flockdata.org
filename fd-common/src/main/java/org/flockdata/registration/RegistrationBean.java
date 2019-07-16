@@ -37,8 +37,9 @@ public class RegistrationBean {
 
     public RegistrationBean setCompany(final Company company) {
         this.company = company;
-        if (company != null)
+        if (company != null) {
             this.companyName = company.getName();
+        }
 
         return this;
     }
@@ -46,11 +47,11 @@ public class RegistrationBean {
     @Override
     public String toString() {
         return "RegistrationBean{" +
-                "companyName='" + companyName + '\'' +
-                ", company=" + company +
-                ", login='" + login + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+            "companyName='" + companyName + '\'' +
+            ", company=" + company +
+            ", login='" + login + '\'' +
+            ", name='" + name + '\'' +
+            '}';
     }
 
 }

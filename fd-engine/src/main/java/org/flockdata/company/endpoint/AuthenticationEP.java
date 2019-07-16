@@ -20,6 +20,8 @@
 
 package org.flockdata.company.endpoint;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.flockdata.authentication.UserProfileService;
 import org.flockdata.registration.LoginRequest;
 import org.flockdata.registration.SystemUserResultBean;
@@ -35,10 +37,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @tag Endpoint, Security
@@ -76,7 +79,7 @@ public class AuthenticationEP {
         String password = loginRequest.getPassword();
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                username, password);
+            username, password);
         Authentication auth = authenticationManager.authenticate(token);
         SecurityContextHolder.getContext().setAuthentication(auth);
         return new ResponseEntity<>(new SystemUserResultBean(regService.getSystemUser(), userProfileService.getUser(auth)), HttpStatus.OK);
@@ -84,6 +87,7 @@ public class AuthenticationEP {
 
     /**
      * GET  /account returns current logged in user
+     *
      * @param apiHeaderKey optional, user can be located via an apiKey if you have one
      * @return view of user associated with the key
      * @throws Exception error
@@ -101,7 +105,8 @@ public class AuthenticationEP {
 
     /**
      * GET  /logout logout the currently logged in user.
-     * @param request servlet request context
+     *
+     * @param request  servlet request context
      * @param response servlet response
      */
     @RequestMapping(value = "/logout", method = RequestMethod.GET)

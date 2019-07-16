@@ -20,7 +20,6 @@ import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_USER;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -81,48 +80,48 @@ import org.springframework.web.client.RestTemplate;
  * @since 3/04/2016
  */
 @ContextConfiguration(classes = {
-        ClientConfiguration.class,
-        IndexManager.class,
-        FileProcessor.class,
-        FdTemplate.class,
-        FdClientIo.class,
-        FdRabbitClient.class,
-        EnginePing.class,
-        StorePing.class,
-        SearchPing.class,
-        RegistrationPost.class,
-        EntityLogsGet.class,
-        SearchEsPost.class,
-        SearchFdPost.class,
-        EntityData.class,
-        Health.class,
-        EntityGet.class,
-        Login.class,
-        ModelGet.class,
-        ModelPost.class,
-        ModelFieldStructure.class,
-        TagGet.class,
-        TagsGet.class,
-        AdminPurgeFortressSegment.class,
-        AdminPurgeFortress.class,
-        AmqpRabbitConfig.class,
-        RestTemplate.class,
-        TrackEntityPost.class,
-        SearchHelper.class,
-        IntegrationHelper.class
+    ClientConfiguration.class,
+    IndexManager.class,
+    FileProcessor.class,
+    FdTemplate.class,
+    FdClientIo.class,
+    FdRabbitClient.class,
+    EnginePing.class,
+    StorePing.class,
+    SearchPing.class,
+    RegistrationPost.class,
+    EntityLogsGet.class,
+    SearchEsPost.class,
+    SearchFdPost.class,
+    EntityData.class,
+    Health.class,
+    EntityGet.class,
+    Login.class,
+    ModelGet.class,
+    ModelPost.class,
+    ModelFieldStructure.class,
+    TagGet.class,
+    TagsGet.class,
+    AdminPurgeFortressSegment.class,
+    AdminPurgeFortress.class,
+    AmqpRabbitConfig.class,
+    RestTemplate.class,
+    TrackEntityPost.class,
+    SearchHelper.class,
+    IntegrationHelper.class
 
 })
 @RunWith(SpringRunner.class)
 @Configuration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@ActiveProfiles({"fd-auth-test"})
+@ActiveProfiles( {"fd-auth-test"})
 public class ITests {
 
     @ClassRule
     public static FdDocker stack = new FdDocker();
 
     private static Logger logger = LoggerFactory.getLogger(ITests.class);
-    
+
     /**
      * Contains properties used by rabbitConfig and fdRestWriter
      */
@@ -194,19 +193,18 @@ public class ITests {
     @Test
     public void simpleLogin() {
         logger.info("Testing simpleLogin");
-        SystemUserResultBean suResult = fdTemplate.getFdIoInterface().login(ADMIN_REGRESSION_USER, "123");
+        SystemUserResultBean suResult = fdTemplate.getFdIoInterface().login("integration", "123");
         assertNotNull(suResult);
         assertTrue("User Roles missing", suResult.getUserRoles().length != 0);
     }
 
     @Test
-    public void registration() throws Exception {
+    public void registration() {
         // An authorised user can create DataAccess users for a given company
         SystemUserResultBean login = integrationHelper.login();
-        assertNotNull(login);
-
-        assertNotNull(login);
-        assertNotNull(login.getApiKey());
+        assertThat(login)
+            .isNotNull()
+            .hasFieldOrProperty("apiKey");
 
     }
 
@@ -225,9 +223,9 @@ public class ITests {
 
         clientConfiguration.setBatchSize(5);
 
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/countries.json");
+        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/countries.json");
         ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/countries.json", contentModel)
-                .setDelimiter(";");
+            .setDelimiter(";");
 
         int countryInputs = fileProcessor.processFile(extractProfile, "/fd-cow.txt");
 
@@ -258,32 +256,32 @@ public class ITests {
 
         assertEquals("By Code and By Name they are the same country so should equal", foundTag.getResult(), foundTag.getResult());
         integrationHelper.shortSleep();
-        QueryParams qp = searchHelper.getTagQuery(login.getCompanyName(),"country", "australia");
+        QueryParams qp = searchHelper.getTagQuery(login.getCompanyName(), "country", "australia");
 
         CommandResponse<Map<String, Object>> response = esSearch.exec(qp);
         assertThat(response)
-                .hasFieldOrPropertyWithValue("error", null)
-                .hasFieldOrProperty("result");
+            .hasFieldOrPropertyWithValue("error", null)
+            .hasFieldOrProperty("result");
 
         searchHelper.assertHitCount("Should have found just 1 hit for Australia", 1, response.getResult());
         response = esSearch.exec(searchHelper
-                .getTagMatchQuery( login.getCompanyName(),"country", "aka.bgn_longname", "Commonwealth of Australia"));
-        
+            .getTagMatchQuery(login.getCompanyName(), "country", "aka.bgn_longname", "Commonwealth of Australia"));
+
         searchHelper.assertHitCount("Didn't find Australia by alias", 1, response.getResult());
 
     }
 
     @Test
-    public void trackEntityOverHttp() throws Exception {
+    public void trackEntityOverHttp() {
 
         SystemUserResultBean login = integrationHelper.login();
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("TrackEntity", false))
-                .setDocumentType(new DocumentTypeInputBean("someThing"))
-                .setContent(new ContentInputBean(Helper.getRandomMap()))
-                .addTag(new TagInputBean("someCode", "SomeLabel"));
+            .setFortress(new FortressInputBean("TrackEntity", false))
+            .setDocumentType(new DocumentTypeInputBean("someThing"))
+            .setContent(new ContentInputBean(Helper.getRandomMap()))
+            .addTag(new TagInputBean("someCode", "SomeLabel"));
 
         CommandResponse<TrackRequestResult> response = trackEntityPost.exec(entityInputBean);
         assertEquals("Track Entity - ", null, response.getError());
@@ -306,12 +304,12 @@ public class ITests {
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("TrackEntityAmqp")
-                        .setSearchEnabled(true))
-                .setCode("findme")
-                .setDocumentType(new DocumentTypeInputBean("entityamqp"))
-                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")))
-                .addTag(new TagInputBean("someCode", "SomeLabel"));
+            .setFortress(new FortressInputBean("TrackEntityAmqp")
+                .setSearchEnabled(true))
+            .setCode("findme")
+            .setDocumentType(new DocumentTypeInputBean("entityamqp"))
+            .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")))
+            .addTag(new TagInputBean("someCode", "SomeLabel"));
 
         fdTemplate.writeEntity(entityInputBean, true);
 
@@ -328,15 +326,15 @@ public class ITests {
 
         integrationHelper.shortSleep();
         QueryParams qp = new QueryParams(entityResult.getCode())
-                .setEntityOnly(true)
-                .setCode(entityResult.getCode())
-                .setFortress(entityInputBean.getFortress().getName());
+            .setEntityOnly(true)
+            .setCode(entityResult.getCode())
+            .setFortress(entityInputBean.getFortress().getName());
 
         CommandResponse<EsSearchRequestResult> esResponse = searchViaFd.exec(qp);
         assertThat(esResponse)
-                .isNotNull()
-                .hasFieldOrPropertyWithValue("error", null)
-                .hasFieldOrProperty("result");
+            .isNotNull()
+            .hasFieldOrPropertyWithValue("error", null)
+            .hasFieldOrProperty("result");
 
         EsSearchRequestResult searchResults = esResponse.getResult();
         assertEquals("Didn't get a search hit on the Entity", 1, searchResults.getResults().size());
@@ -356,11 +354,11 @@ public class ITests {
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("validateEntityLogs", false))
-                .setCode("findme")
-                .setDocumentType(new DocumentTypeInputBean("validateEntityLogs"))
-                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "value")))
-                .addTag(new TagInputBean("someCode", "SomeLabel"));
+            .setFortress(new FortressInputBean("validateEntityLogs", false))
+            .setCode("findme")
+            .setDocumentType(new DocumentTypeInputBean("validateEntityLogs"))
+            .setContent(new ContentInputBean(Helper.getSimpleMap("key", "value")))
+            .addTag(new TagInputBean("someCode", "SomeLabel"));
 
         fdTemplate.writeEntity(entityInputBean, true);
         integrationHelper.longSleep();
@@ -368,8 +366,8 @@ public class ITests {
 
         EntityResultBean entityResult = response.getResult();
         assertThat(entityResult)
-                .isNotNull()
-                .hasFieldOrProperty("key");
+            .isNotNull()
+            .hasFieldOrProperty("key");
 
         CommandResponse<EntityLogResult[]> elResponse = integrationHelper.waitForEntityLog(logger, entityLogsGet, 1, entityResult.getKey());
         assertNotNull(elResponse.getResult());
@@ -378,10 +376,10 @@ public class ITests {
         assertEquals("Content property not found", "value", elResponse.getResult()[0].getData().get("key"));
 
         entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("validateEntityLogs", false))
-                .setCode("findme")
-                .setDocumentType(new DocumentTypeInputBean("validateEntityLogs"))
-                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "updated")));
+            .setFortress(new FortressInputBean("validateEntityLogs", false))
+            .setCode("findme")
+            .setDocumentType(new DocumentTypeInputBean("validateEntityLogs"))
+            .setContent(new ContentInputBean(Helper.getSimpleMap("key", "updated")));
 
 
         // Updating an existing entity
@@ -399,12 +397,12 @@ public class ITests {
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("findByESPassThroughWithUTF8")
-                        .setSearchEnabled(true))
-                .setCode("Katerina Neumannová")
-                .setDescription("Katerina Neumannová")
-                .setDocumentType(new DocumentTypeInputBean("entityamqp"))
-                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")));
+            .setFortress(new FortressInputBean("findByESPassThroughWithUTF8")
+                .setSearchEnabled(true))
+            .setCode("Katerina Neumannová")
+            .setDescription("Katerina Neumannová")
+            .setDocumentType(new DocumentTypeInputBean("entityamqp"))
+            .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")));
 
         fdTemplate.writeEntity(entityInputBean, true);
 
@@ -412,17 +410,17 @@ public class ITests {
         assertEquals("Error waiting by entity Key", null, response.getError());
 
         assertThat(response.getResult())
-                .isNotNull()
-                .hasFieldOrProperty("key");
+            .isNotNull()
+            .hasFieldOrProperty("key");
 
         response = integrationHelper.waitForSearch(logger, "findByESPassThroughWithUTF8", entityGet, entityInputBean, null);
         assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, response.getResult().getSearch());
 
         integrationHelper.shortSleep();
         QueryParams qp = new QueryParams()
-                .setFortress(entityInputBean.getFortress().getName())
-                .setTypes(entityInputBean.getDocumentType().getName())
-                .setMatchAll(true);
+            .setFortress(entityInputBean.getFortress().getName())
+            .setTypes(entityInputBean.getDocumentType().getName())
+            .setMatchAll(true);
 
         CommandResponse<Map<String, Object>> esResponse = esSearch.exec(qp);
         assertEquals("Search Reply ", null, esResponse.getError());
@@ -471,8 +469,8 @@ public class ITests {
         // Assert that updates work
         tags.clear();
         tagInputBean = new TagInputBean("ACode", tagLabel)
-                .setName("acode wonder")
-                .setMerge(true);
+            .setName("acode wonder")
+            .setMerge(true);
 
         tagInputBean.setProperty("aprop", 123);
 
@@ -480,7 +478,7 @@ public class ITests {
         fdClientIo.writeTags(tags);
         integrationHelper.longSleep();  // Async delivery, so lets wait a bit....
 
-        qp = searchHelper.getTagQuery(login.getCompanyName(),tagInputBean.getLabel(), "wonder");
+        qp = searchHelper.getTagQuery(login.getCompanyName(), tagInputBean.getLabel(), "wonder");
 
         response = esSearch.exec(qp);
         integrationHelper.shortSleep();
@@ -509,7 +507,7 @@ public class ITests {
         fdTemplate.writeTags(setC);
         fdTemplate.writeTags(setD);
         integrationHelper.longSleep();
-        QueryParams qp = searchHelper.getTagQuery(login.getCompanyName(),"Set*", "code*");
+        QueryParams qp = searchHelper.getTagQuery(login.getCompanyName(), "Set*", "code*");
 
         CommandResponse<Map<String, Object>> response = esSearch.exec(qp);
         assertNull("Not finding any tags", response.getError());
@@ -523,11 +521,11 @@ public class ITests {
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("purgeFortressRemovesEsIndex")
-                        .setSearchEnabled(true))
-                .setCode("SearchDoc")
-                .setDocumentType(new DocumentTypeInputBean("DeleteSearchDoc"))
-                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
+            .setFortress(new FortressInputBean("purgeFortressRemovesEsIndex")
+                .setSearchEnabled(true))
+            .setCode("SearchDoc")
+            .setDocumentType(new DocumentTypeInputBean("DeleteSearchDoc"))
+            .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
 
         fdTemplate.writeEntity(entityInputBean, true);
 
@@ -562,12 +560,12 @@ public class ITests {
         DocumentTypeInputBean docType = new DocumentTypeInputBean("DeleteSearchDoc");
 
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("purgeSegment")
-                        .setSearchEnabled(true))
-                .setCode("MySearchA")
-                .setSegment("2015")
-                .setDocumentType(docType)
-                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
+            .setFortress(new FortressInputBean("purgeSegment")
+                .setSearchEnabled(true))
+            .setCode("MySearchA")
+            .setSegment("2015")
+            .setDocumentType(docType)
+            .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
 
         fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
 
@@ -576,12 +574,12 @@ public class ITests {
         integrationHelper.waitForSearch(logger, "purgeSegmentRemovesOnlyTheSpecifiedOne", entityGet, entityInputBean, null);
 
         entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("purgeSegment")
-                        .setSearchEnabled(true))
-                .setCode("MySearchB")
-                .setSegment("2016")
-                .setDocumentType(docType)
-                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
+            .setFortress(new FortressInputBean("purgeSegment")
+                .setSearchEnabled(true))
+            .setCode("MySearchB")
+            .setSegment("2016")
+            .setDocumentType(docType)
+            .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));
 
         fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
 
@@ -591,18 +589,18 @@ public class ITests {
         integrationHelper.shortSleep(); // Give ES time to commit
 
         QueryParams qp = new QueryParams("*")
-                .setFortress("purgeSegment")
-                .setEntityOnly(true)
-                .setTypes(docType.getCode().toLowerCase());
+            .setFortress("purgeSegment")
+            .setEntityOnly(true)
+            .setTypes(docType.getCode().toLowerCase());
 
         CommandResponse<EsSearchRequestResult> esResponse = searchViaFd.exec(qp);
 
         assertThat(esResponse)
-                .isNotNull()
-                .hasFieldOrProperty("result")
-                .hasFieldOrPropertyWithValue("error", null);
+            .isNotNull()
+            .hasFieldOrProperty("result")
+            .hasFieldOrPropertyWithValue("error", null);
 
-        assertThat (esResponse.getResult())
+        assertThat(esResponse.getResult())
             .hasFieldOrPropertyWithValue("totalHits", 2L)
         ;
 
@@ -632,24 +630,24 @@ public class ITests {
 
         // Check we can track back into previously purged fortress
         entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("purgeSegment")
-                        .setSearchEnabled(true))
-                .setCode("MySearchA")
-                .setSegment("2015")
-                .setDocumentType(docType)
-                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Find Me")));
+            .setFortress(new FortressInputBean("purgeSegment")
+                .setSearchEnabled(true))
+            .setCode("MySearchA")
+            .setSegment("2015")
+            .setDocumentType(docType)
+            .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Find Me")));
 
         fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
         integrationHelper.longSleep();
         qp.setSegment("2015");
         esResponse = searchViaFd.exec(qp);
 
-        assertThat (esResponse)
-                .isNotNull()
-                .hasFieldOrPropertyWithValue("error", null);
+        assertThat(esResponse)
+            .isNotNull()
+            .hasFieldOrPropertyWithValue("error", null);
 
         assertThat(esResponse.getResult())
-                .hasFieldOrPropertyWithValue("totalHits", 1L);
+            .hasFieldOrPropertyWithValue("totalHits", 1L);
     }
 
     /**
@@ -667,12 +665,12 @@ public class ITests {
         DocumentTypeInputBean docType = new DocumentTypeInputBean(FORTRESS);
 
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean(FORTRESS)
-                        .setSearchEnabled(true))
-                .setCode("MySearchA")
-                .setSegment("2015")
-                .setDocumentType(docType)
-                .setEntityOnly(true);
+            .setFortress(new FortressInputBean(FORTRESS)
+                .setSearchEnabled(true))
+            .setCode("MySearchA")
+            .setSegment("2015")
+            .setDocumentType(docType)
+            .setEntityOnly(true);
 
         fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
 
@@ -680,12 +678,12 @@ public class ITests {
         integrationHelper.waitForSearch(logger, "purgeSegmentEntitiesWithNoLogs", entityGet, entityInputBean, null);
 
         entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean(FORTRESS)
-                        .setSearchEnabled(true))
-                .setCode("MySearchB")
-                .setSegment("2016")
-                .setDocumentType(docType)
-                .setEntityOnly(true);
+            .setFortress(new FortressInputBean(FORTRESS)
+                .setSearchEnabled(true))
+            .setCode("MySearchB")
+            .setSegment("2016")
+            .setDocumentType(docType)
+            .setEntityOnly(true);
 
         fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
 
@@ -695,9 +693,9 @@ public class ITests {
         integrationHelper.shortSleep(); // Give ES some extra time to commit
 
         QueryParams qp = new QueryParams("*")
-                .setFortress(FORTRESS)
-                .setEntityOnly(true)
-                .setTypes(docType.getCode().toLowerCase());
+            .setFortress(FORTRESS)
+            .setEntityOnly(true)
+            .setTypes(docType.getCode().toLowerCase());
 
         CommandResponse<EsSearchRequestResult> esResponse = searchViaFd.exec(qp);
 
@@ -707,8 +705,8 @@ public class ITests {
         qp.setSegment("2015");
         esResponse = searchViaFd.exec(qp);
         assertThat(esResponse)
-                .isNotNull()
-                .hasFieldOrProperty("result");
+            .isNotNull()
+            .hasFieldOrProperty("result");
 
         assertEquals("expected 1 hit on segment 2015", 1L, esResponse.getResult().getTotalHits());
 
@@ -727,12 +725,12 @@ public class ITests {
 
         // Check we can track back into previously purged fortress
         entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean(FORTRESS)
-                        .setSearchEnabled(true))
-                .setCode("MySearchA")
-                .setSegment("2015")
-                .setDocumentType(docType)
-                .setEntityOnly(true);
+            .setFortress(new FortressInputBean(FORTRESS)
+                .setSearchEnabled(true))
+            .setCode("MySearchA")
+            .setSegment("2015")
+            .setDocumentType(docType)
+            .setEntityOnly(true);
 
         fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
         integrationHelper.longSleep();
@@ -752,13 +750,13 @@ public class ITests {
         assertNotNull(login);
 
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("getEntityFieldStructure")
-                        .setSearchEnabled(true))
-                .setCode("Katerina Neumannová")
-                .setDescription("Katerina Neumannová")
-                .setDocumentType(new DocumentTypeInputBean("entityamqp"))
-                .addTag(new TagInputBean("anyCode", "anyLabel").addEntityTagLink("anyrlx"))
-                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")));
+            .setFortress(new FortressInputBean("getEntityFieldStructure")
+                .setSearchEnabled(true))
+            .setCode("Katerina Neumannová")
+            .setDescription("Katerina Neumannová")
+            .setDocumentType(new DocumentTypeInputBean("entityamqp"))
+            .addTag(new TagInputBean("anyCode", "anyLabel").addEntityTagLink("anyrlx"))
+            .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")));
 
         fdClientIo.writeEntities(integrationHelper.toCollection(entityInputBean));
         CommandResponse<EntityResultBean> response = integrationHelper.waitForEntityKey(logger, "getEntityFieldStructure", entityGet, entityInputBean, null);
@@ -805,11 +803,11 @@ public class ITests {
         Map<String, Object> dataMap = new HashMap<>();
         dataMap.put("value", "alpha");
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("TrackEntity")
-                        .setSearchEnabled(true)
-                        .setStoreEnabled(true))
-                .setDocumentType(new DocumentTypeInputBean("someThing"))
-                .setContent(new ContentInputBean(dataMap));
+            .setFortress(new FortressInputBean("TrackEntity")
+                .setSearchEnabled(true)
+                .setStoreEnabled(true))
+            .setDocumentType(new DocumentTypeInputBean("someThing"))
+            .setContent(new ContentInputBean(dataMap));
 
         CommandResponse<TrackRequestResult> response = trackEntityPost.exec(entityInputBean);
         assertEquals("Track Entity - ", null, response.getError());
@@ -851,13 +849,13 @@ public class ITests {
         dataMap.put("value", "alpha");
         String key = new Date().toString();
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setCode(key)
-                .setFortress(new FortressInputBean("suppressVersionsOnByDocBasis")
-                        .setSearchEnabled(true)
-                        .setStoreEnabled(true)) // Enable the store
-                .setDocumentType(new DocumentTypeInputBean("someThing")
-                        .setVersionStrategy(Document.VERSION.DISABLE)) // But suppress version history for this class of Entity
-                .setContent(new ContentInputBean(dataMap));
+            .setCode(key)
+            .setFortress(new FortressInputBean("suppressVersionsOnByDocBasis")
+                .setSearchEnabled(true)
+                .setStoreEnabled(true)) // Enable the store
+            .setDocumentType(new DocumentTypeInputBean("someThing")
+                .setVersionStrategy(Document.VERSION.DISABLE)) // But suppress version history for this class of Entity
+            .setContent(new ContentInputBean(dataMap));
 
         CommandResponse<EntityResultBean> response = entityGet.exec(entityInputBean, null);
         assertTrue("Expected an error. entity should not exist", response.getError() != null);
@@ -866,18 +864,18 @@ public class ITests {
         assertEquals("Track Entity - ", null, trackResponse.getError());
         TrackRequestResult trackResult = trackResponse.getResult();
         assertThat(trackResult)
-                .isNotNull()
-                .hasFieldOrPropertyWithValue("newEntity", true)
-                .hasFieldOrPropertyWithValue("logStatus", ContentInputBean.LogStatus.OK)
-                .hasFieldOrProperty("key");
+            .isNotNull()
+            .hasFieldOrPropertyWithValue("newEntity", true)
+            .hasFieldOrPropertyWithValue("logStatus", ContentInputBean.LogStatus.OK)
+            .hasFieldOrProperty("key");
 
         integrationHelper.longSleep();// Wait for log to write to ES
         CommandResponse<EntityLogResult[]> logResponse = entityLogsGet.exec(trackResult.getKey());
         assertThat(logResponse)
-                .hasFieldOrPropertyWithValue("error", null);
+            .hasFieldOrPropertyWithValue("error", null);
         assertThat(logResponse.getResult())
-                .isNotNull()
-                .hasSize(1);
+            .isNotNull()
+            .hasSize(1);
 
         EntityLogResult mockedLog = logResponse.getResult()[0];
         assertTrue("Log was not flagged as mocked", mockedLog.isMocked());

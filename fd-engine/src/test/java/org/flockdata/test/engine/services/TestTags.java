@@ -20,6 +20,21 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.flockdata.data.SystemUser;
 import org.flockdata.data.Tag;
 import org.flockdata.engine.data.graph.TagNode;
@@ -38,14 +53,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.*;
-
-import static org.junit.Assert.*;
-
 /**
  * @author mholdsworth
- * @since 29/06/2013
  * @tag Test, Tag
+ * @since 29/06/2013
  */
 public class TestTags extends EngineBase {
 
@@ -78,7 +89,7 @@ public class TestTags extends EngineBase {
         for (TagResultBean next : tagResults) {
             assertEquals("FLOP", next.getCode());
             //assertEquals("flop", next.getKey());
-            if ( next.isNewTag()) {
+            if (next.isNewTag()) {
                 assertNull(oneIsNew); // we only want this set once
                 oneIsNew = Boolean.TRUE;
             }
@@ -98,10 +109,11 @@ public class TestTags extends EngineBase {
         count = 0;
         for (TagResultBean next : tagResults) {
             assertNotNull(next);
-            if ( next.getCode().equals("FLOP"))
+            if (next.getCode().equals("FLOP")) {
                 assertFalse(next.isNewTag()); // created in previous run
-            else
+            } else {
                 assertTrue(next.isNewTag());
+            }
             count++;
         }
         assertEquals(5, count);
@@ -179,27 +191,27 @@ public class TestTags extends EngineBase {
         Tag tag;
         try {
             tagService.createTag(su.getCompany(),
-                    new TagInputBean("FLOPX", "MustExistTest")
-                            .setKeyPrefix("abc")
-                            .setMustExist(true));
+                new TagInputBean("FLOPX", "MustExistTest")
+                    .setKeyPrefix("abc")
+                    .setMustExist(true));
             fail("Expected tag does not exists");
-        } catch (FlockException fe){
+        } catch (FlockException fe) {
             assertNotNull(fe);
             // expected
         }
 
         tag = tagService.createTag(
-                su.getCompany(), new TagInputBean("FLOPX", "MustExistTest")
-                        .setKeyPrefix("abc")
-                        .setMustExist(false)).getTag();
+            su.getCompany(), new TagInputBean("FLOPX", "MustExistTest")
+                .setKeyPrefix("abc")
+                .setMustExist(false)).getTag();
 
         assertNotNull(tag);
         Long id = tag.getId();
 
         tag = tagService.createTag(
-                su.getCompany(), new TagInputBean("FLOPX", "MustExistTest")
-                        .setKeyPrefix("abc")
-                        .setMustExist(true)).getTag();
+            su.getCompany(), new TagInputBean("FLOPX", "MustExistTest")
+                .setKeyPrefix("abc")
+                .setMustExist(true)).getTag();
 
         assertNotNull(tag);
         assertEquals(id, tag.getId());
@@ -215,9 +227,9 @@ public class TestTags extends EngineBase {
         assertNull(tagService.findTag(su.getCompany(), "NEW-TAG", null, "Testing"));
         assertNull(tagService.findTag(su.getCompany(), "NotFound", null, "Testing"));
         TagInputBean newTag = new TagInputBean("NEW-TAG")
-                .setMustExist(true)
-                .setNotFoundCode("NotFound")
-                .setLabel("Testing");
+            .setMustExist(true)
+            .setNotFoundCode("NotFound")
+            .setLabel("Testing");
 
         Tag tag = tagService.createTag(su.getCompany(), newTag).getTag();
         assertNotNull(tag);
@@ -225,8 +237,8 @@ public class TestTags extends EngineBase {
         assertEquals("Testing", tag.getLabel());
 
         newTag = new TagInputBean("NEW-TAG")
-                .setMustExist(true)
-                .setNotFoundCode("");
+            .setMustExist(true)
+            .setNotFoundCode("");
         exception.expect(FlockException.class);
         assertNull("blank code is the same as no code", tagService.createTag(su.getCompany(), newTag));
 
@@ -241,9 +253,9 @@ public class TestTags extends EngineBase {
         assertNull(tagService.findTag(su.getCompany(), "NEW-TAG", null, "Testing"));
         assertNull(tagService.findTag(su.getCompany(), "NotFound", null, "Testing"));
         TagInputBean newTag = new TagInputBean("NEW-TAG")
-                .setMustExist(true)
-                .setNotFoundCode("NotFound")
-                .setLabel("Testing");
+            .setMustExist(true)
+            .setNotFoundCode("NotFound")
+            .setLabel("Testing");
 
         Tag tag = tagService.createTag(su.getCompany(), newTag).getTag();
 
@@ -252,8 +264,8 @@ public class TestTags extends EngineBase {
         assertEquals("Testing", tag.getLabel());
 
         newTag = new TagInputBean("NEW-TAG")
-                .setKeyPrefix("aaa")
-                .setMustExist(true);
+            .setKeyPrefix("aaa")
+            .setMustExist(true);
 
         exception.expect(FlockException.class);
         assertNull("blank code is the same as no code", tagService.createTag(su.getCompany(), newTag));
@@ -270,34 +282,34 @@ public class TestTags extends EngineBase {
         assertNull(tagService.findTag(su.getCompany(), "OtherTag", null, "Testing"));
 
         TagInputBean mustExist = new TagInputBean("ZZZ-TAG")
-                .setMustExist(true)
-                .setLabel("Testing");
+            .setMustExist(true)
+            .setLabel("Testing");
 
         TagInputBean tagCreates = new TagInputBean("OtherTag")
-                .setLabel("Testing");
+            .setLabel("Testing");
 
-        Collection<TagInputBean>tags = new ArrayList<>();
+        Collection<TagInputBean> tags = new ArrayList<>();
         tags.add(mustExist);
         tags.add(tagCreates);
         Collection<FdTagResultBean> results = tagService.createTags(su.getCompany(), tags);
         assertEquals("Two results for two inputs", 2, results.size());
 
         for (FdTagResultBean result : results) {
-            if ( result.getCode().equals(mustExist.getCode())){
-                assertTrue("The tag should not have been created",result.getTag()== null );
-                assertFalse("The tag should not have been created",result.isNewTag());
+            if (result.getCode().equals(mustExist.getCode())) {
+                assertTrue("The tag should not have been created", result.getTag() == null);
+                assertFalse("The tag should not have been created", result.isNewTag());
                 assertNotNull(result.getMessage());
                 assertEquals(mustExist.getCode(), result.getCode());
-            } else if ( result.getCode().equals(tagCreates.getCode())){
+            } else if (result.getCode().equals(tagCreates.getCode())) {
                 // The inverse of above
-                assertFalse("The tag should have been created",result.getTag()== null );
+                assertFalse("The tag should have been created", result.getTag() == null);
                 assertTrue("The tag should have been created", result.isNewTag());
                 assertNull(result.getMessage());
                 assertEquals(tagCreates.getCode(), result.getCode());
                 assertEquals(tagCreates.getCode(), result.getTag().getCode());
 
-            }   else {
-                throw new Exception ( "Unexpected tag" + result.toString());
+            } else {
+                throw new Exception("Unexpected tag" + result.toString());
             }
         }
 
@@ -315,7 +327,7 @@ public class TestTags extends EngineBase {
         Tag tag = tagService.createTag(su.getCompany(), tagInput).getTag();
 
         assertNotNull(tag);
-        TagNode result = (TagNode)tagService.findTag(su.getCompany(), null, "ZFLOP");
+        TagNode result = (TagNode) tagService.findTag(su.getCompany(), null, "ZFLOP");
 
         assertNotNull(result);
         assertEquals(123l, result.getProperty("num"));
@@ -524,7 +536,7 @@ public class TestTags extends EngineBase {
         // Clear down issues - the Country may already be in the DB
         Collection<FdTagResultBean> co = geoService.findCountries(su.getCompany());
 
-        int existingSize = co .size();
+        int existingSize = co.size();
 
         TagInputBean tagInputBean = new TagInputBean("Atlantis").setLabel("Country");
         ArrayList<TagInputBean> countries = new ArrayList<>();
@@ -630,7 +642,7 @@ public class TestTags extends EngineBase {
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasFound", true));
 
         TagInputBean tag = new TagInputBean("Holdsworth, Mike")
-                .setLabel("Person");
+            .setLabel("Person");
 
         Tag tagResult = tagService.createTag(su.getCompany(), tag).getTag();
 
@@ -648,8 +660,8 @@ public class TestTags extends EngineBase {
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasFound", true));
 
         TagInputBean tag = new TagInputBean("Holdsworth, Mike")
-                .setLabel("Person")
-                .setKeyPrefix("aaa");
+            .setLabel("Person")
+            .setKeyPrefix("aaa");
 
         Tag tagResult = tagService.createTag(su.getCompany(), tag).getTag();
 
@@ -667,12 +679,12 @@ public class TestTags extends EngineBase {
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasFound", true));
 
         TagInputBean tagA = new TagInputBean("Ohio")
-                .setLabel("StateX")
-                .setKeyPrefix("US");
+            .setLabel("StateX")
+            .setKeyPrefix("US");
 
         TagInputBean tagB = new TagInputBean("Ohio")
-                .setLabel("StateX")
-                .setKeyPrefix("ZZ");
+            .setLabel("StateX")
+            .setKeyPrefix("ZZ");
 
         Tag tagResultA = tagService.createTag(su.getCompany(), tagA).getTag();
         Tag tagResultB = tagService.createTag(su.getCompany(), tagB).getTag();
@@ -695,7 +707,7 @@ public class TestTags extends EngineBase {
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasCollectionCreated", true));
 
         TagInputBean tag = new TagInputBean("scenario_AliasCollectionCreated")
-                .setLabel("Person");
+            .setLabel("Person");
 
         // The alias will be a "PersonAlias" - ToDo: allow for other types??
         // We can find the Tag by any of the 2 aliases we define below
@@ -722,7 +734,7 @@ public class TestTags extends EngineBase {
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_MultipleAliases", true));
 
         TagInputBean tag = new TagInputBean("Peoples Republic of Iran")
-                .setLabel("Country");
+            .setLabel("Country");
 
         // The alias will be a "PersonAlias" - ToDo: allow for other types??
         // We can find the Tag by any of the 2 aliases we define below
@@ -762,7 +774,7 @@ public class TestTags extends EngineBase {
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("serialize_tagResults", true));
 
         TagInputBean tag = new TagInputBean("Peoples Republic of Iran")
-                .setLabel("Country");
+            .setLabel("Country");
 
         // The alias will be a "PersonAlias" - ToDo: allow for other types??
         // We can find the Tag by any of the 2 aliases we define below
@@ -789,11 +801,11 @@ public class TestTags extends EngineBase {
         SystemUser su = registerSystemUser("path_FindTag", mike_admin);
 
         TagInputBean zipCode = new TagInputBean("codeA", "ZipCode").
-                setName("NameA");
+            setName("NameA");
 
         // Same code, but different label. Should create a new tag
         TagInputBean tractCode = new TagInputBean("codeB", "Tract").
-                setName("NameA");
+            setName("NameA");
 
         zipCode.setTargets("located", tractCode);
         Tag tagA = tagService.createTag(su.getCompany(), zipCode).getTag();
@@ -824,8 +836,8 @@ public class TestTags extends EngineBase {
         tagService.createTags(su.getCompany(), Collections.singleton(root));
         // check a duplicate relationship between identical tags does not get created
         String cypher = "match (t)-[r]-(o) where id(t)={t} return count(r) as value;";
-        Map<String,Object>params = new HashMap<>();
-        params.put("t",tags.iterator().next().getTag().getId());
+        Map<String, Object> params = new HashMap<>();
+        params.put("t", tags.iterator().next().getTag().getId());
         Result<Map<String, Object>> results = neo4jTemplate.query(cypher, params);
         for (Map<String, Object> row : results) {
             assertEquals(1L, row.get("value"));
@@ -922,7 +934,7 @@ public class TestTags extends EngineBase {
     }
 
     @Test
-    public void recreate_AliasRelationship () throws Exception {
+    public void recreate_AliasRelationship() throws Exception {
         engineConfig.setMultiTenanted(false);
         SystemUser su = registerSystemUser("nested_NullPointer", mike_admin);
 
@@ -940,8 +952,8 @@ public class TestTags extends EngineBase {
         // Delete the relationship and reporcess
 
         String cypher = "match (t)-[r]-() where id(t)= {tagId} delete r;";
-        Map<String,Object>params = new HashMap<>();
-        params.put("tagId",tagResultBean.getTag().getId());
+        Map<String, Object> params = new HashMap<>();
+        params.put("tagId", tagResultBean.getTag().getId());
         neo4jTemplate.query(cypher, params);
 
         // Should re-create the relationship
@@ -962,18 +974,19 @@ public class TestTags extends EngineBase {
         assertEquals(1, tagResults.size());
         assertEquals(tags.iterator().next().getDescription(), tagResults.iterator().next().getDescription());
 
-        Tag found = tagService.findTag(su.getCompany(),tagInput.getLabel(), null, tagInput.getCode()  );
-        assertNotNull (found);
+        Tag found = tagService.findTag(su.getCompany(), tagInput.getLabel(), null, tagInput.getCode());
+        assertNotNull(found);
 
-        Collection<TagResultBean>foundTags = tagService.findTags(su.getCompany());
+        Collection<TagResultBean> foundTags = tagService.findTags(su.getCompany());
 
-        assertFalse (foundTags.isEmpty());
+        assertFalse(foundTags.isEmpty());
 
         for (TagResultBean tagResult : foundTags) {
             // Could be more than 1 tag due to other tests in this class
             // We're interested in only one
-            if ( Objects.equals(tagInput.getLabel(), tagResult.getLabel()))
+            if (Objects.equals(tagInput.getLabel(), tagResult.getLabel())) {
                 assertTrue(Objects.equals(tagInput.getDescription(), tagResult.getDescription()));
+            }
         }
 
     }

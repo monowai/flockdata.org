@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.integration.store;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
@@ -42,29 +44,27 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.handler.annotation.Payload;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Handles reading content from fd-store
+ *
  * @author mholdsworth
  * @since 17/02/2016
  */
 @IntegrationComponentScan
 @Configuration
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class StorageReader {
 
     @Autowired
     EngineConfig engineConfig;
 
     @Bean
-    MessageChannel startStoreRead(){
+    MessageChannel startStoreRead() {
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel storeReadResult(){
+    MessageChannel storeReadResult() {
         return new DirectChannel();
     }
 
@@ -77,14 +77,14 @@ public class StorageReader {
     IntegrationFlow storeFlow() {
 
         return IntegrationFlows.from(startStoreRead())
-                .handle(handler())
-                .get();
+            .handle(handler())
+            .get();
     }
 
     private MessageHandler handler() {
         SpelExpressionParser expressionParser = new SpelExpressionParser();
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdStore()+ "/v1/data/{store}/{index}/{type}/{key}");
+            new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/data/{store}/{index}/{type}/{key}");
         handler.setHttpMethod(HttpMethod.GET);
         Map<String, Expression> vars = new HashMap<>();
         vars.put("store", expressionParser.parseExpression("payload[0]"));

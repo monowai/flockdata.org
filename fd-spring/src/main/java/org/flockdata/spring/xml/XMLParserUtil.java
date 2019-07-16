@@ -28,9 +28,11 @@ class XMLParserUtil {
     }
 
     private static boolean getElementBooleanValue(Element element, String attribute, boolean defaultValue) {
-        if (!element.hasAttribute(attribute)) return defaultValue;
+        if (!element.hasAttribute(attribute)) {
+            return defaultValue;
+        }
         return Boolean
-                .valueOf(getElementStringValue(element, attribute));
+            .valueOf(getElementStringValue(element, attribute));
     }
 
     public static String getElementStringValue(Element element, String attribute) {

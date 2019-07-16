@@ -28,13 +28,14 @@ import org.flockdata.helper.NodeHelper;
  */
 public class EntityHelper {
     public static String parseKey(Long fortressId, Long documentId, String code) {
-        return  "" + fortressId + "." + documentId + "." + code;
+        return "" + fortressId + "." + documentId + "." + code;
     }
 
     public static String getLabel(Iterable<String> labels) {
         for (String label : labels) {
-            if (!NodeHelper.isInternalLabel(label))
+            if (!NodeHelper.isInternalLabel(label)) {
                 return label;
+            }
         }
         return null;
     }

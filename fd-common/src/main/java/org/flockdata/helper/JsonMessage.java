@@ -20,10 +20,9 @@
 
 package org.flockdata.helper;
 
+import java.util.HashMap;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
-
-import java.util.HashMap;
 
 /**
  * @author mholdsworth
@@ -36,17 +35,19 @@ public class JsonMessage {
     public JsonMessage(String message) {
         this.message = message;
     }
+
     public ModelAndView asModelAndViewError() {
         MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
-        HashMap<String,Object> map = new HashMap<>();
+        HashMap<String, Object> map = new HashMap<>();
         map.put("message", message);
-        return new ModelAndView(jsonView, map );
+        return new ModelAndView(jsonView, map);
     }
+
     public ModelAndView asModelAndViewMessage() {
         MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
-        HashMap<String,Object> map = new HashMap<>();
+        HashMap<String, Object> map = new HashMap<>();
         map.put("message", message);
-        return new ModelAndView(jsonView, map );
+        return new ModelAndView(jsonView, map);
     }
 
 }

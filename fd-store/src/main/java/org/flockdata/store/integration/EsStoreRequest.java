@@ -40,13 +40,14 @@ import org.springframework.stereotype.Service;
 
 /**
  * Pulls the "data" block from ElasticSearch
+ *
  * @author mholdsworth
  * @since 13/02/2016
  */
 
 @IntegrationComponentScan
 @Service
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class EsStoreRequest extends AbstractIntegrationRequest {
 
     private final FdStoreConfig kvConfig;
@@ -69,13 +70,13 @@ public class EsStoreRequest extends AbstractIntegrationRequest {
     @Bean
     IntegrationFlow dataQuery() {
         return IntegrationFlows.from(sendDataQuery())
-                .handle(dataQueryHandler())
-                .get();
+            .handle(dataQueryHandler())
+            .get();
     }
 
     private MessageHandler dataQueryHandler() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getDataQuery());
+            new HttpRequestExecutingMessageHandler(getDataQuery());
         handler.setHttpMethod(HttpMethod.POST);
         handler.setExpectedResponseType(EsSearchRequestResult.class);
         return handler;

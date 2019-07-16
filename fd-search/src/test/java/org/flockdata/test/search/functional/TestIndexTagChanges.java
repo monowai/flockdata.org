@@ -20,6 +20,10 @@
 
 package org.flockdata.test.search.functional;
 
+import static org.mockito.Mockito.when;
+
+import java.util.HashSet;
+import java.util.Set;
 import org.flockdata.data.Alias;
 import org.flockdata.data.Company;
 import org.flockdata.data.Tag;
@@ -32,11 +36,6 @@ import org.flockdata.track.bean.CompanyInputBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.mockito.Mockito.when;
 
 /**
  * @author mholdsworth
@@ -54,32 +53,32 @@ public class TestIndexTagChanges extends ESBase {
 
         Tag tag = MockDataFactory.getTag(tagInputBean);
 
-        String key = TagHelper.parseKey(tagInputBean.getCode()+"Alias");
-        Alias alias = MockDataFactory.getAlias(tagInputBean.getLabel(), new AliasInputBean(tagInputBean.getCode()+"Alias", "someAliasDescription"),key, tag);
+        String key = TagHelper.parseKey(tagInputBean.getCode() + "Alias");
+        Alias alias = MockDataFactory.getAlias(tagInputBean.getLabel(), new AliasInputBean(tagInputBean.getCode() + "Alias", "someAliasDescription"), key, tag);
         Set<Alias> aliasSet = new HashSet<>();
         aliasSet.add(alias);
-        when (tag.getAliases()).thenReturn(aliasSet);
+        when(tag.getAliases()).thenReturn(aliasSet);
 
         String indexName = searchConfig.getIndexManager().getTagIndexRoot(company, tag);
         org.assertj.core.api.Assertions.assertThat(indexName)
-                .isNotNull()
-                .contains(".tags")
+            .isNotNull()
+            .contains(".tags")
             .endsWith("." + searchConfig.getIndexManager().parseType(tagInputBean.getLabel()))
         ;
 
         deleteEsIndex(indexName);
 
-        TagSearchChange tagSearchChange=  new TagSearchChange(indexName, tag);
+        TagSearchChange tagSearchChange = new TagSearchChange(indexName, tag);
 
         indexMappingService.ensureIndexMapping(tagSearchChange);
 
         tagWriter.handle(tagSearchChange);
         Thread.sleep(1000);
         // Find by code
-        doQuery( indexName, tag.getLabel().toLowerCase(), tag.getCode(), 1);
+        doQuery(indexName, tag.getLabel().toLowerCase(), tag.getCode(), 1);
         // By Name
-        doQuery( indexName, tag.getLabel().toLowerCase(), tag.getName(), 1);
+        doQuery(indexName, tag.getLabel().toLowerCase(), tag.getName(), 1);
         // Alias
-        doQuery( indexName, tag.getLabel().toLowerCase(), alias.getName(), 1);
+        doQuery(indexName, tag.getLabel().toLowerCase(), alias.getName(), 1);
     }
 }

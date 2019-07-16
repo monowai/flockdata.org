@@ -27,8 +27,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExc
  * @tag ExceptionHandler
  */
 @Component
-public class AnnotatedExceptionResolver extends ExceptionHandlerExceptionResolver
-{
+public class AnnotatedExceptionResolver extends ExceptionHandlerExceptionResolver {
     public AnnotatedExceptionResolver() {
         setOrder(HIGHEST_PRECEDENCE);
     }

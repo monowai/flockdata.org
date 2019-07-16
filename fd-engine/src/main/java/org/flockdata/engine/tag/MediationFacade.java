@@ -20,6 +20,11 @@
 
 package org.flockdata.engine.tag;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.flockdata.data.Company;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Fortress;
@@ -29,13 +34,12 @@ import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.track.bean.*;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntitySummaryBean;
+import org.flockdata.track.bean.FdTagResultBean;
+import org.flockdata.track.bean.TrackRequestResult;
+import org.flockdata.track.bean.TrackResultBean;
 
 /**
  * Non transactional coordinator providing mediation functionality between services
@@ -68,11 +72,11 @@ public interface MediationFacade {
     /**
      * Rebuilds all search documents for the supplied fortress
      *
-     * @tag Security, Admin
-     * @param company resolved company the caller is authorised to reindex for
+     * @param company      resolved company the caller is authorised to reindex for
      * @param fortressCode name of the fortress to rebuild
      * @return System processing message
      * @throws org.flockdata.helper.FlockException Business exceptions
+     * @tag Security, Admin
      */
     String reindex(CompanyNode company, String fortressCode) throws FlockException;
 
@@ -93,19 +97,19 @@ public interface MediationFacade {
 
     void mergeTags(Company company, Long source, Long target);
 
-    Map<String,Object> getLogContent(EntityNode entity, Long logId);
+    Map<String, Object> getLogContent(EntityNode entity, Long logId);
 
     /**
      * Iterates through all search documents and validates that an existing
      * Entity can be found for it by the key returned.
-     *
+     * <p>
      * Experimental
      *
-     * @param company resolved company
+     * @param company      resolved company
      * @param fortressCode code
-     * @param docType and doc-type
-     * @throws FlockException business or system exception
+     * @param docType      and doc-type
      * @return null - should be a message
+     * @throws FlockException business or system exception
      */
 
     String validateFromSearch(CompanyNode company, String fortressCode, String docType) throws FlockException;

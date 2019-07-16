@@ -24,8 +24,8 @@ import org.flockdata.data.Fortress;
 
 /**
  * @author mholdsworth
- * @since 10/10/2014
  * @tag Contract, DocumentType
+ * @since 10/10/2014
  */
 public class DocumentTypeInputBean implements Document {
     private String name;
@@ -39,22 +39,25 @@ public class DocumentTypeInputBean implements Document {
     private Boolean trackEnabled;
     private Fortress fortress;
 
-    DocumentTypeInputBean(){}
+    DocumentTypeInputBean() {
+    }
 
     public DocumentTypeInputBean(String docName) {
         this();
-        if ( docName == null || docName.trim().equals(""))
+        if (docName == null || docName.trim().equals("")) {
             throw new IllegalArgumentException("DocumentType name is invalid");
+        }
         this.name = docName;
         this.code = docName;
     }
 
     /**
      * Helps unit testing
+     *
      * @param documentResultBean result of a previous request to create
      */
     public DocumentTypeInputBean(DocumentResultBean documentResultBean) {
-        this.name =documentResultBean.getName();
+        this.name = documentResultBean.getName();
     }
 
     public String getName() {
@@ -151,27 +154,42 @@ public class DocumentTypeInputBean implements Document {
     @Override
     public String toString() {
         return "DocumentTypeInputBean{" +
-                "name='" + name + '\'' +
-                ", code='" + code + '\'' +
-                ", tagStructure=" + tagStructure +
-                ", versionStrategy=" + versionStrategy +
-                '}';
+            "name='" + name + '\'' +
+            ", code='" + code + '\'' +
+            ", tagStructure=" + tagStructure +
+            ", versionStrategy=" + versionStrategy +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DocumentTypeInputBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DocumentTypeInputBean)) {
+            return false;
+        }
 
         DocumentTypeInputBean that = (DocumentTypeInputBean) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (geoQuery != null ? !geoQuery.equals(that.geoQuery) : that.geoQuery != null) return false;
-        if (versionStrategy != that.versionStrategy) return false;
-        if (tagStructure != that.tagStructure) return false;
-        if (searchEnabled != null ? !searchEnabled.equals(that.searchEnabled) : that.searchEnabled != null)
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
+        }
+        if (code != null ? !code.equals(that.code) : that.code != null) {
+            return false;
+        }
+        if (geoQuery != null ? !geoQuery.equals(that.geoQuery) : that.geoQuery != null) {
+            return false;
+        }
+        if (versionStrategy != that.versionStrategy) {
+            return false;
+        }
+        if (tagStructure != that.tagStructure) {
+            return false;
+        }
+        if (searchEnabled != null ? !searchEnabled.equals(that.searchEnabled) : that.searchEnabled != null) {
+            return false;
+        }
         return storeEnabled != null ? storeEnabled.equals(that.storeEnabled) : that.storeEnabled == null;
 
     }

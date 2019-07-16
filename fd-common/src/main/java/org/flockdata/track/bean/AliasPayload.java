@@ -26,15 +26,16 @@ import org.flockdata.registration.AliasInputBean;
  * Data necessary to create a single Alias for a tag
  *
  * @author mholdsworth
- * @since 3/07/2015
  * @tag Alias, Contract
+ * @since 3/07/2015
  */
 public class AliasPayload {
     String label;
     AliasInputBean aliasInput;
     Long tagId;
 
-    AliasPayload(){}
+    AliasPayload() {
+    }
 
 
     public AliasPayload(String label, Long tagId, AliasInputBean aliasInput) {

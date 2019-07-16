@@ -22,6 +22,9 @@ package org.flockdata.search.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.NoShardAvailableActionException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
@@ -47,10 +50,6 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author mholdsworth
  * @since 27/04/2013
@@ -75,8 +74,8 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
         DeleteResponse dr = searchConfig.getClient().prepareDelete(searchChange.getIndexName(), recordType, existingIndexKey)
 //                .setRouting(searchChange.getCode())
-                .execute()
-                .actionGet();
+            .execute()
+            .actionGet();
 
         if (dr.status() == RestStatus.NOT_FOUND) {
             LOGGER.debug("Didn't find the document to remove [{}] from {}/{}", existingIndexKey, indexName, recordType);
@@ -88,7 +87,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
     /**
      * @param searchChange object containing changes
-     * @param source Json to save
+     * @param source       Json to save
      * @return key value of the child document
      */
     private EntitySearchChange save(EntitySearchChange searchChange, String source) {
@@ -99,8 +98,8 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         // Rebuilding a document after a reindex - preserving the unique key.
         IndexRequestBuilder irb =
             searchConfig.getClient()
-                        .prepareIndex(searchChange.getIndexName(), documentType)
-                        .setSource(source, XContentType.JSON);
+                .prepareIndex(searchChange.getIndexName(), documentType)
+                .setSource(source, XContentType.JSON);
 
         irb.setId(searchChange.getSearchKey());
 
@@ -108,12 +107,12 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             IndexResponse ir = irb.execute().actionGet();
 
             LOGGER.debug("Save:Document entityId [{}], [{}], logId= [{}] searchKey [{}] index [{}/{}]",
-                    searchChange.getId(),
-                    searchChange.getKey(),
-                    searchChange.getLogId(),
-                    ir.getId(),
-                    indexName,
-                    documentType);
+                searchChange.getId(),
+                searchChange.getKey(),
+                searchChange.getLogId(),
+                ir.getId(),
+                indexName,
+                documentType);
 
             return searchChange;
         } catch (MapperParsingException e) {
@@ -143,8 +142,8 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
             GetRequestBuilder request =
                 searchConfig.getClient().prepareGet(searchChange.getIndexName(),
-                            searchChange.getDocumentType(),
-                            searchChange.getSearchKey());
+                    searchChange.getDocumentType(),
+                    searchChange.getSearchKey());
 
 //            if (searchChange.getParent() != null) {
 //                request.setRouting(searchChange.getParent().getCode());
@@ -152,7 +151,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
 
             GetResponse response = request.execute()
-                    .actionGet();
+                .actionGet();
 
             LOGGER.debug("executed get request for {}", searchChange.toString());
             if (response.isExists() && !response.isSourceEmpty()) {
@@ -189,11 +188,11 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
             // Update the existing document with the searchChange change
             IndexRequestBuilder update = searchConfig.getClient()
-                    .prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
+                .prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
 //            update.setRouting(searchChange.getCode());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
-                    execute();
+                execute();
 
             if (LOGGER.isDebugEnabled()) {
                 IndexResponse indexResponse = ur.actionGet();
@@ -222,17 +221,19 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
     public Map<String, Object> findOne(Entity entity, String id) {
         String indexName = searchConfig.getIndexManager().toIndex(entity);//entity.getFortress().getRootIndex();
         String documentType = entity.getType();
-        if (id == null)
+        if (id == null) {
             id = entity.getSearchKey();
+        }
         LOGGER.debug("Looking for [{}] in {}", id, indexName + documentType);
 
         GetResponse response = searchConfig.getClient().prepareGet(indexName, documentType, id)
-                //.setRouting(entity.getKey())
-                .execute()
-                .actionGet();
+            //.setRouting(entity.getKey())
+            .execute()
+            .actionGet();
 
-        if (response != null && response.isExists() && !response.isSourceEmpty())
+        if (response != null && response.isExists() && !response.isSourceEmpty()) {
             return response.getSource();
+        }
 
         LOGGER.info("Unable to find response data for [" + id + "] in " + indexName + "/" + documentType);
         return null;
@@ -244,9 +245,9 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         ClusterHealthResponse response;
         try {
             response = searchConfig.getClient().admin()
-                    .cluster()
-                    .health(new ClusterHealthRequest())
-                    .actionGet();
+                .cluster()
+                .health(new ClusterHealthRequest())
+                .actionGet();
         } catch (NoNodeAvailableException e) {
             // Node may become available, so we will not stop the service
             results.put("status", e.getMessage());

@@ -40,7 +40,7 @@ public interface StoreService {
 
     void delete(Entity entity, Log change);
 
-    void doWrite( StorageBean kvBean) throws FlockException;
+    void doWrite(StorageBean kvBean) throws FlockException;
 
 
 }

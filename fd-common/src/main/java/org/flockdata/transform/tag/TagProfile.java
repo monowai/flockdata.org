@@ -22,18 +22,17 @@ package org.flockdata.transform.tag;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.ArrayList;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.GeoDefinition;
 import org.flockdata.transform.GeoPayload;
 import org.flockdata.transform.json.GeoDeserializer;
 
-import java.util.ArrayList;
-
 /**
  * @author mholdsworth
- * @since 27/05/2014
  * @tag Tag, ContentModel, Geo
+ * @since 27/05/2014
  */
 public class TagProfile implements GeoDefinition {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -43,14 +42,14 @@ public class TagProfile implements GeoDefinition {
     private String keyPrefix;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Boolean reverse =false;
+    private Boolean reverse = false;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String notFound;
 
     private String relationship;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private String delimiter =null;
-//    private boolean country = false;
+    private String delimiter = null;
+    //    private boolean country = false;
     private String label;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String labelDescription;
@@ -60,11 +59,11 @@ public class TagProfile implements GeoDefinition {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private ArrayList<TagProfile> targets;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private ArrayList<ColumnDefinition>properties;
+    private ArrayList<ColumnDefinition> properties;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private ArrayList<ColumnDefinition>rlxProperties;
+    private ArrayList<ColumnDefinition> rlxProperties;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private ArrayList<AliasInputBean>aliases;
+    private ArrayList<AliasInputBean> aliases;
 
     @JsonDeserialize(using = GeoDeserializer.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -98,12 +97,12 @@ public class TagProfile implements GeoDefinition {
     }
 
     /**
-     *
      * @return The label node that will be created. Reverts to the column name if not defined
      */
     public String getLabel() {
-        if ( label == null)
+        if (label == null) {
             return code;
+        }
         return label;
     }
 
@@ -115,17 +114,17 @@ public class TagProfile implements GeoDefinition {
         return targets;
     }
 
-    public void setTargets(ArrayList<TagProfile>  targets) {
+    public void setTargets(ArrayList<TagProfile> targets) {
         this.targets = targets;
     }
 
     @Override
     public String toString() {
         return "CsvTag{" +
-                "code='" + code + '\'' +
-                ", relationship='" + relationship + '\'' +
-                ", label='" + label + '\'' +
-                '}';
+            "code='" + code + '\'' +
+            ", relationship='" + relationship + '\'' +
+            ", label='" + label + '\'' +
+            '}';
     }
 
     public String getCode() {
@@ -140,8 +139,8 @@ public class TagProfile implements GeoDefinition {
         return delimiter;
     }
 
-    public void setDelimiter(String delimiter){
-        this.delimiter= delimiter;
+    public void setDelimiter(String delimiter) {
+        this.delimiter = delimiter;
     }
 
     public String getCondition() {
@@ -169,7 +168,7 @@ public class TagProfile implements GeoDefinition {
     }
 
     public boolean hasProperties() {
-        return properties!=null && properties.size()>0;
+        return properties != null && properties.size() > 0;
     }
 
     public ArrayList<AliasInputBean> getAliases() {
@@ -180,8 +179,8 @@ public class TagProfile implements GeoDefinition {
         this.aliases = aliases;
     }
 
-    public boolean hasAliases (){
-        return aliases!=null && aliases.size()>0;
+    public boolean hasAliases() {
+        return aliases != null && aliases.size() > 0;
     }
 
     public String getNotFound() {
@@ -203,19 +202,39 @@ public class TagProfile implements GeoDefinition {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TagProfile)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TagProfile)) {
+            return false;
+        }
 
         TagProfile that = (TagProfile) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (keyPrefix != null ? !keyPrefix.equals(that.keyPrefix) : that.keyPrefix != null) return false;
-        if (reverse != null ? !reverse.equals(that.reverse) : that.reverse != null) return false;
-        if (relationship != null ? !relationship.equals(that.relationship) : that.relationship != null) return false;
-        if (delimiter != null ? !delimiter.equals(that.delimiter) : that.delimiter != null) return false;
-        if (label != null ? !label.equals(that.label) : that.label != null) return false;
-        if (condition != null ? !condition.equals(that.condition) : that.condition != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (code != null ? !code.equals(that.code) : that.code != null) {
+            return false;
+        }
+        if (keyPrefix != null ? !keyPrefix.equals(that.keyPrefix) : that.keyPrefix != null) {
+            return false;
+        }
+        if (reverse != null ? !reverse.equals(that.reverse) : that.reverse != null) {
+            return false;
+        }
+        if (relationship != null ? !relationship.equals(that.relationship) : that.relationship != null) {
+            return false;
+        }
+        if (delimiter != null ? !delimiter.equals(that.delimiter) : that.delimiter != null) {
+            return false;
+        }
+        if (label != null ? !label.equals(that.label) : that.label != null) {
+            return false;
+        }
+        if (condition != null ? !condition.equals(that.condition) : that.condition != null) {
+            return false;
+        }
         return geoData != null ? geoData.equals(that.geoData) : that.geoData == null;
 
     }

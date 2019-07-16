@@ -32,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Exception handler for Search service
+ *
  * @author mholdsworth
  * @since 12/04/2014
  */
@@ -40,14 +41,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FlockException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleAuditException( FlockException ex){
+    public ModelAndView handleAuditException(FlockException ex) {
         logger.error("Datagio Exception", ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleIAException( IllegalArgumentException ex){
+    public ModelAndView handleIAException(IllegalArgumentException ex) {
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
@@ -59,7 +60,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ModelAndView handleInternal( Exception ex) {
+    public ModelAndView handleInternal(Exception ex) {
         logger.error("Error 500", ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }

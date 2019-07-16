@@ -20,10 +20,9 @@
 
 package org.flockdata.track;
 
-import org.flockdata.data.EntityLog;
-
 import java.util.HashSet;
 import java.util.Set;
+import org.flockdata.data.EntityLog;
 
 /**
  * @author mholdsworth
@@ -37,7 +36,7 @@ public class EntityLogs {
         return entityLogs;
     }
 
-    public void add(EntityLog entityLog){
+    public void add(EntityLog entityLog) {
         this.entityLogs.add(entityLog);
     }
 }

@@ -21,15 +21,14 @@
 package org.flockdata.engine.matrix;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.util.Collection;
 
 /**
  * Encapsulates edges and nodes that make up a result suitable for matrix analysis
  *
  * @author mholdsworth
- * @since 12/06/2014
  * @tag Matrix, Query
+ * @since 12/06/2014
  */
 public class MatrixResults {
     private long sampleSize;
@@ -37,7 +36,8 @@ public class MatrixResults {
     private Collection<FdNode> nodes;    // Lookup table of nodes in the edges
     private Collection<EdgeResult> edges;  // relationship between 2 nodes
 
-    public MatrixResults (){}
+    public MatrixResults() {
+    }
 
     public MatrixResults(Collection<EdgeResult> edgeResults) {
         this();

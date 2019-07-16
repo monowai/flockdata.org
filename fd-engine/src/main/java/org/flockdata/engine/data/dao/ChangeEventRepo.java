@@ -20,26 +20,25 @@
 
 package org.flockdata.engine.data.dao;
 
+import java.util.Set;
 import org.flockdata.engine.data.graph.ChangeEventNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
-import java.util.Set;
-
 /**
  * @author mholdsworth
- * @since 28/06/2013
  * @tag GraphRepository, Query, Neo4j, Event
+ * @since 28/06/2013
  */
 public interface ChangeEventRepo extends GraphRepository<ChangeEventNode> {
 
     @Query(value = " match (company:FDCompany)-[:COMPANY_EVENT]->(event:Event {code:{1}}) " +
-                   " where id(company)={0}" +
-                 "  return event")
+        " where id(company)={0}" +
+        "  return event")
     ChangeEventNode findCompanyEvent(Long companyId, String eventName);
 
-    @Query( value =
-            "   match (company:FDCompany)-[:COMPANY_EVENT]->events where id(company)={0}" +
+    @Query(value =
+        "   match (company:FDCompany)-[:COMPANY_EVENT]->events where id(company)={0}" +
             "  return events")
     Set<ChangeEventNode> findCompanyEvents(Long id);
 }

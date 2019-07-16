@@ -32,8 +32,9 @@ public class CompressionResult {
 
     CompressionResult(byte[] bytes, boolean compressed) {
         this(bytes);
-        if (!compressed)
+        if (!compressed) {
             this.method = Method.NONE;
+        }
     }
 
     CompressionResult(String value) throws UnsupportedEncodingException {

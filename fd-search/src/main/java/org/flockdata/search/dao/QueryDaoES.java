@@ -20,6 +20,19 @@
 
 package org.flockdata.search.dao;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -40,7 +53,14 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.integration.IndexManager;
-import org.flockdata.search.*;
+import org.flockdata.search.EntityKeyResults;
+import org.flockdata.search.EsSearchRequestResult;
+import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.QueryParams;
+import org.flockdata.search.SearchResult;
+import org.flockdata.search.SearchSchema;
+import org.flockdata.search.TagCloud;
+import org.flockdata.search.TagCloudParams;
 import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.search.helper.EsUtils;
 import org.flockdata.search.helper.QueryGenerator;
@@ -50,14 +70,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * @author mholdsworth

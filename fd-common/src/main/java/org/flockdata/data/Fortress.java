@@ -23,21 +23,24 @@ package org.flockdata.data;
 
 /**
  * Simple interface to allow us to use multiple implementations in a generic manner
+ *
  * @author mholdsworth
  * @since 19/02/2016
  */
 public interface Fortress {
     String DEFAULT = "Default";
 
-    static String key(String fortressCode, String segmentCode){
-        if ( segmentCode == null )
+    static String key(String fortressCode, String segmentCode) {
+        if (segmentCode == null) {
             return null;
-        return fortressCode +"-"+segmentCode.toLowerCase();
+        }
+        return fortressCode + "-" + segmentCode.toLowerCase();
     }
 
     static String code(String name) {
-        if (name == null)
+        if (name == null) {
             return null;
+        }
         return name.toLowerCase().replaceAll("\\s+", "");
     }
 

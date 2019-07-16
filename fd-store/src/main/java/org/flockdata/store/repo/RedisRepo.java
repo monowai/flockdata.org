@@ -20,6 +20,9 @@
 
 package org.flockdata.store.repo;
 
+import java.io.IOException;
+import java.util.Date;
+import javax.annotation.PostConstruct;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.store.AbstractStore;
 import org.flockdata.store.LogRequest;
@@ -30,10 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.util.Date;
 
 /**
  * @tag Redis, Store
@@ -72,7 +71,7 @@ public class RedisRepo extends AbstractStore {
     }
 
     public StoredContent read(LogRequest logRequest) {
-        return read ("", "", logRequest.getLogId().toString());
+        return read("", "", logRequest.getLogId().toString());
     }
 
     public void delete(LogRequest logRequest) {
@@ -93,7 +92,7 @@ public class RedisRepo extends AbstractStore {
     }
 
     @PostConstruct
-    void status(){
+    void status() {
         Logger logger = LoggerFactory.getLogger("configuration");
         logger.info("**** Deploying Redis repo manager");
     }

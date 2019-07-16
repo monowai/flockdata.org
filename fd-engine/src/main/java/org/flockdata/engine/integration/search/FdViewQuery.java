@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.integration.search;
 
+import java.nio.charset.StandardCharsets;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.search.EsSearchRequestResult;
 import org.flockdata.search.QueryParams;
@@ -38,18 +39,17 @@ import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.http.Http;
 import org.springframework.integration.dsl.support.Transformers;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * Striped down search support. Designed for fd-view. ToDo: Move to a "Backend for Frontend" module
- * @tag Query, Search, Gateway, Messaging
+ *
  * @author mholdsworth
+ * @tag Query, Search, Gateway, Messaging
  * @since 14/02/2016
  */
 
 @Configuration
 @IntegrationComponentScan
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class FdViewQuery {
 
     private final PlatformConfig engineConfig;

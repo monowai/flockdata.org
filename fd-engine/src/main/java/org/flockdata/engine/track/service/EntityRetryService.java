@@ -20,6 +20,10 @@
 
 package org.flockdata.engine.track.service;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.flockdata.data.Segment;
 import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.helper.FlockException;
@@ -37,11 +41,6 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * @author mholdsworth
@@ -61,14 +60,14 @@ public class EntityRetryService {
     }
 
     @Retryable(include = {NotFoundException.class, InvalidDataAccessResourceUsageException.class, DataIntegrityViolationException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
-            maxAttempts = 20,
-            backoff = @Backoff(delay = 600, multiplier = 5, random = true))
+        maxAttempts = 20,
+        backoff = @Backoff(delay = 600, multiplier = 5, random = true))
     @Transactional(timeout = 4000)
     public Iterable<TrackResultBean> track(DocumentNode documentType, Segment segment, List<EntityInputBean> entityInputs, Future<Collection<FdTagResultBean>> tags)
-            throws InterruptedException, ExecutionException, FlockException {
+        throws InterruptedException, ExecutionException, FlockException {
 
         Collection<TrackResultBean>
-                resultBeans = entityService.trackEntities(documentType, segment, entityInputs, tags);
+            resultBeans = entityService.trackEntities(documentType, segment, entityInputs, tags);
 
         if (resultBeans.size() > 1) {
             // Could have a mix of new and existing entities, so we need to
@@ -79,8 +78,9 @@ public class EntityRetryService {
 
             if (!newEntities.isEmpty()) { // New can be processed async
                 logService.processLogs(segment.getFortress(), newEntities);
-                if (existingEntities.isEmpty())
+                if (existingEntities.isEmpty()) {
                     return newEntities;
+                }
 
             }
             // Process updates synchronously

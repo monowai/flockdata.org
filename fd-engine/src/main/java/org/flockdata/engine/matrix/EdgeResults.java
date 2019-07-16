@@ -30,11 +30,11 @@ import java.util.List;
 public class EdgeResults {
     private List<EdgeResult> edgeResults = new ArrayList<>();
 
-    public void addResult (EdgeResult edgeResult){
+    public void addResult(EdgeResult edgeResult) {
         int index = edgeResults.indexOf(edgeResult);
-        if ( index == -1)
+        if (index == -1) {
             edgeResults.add(edgeResult);
-        else {
+        } else {
             EdgeResult edge = edgeResults.get(index);
 
             edge.setCount(edge.getCount().doubleValue() + edgeResult.getCount().doubleValue());

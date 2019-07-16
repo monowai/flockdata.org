@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.admin.endpoint;
 
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.engine.admin.AdminResponse;
 import org.flockdata.engine.admin.PlatformConfig;
@@ -33,16 +35,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Engine admin
+ *
  * @author mholdsworth
- * @since 15/04/2014
  * @tag EndPoint, Fortress
+ * @since 15/04/2014
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/admin")
@@ -70,17 +74,21 @@ public class AdminEP {
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public Map<String, Object> getHealth(HttpServletRequest request) throws FlockException {
         Object o = request.getAttribute(ApiKeyInterceptor.API_KEY);
-        if (o == null)
+        if (o == null) {
             o = request.getHeader(ApiKeyInterceptor.API_KEY);
+        }
         String apiKey = "";
-        if (o != null)
+        if (o != null) {
             apiKey = o.toString();
+        }
 
-        if ("".equals(apiKey))
+        if ("".equals(apiKey)) {
             apiKey = null;
+        }
         if (request.getAttribute(ApiKeyInterceptor.COMPANY) == null &&
-                apiKey == null)
+            apiKey == null) {
             return engineConfig.getHealthAuth();// Caller may have admin role but not belong to a company
+        }
         return engineConfig.getHealth();
     }
 

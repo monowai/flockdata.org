@@ -20,6 +20,14 @@
 
 package org.flockdata.test.engine.mvc;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertNotNull;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+
+import java.util.Collection;
+import java.util.TimeZone;
 import org.flockdata.engine.data.graph.FortressSegmentNode;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.FortressInputBean;
@@ -31,13 +39,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.util.Collection;
-import java.util.TimeZone;
-
-import static junit.framework.TestCase.*;
-import static org.junit.Assert.assertNotNull;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * @author mholdsworth
@@ -68,22 +69,22 @@ public class TestFortressEP extends MvcBase {
 
         FortressResultBean fortress = makeFortress(mike(), "make_DocSegmentDocTypes");
         EntityInputBean eib = new EntityInputBean(fortress, new DocumentTypeInputBean("segTestDoc"))
-                .setSegment("2014");
-        track(mike(),eib );
+            .setSegment("2014");
+        track(mike(), eib);
 
         eib.setSegment("2015");
-        track(mike(),eib );
+        track(mike(), eib);
 
         eib.setSegment("2016");
-        track(mike(),eib );
+        track(mike(), eib);
 
         // 4 Segments including the default o
 
-        Collection<DocumentResultBean> documentResultBean= getDocumentWithSegments(mike(), fortress.getName(), "segTestDoc");
+        Collection<DocumentResultBean> documentResultBean = getDocumentWithSegments(mike(), fortress.getName(), "segTestDoc");
         Assert.assertEquals(1, documentResultBean.size());
         assertEquals("Default fortress is not included", 3, documentResultBean.iterator().next().getSegments().size());
 
-        documentResultBean= getDocumentWithSegments(mike(), fortress.getName(), "*");
+        documentResultBean = getDocumentWithSegments(mike(), fortress.getName(), "*");
         Assert.assertEquals(1, documentResultBean.size());
         assertEquals("Wild card DocType not working", 3, documentResultBean.iterator().next().getSegments().size());
     }
@@ -95,43 +96,43 @@ public class TestFortressEP extends MvcBase {
         FortressResultBean fortressB = makeFortress(mike(), "multi_FortB");
         String docType = "sameDocType";
         EntityInputBean eib = new EntityInputBean(fortressA, new DocumentTypeInputBean(docType))
-                .setSegment("2014");
-        track(mike(),eib );
+            .setSegment("2014");
+        track(mike(), eib);
 
         eib.setSegment("2015");
-        track(mike(),eib );
+        track(mike(), eib);
 
         eib.setSegment("2016");
-        track(mike(),eib );
+        track(mike(), eib);
 
         eib = new EntityInputBean(fortressB, new DocumentTypeInputBean(docType))
-                .setSegment("2014");
-        track(mike(),eib );
+            .setSegment("2014");
+        track(mike(), eib);
 
         eib.setSegment("2012");
-        track(mike(),eib );
+        track(mike(), eib);
 
         eib.setSegment("2015");
-        track(mike(),eib );
+        track(mike(), eib);
 
         eib.setSegment("2016");
-        track(mike(),eib );
+        track(mike(), eib);
 
         // 4 Segments including the default o
 
-        Collection<DocumentResultBean> documentResultBean= getDocumentWithSegments(mike(), fortressA.getName(), docType);
+        Collection<DocumentResultBean> documentResultBean = getDocumentWithSegments(mike(), fortressA.getName(), docType);
         Assert.assertEquals(1, documentResultBean.size());
-        assertEquals("Default fortress should not be included",3, documentResultBean.iterator().next().getSegments().size());
+        assertEquals("Default fortress should not be included", 3, documentResultBean.iterator().next().getSegments().size());
 
-        documentResultBean= getDocumentWithSegments(mike(), fortressA.getName(), "*");
+        documentResultBean = getDocumentWithSegments(mike(), fortressA.getName(), "*");
         Assert.assertEquals(1, documentResultBean.size());
         assertEquals("Wildcard fortress not working", 3, documentResultBean.iterator().next().getSegments().size());
 
-        documentResultBean= getDocumentWithSegments(mike(), fortressB.getName(), docType);
+        documentResultBean = getDocumentWithSegments(mike(), fortressB.getName(), docType);
         Assert.assertEquals(1, documentResultBean.size());
         assertEquals("Second fortress should have one extra segment", 4, documentResultBean.iterator().next().getSegments().size());
 
-        documentResultBean= getDocumentWithSegments(mike(), fortressB.getName(), "*");
+        documentResultBean = getDocumentWithSegments(mike(), fortressB.getName(), "*");
         Assert.assertEquals(1, documentResultBean.size());
         assertEquals("Wildcard doc type - second fortress should have one extra segment", 4, documentResultBean.iterator().next().getSegments().size());
     }
@@ -158,24 +159,23 @@ public class TestFortressEP extends MvcBase {
         try {
             updateFortress(mike(), "doesNotExist", update);
             fail("Didn't get a not found exception");
-        } catch (NotFoundException e){
+        } catch (NotFoundException e) {
             logger.info("Correct exception thrown");
         }
 
         try {
             updateFortress(sally(), fortress.getCode(), update);
             fail("Didn't get a not found exception");
-        } catch (NotFoundException e){
+        } catch (NotFoundException e) {
             logger.info("Correct exception thrown");
         }
 
         try {
             updateFortress(harry(), fortress.getCode(), update);
             fail("Didn't get a not found exception");
-        } catch (NotFoundException e){
+        } catch (NotFoundException e) {
             logger.info("Correct exception thrown");
         }
-
 
 
     }
@@ -243,15 +243,15 @@ public class TestFortressEP extends MvcBase {
         int fortressCount = fortresses.size();
         logger.debug("existing fortress count {}", fortressCount);
 
-        makeFortress(mike(), new FortressInputBean("Regular",true));
+        makeFortress(mike(), new FortressInputBean("Regular", true));
 
-        FortressInputBean systemFortress = new FortressInputBean("TestSystem",true);
+        FortressInputBean systemFortress = new FortressInputBean("TestSystem", true);
         systemFortress.setSystem(true);
-        FortressResultBean fortress = makeFortress(mike(),systemFortress);
-        assertTrue ( "Was not created as a system fortress", fortress.isSystem());
-        assertTrue ( "system index prefix was not set ["+fortress.getRootIndex()+"]", fortress.getRootIndex().startsWith(".testfd."));
+        FortressResultBean fortress = makeFortress(mike(), systemFortress);
+        assertTrue("Was not created as a system fortress", fortress.isSystem());
+        assertTrue("system index prefix was not set [" + fortress.getRootIndex() + "]", fortress.getRootIndex().startsWith(".testfd."));
         fortresses = getFortresses(mike());
-        assertEquals("System fortress should not have been returned", fortressCount+1, fortresses.size());
+        assertEquals("System fortress should not have been returned", fortressCount + 1, fortresses.size());
     }
 
     @Test
@@ -267,8 +267,8 @@ public class TestFortressEP extends MvcBase {
     @Test
     public void customFortressDefaultsWork() throws Exception {
         FortressInputBean fortressInputBean = new FortressInputBean("demo-custom")
-                .setStoreEnabled(true)
-                .setSearchEnabled(true);
+            .setStoreEnabled(true)
+            .setSearchEnabled(true);
         FortressResultBean defaults = makeFortress(mike(), fortressInputBean);
         assertNotNull(defaults);
         assertTrue("Search wasn't enabled", defaults.isSearchEnabled());

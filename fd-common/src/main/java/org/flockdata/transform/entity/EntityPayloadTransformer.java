@@ -16,6 +16,10 @@
 
 package org.flockdata.transform.entity;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.TagInputBean;
@@ -30,11 +34,6 @@ import org.flockdata.transform.tag.TagProfile;
 import org.joda.time.DateTime;
 import org.springframework.expression.spel.SpelEvaluationException;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-
 /**
  * @author mholdsworth
  * @since 27/04/2014
@@ -42,8 +41,8 @@ import java.util.Map;
 public class EntityPayloadTransformer extends EntityInputBean implements PayloadTransformer {
 
     private static final ColumnDefinition EMPTY_COLDEF = new ColumnDefinition();
-//    private static final Logger logger = LoggerFactory.getLogger(EntityMapper.class);
-    private final ContentModel contentModel ;
+    //    private static final Logger logger = LoggerFactory.getLogger(EntityMapper.class);
+    private final ContentModel contentModel;
 
     private EntityPayloadTransformer(ContentModel contentModel) {
         this.contentModel = contentModel;
@@ -57,13 +56,14 @@ public class EntityPayloadTransformer extends EntityInputBean implements Payload
         return new EntityPayloadTransformer(importProfile);
     }
 
-    public Map<String, Object> transform(Map<String, Object> row) throws FlockException{
+    public Map<String, Object> transform(Map<String, Object> row) throws FlockException {
         return transform(row, contentModel);
     }
 
     protected Map<String, Object> transform(Map<String, Object> row, ContentModel contentModel) throws FlockException {
-        if ( !TransformationHelper.processRow(row, contentModel))
+        if (!TransformationHelper.processRow(row, contentModel)) {
             return null;
+        }
 
         setArchiveTags(contentModel.isArchiveTags());
         Map<String, ColumnDefinition> content = contentModel.getContent();
@@ -74,25 +74,28 @@ public class EntityPayloadTransformer extends EntityInputBean implements Payload
             ColumnDefinition colDef = content.get(sourceColumn);
 
             // Import Profile let's you alter the name of the column
-            if ( colDef == null )
+            if (colDef == null) {
                 colDef = EMPTY_COLDEF;
+            }
 
             String valueColumn = (colDef.getTarget() == null ? sourceColumn : colDef.getTarget());
             String value = getString(row, valueColumn);
 
-            if (TransformationHelper.evaluate(contentModel.isTrackSuppressed()))
+            if (TransformationHelper.evaluate(contentModel.isTrackSuppressed())) {
                 setTrackSuppressed(true);
+            }
 
-            if (TransformationHelper.evaluate(contentModel.isSearchSuppressed()))
+            if (TransformationHelper.evaluate(contentModel.isSearchSuppressed())) {
                 setSearchSuppressed(true);
+            }
 
             if (firstColumn) {
                 // While the definition is in the profile, the value is in the data.
                 // Only do this once.
                 if (contentModel.getSegmentExpression() != null && getSegment() == null) {
-                    if (row.containsKey(contentModel.getSegmentExpression()))
+                    if (row.containsKey(contentModel.getSegmentExpression())) {
                         setSegment(getString(row, contentModel.getSegmentExpression()));
-                    else {
+                    } else {
                         try {
                             setSegment(ExpressionHelper.getValue(row, contentModel.getSegmentExpression(), colDef, null, contentModel));
                         } catch (SpelEvaluationException e) {
@@ -131,8 +134,9 @@ public class EntityPayloadTransformer extends EntityInputBean implements Payload
                         setWhen(new Date(dValue));
                     }
                     if (TransformationHelper.evaluate(colDef.isUpdateDate())) {
-                        if (getLastChange() == null || dValue > getLastChange().getTime())
+                        if (getLastChange() == null || dValue > getLastChange().getTime()) {
                             setLastChange(new Date(dValue));
+                        }
                     }
                 }
             }
@@ -173,11 +177,13 @@ public class EntityPayloadTransformer extends EntityInputBean implements Payload
 
                     Object relationship = ExpressionHelper.getValue(row, key.getRelationshipName());
 
-                    if ( relationship==null)
-                        relationship =  key.getRelationshipName();
+                    if (relationship == null) {
+                        relationship = key.getRelationshipName();
+                    }
 
-                    if (relationship !=null )
+                    if (relationship != null) {
                         addEntityLink(key.setCode(value).setRelationshipName(relationship.toString()));
+                    }
                 }
             }
 
@@ -186,25 +192,27 @@ public class EntityPayloadTransformer extends EntityInputBean implements Payload
             }
 
             // Dynamic column DAT-527
-            if (colDef.getTarget() != null && colDef.getTarget().length()>0) {
+            if (colDef.getTarget() != null && colDef.getTarget().length() > 0) {
                 Object targetValue = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
                 Object oValue = TransformationHelper.transformValue(targetValue, sourceColumn, colDef);
-                if (oValue != null)
+                if (oValue != null) {
                     row.put(colDef.getTarget(), oValue);
+                }
             }
-            if (!TransformationHelper.evaluate(colDef.isPersistent(),true)) {
+            if (!TransformationHelper.evaluate(colDef.isPersistent(), true)) {
                 // DAT-528
                 row.remove(sourceColumn);
             } else if (colDef.hasEntityProperties()) {
                 for (ColumnDefinition columnDefinition : colDef.getProperties()) {
                     // Expression can be set on a by property value otherwise default to that of the parent
-                    String expression = (columnDefinition.getValue()!=null ? columnDefinition.getValue(): colDef.getValue());
+                    String expression = (columnDefinition.getValue() != null ? columnDefinition.getValue() : colDef.getValue());
 
                     value = ExpressionHelper.getValue(row, expression, columnDefinition, value);
                     Object oValue = TransformationHelper.transformValue(value, sourceColumn, colDef);
-                    if (columnDefinition.getTarget() != null)
+                    if (columnDefinition.getTarget() != null) {
                         valueColumn = columnDefinition.getTarget();
-                    if (oValue != null || columnDefinition.getStoreNull()){
+                    }
+                    if (oValue != null || columnDefinition.getStoreNull()) {
                         setProperty(valueColumn, oValue);
                     }
 
@@ -219,8 +227,9 @@ public class EntityPayloadTransformer extends EntityInputBean implements Payload
     private String getString(Map<String, Object> row, String valueColumn) {
         Object o = row.get(valueColumn);
         String value = null;
-        if (o != null)
+        if (o != null) {
             value = o.toString().trim();
+        }
         return value;
     }
 

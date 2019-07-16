@@ -20,6 +20,17 @@
 
 package org.flockdata.test.engine.services;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.flockdata.data.Company;
 import org.flockdata.data.ContentModel;
@@ -38,7 +49,12 @@ import org.flockdata.services.ContentModelService;
 import org.flockdata.test.engine.MapBasedStorageProxy;
 import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.test.unit.client.FdTemplateMock;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.track.bean.EntityTagRelationshipInput;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.joda.time.DateTime;
@@ -50,14 +66,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.*;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Entities can be connected to other entities. This checks some of the behaviour
@@ -71,7 +79,7 @@ import static org.junit.Assert.assertTrue;
     FdTemplateMock.class,
     FdServerIo.class,
     MapBasedStorageProxy.class})
-@ActiveProfiles({"dev", "fd-auth-test"})
+@ActiveProfiles( {"dev", "fd-auth-test"})
 public class TestEntityLinks extends EngineBase {
 
     @Autowired

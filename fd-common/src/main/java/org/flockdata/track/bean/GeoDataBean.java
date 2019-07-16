@@ -21,22 +21,22 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Geographic type data
+ *
  * @author mholdsworth
- * @since 28/02/2014
  * @tag Contract, Geo
+ * @since 28/02/2014
  */
 public class GeoDataBean {
 
     //private String description = null;
     private String code;
     private String name = null;
-    private Map<String,String>points;
+    private Map<String, String> points;
 
 
     public GeoDataBean() {
@@ -50,14 +50,17 @@ public class GeoDataBean {
     //Map<String, Object> properties = new HashMap<>();
 
     public void add(String type, String code, String name, Double lat, Double lon) {
-        if ( code !=null)
+        if (code != null) {
             this.code = code;
-        if ( name !=null )
+        }
+        if (name != null) {
             this.name = name;
+        }
 
         if (lat != null && lon != null) {
-            if ( points == null )
+            if (points == null) {
                 points = new HashMap<>();
+            }
             points.put(type, lat.toString() + "," + lon.toString());
         }
     }
@@ -86,8 +89,8 @@ public class GeoDataBean {
     @Override
     public String toString() {
         return "GeoDataBean{" +
-                "code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+            "code='" + code + '\'' +
+            ", name='" + name + '\'' +
+            '}';
     }
 }

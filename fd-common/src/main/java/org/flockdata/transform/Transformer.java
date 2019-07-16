@@ -18,6 +18,13 @@ package org.flockdata.transform;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamReader;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
@@ -32,11 +39,6 @@ import org.flockdata.transform.model.PayloadTransformer;
 import org.flockdata.transform.tag.TagPayloadTransformer;
 import org.flockdata.transform.xml.XmlMappable;
 import org.joda.time.DateTime;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.*;
 
 /**
  * @author mholdsworth
@@ -44,14 +46,12 @@ import java.util.*;
  */
 public class Transformer {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(Transformer.class);
-
-
-    public static EntityInputBean toEntity(Map<String, Object> row, ContentModel contentModel) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public static EntityInputBean toEntity(Map<String, Object> row, ContentModel contentModel) throws FlockException{
         PayloadTransformer payloadTransformer = EntityPayloadTransformer.newInstance(contentModel);
         Map<String, Object> jsonData = payloadTransformer.transform(row);
-        if ( jsonData == null )
+        if (jsonData == null) {
             return null;// No entity did not get created
+        }
 
         EntityInputBean entityInputBean = (EntityInputBean) payloadTransformer;
 
@@ -60,10 +60,14 @@ public class Transformer {
             // It's all Meta baby - no log information
         } else {
             String updatingUser = entityInputBean.getUpdateUser();
-            if (updatingUser == null)
-                updatingUser = (entityInputBean.getFortressUser() == null ? contentModel.getFortressUser() : entityInputBean.getFortressUser());
+            if (updatingUser == null) {
+                updatingUser = (entityInputBean.getFortressUser() == null ?
+                    contentModel.getFortressUser() : entityInputBean.getFortressUser());
+            }
 
-            ContentInputBean contentInputBean = new ContentInputBean(updatingUser, (entityInputBean.getWhen() != null ? new DateTime(entityInputBean.getWhen()) : null), jsonData);
+            ContentInputBean contentInputBean = new ContentInputBean(updatingUser,
+                (entityInputBean.getWhen() != null ? new DateTime(entityInputBean.getWhen()) : null),
+                jsonData);
             contentInputBean.setEvent(contentModel.getEvent());
             entityInputBean.setContent(contentInputBean);
         }
@@ -71,7 +75,7 @@ public class Transformer {
 
     }
 
-    public static Collection<TagInputBean> toTags(Map<String, Object> row, ContentModel contentModel) throws FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public static Collection<TagInputBean> toTags(Map<String, Object> row, ContentModel contentModel) throws FlockException{
         TagPayloadTransformer mappable = TagPayloadTransformer.newInstance(contentModel);
         mappable.transform(row);
         return mappable.getTags();
@@ -81,11 +85,13 @@ public class Transformer {
     public static EntityInputBean toEntity(JsonNode node, ContentModel importProfile) throws FlockException {
         JsonEntityTransformer entityInputBean = new JsonEntityTransformer();
         entityInputBean.setData(node, importProfile);
-        if (entityInputBean.getFortress() == null)
+        if (entityInputBean.getFortress() == null) {
             entityInputBean.setFortress(importProfile.getFortress());
+        }
         ContentInputBean contentInputBean = new ContentInputBean();
-        if (contentInputBean.getFortressUser() == null)
+        if (contentInputBean.getFortressUser() == null) {
             contentInputBean.setFortressUser(importProfile.getFortressUser());
+        }
         entityInputBean.setContent(contentInputBean);
         contentInputBean.setData(FdJsonObjectMapper.getObjectMapper().convertValue(node, Map.class));
 
@@ -93,22 +99,26 @@ public class Transformer {
 
     }
 
-    public static EntityInputBean toEntity(XmlMappable mappable, XMLStreamReader xsr, ContentModel importProfile) throws FlockException, JAXBException, JsonProcessingException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public static EntityInputBean toEntity(XmlMappable mappable, XMLStreamReader xsr, ContentModel importProfile)
+        throws FlockException, JAXBException, JsonProcessingException {
 
         XmlMappable row = mappable.newInstance(importProfile);
         ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile);
         EntityInputBean entityInputBean = (EntityInputBean) row;
 
-        if (entityInputBean.getFortress() == null)
+        if (entityInputBean.getFortress() == null) {
             entityInputBean.setFortress(importProfile.getFortress());
+        }
 
-        if (entityInputBean.getFortressUser() == null)
+        if (entityInputBean.getFortressUser() == null) {
             entityInputBean.setFortressUser(importProfile.getFortressUser());
+        }
 
 
         if (contentInputBean != null) {
-            if (contentInputBean.getFortressUser() == null)
+            if (contentInputBean.getFortressUser() == null) {
                 contentInputBean.setFortressUser(importProfile.getFortressUser());
+            }
             entityInputBean.setContent(contentInputBean);
         }
         return entityInputBean;
@@ -117,26 +127,28 @@ public class Transformer {
     /**
      * Constructs a default content profile from the data that the caller want's to import. Pretty simple functionality
      * that the caller should further enrich.
-     *
+     * <p>
      * Does things like find lowest common denominator data type from the sample content supplied, i.e. Number {@literal ->} String
      *
      * @param content data to analyse
      * @return basic ContentProfile that describes the Contents
      */
-    public static Map<String, ColumnDefinition> fromMapToModel(Collection<Map<String, Object>> content )  {
+    public static Map<String, ColumnDefinition> fromMapToModel(Collection<Map<String, Object>> content) {
         Map<String, ColumnDefinition> result = new TreeMap<>();
-        if ( content == null)
+        if (content == null) {
             return result;
+        }
 
         for (Map<String, Object> row : content) {
             for (String column : row.keySet()) {
-                Object value = TransformationHelper.transformValue(row.get(column), column,null);
+                Object value = TransformationHelper.transformValue(row.get(column), column, null);
                 String thisDataType = TransformationHelper.getDataType(value, column);
-                if ( value!=null) {
+                if (value != null) {
                     ColumnDefinition existingColumn = result.get(column);
-                    if ( existingColumn != null &&  !existingColumn.getDataType().equals(thisDataType)  && !existingColumn.getDataType().equals("string") ){
+                    if (existingColumn != null && !existingColumn.getDataType().equals(thisDataType) &&
+                        !existingColumn.getDataType().equals("string")) {
                         existingColumn.setDataType("string");// lowest common denominator
-                    } else if (existingColumn == null ) {
+                    } else if (existingColumn == null) {
                         ColumnDefinition columnDefinition = new ColumnDefinition();
                         columnDefinition.setDataType(thisDataType);
                         columnDefinition.setTarget(getValidTarget(column));
@@ -150,34 +162,38 @@ public class Transformer {
         return result;
     }
 
-    public static boolean isValidForEs(String colName){
+    public static boolean isValidForEs(String colName) {
         return !colName.contains(".");
     }
 
     private static String getValidTarget(String column) {
-        if ( column== null || column.length()==0)
+        if (column == null || column.length() == 0) {
             return null;
-        if ( !isValidForEs(column)) // ElasticSearch does not accept columns with a period
+        }
+        if (!isValidForEs(column)) // ElasticSearch does not accept columns with a period
+        {
             return column.replace(".", "");
+        }
         return null; // Null nothing to rename
     }
 
     public static Map<String, Object> convertToMap(String[] headerRow, String[] line) {
-        if ( headerRow == null || line== null )
+        if (headerRow == null || line == null) {
             throw new IllegalArgumentException("Header row or data row was null");
-        Map<String,Object>result = new HashMap<>();
+        }
+        Map<String, Object> result = new HashMap<>();
         int col = 0;
-        for(String column: headerRow)  {
+        for (String column : headerRow) {
             Object value = line[col];
-            result.put(column,TransformationHelper.transformValue(value, column, null));
+            result.put(column, TransformationHelper.transformValue(value, column, null));
             col++;
         }
         return result;
     }
 
-    public static Collection<Map<String,Object>>convertToMap(DataConversionRequest request){
+    public static Collection<Map<String, Object>> convertToMap(DataConversionRequest request) {
         ExtractProfile extractProfile = new ExtractProfileHandler(request.getContentModel());
-        Collection<Map<String,Object>> results = new ArrayList<>();
+        Collection<Map<String, Object>> results = new ArrayList<>();
         Collection<String[]> lines = request.getData();
         for (String[] line : lines) {
             results.add(convertToMap(request.getHeader(), line, extractProfile));
@@ -195,15 +211,18 @@ public class Transformer {
                 // Find first by the name (if we're using a raw header
                 ColumnDefinition colDef = contentModel.getColumnDef(column);
                 if (colDef == null)
-                    // Might be indexed by column number if there was no csv
+                // Might be indexed by column number if there was no csv
+                {
                     colDef = contentModel.getColumnDef(Integer.toString(col));
+                }
 
                 Object value = line[col];
                 value = TransformationHelper.transformValue(value, column, colDef);
                 boolean addValue = true;
                 if (TransformationHelper.evaluate(contentModel.isEmptyIgnored())) {
-                    if (value == null || value.toString().trim().equals(""))
+                    if (value == null || value.toString().trim().equals("")) {
                         addValue = false;
+                    }
                 }
                 if (addValue) {
                     row.put(column, (value instanceof String ? ((String) value).trim() : value));

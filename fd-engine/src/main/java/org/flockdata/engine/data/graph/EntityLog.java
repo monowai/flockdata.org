@@ -21,6 +21,7 @@
 package org.flockdata.engine.data.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.TimeZone;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Log;
 import org.flockdata.store.Store;
@@ -28,14 +29,17 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.neo4j.annotation.*;
-
-import java.util.TimeZone;
+import org.springframework.data.neo4j.annotation.EndNode;
+import org.springframework.data.neo4j.annotation.Fetch;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.RelationshipEntity;
+import org.springframework.data.neo4j.annotation.StartNode;
 
 /**
  * @author mholdsworth
- * @since 21/06/2013
  * @tag Relationship, Log
+ * @since 21/06/2013
  */
 @RelationshipEntity(type = "LOGGED")
 public class EntityLog implements org.flockdata.data.EntityLog {
@@ -71,7 +75,7 @@ public class EntityLog implements org.flockdata.data.EntityLog {
 
     public EntityLog(TrackResultBean trackResultBean, Store store, Log newLog, DateTime fortressWhen) {
         this(trackResultBean.getEntity(), newLog, fortressWhen);
-        if (!store.equals(Store.NONE)){
+        if (!store.equals(Store.NONE)) {
             id = null;
             isMock = false;
         }
@@ -79,8 +83,8 @@ public class EntityLog implements org.flockdata.data.EntityLog {
 
     public EntityLog(Entity entity, Log log, DateTime fortressWhen) {
         this();
-        this.entity = (EntityNode)entity;
-        this.log = (LogNode)log;
+        this.entity = (EntityNode) entity;
+        this.log = (LogNode) log;
         // By default, this would be a disabled
         if (log.isMocked()) {
             id = entity.getId(); // Mocked logs will have the ID of the Entity
@@ -112,7 +116,7 @@ public class EntityLog implements org.flockdata.data.EntityLog {
         return fortressWhen;
     }
 
-    void setFortressWhen(DateTime fortressWhen){
+    void setFortressWhen(DateTime fortressWhen) {
         this.fortressWhen = fortressWhen.getMillis();
     }
 
@@ -127,7 +131,7 @@ public class EntityLog implements org.flockdata.data.EntityLog {
         return entity;
     }
 
-    public void setEntity(EntityNode entity){
+    public void setEntity(EntityNode entity) {
         this.entity = entity;
     }
 
@@ -150,13 +154,21 @@ public class EntityLog implements org.flockdata.data.EntityLog {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EntityLog)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EntityLog)) {
+            return false;
+        }
 
         EntityLog that = (EntityLog) o;
 
-        if (log != null ? !log.equals(that.log) : that.log != null) return false;
-        if (entity != null ? !entity.getId().equals(that.entity.getId()) : that.entity != null) return false;
+        if (log != null ? !log.equals(that.log) : that.log != null) {
+            return false;
+        }
+        if (entity != null ? !entity.getId().equals(that.entity.getId()) : that.entity != null) {
+            return false;
+        }
         return !(id != null ? !id.equals(that.id) : that.id != null);
 
     }
@@ -172,11 +184,11 @@ public class EntityLog implements org.flockdata.data.EntityLog {
     @Override
     public String toString() {
         return "EntityLog{" +
-                "id=" + id +
-                ", fortressWhen=" + new DateTime(fortressWhen) +
-                ", sysWhen=" + new DateTime(sysWhen) +
-                ", indexed=" + indexed +
-                '}';
+            "id=" + id +
+            ", fortressWhen=" + new DateTime(fortressWhen) +
+            ", sysWhen=" + new DateTime(sysWhen) +
+            ", indexed=" + indexed +
+            '}';
     }
 
     @JsonIgnore

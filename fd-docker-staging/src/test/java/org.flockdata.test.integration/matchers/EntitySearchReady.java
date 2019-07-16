@@ -24,6 +24,7 @@ import org.flockdata.transform.FdIoInterface;
 
 /**
  * Waits for a Search count of the requested value
+ *
  * @author mholdsworth
  * @since 23/04/2016
  */
@@ -34,7 +35,7 @@ public class EntitySearchReady implements ReadyMatcher {
     private EntityInputBean entityInputBean;
     private String key;
     private int waitFor;
-    
+
     public EntitySearchReady(EntityGet entityGet, int searchCount, EntityInputBean entityInputBean, String key) {
         this.entityGet = entityGet;
         this.waitFor = searchCount;
@@ -49,7 +50,7 @@ public class EntitySearchReady implements ReadyMatcher {
     }
 
     @Override
-    public CommandResponse<EntityResultBean>  getResponse() {
+    public CommandResponse<EntityResultBean> getResponse() {
         return response;
     }
 }

@@ -28,11 +28,14 @@ import org.flockdata.registration.FortressResultBean;
  * @since 3/01/17
  */
 public class SegmentResultBean implements Segment {
-    private boolean isDefault=false;
+    private boolean isDefault = false;
     private String code;
     private FortressResultBean fortressResultBean;
 
-    SegmentResultBean(){};
+    SegmentResultBean() {
+    }
+
+    ;
 
     public SegmentResultBean(Segment segment) {
         this();
@@ -69,7 +72,7 @@ public class SegmentResultBean implements Segment {
         return isDefault;
     }
 
-    public void setDefault(Boolean isDefault){
+    public void setDefault(Boolean isDefault) {
         this.isDefault = isDefault;
     }
 

@@ -25,8 +25,8 @@ import org.flockdata.store.StoredContent;
 
 /**
  * @author mholdsworth
- * @since 4/09/2013
  * @tag Contract, Log
+ * @since 4/09/2013
  */
 public class LogDetailBean {
 
@@ -35,6 +35,7 @@ public class LogDetailBean {
 
     private LogDetailBean() {
     }
+
     public LogDetailBean(EntityLog log, StoredContent what) {
         this();
         this.log = log;

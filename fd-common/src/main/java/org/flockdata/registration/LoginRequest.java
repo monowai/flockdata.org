@@ -24,37 +24,37 @@ import java.io.Serializable;
 
 public class LoginRequest implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2443535860253992348L;
-	
-	private String username;
-	private String password;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -2443535860253992348L;
 
-	public LoginRequest(String user, String pass) {
-		this();
-		this.username = user;
-		this.password = pass;
-	}
+    private String username;
+    private String password;
 
-	public LoginRequest() {
+    public LoginRequest(String user, String pass) {
+        this();
+        this.username = user;
+        this.password = pass;
+    }
 
-	}
+    public LoginRequest() {
 
-	public String getUsername() {
-		return username;
-	}
+    }
 
-	public void setUsername(String userName) {
-		this.username = userName;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public void setUsername(String userName) {
+        this.username = userName;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

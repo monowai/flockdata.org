@@ -20,6 +20,7 @@
 
 package org.flockdata.integration;
 
+import javax.annotation.PostConstruct;
 import org.flockdata.helper.JsonUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
@@ -29,15 +30,13 @@ import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 /**
  * @author mholdsworth
+ * @tag Json, Integration
  * @since 14/02/2016
- * @tag Json,Integration
  */
 @Component
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class MessageSupport {
 
     private ObjectToJsonTransformer objectToJsonTransformer;
@@ -46,21 +45,21 @@ public class MessageSupport {
     @PostConstruct
     public void createTransformer() {
         objectToJsonTransformer = new ObjectToJsonTransformer(
-                new Jackson2JsonObjectMapper(JsonUtils.getMapper())
+            new Jackson2JsonObjectMapper(JsonUtils.getMapper())
         );
         objectToJsonTransformer.setContentType(MediaType.APPLICATION_JSON_UTF8.getType());
 
         j2o = new JsonToObjectTransformer(
-                new Jackson2JsonObjectMapper( JsonUtils.getMapper())
+            new Jackson2JsonObjectMapper(JsonUtils.getMapper())
         );
 
     }
 
-    public JsonToObjectTransformer jsonToObject(){
+    public JsonToObjectTransformer jsonToObject() {
         return j2o;
     }
 
-    ObjectToJsonTransformer objectToJson(){
+    ObjectToJsonTransformer objectToJson() {
         return objectToJsonTransformer;
     }
 

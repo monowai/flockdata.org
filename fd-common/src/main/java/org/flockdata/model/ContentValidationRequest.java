@@ -20,12 +20,11 @@
 
 package org.flockdata.model;
 
-import org.flockdata.data.ContentModel;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.flockdata.data.ContentModel;
 
 /**
  * Payload required to validate Content with a selection of data
@@ -36,10 +35,11 @@ import java.util.Map;
 public class ContentValidationRequest {
 
     ContentModel contentModel;
-    Collection<Map<String,Object>> rows;
-    Map<Integer,Collection<String>> messages = new HashMap<>();
+    Collection<Map<String, Object>> rows;
+    Map<Integer, Collection<String>> messages = new HashMap<>();
 
-    public ContentValidationRequest(){}
+    public ContentValidationRequest() {
+    }
 
     public ContentValidationRequest(ContentModel model) {
         this();
@@ -47,7 +47,7 @@ public class ContentValidationRequest {
     }
 
     public ContentValidationRequest(Map<String, Object> dataMap) {
-        Collection<Map<String,Object>>rows = new ArrayList<>();
+        Collection<Map<String, Object>> rows = new ArrayList<>();
         rows.add(dataMap);
         this.rows = rows;
     }
@@ -81,7 +81,7 @@ public class ContentValidationRequest {
     public void addResult(int rowCount, String message) {
 
         Collection<String> existingMessages = messages.get(rowCount);
-        if ( existingMessages == null ) {
+        if (existingMessages == null) {
             existingMessages = new ArrayList<>();
             messages.put(rowCount, existingMessages);
         }

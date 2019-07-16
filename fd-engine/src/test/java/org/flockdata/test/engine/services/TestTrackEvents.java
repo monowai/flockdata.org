@@ -20,6 +20,11 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.flockdata.data.ChangeEvent;
 import org.flockdata.data.Company;
 import org.flockdata.data.EntityLog;
@@ -34,8 +39,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 
 /**

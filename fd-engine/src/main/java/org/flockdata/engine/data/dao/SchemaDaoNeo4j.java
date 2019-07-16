@@ -20,6 +20,10 @@
 
 package org.flockdata.engine.data.dao;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
 import org.flockdata.helper.CypherHelper;
@@ -32,18 +36,13 @@ import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Maintains company specific Schema details. Structure of the nodes that FD has established
  * based on Entities, DocumentTypes, Tags and Relationships
  *
  * @author mholdsworth
- * @since 3/04/2014
  * @tag neo4j, Schema, Administration
+ * @since 3/04/2014
  */
 @Repository
 public class SchemaDaoNeo4j {
@@ -153,15 +152,15 @@ public class SchemaDaoNeo4j {
         HashMap<String, Object> params = new HashMap<>();
         params.put("fortId", fortress.getId());
 
-        String modelRelationships =" match (m:Model)-[r:FORTRESS_MODEL]->(fort:Fortress) " +
-                "where id(fort)={fortId} " +
-                "delete r";
+        String modelRelationships = " match (m:Model)-[r:FORTRESS_MODEL]->(fort:Fortress) " +
+            "where id(fort)={fortId} " +
+            "delete r";
         runQuery(modelRelationships, params);
 
         String conceptRelationships = "match (fort:Fortress)-[fd:FORTRESS_DOC]-(a:DocType)-[dr]-(o)-[k]-(p)" +
-                "where id(fort)={fortId} " +
-                "and not (o:Model)  " +
-                "delete dr, k, o;";
+            "where id(fort)={fortId} " +
+            "and not (o:Model)  " +
+            "delete dr, k, o;";
 
         // ToDo: Purge Unused Concepts!!
         runQuery(conceptRelationships, params);

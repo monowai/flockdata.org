@@ -20,14 +20,13 @@
 
 package org.flockdata.engine.admin;
 
+import java.util.Collection;
+import java.util.concurrent.Future;
 import org.flockdata.data.Company;
 import org.flockdata.data.Document;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Fortress;
 import org.flockdata.helper.FlockException;
-
-import java.util.Collection;
-import java.util.concurrent.Future;
 
 /**
  * @author mholdsworth
@@ -40,14 +39,13 @@ public interface EngineAdminService {
 
     Future<Long> doReindex(Fortress fortress, Entity entity) throws FlockException;
 
-    Future<Boolean> purge(Fortress fortress) throws FlockException ;
+    Future<Boolean> purge(Fortress fortress) throws FlockException;
 
     /**
-     *
-     * @param company       who owns the data
-     * @param fortress      fortress within the company
-     * @param documentType  documents in the fortress
-     * @param segment       Optional segment. if null, all segments are deleted
+     * @param company      who owns the data
+     * @param fortress     fortress within the company
+     * @param documentType documents in the fortress
+     * @param segment      Optional segment. if null, all segments are deleted
      * @return success
      */
     Future<Boolean> purge(Company company, Fortress fortress, Document documentType, String segment);

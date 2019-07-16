@@ -16,7 +16,16 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.Map;
 import junit.framework.Assert;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
@@ -31,20 +40,13 @@ import org.flockdata.transform.model.ExtractProfile;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
-
 /**
  * CSV files with no headers
+ *
  * @author mholdsworth
  * @since 28/01/2015
  */
-public class TestEntityRelationships extends AbstractImport{
+public class TestEntityRelationships extends AbstractImport {
 
     @Test
     public void evaluation_EntityLinkExpressions() throws Exception {
@@ -78,16 +80,17 @@ public class TestEntityRelationships extends AbstractImport{
         List<EntityInputBean> entityBatch = fdTemplate.getEntities();
         assertEquals(4, entityBatch.size());
         for (EntityInputBean entityInputBean : entityBatch) {
-            assertFalse("Expression not parsed for code",entityInputBean.getCode().contains("|"));
+            assertFalse("Expression not parsed for code", entityInputBean.getCode().contains("|"));
             assertTrue("Caller ref appears invalid", entityInputBean.getCode().length() > 4);
             assertTrue("Tag not set", entityInputBean.getTags().size() == 3);
-            TagInputBean politician= null;
+            TagInputBean politician = null;
             for (TagInputBean tagInputBean : entityInputBean.getTags()) {
                 assertFalse("Expression not parsed for code", tagInputBean.getCode().contains("|"));
                 assertNull("Name should be null if it equals the code", tagInputBean.getName());
-                if ( tagInputBean.getLabel().equals("Politician"))
-                    politician= tagInputBean;
-                if ( tagInputBean.getLabel().equals("InterestGroup")){
+                if (tagInputBean.getLabel().equals("Politician")) {
+                    politician = tagInputBean;
+                }
+                if (tagInputBean.getLabel().equals("InterestGroup")) {
                     assertEquals("direct", tagInputBean.getEntityTagLinks().keySet().iterator().next());
                 }
             }
@@ -95,7 +98,7 @@ public class TestEntityRelationships extends AbstractImport{
             EntityTagRelationshipInput link = politician.getEntityTagLinks().get("receives");
             assertNotNull(link);
             assertNotNull(link.getProperties().get("amount"));
-            assertTrue("Amount not calculated as a value", Integer.parseInt(link.getProperties().get("amount").toString()) >0);
+            assertTrue("Amount not calculated as a value", Integer.parseInt(link.getProperties().get("amount").toString()) > 0);
 
         }
         ObjectMapper om = new ObjectMapper();
@@ -112,9 +115,9 @@ public class TestEntityRelationships extends AbstractImport{
         ContentModel params = ContentModelDeserializer.getContentModel("/model/csvtest.json");
         EntityPayloadTransformer entity = EntityPayloadTransformer.newInstance(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
-        String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category", "xRef"};
+        String[] headers = new String[] {"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category", "xRef"};
         // Category column is intentionally null
-        String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12", null, "qwerty" };
+        String[] data = new String[] {"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12", null, "qwerty"};
         Map<String, Object> json = entity.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(params)));
         Assert.assertNotNull(json);
 
@@ -126,13 +129,13 @@ public class TestEntityRelationships extends AbstractImport{
 
         assertFalse(entityLinks.isEmpty());
         assertEquals(2, entityLinks.size());
-        boolean foundExposed=false, foundBlah=false;
+        boolean foundExposed = false, foundBlah = false;
         for (String s : entityLinks.keySet()) {
-            if ( s.equals("exposed")){
+            if (s.equals("exposed")) {
                 // Check for 2 values
                 assertEquals(2, entityLinks.get("exposed").size());
                 foundExposed = true;
-            } else if ( s.equals("blah")){
+            } else if (s.equals("blah")) {
                 assertEquals(1, entityLinks.get("blah").size());
                 for (String s1 : entityLinks.keySet()) {
                     EntityKeyBean ek = entityLinks.get("blah").iterator().next();
@@ -156,15 +159,15 @@ public class TestEntityRelationships extends AbstractImport{
                     EntityTagRelationshipInput o = tag.getEntityTagLinks().get("2008");
                     Assert.assertNotNull(o);
                     assertEquals(12, o.getProperties().get("value"));
-                    tagsFound ++;
+                    tagsFound++;
                     break;
                 case "TagName":
                     assertEquals("TagName", tag.getCode());
-                    tagsFound ++;
+                    tagsFound++;
                     break;
                 case "Gold":
                     assertEquals(true, tag.isMustExist());
-                    tagsFound ++;
+                    tagsFound++;
                     break;
                 case "ValTag":
                     Assert.assertNotNull(tag.getEntityTagLinks().get("undefined"));
@@ -172,16 +175,16 @@ public class TestEntityRelationships extends AbstractImport{
                     assertEquals("ValTag", tag.getName());
                     assertEquals("ValTag", tag.getLabel());
                     assertEquals(8, (tag.getEntityTagLinks().get("undefined")).getProperties().get("value"));
-                    tagsFound ++;
+                    tagsFound++;
                     break;
                 case "New Zealand":
                     assertEquals("Country", tag.getLabel());
-                    tagsFound ++;
+                    tagsFound++;
                     break;
                 case "TitleTests":
                     callerRefFoundAsATag = true;
                     assertNull("Name should be null as it is the same as the code", tag.getName());
-                    tagsFound ++;
+                    tagsFound++;
                     break;
                 case "Undefined":
                     nullCategoryFound = true;

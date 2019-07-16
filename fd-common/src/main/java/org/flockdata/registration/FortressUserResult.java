@@ -32,11 +32,11 @@ public class FortressUserResult implements FortressUser {
     private String code;
     private String name;
 
-    FortressUserResult(){
+    FortressUserResult() {
 
     }
 
-    public FortressUserResult(FortressUser fortressUserInterface){
+    public FortressUserResult(FortressUser fortressUserInterface) {
         this();
         this.code = fortressUserInterface.getCode();
         this.name = fortressUserInterface.getName();

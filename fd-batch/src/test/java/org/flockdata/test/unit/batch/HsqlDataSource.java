@@ -16,6 +16,8 @@
 
 package org.flockdata.test.unit.batch;
 
+import java.sql.SQLException;
+import javax.sql.DataSource;
 import org.flockdata.batch.BatchConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,15 +27,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
-
 /**
  * @author mholdsworth
  * @since 28/01/2016
  */
 @Configuration
-@Profile({"fd-batch-dev", "dev"})
+@Profile( {"fd-batch-dev", "dev"})
 public class HsqlDataSource {
     @Autowired
     BatchConfig batchConfig;
@@ -44,11 +43,10 @@ public class HsqlDataSource {
     public DataSource dataSource() throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
 
         return new EmbeddedDatabaseBuilder()
-                .setType(EmbeddedDatabaseType.HSQL)
-                .setName("testDb")
-                .build();
+            .setType(EmbeddedDatabaseType.HSQL)
+            .setName("testDb")
+            .build();
     }
-
 
 
 }

@@ -20,18 +20,17 @@
 
 package org.flockdata.search.endpoint;
 
+import java.util.Map;
 import org.flockdata.search.service.SearchAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 /**
  * @author mholdsworth
- * @since 5/05/2014
  * @tag Endpoint, Administration, Search
+ * @since 5/05/2014
  */
 @RequestMapping("${org.fd.search.system.api:api}/v1/admin")
 @RestController

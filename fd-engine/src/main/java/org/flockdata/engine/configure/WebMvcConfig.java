@@ -30,9 +30,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
+ * @author mholdsworth
  * @tag Controller, Configuration, MVC
  * Register any additional Interceptors for fd-engine
- * @author mholdsworth
  * @since 18/02/2016
  */
 @Configuration
@@ -50,8 +50,8 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     @Autowired
     private ApiKeyInterceptor apiKeyInterceptor;
 
-    public void addInterceptors(InterceptorRegistry registry){
-        registry.addInterceptor( apiKeyInterceptor);
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(apiKeyInterceptor);
     }
 
     @RequestMapping("/")
@@ -60,17 +60,17 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     }
 
     @RequestMapping("/api")
-    String api () {
+    String api() {
         return home();
     }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(origins)
-                .allowedHeaders(headers)
-                .allowedMethods(methods)
-                .allowCredentials(allowCredentials)
+            .allowedOrigins(origins)
+            .allowedHeaders(headers)
+            .allowedMethods(methods)
+            .allowCredentials(allowCredentials)
         ;
     }
 

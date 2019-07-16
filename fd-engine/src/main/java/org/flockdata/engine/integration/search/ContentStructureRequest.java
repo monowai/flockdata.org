@@ -44,13 +44,13 @@ import org.springframework.messaging.MessageHandler;
  * Striped down search support. Designed for fd-view. ToDo: Move to a "Backend for Frontend" module
  *
  * @author mholdsworth
- * @since 14/02/2016
  * @tag Messaging, Search
+ * @since 14/02/2016
  */
 
 @Configuration
 @IntegrationComponentScan
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class ContentStructureRequest {
 
     @Autowired
@@ -60,9 +60,9 @@ public class ContentStructureRequest {
     @Bean
     public IntegrationFlow fxValuationFlow() {
         return IntegrationFlows.from("getStructure")
-                .transform(Transformers.toJson())
-                .handle(contentStructureHandler())
-                .get();
+            .transform(Transformers.toJson())
+            .handle(contentStructureHandler())
+            .get();
     }
 
     @Bean
@@ -74,7 +74,7 @@ public class ContentStructureRequest {
     public MessageHandler contentStructureHandler() {
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch()+"/v1/content/");
+            new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/content/");
         handler.setExpectedResponseType(ContentStructure.class);
         handler.setHttpMethod(HttpMethod.POST);
 

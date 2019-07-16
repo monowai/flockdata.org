@@ -16,6 +16,7 @@
 
 package org.flockdata.authentication;
 
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,18 +31,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Hardcoded users and passwords. Suitable for evaluation and testing
- *
+ * <p>
  * You should include the configuration to use this implementation
  *
  * @author mholdsworth
  * @since 16/02/2016
  */
 
-@Profile({"fd-auth-test"}) //
+@Profile( {"fd-auth-test"}) //
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @Slf4j
@@ -61,8 +60,8 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
         for (String login : simpleUsers.getUsers().keySet()) {
             SimpleUsers.UserEntry user = simpleUsers.getUsers().get(login);
             ima.withUser(login)
-                    .password(user.getPass())
-                    .roles(user.getRoles().toArray(new String[0]));
+                .password(user.getPass())
+                .roles(user.getRoles().toArray(new String[0]));
 
             log.info("**** [fd-auth-test] - Added {}", login);
         }
@@ -76,14 +75,14 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Order(10) // Preventing clash with AuthTesting deployment (100)
-    @Profile({"fd-auth-test"}) //
+    @Profile( {"fd-auth-test"}) //
     public static class ApiSecurity extends WebSecurityConfigurerAdapter {
 
         @Value("${org.fd.auth.simple.login.form:#{null}}")
         String loginForm;
 
-        @Value ("${org.fd.auth.simple.login.method:form}")
-        String loginMethod ;
+        @Value("${org.fd.auth.simple.login.method:form}")
+        String loginMethod;
 
         @Override
         public void configure(HttpSecurity http) throws Exception {
@@ -91,10 +90,10 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
             // ApiKeyInterceptor is a part of the auth chain - see WebMvcConfig
 
             http.authorizeRequests()
-                    .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS
-                    .antMatchers("/api/login", "/api/ping", "/api/logout", "/api/account").permitAll()
-                    .antMatchers("/api/v1/**").authenticated()
-                    .antMatchers("/").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS
+                .antMatchers("/api/login", "/api/ping", "/api/logout", "/api/account").permitAll()
+                .antMatchers("/api/v1/**").authenticated()
+                .antMatchers("/").permitAll()
             ;
 
 
@@ -102,9 +101,9 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
             //https://github.com/aditzel/spring-security-csrf-token-interceptor
             http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
 
-            if ( loginMethod.equalsIgnoreCase("basic") || loginForm == null )
+            if (loginMethod.equalsIgnoreCase("basic") || loginForm == null) {
                 http.httpBasic();
-            else {
+            } else {
                 http.httpBasic();
                 http.formLogin().loginPage(loginForm).permitAll();
             }

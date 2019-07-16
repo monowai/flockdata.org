@@ -20,21 +20,20 @@
 
 package org.flockdata.engine.data.dao;
 
+import java.util.Collection;
 import org.flockdata.data.Alias;
 import org.flockdata.engine.data.graph.AliasNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
-import java.util.Collection;
-
 /**
  * @author mholdsworth
- * @since 30/06/2013
  * @tag GraphRepository, Alias, Neo4j
+ * @since 30/06/2013
  */
 public interface AliasRepo extends GraphRepository<AliasNode> {
-    @Query( elementClass = AliasNode.class, value =
-            "match (t) -[:HAS_ALIAS]->(alias) where id(t)={0}  return alias")
+    @Query(elementClass = AliasNode.class, value =
+        "match (t) -[:HAS_ALIAS]->(alias) where id(t)={0}  return alias")
     Collection<Alias> findTagAliases(Long id);
 
 

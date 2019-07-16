@@ -28,9 +28,10 @@ public class GeoPayload {
     private double yValue;
     private boolean storeInverted = true;
 
-    GeoPayload (){}
+    GeoPayload() {
+    }
 
-    public GeoPayload (String sourceFormat, double xValue, double yValue){
+    public GeoPayload(String sourceFormat, double xValue, double yValue) {
         this();
         this.sourceFormat = sourceFormat;
         this.xValue = xValue;
@@ -54,7 +55,6 @@ public class GeoPayload {
     }
 
     /**
-     *
      * @return Column name that contains the actual value we want
      */
     public String getX() {
@@ -66,7 +66,6 @@ public class GeoPayload {
     }
 
     /**
-     *
      * @return Column name that contains the actual value we want
      */
     public String getY() {

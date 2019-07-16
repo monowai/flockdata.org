@@ -21,9 +21,8 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.flockdata.data.Company;
-
 import java.util.Objects;
+import org.flockdata.data.Company;
 
 /**
  * @author mike
@@ -77,11 +76,15 @@ public class CompanyInputBean implements Company {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CompanyInputBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CompanyInputBean)) {
+            return false;
+        }
         CompanyInputBean that = (CompanyInputBean) o;
         return Objects.equals(name, that.name) &&
-                Objects.equals(code, that.code);
+            Objects.equals(code, that.code);
     }
 
     @Override

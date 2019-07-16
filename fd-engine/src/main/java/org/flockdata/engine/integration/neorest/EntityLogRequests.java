@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.integration.neorest;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.engine.data.graph.EntityLog;
 import org.flockdata.track.EntityLogs;
 import org.flockdata.track.bean.TrackResultBean;
@@ -37,9 +39,6 @@ import org.springframework.integration.json.ObjectToJsonTransformer;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.messaging.MessageHandler;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * SDN4 UMX Log requests
  *
@@ -55,14 +54,14 @@ public class EntityLogRequests extends NeoRequestBase {
     public IntegrationFlow makeLog() {
 
         return IntegrationFlows.from(channels.neoFdWriteLog())
-                .transform(getTransformer())
-                .handle((fdMakeLogRequest()))
-                .get();
+            .transform(getTransformer())
+            .handle((fdMakeLogRequest()))
+            .get();
     }
 
     private MessageHandler fdMakeLogRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getLogUrl());
+            new HttpRequestExecutingMessageHandler(getLogUrl());
 
         handler.setExpectedResponseType(EntityLog.class);
         return handler;
@@ -72,15 +71,15 @@ public class EntityLogRequests extends NeoRequestBase {
     public IntegrationFlow getEntityLogFlow() {
 
         return IntegrationFlows.from(channels.neoFdGetEntityLog())
-                .handle(fdGetEntityLog())
-                .get();
+            .handle(fdGetEntityLog())
+            .get();
     }
 
     private MessageHandler fdGetEntityLog() {
         SpelExpressionParser expressionParser = new SpelExpressionParser();
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getEntityLog());
+            new HttpRequestExecutingMessageHandler(getEntityLog());
 
         handler.setExpectedResponseType(EntityLog.class);
         Map<String, Expression> vars = new HashMap<>();
@@ -96,15 +95,15 @@ public class EntityLogRequests extends NeoRequestBase {
     public IntegrationFlow findLastLog() {
 
         return IntegrationFlows.from(channels.neoFdGetLastChange())
-                .handle(fdFindLastChange())
-                .get();
+            .handle(fdFindLastChange())
+            .get();
     }
 
     private MessageHandler fdFindLastChange() {
         SpelExpressionParser expressionParser = new SpelExpressionParser();
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getLastLog());
+            new HttpRequestExecutingMessageHandler(getLastLog());
 
         handler.setExpectedResponseType(EntityLog.class);
         Map<String, Expression> vars = new HashMap<>();
@@ -118,14 +117,14 @@ public class EntityLogRequests extends NeoRequestBase {
     public IntegrationFlow findEntityLogs() {
 
         return IntegrationFlows.from(channels.neoFdGetEntityLogs())
-                .handle(fdEntityLogs())
-                .get();
+            .handle(fdEntityLogs())
+            .get();
     }
 
     private MessageHandler fdEntityLogs() {
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getForEntity());
+            new HttpRequestExecutingMessageHandler(getForEntity());
 
         handler.setExpectedResponseType(EntityLogs.class);
         SpelExpressionParser expressionParser = new SpelExpressionParser();
@@ -140,15 +139,15 @@ public class EntityLogRequests extends NeoRequestBase {
     public IntegrationFlow findEntityLogsBeforeDate() {
 
         return IntegrationFlows.from(channels.neoFdLogsBeforeDate())
-                .handle(fdEntityLogsBeforeDate())
-                .get();
+            .handle(fdEntityLogsBeforeDate())
+            .get();
     }
 
     private MessageHandler fdEntityLogsBeforeDate() {
         SpelExpressionParser expressionParser = new SpelExpressionParser();
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getFindLogsBeforeUrl());
+            new HttpRequestExecutingMessageHandler(getFindLogsBeforeUrl());
 
         handler.setExpectedResponseType(EntityLogs.class);
         Map<String, Expression> vars = new HashMap<>();
@@ -164,16 +163,16 @@ public class EntityLogRequests extends NeoRequestBase {
     public IntegrationFlow cancelLastEntityLog() {
 
         return IntegrationFlows.from(channels.neoFdCancelLastLog())
-                .transform(new ObjectToJsonTransformer(new Jackson2JsonObjectMapper()))
-                .handle(fdCancelLastLog())
-                .get();
+            .transform(new ObjectToJsonTransformer(new Jackson2JsonObjectMapper()))
+            .handle(fdCancelLastLog())
+            .get();
     }
 
     private MessageHandler fdCancelLastLog() {
         SpelExpressionParser expressionParser = new SpelExpressionParser();
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getLogUrl());
+            new HttpRequestExecutingMessageHandler(getLogUrl());
 
         handler.setExpectedResponseType(TrackResultBean.class);
 //        Map<String, Expression> vars = new HashMap<>();
@@ -183,7 +182,6 @@ public class EntityLogRequests extends NeoRequestBase {
 
         return handler;
     }
-
 
 
 }

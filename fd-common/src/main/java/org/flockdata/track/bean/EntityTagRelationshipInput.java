@@ -23,8 +23,8 @@ import java.util.Map;
  * Properties to create a relationship
  *
  * @author mholdsworth
- * @since 9/07/2016
  * @tag RelationshipTag
+ * @since 9/07/2016
  */
 public class EntityTagRelationshipInput {
     private boolean geo;
@@ -41,7 +41,7 @@ public class EntityTagRelationshipInput {
     }
 
     public EntityTagRelationshipInput(String relationshipName, Map<String, Object> properties) {
-        this(relationshipName,false);
+        this(relationshipName, false);
         this.properties = properties;
     }
 
@@ -50,8 +50,9 @@ public class EntityTagRelationshipInput {
         if (relationshipName != null) {
             relationshipName = relationshipName.trim();
             if (relationshipName.contains(" ")) {
-                if (!relationshipName.startsWith("'"))
+                if (!relationshipName.startsWith("'")) {
                     relationshipName = "'" + relationshipName + "'";
+                }
             }
         }
 
@@ -94,8 +95,12 @@ public class EntityTagRelationshipInput {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EntityTagRelationshipInput)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EntityTagRelationshipInput)) {
+            return false;
+        }
 
         EntityTagRelationshipInput that = (EntityTagRelationshipInput) o;
 
@@ -109,8 +114,9 @@ public class EntityTagRelationshipInput {
     }
 
     public void addProperty(String key, Object value) {
-        if (properties == null)
+        if (properties == null) {
             properties = new HashMap<>();
+        }
         properties.put(key, value);
     }
 }

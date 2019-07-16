@@ -16,16 +16,19 @@
 
 package org.flockdata.test.unit;
 
-import org.flockdata.helper.JsonUtils;
-import org.flockdata.search.*;
-import org.flockdata.track.bean.SearchChange;
-import org.junit.Test;
+import static junit.framework.TestCase.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static junit.framework.TestCase.assertNotNull;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.QueryParams;
+import org.flockdata.search.SearchResult;
+import org.flockdata.search.SearchResults;
+import org.flockdata.track.bean.SearchChange;
+import org.junit.Test;
 
 /**
  * @author Mike Holdsworth
@@ -33,11 +36,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class TestSearchResults {
     @Test
-    public void searchResultsSerialize () throws Exception {
+    public void searchResultsSerialize() throws Exception {
         SearchChange searchChange = new EntitySearchChange();
         searchChange.setName("anyName");
         SearchResult searchResult = new EsSearchResult(searchChange);
-        Collection<SearchResult>results= new ArrayList<>();
+        Collection<SearchResult> results = new ArrayList<>();
         results.add(searchResult);
         SearchResults searchResults = new SearchResults(results);
 
@@ -50,8 +53,8 @@ public class TestSearchResults {
     public void queryParams() throws Exception {
         QueryParams qp = new QueryParams("*");
         assertThat(qp)
-                .hasFieldOrProperty("matchAll")
-                .hasFieldOrPropertyWithValue("matchAll", true);
+            .hasFieldOrProperty("matchAll")
+            .hasFieldOrPropertyWithValue("matchAll", true);
 
     }
 }

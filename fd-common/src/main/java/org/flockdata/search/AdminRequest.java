@@ -17,7 +17,6 @@
 package org.flockdata.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -31,7 +30,7 @@ import java.util.Collection;
 //@JsonDeserialize(using = AdminRequestDeserializer.class)
 public class AdminRequest {
 
-    private Collection<String> indexesToDelete ;
+    private Collection<String> indexesToDelete;
 
     @SuppressWarnings("WeakerAccess")
     public AdminRequest() {
@@ -58,8 +57,9 @@ public class AdminRequest {
     }
 
     public void addIndexToDelete(String searchIndexToDelete) {
-        if ( this.indexesToDelete == null)
+        if (this.indexesToDelete == null) {
             indexesToDelete = new ArrayList<>();
+        }
         indexesToDelete.add(searchIndexToDelete);
     }
 }

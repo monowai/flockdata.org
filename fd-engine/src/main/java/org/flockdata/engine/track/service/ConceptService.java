@@ -20,6 +20,10 @@
 
 package org.flockdata.engine.track.service;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.flockdata.data.Company;
 import org.flockdata.data.Document;
 import org.flockdata.data.Fortress;
@@ -32,11 +36,6 @@ import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.TrackResultBean;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author mholdsworth
@@ -84,11 +83,12 @@ public interface ConceptService {
 
     /**
      * Concept structure associated to a Fortress. All DocumentTypes and connected concepts
-     * @param company   org that owns the fortress
-     * @param fortress  that which we are interested in
+     *
+     * @param company  org that owns the fortress
+     * @param fortress that which we are interested in
      * @return edges and nodes
      */
     MatrixResults getContentStructure(Company company, String fortress);
 
-    Map<String,DocumentResultBean> getParents(Document documentType);
+    Map<String, DocumentResultBean> getParents(Document documentType);
 }

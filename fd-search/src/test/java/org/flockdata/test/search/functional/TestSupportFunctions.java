@@ -20,6 +20,10 @@
 
 package org.flockdata.test.search.functional;
 
+import static junit.framework.TestCase.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.Map;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagInputBean;
@@ -31,11 +35,6 @@ import org.flockdata.test.helper.MockDataFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.ArrayList;
-import java.util.Map;
-
-import static junit.framework.TestCase.assertNotNull;
 
 /**
  * @author mholdsworth

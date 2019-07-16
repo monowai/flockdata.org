@@ -20,11 +20,25 @@
 
 package org.flockdata.test.search.functional;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.*;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.SearchChanges;
+import org.flockdata.search.SearchResult;
+import org.flockdata.search.SearchResults;
+import org.flockdata.search.SearchSchema;
 import org.flockdata.test.helper.ContentDataHelper;
 import org.flockdata.test.helper.MockDataFactory;
 import org.flockdata.track.bean.ContentInputBean;
@@ -36,15 +50,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
 /**
  * @author mholdsworth
@@ -73,7 +78,7 @@ public class TestMappings extends ESBase {
         ArrayList<EntityTag> tags = new ArrayList<>();
 
         TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname").
-                setCode("my TAG");
+            setCode("my TAG");
 
         tags.add(MockDataFactory.getEntityTag(entity, tagInput, "mytag"));
 
@@ -206,12 +211,12 @@ public class TestMappings extends ESBase {
         assertNotNull(changeB);
         assertNotNull(changeA.getSearchKey());
         assertNotNull(changeB.getSearchKey());
-        getMapping (entityA);
-        doTermQuery(entityA,  "tag.mytag.thelabel.code", tag.getCode());
-        doQuery(entityA,  tag.getCode().toLowerCase());
-        doTermQuery(entityB,  "tag.mytag.thelabel.code", tag.getCode());
+        getMapping(entityA);
+        doTermQuery(entityA, "tag.mytag.thelabel.code", tag.getCode());
+        doQuery(entityA, tag.getCode().toLowerCase());
+        doTermQuery(entityB, "tag.mytag.thelabel.code", tag.getCode());
         // Locate by raw text
-        doQuery(entityB,  tag.getCode().toLowerCase());
+        doQuery(entityB, tag.getCode().toLowerCase());
         String index = searchConfig.getIndexManager().getIndexRoot(entityA.getFortress()) + "*";
 
         doTermQuery(index, "*", "tag.mytag.thelabel.code", tag.getCode(), 2, "Not scanning across indexes");
@@ -256,7 +261,7 @@ public class TestMappings extends ESBase {
         deleteEsIndex(searchConfig.getIndexManager().toIndex(entity));
 
         Map<String, Object> what = ContentDataHelper.getSimpleMap(
-                SearchSchema.WHAT_CODE, "GEO");
+            SearchSchema.WHAT_CODE, "GEO");
         what.put(SearchSchema.WHAT_NAME, "NameText");
         what.put(SearchSchema.WHAT_DESCRIPTION, "This is a description");
 

@@ -30,8 +30,8 @@ import org.springframework.web.client.ResourceAccessException;
  * Purges data in a fortress
  *
  * @author mholdsworth
- * @since 4/04/2016
  * @tag Command, Fortress, Administration
+ * @since 4/04/2016
  */
 
 @Component
@@ -54,10 +54,11 @@ public class AdminPurgeFortress {
             response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress);
             result = response.getBody();
         } catch (HttpClientErrorException e) {
-            if (e.getMessage().startsWith("401"))
+            if (e.getMessage().startsWith("401")) {
                 error = "auth";
-            else
+            } else {
                 error = e.getMessage();
+            }
         } catch (HttpServerErrorException | ResourceAccessException e) {
             error = e.getMessage();
         }

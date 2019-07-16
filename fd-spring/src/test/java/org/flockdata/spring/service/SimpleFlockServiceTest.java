@@ -35,13 +35,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles("dev")
 @TestPropertySource("/application_dev.properties")
 @ContextConfiguration(classes = {
-        ClientConfiguration.class,
-        FdTemplateMock.class,
-        FlockDataClientFactoryBean.class,
-        FdMockIo.class,
-        PojoToFdTransformer.class,
-        ClientBeanDefinitionParser.class,
-        SimpleTrackedService.class
+    ClientConfiguration.class,
+    FdTemplateMock.class,
+    FlockDataClientFactoryBean.class,
+    FdMockIo.class,
+    PojoToFdTransformer.class,
+    ClientBeanDefinitionParser.class,
+    SimpleTrackedService.class
 })
 public class SimpleFlockServiceTest {
 

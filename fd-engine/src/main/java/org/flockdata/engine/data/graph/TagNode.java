@@ -22,22 +22,30 @@ package org.flockdata.engine.data.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.flockdata.data.Alias;
 import org.flockdata.data.Tag;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.TagInputBean;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.Labels;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
-import java.util.*;
-
 /**
  * @author mholdsworth
- * @since 15/06/2013
  * @tag Node, Tag, EntityTag
+ * @since 15/06/2013
  */
 @NodeEntity // Only in place to support projection
 @TypeAlias("Tag")
@@ -69,10 +77,11 @@ public class TagNode implements Tag {
     public TagNode(TagInputBean tagInput) {
         this();
         setName(tagInput.getName());
-        if (tagInput.getCode() == null)
+        if (tagInput.getCode() == null) {
             setCode(getName());
-        else
+        } else {
             setCode(tagInput.getCode());
+        }
 
         this.key = TagHelper.parseKey(tagInput);
         if (tagInput.hasTagProperties()) {
@@ -87,8 +96,9 @@ public class TagNode implements Tag {
     // Called only when creating a new Tag
     public TagNode(TagInputBean tagInput, String tagLabel) {
         this(tagInput);
-        if (!labels.contains(tagLabel))
+        if (!labels.contains(tagLabel)) {
             labels.add(tagLabel);
+        }
         isNew = true;
     }
 
@@ -114,11 +124,11 @@ public class TagNode implements Tag {
     @Override
     public String toString() {
         return "TagNode{" +
-                "id=" + id +
-                ", label='" + getLabel() + '\'' +
-                ", code='" + code + '\'' +
-                ", key='" + key + '\'' +
-                '}';
+            "id=" + id +
+            ", label='" + getLabel() + '\'' +
+            ", code='" + code + '\'' +
+            ", key='" + key + '\'' +
+            '}';
     }
 
     @Override
@@ -153,14 +163,24 @@ public class TagNode implements Tag {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TagNode)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TagNode)) {
+            return false;
+        }
 
         TagNode tagNode = (TagNode) o;
 
-        if (id != null ? !id.equals(tagNode.id) : tagNode.id != null) return false;
-        if (code != null ? !code.equals(tagNode.code) : tagNode.code != null) return false;
-        if (key != null ? !key.equals(tagNode.key) : tagNode.key != null) return false;
+        if (id != null ? !id.equals(tagNode.id) : tagNode.id != null) {
+            return false;
+        }
+        if (code != null ? !code.equals(tagNode.code) : tagNode.code != null) {
+            return false;
+        }
+        if (key != null ? !key.equals(tagNode.key) : tagNode.key != null) {
+            return false;
+        }
         return !(name != null ? !name.equals(tagNode.name) : tagNode.name != null);
 
     }
@@ -219,6 +239,6 @@ public class TagNode implements Tag {
 
     @Override
     public boolean hasProperties() {
-        return(getProperties() != null && !getProperties().isEmpty());
+        return (getProperties() != null && !getProperties().isEmpty());
     }
 }

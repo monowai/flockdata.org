@@ -16,14 +16,14 @@
 
 package org.flockdata.integration;
 
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.nio.ByteBuffer;
 import java.util.UUID;
+import javax.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
 
 /**
  * https://github.com/RestExpress/RepoExpress/blob/master/common/src/java/com/strategicgains/repoexpress/util/UuidConverter.java
+ *
  * @tag APIKey
  */
 @Component
@@ -32,7 +32,7 @@ public class Base64 {
     private static final int[] I256 = new int[256];
 
     @PostConstruct
-    void initialize(){
+    void initialize() {
         for (int i = 0; i < Base64.C64.length; i++) {
             Base64.I256[Base64.C64[i]] = i;
         }
@@ -48,7 +48,9 @@ public class Base64 {
      * @throws IllegalArgumentException if the underlying UUID implementation is not 16 bytes.
      */
     public String format(UUID uuid) {
-        if (uuid == null) throw new NullPointerException("Null UUID");
+        if (uuid == null) {
+            throw new NullPointerException("Null UUID");
+        }
 
         byte[] bytes = toByteArray(uuid);
         return encodeBase64(bytes);
@@ -57,7 +59,7 @@ public class Base64 {
     /**
      * Given a UUID representation (either a short or long form), return a
      * UUID from it.
-     *
+     * <p>
      * If the uuidString is longer than our short, 22-character form (or 24 with padding),
      * it is assumed to be a full-length 36-character UUID string.
      *
@@ -67,7 +69,9 @@ public class Base64 {
      * @throws NullPointerException     if the uuidString is null.
      */
     public UUID parse(String uuidString) {
-        if (uuidString == null) throw new NullPointerException("Null UUID string");
+        if (uuidString == null) {
+            throw new NullPointerException("Null UUID string");
+        }
 
         if (uuidString.length() > 24) {
             return UUID.fromString(uuidString);
@@ -101,7 +105,7 @@ public class Base64 {
      * Accepts a UUID byte array (of exactly 16 bytes) and base64 encodes it, using a URL-safe
      * encoding scheme.  The resulting string will be 22 characters in length with no extra
      * padding on the end (e.g. no "==" on the end).
-     *
+     * <p>
      * Base64 encoding essentially takes each three bytes from the array and converts them into
      * four characters.  This implementation, not using padding, converts the last byte into two
      * characters.
@@ -110,8 +114,12 @@ public class Base64 {
      * @return a URL-safe base64-encoded string.
      */
     private String encodeBase64(byte[] bytes) {
-        if (bytes == null) throw new NullPointerException("Null UUID byte array");
-        if (bytes.length != 16) throw new IllegalArgumentException("UUID must be 16 bytes");
+        if (bytes == null) {
+            throw new NullPointerException("Null UUID byte array");
+        }
+        if (bytes.length != 16) {
+            throw new IllegalArgumentException("UUID must be 16 bytes");
+        }
 
         // Output is always 22 characters.
         char[] chars = new char[22];
@@ -140,7 +148,7 @@ public class Base64 {
     /**
      * Base64 decodes a short, 22-character UUID string (or 24-characters with padding)
      * into a byte array. The resulting byte array contains 16 bytes.
-     *
+     * <p>
      * Base64 decoding essentially takes each four characters from the string and converts
      * them into three bytes. This implementation, not using padding, converts the final
      * two characters into one byte.
@@ -149,8 +157,12 @@ public class Base64 {
      * @return
      */
     private byte[] decodeBase64(String s) {
-        if (s == null) throw new NullPointerException("Cannot decode null string");
-        if (s.isEmpty() || (s.length() > 24)) throw new IllegalArgumentException("Invalid short UUID");
+        if (s == null) {
+            throw new NullPointerException("Cannot decode null string");
+        }
+        if (s.isEmpty() || (s.length() > 24)) {
+            throw new IllegalArgumentException("Invalid short UUID");
+        }
 
         // Output is always 16 bytes (UUID).
         byte[] bytes = new byte[16];

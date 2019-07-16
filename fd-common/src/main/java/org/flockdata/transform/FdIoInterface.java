@@ -16,6 +16,8 @@
 
 package org.flockdata.transform;
 
+import java.io.IOException;
+import java.util.Collection;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
 import org.flockdata.data.Fortress;
@@ -27,27 +29,22 @@ import org.flockdata.transform.model.ExtractProfile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.Collection;
-
 /**
  * Interface that deals with the physical communication between client and server
- *
+ * <p>
  * The
  *
- * @tag Integration, FdClient, Contract
  * @author mholdsworth
+ * @tag Integration, FdClient, Contract
  * @since 7/10/2014
  */
 public interface FdIoInterface {
     /**
-     *
      * @return currently logged in user
      */
     SystemUserResultBean me();
 
     /**
-     *
      * @param tagInputBeans tags to send to the service
      * @return error messages. "OK" if all is good
      * @throws FlockException communication exception resulting in a permanent failure
@@ -55,20 +52,19 @@ public interface FdIoInterface {
     String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException;
 
     /**
-     *
      * @param entityBatch Entities to send to the service
      * @return error messages. "OK" if all is good
      * @throws FlockException communication exception resulting in a permanent failure
-
      */
     String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException;
 
     ContentModel getContentModel(Fortress fortress, Document documentType);
-    
+
     ContentModel getContentModel(String modelKey) throws IOException;
 
     /**
      * used to validate connectivity to the service
+     *
      * @return Currently logged in user
      * @throws FlockException connectivity exception occurs
      */

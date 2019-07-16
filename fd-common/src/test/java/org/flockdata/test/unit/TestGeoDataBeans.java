@@ -16,12 +16,12 @@
 
 package org.flockdata.test.unit;
 
+import static junit.framework.TestCase.assertNotNull;
+
 import junit.framework.TestCase;
 import org.flockdata.track.bean.GeoDataBean;
 import org.flockdata.track.bean.GeoDataBeans;
 import org.junit.Test;
-
-import static junit.framework.TestCase.assertNotNull;
 
 /**
  * @author mholdsworth
@@ -30,7 +30,7 @@ import static junit.framework.TestCase.assertNotNull;
 public class TestGeoDataBeans {
 
     @Test
-    public void nullChecks(){
+    public void nullChecks() {
         GeoDataBeans beans = new GeoDataBeans();
         GeoDataBean bean = new GeoDataBean();
         bean.add("type", "code", "name", null, null);
@@ -39,16 +39,16 @@ public class TestGeoDataBeans {
     }
 
     @Test
-    public void zeroChecks(){
+    public void zeroChecks() {
         Integer zero = 0;
         Double answer = Double.parseDouble(zero.toString());
-        assertNotNull ( answer);
+        assertNotNull(answer);
 
     }
 
 
     @Test
-    public void description (){
+    public void description() {
         GeoDataBeans beans = new GeoDataBeans();
         GeoDataBean bean = new GeoDataBean();
         bean.add("type", "code", "name", 23.123, -45.123);
@@ -64,10 +64,10 @@ public class TestGeoDataBeans {
     }
 
     @Test
-    public void stateDesc (){
+    public void stateDesc() {
         GeoDataBeans beans = new GeoDataBeans();
         GeoDataBean bean = new GeoDataBean();
-        bean.add("State", "CA", "California",null,null);
+        bean.add("State", "CA", "California", null, null);
         beans.add("State", bean);
         TestCase.assertEquals(null, beans.getDescription());
 

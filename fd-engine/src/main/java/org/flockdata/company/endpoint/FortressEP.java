@@ -20,6 +20,11 @@
 
 package org.flockdata.company.endpoint;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.Segment;
 import org.flockdata.engine.data.graph.CompanyNode;
@@ -36,18 +41,17 @@ import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author mholdsworth
- * @since 4/05/2013
  * @tag EndPoint, Fortress
+ * @since 4/05/2013
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/fortress")
@@ -83,8 +87,9 @@ public class FortressEP {
     public FortressResultBean updateFortress(@RequestBody FortressInputBean fortressInputBean, HttpServletRequest request, @PathVariable("code") String code) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         FortressNode existing = fortressService.findByCode(company, code);
-        if ( existing == null )
+        if (existing == null) {
             throw new NotFoundException("Unable to locate the fortress with the code " + code);
+        }
 
         return new FortressResultBean(fortressService.updateFortress(company, existing, fortressInputBean));
 
@@ -103,8 +108,9 @@ public class FortressEP {
     public DocumentResultBean registerDocumentType(@RequestBody DocumentTypeInputBean docType, @PathVariable("fortressName") String fortressName, HttpServletRequest request) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.getFortress(company, fortressName);
-        if (fortress == null)
+        if (fortress == null) {
             throw new NotFoundException("Unable to locate the fortress ");
+        }
         return new DocumentResultBean(conceptService.findOrCreate(fortress, new DocumentNode(fortress.getDefaultSegment(), docType)), fortress);
 
     }
@@ -113,11 +119,13 @@ public class FortressEP {
     public FortressResultBean getFortress(@PathVariable("code") String fortressCode, HttpServletRequest request) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         FortressNode fortress = fortressService.findByCode(company, fortressCode);
-        if (fortress == null)
+        if (fortress == null) {
             fortress = fortressService.findByCode(company, fortressCode);
+        }
 
-        if (fortress == null)
+        if (fortress == null) {
             throw new FlockException("Unable to locate the fortress " + fortressCode);
+        }
 
         return new FortressResultBean(fortress);
     }
@@ -143,36 +151,36 @@ public class FortressEP {
 
     /**
      * Fortresses store data in segments. This call returns known segments for the fortress
-     * @param code   fortress name or code
-     * @param doc    doc type to filter by or * for all
+     *
+     * @param code    fortress name or code
+     * @param doc     doc type to filter by or * for all
      * @param request internal use
      * @return Collection of DocumentResultBeans with Segment data
      * @throws FlockException business exception, i.e. fortress does not exist
      */
     @RequestMapping(value = "/{fortress:.*}/{doc}/segments", method = RequestMethod.GET)
     public Collection<DocumentResultBean> getFortressDocSegments(
-            @PathVariable("fortress") String code,
-            @PathVariable("doc") String doc,
-            HttpServletRequest request) throws FlockException {
+        @PathVariable("fortress") String code,
+        @PathVariable("doc") String doc,
+        HttpServletRequest request) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
         FortressNode f = fortressService.findByCode(company, code);
-        Collection<DocumentResultBean>results = new ArrayList<>();
-        if ( doc.equals("*")){
+        Collection<DocumentResultBean> results = new ArrayList<>();
+        if (doc.equals("*")) {
             // All docs for the fortress
             Collection<DocumentResultBean> fortressDcouments = fortressService.getFortressDocumentsInUse(company, code);
             results.addAll(fortressDcouments.stream().map(fortressDoc
-                    -> conceptService.findDocumentTypeWithSegments(f, fortressDoc.getName())
-                ).collect(Collectors.toList()));
+                -> conceptService.findDocumentTypeWithSegments(f, fortressDoc.getName())
+            ).collect(Collectors.toList()));
 
         } else {
-            results .add(conceptService.findDocumentTypeWithSegments(f, doc));
+            results.add(conceptService.findDocumentTypeWithSegments(f, doc));
         }
 
         return results;
     }
 
     /**
-     *
      * @param request used to resolve the company the logged in user belongs to
      * @return Available timezones
      */
@@ -183,7 +191,7 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/defaults", method = RequestMethod.GET)
-    public FortressInputBean getDefaultFib () {
+    public FortressInputBean getDefaultFib() {
         return fortressService.createDefaultFortressInput();
     }
 

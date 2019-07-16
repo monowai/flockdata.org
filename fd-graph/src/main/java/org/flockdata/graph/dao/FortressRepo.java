@@ -1,5 +1,7 @@
 package org.flockdata.graph.dao;
 
+import static org.neo4j.driver.v1.Values.parameters;
+
 import org.flockdata.data.Entity;
 import org.flockdata.graph.DriverManager;
 import org.flockdata.graph.model.EntityNode;
@@ -10,8 +12,6 @@ import org.neo4j.driver.v1.types.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static org.neo4j.driver.v1.Values.parameters;
-
 /**
  * @author mikeh
  * @since 10/06/18
@@ -20,24 +20,6 @@ import static org.neo4j.driver.v1.Values.parameters;
 public class FortressRepo {
 
     private DriverManager driverManager;
-
-    @Autowired
-    void setDriverManager(DriverManager driverManager) {
-        this.driverManager = driverManager;
-    }
-
-
-    public EntityNode addEntity(Entity entity) {
-        try (Session session = driverManager.session()) {
-            return session.writeTransaction(tx -> createEntityNode(tx, entity));
-        }
-    }
-
-    public Entity findByKey(Entity entity) {
-        try (Session session = driverManager.session()) {
-            return session.readTransaction(tx -> findByKey(tx, entity.getKey()));
-        }
-    }
 
     private static EntityNode createEntityNode(Transaction tx, Entity entity) {
         StatementResult statementResult = tx.run(
@@ -64,6 +46,23 @@ public class FortressRepo {
         Node eNode = statementResult.single().get("entity").asNode();
         return EntityNode.build(eNode);
 
+    }
+
+    @Autowired
+    void setDriverManager(DriverManager driverManager) {
+        this.driverManager = driverManager;
+    }
+
+    public EntityNode addEntity(Entity entity) {
+        try (Session session = driverManager.session()) {
+            return session.writeTransaction(tx -> createEntityNode(tx, entity));
+        }
+    }
+
+    public Entity findByKey(Entity entity) {
+        try (Session session = driverManager.session()) {
+            return session.readTransaction(tx -> findByKey(tx, entity.getKey()));
+        }
     }
 
 }

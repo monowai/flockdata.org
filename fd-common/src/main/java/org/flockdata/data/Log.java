@@ -26,8 +26,9 @@ import org.flockdata.store.StoredContent;
 
 /**
  * Tracks general Log event data that results in a change to an Entity
- * @tag Log
+ *
  * @author mholdsworth
+ * @tag Log
  * @since 15/04/2013
  */
 public interface Log {

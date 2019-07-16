@@ -30,7 +30,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
-import org.springframework.integration.annotation.*;
+import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.NullChannel;
 import org.springframework.messaging.Message;
@@ -43,7 +47,7 @@ import org.springframework.scheduling.annotation.Async;
  */
 @Configuration
 @IntegrationComponentScan
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class StorageWriter {
 
     @Autowired
@@ -56,18 +60,18 @@ public class StorageWriter {
     private MessageSupport messageSupport;
 
     @Bean
-    MessageChannel storeWrite(){
+    MessageChannel storeWrite() {
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel startStoreWrite(){
+    MessageChannel startStoreWrite() {
         return new DirectChannel();
     }
 
     @Bean
     @ServiceActivator(inputChannel = "storeWrite")
-    public AmqpOutboundEndpoint writeToStore(AmqpTemplate amqpTemplate){
+    public AmqpOutboundEndpoint writeToStore(AmqpTemplate amqpTemplate) {
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
         outbound.setRoutingKey(exchanges.storeBinding());
@@ -79,8 +83,8 @@ public class StorageWriter {
 
     }
 
-    @Transformer(inputChannel= "startStoreWrite", outputChannel="storeWrite")
-    public Message<?> transformMkPayload(Message message){
+    @Transformer(inputChannel = "startStoreWrite", outputChannel = "storeWrite")
+    public Message<?> transformMkPayload(Message message) {
         return messageSupport.toJson(message);
     }
 

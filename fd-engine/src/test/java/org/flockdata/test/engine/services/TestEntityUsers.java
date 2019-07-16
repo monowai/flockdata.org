@@ -20,23 +20,26 @@
 
 package org.flockdata.test.engine.services;
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+
+import java.util.Collection;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.test.helper.ContentDataHelper;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityLogResult;
+import org.flockdata.track.bean.SearchChange;
+import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author mholdsworth
@@ -59,7 +62,7 @@ public class TestEntityUsers extends EngineBase {
         entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
         mediationFacade.trackEntity(su.getCompany(), entityBean);
 
-        EntityNode entity = (EntityNode)entityService.findByCode(fortress, "CompanyNode", entityCode);
+        EntityNode entity = (EntityNode) entityService.findByCode(fortress, "CompanyNode", entityCode);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
         Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
@@ -71,7 +74,7 @@ public class TestEntityUsers extends EngineBase {
         mediationFacade.trackEntity(su.getCompany(), entityBean);
         assertTrue("Event name incorrect", log.getEvent().getCode().equalsIgnoreCase("answer"));
 
-        entity = (EntityNode)entityService.findByCode(fortress, "CompanyNode", entityCode);
+        entity = (EntityNode) entityService.findByCode(fortress, "CompanyNode", entityCode);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
         logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
@@ -79,10 +82,12 @@ public class TestEntityUsers extends EngineBase {
         boolean billieFound = false;
         boolean nemoFound = false;
         for (EntityLogResult entityLog : logs) {
-            if (entityLog.getMadeBy().equals("billie"))
+            if (entityLog.getMadeBy().equals("billie")) {
                 billieFound = true;
-            if (entityLog.getMadeBy().equals("nemo"))
+            }
+            if (entityLog.getMadeBy().equals("nemo")) {
                 nemoFound = true;
+            }
         }
         assertTrue("Didn't find Billie & Nemo", billieFound && nemoFound);
 
@@ -103,7 +108,7 @@ public class TestEntityUsers extends EngineBase {
         entityBean.setContent(contentInputBean);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
 
-        EntityNode entity = (EntityNode)entityService.findByCode(fortress, "CompanyNode", callerRef);
+        EntityNode entity = (EntityNode) entityService.findByCode(fortress, "CompanyNode", callerRef);
         Assert.assertEquals(null, entity.getCreatedBy());
 
         SearchChange searchChange = searchService.getEntityChange(resultBean);

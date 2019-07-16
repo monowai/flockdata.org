@@ -20,6 +20,8 @@
 
 package org.flockdata.store.service;
 
+import java.io.IOException;
+import java.util.Map;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Log;
 import org.flockdata.helper.FlockServiceException;
@@ -39,16 +41,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.util.Map;
-
 /**
  * Encapsulation of FlockData's store management functionality.
- *
+ * <p>
  * A simple wrapper with support
  * for various data stores that support put/get semantics.
- *
- *
  *
  * @author mholdsworth
  * @since 4/09/2013
@@ -63,41 +60,46 @@ public class StoreManager implements StoreService {
     private Logger logger = LoggerFactory.getLogger(StoreManager.class);
 
     private FdStoreConfig storeConfig;
-    @Autowired (required = false)
-    void setRedisRepo (RedisRepo redisRepo){
+
+    @Autowired(required = false)
+    void setRedisRepo(RedisRepo redisRepo) {
         this.redisRepo = redisRepo;
     }
 
-    @Autowired (required = false)
-    void setRiakRepo (RiakRepo riakRepo ){
+    @Autowired(required = false)
+    void setRiakRepo(RiakRepo riakRepo) {
         this.riakRepo = riakRepo;
     }
-    @Autowired (required = false)
-    void setInMemoryRepo (InMemoryRepo inMemoryRepo ){
+
+    @Autowired(required = false)
+    void setInMemoryRepo(InMemoryRepo inMemoryRepo) {
         this.inMemoryRepo = inMemoryRepo;
     }
 
     @Autowired
-    void setStoreConfig (FdStoreConfig storeConfig ){
+    void setStoreConfig(FdStoreConfig storeConfig) {
         this.storeConfig = storeConfig;
     }
 
     @Override
     public String ping(Store store) {
         FdStoreRepo storeService = getStore(store);
-        if (storeService == null )
-            return store.toString() +" is not enabled";
+        if (storeService == null) {
+            return store.toString() + " is not enabled";
+        }
         return storeService.ping();
     }
 
     @Override
     public StoredContent doRead(Store store, String index, String type, String id) {
-        if ( id == null )
+        if (id == null) {
             return null;
+        }
         logger.debug("Looking for {} value for {}", store.name(), id);
         StoredContent content = getStore(store).read(index, type, id);
-        if ( content == null )
-            throw new NotFoundException("Didn't locate the id "+id+" for type" +type);
+        if (content == null) {
+            throw new NotFoundException("Didn't locate the id " + id + " for type" + type);
+        }
         return content;
 //        return getStore(store).read(index, type, id);
     }
@@ -105,22 +107,24 @@ public class StoreManager implements StoreService {
     /**
      * Persists the payload
      *
-     *
-     * @param storeBean          payload to write to a store
+     * @param storeBean payload to write to a store
      */
     public void doWrite(StorageBean storeBean) throws FlockServiceException {
 
-        if (storeBean.getStore().equals(Store.NONE.name()))
+        if (storeBean.getStore().equals(Store.NONE.name())) {
             return; // This service does not write to ES, that is handled via fd-engine
+        }
 
-        if (storeBean.getType() == null )
-            throw new AmqpRejectAndDontRequeueException("Couldn't figure out the type for entity "+storeBean.getId());
+        if (storeBean.getType() == null) {
+            throw new AmqpRejectAndDontRequeueException("Couldn't figure out the type for entity " + storeBean.getId());
+        }
 
         try {
             logger.debug("Received request to add storeBean {}", storeBean);
             FdStoreRepo store = getStore(Store.valueOf(storeBean.getStore().toUpperCase()));
-            if ( store == null )
-                throw new AmqpRejectAndDontRequeueException("Configured store manager "+storeBean.getStore().toUpperCase() +" was configured but not available");
+            if (store == null) {
+                throw new AmqpRejectAndDontRequeueException("Configured store manager " + storeBean.getStore().toUpperCase() + " was configured but not available");
+            }
             store.add(storeBean);
 
         } catch (IOException e) {
@@ -139,16 +143,19 @@ public class StoreManager implements StoreService {
 
     FdStoreRepo getStore(Store store) {
         if (store == Store.REDIS) {
-            if (redisRepo == null)
+            if (redisRepo == null) {
                 throw new AmqpRejectAndDontRequeueException("Redis store was requested but not enabled");
+            }
             return redisRepo;
         } else if (store == Store.RIAK) {
-            if (riakRepo == null)
+            if (riakRepo == null) {
                 throw new AmqpRejectAndDontRequeueException("Riak store was requested but not enabled");
+            }
             return riakRepo;
         } else if (store == Store.MEMORY) {
-            if (inMemoryRepo == null)
+            if (inMemoryRepo == null) {
                 throw new AmqpRejectAndDontRequeueException("Non-persistent InMemory store was requested but not enabled");
+            }
 
             return inMemoryRepo;
         } else {

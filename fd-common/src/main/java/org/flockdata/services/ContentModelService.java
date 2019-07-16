@@ -20,6 +20,7 @@
 
 package org.flockdata.services;
 
+import java.util.Collection;
 import org.flockdata.data.Company;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
@@ -29,15 +30,13 @@ import org.flockdata.model.ContentModelResult;
 import org.flockdata.model.ContentValidationRequest;
 import org.flockdata.model.ContentValidationResults;
 
-import java.util.Collection;
-
 /**
  * @author mholdsworth
  * @since 3/10/2014
  */
 public interface ContentModelService {
 
-    ContentModel get(Company company, Fortress fortress, Document documentType) throws FlockException ;
+    ContentModel get(Company company, Fortress fortress, Document documentType) throws FlockException;
 
     ContentModelResult saveEntityModel(Company company, Fortress fortress, Document documentType, ContentModel contentModel) throws FlockException;
 

@@ -20,6 +20,12 @@
 
 package org.flockdata.engine.configure;
 
+import static org.flockdata.authentication.FdRoles.FD_ROLE_ADMIN;
+import static org.flockdata.authentication.FdRoles.FD_ROLE_USER;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.data.Company;
 import org.flockdata.engine.admin.PlatformConfig;
@@ -35,13 +41,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-
-import static org.flockdata.authentication.FdRoles.FD_ROLE_ADMIN;
-import static org.flockdata.authentication.FdRoles.FD_ROLE_USER;
 
 /**
  * @author mholdsworth
@@ -164,12 +163,13 @@ public class EngineConfig implements PlatformConfig {
 
     @Override
     public String getTagSuffix(Company company) {
-        if (company == null)
+        if (company == null) {
             return "";
+        }
         return (isMultiTenanted() ? company.getCode() : "");
     }
 
-    @Secured({FD_ROLE_ADMIN, FD_ROLE_USER})
+    @Secured( {FD_ROLE_ADMIN, FD_ROLE_USER})
     public Map<String, Object> getHealthAuth() {
         return getHealth();
     }
@@ -182,8 +182,9 @@ public class EngineConfig implements PlatformConfig {
     @Override
     public Map<String, Object> getHealth() {
         String version = "";
-        if (versionHelper != null)
+        if (versionHelper != null) {
             version = versionHelper.getFdVersion();
+        }
         Map<String, Object> healthResults = new TreeMap<>();
 
         healthResults.put("fd.version", version);
@@ -191,34 +192,39 @@ public class EngineConfig implements PlatformConfig {
         String esPingResult = "ok";
         Map<String, Object> esHealth = null;
         try {
-            if (searchAdminRequests != null)
+            if (searchAdminRequests != null) {
                 esHealth = pingSearchGateway.health();
+            }
             //esPingResult = (esHealth == null || !esHealth.equals("pong") ? esHealth : "Ok");
         } catch (Exception ce) {
             esPingResult = "!Unreachable ";
-            if (ce.getCause() != null)
+            if (ce.getCause() != null) {
                 esPingResult = esPingResult + ce.getCause().getMessage();
+            }
         }
         Map<String, Object> searchHealth = new HashMap<>();
         searchHealth.put("org.fd.search.api", fdSearch);
-        if ( searchAdminRequests == null )
+        if (searchAdminRequests == null) {
             searchHealth.put("status", "Disabled");
-        else
+        } else {
             searchHealth.put("status", esPingResult);
+        }
 
-        if (esHealth != null)
+        if (esHealth != null) {
             searchHealth.put("health", esHealth);
+        }
 
         healthResults.put("fd-search", searchHealth);
-        String kvPingResult ;
+        String kvPingResult;
         try {
             String esPing = storePingGateway.ping(storeEngine);
 
             kvPingResult = (esPing == null ? "Problem" : esPing);
         } catch (Exception ce) {
             kvPingResult = "!Unreachable ";
-            if (ce.getCause() != null)
+            if (ce.getCause() != null) {
                 kvPingResult = kvPingResult + ce.getCause().getMessage();
+            }
         }
         Map<String, Object> storeHealth = new HashMap<>();
         healthResults.put("fd-store", storeHealth);

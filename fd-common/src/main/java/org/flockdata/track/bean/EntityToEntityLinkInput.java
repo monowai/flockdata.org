@@ -20,29 +20,30 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.data.Document;
-import org.flockdata.registration.FortressInputBean;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.flockdata.data.Document;
+import org.flockdata.registration.FortressInputBean;
 
 /**
  * Used to handle cross references from a source Entity through to a collection of named references
+ *
  * @author mholdsworth
- * @since 2/04/2014
  * @tag Contract, Entity, Relationship
+ * @since 2/04/2014
  */
 public class EntityToEntityLinkInput {
-    Map<String,List<EntityKeyBean>>references;
+    Map<String, List<EntityKeyBean>> references;
     private String fortress;
     private String documentType;
     private String code; // Callers key
     private String serviceMessage;
-    private Map<String,Collection<EntityKeyBean>>ignored;
+    private Map<String, Collection<EntityKeyBean>> ignored;
 
-    protected EntityToEntityLinkInput(){}
+    protected EntityToEntityLinkInput() {
+    }
 
     public EntityToEntityLinkInput(EntityInputBean entityInputBean) {
         this(entityInputBean.getFortress(), entityInputBean.getDocumentType(), entityInputBean.getCode());
@@ -50,9 +51,9 @@ public class EntityToEntityLinkInput {
     }
 
     /**
-     *  @param fortress          Parent fortress
-     * @param documentName      Parent docType
-     * @param code              Parent code reference
+     * @param fortress     Parent fortress
+     * @param documentName Parent docType
+     * @param code         Parent code reference
      */
     public EntityToEntityLinkInput(FortressInputBean fortress, Document documentName, String code) {
         this.code = code;
@@ -68,19 +69,27 @@ public class EntityToEntityLinkInput {
         return fortress;
     }
 
-    public Map<String,List<EntityKeyBean>>getReferences(){
+    public Map<String, List<EntityKeyBean>> getReferences() {
         return references;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EntityToEntityLinkInput)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EntityToEntityLinkInput)) {
+            return false;
+        }
 
         EntityToEntityLinkInput that = (EntityToEntityLinkInput) o;
 
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) {
+            return false;
+        }
+        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) {
+            return false;
+        }
         return !(fortress != null ? !fortress.equals(that.fortress) : that.fortress != null);
 
     }
@@ -96,11 +105,11 @@ public class EntityToEntityLinkInput {
     @Override
     public String toString() {
         return "CrossReferenceInputBean{" +
-                "code='" + code + '\'' +
-                ", references=" + references.size() +
-                ", fortress='" + fortress + '\'' +
-                ", docType ='" + documentType + '\'' +
-                '}';
+            "code='" + code + '\'' +
+            ", references=" + references.size() +
+            ", fortress='" + fortress + '\'' +
+            ", docType ='" + documentType + '\'' +
+            '}';
     }
 
     public String getServiceMessage() {
@@ -116,8 +125,9 @@ public class EntityToEntityLinkInput {
     }
 
     public void setIgnored(String xRefName, Collection<EntityKeyBean> ignored) {
-        if (this.ignored == null )
-           this.ignored = new HashMap<>();
+        if (this.ignored == null) {
+            this.ignored = new HashMap<>();
+        }
         this.ignored.put(xRefName, ignored);
     }
 

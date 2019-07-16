@@ -18,18 +18,17 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.stream.Collectors;
 import org.flockdata.data.Document;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.Segment;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.stream.Collectors;
-
 /**
  * @author mholdsworth
- * @since 29/08/2014
  * @tag Contract, DocumentType, Query
+ * @since 29/08/2014
  */
 public class DocumentResultBean {
 
@@ -46,35 +45,39 @@ public class DocumentResultBean {
 
     public DocumentResultBean(Document documentType) {
         this();
-        if ( documentType !=null ) {
+        if (documentType != null) {
             this.name = documentType.getName();
             this.id = documentType.getId();
-            if ( documentType.isSearchEnabled() !=null)
+            if (documentType.isSearchEnabled() != null) {
                 this.searchEnabled = documentType.isSearchEnabled();
-            if ( documentType.isStoreEnabled() !=null) // Suppressed if it's not enabled
+            }
+            if (documentType.isStoreEnabled() != null) // Suppressed if it's not enabled
+            {
                 this.storeEnabled = documentType.isStoreEnabled();
+            }
             this.versionStrategy = documentType.getVersionStrategy();
-            
+
         }
     }
 
     public DocumentResultBean(Document documentType, Collection<Segment> segments) {
         this(documentType);
-        if (segments!=null) {
+        if (segments != null) {
             this.segments = new ArrayList<>(segments.size());
             this.segments.addAll(segments.stream().map(Segment::getCode).collect(Collectors.toList()));
         }
     }
 
-    public DocumentResultBean (Document document, Fortress fortress){
+    public DocumentResultBean(Document document, Fortress fortress) {
         this(document);
-        if ( document.getVersionStrategy()== Document.VERSION.FORTRESS){
+        if (document.getVersionStrategy() == Document.VERSION.FORTRESS) {
             this.storeEnabled = fortress.isStoreEnabled();
         } else {
-            this.storeEnabled = (document.getVersionStrategy()== Document.VERSION.ENABLE);
+            this.storeEnabled = (document.getVersionStrategy() == Document.VERSION.ENABLE);
         }
-        if ( this.searchEnabled == null)
+        if (this.searchEnabled == null) {
             searchEnabled = fortress.isSearchEnabled();
+        }
 
     }
 
@@ -97,8 +100,9 @@ public class DocumentResultBean {
     }
 
     public void add(ConceptResultBean concept) {
-        if (concepts == null)
+        if (concepts == null) {
             concepts = new ArrayList<>();
+        }
         concepts.add(concept);
     }
 
@@ -110,19 +114,25 @@ public class DocumentResultBean {
     @Override
     public String toString() {
         return "DocumentResultBean{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+            "id=" + id +
+            ", name='" + name + '\'' +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DocumentResultBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DocumentResultBean)) {
+            return false;
+        }
 
         DocumentResultBean that = (DocumentResultBean) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
         return !(name != null ? !name.equals(that.name) : that.name != null);
 
     }
@@ -135,8 +145,9 @@ public class DocumentResultBean {
     }
 
     public void addSegment(Segment segment) {
-        if (this.segments == null)
+        if (this.segments == null) {
             segments = new ArrayList<>();
+        }
         this.segments.add(segment.getCode());
     }
 

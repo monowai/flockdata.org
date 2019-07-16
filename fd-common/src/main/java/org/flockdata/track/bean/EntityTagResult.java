@@ -18,11 +18,10 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Map;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagResultBean;
-
-import java.util.Map;
 
 /**
  * Converts an EntityTag to an EntityTagResult contract
@@ -37,11 +36,12 @@ public class EntityTagResult {
     private TagResultBean tag;
     private String relationship;
     private GeoDataBeans geoData;
-    private Map<String,Object> properties;
+    private Map<String, Object> properties;
 
-    EntityTagResult (){}
+    EntityTagResult() {
+    }
 
-    public EntityTagResult(EntityTag entityTag){
+    public EntityTagResult(EntityTag entityTag) {
         this.id = entityTag.getId();
         this.entity = entityTag.getEntity();
         this.tag = new TagResultBean(entityTag.getTag());
@@ -63,7 +63,7 @@ public class EntityTagResult {
         return geoData;
     }
 
-    public Map<String,Object> getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 

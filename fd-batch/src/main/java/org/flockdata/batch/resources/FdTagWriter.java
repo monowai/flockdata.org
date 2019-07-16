@@ -16,6 +16,7 @@
 
 package org.flockdata.batch.resources;
 
+import java.util.List;
 import org.flockdata.helper.FlockException;
 import org.flockdata.integration.Template;
 import org.flockdata.registration.TagInputBean;
@@ -27,8 +28,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 /**
  * Batches the item to the payload ready for transmission
  *
@@ -36,7 +35,7 @@ import java.util.List;
  * @tag Tag, Batch, FdClient
  */
 @Component
-@Profile({"fd-batch", "fd-batch-dev"})
+@Profile( {"fd-batch", "fd-batch-dev"})
 @Service
 public class FdTagWriter implements ItemWriter<TagInputBean> {
 
@@ -48,7 +47,7 @@ public class FdTagWriter implements ItemWriter<TagInputBean> {
         this.fdTemplate = fdTemplate;
         try {
             fdIoInterface.validateConnectivity();
-        } catch (FlockException e){
+        } catch (FlockException e) {
             logger.error("Error validating connectivity");
         }
     }

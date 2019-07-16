@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
  * @tag SystemUser, Security
  */
 @Component
-public class SimpleUser implements UserProfileService{
+public class SimpleUser implements UserProfileService {
 
     private static Logger logger = LoggerFactory.getLogger("configuration");
     @Autowired(required = false)
@@ -44,10 +44,10 @@ public class SimpleUser implements UserProfileService{
         Object userName = authentication.getPrincipal();
         String login;
         User auth = null;
-        if ( userName instanceof String )
-            login = (String)userName;
-        else {
-            login = ((User)authentication.getPrincipal()).getUsername();
+        if (userName instanceof String) {
+            login = (String) userName;
+        } else {
+            login = ((User) authentication.getPrincipal()).getUsername();
             auth = (User) authentication.getPrincipal();
         }
 
@@ -55,12 +55,12 @@ public class SimpleUser implements UserProfileService{
         userProfile.setUserId(login);
         userProfile.setStatus("ENABLED");
 
-        if (auth!=null && !auth.getAuthorities().isEmpty()) {
+        if (auth != null && !auth.getAuthorities().isEmpty()) {
             for (GrantedAuthority grantedAuthority : auth.getAuthorities()) {
                 userProfile.addUserRole(grantedAuthority.getAuthority());
             }
         }
-        if ( auth!=null && systemUserService !=null ) {
+        if (auth != null && systemUserService != null) {
             SystemUser sysUser = systemUserService.findByLogin(login);
             if (sysUser != null) {
                 userProfile.setApiKey(sysUser.getApiKey());

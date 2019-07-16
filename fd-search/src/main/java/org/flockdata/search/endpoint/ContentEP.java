@@ -25,14 +25,18 @@ import org.flockdata.search.ContentStructure;
 import org.flockdata.search.QueryParams;
 import org.flockdata.search.service.ContentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Access to content model structures stored in ElasticSearch
  *
  * @author mholdsworth
- * @since 31/08/2016
  * @tag Search, Endpoint, ContentModel
+ * @since 31/08/2016
  */
 @RequestMapping("${org.fd.search.system.api:api}/v1/content")
 @RestController
@@ -41,22 +45,22 @@ public class ContentEP {
     private ContentService contentService;
 
     @Autowired
-    private void setContentService(ContentService contentService){
+    private void setContentService(ContentService contentService) {
         this.contentService = contentService;
     }
 
     @RequestMapping(value = "/{company}/{fortress}/{type}", produces = "application/json",
-            method = RequestMethod.GET)
+        method = RequestMethod.GET)
     public ContentStructure simpleQuery(@PathVariable("company") String company, @PathVariable("type") String type, @PathVariable("fortress") String fortress) throws FlockException {
         QueryParams queryParams = new QueryParams()
-                .setCompany(company.toLowerCase())
-                .setFortress(fortress.toLowerCase())
-                .setTypes(type.toLowerCase());
+            .setCompany(company.toLowerCase())
+            .setFortress(fortress.toLowerCase())
+            .setTypes(type.toLowerCase());
         return contentService.getStructure(queryParams);
     }
 
     @RequestMapping(value = "/", consumes = "application/json", produces = "application/json",
-            method = RequestMethod.POST)
+        method = RequestMethod.POST)
     public ContentStructure simpleQuery(@RequestBody QueryParams queryParams) throws FlockException {
         return contentService.getStructure(queryParams);
     }

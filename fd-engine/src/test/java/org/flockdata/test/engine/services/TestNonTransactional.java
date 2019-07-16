@@ -20,6 +20,17 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.SystemUser;
@@ -37,12 +48,6 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.*;
-
 /**
  * @author mholdsworth
  * @since 2/05/2014
@@ -56,6 +61,7 @@ public class TestNonTransactional extends EngineBase {
         // DAT-348
         super.cleanUpGraph();
     }
+
     @Test
     public void crossReferenceTags() throws Exception {
         SystemUser su = registerSystemUser("crossReferenceTags", mike_admin);
@@ -68,12 +74,12 @@ public class TestNonTransactional extends EngineBase {
         Thread.sleep(300); // Let the schema changes occur
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
-        inputBean.addTag( new TagInputBean("ABC", "Device", "sold"));
+        inputBean.addTag(new TagInputBean("ABC", "Device", "sold"));
         TrackResultBean docA = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         // These are the two records that will cite the previously created entity
         EntityInputBean inputBeanB = new EntityInputBean(fortress, "wally", "DocTypeB", new DateTime(), "ABC321");
-        inputBeanB.addTag( new TagInputBean("ABC", "Device", "applies"));
+        inputBeanB.addTag(new TagInputBean("ABC", "Device", "applies"));
         TrackResultBean docB = mediationFacade.trackEntity(su.getCompany(), inputBeanB);
 
         Map<String, List<EntityKeyBean>> refs = new HashMap<>();
@@ -82,7 +88,7 @@ public class TestNonTransactional extends EngineBase {
         codeRefs.add(new EntityKeyBean("ABC321", "123", "444"));
         codeRefs.add(new EntityKeyBean("ABC333", "123", "444"));
 
-        refs.put("cites",codeRefs);
+        refs.put("cites", codeRefs);
         EntityToEntityLinkInput bean = new EntityToEntityLinkInput(inputBean);
         List<EntityToEntityLinkInput> inputs = new ArrayList<>();
         inputs.add(bean);
@@ -182,8 +188,9 @@ public class TestNonTransactional extends EngineBase {
                     deadlocked = true;
                 }
 
-                if (!deadlocked)
+                if (!deadlocked) {
                     i++;
+                }
             } // End while
             logger.debug("Finishing {}", failed);
             failed = false;

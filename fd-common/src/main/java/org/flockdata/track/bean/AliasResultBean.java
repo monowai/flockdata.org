@@ -24,16 +24,17 @@ import org.flockdata.data.Alias;
 
 /**
  * @author mholdsworth
- * @since 20/05/2015
  * @tag Alias, Contract
+ * @since 20/05/2015
  */
 public class AliasResultBean {
     private String name;
     private String description;
 
-    AliasResultBean(){}
+    AliasResultBean() {
+    }
 
-    public AliasResultBean(Alias alias){
+    public AliasResultBean(Alias alias) {
         this();
         this.name = alias.getName();
         this.description = alias.getDescription();
@@ -57,12 +58,18 @@ public class AliasResultBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AliasResultBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AliasResultBean)) {
+            return false;
+        }
 
         AliasResultBean that = (AliasResultBean) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
         return !(description != null ? !description.equals(that.description) : that.description != null);
 
     }
@@ -77,8 +84,8 @@ public class AliasResultBean {
     @Override
     public String toString() {
         return "AliasResultBean{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+            "name='" + name + '\'' +
+            ", description='" + description + '\'' +
+            '}';
     }
 }

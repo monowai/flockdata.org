@@ -48,7 +48,7 @@ public class ContentModelResult {
         this.code = model.getCode();
         if (model.getFortress() != null) {
             this.fortress = model.getFortress().getName();
-        } else if (model.getFortressName() !=null){
+        } else if (model.getFortressName() != null) {
             this.fortress = model.getFortressName();
         } else {
             this.fortress = "Tag";
@@ -58,8 +58,7 @@ public class ContentModelResult {
             if (model.getCode() != null) {
                 this.code = model.getCode();
                 this.documentType = model.getCode();
-            }
-            else {
+            } else {
                 this.documentType = model.getDocumentName();
             }
         } else {
@@ -104,11 +103,11 @@ public class ContentModelResult {
     @Override
     public String toString() {
         return "ContentModelResult{" +
-                "code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                ", documentType='" + documentType + '\'' +
-                ", fortress='" + fortress + '\'' +
-                ", key='" + key + '\'' +
-                '}';
+            "code='" + code + '\'' +
+            ", name='" + name + '\'' +
+            ", documentType='" + documentType + '\'' +
+            ", fortress='" + fortress + '\'' +
+            ", key='" + key + '\'' +
+            '}';
     }
 }

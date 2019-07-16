@@ -25,13 +25,12 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.helper.JsonUtils;
-import org.flockdata.track.bean.SearchChange;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.track.bean.SearchChange;
 
 /**
  * @author mholdsworth
@@ -43,13 +42,13 @@ public class SearchChangesDeserializer extends JsonDeserializer<SearchChanges> {
         SearchChanges changes = new SearchChanges();
         JsonNode n = jp.getCodec().readTree(jp);
         Collection<JsonNode> columns = n.findValues("changes");
-        if ( columns !=null ){
+        if (columns != null) {
             ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
 
             for (JsonNode node : columns) {
-                Iterator<JsonNode>nodes = node.elements();
+                Iterator<JsonNode> nodes = node.elements();
 
-                while (nodes.hasNext()){
+                while (nodes.hasNext()) {
                     JsonNode changeNode = nodes.next();
                     if (SearchChange.Type.ENTITY.name().equals(changeNode.findValue("type").asText())) {
                         EntitySearchChange change = JsonUtils.toObject(changeNode.toString().getBytes(), EntitySearchChange.class);
@@ -57,8 +56,9 @@ public class SearchChangesDeserializer extends JsonDeserializer<SearchChanges> {
                     } else if (SearchChange.Type.TAG.name().equals(changeNode.findValue("type").asText())) {
                         TagSearchChange change = JsonUtils.toObject(changeNode.toString().getBytes(), TagSearchChange.class);
                         changes.addChange(change);
-                    } else
-                        throw new IOException("Unrecognized search change "+ changeNode.get("type"));
+                    } else {
+                        throw new IOException("Unrecognized search change " + changeNode.get("type"));
+                    }
 
                 }
             }

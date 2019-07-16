@@ -37,10 +37,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author mholdsworth
- * @since 15/06/2013
  * @tag ExceptionHandler
  * http://www.asyncdev.net/2011/12/spring-restful-controllers-and-error-handling/
- *
+ * @since 15/06/2013
  */
 @ControllerAdvice
 public class GlobalControllerExceptionHandler {
@@ -48,14 +47,14 @@ public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(FlockException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleAppException(FlockException ex){
-        logger.debug("Processing Exception- {}", ex.getLocalizedMessage(),ex);
+    public ModelAndView handleAppException(FlockException ex) {
+        logger.debug("Processing Exception- {}", ex.getLocalizedMessage(), ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView handleNotFound(NotFoundException ex){
+    public ModelAndView handleNotFound(NotFoundException ex) {
         logger.debug("Resource Not Found Exception- {}", ex.getLocalizedMessage(), ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
@@ -63,51 +62,52 @@ public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleIAException( IllegalArgumentException ex){
+    public ModelAndView handleIAException(IllegalArgumentException ex) {
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(JsonParseException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handleJsonError(final JsonParseException ex) {
-        logger.debug("Bad Request - {}", ex.getLocalizedMessage(),ex);
+        logger.debug("Bad Request - {}", ex.getLocalizedMessage(), ex);
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(SecurityException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ModelAndView handleSecException(final SecurityException ex){
+    public ModelAndView handleSecException(final SecurityException ex) {
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ModelAndView handleSecAuthException(final AuthenticationException ex){
+    public ModelAndView handleSecAuthException(final AuthenticationException ex) {
         return new JsonMessage("Invalid username or password").asModelAndViewError();
     }
 
     //.class
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ModelAndView handleAuthException(final AccessDeniedException ex){
+    public ModelAndView handleAuthException(final AccessDeniedException ex) {
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
     @ExceptionHandler(HttpMessageConversionException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleConversionProblem( final HttpMessageConversionException ex){
+    public ModelAndView handleConversionProblem(final HttpMessageConversionException ex) {
         logger.debug(ex.getMessage(), ex.getCause());
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
-    @ExceptionHandler(Exception.class )
+    @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ModelAndView handleInternal( Exception ex) {
+    public ModelAndView handleInternal(Exception ex) {
         String errorMessage;
-        if ( ex.getCause() !=null )
+        if (ex.getCause() != null) {
             errorMessage = ex.getCause().getMessage();
-        else
-            errorMessage =ex.getMessage();
+        } else {
+            errorMessage = ex.getMessage();
+        }
 
         logger.debug("Error 500: {}", errorMessage, ex);
 

@@ -16,18 +16,17 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import java.util.Collection;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
-
-import java.util.Collection;
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * Alias tags
@@ -67,7 +66,6 @@ public class TestTagAliases extends AbstractImport {
             }
         }
     }
-
 
 
 }

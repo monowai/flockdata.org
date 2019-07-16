@@ -50,7 +50,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     public static SystemUserNode GUEST = new SystemUserNode("Guest", null, null, false);
     private final CompanyService companyService;
     private final SystemUserService systemUserService;
-    private final  KeyGenService keyGenService;
+    private final KeyGenService keyGenService;
     private final SecurityHelper securityHelper;
     private Logger logger = LoggerFactory.getLogger(RegistrationServiceNeo4j.class);
 
@@ -67,10 +67,10 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     @PreAuthorize(FdRoles.EXP_ADMIN)
     public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException {
 
-        SystemUserNode systemUser = (SystemUserNode)systemUserService.findByLogin(regBean.getLogin());
+        SystemUserNode systemUser = (SystemUserNode) systemUserService.findByLogin(regBean.getLogin());
 
         if (systemUser != null) {
-            if ( systemUser.getApiKey() == null ) {
+            if (systemUser.getApiKey() == null) {
                 systemUser.setApiKey(keyGenService.getUniqueKey());
                 systemUserService.save(systemUser);
             }
@@ -101,7 +101,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
 
     @Transactional
     public SystemUser makeSystemUser(RegistrationBean regBean) {
-        logger.debug("Creating new system user {}",regBean);
+        logger.debug("Creating new system user {}", regBean);
         return systemUserService.save(regBean);
 
 
@@ -113,8 +113,9 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     @Transactional
     public SystemUser getSystemUser() {
         String systemUser = securityHelper.getUserName(false, false);
-        if (systemUser == null)
+        if (systemUser == null) {
             return GUEST;
+        }
         SystemUser iSystemUser = systemUserService.findByLogin(systemUser);
         if (iSystemUser == null) {
             // Authenticated in the security system, but not in the graph
@@ -127,15 +128,17 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     @Transactional
     public SystemUser getSystemUser(String apiKey) {
         SystemUser su = systemUserService.findByApiKey(apiKey);
-        if (su == null)
+        if (su == null) {
             return getSystemUser();
+        }
         return su;
     }
 
     public Company resolveCompany(String apiKey) throws FlockException {
         Company c = securityHelper.getCompany(apiKey);
-        if (c == null)
+        if (c == null) {
             throw new FlockException("Invalid API Key");
+        }
         return c;
     }
 }

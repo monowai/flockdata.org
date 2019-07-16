@@ -20,9 +20,8 @@
 
 package org.flockdata.search.base;
 
-import org.flockdata.track.bean.SearchChange;
-
 import java.util.Collection;
+import org.flockdata.track.bean.SearchChange;
 
 /**
  * Deals with Mapping and Settings for indexes

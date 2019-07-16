@@ -16,6 +16,12 @@
 
 package org.flockdata.client;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
 import org.flockdata.integration.ClientConfiguration;
@@ -34,35 +40,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StopWatch;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
 /**
  * General importer with support for Delimited and XML parsing.
- *
+ * <p>
  * Will send information to FlockData as either tags or track information over AMQP
- *
+ * <p>
  * For XML you should extend EntityInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
  * to massage your data prior to dispatch to FD.
- *
+ * <p>
  * Parameters:
  * example command - assumes the server has a Tag model called Countries
  * import --auth.user=demo:123 --fd.client.delimiter=";" --fd.client.import="/fd-cow.txt" --fd.content.model="tag:countries"
- *
+ * <p>
  * -or- to parse the file using the local copy of the Content Model,
  * import --auth.user=demo:123 --fd.client.delimiter=";" --fd.client.import="/fd-cow.txt,/countries.json"
  *
- *
+ * @author mholdsworth
  * @see FdClientIo
  * @see PayloadTransformer
  * @see TagInputBean
  * @see org.flockdata.track.bean.EntityInputBean
- *
- * @author mholdsworth
  * @since 13/10/2013
  */
 @Configuration
@@ -91,17 +88,17 @@ public class Importer {
     }
 
     @Autowired
-    void setFileProcessor (FileProcessor fileProcessor){
-        this.fileProcessor= fileProcessor;
+    void setFileProcessor(FileProcessor fileProcessor) {
+        this.fileProcessor = fileProcessor;
     }
 
     @Autowired
-    void setClientConfiguration (ClientConfiguration clientConfiguration){
+    void setClientConfiguration(ClientConfiguration clientConfiguration) {
         this.clientConfiguration = clientConfiguration;
     }
 
     @Autowired
-    void setFdClientIo(FdIoInterface fdClientIo){
+    void setFdClientIo(FdIoInterface fdClientIo) {
         this.fdClientIo = fdClientIo;
     }
 
@@ -134,13 +131,13 @@ public class Importer {
                 }
                 ContentModel contentModel;
                 ExtractProfile extractProfile;
-                if ( fileModel != null) {
+                if (fileModel != null) {
                     // Reading model from file
                     contentModel = resolveContentModel(fileModel);
-                    extractProfile = resolveExtractProfile(fileModel,contentModel);
-                } else if (serverSideContentModel!=null ){
+                    extractProfile = resolveExtractProfile(fileModel, contentModel);
+                } else if (serverSideContentModel != null) {
                     contentModel = resolveContentModel(serverSideContentModel);
-                    if (contentModel==null ){
+                    if (contentModel == null) {
                         logger.error(String.format("Unable to located the requested content model %s", serverSideContentModel));
                         System.exit(-1);
                     }
@@ -153,17 +150,19 @@ public class Importer {
 
                 SystemUserResultBean su = fdClientIo.me(); // Use the configured API as the default FU unless another is set
                 if (su == null) {
-                    if (!clientConfiguration.isAmqp())
+                    if (!clientConfiguration.isAmqp()) {
                         throw new FlockException("Unable to connect to FlockData. Is the service running at [" + clientConfiguration.getServiceUrl() + "]?");
-                    else
+                    } else {
                         logger.warn("Http communications with FlockData are not working. Is the service running at [" + clientConfiguration.getServiceUrl() + "]?");
-                } 
+                    }
+                }
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, contentModel, batchSize, skipCount);
-                logger.info("Processing [{}], model [{}]",fileName, fileModel);
+                logger.info("Processing [{}], model [{}]", fileName, fileModel);
 
                 // ToDo: Figure out importProfile properties. We are currently reading them out of the content model
-                if (extractProfile== null)
+                if (extractProfile == null) {
                     ExtractProfileDeserializer.getImportProfile(fileModel, contentModel);
+                }
 
                 totalRows = totalRows + fileProcessor.processFile(extractProfile, fileName);
             }
@@ -182,7 +181,7 @@ public class Importer {
 
     // import --auth.user=mike:123 --fd.client.import="/fd-cow.txt" --fd.content.model=tag:countries
     public ContentModel resolveContentModel(String fileModel) throws IOException {
-      return fdClientIo.getContentModel( fileModel);
+        return fdClientIo.getContentModel(fileModel);
     }
 
 

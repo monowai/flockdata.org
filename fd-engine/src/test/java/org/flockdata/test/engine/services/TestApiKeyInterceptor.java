@@ -20,6 +20,9 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import junit.framework.TestCase;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.engine.data.graph.CompanyNode;
@@ -32,79 +35,76 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 public class TestApiKeyInterceptor extends EngineBase {
 
-	@Autowired
-	ApplicationContext context;
+    @Autowired
+    ApplicationContext context;
 
-	MockHttpServletRequest request;
+    MockHttpServletRequest request;
 
-	MockHttpServletResponse response;
+    MockHttpServletResponse response;
 
-	ApiKeyInterceptor apiKeyInterceptor;
+    ApiKeyInterceptor apiKeyInterceptor;
 
-	@Before
-	public void initialize() {
-		setSecurity(mike_admin);
-		apiKeyInterceptor = (ApiKeyInterceptor) context
-				.getBean("apiKeyInterceptor");
+    @Before
+    public void initialize() {
+        setSecurity(mike_admin);
+        apiKeyInterceptor = (ApiKeyInterceptor) context
+            .getBean("apiKeyInterceptor");
 
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
+        request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
 
-	}
+    }
 
-	@Test
-	public void givenValidAPIKey_WhenCallingSecureAPI_ThenShouldBeAllowed()
-			throws Exception {
+    @Test
+    public void givenValidAPIKey_WhenCallingSecureAPI_ThenShouldBeAllowed()
+        throws Exception {
         String companyName = "SecAPI";
-		String apiKey = registerSystemUser(companyName, "abc123")
-				.getApiKey();
+        String apiKey = registerSystemUser(companyName, "abc123")
+            .getApiKey();
 
-		request.setRequestURI("/fortress/");
-		request.addHeader("api-key", apiKey);
-		boolean status = apiKeyInterceptor.preHandle(request, response, null);
+        request.setRequestURI("/fortress/");
+        request.addHeader("api-key", apiKey);
+        boolean status = apiKeyInterceptor.preHandle(request, response, null);
 
-		assertEquals(true, status);
+        assertEquals(true, status);
         CompanyNode company = (CompanyNode) request.getAttribute("company");
-        assertNotNull (company);
+        assertNotNull(company);
 
-		assertEquals(companyName, company.getName());
-	}
+        assertEquals(companyName, company.getName());
+    }
 
-	@Test
-	public void givenInValidAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
-			throws Exception {
+    @Test
+    public void givenInValidAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
+        throws Exception {
 
-		request.setRequestURI("/api/v1/fortress/");
-		request.addHeader("api-key", "someKey");
-		TestCase.assertFalse("didn't fail pre-flight", apiKeyInterceptor.preHandle(request, response, null));
-	}
+        request.setRequestURI("/api/v1/fortress/");
+        request.addHeader("api-key", "someKey");
+        TestCase.assertFalse("didn't fail pre-flight", apiKeyInterceptor.preHandle(request, response, null));
+    }
 
-	@Test
-	public void givenNoAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
-			throws Exception {
+    @Test
+    public void givenNoAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
+        throws Exception {
         setSecurity(sally_admin); // Sally is Authorised and has not API Key
-		request.setRequestURI("/api/v1/fortress/");
-		//exception.expect(SecurityException.class);
+        request.setRequestURI("/api/v1/fortress/");
+        //exception.expect(SecurityException.class);
         // ToDo: Move to MVC tests
-		TestCase.assertFalse(apiKeyInterceptor.preHandle(request, response, null));
-        TestCase.assertNotNull( response.getErrorMessage());
+        TestCase.assertFalse(apiKeyInterceptor.preHandle(request, response, null));
+        TestCase.assertNotNull(response.getErrorMessage());
         TestCase.assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
 
-	}
+    }
 
     // ToDo: add a disabled user check
 
     // ToDo: user is enabled but has no API key in FlockData - still valid, but results in a null company
 
 
-	@After
-	public void cleanUp() {
-		setUnauthorized();
-	}
+    @After
+    public void cleanUp() {
+        setUnauthorized();
+    }
 
 }

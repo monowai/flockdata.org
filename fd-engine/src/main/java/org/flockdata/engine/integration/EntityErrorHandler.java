@@ -35,8 +35,8 @@ import org.springframework.messaging.MessageHandlingException;
 
 /**
  * @author mholdsworth
- * @since 11/11/2014
  * @tag Track, Integration, ExceptionHandler
+ * @since 11/11/2014
  */
 @IntegrationComponentScan
 @Configuration
@@ -44,34 +44,35 @@ public class EntityErrorHandler {
     private Logger logger = LoggerFactory.getLogger(EntityErrorHandler.class);
 
     @Bean
-    MessageChannel trackError (){
+    MessageChannel trackError() {
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel messagingError (){
+    MessageChannel messagingError() {
         return new DirectChannel();
     }
 
 
-    @ServiceActivator (inputChannel = "trackError")
+    @ServiceActivator(inputChannel = "trackError")
     public void handleFailedTrackRequest(Message<MessageHandlingException> message) {
         // ToDo: How to persist failed messages
         MessageHandlingException payLoad = message.getPayload();
-        String errorMessage =null;
+        String errorMessage = null;
         if (payLoad != null) {
             Object msgPayload = payLoad.getFailedMessage().getPayload();
 
             if (payLoad.getCause() != null) {
                 errorMessage = payLoad.getCause().getMessage();
-            }else
+            } else {
                 errorMessage = payLoad.getMessage();
+            }
 
-            if (msgPayload instanceof String)
-                errorMessage =errorMessage + " [" + msgPayload.toString() + "]";
-            else {
+            if (msgPayload instanceof String) {
+                errorMessage = errorMessage + " [" + msgPayload.toString() + "]";
+            } else {
                 Object o = payLoad.getFailedMessage().getPayload();
-                errorMessage =errorMessage + ". " + o.toString();
+                errorMessage = errorMessage + ". " + o.toString();
 
             }
         }
@@ -80,13 +81,13 @@ public class EntityErrorHandler {
         //throw payLoad;
     }
 
-    @ServiceActivator (inputChannel = "messagingError")
+    @ServiceActivator(inputChannel = "messagingError")
     public void handleMessageDeliveryException(Message<MessageDeliveryException> message) {
         // ToDo: How to persist failed messages
         MessageDeliveryException payLoad = message.getPayload();
-        String errorMessage ;
-        if ( payLoad.getCause()!= null ) {
-            errorMessage =payLoad.getCause().getMessage();
+        String errorMessage;
+        if (payLoad.getCause() != null) {
+            errorMessage = payLoad.getCause().getMessage();
 
         } else {
             errorMessage = payLoad.getMessage();

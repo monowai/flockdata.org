@@ -16,16 +16,15 @@
 
 package org.flockdata.test.integration;
 
+import static junit.framework.TestCase.assertNotNull;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+
+import java.util.Map;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.search.QueryParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
-
-import static junit.framework.TestCase.assertNotNull;
-import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 /**
  * Support functions for interacting with ElasticSearch during integration testing
@@ -41,23 +40,23 @@ class SearchHelper {
 
     QueryParams getTagQuery(String company, String label, String searchText) {
         return new QueryParams(searchText)
-                .searchTags()
-                .setIndex(indexManager.getTagIndexRoot(company, label))
-                .setTypes(label.toLowerCase());
+            .searchTags()
+            .setIndex(indexManager.getTagIndexRoot(company, label))
+            .setTypes(label.toLowerCase());
     }
 
     QueryParams getTagMatchQuery(String company, String label, String field, String searchText) {
         return new QueryParams()
-                .searchTags()
-                .setIndex(indexManager.getTagIndexRoot(company, label))
-                .setTypes(label.toLowerCase())
-                .addTerm(field, searchText);
+            .searchTags()
+            .setIndex(indexManager.getTagIndexRoot(company, label))
+            .setTypes(label.toLowerCase())
+            .addTerm(field, searchText);
     }
 
     void assertHitCount(String message, int expectedCount, Map<String, Object> esResult) {
         assertNotNull(esResult);
         int count = getHitCount(esResult);
-        assertEquals(message + " got "+count, expectedCount, count);
+        assertEquals(message + " got " + count, expectedCount, count);
     }
 
     private Integer getHitCount(Map<String, Object> esResult) {
@@ -67,7 +66,6 @@ class SearchHelper {
     }
 
     /**
-     *
      * @param esResult Map of ES results
      * @return the hits as a Json string
      */

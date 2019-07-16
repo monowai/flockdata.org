@@ -20,9 +20,8 @@
 
 package org.flockdata.registration;
 
-import org.flockdata.data.SystemUser;
-
 import java.util.Arrays;
+import org.flockdata.data.SystemUser;
 
 /**
  * @author mholdsworth
@@ -49,10 +48,13 @@ public class SystemUserResultBean {
             this.name = su.getName();
             this.login = su.getLogin();
             this.email = su.getEmail();
-            if (this.name == null)
+            if (this.name == null) {
                 this.name = login;
+            }
             if (su.getCompany() != null) // an unauthenticated user does not have a company
+            {
                 this.companyName = su.getCompany().getName();
+            }
         }
 
     }
@@ -61,7 +63,7 @@ public class SystemUserResultBean {
         this(sysUser);
         this.userRoles = userProfile.getUserRoles();
         this.status = userProfile.getStatus();
-        this.email = (userProfile.getUserEmail()!=null ? userProfile.getUserEmail(): sysUser.getEmail());
+        this.email = (userProfile.getUserEmail() != null ? userProfile.getUserEmail() : sysUser.getEmail());
 
     }
 
@@ -96,13 +98,13 @@ public class SystemUserResultBean {
     @Override
     public String toString() {
         return "SystemUser{" +
-                "login='" + login + '\'' +
-                ", name='" + name + '\'' +
-                ", apiKey='" + apiKey + '\'' +
-                ", status='" + status + '\'' +
-                ", userRoles=" + Arrays.toString(userRoles) +
-                ", companyName='" + companyName + '\'' +
-                '}';
+            "login='" + login + '\'' +
+            ", name='" + name + '\'' +
+            ", apiKey='" + apiKey + '\'' +
+            ", status='" + status + '\'' +
+            ", userRoles=" + Arrays.toString(userRoles) +
+            ", companyName='" + companyName + '\'' +
+            '}';
     }
 
     public boolean isActive() {

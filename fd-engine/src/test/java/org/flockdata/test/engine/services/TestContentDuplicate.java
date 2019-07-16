@@ -20,6 +20,11 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.flockdata.data.Entity;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.FortressNode;
@@ -32,17 +37,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author mholdsworth
  * @since 12/11/2014
  */
-public class TestContentDuplicate  extends  EngineBase{
+public class TestContentDuplicate extends EngineBase {
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
     @Test
@@ -55,8 +54,8 @@ public class TestContentDuplicate  extends  EngineBase{
 
         int max = 5;
         List<ContentInputBean> contentBeans = new ArrayList<>();
-        for (int i=0; i<max; i++){
-            ContentInputBean contentBean = new ContentInputBean("poppy", DateTime.now(), ContentDataHelper.getSimpleMap("name", "a" +i));
+        for (int i = 0; i < max; i++) {
+            ContentInputBean contentBean = new ContentInputBean("poppy", DateTime.now(), ContentDataHelper.getSimpleMap("name", "a" + i));
             contentBeans.add(contentBean);
             inputBean.setContent(contentBean);
             mediationFacade.trackEntity(su.getCompany(), inputBean);

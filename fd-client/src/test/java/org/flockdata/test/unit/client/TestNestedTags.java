@@ -16,6 +16,10 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.json.ContentModelDeserializer;
@@ -23,13 +27,7 @@ import org.flockdata.transform.json.ExtractProfileDeserializer;
 import org.flockdata.transform.model.ExtractProfile;
 import org.junit.Test;
 
-import java.util.List;
-
-import static junit.framework.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-
 /**
- *
  * @author mholdsworth
  * @since 1/03/2015
  */

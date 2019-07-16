@@ -20,23 +20,23 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.registration.TagResultBean;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import org.flockdata.registration.TagResultBean;
 
 /**
  * @author mholdsworth
- * @since 29/06/2015
  * @tag Contract, Tag, Query, Track
+ * @since 29/06/2015
  */
 public class TagResults {
 
-    Collection<TagResultBean>tagResults = new ArrayList<>();
+    Collection<TagResultBean> tagResults = new ArrayList<>();
 
-    public void addTag(TagResultBean tagResult){
-        if ( !tagResults.contains(tagResult))
+    public void addTag(TagResultBean tagResult) {
+        if (!tagResults.contains(tagResult)) {
             tagResults.add(tagResult);
+        }
     }
 
     public Collection<TagResultBean> getTagResults() {

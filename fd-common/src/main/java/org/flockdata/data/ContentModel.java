@@ -21,19 +21,18 @@
 package org.flockdata.data;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Map;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.json.ContentModelDeserializer;
-
-import java.util.Map;
 
 /**
  * @author mholdsworth
  * @since 3/10/2014
  */
 
-@JsonDeserialize(using =ContentModelDeserializer.class)
+@JsonDeserialize(using = ContentModelDeserializer.class)
 public interface ContentModel {
 
     DocumentTypeInputBean getDocumentType();
@@ -48,7 +47,7 @@ public interface ContentModel {
 
     void setContent(Map<String, ColumnDefinition> columns);
 
-    FortressInputBean getFortress() ;
+    FortressInputBean getFortress();
 
     ContentModel setFortress(FortressInputBean fortress);
 

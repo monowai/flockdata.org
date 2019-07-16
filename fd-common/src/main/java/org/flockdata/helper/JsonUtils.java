@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,18 +55,19 @@ public class JsonUtils {
     }
 
     public static <T> Collection<T> toCollection(String json, Class<T> clazz) throws IOException {
-        if (json == null || json.equals(""))
+        if (json == null || json.equals("")) {
             return new ArrayList<>();
+        }
 
         CollectionType javaType =
-                mapper.getTypeFactory().constructCollectionType(List.class, clazz);
+            mapper.getTypeFactory().constructCollectionType(List.class, clazz);
         return mapper.readValue(json, javaType);
 
     }
 
     /**
      * deserialize the JSON string as an Array of clazz
-     *
+     * <p>
      * e.g. {@literal Collection<EntityInputBean>} results = JsonUtils.getAsCollection(message.getBody(), EntityInputBean.class);
      *
      * @param bytes JSON Bytes - usually String.getBytes()
@@ -77,11 +77,12 @@ public class JsonUtils {
      * @throws IOException JSON error
      */
     public static <T> Collection<T> toCollection(byte[] bytes, Class<T> clazz) throws IOException {
-        if (bytes == null)
+        if (bytes == null) {
             return new ArrayList<>();
+        }
 
         CollectionType javaType =
-                mapper.getTypeFactory().constructCollectionType(List.class, clazz);
+            mapper.getTypeFactory().constructCollectionType(List.class, clazz);
         return mapper.readValue(bytes, javaType);
 
     }
@@ -99,8 +100,9 @@ public class JsonUtils {
     }
 
     public static String pretty(Object json) {
-        if (json == null)
+        if (json == null) {
             return null;
+        }
         try {
             return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
         } catch (JsonProcessingException e) {

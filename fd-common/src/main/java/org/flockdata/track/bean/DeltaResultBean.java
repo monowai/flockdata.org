@@ -23,6 +23,7 @@ package org.flockdata.track.bean;
 import java.util.Map;
 
 /**
+ *
  */
 public class DeltaResultBean {
     private Map<String, Object> added;
@@ -34,32 +35,31 @@ public class DeltaResultBean {
         return added;
     }
 
-    public Map getChanged() {
-        return changed;
-    }
-
-    public Map getRemoved() {
-        return removed;
-    }
-
     public void setAdded(Map<String, Object> added) {
         this.added = added;
     }
 
-    public void setRemoved(Map<String, Object> removed) {
-        this.removed = removed;
+    public Map getChanged() {
+        return changed;
     }
 
     public void setChanged(Map<String, Object> changed) {
         this.changed = changed;
     }
 
+    public Map getRemoved() {
+        return removed;
+    }
 
-    public void setUnchanged(Map<String, Object> unchanged) {
-        this.unchanged = unchanged;
+    public void setRemoved(Map<String, Object> removed) {
+        this.removed = removed;
     }
 
     public Map<String, Object> getUnchanged() {
         return unchanged;
+    }
+
+    public void setUnchanged(Map<String, Object> unchanged) {
+        this.unchanged = unchanged;
     }
 }

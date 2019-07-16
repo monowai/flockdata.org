@@ -45,10 +45,11 @@ public class FdNeoChannels {
 
     @Value("${neo4j.url:@null}")
     public void setNeoUrl(String neoUrl) {
-        if ("@null".equals(neoUrl))
+        if ("@null".equals(neoUrl)) {
             this.neoUrl = "http://localhost:7474";
-        else
+        } else {
             this.neoUrl = neoUrl;
+        }
     }
 
     public String getUriRoot() {
@@ -121,17 +122,17 @@ public class FdNeoChannels {
     }
 
     @Bean
-    MessageChannel neoFdAddEntityTag () {
+    MessageChannel neoFdAddEntityTag() {
         return MessageChannels.direct("neoFdAddEntityTag").get();
     }
 
     @Bean
-    MessageChannel neoFdGetEntityTag () {
+    MessageChannel neoFdGetEntityTag() {
         return MessageChannels.direct("neoFdGetEntityTag").get();
     }
 
     @Bean
-    MessageChannel neoFdGetEntityTags () {
+    MessageChannel neoFdGetEntityTags() {
         return MessageChannels.direct("neoFdGetEntityTags").get();
     }
 

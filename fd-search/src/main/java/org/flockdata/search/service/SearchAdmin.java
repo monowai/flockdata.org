@@ -23,6 +23,10 @@ package org.flockdata.search.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.PostConstruct;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.integration.VersionHelper;
 import org.flockdata.search.base.EntityChangeWriter;
@@ -34,15 +38,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author mholdsworth
- * @since 29/08/2013
  * @tag Search, Administration, ElasticSearch
+ * @since 29/08/2013
  */
 @Service
 @Configuration
@@ -59,24 +58,26 @@ public class SearchAdmin {
     @Autowired
     private SearchConfig searchConfig;
 
-    @Autowired (required = false)
+    @Autowired(required = false)
     private VersionHelper versionHelper;
 
     public Map<String, Object> getHealth() {
 
         String version = "";
-        if ( versionHelper!=null)
-            version =versionHelper.getFdVersion();
+        if (versionHelper != null) {
+            version = versionHelper.getFdVersion();
+        }
 
         Map<String, Object> healthResults = new HashMap<>();
         healthResults.put("elasticsearch", engineDao.ping());
         healthResults.put("fd.search.version", version);
 
         String nodes = searchConfig.getTransportAddresses();
-        if ( nodes !=null )
+        if (nodes != null) {
             healthResults.put("es.nodes", nodes);
-        else
+        } else {
             healthResults.put("org.fd.search.es.transportOnly", false);
+        }
 
         healthResults.put("org.fd.search.es.settings", searchConfig.getEsDefaultSettings());
         healthResults.put("org.fd.search.es.mapping", searchConfig.getEsMappingPath());
@@ -85,12 +86,12 @@ public class SearchAdmin {
 
     }
 
-    public void deleteIndexes (Collection<String>indexesToDelete){
+    public void deleteIndexes(Collection<String> indexesToDelete) {
         indexMappingService.deleteIndexes(indexesToDelete);
     }
 
     @PostConstruct
-    void logStatus(){
+    void logStatus() {
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
         try {
             ObjectWriter or = om.writerWithDefaultPrettyPrinter();

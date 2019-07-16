@@ -16,6 +16,9 @@
 
 package org.flockdata.integration;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.PostConstruct;
 import org.flockdata.store.AbstractStore;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
@@ -26,23 +29,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Simple map to hold Key Values. Non-persistent and for testing purposes only
+ *
  * @tag Store
  */
 @Component
-@Profile({"dev","memstore"})
+@Profile( {"dev", "memstore"})
 public class InMemoryRepo extends AbstractStore {
 
-    Map<Object, ContentInputBean> map = new HashMap <>();
+    Map<Object, ContentInputBean> map = new HashMap<>();
     private Logger logger = LoggerFactory.getLogger(InMemoryRepo.class);
 
     @PostConstruct
-    void status(){
+    void status() {
         LoggerFactory.getLogger("configuration").info("**** Deploying InMemory non-persistent repo manager");
     }
 
@@ -53,15 +53,16 @@ public class InMemoryRepo extends AbstractStore {
     @Override
     public StoredContent read(String index, String type, String id) {
         ContentInputBean value = map.get(getKey(type, id));
-        if ( value == null )
+        if (value == null) {
             return null;   // Emulate a NULL result on not found in other KV stores
+        }
 
         return new StorageBean(id, value);
     }
 
     public String getKey(String type, Object id) {
 //        return id.toString();
-        return type.toLowerCase()+"."+id;
+        return type.toLowerCase() + "." + id;
     }
 
     public StoredContent read(LogRequest logRequest) {
@@ -75,7 +76,7 @@ public class InMemoryRepo extends AbstractStore {
 
     @Override
     public void purge(String index) {
-        map.clear() ;
+        map.clear();
     }
 
     @Override

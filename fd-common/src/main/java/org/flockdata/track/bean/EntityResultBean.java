@@ -17,6 +17,9 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Map;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.FortressUser;
@@ -25,14 +28,10 @@ import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.FortressUserResult;
 import org.joda.time.DateTime;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Map;
-
 /**
  * @author mholdsworth
- * @since 17/11/2014
  * @tag Contract, Track, Entity
+ * @since 17/11/2014
  */
 public class EntityResultBean implements Serializable, Entity {
 
@@ -50,7 +49,7 @@ public class EntityResultBean implements Serializable, Entity {
     private FortressUserResult createdBy;
     private FortressResultBean fortress;
     private SegmentResultBean segment;
-    private Integer search=0;
+    private Integer search = 0;
     private boolean newEntity;
     private Map<String, Object> props;
 
@@ -85,17 +84,21 @@ public class EntityResultBean implements Serializable, Entity {
             fortress = new FortressResultBean(entity.getSegment().getFortress());
 
             event = entity.getEvent();
-            if (entity.getFortressCreatedTz() != null)
+            if (entity.getFortressCreatedTz() != null) {
                 dateCreated = entity.getFortressCreatedTz().toDate().getTime();
-            if (entity.getFortressUpdatedTz() != null)
+            }
+            if (entity.getFortressUpdatedTz() != null) {
                 dateUpdated = entity.getFortressUpdatedTz().toDate();
+            }
             if (entity.getLastUser() != null) {
                 lastUser = new FortressUserResult(entity.getLastUser());
             }
-            if (entity.getCreatedBy() != null)
+            if (entity.getCreatedBy() != null) {
                 createdBy = new FortressUserResult(entity.getCreatedBy());
-            if (lastUser == null)
+            }
+            if (lastUser == null) {
                 lastUser = createdBy; // This is as much as we can assume
+            }
 
         }
     }
@@ -191,8 +194,9 @@ public class EntityResultBean implements Serializable, Entity {
     @Override
     @JsonIgnore // Satisfies the interface but is not part of a serializable contract
     public Long getLastUpdate() {
-        if ( dateUpdated != null)
+        if (dateUpdated != null) {
             return dateUpdated.getTime();
+        }
         return null;
     }
 
@@ -223,15 +227,27 @@ public class EntityResultBean implements Serializable, Entity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EntityResultBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EntityResultBean)) {
+            return false;
+        }
 
         EntityResultBean that = (EntityResultBean) o;
 
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (type != null ? !type.equals(that.type) : that.type != null) return false;
-        if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
-        if (key != null ? !key.equals(that.key) : that.key != null) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) {
+            return false;
+        }
+        if (type != null ? !type.equals(that.type) : that.type != null) {
+            return false;
+        }
+        if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) {
+            return false;
+        }
+        if (key != null ? !key.equals(that.key) : that.key != null) {
+            return false;
+        }
         return !(searchKey != null ? !searchKey.equals(that.searchKey) : that.searchKey != null);
 
     }
@@ -249,9 +265,9 @@ public class EntityResultBean implements Serializable, Entity {
     @Override
     public String toString() {
         return "EntityBean{" +
-                "key='" + key + '\'' +
-                ", indexName='" + indexName + '\'' +
-                '}';
+            "key='" + key + '\'' +
+            ", indexName='" + indexName + '\'' +
+            '}';
     }
 
     public Map<String, Object> getProps() {

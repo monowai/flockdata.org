@@ -30,8 +30,8 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * Get logs associated with an entity key. Lets you see the actual data stored against the entity
  *
- * @tag Command, Fortress, Entity, Log, Query
  * @author mholdsworth
+ * @tag Command, Fortress, Entity, Log, Query
  * @since 17/04/2016
  */
 @Component
@@ -45,7 +45,7 @@ public class EntityLogsGet {
     }
 
     public CommandResponse<EntityLogResult[]> exec(String key) {
-        String error =null;
+        String error = null;
         HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
         EntityLogResult[] results = null;
 
@@ -57,7 +57,7 @@ public class EntityLogsGet {
 
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error= e.getMessage();
+            error = e.getMessage();
         }
         return new CommandResponse<>(error, results);// Everything worked
     }

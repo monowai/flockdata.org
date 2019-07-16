@@ -16,6 +16,8 @@
 
 package org.flockdata.client.commands;
 
+import java.util.ArrayList;
+import java.util.Map;
 import org.flockdata.search.QueryParams;
 import org.flockdata.transform.FdIoInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +30,11 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.util.ArrayList;
-import java.util.Map;
-
 /**
  * Passthrough query to ES
  *
- * @tag Command, Search, Query
  * @author mholdsworth
+ * @tag Command, Search, Query
  * @since 17/04/2016
  */
 @Component
@@ -49,15 +48,16 @@ public class SearchEsPost {
     }
 
     public CommandResponse<Map<String, Object>> exec(QueryParams queryParams) {
-        String error= null;
-        Map<String,Object> result = null;
+        String error = null;
+        Map<String, Object> result = null;
 
 
         try {
             HttpEntity requestEntity = new HttpEntity<>(queryParams, fdIoInterface.getHeaders());
-            ParameterizedTypeReference<Map<String,Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {};
-            ResponseEntity<Map<String,Object>> response;
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+ "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
+            ParameterizedTypeReference<Map<String, Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {
+            };
+            ResponseEntity<Map<String, Object>> response;
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
 
             result = response.getBody();
             if (result.containsKey("__errors__")) {
@@ -66,11 +66,10 @@ public class SearchEsPost {
             }
 
 
-
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error= e.getMessage();
+            error = e.getMessage();
         }
-        return new CommandResponse<>(error,result);
+        return new CommandResponse<>(error, result);
     }
 
 }

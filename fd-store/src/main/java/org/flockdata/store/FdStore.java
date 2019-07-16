@@ -26,18 +26,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * Starts fd-store KV store service
  *
- * @tag Application
  * @author mholdsworth
+ * @tag Application
  * @since 17/02/2016
  */
 @SpringBootApplication(scanBasePackages = {
-        "org.flockdata.integration",
+    "org.flockdata.integration",
     "org.flockdata.store"})
 public class FdStore {
     public static void main(String[] args) {
         try {
             SpringApplication.run(FdStore.class, args);
-        } catch ( Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getLocalizedMessage());
         }
 

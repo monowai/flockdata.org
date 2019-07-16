@@ -17,17 +17,16 @@
 package org.flockdata.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.flockdata.data.EntityTag;
-import org.flockdata.data.Tag;
-import org.flockdata.track.bean.AliasResultBean;
-import org.flockdata.track.bean.EntityKeyBean;
-import org.flockdata.track.bean.SearchChange;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Tag;
+import org.flockdata.track.bean.AliasResultBean;
+import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.track.bean.SearchChange;
 
 /**
  * Represents data about a tag that requires indexing
@@ -69,8 +68,9 @@ public class TagSearchChange implements SearchChange {
         this.key = tag.getKey();
         this.indexName = indexName;
         this.searchKey = key;
-        if (tag.hasProperties())
+        if (tag.hasProperties()) {
             this.props = tag.getProperties();
+        }
         aliases.addAll(tag.getAliases().stream().map(AliasResultBean::new).collect(Collectors.toList()));
     }
 

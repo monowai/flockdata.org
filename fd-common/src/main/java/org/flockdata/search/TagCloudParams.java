@@ -21,7 +21,8 @@ import java.util.Map;
 
 /**
  * A POJO that represent a bean that Transit in Spring integration
- * @author  Nabil
+ *
+ * @author Nabil
  * @since 12/10/2014
  */
 public class TagCloudParams implements QueryInterface {
@@ -110,7 +111,7 @@ public class TagCloudParams implements QueryInterface {
     }
 
     @Override
-    public Map<String,Object> getFilter() {
+    public Map<String, Object> getFilter() {
         return null;
     }
 
@@ -120,15 +121,17 @@ public class TagCloudParams implements QueryInterface {
     }
 
     public TagCloudParams addRelationship(String relationship) {
-        if ( relationships == null )
+        if (relationships == null) {
             relationships = new ArrayList<>();
+        }
         relationships.add(relationship);
         return this;
     }
 
     public TagCloudParams addTag(String tagLabel) {
-        if ( tags == null )
+        if (tags == null) {
             tags = new ArrayList<>();
+        }
         tags.add(tagLabel);
         return this;
     }

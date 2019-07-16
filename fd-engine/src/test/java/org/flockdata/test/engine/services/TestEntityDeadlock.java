@@ -20,7 +20,20 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.data.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import org.flockdata.data.Company;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.SystemUser;
+import org.flockdata.data.Tag;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
@@ -30,15 +43,6 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.retry.annotation.EnableRetry;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author mholdsworth
@@ -56,7 +60,7 @@ public class TestEntityDeadlock extends EngineBase {
     }
 
     @Test
-    public void doNothing(){
+    public void doNothing() {
         // Commenting out while Bamboo is failing to create artifacts  despite it being quarantineed
     }
 
@@ -91,42 +95,43 @@ public class TestEntityDeadlock extends EngineBase {
         CountDownLatch latch = new CountDownLatch(threadMax);
         CountDownLatch startSignal = new CountDownLatch(1);
         for (int thread = 0; thread < threadMax; thread++) {
-            EntityRunner runner = addEntityRunner(thread+1, su, fortress, docType, "ABC" + thread, docCount, tags, latch, startSignal);
+            EntityRunner runner = addEntityRunner(thread + 1, su, fortress, docType, "ABC" + thread, docCount, tags, latch, startSignal);
             runners.put(thread, runner);
         }
         startSignal.countDown();
         latch.await();
-        Tag found= null;
+        Tag found = null;
 
         for (int thread = 0; thread < threadMax; thread++) {
-            assertEquals("Thread "+ (thread +1), true, runners.get(thread).isWorked());
+            assertEquals("Thread " + (thread + 1), true, runners.get(thread).isWorked());
             for (int count = 0; count < docCount; count++) {
                 //Thread.sleep(2000);
                 Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
                 assertNotNull(entity);
                 Collection<EntityTag> entityTags = entityTagService.findEntityTags(entity);
-                if ( entityTags.size() == 0 ){
+                if (entityTags.size() == 0) {
                     logger.debug("Why is this 0?");
                 }
                 assertEquals(tagCount, entityTags.size());
                 // Make sure every thread's tags point to the same tag
-                if (found == null )
+                if (found == null) {
                     found = entityTags.iterator().next().getTag();
-                else
-                    assertEquals( found.toString() + " / "+ entityTags.iterator().next().getTag().toString(),
-                            found.getId(), entityTags.iterator().next().getTag().getId());
+                } else {
+                    assertEquals(found.toString() + " / " + entityTags.iterator().next().getTag().toString(),
+                        found.getId(), entityTags.iterator().next().getTag().getId());
+                }
             }
         }
-        assertNotNull(tagService.findTag(fortress.getCompany(), "Deadlock",null , tags.get(0).getCode()));
+        assertNotNull(tagService.findTag(fortress.getCompany(), "Deadlock", null, tags.get(0).getCode()));
         assertEquals(su.getCompany().getName(), fortress.getCompany().getName());
         createdTags = tagService.findTags(su.getCompany(), "Deadlock");
         assertEquals(false, createdTags.isEmpty());
-        if (createdTags.size() != tagCount){
+        if (createdTags.size() != tagCount) {
 
             for (Tag createdTag : createdTags) {
                 //logger.info(createdTag.toString());
-                logger.info("Finding... {}", createdTag.toString() );
-                Tag xtra= tagService.findTag(su.getCompany(), createdTag.getLabel(),null , createdTag.getCode());
+                logger.info("Finding... {}", createdTag.toString());
+                Tag xtra = tagService.findTag(su.getCompany(), createdTag.getLabel(), null, createdTag.getCode());
 
                 logger.info(xtra.toString());
             }
@@ -170,7 +175,7 @@ public class TestEntityDeadlock extends EngineBase {
         CountDownLatch startSignal;
         int count = 0;
         int myThread;
-        String entityKey =null ;
+        String entityKey = null;
         Company company = null;
 
         boolean worked = false;
@@ -198,24 +203,25 @@ public class TestEntityDeadlock extends EngineBase {
         }
 
         public boolean isWorked() {
-            return entityKey!=null;
+            return entityKey != null;
         }
 
         @Override
         public void run() {
-            logger.debug("Running "+myThread);
+            logger.debug("Running " + myThread);
             try {
                 startSignal.await();
                 Collection<TrackRequestResult> results = mediationFacade.trackEntities(inputBeans, apiKey);
                 assertEquals("Error creating entity", 1, results.size());
-                if ( entityKey == null )
+                if (entityKey == null) {
                     entityKey = results.iterator().next().getKey();
+                }
                 assertNotNull(entityService.getEntity(company, entityKey));
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             } finally {
                 done = true;
-                logger.debug ("*** Done "+myThread +" worked "+worked);
+                logger.debug("*** Done " + myThread + " worked " + worked);
                 latch.countDown();
             }
         }

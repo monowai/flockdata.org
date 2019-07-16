@@ -25,8 +25,8 @@ import org.flockdata.search.TagSearchChange;
 /**
  * FD indexes known Tags for searching purposes.
  *
- * @tag Search, Tag
  * @author mholdsworth
+ * @tag Search, Tag
  * @since 26/04/2013
  */
 public interface TagChangeWriter {
@@ -36,8 +36,7 @@ public interface TagChangeWriter {
      *
      * @param searchChange values to update from
      * @return TagSearchChange result of the request
-     *
      */
-    TagSearchChange handle(TagSearchChange searchChange) ;
+    TagSearchChange handle(TagSearchChange searchChange);
 
 }

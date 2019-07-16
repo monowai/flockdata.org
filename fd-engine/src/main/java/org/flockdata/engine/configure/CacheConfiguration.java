@@ -28,9 +28,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 /**
+ * @author mholdsworth
  * @tag Configuration, Cache
  * FD-Cache configuration settings
- * @author mholdsworth
  * @since 23/03/2016
  */
 @Configuration
@@ -40,7 +40,7 @@ public class CacheConfiguration {
     private Logger logger = LoggerFactory.getLogger("configuration");
 
     @CacheEvict(value = {"tag", "geoQuery", "geoData", "fortressUser", "sysUserApiKey", "company", "documentType", "labels", "entityByCode", "fortressSegment"
-            }, allEntries = true)
+    }, allEntries = true)
     public void resetCache() {
         logger.debug("Cache Reset");
     }

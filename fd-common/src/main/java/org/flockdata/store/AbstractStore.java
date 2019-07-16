@@ -22,14 +22,13 @@ package org.flockdata.store;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.store.bean.StorageBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author mholdsworth
@@ -53,13 +52,14 @@ public abstract class AbstractStore implements FdStoreRepo {
     }
 
     protected StoredContent getContent(Object key, Object oResult) {
-        if ( oResult == null )
+        if (oResult == null) {
             return null;
-        if (oResult instanceof ContentInputBean)
-            return new StorageBean(key, (ContentInputBean)oResult );
-        else if ( oResult instanceof Map)
+        }
+        if (oResult instanceof ContentInputBean) {
+            return new StorageBean(key, (ContentInputBean) oResult);
+        } else if (oResult instanceof Map) {
             return new StorageBean(key, (Map<String, Object>) oResult);
-        else {
+        } else {
             logger.error("Unable to handle object result " + oResult.getClass().getCanonicalName());
             return null;
         }

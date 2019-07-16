@@ -16,12 +16,12 @@
 
 package org.flockdata.test.unit;
 
+import static junit.framework.TestCase.assertNotNull;
+
 import junit.framework.TestCase;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.junit.Test;
-
-import static junit.framework.TestCase.assertNotNull;
 
 /**
  * @author mholdsworth
@@ -30,7 +30,7 @@ import static junit.framework.TestCase.assertNotNull;
 public class TestEntityKeyBean {
 
     @Test
-    public void nullCompanyIssues() throws Exception{
+    public void nullCompanyIssues() throws Exception {
         EntityKeyBean ekb = new EntityKeyBean("docTypeName", "fortress", "code");
         String json = JsonUtils.toJson(ekb);
         assertNotNull(json);

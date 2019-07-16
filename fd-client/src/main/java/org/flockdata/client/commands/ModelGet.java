@@ -30,8 +30,8 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * Retrieve a ContentModel from the service
  *
- * @tag Command, ContentModel
  * @author mholdsworth
+ * @tag Command, ContentModel
  * @since 17/04/2016
  */
 @Component
@@ -47,17 +47,17 @@ public class ModelGet {
 
     public CommandResponse<ContentModel> exec(String fortress, String type) {
 
-        ContentModel results= null;
+        ContentModel results = null;
         String error = null;
 
         try {
             HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
             ResponseEntity<ContentModel> response;
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+"/api/v1/model/{fortress}/{type}", HttpMethod.GET, requestEntity, ContentModel.class, fortress, type);
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/model/{fortress}/{type}", HttpMethod.GET, requestEntity, ContentModel.class, fortress, type);
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
 
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error= e.getMessage();
+            error = e.getMessage();
         }
         return new CommandResponse<>(error, results);// Everything worked
     }

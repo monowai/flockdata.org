@@ -20,6 +20,9 @@
 
 package org.flockdata.engine.data.dao;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import org.flockdata.data.Alias;
 import org.flockdata.data.Company;
 import org.flockdata.data.Tag;
@@ -31,16 +34,12 @@ import org.flockdata.track.bean.FdTagResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
 /**
  * Wrap calls to Neo4j server extension. Figuring this out....
  *
  * @author mholdsworth
- * @since 29/06/2013
  * @tag Neo4j, Tag
+ * @since 29/06/2013
  */
 @Repository
 public class TagDaoNeo4j {
@@ -76,7 +75,7 @@ public class TagDaoNeo4j {
     }
 
     public Collection<AliasInputBean> findTagAliases(Tag sourceTag) throws NotFoundException {
-        Collection<Alias>aliases = aliasDaoNeo.findTagAliases(sourceTag);
+        Collection<Alias> aliases = aliasDaoNeo.findTagAliases(sourceTag);
         Collection<AliasInputBean> aliasResults = new ArrayList<>();
         for (Alias alias : aliases) {
             aliasResults.add(new AliasInputBean(alias.getName()));

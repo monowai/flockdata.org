@@ -20,6 +20,10 @@
 
 package org.flockdata.company.endpoint;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import javax.servlet.http.HttpServletRequest;
 import org.flockdata.data.Company;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.engine.data.graph.CompanyNode;
@@ -32,24 +36,23 @@ import org.flockdata.track.bean.DocumentResultBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.concurrent.ExecutionException;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author mholdsworth
- * @since 4/05/2013
  * @tag Endpoint, Company
+ * @since 4/05/2013
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/company")
 public class CompanyEP {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(CompanyEP.class);
+    private static final Logger logger = LoggerFactory
+        .getLogger(CompanyEP.class);
 
     private final CompanyService companyService;
 
@@ -68,13 +71,14 @@ public class CompanyEP {
         return companyService.findCompanies(ApiKeyInterceptor.ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
-    @RequestMapping(value = "/{companyName}",  produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/{companyName}", produces = "application/json", method = RequestMethod.GET)
     public CompanyNode getCompany(@PathVariable("companyName") String companyName,
                                   HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
 
         CompanyNode callersCompany = CompanyResolver.resolveCompany(request);
-        if ( callersCompany == null )
+        if (callersCompany == null) {
             throw new NotFoundException(companyName);
+        }
 
         // ToDo Figure out what we need this to do. Currently a caller can only belong to one company
         //   so why bother letting them chose another one?
@@ -91,13 +95,12 @@ public class CompanyEP {
      */
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
     public Collection<DocumentResultBean> getDocumentsInUse(
-            HttpServletRequest request) throws FlockException {
+        HttpServletRequest request) throws FlockException {
 
         CompanyNode company = CompanyResolver.resolveCompany(request);
         return conceptService.getDocumentsInUse(company);
 
     }
-
 
 
 }

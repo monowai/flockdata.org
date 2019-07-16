@@ -22,6 +22,7 @@ import lombok.ToString;
 
 /**
  * Placeholder for responses to commands
+ *
  * @author mike
  * @tag
  * @since 15/07/17

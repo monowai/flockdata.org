@@ -20,6 +20,13 @@
 
 package org.flockdata.engine.integration.engine;
 
+import static org.flockdata.integration.ClientConfiguration.KEY_MSG_KEY;
+import static org.flockdata.integration.ClientConfiguration.KEY_MSG_TYPE;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.data.Company;
 import org.flockdata.engine.tag.MediationFacade;
@@ -49,24 +56,15 @@ import org.springframework.messaging.MessageHandler;
 import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.ExecutionException;
-
-import static org.flockdata.integration.ClientConfiguration.KEY_MSG_KEY;
-import static org.flockdata.integration.ClientConfiguration.KEY_MSG_TYPE;
-
 /**
  * Integration mechanism for message queue input
  *
- * @tag Track, Messaging, Security
- *
  * @author mholdsworth
+ * @tag Track, Messaging, Security
  * @since 27/12/2015
  */
 @Service
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class TrackRequests {
 
     private final MediationFacade mediationFacade;
@@ -83,8 +81,8 @@ public class TrackRequests {
         this.securityHelper = securityHelper;
     }
 
-    @Autowired (required = false)
-    void setExchanges ( Exchanges exchanges){
+    @Autowired(required = false)
+    void setExchanges(Exchanges exchanges) {
         this.exchanges = exchanges;
     }
 
@@ -113,28 +111,28 @@ public class TrackRequests {
                     throw new AmqpRejectAndDontRequeueException("No api key");
                 }
                 Company company = securityHelper.getCompany(oKey.toString());
-                if ( company == null ) {
-                    logger.error( "Could not resolve company for apiKey [{}]", oKey);
+                if (company == null) {
+                    logger.error("Could not resolve company for apiKey [{}]", oKey);
                     throw new AmqpRejectAndDontRequeueException("Illegal api key");
                 }
 
                 Object oType = message.getHeaders().get(KEY_MSG_TYPE);
-                if ( oType == null || oType.toString().equalsIgnoreCase("E")) {
+                if (oType == null || oType.toString().equalsIgnoreCase("E")) {
                     Collection<EntityInputBean> inputBeans = JsonUtils.toCollection((byte[]) message.getPayload(), EntityInputBean.class);
                     mediationFacade.trackEntities(company, inputBeans);
-                }else {
+                } else {
                     Collection<TagInputBean> inputBeans = JsonUtils.toCollection((byte[]) message.getPayload(), TagInputBean.class);
                     mediationFacade.createTags(company, inputBeans);
                 }
             } catch (IOException e) {
                 throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
             } catch (InterruptedException |
-                    ExecutionException |
-                    InvalidDataAccessResourceUsageException |
-                    InvalidDataAccessApiUsageException |
-                    FlockException e) {
+                ExecutionException |
+                InvalidDataAccessResourceUsageException |
+                InvalidDataAccessApiUsageException |
+                FlockException e) {
                 logger.error(e.getMessage());
-                throw new AmqpRejectAndDontRequeueException(String.format("Processing exception %s",e.getMessage()), e);
+                throw new AmqpRejectAndDontRequeueException(String.format("Processing exception %s", e.getMessage()), e);
             }
 
         };
@@ -143,15 +141,15 @@ public class TrackRequests {
     @Bean
     public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory, RetryOperationsInterceptor trackInterceptor) throws InterruptedException, FlockException, ExecutionException, IOException {
         return IntegrationFlows.from(
-                Amqp.inboundAdapter(connectionFactory, exchanges.fdTrackQueue())
-                        .maxConcurrentConsumers(exchanges.trackConcurrentConsumers())
-                        .mappedRequestHeaders(KEY_MSG_KEY, KEY_MSG_TYPE)
-                        .adviceChain(trackInterceptor)
-                        .outputChannel(doTrackEntity())
-                        .prefetchCount(exchanges.trackPreFetchCount())
-                )
-                    .handle(handler())
-                    .get();
+            Amqp.inboundAdapter(connectionFactory, exchanges.fdTrackQueue())
+                .maxConcurrentConsumers(exchanges.trackConcurrentConsumers())
+                .mappedRequestHeaders(KEY_MSG_KEY, KEY_MSG_TYPE)
+                .adviceChain(trackInterceptor)
+                .outputChannel(doTrackEntity())
+                .prefetchCount(exchanges.trackPreFetchCount())
+        )
+            .handle(handler())
+            .get();
     }
 
     @Bean
@@ -175,7 +173,7 @@ public class TrackRequests {
 
 
     @ServiceActivator(inputChannel = "doTrackEntity")
-    Collection<TagResultBean>  sendResult() {
+    Collection<TagResultBean> sendResult() {
         return new ArrayList<>();
         // What do with the response?
     }

@@ -30,7 +30,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
-import org.springframework.integration.annotation.*;
+import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.NullChannel;
 import org.springframework.messaging.Message;
@@ -39,8 +43,9 @@ import org.springframework.stereotype.Service;
 
 /**
  * Outbound requests sent once the search doc is indexed
- * @tag Messaging, Search, Entity
+ *
  * @author mholdsworth
+ * @tag Messaging, Search, Entity
  * @since 12/02/2016
  */
 @Configuration
@@ -64,7 +69,7 @@ public class EntitySearchWriter {
 
     // ToDo: Can we handle this more via the flow or handler?
     @Transformer(inputChannel = "sendEntityIndexRequest", outputChannel = "indexSearchChanges")
-    public Message<?> transformSearchChanges(Message theObject){
+    public Message<?> transformSearchChanges(Message theObject) {
         return messageSupport.toJson(theObject);
     }
 

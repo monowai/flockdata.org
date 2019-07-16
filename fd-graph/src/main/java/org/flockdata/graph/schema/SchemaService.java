@@ -20,11 +20,10 @@
 
 package org.flockdata.graph.schema;
 
+import java.util.Collection;
 import org.flockdata.data.Fortress;
 import org.flockdata.graph.model.CompanyNode;
 import org.flockdata.registration.TagInputBean;
-
-import java.util.Collection;
 
 /**
  * @author mholdsworth

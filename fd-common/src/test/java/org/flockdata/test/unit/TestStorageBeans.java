@@ -16,14 +16,13 @@
 
 package org.flockdata.test.unit;
 
-import org.flockdata.helper.JsonUtils;
-import org.flockdata.store.bean.StorageBean;
-import org.junit.Test;
+import static junit.framework.TestCase.assertNotNull;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static junit.framework.TestCase.assertNotNull;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.store.bean.StorageBean;
+import org.junit.Test;
 
 /**
  * @author mike
@@ -33,8 +32,8 @@ import static junit.framework.TestCase.assertNotNull;
 public class TestStorageBeans {
 
     @Test
-    public void storedContent() throws Exception{
-        Map<String,Object> data = new HashMap<>();
+    public void storedContent() throws Exception {
+        Map<String, Object> data = new HashMap<>();
         data.put("key", "property");
         StorageBean storedContent = new StorageBean(123, data);
         storedContent.setStore("SomeStore");

@@ -20,6 +20,9 @@
 
 package org.flockdata.engine.integration.store;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.engine.query.service.EsHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
@@ -39,20 +42,15 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Support for no storage engine. This will simply use elasticsearch as a store for
  * "current state" content, i.e. against the Entity.
- *
+ * <p>
  * If you require the storage of versions of content (Log content), then use
  * FdStorageProxy which deals with content for a Log
- *
  */
 @Service
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class EsRepo extends AbstractStore {
 
     @Autowired
@@ -74,7 +72,7 @@ public class EsRepo extends AbstractStore {
         String index = indexManager.toIndex(logRequest.getEntity());
         String type = indexManager.parseType(logRequest.getEntity());
         String id = logRequest.getEntity().getSearchKey();
-        return read (index, type, id);
+        return read(index, type, id);
     }
 
     @Override
@@ -85,24 +83,25 @@ public class EsRepo extends AbstractStore {
         EsSearchRequestResult result = null;
         try {
             result = gateway.getData(queryParams);
-        } catch ( HttpServerErrorException e){
+        } catch (HttpServerErrorException e) {
             logger.error(e.getMessage());
         }
 
-            if (result != null)
-                try {
+        if (result != null) {
+            try {
 
-                    result.setIndex (index);
-                    result.setEntityType (type);
-                    if (result.getJson() != null) {
-                        Map<String, Object> map = JsonUtils.toMap(result.getJson());
-                        failIfError(map);
-                        map = esHelper.extractData(map);
-                        contentInput.setData((Map<String, Object>) map.get(SearchSchema.DATA));
-                    }
-                } catch (FlockException | IOException e) {
-                    logger.error("Json issue", e);
+                result.setIndex(index);
+                result.setEntityType(type);
+                if (result.getJson() != null) {
+                    Map<String, Object> map = JsonUtils.toMap(result.getJson());
+                    failIfError(map);
+                    map = esHelper.extractData(map);
+                    contentInput.setData((Map<String, Object>) map.get(SearchSchema.DATA));
                 }
+            } catch (FlockException | IOException e) {
+                logger.error("Json issue", e);
+            }
+        }
         return new StorageBean(id, contentInput);
 
     }
@@ -118,9 +117,10 @@ public class EsRepo extends AbstractStore {
     }
 
     private Map<String, Object> unwrapData(HashMap<String, Object> map) {
-        if ( !map.containsKey("hits"))
+        if (!map.containsKey("hits")) {
             return null;
-        Map<String,Object>hits = (Map<String, Object>) map.get("hits");
+        }
+        Map<String, Object> hits = (Map<String, Object>) map.get("hits");
         return null;
     }
 

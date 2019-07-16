@@ -45,20 +45,21 @@ public class TestStates extends AbstractImport {
             assertEquals(1, stateTag.getTargets().size());
             TagInputBean country = stateTag.getTargets().get("region").iterator().next();
             assertNotNull(country);
-          TestCase.assertEquals(stateTag.getKeyPrefix(), country.getCode());
-            if (country.getCode().equals("US")){
+            TestCase.assertEquals(stateTag.getKeyPrefix(), country.getCode());
+            if (country.getCode().equals("US")) {
                 // Randomly check a US state for Census aliases
-                if ( stateTag.getCode().equals("CA")){
-                    assertNotNull ( stateTag.getAliases());
+                if (stateTag.getCode().equals("CA")) {
+                    assertNotNull(stateTag.getAliases());
                     assertEquals(2, stateTag.getAliases().size());
                     for (AliasInputBean aliasInputBean : stateTag.getAliases()) {
-                        if (aliasInputBean.getDescription().equals("USCensus"))
+                        if (aliasInputBean.getDescription().equals("USCensus")) {
                             assertEquals(2, aliasInputBean.getCode().length());
+                        }
                     }
                 }
             } else {
                 // Validate that iso+name exists
-                assertNotNull ( stateTag.getAliases());
+                assertNotNull(stateTag.getAliases());
                 assertEquals(1, stateTag.getAliases().size());
                 assertEquals(stateTag.getName(), stateTag.getAliases().iterator().next().getCode());
 

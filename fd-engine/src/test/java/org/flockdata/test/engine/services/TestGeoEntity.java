@@ -20,6 +20,14 @@
 
 package org.flockdata.test.engine.services;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.SystemUser;
@@ -37,15 +45,9 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
-
 /**
  * Geo Tag tests
+ *
  * @author mholdsworth
  * @since 6/11/2015
  */
@@ -64,7 +66,7 @@ public class TestGeoEntity extends EngineBase {
     /**
      * Checks that a custom query can be used to return a Geographic node path rather than
      * having to use FlockData's internal default resolution strategy
-     *
+     * <p>
      * DAT-495 introduces this
      *
      * @throws Exception
@@ -91,7 +93,7 @@ public class TestGeoEntity extends EngineBase {
 
         EntityInputBean entityInput = new EntityInputBean(fortress, "DAT-495", "DAT-495", new DateTime(), "abc");
 
-        TagInputBean tagInput = new TagInputBean("123 Main Road", "Address", new EntityTagRelationshipInput("geodata",true));
+        TagInputBean tagInput = new TagInputBean("123 Main Road", "Address", new EntityTagRelationshipInput("geodata", true));
         tagInput.setTargets("to-country", new TagInputBean("AT", "Country").setName("Atlantis"));
 
         Collection<TagInputBean> tags = new ArrayList<>();
@@ -102,18 +104,18 @@ public class TestGeoEntity extends EngineBase {
         int expected = 1;
         int found = 0;
         for (EntityTag entityTag : entityTags) {
-            assertNotNull ( "custom geo query string did not find the geo path", entityTag.getGeoData());
-            found ++;
+            assertNotNull("custom geo query string did not find the geo path", entityTag.getGeoData());
+            found++;
         }
         assertEquals(expected, found);
     }
 
     @Test
-    public void tag_entityCustomGeo () throws Exception {
+    public void tag_entityCustomGeo() throws Exception {
         // DAT-508
         SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
         FortressInputBean fib = new FortressInputBean("undefined_Tag", true)
-                .setStoreEnabled(false);
+            .setStoreEnabled(false);
         FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         DocumentNode documentType = new DocumentNode(fortress, "DAT-508");
@@ -131,7 +133,7 @@ public class TestGeoEntity extends EngineBase {
 
         // Invalid zip code structure connected to Texas
         TagInputBean zipInvalid = new TagInputBean(ZIP, "ZipCode");
-        TagInputBean state   = new TagInputBean("TX", "State");
+        TagInputBean state = new TagInputBean("TX", "State");
         TagInputBean country = new TagInputBean("US", "Country");
 
         zipInvalid.setTargets("state", state);
@@ -147,8 +149,8 @@ public class TestGeoEntity extends EngineBase {
 
         tagService.createTag(su.getCompany(), zipValid);
 
-        TagInputBean countyTag =new TagInputBean("Los Angeles", "County")
-                .setTargets("state", state);
+        TagInputBean countyTag = new TagInputBean("Los Angeles", "County")
+            .setTargets("state", state);
 
         TagInputBean lender = new TagInputBean(THE_LENDER, "Lender");
         // Very specific scenario. The lender is incorrectly set to the same zipcode
@@ -166,11 +168,11 @@ public class TestGeoEntity extends EngineBase {
         assertEquals("The zip code should be connected to two states", 2, subTags.get("state").size());
 
         EntityInputBean entityInput =
-                new EntityInputBean(fortress, "DAT-508", documentType.getName(), new DateTime(), "abc")
-                        .addTag(lender
-                                .addEntityTagLink(new EntityTagRelationshipInput("created",true)))
-                        .addTag(countyTag
-                                .addEntityTagLink(new EntityTagRelationshipInput("in-county",true)));
+            new EntityInputBean(fortress, "DAT-508", documentType.getName(), new DateTime(), "abc")
+                .addTag(lender
+                    .addEntityTagLink(new EntityTagRelationshipInput("created", true)))
+                .addTag(countyTag
+                    .addEntityTagLink(new EntityTagRelationshipInput("in-county", true)));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
 
@@ -188,8 +190,8 @@ public class TestGeoEntity extends EngineBase {
         Iterable<EntityTag> iTags = entityTagService.findEntityTagsWithGeo(result.getEntity());
         int count = 0;
         for (EntityTag entityTag : iTags) {
-            assertNotNull (entityTag.getGeoData());
-            count ++;
+            assertNotNull(entityTag.getGeoData());
+            count++;
         }
         assertEquals("expected a Lender and a County relationship", 2, count);
     }
@@ -211,13 +213,13 @@ public class TestGeoEntity extends EngineBase {
         TagInputBean address = new TagInputBean("123 Main Road", "Address");
 
         TagInputBean atlantis = new TagInputBean("AT", "Country")
-                .setName("Atlantis")
-                .setProperty(TagNode.LAT, 24.8236183)
-                .setProperty(TagNode.LON, -75.5058183);
+            .setName("Atlantis")
+            .setProperty(TagNode.LAT, 24.8236183)
+            .setProperty(TagNode.LON, -75.5058183);
 
         address.setTargets("links-to-country", atlantis);
         address.addEntityTagLink(new EntityTagRelationshipInput("via-address", true));
-        atlantis.addEntityTagLink( new EntityTagRelationshipInput("in-country", true));
+        atlantis.addEntityTagLink(new EntityTagRelationshipInput("in-country", true));
 
         Collection<TagInputBean> tags = new ArrayList<>();
         tags.add(address);
@@ -228,8 +230,8 @@ public class TestGeoEntity extends EngineBase {
         int expected = 2;
         int found = 0;
         for (EntityTag entityTag : entityTags) {
-            assertNotNull ( "Geo relationship did not resolve from the setGeo flag", entityTag.getGeoData());
-            found ++;
+            assertNotNull("Geo relationship did not resolve from the setGeo flag", entityTag.getGeoData());
+            found++;
         }
         assertEquals(expected, found);
     }

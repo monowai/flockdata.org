@@ -44,10 +44,11 @@ public class DefaultTagFinder implements EntityTagFinder {
 
     @Override
     public Iterable<EntityTag> getEntityTags(TrackResultBean trackResultBean) {
-        if (trackResultBean.getEntity().getId() == null )
+        if (trackResultBean.getEntity().getId() == null) {
             return trackResultBean.getTags();  // non-persistent entity in the graph, but the trackResult has EntityTags
-        else
+        } else {
             return entityTagService.findEntityTagsWithGeo(trackResultBean.getEntity());
+        }
     }
 
     @Override

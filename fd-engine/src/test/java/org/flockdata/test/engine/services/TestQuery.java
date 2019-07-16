@@ -20,6 +20,8 @@
 
 package org.flockdata.test.engine.services;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
@@ -28,9 +30,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 /**
  * @author mholdsworth
  * @since 14/06/2014
@@ -38,7 +37,7 @@ import java.util.Collection;
 public class TestQuery extends EngineBase {
 
     @Test
-    public void queryInputsReturned () throws Exception{
+    public void queryInputsReturned() throws Exception {
         //      Each fortress one Entity (diff docs)
         //          One MH with same tags over both companies
         //          One MH with company unique tags
@@ -63,17 +62,17 @@ public class TestQuery extends EngineBase {
         inputBean.addTag(new TagInputBean("c123", "Customer", "purchased")); // This tag tracks over two fortresses
         mediationFacade.trackEntity(suA.getCompany(), inputBean);
         inputBean = new EntityInputBean(coAfB, "poppy", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
-        inputBean.addTag(new TagInputBean("c123","Customer","called")); // Customer number - this will be the same tag as for the sales fortress
-        inputBean.addTag(new TagInputBean("p111","Product","about"));   // Product code - unique to this fortress
+        inputBean.addTag(new TagInputBean("c123", "Customer", "called")); // Customer number - this will be the same tag as for the sales fortress
+        inputBean.addTag(new TagInputBean("p111", "Product", "about"));   // Product code - unique to this fortress
         mediationFacade.trackEntity(suA.getCompany(), inputBean);
 
 
         inputBean = new EntityInputBean(coBfA, "petal", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
-        inputBean.addTag(new TagInputBean("c123","Customer","purchased")); // This tag tracks over two fortresses
+        inputBean.addTag(new TagInputBean("c123", "Customer", "purchased")); // This tag tracks over two fortresses
         inputBean.addTag(new TagInputBean("ricky", "SalesRep", "from").setLabel("SalesRep")); // This tag is unique to this company
         mediationFacade.trackEntity(suB.getCompany(), inputBean);
         inputBean = new EntityInputBean(coBfB, "petal", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
-        inputBean.addTag(new TagInputBean("c123","Customer","called")); // Customer number - this will be the same tag as for the sales fortress
+        inputBean.addTag(new TagInputBean("c123", "Customer", "called")); // Customer number - this will be the same tag as for the sales fortress
         inputBean.addTag(new TagInputBean("p111", "Product", "about"));   // Product code - unique to this fortress
         mediationFacade.trackEntity(suB.getCompany(), inputBean);
 

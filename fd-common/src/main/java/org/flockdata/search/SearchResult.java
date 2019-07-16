@@ -53,7 +53,7 @@ public interface SearchResult {
 
     Long getFdTimestamp();
 
-    Map<String,Object> getData();
+    Map<String, Object> getData();
 
     String getName();
 }

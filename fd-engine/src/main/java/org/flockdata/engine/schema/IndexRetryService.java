@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.schema;
 
+import java.util.Collection;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.services.SchemaService;
@@ -32,12 +33,10 @@ import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-
 /**
  * @author mholdsworth
- * @since 2/12/2014
  * @tag Administration, Neo4j, Index
+ * @since 2/12/2014
  */
 @EnableRetry
 @Service
@@ -52,10 +51,10 @@ public class IndexRetryService {
         this.schemaService = schemaService;
     }
 
-    @Retryable(include =  {FlockException.class, DeadlockDetectedException.class, InvalidDataAccessResourceUsageException.class,TransactionFailureException.class},
-            maxAttempts = 12, backoff = @Backoff(maxDelay = 300, delay = 20, random = true))
-    public Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs){
-            return schemaService.ensureUniqueIndexes(tagInputs);
+    @Retryable(include = {FlockException.class, DeadlockDetectedException.class, InvalidDataAccessResourceUsageException.class, TransactionFailureException.class},
+        maxAttempts = 12, backoff = @Backoff(maxDelay = 300, delay = 20, random = true))
+    public Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs) {
+        return schemaService.ensureUniqueIndexes(tagInputs);
     }
 
 }

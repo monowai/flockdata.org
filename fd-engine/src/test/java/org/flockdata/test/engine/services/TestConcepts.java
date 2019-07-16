@@ -20,6 +20,14 @@
 
 package org.flockdata.test.engine.services;
 
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
 import junit.framework.TestCase;
 import org.flockdata.data.Document;
 import org.flockdata.data.Entity;
@@ -33,7 +41,12 @@ import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ConceptResultBean;
+import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.track.bean.RelationshipResultBean;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,17 +54,9 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
-
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
-
 /**
  * Non transactional tests - these are slower due to cleaning the DB down for each test run
+ *
  * @author mholdsworth
  * @since 19/06/2014
  */
@@ -68,9 +73,9 @@ public class TestConcepts extends EngineBase {
     public void documentType_InputThroughToDb() throws Exception {
         // DAT-540
         DocumentTypeInputBean documentTypeInputBean = new DocumentTypeInputBean("DTIB")
-                .getVersionStrategy(Document.VERSION.DISABLE)
-                .setTagStructure(EntityTag.TAG_STRUCTURE.TAXONOMY)
-                .setGeoQuery("Testing GeoQuery");
+            .getVersionStrategy(Document.VERSION.DISABLE)
+            .setTagStructure(EntityTag.TAG_STRUCTURE.TAXONOMY)
+            .setGeoQuery("Testing GeoQuery");
 
         String json = JsonUtils.toJson(documentTypeInputBean);
         documentTypeInputBean = JsonUtils.toObject(json.getBytes(), DocumentTypeInputBean.class);
@@ -157,8 +162,8 @@ public class TestConcepts extends EngineBase {
             assertEquals(1, results.size());
 
             input = new EntityInputBean(fortressB, "jinks", "DocB", new DateTime())
-                    .addTag(new TagInputBean("cust123", "Customer", "purchased")
-                            .setLabel("Customer"));
+                .addTag(new TagInputBean("cust123", "Customer", "purchased")
+                    .setLabel("Customer"));
 
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
             documents.add("DocB");
@@ -302,8 +307,9 @@ public class TestConcepts extends EngineBase {
                     if (concept.getName().equals("User")) {
                         // Currently only tracking the created. Should be 2 when tracking the updated
                         assertEquals(1, relationships.size());
-                    } else
+                    } else {
                         assertEquals(2, relationships.size());
+                    }
 
                 }
             }
@@ -463,11 +469,11 @@ public class TestConcepts extends EngineBase {
             commitManualTransaction(t);
 
             EntityInputBean promoInput = new EntityInputBean(fortress,
-                    "jinks",
-                    claim.getName(),
-                    new DateTime());
+                "jinks",
+                claim.getName(),
+                new DateTime());
             promoInput.addTag(
-                    new TagInputBean("a1065", "Claim", "identifier").setLabel("Claim"));
+                new TagInputBean("a1065", "Claim", "identifier").setLabel("Claim"));
 
             mediationFacade.trackEntity(su.getCompany(), promoInput).getEntity();
 
@@ -520,8 +526,8 @@ public class TestConcepts extends EngineBase {
 
         // Checking that the entity is linked when part of the track request
         EntityInputBean workRecord = new EntityInputBean(fortress, "wally", "Work", new DateTime(), "ABC321")
-                .addTag(new TagInputBean("someTag", "SomeLabel", "somerlx"))
-                .addEntityLink( new EntityKeyBean("Staff", fortress.getName(), "ABC123").setRelationshipName("worked"));
+            .addTag(new TagInputBean("someTag", "SomeLabel", "somerlx"))
+            .addEntityLink(new EntityKeyBean("Staff", fortress.getName(), "ABC123").setRelationshipName("worked"));
 
         mediationFacade.trackEntity(su.getCompany(), workRecord);
         assertEquals(2, conceptService.getDocumentsInUse(su.getCompany()).size());
@@ -567,10 +573,10 @@ public class TestConcepts extends EngineBase {
 
         // Checking that the entity is linked when part of the track request
         EntityInputBean workRecord = new EntityInputBean(fortress, "wally", "Work", new DateTime(), "ABC321")
-                .addTag(new TagInputBean("someTag", "SomeLabel", "somerlx"))
-                .addEntityLink(new EntityKeyBean("Staff", fortress.getName(), "ABC123")
-                        .setRelationshipName("worked")
-                        .setParent(true));
+            .addTag(new TagInputBean("someTag", "SomeLabel", "somerlx"))
+            .addEntityLink(new EntityKeyBean("Staff", fortress.getName(), "ABC123")
+                .setRelationshipName("worked")
+                .setParent(true));
 
         mediationFacade.trackEntity(su.getCompany(), workRecord);
         assertEquals(2, conceptService.getDocumentsInUse(su.getCompany()).size());
@@ -584,13 +590,14 @@ public class TestConcepts extends EngineBase {
         assertEquals(3, structure.getNodes().size());
         assertEquals(2, structure.getEdges().size());
         for (EdgeResult edgeResult : structure.getEdges()) {
-            if ( edgeResult.getRelationship().equals("worked")){  // EntityLink relationship
-                assertTrue( "parent property was not set", edgeResult.getData().containsKey("parent"));
-                assertTrue ( "Parent not true", Boolean.parseBoolean(edgeResult.getData().get("parent").toString()));
+            if (edgeResult.getRelationship().equals("worked")) {  // EntityLink relationship
+                assertTrue("parent property was not set", edgeResult.getData().containsKey("parent"));
+                assertTrue("Parent not true", Boolean.parseBoolean(edgeResult.getData().get("parent").toString()));
             }
         }
         // We should be able to find that a Staff entity has a worked link to a Timesheet
     }
+
     private Set<DocumentResultBean> validateConcepts(String document, SystemUser su, int expected) throws Exception {
         Collection<String> docs = new ArrayList<>();
 
@@ -601,8 +608,9 @@ public class TestConcepts extends EngineBase {
     private Set<DocumentResultBean> validateConcepts(Collection<String> docs, SystemUser su, int expected) throws Exception {
         Set<DocumentResultBean> concepts = conceptService.findConcepts(su.getCompany(), docs, true);
         String message = "Collection";
-        if (docs != null && docs.size() == 1)
+        if (docs != null && docs.size() == 1) {
             message = docs.iterator().next();
+        }
         assertEquals(message + " concepts", expected, concepts.size()); // Purchased docTypes
         return concepts;
 

@@ -16,6 +16,11 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.TestCase.assertEquals;
+
+import java.util.Collection;
+import java.util.List;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.json.ContentModelDeserializer;
@@ -25,19 +30,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.TestCase.assertEquals;
-
 /**
- *
  * @author mholdsworth
  * @since 22/07/2015
  */
 public class TestTagKeyPrefix extends AbstractImport {
     private Logger logger = LoggerFactory.getLogger(TestTagKeyPrefix.class);
+
     @Test
     public void prefix_TagKeyWorks() throws Exception {
 
@@ -51,7 +50,7 @@ public class TestTagKeyPrefix extends AbstractImport {
 
         assertEquals(2, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
-            switch (tagInputBean.getKeyPrefix()){
+            switch (tagInputBean.getKeyPrefix()) {
                 case "UK":
                     validateCountryAndLiteralKeyPrefix(tagInputBean.getTargets().get("region"));
                     break;
@@ -59,7 +58,7 @@ public class TestTagKeyPrefix extends AbstractImport {
                     validateCountryAndLiteralKeyPrefix(tagInputBean.getTargets().get("region"));
                     break;
                 default:
-                    throw new RuntimeException("Unexpected tag " +tagInputBean.toString());
+                    throw new RuntimeException("Unexpected tag " + tagInputBean.toString());
             }
             logger.info(tagInputBean.toString());
         }

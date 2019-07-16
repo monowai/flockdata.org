@@ -20,15 +20,14 @@
 
 package org.flockdata.test.engine.mvc;
 
+import static junit.framework.TestCase.assertEquals;
+
+import java.util.Collection;
 import junit.framework.TestCase;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.TagInputBean;
 import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.util.Collection;
-
-import static junit.framework.TestCase.assertEquals;
 
 /**
  * @author mholdsworth
@@ -43,9 +42,9 @@ public class TestPathEP extends MvcBase {
         // Creating a structure
         TagInputBean term = new TagInputBean("volvo 244", "Term");
         TagInputBean division = new TagInputBean("luxury cars", "Division")
-                .setKeyPrefix("motor");
+            .setKeyPrefix("motor");
         TagInputBean category = new TagInputBean("cars", "Category")
-                .setKeyPrefix("motor");
+            .setKeyPrefix("motor");
         TagInputBean interest = new TagInputBean("Motors", "Interest");
 
         term.setTargets("classifying", division);
@@ -55,9 +54,9 @@ public class TestPathEP extends MvcBase {
 
 
         TagInputBean sedan = new TagInputBean("sedan", "Division")
-                .setKeyPrefix("motor");
+            .setKeyPrefix("motor");
         TagInputBean bodies = new TagInputBean("bodies", "Division")
-                .setKeyPrefix("motor");
+            .setKeyPrefix("motor");
         sedan.setTargets("typed", bodies);
         term.setTargets("classifying", sedan);
         bodies.setTargets("typed", category);
@@ -70,7 +69,7 @@ public class TestPathEP extends MvcBase {
         String code = TagHelper.parseKey(division.getKeyPrefix(), division.getCode());
         TestCase.assertNotNull("Didn't find the tag when the code had a space in the name", getTag(mike(), "Division", code, MockMvcResultMatchers.status().isOk()));
         paths = getTagPaths(mike(), division.getLabel(), code, interest.getLabel());
-        assertEquals (1, paths.size());
+        assertEquals(1, paths.size());
         Thread.sleep(1000); // Letting other threads catchup due to concepts being updated in a background thread
     }
 

@@ -16,6 +16,12 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.TestCase.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.model.ContentValidationRequest;
 import org.flockdata.transform.ColumnDefinition;
@@ -24,25 +30,19 @@ import org.flockdata.transform.Transformer;
 import org.flockdata.transform.model.ContentModelHandler;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import static junit.framework.TestCase.assertEquals;
-
 /**
  * Hook to test default ContentModel functionality
+ *
  * @author mholdsworth
  * @since 26/07/2016
  */
 public class TestDefaultContentModel {
 
     @Test
-    public void defaultModel() throws Exception{
+    public void defaultModel() throws Exception {
 
-        Map<String,Object> row = new HashMap<>();
-        Collection<Map<String,Object>>rows = new ArrayList<>();
+        Map<String, Object> row = new HashMap<>();
+        Collection<Map<String, Object>> rows = new ArrayList<>();
 
         row.put("byteArray", "0x0000000001EC3C0F");
         row.put("nullValue", null);
@@ -51,22 +51,23 @@ public class TestDefaultContentModel {
         ContentValidationRequest contentRequest = new ContentValidationRequest(rows);
         ContentModel result = contentRequest.getContentModel();
 
-        if (result == null)
+        if (result == null) {
             result = new ContentModelHandler();
+        }
 
         result.setContent(Transformer.fromMapToModel(contentRequest.getRows()));
 
-        assertEquals("nullValue should not get a Column Definition", row.size()-1, result.getContent().size());
+        assertEquals("nullValue should not get a Column Definition", row.size() - 1, result.getContent().size());
 
-        for (String key: result.getContent().keySet()) {
+        for (String key : result.getContent().keySet()) {
             ColumnDefinition columnDefinition = result.getContent().get(key);
             if (key.equalsIgnoreCase("byteArray")) {
                 assertEquals("string", columnDefinition.getDataType());
-                assertEquals(row.get(key), TransformationHelper.getObject(row, row.get("byteArray"),columnDefinition, key));
-            }   else
-                throw new Exception("Unexpected ColDef "+ columnDefinition);
+                assertEquals(row.get(key), TransformationHelper.getObject(row, row.get("byteArray"), columnDefinition, key));
+            } else {
+                throw new Exception("Unexpected ColDef " + columnDefinition);
+            }
         }
-
 
 
     }

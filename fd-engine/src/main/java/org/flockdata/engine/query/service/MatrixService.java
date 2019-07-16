@@ -33,8 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
  * Query support for visualization frameworks
  *
  * @author mholdsworth
- * @since 5/04/2014
  * @tag Matrix, Query
+ * @since 5/04/2014
  */
 @Service
 @Transactional

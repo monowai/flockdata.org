@@ -20,6 +20,10 @@
 
 package org.flockdata.test.engine.services;
 
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.SystemUser;
 import org.flockdata.helper.FlockException;
@@ -33,11 +37,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StopWatch;
-
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 /**
  * @author mholdsworth
@@ -77,7 +76,7 @@ public class TestForceDuplicateRlx extends EngineBase {
             requests++;
             logger.info("Starting run for " + fortressName);
             while (count <= auditMax) {
-                EntityInputBean entityInputBean = new EntityInputBean(fortress, fortress.getName()+ "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + count);
+                EntityInputBean entityInputBean = new EntityInputBean(fortress, fortress.getName() + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + count);
                 TrackResultBean arb = mediationFacade.trackEntity(su.getCompany(), entityInputBean);
                 requests++;
                 int log = 1;
@@ -95,6 +94,7 @@ public class TestForceDuplicateRlx extends EngineBase {
 
         logger.debug("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
     }
+
     private void createLog(SystemUser su, TrackResultBean arb, int log) throws FlockException, IOException, ExecutionException, InterruptedException {
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("who cares", arb.getEntity().getKey(), new DateTime(), ContentDataHelper.getSimpleMap("who", log)));
     }

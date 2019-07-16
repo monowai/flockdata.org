@@ -20,6 +20,10 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.Map;
 import org.flockdata.data.EntityLog;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.EntityNode;
@@ -31,11 +35,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Map;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author mholdsworth

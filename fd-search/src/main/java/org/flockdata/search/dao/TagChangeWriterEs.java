@@ -22,6 +22,8 @@ package org.flockdata.search.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.NoShardAvailableActionException;
 import org.elasticsearch.action.get.GetRequestBuilder;
@@ -42,11 +44,9 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Creates search docs based on Tag content
+ *
  * @author mholdsworth
  * @since 16/05/2016
  */
@@ -79,11 +79,11 @@ public class TagChangeWriterEs implements TagChangeWriter {
 
             GetRequestBuilder request =
                 searchConfig.getClient().prepareGet(searchChange.getIndexName(),
-                            indexManager.parseType(searchChange.getDocumentType()),
-                            searchChange.getSearchKey());
+                    indexManager.parseType(searchChange.getDocumentType()),
+                    searchChange.getSearchKey());
 
             GetResponse response = request.execute()
-                    .actionGet();
+                .actionGet();
 
             if (response.isExists() && !response.isSourceEmpty()) {
                 logger.debug("Document exists!");
@@ -100,10 +100,10 @@ public class TagChangeWriterEs implements TagChangeWriter {
 
             // Update the existing document with the searchChange change
             IndexRequestBuilder update = searchConfig.getClient()
-                    .prepareIndex(searchChange.getIndexName(), indexManager.parseType(searchChange.getDocumentType()), searchChange.getSearchKey());
+                .prepareIndex(searchChange.getIndexName(), indexManager.parseType(searchChange.getDocumentType()), searchChange.getSearchKey());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
-                    execute();
+                execute();
 
             if (logger.isDebugEnabled()) {
                 IndexResponse indexResponse = ur.actionGet();
@@ -123,8 +123,8 @@ public class TagChangeWriterEs implements TagChangeWriter {
         // Rebuilding a document after a reindex - preserving the unique key.
         IndexRequestBuilder irb =
             searchConfig.getClient()
-                        .prepareIndex(searchChange.getIndexName(), documentType)
-                        .setSource(source);
+                .prepareIndex(searchChange.getIndexName(), documentType)
+                .setSource(source);
 
         irb.setId(searchChange.getSearchKey());
         irb.setRouting(searchChange.getCode());
@@ -162,13 +162,16 @@ public class TagChangeWriterEs implements TagChangeWriter {
 //        indexMe.put(SearchSchema.DOC_TYPE, searchChange.getType());
         indexMe.put(SearchSchema.CODE, searchChange.getCode());
         indexMe.put(SearchSchema.KEY, searchChange.getKey());
-        if ( searchChange.getName()!=null)
+        if (searchChange.getName() != null) {
             indexMe.put(SearchSchema.NAME, searchChange.getName());
-        if ( searchChange.getDescription()!=null)
+        }
+        if (searchChange.getDescription() != null) {
             indexMe.put(SearchSchema.DESCRIPTION, searchChange.getDescription());
+        }
 
-        if ( !searchChange.getProps().isEmpty())
+        if (!searchChange.getProps().isEmpty()) {
             indexMe.put(SearchSchema.PROPS, searchChange.getProps());
+        }
 
         if (!searchChange.getAliases().isEmpty()) {
             Map<String, String> alases = new HashMap<>();

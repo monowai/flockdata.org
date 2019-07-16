@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.integration.search;
 
+import java.util.Map;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,12 +39,10 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.handler.annotation.Payload;
 
-import java.util.Map;
-
 /**
  * @author mholdsworth
- * @since 3/07/2015
  * @tag Messaging, Administration, Search, Gateway
+ * @since 3/07/2015
  */
 
 @Configuration
@@ -59,12 +58,12 @@ public class SearchAdminRequests {
     }
 
     @Bean
-    MessageChannel searchPing(){
+    MessageChannel searchPing() {
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel searchHealth(){
+    MessageChannel searchHealth() {
         return new DirectChannel();
     }
 
@@ -72,13 +71,13 @@ public class SearchAdminRequests {
     @Bean
     IntegrationFlow searchHealthFlow() {
         return IntegrationFlows.from(searchHealth())
-                .handle(fdsHealthRequest())
-                .get();
+            .handle(fdsHealthRequest())
+            .get();
     }
 
     private MessageHandler fdsHealthRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/health");
+            new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/health");
         handler.setExpectedResponseType(Map.class);
         handler.setHttpMethod(HttpMethod.GET);
 
@@ -89,12 +88,13 @@ public class SearchAdminRequests {
     IntegrationFlow searchPingFlow() {
 
         return IntegrationFlows.from(searchPing())
-                .handle(fdsPingRequest())
-                .get();
+            .handle(fdsPingRequest())
+            .get();
     }
+
     private MessageHandler fdsPingRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/ping");
+            new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/ping");
         handler.setExpectedResponseType(String.class);
         handler.setHttpMethod(HttpMethod.GET);
 
@@ -109,7 +109,7 @@ public class SearchAdminRequests {
 
         @Payload("new java.util.Date()")
         @Gateway(requestChannel = "searchHealth", requestTimeout = 6000)
-        Map<String,Object> health();
+        Map<String, Object> health();
 
     }
 

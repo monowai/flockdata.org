@@ -16,6 +16,9 @@
 
 package org.flockdata.batch.resources;
 
+import java.sql.Driver;
+import java.sql.SQLException;
+import javax.sql.DataSource;
 import org.flockdata.batch.BatchConfig;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.BatchConfigurer;
@@ -42,17 +45,13 @@ import org.springframework.jdbc.datasource.init.DatabasePopulator;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-import javax.sql.DataSource;
-import java.sql.Driver;
-import java.sql.SQLException;
-
 /**
  * @author mholdsworth
  * @since 28/01/2016
  */
 @EnableBatchProcessing
 @Configuration
-@Profile({"fd-batch", "fd-batch-dev"})
+@Profile( {"fd-batch", "fd-batch-dev"})
 public class FdJobFactory {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
@@ -62,7 +61,7 @@ public class FdJobFactory {
     private Resource schemaScript;
 
     @Bean
-    @Profile({"fd-batch", "fd-batch-dev"})
+    @Profile( {"fd-batch", "fd-batch-dev"})
     public JobRepository jobRepository() throws Exception {
         JobRepositoryFactoryBean jr = new JobRepositoryFactoryBean();
         jr.setDataSource(repoDataSource());
@@ -74,7 +73,7 @@ public class FdJobFactory {
     }
 
     @Bean
-    @Profile({"fd-batch", "fd-batch-dev"})
+    @Profile( {"fd-batch", "fd-batch-dev"})
     public JdbcTemplate batchJdbcTemplate() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
         return new JdbcTemplate(repoDataSource());
     }
@@ -87,8 +86,8 @@ public class FdJobFactory {
     }
 
     @Bean
-    @Profile({"fd-batch", "fd-batch-dev"})
-    BatchConfigurer configurer(@Qualifier("repoDataSource")DataSource dataSource){
+    @Profile( {"fd-batch", "fd-batch-dev"})
+    BatchConfigurer configurer(@Qualifier("repoDataSource") DataSource dataSource) {
         return new DefaultBatchConfigurer(dataSource);
     }
 
@@ -99,15 +98,15 @@ public class FdJobFactory {
      * @return
      */
     @Bean
-    @Profile({"fd-batch", "fd-batch-dev"})
-    JobLauncher jobLauncher (JobRepository jobRepository) {
+    @Profile( {"fd-batch", "fd-batch-dev"})
+    JobLauncher jobLauncher(JobRepository jobRepository) {
         SimpleJobLauncher jl = new SimpleJobLauncher();
         jl.setJobRepository(jobRepository);
         return jl;
     }
 
     @Bean
-    @Profile({"fd-batch", "fd-batch-dev"})
+    @Profile( {"fd-batch", "fd-batch-dev"})
     @Qualifier("repoDataSource")
     public DataSource repoDataSource() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         logger.info("Looking for driver class [{}] then will connect on url [{}]", batchConfig.getBatchDriver(), batchConfig.getUrl());
@@ -124,7 +123,7 @@ public class FdJobFactory {
     }
 
     @Bean
-    @Profile({"fd-batch", "fd-batch-dev"})
+    @Profile( {"fd-batch", "fd-batch-dev"})
     public DataSourceInitializer dataSourceInitializer(final DataSource dataSource) {
         final DataSourceInitializer initializer = new DataSourceInitializer();
         initializer.setDataSource(dataSource);

@@ -30,8 +30,9 @@ import org.springframework.web.client.ResourceAccessException;
 
 /**
  * Run a query against ElasticSearch
- * @tag Command, Search, Query
+ *
  * @author mholdsworth
+ * @tag Command, Search, Query
  * @since 17/04/2016
  */
 @Component
@@ -46,21 +47,21 @@ public class SearchFdPost {
 
 
     public CommandResponse<EsSearchRequestResult> exec(QueryParams queryParams) {
-        String error ;
+        String error;
 
-        EsSearchRequestResult result= null;
+        EsSearchRequestResult result = null;
         HttpEntity requestEntity = new HttpEntity<>(queryParams, fdIoInterface.getHeaders());
 
         try {
 
             ResponseEntity<EsSearchRequestResult> response;
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+ "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchRequestResult.class);
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchRequestResult.class);
 
             result = response.getBody();
             error = result.getFdSearchError();
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
             error = e.getMessage();
         }
-        return new CommandResponse<>(error,result);// Everything worked
+        return new CommandResponse<>(error, result);// Everything worked
     }
 }

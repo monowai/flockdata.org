@@ -20,12 +20,11 @@
 
 package org.flockdata.company.dao;
 
+import java.util.Collection;
 import org.flockdata.data.Segment;
 import org.flockdata.engine.data.graph.FortressSegmentNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
-
-import java.util.Collection;
 
 /**
  * @author mholdsworth
@@ -33,15 +32,15 @@ import java.util.Collection;
  */
 public interface FortressSegmentRepository extends GraphRepository<FortressSegmentNode> {
 
-    @Query( elementClass = FortressSegmentNode.class, value =  "match (fortress:Fortress)-[r:DEFINES]- (segments:FortressSegment) " +
-            "where id(fortress) = {0} return segments")
+    @Query(elementClass = FortressSegmentNode.class, value = "match (fortress:Fortress)-[r:DEFINES]- (segments:FortressSegment) " +
+        "where id(fortress) = {0} return segments")
     Collection<Segment> findFortressSegments(Long id);
 
-    @Query( value =  "match (fortress:Fortress)-[r:DEFINES]- (segment:FortressSegment) " +
-            "where id(fortress) = {0} and segment.key = {1} return segment")
+    @Query(value = "match (fortress:Fortress)-[r:DEFINES]- (segment:FortressSegment) " +
+        "where id(fortress) = {0} and segment.key = {1} return segment")
     FortressSegmentNode findSegment(Long id, String segmentName);
 
-    @Query( value =  "match (fortress:Fortress)-[r]- (segment:FortressSegment) " +
-            "where id(fortress) = {0} delete r,segment")
+    @Query(value = "match (fortress:Fortress)-[r]- (segment:FortressSegment) " +
+        "where id(fortress) = {0} delete r,segment")
     void purgeFortressSegments(Long fortressId);
 }

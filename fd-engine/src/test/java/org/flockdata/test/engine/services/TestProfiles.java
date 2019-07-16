@@ -20,6 +20,14 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Entity;
 import org.flockdata.data.SystemUser;
@@ -49,11 +57,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static org.junit.Assert.*;
-
 /**
  * @author mholdsworth
  * @since 3/10/2014
@@ -64,7 +67,7 @@ import static org.junit.Assert.*;
     FdTemplateMock.class,
     FdServerIo.class,
     MapBasedStorageProxy.class})
-@ActiveProfiles({"dev", "fd-auth-test"})
+@ActiveProfiles( {"dev", "fd-auth-test"})
 public class TestProfiles extends EngineBase {
 
     @Autowired

@@ -16,6 +16,12 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.flockdata.data.ContentModel;
 import org.flockdata.track.bean.EntityInputBean;
@@ -24,13 +30,9 @@ import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ContentModelHandler;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static junit.framework.TestCase.*;
-
 /**
  * Basic deserialization checks
+ *
  * @author mholdsworth
  * @since 26/01/2016
  */
@@ -45,11 +47,11 @@ public class TestContentModel {
     }
 
     @Test
-    public void mergeColumnDefinitions() throws Exception{
+    public void mergeColumnDefinitions() throws Exception {
         ContentModel contentModel = new ContentModelHandler();
         ColumnDefinition columnDefinition = new ColumnDefinition();
         columnDefinition.setDataType("String");
-        Map<String,ColumnDefinition> columns = new HashMap<>();
+        Map<String, ColumnDefinition> columns = new HashMap<>();
         columns.put("Existing", columnDefinition);
         contentModel.setContent(columns);
 
@@ -66,10 +68,10 @@ public class TestContentModel {
     @Test
     public void suppressionFlags() throws Exception {
         ContentModel model = ContentModelDeserializer.getContentModel("/model/track-suppression.json");
-        Map<String,Object> row = new HashMap<>();
+        Map<String, Object> row = new HashMap<>();
         row.put("blah", 10);
         EntityInputBean result = org.flockdata.transform.Transformer.toEntity(row, model);
-        assertNotNull (result);
+        assertNotNull(result);
         assertTrue(result.isSearchSuppressed());
         assertTrue(result.isTrackSuppressed());
     }

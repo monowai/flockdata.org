@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.integration.search;
 
+import java.nio.charset.StandardCharsets;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.search.EntityKeyResults;
 import org.flockdata.search.QueryParams;
@@ -38,8 +39,6 @@ import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.http.Http;
 import org.springframework.integration.dsl.support.Transformers;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * Finds Keys for a given set of query parameters. This can be used to drive queries in the Graph as
  * the key will give you a starting point
@@ -51,7 +50,7 @@ import java.nio.charset.StandardCharsets;
 
 @Configuration
 @IntegrationComponentScan
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class EntityKeyQuery {
 
     private final PlatformConfig engineConfig;

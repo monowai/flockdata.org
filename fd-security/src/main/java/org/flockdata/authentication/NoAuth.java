@@ -16,6 +16,7 @@
 
 package org.flockdata.authentication;
 
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -28,11 +29,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Hardcoded users and passwords. Suitable for evaluation and testing
- *
+ * <p>
  * You should include the configuration to use this implementation
  *
  * @author mholdsworth
@@ -40,7 +39,7 @@ import javax.annotation.PostConstruct;
  */
 
 @Configuration
-@Profile({"fd-no-auth"}) //
+@Profile( {"fd-no-auth"}) //
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @Slf4j
@@ -50,14 +49,14 @@ public class NoAuth extends WebSecurityConfigurerAdapter {
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> ima = auth.inMemoryAuthentication();
         ima.withUser("mike")
-                .password("123")
-                .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN);
+            .password("123")
+            .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN);
         ima.withUser("sally")
-                .password("123")
-                .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN);
+            .password("123")
+            .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN);
         ima.withUser("harry")
-                .password("123")
-                .roles("USER", FdRoles.FD_USER);
+            .password("123")
+            .roles("USER", FdRoles.FD_USER);
 
     }
 
@@ -68,7 +67,7 @@ public class NoAuth extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Order(10) // Preventing clash with AuthTesting deployment (100)
-    @Profile({"fd-no-auth"}) //
+    @Profile( {"fd-no-auth"}) //
     public static class ApiSecurity extends WebSecurityConfigurerAdapter {
 
         @Override
@@ -77,9 +76,9 @@ public class NoAuth extends WebSecurityConfigurerAdapter {
             // ApiKeyInterceptor is a part of the auth chain
 
             http.authorizeRequests()
-                    .antMatchers("/api/login", "/api/ping", "/api/logout", "/api/account").permitAll()
-                    .antMatchers("/api/v1/**").permitAll()
-                    .antMatchers("/").permitAll()
+                .antMatchers("/api/login", "/api/ping", "/api/logout", "/api/account").permitAll()
+                .antMatchers("/api/v1/**").permitAll()
+                .antMatchers("/").permitAll()
             ;
 
 

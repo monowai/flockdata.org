@@ -21,14 +21,13 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.data.TxRef;
-
 import java.io.Serializable;
+import org.flockdata.data.TxRef;
 
 /**
  * @author mholdsworth
- * @since 28/08/2013
  * @tag Contract, Log, Query
+ * @since 28/08/2013
  */
 public class LogResultBean implements Serializable {
     public static final String OK = "OK";
@@ -60,8 +59,9 @@ public class LogResultBean implements Serializable {
     }
 
     public void setTxReference(TxRef txReference) {
-        if (txReference != null)
+        if (txReference != null) {
             this.txReference = txReference.getName();
+        }
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -107,7 +107,6 @@ public class LogResultBean implements Serializable {
     public void setSysWhen(Long sysWhen) {
         this.sysWhen = sysWhen;
     }
-
 
 
 }

@@ -21,15 +21,14 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.flockdata.data.Alias;
-import org.flockdata.data.Tag;
-import org.flockdata.registration.TagInputBean;
-import org.flockdata.registration.TagResultBean;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.flockdata.data.Alias;
+import org.flockdata.data.Tag;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.registration.TagResultBean;
 
 /**
  * Bit hokey - Used to carry a result that includes a server side tag object
@@ -40,32 +39,33 @@ import java.util.Map;
  */
 public class FdTagResultBean extends TagResultBean {
     @JsonIgnore
-    private Tag tag =null;
+    private Tag tag = null;
 
     private Map<FdTagResultBean, Collection<String>> targets = new HashMap<>();
 
-    FdTagResultBean() {}
+    FdTagResultBean() {
+    }
 
     public FdTagResultBean(TagInputBean tagInput, Tag startTag, boolean isNew) {
         this(tagInput, startTag);
         this.newTag = isNew;
     }
 
-    public FdTagResultBean(TagInputBean tagInputBean, Tag tag){
+    public FdTagResultBean(TagInputBean tagInputBean, Tag tag) {
 
         this(tag);
-        if ( tag == null ){
+        if (tag == null) {
             this.code = tagInputBean.getCode();
             this.name = tagInputBean.getName();
         }
-        if ( tagInputBean != null ) {
+        if (tagInputBean != null) {
             this.message = tagInputBean.setServiceMessage();
             this.description = tagInputBean.getDescription();
         }
 
     }
 
-    public FdTagResultBean (Tag tag ) {
+    public FdTagResultBean(Tag tag) {
         this();
         this.tag = tag;
 
@@ -75,8 +75,9 @@ public class FdTagResultBean extends TagResultBean {
             this.key = tag.getKey();
             this.name = tag.getName();
             this.label = tag.getLabel();
-            if (code.equals(name))
+            if (code.equals(name)) {
                 name = null;
+            }
             this.properties = tag.getProperties();
 
             for (Alias alias : tag.getAliases()) {
@@ -103,10 +104,11 @@ public class FdTagResultBean extends TagResultBean {
     }
 
     public void addTargetResult(String rlxName, FdTagResultBean targetTag) {
-        Collection<String>relationships = targets.get(targetTag);
-        if ( relationships == null )
+        Collection<String> relationships = targets.get(targetTag);
+        if (relationships == null) {
             relationships = new ArrayList<>();
+        }
         relationships.add(rlxName);
-        targets.put(targetTag,relationships);
+        targets.put(targetTag, relationships);
     }
 }

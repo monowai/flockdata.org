@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.integration.store;
 
+import java.nio.charset.StandardCharsets;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.integration.AbstractIntegrationRequest;
 import org.flockdata.search.EsSearchRequestResult;
@@ -39,8 +40,6 @@ import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.http.Http;
 import org.springframework.integration.dsl.support.Transformers;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * Pulls the "data" block from ElasticSearch
  *
@@ -50,7 +49,7 @@ import java.nio.charset.StandardCharsets;
 
 @Configuration
 @IntegrationComponentScan
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class EsStoreRequest extends AbstractIntegrationRequest {
     @Autowired
     @Qualifier("engineConfig")

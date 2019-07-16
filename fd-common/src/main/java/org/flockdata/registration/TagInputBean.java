@@ -18,13 +18,12 @@ package org.flockdata.registration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.data.Tag;
-import org.flockdata.track.bean.EntityTagRelationshipInput;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.flockdata.data.Tag;
+import org.flockdata.track.bean.EntityTagRelationshipInput;
 
 /**
  * All data necessary to create a simple Tag. If no tagLabel is provided then the tag is
@@ -71,9 +70,9 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     /**
      * associates a tag to the entity giving it an optional tagLabel tagLabel to categorize it by
      *
-     * @param tagCode  Unique name for a tag (if exists will be reused)
-     * @param tagLabel optional tagLabel tagLabel to give the Tag.
-     * @param entityTagRelationshipInput     name of relationship to the Entity
+     * @param tagCode                    Unique name for a tag (if exists will be reused)
+     * @param tagLabel                   optional tagLabel tagLabel to give the Tag.
+     * @param entityTagRelationshipInput name of relationship to the Entity
      */
     public TagInputBean(String tagCode, String tagLabel, EntityTagRelationshipInput entityTagRelationshipInput) {
         this(tagCode, tagLabel);
@@ -84,20 +83,21 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     /**
      * Unique name by which this tag will be known
-     *
+     * <p>
      * You can pass this in as Name:Type and AB will additionally
      * recognize the tag as being of the supplied Type
-     *
+     * <p>
      * This tag will not be associated with an Entity (it has no tagLabel)
-     *
+     * <p>
      * Code value defaults to the tag name
      *
      * @param tagCode unique name
      */
     public TagInputBean(String tagCode) {
         this();
-        if (tagCode == null)
+        if (tagCode == null) {
             throw new IllegalArgumentException("The code of a tag cannot be null");
+        }
         this.code = tagCode.trim();
     }
 
@@ -165,15 +165,17 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     public TagInputBean setTargets(String relationshipName, Collection<TagInputBean> fromThoseTags) {
-        if (targets == null)
+        if (targets == null) {
             targets = new HashMap<>();
+        }
         Collection<TagInputBean> theseTags = targets.get(relationshipName);
-        if (theseTags == null)
+        if (theseTags == null) {
             targets.put(relationshipName, fromThoseTags);
-        else {
+        } else {
             for (TagInputBean tagToAdd : fromThoseTags) {
-                if (!theseTags.contains(tagToAdd))
+                if (!theseTags.contains(tagToAdd)) {
                     theseTags.add(tagToAdd);
+                }
             }
         }
         return this;
@@ -201,17 +203,20 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     @Override
     public TagInputBean setProperty(String key, Object value) {
-        if (properties == null)
+        if (properties == null) {
             properties = new HashMap<>();
-        if (key != null && value != null)
+        }
+        if (key != null && value != null) {
             properties.put(key, value);
+        }
         return this;
     }
 
     @Override
     public Object getProperty(String key) {
-        if (properties == null)
+        if (properties == null) {
             return null;
+        }
         return properties.get(key);
     }
 
@@ -228,17 +233,19 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     /**
      * Primary function for carrying the relationship data describing the connection between
      * this Tag and the Entity it is being connected to
-     *
+     * <p>
      * You can't have multiple relationships with the same name. Names are usually verbs
      *
      * @param entityTagRelationshipInput FD specific processing instructions and user defined properties
      * @return this
      */
     public TagInputBean addEntityTagLink(EntityTagRelationshipInput entityTagRelationshipInput) {
-        if ( entityTagRelationshipInput == null)
+        if (entityTagRelationshipInput == null) {
             return this;
-        if (entityTagLinks == null)
+        }
+        if (entityTagLinks == null) {
             entityTagLinks = new HashMap<>();
+        }
         this.entityTagLinks.put(entityTagRelationshipInput.getRelationshipName(), entityTagRelationshipInput);
         return this;
     }
@@ -251,8 +258,9 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      * @return this
      */
     public TagInputBean addEntityTagLink(String relationshipName) {
-        if (relationshipName.equals("located"))
+        if (relationshipName.equals("located")) {
             setReverse(true);
+        }
         return addEntityTagLink(new EntityTagRelationshipInput(relationshipName));
     }
 
@@ -267,24 +275,36 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     @Override
     public String toString() {
         return "TagInputBean{" +
-                "label='" + label + '\'' +
-                ", code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                ", keyPrefix='" + keyPrefix + '\'' +
-                '}';
+            "label='" + label + '\'' +
+            ", code='" + code + '\'' +
+            ", name='" + name + '\'' +
+            ", keyPrefix='" + keyPrefix + '\'' +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TagInputBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TagInputBean)) {
+            return false;
+        }
 
         TagInputBean that = (TagInputBean) o;
 
-        if (reverse != that.reverse) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (code != null ? !code.equalsIgnoreCase(that.code) : that.code != null) return false;
-        if (label != null ? !label.equals(that.label) : that.label != null) return false;
+        if (reverse != that.reverse) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (code != null ? !code.equalsIgnoreCase(that.code) : that.code != null) {
+            return false;
+        }
+        if (label != null ? !label.equals(that.label) : that.label != null) {
+            return false;
+        }
         return !(keyPrefix != null ? !keyPrefix.equals(that.keyPrefix) : that.keyPrefix != null);
 
     }
@@ -317,16 +337,18 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      * @return Default tag tagLabel or the name to assign
      */
     private String getLabelValue() {
-        if ("".equals(label))
+        if ("".equals(label)) {
             return "_Tag";
-        else
+        } else {
             return label;
+        }
     }
 
     public String getLabel() {
         String thisLabel = getLabelValue();
-        if (thisLabel.startsWith(":"))
+        if (thisLabel.startsWith(":")) {
             thisLabel = thisLabel.substring(1, thisLabel.length());
+        }
         return thisLabel;
     }
 
@@ -335,13 +357,15 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      * @return this
      */
     public TagInputBean setLabel(String label) {
-        if (label == null)
+        if (label == null) {
             return this;
+        }
 
-        if (!label.startsWith(":"))
+        if (!label.startsWith(":")) {
             this.label = ":" + label.trim();
-        else
+        } else {
             this.label = label.trim();
+        }
 
         return this;
 
@@ -376,6 +400,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     /**
      * If a value is missing for the label , you can set it to this value instead. Examples might be "Unknown", "Undefined" etc.
+     *
      * @param notFoundCode TagCode to use if code does not exist
      * @return this
      */
@@ -394,8 +419,9 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     public void addAlias(AliasInputBean alias) {
-        if (aliases == null)
+        if (aliases == null) {
             aliases = new ArrayList<>();
+        }
         aliases.add(alias);
     }
 
@@ -407,9 +433,9 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      * Codes can have duplicate values in a Label but the key must be unique.
      * When being created, the code is used as part of the key. Setting this property
      * will prefix the key with this value.
-     *
+     * <p>
      * Useful in geo type scenarios. Take Cambridge - a city in England and in New Zealand
-     *
+     * <p>
      * With a tagPrefix we have uk.cambridge and nz.cambridge both with a code of Cambridge. Each
      * tag is distinct but they share human readable properties
      *
@@ -450,20 +476,24 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      * @return TagInputBean if found
      */
     public TagInputBean findTargetTag(String code, String label, String keyPrefix) {
-        if (!hasTargets())
+        if (!hasTargets()) {
             return null;
+        }
 
         for (String key : targets.keySet()) {
             for (TagInputBean tagInputBean : targets.get(key)) {
                 if (tagInputBean.getCode().equalsIgnoreCase(code) && tagInputBean.getLabel().equals(label)) {
-                    if (keyPrefix == null || keyPrefix.length() == 0)
+                    if (keyPrefix == null || keyPrefix.length() == 0) {
                         return tagInputBean;// Ignoring the keyPrefix
-                    if (tagInputBean.getKeyPrefix().equalsIgnoreCase(keyPrefix))
+                    }
+                    if (tagInputBean.getKeyPrefix().equalsIgnoreCase(keyPrefix)) {
                         return tagInputBean;
+                    }
                 }
                 TagInputBean found = tagInputBean.findTargetTag(code, label, keyPrefix);
-                if (found != null)
+                if (found != null) {
                     return found;
+                }
             }
         }
         return null;

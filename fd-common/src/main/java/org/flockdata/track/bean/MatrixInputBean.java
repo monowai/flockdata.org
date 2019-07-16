@@ -24,8 +24,8 @@ import java.util.ArrayList;
 
 /**
  * @author mholdsworth
- * @since 12/06/2014
  * @tag Contract, Matrix, Query
+ * @since 12/06/2014
  */
 public class MatrixInputBean {
     private ArrayList<String> documents = null;
@@ -44,8 +44,8 @@ public class MatrixInputBean {
     private ArrayList<String> toRlxs = null;
     private Boolean reciprocalExcluded = false;
     private String sumCol;  // TBC: Should we let the user pick a column
-    private boolean sumByCol =false;
-    private String sumColumn ="props-value";
+    private boolean sumByCol = false;
+    private String sumColumn = "props-value";
     private String cypher;
 
     public ArrayList<String> getToRlxs() {
@@ -89,7 +89,6 @@ public class MatrixInputBean {
     }
 
     /**
-     *
      * @return should the edges be keys or values
      */
     public boolean isByKey() {
@@ -141,12 +140,12 @@ public class MatrixInputBean {
     @Override
     public String toString() {
         return "MatrixInputBean{" +
-                "minCount=" + minCount +
-                ", documents=" + documents +
-                ", fortresses=" + fortresses +
-                ", queryString='" + queryString + '\'' +
-                ", sampleSize=" + sampleSize +
-                '}';
+            "minCount=" + minCount +
+            ", documents=" + documents +
+            ", fortresses=" + fortresses +
+            ", queryString='" + queryString + '\'' +
+            ", sampleSize=" + sampleSize +
+            '}';
     }
 
     public String getSumCol() {

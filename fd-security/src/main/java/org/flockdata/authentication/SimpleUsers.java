@@ -16,34 +16,34 @@
 
 package org.flockdata.authentication;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Configures user/password/roles from an external configuration source.
- *
- *
+ * <p>
+ * <p>
  * YAML example
  * ============
  * org.fd.auth:
-       simple:
-         users:
-           mike:
-             pass: 123
-             roles: FD_USER;FD_ADMIN
+ * simple:
+ * users:
+ * mike:
+ * pass: 123
+ * roles: FD_USER;FD_ADMIN
  *
  * @author mholdsworth
  * @since 11/05/2016
  */
-@ConfigurationProperties (prefix = "org.fd.auth.simple")
+@ConfigurationProperties(prefix = "org.fd.auth.simple")
 @Configuration
 public class SimpleUsers {
 
     private HashMap<String, UserEntry> users;
+
     public HashMap<String, UserEntry> getUsers() {
         return users;
     }
@@ -55,12 +55,12 @@ public class SimpleUsers {
     void createDefault() {
         users = new HashMap<>(1);
         users.put("mike", new UserEntry()
-                .setPass("123")
-                .setRoles(FdRoles.FD_ADMIN+";"+FdRoles.FD_USER));
+            .setPass("123")
+            .setRoles(FdRoles.FD_ADMIN + ";" + FdRoles.FD_USER));
     }
 
     @SuppressWarnings("WeakerAccess")
-    public static class UserEntry{
+    public static class UserEntry {
         private String pass;
 
         private Collection<String> roles = new ArrayList<>();
@@ -68,6 +68,7 @@ public class SimpleUsers {
         public String getPass() {
             return pass;
         }
+
         public UserEntry setPass(String pass) {
             this.pass = pass;
             return this;

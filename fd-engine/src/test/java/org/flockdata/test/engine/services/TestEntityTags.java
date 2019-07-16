@@ -20,7 +20,27 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.data.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityLog;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Log;
+import org.flockdata.data.SystemUser;
+import org.flockdata.data.Tag;
 import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.engine.data.graph.FortressNode;
@@ -29,10 +49,21 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.search.*;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.SearchResult;
+import org.flockdata.search.SearchResults;
+import org.flockdata.search.SearchSchema;
+import org.flockdata.search.SearchTag;
 import org.flockdata.store.Store;
 import org.flockdata.test.helper.ContentDataHelper;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntitySummaryBean;
+import org.flockdata.track.bean.EntityTagInputBean;
+import org.flockdata.track.bean.EntityTagRelationshipInput;
+import org.flockdata.track.bean.EntityTagResult;
+import org.flockdata.track.bean.SearchChange;
+import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,15 +72,10 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
-
 /**
  * @author mholdsworth
- * @since 29/06/2013
  * @tag Test, Entity, Tag
+ * @since 29/06/2013
  */
 public class TestEntityTags extends EngineBase {
 
@@ -70,8 +96,8 @@ public class TestEntityTags extends EngineBase {
         assertNotNull(su);
 
         FortressInputBean fib = new FortressInputBean("ABC")
-                .setStoreEnabled(true)
-                .setSearchEnabled(false);
+            .setStoreEnabled(true)
+            .setSearchEnabled(false);
 
         FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
         assertNotNull(fortress);
@@ -207,7 +233,7 @@ public class TestEntityTags extends EngineBase {
         assertEquals(fCreated.getMillis(), entity.getFortressCreatedTz().getMillis());
 
         EntityTagInputBean tagA = new EntityTagInputBean(entity.getKey(), flopTag.getCode(), "ABC").
-                setSince(true);
+            setSince(true);
         entityTagService.processTag(entity, tagA);
 
         Boolean tagRlxExists = entityTagService.relationshipExists(entity, flopTag.getCode(), "ABC");
@@ -223,7 +249,7 @@ public class TestEntityTags extends EngineBase {
         ContentInputBean contentInputBean = new ContentInputBean("harry", fUpdated, ContentDataHelper.getRandomMap());
 
         entityBean.addTag(new TagInputBean("Tag2", null, "second").
-                setSince(true));
+            setSince(true));
 
         entityBean.setArchiveTags(false);// We don't have a reference to the original tag in the Input
         // as we assigned it in a secondary step, so will accumulate tags and stop them being archived
@@ -235,10 +261,11 @@ public class TestEntityTags extends EngineBase {
         entityTags = entityTagService.findEntityTags(entity);
         assertEquals(2, entityTags.size());
         for (EntityTag tag : entityTags) {
-            if (tag.getTag().getCode().equalsIgnoreCase(flopTag.getCode()))
+            if (tag.getTag().getCode().equalsIgnoreCase(flopTag.getCode())) {
                 assertEquals("Date did not correspond to the Fortress created date", entity.getFortressCreatedTz().getMillis(), Long.parseLong(tag.getProperties().get(EntityTag.SINCE).toString()));
-            else
+            } else {
                 assertEquals("Date did not correspond to the Fortress updated date", entity.getFortressUpdatedTz().getMillis(), Long.parseLong(tag.getProperties().get(EntityTag.SINCE).toString()));
+            }
         }
 
     }
@@ -293,8 +320,9 @@ public class TestEntityTags extends EngineBase {
         assertFalse(entityTagService.relationshipExists(entity, "TagC", "!!Twee!!"));//
         // Remove a single tag
         for (EntityTag value : tagSet) {
-            if (value.getTag().getCode().equals("TagC"))
+            if (value.getTag().getCode().equals("TagC")) {
                 entityTagService.changeType(entity, value, "!!Twee!!");
+            }
         }
 
         assertTrue(entityTagService.relationshipExists(entity, "TagC", "!!Twee!!"));
@@ -324,8 +352,9 @@ public class TestEntityTags extends EngineBase {
         assertEquals(4, tagSet.size());
         // Remove a single tag
         for (EntityTag value : tagSet) {
-            if (value.getTag().getCode().equals("TagB"))
+            if (value.getTag().getCode().equals("TagB")) {
                 entityTagService.deleteEntityTags(entity, value);
+            }
         }
         tagSet = entityTagService.findEntityTags(entity);
         assertNotNull(tagSet);
@@ -440,8 +469,9 @@ public class TestEntityTags extends EngineBase {
         assertEquals(3, resultBean.getTags().size());
         Long id = null;
         for (EntityTag entityTag : resultBean.getTags()) {
-            if (id == null)
+            if (id == null) {
                 id = entityTag.getTag().getId();
+            }
             Assert.assertEquals(id, entityTag.getTag().getId());
         }
         assertNull(resultBean.getEntity().getKey());
@@ -611,8 +641,8 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
 
         TagInputBean tagInputBean = new TagInputBean("mike@flockdata.com", null)
-                .addEntityTagLink(new EntityTagRelationshipInput("email-to")
-        );// Entity->Tag
+            .addEntityTagLink(new EntityTagRelationshipInput("email-to")
+            );// Entity->Tag
 
         inputBean.addTag(tagInputBean);
 
@@ -650,7 +680,7 @@ public class TestEntityTags extends EngineBase {
         assertEquals(3, summaryBean.getTags().size());
 
         String json = JsonUtils.toJson(summaryBean);
-        assertNotNull ("Error serializing to json", json );
+        assertNotNull("Error serializing to json", json);
     }
 
     @Test
@@ -794,7 +824,7 @@ public class TestEntityTags extends EngineBase {
         stateInputTag.setTargets("country", countryInputTag);
 
         // Institution is in a city
-        inputBean.addTag(cityInputTag.addEntityTagLink(new EntityTagRelationshipInput("geodata",true)));
+        inputBean.addTag(cityInputTag.addEntityTagLink(new EntityTagRelationshipInput("geodata", true)));
 
         inputBean.setContent(new ContentInputBean(ContentDataHelper.getRandomMap()));
 
@@ -809,7 +839,7 @@ public class TestEntityTags extends EngineBase {
             assertEquals("geodata", tag.getRelationship());
             assertTrue(tag.isGeoRelationship());
             assertNotNull("geo data block not found for a geo flagged relationship connected to an entity",
-                    tag.getGeoData());
+                tag.getGeoData());
         }
 
         EntitySearchChange searchChange = searchService.getEntityChange(resultBean);
@@ -1280,7 +1310,7 @@ public class TestEntityTags extends EngineBase {
         when(searchResult.getCode()).thenReturn(searchChange.getCode());
         when(searchResult.getEntityId()).thenReturn(searchChange.getId());
         when(searchResult.getSearchKey()).thenReturn(searchChange.getSearchKey());
-        Collection<SearchResult>results = new ArrayList<>();
+        Collection<SearchResult> results = new ArrayList<>();
         results.add(searchResult);
         SearchResults searchResults = new SearchResults(results);
         return searchResults;
@@ -1297,8 +1327,8 @@ public class TestEntityTags extends EngineBase {
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean(fortress, "DAT386", "DAT386", new DateTime(), "abc");
         TagInputBean tagInput = new TagInputBean("MissingTag", "TestUndefined", new EntityTagRelationshipInput("rlx"))
-                .setMustExist(true)
-                .setNotFoundCode("Unknown");
+            .setMustExist(true)
+            .setNotFoundCode("Unknown");
         entityInput.addTag(tagInput);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
@@ -1395,21 +1425,21 @@ public class TestEntityTags extends EngineBase {
     }
 
     @Test
-    public void tagsInOut() throws Exception{
+    public void tagsInOut() throws Exception {
         SystemUser su = registerSystemUser("tagsInOut", mike_admin);
         String json = "[{\"code\":\"10000001\",\"fortress\":{\"name\":\"icij.org\",\"timeZone\":\"Pacific/Auckland\",\"enabled\":true,\"system\":false,\"code\":\"icij.org\"},\"documentType\":{\"name\":\"LegalEntity\",\"code\":\"LegalEntity\",\"versionStrategy\":\"FORTRESS\",\"tagStructure\":\"DEFAULT\"},\"when\":1143028800000,\"lastChange\":1361098800000,\"content\":{\"version\":1.0,\"when\":1143028800000,\"data\":{\"address\":\"ORION HOUSE SERVICES (HK) LIMITED ROOM 1401; 14/F.; WORLD COMMERCE  CENTRE; HARBOUR CITY; 7-11 CANTON ROAD; TSIM SHA TSUI; KOWLOON; HONG KONG\",\"internal_id\":1001256,\"jurisdiction\":\"SAM\",\"struck_off_date\":\"2013-02-15T00:00:00.000+13:00\",\"dorm_date\":null,\"service_provider\":\"Mossack Fonseca\",\"jurisdiction_description\":\"Samoa\",\"ibcRUC\":\"25221\",\"original_name\":\"TIANSHENG INDUSTRY AND TRADING CO., LTD.\",\"name\":\"TIANSHENG INDUSTRY AND TRADING CO., LTD.\",\"inactivation_date\":\"2013-02-18T00:00:00.000+13:00\",\"country_codes\":\"HKG\",\"incorporation_date\":\"2006-03-23T00:00:00.000+12:00\",\"status\":\"Defaulted\",\"node_id\":10000001},\"forceReindex\":false,\"contentType\":\"json\",\"transactional\":false},\"tags\":[{\"code\":\"SAM\",\"reverse\":false,\"label\":\"Jurisdiction\",\"entityTagLinks\":{\"jurisdiction\":{\"geo\":true,\"relationshipName\":\"jurisdiction\"}},\"mustExist\":false,\"aliases\":[],\"since\":false,\"merge\":false},{\"code\":\"Mossack Fonseca\",\"reverse\":true,\"label\":\"ServiceProvider\",\"entityTagLinks\":{\"manages\":{\"relationshipName\":\"manages\"}},\"mustExist\":false,\"since\":false,\"merge\":true},{\"code\":\"25221\",\"reverse\":false,\"label\":\"RUC\",\"entityTagLinks\":{\"ibc\":{\"relationshipName\":\"ibc\"}},\"mustExist\":false,\"since\":false,\"merge\":true},{\"code\":\"HKG\",\"reverse\":false,\"label\":\"Country\",\"entityTagLinks\":{\"located\":{\"geo\":true,\"relationshipName\":\"located\"}},\"mustExist\":false,\"aliases\":[],\"since\":false,\"merge\":false}],\"entityLinks\":{},\"properties\":{},\"description\":\"TIANSHENG INDUSTRY AND TRADING CO., LTD.\",\"name\":\"TIANSHENG INDUSTRY AND TRADING CO., LTD.\",\"searchSuppressed\":false,\"trackSuppressed\":false,\"entityOnly\":false,\"timezone\":\"Pacific/Auckland\",\"archiveTags\":false}]";
         Collection<EntityInputBean> eib = JsonUtils.toCollection(json.getBytes(), EntityInputBean.class);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), eib.iterator().next());
-        assertNotNull ( result);
+        assertNotNull(result);
         Iterable<EntityTag> tags = entityTagService.findEntityTagsWithGeo(result.getEntity());
-        assertNotNull ( tags);
-        assertTrue (tags.iterator().hasNext());
-        int count =0;
+        assertNotNull(tags);
+        assertTrue(tags.iterator().hasNext());
+        int count = 0;
 
         for (EntityTag tag : tags) {
-            count ++;
+            count++;
         }
-        assertEquals (4, count);
+        assertEquals(4, count);
 
     }
 
@@ -1428,8 +1458,9 @@ public class TestEntityTags extends EngineBase {
                 break;
             }
         }
-        if (totalExpected == 0 && !found)
+        if (totalExpected == 0 && !found) {
             return;
+        }
         if (totalExpected == 0) {
             fail("The expected tag [" + tagName + "] was found when it was not expected to exist");
             return;

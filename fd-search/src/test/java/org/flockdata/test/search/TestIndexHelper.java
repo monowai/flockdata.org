@@ -20,14 +20,14 @@
 
 package org.flockdata.test.search;
 
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+
 import junit.framework.TestCase;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.search.QueryParams;
 import org.junit.Test;
-
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Indexes to query are computed at runtime. This validates the generic functionality that
@@ -77,7 +77,7 @@ public class TestIndexHelper {
         types[0] = "Type0";
         types[1] = "Type1";
         String[] indexes = indexManager.getIndices(company, fortress, types, segment);
-        int count=0 ;
+        int count = 0;
         for (String index : indexes) {
             validateIndex(company, fortress, types[count], segment, index);
             count++;
@@ -119,13 +119,14 @@ public class TestIndexHelper {
         String[] indexes = indexManager.getIndices(qp);
         int expectedCount = 2; // We set two type filters so should be at least two indexes
         TestCase.assertEquals(expectedCount, indexes.length);
-        int count =0;
+        int count = 0;
         for (String index : indexes) {
-            if ( count == 0)
+            if (count == 0) {
                 validateIndex(company, fortress, "type0", segment, index);
-            else
+            } else {
                 validateIndex(company, fortress, "type1", segment, index);
-            count ++;
+            }
+            count++;
         }
 
     }
@@ -145,7 +146,7 @@ public class TestIndexHelper {
     }
 
     @Test
-    public void blah () throws Exception{
+    public void blah() throws Exception {
         QueryParams qp = new QueryParams("*");
         qp.setFortress("theFortress");
         qp.setCompany("theCompany"); // normally this is set automatically by fd-engine
@@ -167,7 +168,7 @@ public class TestIndexHelper {
         assertEquals("Cross company filter did not work", "fd.*", indexes[0]);
 
         //
-        qp.setCompany("MyCo") ;
+        qp.setCompany("MyCo");
         indexes = indexManager.getIndices(qp);
         assertEquals(1, indexes.length);
         assertEquals("fd.myco.*", indexes[0]);
@@ -188,11 +189,11 @@ public class TestIndexHelper {
         assertNotNull(index);
 
         TestCase.assertEquals(index,
-                indexManager.getPrefix() +
-                        company.toLowerCase() + "." +
-                        fortress.toLowerCase() +
-                        (type == null ? "":"." + type.toLowerCase()) +
-                        (segment == null ? "*" : "." + segment.toLowerCase())
+            indexManager.getPrefix() +
+                company.toLowerCase() + "." +
+                fortress.toLowerCase() +
+                (type == null ? "" : "." + type.toLowerCase()) +
+                (segment == null ? "*" : "." + segment.toLowerCase())
         );
     }
 

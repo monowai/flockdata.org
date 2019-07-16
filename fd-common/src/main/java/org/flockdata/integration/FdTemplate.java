@@ -36,8 +36,8 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author mholdsworth
- * @since 7/10/2014
  * @tag FdClient, Batch, Track
+ * @since 7/10/2014
  */
 @Service
 @Configuration
@@ -60,12 +60,11 @@ public class FdTemplate implements Template {
     }
 
     @Autowired
-    public void setClientConfiguration(ClientConfiguration clientConfiguration){
+    public void setClientConfiguration(ClientConfiguration clientConfiguration) {
         this.clientConfiguration = clientConfiguration;
     }
 
     /**
-     *
      * @return Implementation of the IO interface being used to communicate with the service
      */
     @Override
@@ -73,8 +72,8 @@ public class FdTemplate implements Template {
         return fdIoInterface;
     }
 
-  @Autowired(required = false)
-    public void setFdIoInterface (FdIoInterface fdIoInterface){
+    @Autowired(required = false)
+    public void setFdIoInterface(FdIoInterface fdIoInterface) {
         this.fdIoInterface = fdIoInterface;
     }
 
@@ -95,18 +94,21 @@ public class FdTemplate implements Template {
 
     @Override
     public void writeEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException {
-        if (fdIoInterface == null)
+        if (fdIoInterface == null) {
             throw new FlockException("No valid FdIoHandler could be found. Please provide an implementation");
+        }
         try {
             entityLock.lock();
 
             if (entityInputBean != null) {
 
-                if (entityInputBean.getFortress() == null)
+                if (entityInputBean.getFortress() == null) {
                     throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via a content model with the fortressName attribute.");
+                }
 
-                if (!validDocumentType(entityInputBean))
+                if (!validDocumentType(entityInputBean)) {
                     throw new FlockException("Unable to resolve the document type name that defines this entity. Add this via a content model with the documentName attribute.");
+                }
 
                 int existingIndex = getExistingIndex(entityInputBean);
 
@@ -149,14 +151,16 @@ public class FdTemplate implements Template {
      */
     private int getExistingIndex(EntityInputBean entityInputBean) {
         int existingIndex = -1;
-        if (entityInputBean.getCode() != null || entityInputBean.getKey() != null)
+        if (entityInputBean.getCode() != null || entityInputBean.getKey() != null) {
             existingIndex = entityBatch.indexOf(entityInputBean);
+        }
         return existingIndex;
     }
 
     private void writeTags(Collection<TagInputBean> tagInputBeans, boolean forceFlush) throws FlockException {
-        if ( tagInputBeans== null )
+        if (tagInputBeans == null) {
             return;
+        }
         try {
             tagLock.lock();
             for (TagInputBean tagInputBean : tagInputBeans) {
@@ -170,14 +174,16 @@ public class FdTemplate implements Template {
                     tagBatch.put(getTagKey(tagInputBean), tagInputBean);
                 }
 
-                if (tagBatch.size() > 0)
+                if (tagBatch.size() > 0) {
                     if (forceFlush || tagBatch.size() >= clientConfiguration.getBatchSize()) {
                         logger.debug("Writing Tag Batch [{}]", tagBatch.size());
-                        if (tagBatch.size() > 0)
+                        if (tagBatch.size() > 0) {
                             fdIoInterface.writeTags(new ArrayList<>(tagBatch.values()));
+                        }
                         logger.debug("Wrote Tag Batch");
                         tagBatch = new HashMap<>();
                     }
+                }
             }
 
         } finally {
@@ -200,9 +206,9 @@ public class FdTemplate implements Template {
         for (TagInputBean tag : entityInputBeans.getTags()) {
             String tagKey = getTagKey(tag);
             TagInputBean cachedTag = tagBatch.get(tagKey);
-            if (cachedTag == null)
+            if (cachedTag == null) {
                 tagBatch.put(tagKey, tag);
-            else {
+            } else {
                 cachedTag.mergeTags(tag);
             }
         }
@@ -218,8 +224,9 @@ public class FdTemplate implements Template {
             entityLock.lock();
             try {
                 writeTags(null, true);
-                if (entityBatch.size() > 0)
+                if (entityBatch.size() > 0) {
                     fdIoInterface.writeEntities(entityBatch);
+                }
                 entityBatch.clear();
             } catch (FlockException e) {
                 logger.error(e.getMessage());

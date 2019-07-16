@@ -16,6 +16,8 @@
 
 package org.flockdata.test.unit.batch;
 
+import static org.junit.Assert.assertEquals;
+
 import org.flockdata.integration.Template;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.test.unit.client.AbstractImport;
@@ -24,8 +26,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author mholdsworth

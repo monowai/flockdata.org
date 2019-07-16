@@ -20,6 +20,10 @@
 
 package org.flockdata.test.engine.unit;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.engine.data.dao.MatrixDaoNeo4j;
 import org.flockdata.engine.matrix.FdNode;
 import org.flockdata.helper.CypherHelper;
@@ -29,15 +33,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author mholdsworth
- * @since 12/06/2014
  * @tag Test, Query
+ * @since 12/06/2014
  */
 public class TestQueryParameters {
     @Test

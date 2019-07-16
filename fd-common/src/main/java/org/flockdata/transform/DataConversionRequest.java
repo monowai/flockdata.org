@@ -20,9 +20,8 @@
 
 package org.flockdata.transform;
 
-import org.flockdata.data.ContentModel;
-
 import java.util.Collection;
+import org.flockdata.data.ContentModel;
 
 /**
  * Transforms raw data to typed data via ContentModel column definition

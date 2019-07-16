@@ -25,7 +25,6 @@ import org.flockdata.data.ContentModel;
 
 
 /**
- *
  * Handles extraction configurations for converting Mappable objects via a ContentProfile
  * This is the default deserialized Pojo
  *
@@ -35,21 +34,21 @@ import org.flockdata.data.ContentModel;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExtractProfileHandler implements ExtractProfile {
 
-    private String documentName=null;
-    private ContentType contentType=null;
+    private String documentName = null;
+    private ContentType contentType = null;
     private String handler = null;
     private String delimiter = null;
     private String quoteCharacter = null;
     private Boolean header = true;
-    private String preParseRowExp=null;
+    private String preParseRowExp = null;
     private ContentModel contentModel = null;
 
-    private String condition =null; // an expression that determines if the row will be processed
+    private String condition = null; // an expression that determines if the row will be processed
 
 
     public ExtractProfileHandler() {
         this.header = true;
-        this.contentType=ContentType.CSV;
+        this.contentType = ContentType.CSV;
     }
 
     public ExtractProfileHandler(ContentModel contentModel) {
@@ -76,11 +75,11 @@ public class ExtractProfileHandler implements ExtractProfile {
     @Override
     public String toString() {
         return "ImportProfile{" +
-                "documentName='" + documentName + '\'' +
-                ", contentType=" + contentType +
-                ", handler='" + handler + '\'' +
-                ", delimiter=" + delimiter +
-                '}';
+            "documentName='" + documentName + '\'' +
+            ", contentType=" + contentType +
+            ", handler='" + handler + '\'' +
+            ", delimiter=" + delimiter +
+            '}';
     }
 
     @Override
@@ -124,10 +123,12 @@ public class ExtractProfileHandler implements ExtractProfile {
 
     @Override
     public char getDelimiter() {
-        if ( delimiter ==null )
+        if (delimiter == null) {
             return ',';
-        if (delimiter.equals("\t"))
+        }
+        if (delimiter.equals("\t")) {
             return '\t';
+        }
         return delimiter.charAt(0);
     }
 
@@ -157,20 +158,25 @@ public class ExtractProfileHandler implements ExtractProfile {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ExtractProfileHandler)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ExtractProfileHandler)) {
+            return false;
+        }
 
         ExtractProfileHandler that = (ExtractProfileHandler) o;
 
-        if (preParseRowExp != null ? !preParseRowExp.equals(that.preParseRowExp) : that.preParseRowExp != null)
+        if (preParseRowExp != null ? !preParseRowExp.equals(that.preParseRowExp) : that.preParseRowExp != null) {
             return false;
+        }
         return condition != null ? condition.equals(that.condition) : that.condition == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result =  (preParseRowExp != null ? preParseRowExp.hashCode() : 0);
+        int result = (preParseRowExp != null ? preParseRowExp.hashCode() : 0);
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
         return result;
     }

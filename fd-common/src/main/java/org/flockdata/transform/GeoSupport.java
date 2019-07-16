@@ -20,6 +20,8 @@
 
 package org.flockdata.transform;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.flockdata.helper.FlockException;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.referencing.CRS;
@@ -28,8 +30,6 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.slf4j.Logger;
-
-import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Wraps a call to transform points to a WGS84 geo format
@@ -48,16 +48,16 @@ public class GeoSupport {
 
 
             MathTransform mathTransform
-                    = CRS.findMathTransform(sourceCrs, targetCrs, true);
+                = CRS.findMathTransform(sourceCrs, targetCrs, true);
 
             DirectPosition srcDirectPosition2D
-                    = new DirectPosition2D(sourceCrs, x, y);
+                = new DirectPosition2D(sourceCrs, x, y);
 
             DirectPosition destDirectPosition2D
-                    = new DirectPosition2D();
+                = new DirectPosition2D();
 
             return mathTransform.transform(srcDirectPosition2D, destDirectPosition2D).getCoordinate();
-        } catch ( Exception e ){
+        } catch (Exception e) {
             logger.error("Geo conversion exception ", e);
             return null;
         }

@@ -17,12 +17,11 @@
 package org.flockdata.search;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.flockdata.helper.JsonUtils;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.flockdata.helper.JsonUtils;
 
 public class EsSearchRequestResult {
 
@@ -30,7 +29,7 @@ public class EsSearchRequestResult {
     private Collection<SearchResult> results;
     private long totalHits;
     private int startedFrom;
-    private Map<String,Object>what;
+    private Map<String, Object> what;
     private String index;
     private String entityType;
     private String fdSearchError;
@@ -41,7 +40,7 @@ public class EsSearchRequestResult {
 
     public EsSearchRequestResult(EsSearchRequestResult results) {
         this();
-        totalHits= results.getStartedFrom();
+        totalHits = results.getStartedFrom();
         totalHits = results.getTotalHits();
         this.results = results.getResults();
 
@@ -55,7 +54,7 @@ public class EsSearchRequestResult {
         this.fdSearchError = fdSearchError;
     }
 
-    public EsSearchRequestResult(byte[] json){
+    public EsSearchRequestResult(byte[] json) {
         this.json = json;
     }
 
@@ -79,8 +78,8 @@ public class EsSearchRequestResult {
         this.results = results;
     }
 
-    public Map<String,Object>getRawResults() {
-        if ( json !=null ){
+    public Map<String, Object> getRawResults() {
+        if (json != null) {
             try {
                 return JsonUtils.toMap(json);
             } catch (IOException e) {

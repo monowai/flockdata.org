@@ -19,7 +19,7 @@ package org.flockdata.spring.bean;
 import org.flockdata.track.bean.ContentInputBean;
 
 /**
- * @author  nabil
+ * @author nabil
  * @since 05/09/2013
  * To change this template use File | Settings | File Templates.
  */
@@ -32,8 +32,9 @@ class EntityResultBean {
     }
 
     String getKey() {
-        if (contentInputBean != null)
+        if (contentInputBean != null) {
             return contentInputBean.getKey();
+        }
         return null;
     }
 

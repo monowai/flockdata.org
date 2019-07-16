@@ -25,8 +25,9 @@ import org.flockdata.data.Company;
 
 /**
  * Callers view of an FD Company
- * @tag Contract
+ *
  * @author mike
+ * @tag Contract
  * @tag
  * @since 1/01/17
  */
@@ -35,9 +36,10 @@ public class CompanyResultBean implements Company {
     private String apiKey;
     private String name;
 
-    CompanyResultBean(){
+    CompanyResultBean() {
 
     }
+
     public CompanyResultBean(Company company) {
         this();
         this.name = company.getName();

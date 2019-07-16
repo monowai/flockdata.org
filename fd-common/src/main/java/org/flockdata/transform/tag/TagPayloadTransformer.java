@@ -20,6 +20,9 @@
 
 package org.flockdata.transform.tag;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.TagInputBean;
@@ -28,16 +31,12 @@ import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.model.PayloadTransformer;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
 /**
  * Transforms the Map in to a suitable TagInput payload
  *
  * @author mholdsworth
- * @since 27/04/2014
  * @tag Tag, ContentModel, Transformer, Helper
+ * @since 27/04/2014
  */
 public class TagPayloadTransformer implements PayloadTransformer {
 
@@ -57,8 +56,9 @@ public class TagPayloadTransformer implements PayloadTransformer {
     }
 
     protected Map<String, Object> transform(Map<String, Object> row, ContentModel contentModel) throws FlockException {
-        if (!TransformationHelper.processRow(row, contentModel))
+        if (!TransformationHelper.processRow(row, contentModel)) {
             return null;
+        }
 
         Map<String, ColumnDefinition> content = contentModel.getContent();
 
@@ -68,8 +68,9 @@ public class TagPayloadTransformer implements PayloadTransformer {
             Object colValue = row.get(column);
             // colValue may yet be an expression
             value = (colValue != null ? colValue.toString() : null);
-            if (value != null)
+            if (value != null) {
                 value = value.trim();
+            }
 
             if (colDef != null && colDef.isTag()) {
 
@@ -78,22 +79,25 @@ public class TagPayloadTransformer implements PayloadTransformer {
                 TransformationHelper.setTagInputBean(tagInputBean, row, column, contentModel, value);
                 if (TransformationHelper.evaluate(colDef.isTitle())) {
                     tagInputBean.setName(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
-                    if (colDef.getCode() != null)
+                    if (colDef.getCode() != null) {
                         row.get(colDef.getCode());
+                    }
                 }
 
                 if (colDef.getLabelDescription() != null) {
                     value = ExpressionHelper.getValue(row, colDef.getLabelDescription(), colDef, row.get(column));
                     Object oValue = ExpressionHelper.getValue(value, colDef);
-                    if (oValue != null)
+                    if (oValue != null) {
                         tagInputBean.setDescription(oValue.toString());
+                    }
 
                 }
                 if (colDef.getTarget() != null && TransformationHelper.evaluate(colDef.isPersistent(), true)) {
                     value = ExpressionHelper.getValue(row, colDef.getValue(), colDef, row.get(column));
                     Object oValue = ExpressionHelper.getValue(value, colDef);
-                    if (oValue != null)
+                    if (oValue != null) {
                         tagInputBean.setProperty(colDef.getTarget(), oValue);
+                    }
                 }
                 if (colDef.getGeoData() != null) {
                     TransformationHelper.doGeoTransform(tagInputBean, row, colDef);

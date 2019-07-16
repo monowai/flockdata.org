@@ -20,6 +20,17 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.dao.ConceptDaoNeo;
@@ -29,20 +40,21 @@ import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.test.helper.ContentDataHelper;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.track.bean.EntityToEntityLinkInput;
+import org.flockdata.track.bean.SearchChange;
+import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.springframework.data.neo4j.conversion.Result;
 
-import java.util.*;
-
-import static org.junit.Assert.*;
-
 /**
  * @author mholdsworth
- * @since 1/04/2014
  * @tag Test, Entity, Relationship
+ * @since 1/04/2014
  */
 public class TestEntityCrossLink extends EngineBase {
 
@@ -50,9 +62,9 @@ public class TestEntityCrossLink extends EngineBase {
 
     /**
      * Foundation assumption.
-     *
+     * <p>
      * The parent already exists. We want to link a child entity to it
-     *
+     * <p>
      * Cypher pattern is Parent-[]->Child
      *
      * @throws Exception
@@ -73,9 +85,9 @@ public class TestEntityCrossLink extends EngineBase {
 
         EntityInputBean child = new EntityInputBean(fortressA, "wally", "DocTypeZ", new DateTime(), "ABC321");
         child.addEntityLink(PARENT_RLX,
-                new EntityKeyBean(parent.getDocumentType().getName(), parentResult.getEntity().getFortress(),parent.getCode())
-                        .setRelationshipName(PARENT_RLX)
-                        .setParent(true));
+            new EntityKeyBean(parent.getDocumentType().getName(), parentResult.getEntity().getFortress(), parent.getCode())
+                .setRelationshipName(PARENT_RLX)
+                .setParent(true));
         TrackResultBean childResult = mediationFacade.trackEntity(su.getCompany(), child);
 
         EntityKeyBean parentKey = new EntityKeyBean(parent.getDocumentType().getName(), parent.getFortress(), parent.getCode());
@@ -86,7 +98,7 @@ public class TestEntityCrossLink extends EngineBase {
         entityService.linkEntities(su.getCompany(), childKey, parents, PARENT_RLX);
 
 
-        String cypher = "match (parent:Entity)-[p:"+ PARENT_RLX +"]->(child:Entity) where id(parent)={parentId} return child";
+        String cypher = "match (parent:Entity)-[p:" + PARENT_RLX + "]->(child:Entity) where id(parent)={parentId} return child";
         Map<String, Object> params = new HashMap<>();
         params.put("parentId", parentResult.getEntity().getId());
         Result<Map<String, Object>> results = neo4jTemplate.query(cypher, params);
@@ -163,13 +175,13 @@ public class TestEntityCrossLink extends EngineBase {
         // DAT-443 - Request to xreference with an entity that does not yet exist.
         // Will only work when both the fortress and doctype are known i.e. not a DocType of "*"
         callerRefs.add(
-                new EntityKeyBean(trackResultBean.getDocumentType().getName(), fib, "ABC321")
-                        .setMissingAction(EntityKeyBean.ACTION.CREATE));
+            new EntityKeyBean(trackResultBean.getDocumentType().getName(), fib, "ABC321")
+                .setMissingAction(EntityKeyBean.ACTION.CREATE));
 
         EntityKeyBean sourceKey = new EntityKeyBean(new EntityToEntityLinkInput(inputBean));
 
         Collection<EntityKeyBean> results = entityService.linkEntities(su.getCompany(), sourceKey, callerRefs, "anyrlx");
-        TestCase.assertTrue("",results.isEmpty());
+        TestCase.assertTrue("", results.isEmpty());
 
         inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC321");
         ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
@@ -328,9 +340,9 @@ public class TestEntityCrossLink extends EngineBase {
 
         // These are the two records that will cite the previously created entity
         EntityInputBean inputBeanB = new EntityInputBean(fortressA, "wally", "DocTypeZ", new DateTime(), "ABC321");
-            mediationFacade.trackEntity(su.getCompany(), inputBeanB);
+        mediationFacade.trackEntity(su.getCompany(), inputBeanB);
         EntityInputBean inputBeanC = new EntityInputBean(fortressB, "wally", "DocTypeS", new DateTime(), "ABC333");
-            mediationFacade.trackEntity(su.getCompany(), inputBeanC);
+        mediationFacade.trackEntity(su.getCompany(), inputBeanC);
 
         // Add back in the previously removed entity links for the next process call
         entityKeys.add(new EntityKeyBean("DocTypeZ", fortressA, "ABC321"));

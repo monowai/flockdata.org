@@ -16,6 +16,8 @@
 
 package org.flockdata.test.unit;
 
+import static junit.framework.TestCase.assertNotNull;
+
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.Exchanges;
@@ -27,22 +29,20 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static junit.framework.TestCase.assertNotNull;
-
 /**
  * @author mike
  * @tag
  * @since 17/12/16
  */
 @ContextConfiguration(classes = {
-        ClientConfiguration.class,
-        AmqpRabbitConfig.class,
-        Exchanges.class,
-        FileProcessor.class
+    ClientConfiguration.class,
+    AmqpRabbitConfig.class,
+    Exchanges.class,
+    FileProcessor.class
 
 })
 @RunWith(SpringRunner.class)
-@ActiveProfiles({"dev"})
+@ActiveProfiles( {"dev"})
 public class TestWiring {
     @Autowired
     private ClientConfiguration clientConfiguration;

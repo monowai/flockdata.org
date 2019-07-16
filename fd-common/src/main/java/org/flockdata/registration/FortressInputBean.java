@@ -19,14 +19,13 @@ package org.flockdata.registration;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.io.Serializable;
+import java.util.Locale;
+import java.util.TimeZone;
 import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.Segment;
 import org.flockdata.track.bean.CompanyInputBean;
-
-import java.io.Serializable;
-import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * Represents the input to create a fortress
@@ -84,8 +83,9 @@ public class FortressInputBean implements Serializable, Fortress {
 
     public FortressInputBean setName(String name) {
         this.name = name;
-        if (this.code == null)
+        if (this.code == null) {
             this.code = name;
+        }
         return this;
     }
 
@@ -95,7 +95,7 @@ public class FortressInputBean implements Serializable, Fortress {
     }
 
     @Override
-    @JsonDeserialize(as=CompanyInputBean.class)
+    @JsonDeserialize(as = CompanyInputBean.class)
     public Company getCompany() {
         return company; // This is derived from the caller
     }
@@ -143,8 +143,9 @@ public class FortressInputBean implements Serializable, Fortress {
      */
     public FortressInputBean setTimeZone(String timeZone) {
         if (timeZone != null) {
-            if (!TimeZone.getTimeZone(timeZone).getID().equals(timeZone))
+            if (!TimeZone.getTimeZone(timeZone).getID().equals(timeZone)) {
                 throw new IllegalArgumentException(timeZone + " was not recognized");
+            }
             this.timeZone = timeZone;
         }
         return this;
@@ -168,8 +169,9 @@ public class FortressInputBean implements Serializable, Fortress {
 
     public FortressInputBean setLanguageTag(String languageTag) {
         if (languageTag != null) {
-            if ("und".equals(Locale.forLanguageTag(languageTag).toLanguageTag()))
+            if ("und".equals(Locale.forLanguageTag(languageTag).toLanguageTag())) {
                 throw new IllegalArgumentException(languageTag + " was not recognized");
+            }
             this.languageTag = languageTag;
         }
         return this;
@@ -178,9 +180,9 @@ public class FortressInputBean implements Serializable, Fortress {
     @Override
     public String toString() {
         return "FortressInputBean{" +
-                "name='" + name + '\'' +
-                ", searchEnabled=" + searchEnabled +
-                '}';
+            "name='" + name + '\'' +
+            ", searchEnabled=" + searchEnabled +
+            '}';
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -228,16 +230,27 @@ public class FortressInputBean implements Serializable, Fortress {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FortressInputBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FortressInputBean)) {
+            return false;
+        }
 
         FortressInputBean that = (FortressInputBean) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (searchEnabled != null ? !searchEnabled.equals(that.searchEnabled) : that.searchEnabled != null)
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
-        if (storeEnabled != null ? !storeEnabled.equals(that.storeEnabled) : that.storeEnabled != null) return false;
-        if (fortressKey != null ? !fortressKey.equals(that.fortressKey) : that.fortressKey != null) return false;
+        }
+        if (searchEnabled != null ? !searchEnabled.equals(that.searchEnabled) : that.searchEnabled != null) {
+            return false;
+        }
+        if (storeEnabled != null ? !storeEnabled.equals(that.storeEnabled) : that.storeEnabled != null) {
+            return false;
+        }
+        if (fortressKey != null ? !fortressKey.equals(that.fortressKey) : that.fortressKey != null) {
+            return false;
+        }
         return code != null ? code.equals(that.code) : that.code == null;
 
     }

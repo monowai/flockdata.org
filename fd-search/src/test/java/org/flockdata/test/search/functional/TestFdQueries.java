@@ -20,9 +20,20 @@
 
 package org.flockdata.test.search.functional;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.flockdata.data.Entity;
-import org.flockdata.search.*;
+import org.flockdata.search.EntityKeyResults;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.EsSearchRequestResult;
+import org.flockdata.search.QueryParams;
+import org.flockdata.search.SearchChanges;
+import org.flockdata.search.SearchResult;
+import org.flockdata.search.SearchResults;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.test.helper.ContentDataHelper;
 import org.junit.Test;
@@ -30,18 +41,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Map;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * @author mholdsworth
  * @since 27/04/2015
  */
 @RunWith(SpringRunner.class)
-public class TestFdQueries extends ESBase{
+public class TestFdQueries extends ESBase {
 
     @Autowired
     QueryServiceEs queryServiceEs;
@@ -56,7 +61,7 @@ public class TestFdQueries extends ESBase{
         String user = "mike";
 
         Entity entity = getEntity(company, fortress, user, doc);
-        assertNotNull ( entity.getName());
+        assertNotNull(entity.getName());
 
         deleteEsIndex(entity);
         EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
@@ -72,13 +77,13 @@ public class TestFdQueries extends ESBase{
         assertNotNull(searchResult);
         assertNotNull(searchResult.getSearchKey());
         Thread.sleep(2000);
-        
+
         QueryParams queryParams = new QueryParams(entity.getSegment());
         queryParams.setCompany(company);
         queryParams.setSearchText("*");
         // Exactly one document in the index
         EsSearchRequestResult queryResult = queryServiceEs.doFdViewSearch(queryParams);
-        assertNotNull( queryResult.getResults());
+        assertNotNull(queryResult.getResults());
         assertEquals(1, queryResult.getResults().size());
         assertEquals(entity.getKey(), queryResult.getResults().iterator().next().getKey());
         assertEquals(entity.getName(), queryResult.getResults().iterator().next().getName());
@@ -159,6 +164,7 @@ public class TestFdQueries extends ESBase{
         assertEquals(2, queryResult.getResults().size());
 
     }
+
     @Test
     public void query_EsPassthrough() throws Exception {
         Map<String, Object> json = ContentDataHelper.getBigJsonText(20);

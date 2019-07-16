@@ -22,6 +22,7 @@ import org.flockdata.data.Log;
 
 /**
  * Used to talk with the fd-store about entity content
+ *
  * @author mholdsworth
  * @since 17/02/2016
  */
@@ -34,17 +35,21 @@ public class LogRequest {
     private String checkSum;
     private String type;
 
-    public LogRequest(){}
-    public LogRequest(Entity entity ) {
+    public LogRequest() {
+    }
+
+    public LogRequest(Entity entity) {
         this.entity = entity;
         this.logId = entity.getId();
         this.store = Store.NONE;
 
     }
-    public LogRequest(Entity entity, Log log ){
+
+    public LogRequest(Entity entity, Log log) {
         this(entity);
-        if ( !log.isMocked())
+        if (!log.isMocked()) {
             this.logId = log.getId();
+        }
         this.store = Store.valueOf(log.getStorage());
         this.contentType = log.getContentType();
         this.checkSum = log.getChecksum();
@@ -65,10 +70,10 @@ public class LogRequest {
     @Override
     public String toString() {
         return "LogRequest{" +
-                "store=" + store +
-                ", logId=" + logId +
-                ", entity=" + entity.getKey() +
-                '}';
+            "store=" + store +
+            ", logId=" + logId +
+            ", entity=" + entity.getKey() +
+            '}';
     }
 
     public String getContentType() {

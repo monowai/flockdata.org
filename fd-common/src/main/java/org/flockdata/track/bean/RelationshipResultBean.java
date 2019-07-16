@@ -22,16 +22,15 @@ package org.flockdata.track.bean;
 
 
 /**
- *
  * Encapsulates a relationship name that is the connection between a DocType and a Concept
  *
  * @author mholdsworth
- * @since 20/05/2015
  * @tag Contract, Relationship, Query
+ * @since 20/05/2015
  */
-public class RelationshipResultBean  {
+public class RelationshipResultBean {
 
-    private String name ;
+    private String name;
 
     RelationshipResultBean() {
     }
@@ -49,14 +48,18 @@ public class RelationshipResultBean  {
     @Override
     public String toString() {
         return "RelationshipResultBean{" +
-                ", name='" + name + '\'' +
-                '}';
+            ", name='" + name + '\'' +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof RelationshipResultBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RelationshipResultBean)) {
+            return false;
+        }
 
         RelationshipResultBean that = (RelationshipResultBean) o;
 

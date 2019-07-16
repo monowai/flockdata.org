@@ -21,14 +21,27 @@
 package org.flockdata.company.service;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.authentication.SystemUserService;
 import org.flockdata.company.dao.FortressDaoNeo;
-import org.flockdata.data.*;
+import org.flockdata.data.Company;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
+import org.flockdata.data.SystemUser;
 import org.flockdata.engine.admin.PlatformConfig;
 import org.flockdata.engine.data.dao.ConceptDaoNeo;
-import org.flockdata.engine.data.graph.*;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.FortressSegmentNode;
+import org.flockdata.engine.data.graph.FortressUserNode;
 import org.flockdata.engine.track.service.FortressService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -45,11 +58,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -86,8 +94,9 @@ public class FortressServiceNeo4j implements FortressService {
     //    @Cacheable(value = "fortressCode", unless = "#result == null")
     @Override
     public FortressNode findByName(Company company, String fortressName) throws NotFoundException {
-        if (fortressName == null)
+        if (fortressName == null) {
             throw new NotFoundException("Unable to lookup a fortress name with a null value");
+        }
         return fortressDao.getFortressByName(company.getId(), fortressName);
     }
 
@@ -121,7 +130,7 @@ public class FortressServiceNeo4j implements FortressService {
     /**
      * Returns an object representing the user in the supplied fortress. User is created
      * if it does not exist
-     *
+     * <p>
      * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
      * string to enforce this
      *
@@ -132,15 +141,16 @@ public class FortressServiceNeo4j implements FortressService {
     @Override
     public FortressUserNode getFortressUser(Company company, String fortressName, String fortressUser) throws NotFoundException {
         FortressNode fortress = findByName(company, fortressName);
-        if (fortress == null)
+        if (fortress == null) {
             return null;
+        }
         return getFortressUser(fortress, fortressUser, true);
     }
 
     /**
      * Returns an object representing the user in the supplied fortress. User is created
      * if it does not exist
-     *
+     * <p>
      * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
      * string to enforce this
      *
@@ -156,47 +166,55 @@ public class FortressServiceNeo4j implements FortressService {
     @Override
     public FortressUserNode getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
-            //throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
+        //throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
+        {
             return null;
+        }
 
         FortressUserNode result = fortressDao.getFortressUser(fortress.getId(), fortressUser.toLowerCase());
-        if (createIfMissing && result == null)
+        if (createIfMissing && result == null) {
             result = addFortressUser(fortress, fortressUser.toLowerCase().trim());
+        }
         return result;
     }
 
     private FortressUserNode addFortressUser(Fortress fortress, String fortressUser) {
-        if (fortress == null)
+        if (fortress == null) {
             throw new IllegalArgumentException("Unable to find requested fortress");
+        }
         logger.trace("Request to add fortressUser [{}], [{}]", fortress, fortressUser);
 
         Company company = fortress.getCompany();
         // this should never happen
-        if (company == null)
+        if (company == null) {
             throw new IllegalArgumentException("[" + fortress.getName() + "] has no owner");
+        }
 
-        return fortressDao.save((FortressNode)fortress, fortressUser);
+        return fortressDao.save((FortressNode) fortress, fortressUser);
 
     }
 
     @Override
     public Collection<FortressResultBean> findFortresses() throws FlockException {
         Company company = securityHelper.getCompany();
-        if (company == null)
+        if (company == null) {
             return new ArrayList<>();
+        }
         return findFortresses(company);
 
     }
 
     @Override
     public Collection<FortressResultBean> findFortresses(Company company) throws FlockException {
-        if (company == null)
+        if (company == null) {
             throw new FlockException("Unable to identify the requested company");
+        }
         Collection<FortressNode> fortresses = fortressDao.findFortresses(company.getId());
         Collection<FortressResultBean> results = new ArrayList<>(fortresses.size());
         for (FortressNode fortress : fortresses) {
-            if ( !fortress.isSystem())
+            if (!fortress.isSystem()) {
                 results.add(new FortressResultBean(fortress));
+            }
         }
         return results;
 
@@ -231,7 +249,7 @@ public class FortressServiceNeo4j implements FortressService {
     @Override
     public FortressNode registerFortress(Company company, String fortressName) {
         FortressInputBean fib = new FortressInputBean(fortressName,
-                !engineConfig.isSearchEnabled());
+            !engineConfig.isSearchEnabled());
         return registerFortress(company, fib, true);
 
     }
@@ -242,21 +260,24 @@ public class FortressServiceNeo4j implements FortressService {
         FortressNode fortress = fortressDao.getFortressByCode(company.getId(), fib.getCode());
         boolean storeEnabled = engineConfig.storeEnabled();
         if (fortress != null) {
-            if ( fib.isStoreEnabled()!=null)
+            if (fib.isStoreEnabled() != null) {
                 fortress.setStoreEnabled(fib.isStoreEnabled());
-            else
+            } else {
                 fortress.setStoreEnabled(storeEnabled);
+            }
 
-            if ( fib.isSearchEnabled()!=null)
+            if (fib.isSearchEnabled() != null) {
                 fortress.setSearchEnabled(fib.isSearchEnabled());
+            }
 
             logger.debug("Found existing Fortress {} for Company {}", fortress, company);
             fortressDao.save(fortress);
             return fortress;
         }
         if (createIfMissing) {
-            if (fib.isStoreEnabled() == null)
+            if (fib.isStoreEnabled() == null) {
                 fib.setStoreEnabled(storeEnabled);
+            }
             fortress = save(company, fib);
             logger.debug("Created fortress {}", fortress);
             fortress.setCompany(company);
@@ -272,8 +293,9 @@ public class FortressServiceNeo4j implements FortressService {
     @Override
     public Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) throws NotFoundException {
         FortressNode fortress = findByCode(company, code);
-        if (fortress == null)
+        if (fortress == null) {
             fortress = findByName(company, code);
+        }
         if (fortress == null) {
             return new ArrayList<>();
         }
@@ -289,8 +311,9 @@ public class FortressServiceNeo4j implements FortressService {
     @Override
     public Fortress getFortress(Company company, String fortressCode) throws NotFoundException {
         FortressNode fortress = fortressDao.getFortressByCode(company.getId(), fortressCode);
-        if (fortress == null)
+        if (fortress == null) {
             throw new NotFoundException("Unable to locate the fortress " + fortressCode);
+        }
         return fortress;
     }
 
@@ -299,16 +322,18 @@ public class FortressServiceNeo4j implements FortressService {
         FortressNode fortress;
         fortress = findByCode(company, fortressCode);
 
-        if (fortress == null)
-            return "Not Found "+ fortressCode;
+        if (fortress == null) {
+            return "Not Found " + fortressCode;
+        }
 
         return fortressDao.delete(fortress);
     }
 
     @Override
     public FortressUserNode createFortressUser(Fortress fortress, ContentInputBean inputBean) {
-        if (inputBean.getFortressUser() != null)
+        if (inputBean.getFortressUser() != null) {
             return getFortressUser(fortress, inputBean.getFortressUser(), true);
+        }
 
         return null;
     }
@@ -325,8 +350,9 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Override
     public Segment addSegment(Segment segment) {
-        if (segment.getFortress() == null)
+        if (segment.getFortress() == null) {
             throw new IllegalArgumentException("Could not associate a fortress with the segment");
+        }
 //        if ( segment.getCode().equals(FortressSegment.DEFAULT))
 //            throw new IllegalArgumentException("Can not use {} as the segment code", segment.getCode());
         return fortressDao.saveSegment(segment);
@@ -345,8 +371,9 @@ public class FortressServiceNeo4j implements FortressService {
         Segment segment;
 
         fortress = findByCode(company, fortressInput.getName());
-        if (fortress == null)
+        if (fortress == null) {
             fortress = findByName(company, fortressInput.getName());
+        }
         if (fortress == null) {
             fortress = registerFortress(company, fortressInput, true);
             //resolvedFortresses.put(fortress.getCode(), fortress);
@@ -374,11 +401,11 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Override
     public FortressNode findInternalFortress(Company company) {
-        String internal = "fd-system-"+company.getId(); // Content models are stored against the internal fortress for the company
+        String internal = "fd-system-" + company.getId(); // Content models are stored against the internal fortress for the company
         FortressNode systemFortress = findByName(company, internal);
-        if ( systemFortress== null ){
+        if (systemFortress == null) {
             systemFortress = save(company, new FortressInputBean(internal)
-                    .setSystem(true));
+                .setSystem(true));
 
         }
         return systemFortress;
@@ -402,8 +429,9 @@ public class FortressServiceNeo4j implements FortressService {
         EntityTagFinder tagFinder = tagFinders.get(entity.getId());
         if (tagFinder == null) {
             DocumentNode documentType = findDocumentType(entity);
-            if (documentType == null || documentType.getTagStructure() == null || documentType.getTagStructure() == EntityTag.TAG_STRUCTURE.DEFAULT)
+            if (documentType == null || documentType.getTagStructure() == null || documentType.getTagStructure() == EntityTag.TAG_STRUCTURE.DEFAULT) {
                 return EntityTag.TAG_STRUCTURE.DEFAULT; // The docType *should* exist
+            }
             if (documentType.getTagStructure() == EntityTag.TAG_STRUCTURE.TAXONOMY) {
                 return EntityTag.TAG_STRUCTURE.TAXONOMY;
             }
@@ -412,10 +440,11 @@ public class FortressServiceNeo4j implements FortressService {
     }
 
     public DocumentNode findDocumentType(Entity entity) {
-        FortressNode f = (FortressNode)entity.getFortress();
+        FortressNode f = (FortressNode) entity.getFortress();
 
-        if (f.getCompany() == null)
+        if (f.getCompany() == null) {
             f = getFortress(f.getId());
+        }
 
         String docType = entity.getType();
         return conceptDao.findDocumentType(f, docType, false);

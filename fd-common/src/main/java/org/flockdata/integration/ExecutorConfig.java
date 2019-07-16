@@ -20,6 +20,8 @@
 
 package org.flockdata.integration;
 
+import java.util.concurrent.Executor;
+import javax.annotation.PostConstruct;
 import org.flockdata.helper.ExecutorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +32,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
-
-import javax.annotation.PostConstruct;
-import java.util.concurrent.Executor;
 
 /**
  * FlockData TaskExecutors
@@ -90,7 +89,7 @@ public class ExecutorConfig extends AsyncConfigurerSupport {
 
     @Bean(name = "fd-engine")
     public Executor engineExecutor() {
-        return getExecutor( "fd-engine", enginePoolSize, Integer.parseInt(engineQueueCapacity)  );
+        return getExecutor("fd-engine", enginePoolSize, Integer.parseInt(engineQueueCapacity));
     }
 
     @Bean(name = "fd-log")
@@ -113,8 +112,8 @@ public class ExecutorConfig extends AsyncConfigurerSupport {
         return getExecutor("fd-store", storePoolSize, Integer.parseInt(storeQueueCapacity));
     }
 
-    private Executor getExecutor(String name, String poolSize, int  qCapacity) {
-       return ExecutorHelper.getExecutor(name, poolSize, qCapacity);
+    private Executor getExecutor(String name, String poolSize, int qCapacity) {
+        return ExecutorHelper.getExecutor(name, poolSize, qCapacity);
     }
 
     @PostConstruct

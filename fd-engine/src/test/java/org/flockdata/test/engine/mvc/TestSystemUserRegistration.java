@@ -20,6 +20,15 @@
 
 package org.flockdata.test.engine.mvc;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
@@ -31,20 +40,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * @author mholdsworth
+ * @tag Test, SystemUser, MVC
  * @since 28/08/2014
- * @tag Test,SystemUser, MVC
  */
 public class TestSystemUserRegistration extends MvcBase {
 
@@ -64,7 +63,7 @@ public class TestSystemUserRegistration extends MvcBase {
 
         // Retry the operation
         SystemUserResultBean regResult
-                = registerSystemUser(mike(),
+            = registerSystemUser(mike(),
             RegistrationBean.builder().companyName(ANYCO)
                 .login("new-user")
                 .email("anyone@anywhere.com")
@@ -101,24 +100,24 @@ public class TestSystemUserRegistration extends MvcBase {
         int runnerCount = 10;
         CountDownLatch startLatch = new CountDownLatch(1);
 
-        int count =0;
-        Collection<DataAccessRunner>runners = new ArrayList<>();
+        int count = 0;
+        Collection<DataAccessRunner> runners = new ArrayList<>();
         ExecutorService executor = Executors.newCachedThreadPool();
 
-        while (count < runnerCount){
+        while (count < runnerCount) {
             DataAccessRunner runner = new DataAccessRunner(count, startLatch);
             executor.execute(runner);
-            runners.add( runner);
-            count ++;
+            runners.add(runner);
+            count++;
         }
         startLatch.countDown(); // Start the runners
-        Collection<Integer>completed = new ArrayList<>();
+        Collection<Integer> completed = new ArrayList<>();
 
-        int finishCount =0 ;
-        while (finishCount != runners.size()){
+        int finishCount = 0;
+        while (finishCount != runners.size()) {
             for (DataAccessRunner runner : runners) {
 
-                if ( !completed.contains(runner.id) && runner.finished){
+                if (!completed.contains(runner.id) && runner.finished) {
                     completed.add(runner.id);
                     finishCount++;
                     assertTrue(runner.worked);
@@ -131,10 +130,10 @@ public class TestSystemUserRegistration extends MvcBase {
     SystemUserResultBean registerSystemUser(RequestPostProcessor user, RegistrationBean register) throws Exception {
 
         MvcResult response = mvc().perform(MockMvcRequestBuilders.post(MvcBase.apiPath + "/profiles/")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(register)
-                )
-                .with(user)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JsonUtils.toJson(register)
+            )
+            .with(user)
         ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
 
         return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), SystemUserResultBean.class);
@@ -143,8 +142,8 @@ public class TestSystemUserRegistration extends MvcBase {
     SystemUserResultBean getMe(RequestPostProcessor user) throws Exception {
 
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath + "/profiles/me/")
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(user)
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(user)
 
         ).andReturn();
 
@@ -186,7 +185,7 @@ public class TestSystemUserRegistration extends MvcBase {
             } finally {
                 startLatch.countDown();
             }
-            finished =true;
+            finished = true;
         }
     }
 

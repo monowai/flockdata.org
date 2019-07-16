@@ -16,12 +16,12 @@
 
 package org.flockdata.data;
 
-import org.joda.time.DateTime;
-
 import java.util.Map;
+import org.joda.time.DateTime;
 
 /**
  * Container representing a uniquely identifiable piece of data
+ *
  * @author mike
  * @tag Entity
  * @since 1/01/17
@@ -40,7 +40,7 @@ public interface Entity {
     String getName();
 
     /**
-     * @return  lower case type of the entity
+     * @return lower case type of the entity
      */
     String getType();
 
@@ -51,19 +51,16 @@ public interface Entity {
     FortressUser getCreatedBy();
 
     /**
-     *
      * @return user defined properties to be recorded against the entity
      */
     Map<String, Object> getProperties();
 
     /**
-     *
      * @return is indexing this entity in the search system suppressed
      */
     boolean isSearchSuppressed();
 
     /**
-     *
      * @return unique identifier within the search service
      */
     String getSearchKey();
@@ -81,31 +78,26 @@ public interface Entity {
     DateTime getFortressCreatedTz();
 
     /**
-     *
      * @return is this entity new to FlockData?
      */
     boolean isNewEntity();
 
     /**
-     *
      * @return true if there are no logs for this entity
      */
     boolean isNoLogs();
 
     /**
-     *
      * @return computer system that owns this entity
      */
     Fortress getFortress();
 
     /**
-     *
      * @return the segment that this entity exist in
      */
     Segment getSegment();
 
     /**
-     *
      * @return last known event to occur against this entity
      */
     String getEvent();

@@ -16,17 +16,16 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+
+import java.util.List;
 import org.flockdata.data.ContentModel;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfile;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
-
-import java.util.List;
-
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Date helper functional tests
@@ -37,18 +36,18 @@ import static junit.framework.TestCase.assertNotNull;
 public class TestDateParsing extends AbstractImport {
 
     @Test
-    public void testSegmentsEvaluate() throws Exception{
+    public void testSegmentsEvaluate() throws Exception {
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/date-calculation.json");
         ExtractProfile importProfile = new ExtractProfileHandler(contentModel, true)
-                .setDelimiter("\t");
+            .setDelimiter("\t");
 
         fileProcessor.processFile(importProfile, "/data/date-calculation.txt");
         List<EntityInputBean> entities = fdTemplate.getEntities();
 
         assertEquals(1, entities.size());
-         // Asserts that the Dates helper class is doing its thing
+        // Asserts that the Dates helper class is doing its thing
         for (EntityInputBean entity : entities) {
-            assertNotNull( entity.getSegment());
+            assertNotNull(entity.getSegment());
             //2015-04-28
             assertEquals("2015-04-28-02", entity.getSegment());
         }

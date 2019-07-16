@@ -20,7 +20,15 @@
 
 package org.flockdata.search.service;
 
-import org.flockdata.search.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import javax.annotation.PostConstruct;
+import org.flockdata.search.EntitySearchChange;
+import org.flockdata.search.EsSearchResult;
+import org.flockdata.search.SearchChanges;
+import org.flockdata.search.SearchResult;
+import org.flockdata.search.SearchResults;
+import org.flockdata.search.TagSearchChange;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.IndexMappingService;
 import org.flockdata.search.base.SearchWriter;
@@ -36,16 +44,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Collection;
-
 /**
  * Service endpoint to write incoming search requests via an ElasticSearch implementation
  *
  * @author mholdsworth
- * @since 15/02/2016
  * @tag ElasticSearch, Entity, Search
+ * @since 15/02/2016
  */
 @Service
 @Qualifier("esSearchWriter")
@@ -59,7 +63,7 @@ public class EsSearchWriter implements SearchWriter {
 
     private final TagChangeWriter tagWriter;
 
-    private boolean fdServer =false;
+    private boolean fdServer = false;
 
     private GraphResultGateway graphGateway;
 
@@ -80,7 +84,7 @@ public class EsSearchWriter implements SearchWriter {
 
     /**
      * Triggered by the Coordinator, this is the payload that is required to be indexed
-     *
+     * <p>
      * Handles scenarios where the content exists or doesn't
      *
      * @param changes to process
@@ -110,12 +114,13 @@ public class EsSearchWriter implements SearchWriter {
             indexMappingService.ensureIndexMapping(searchChange);
 
             EsSearchResult result;
-            if (searchChange.isType(SearchChange.Type.ENTITY))
+            if (searchChange.isType(SearchChange.Type.ENTITY)) {
                 result = new EsSearchResult(
-                        entityWriter.handle((EntitySearchChange) searchChange));
-            else
+                    entityWriter.handle((EntitySearchChange) searchChange));
+            } else {
                 result = new EsSearchResult(
-                        tagWriter.handle((TagSearchChange) searchChange));
+                    tagWriter.handle((TagSearchChange) searchChange));
+            }
 
 
             // Used to tie the fact that the doc was updated back to the engine
@@ -129,11 +134,11 @@ public class EsSearchWriter implements SearchWriter {
         results = new SearchResults();
         results.setSearchResults(searchResults);
 
-        if ( results.isEmpty()){
+        if (results.isEmpty()) {
             logger.debug("No results to return");
-        } else if ( !fdServer) {
+        } else if (!fdServer) {
             // Manually checking as @Profile does not seem to work with an @MessageGateway
-            logger.debug( "Engine Result Gateway is not enabled. ");
+            logger.debug("Engine Result Gateway is not enabled. ");
         } else {
             graphGateway.writeSearchResult(results);
             logger.debug("Processed {} requests. Returning [{}] SearchResults", results.getSearchResults().size(), results.getSearchResults().size());
@@ -142,6 +147,7 @@ public class EsSearchWriter implements SearchWriter {
         return results;
 
     }
+
     @PostConstruct
     void logStatus() {
         logger.debug("**** Deployed EsSearchWriter.  EngineResultGateway {}", graphGateway != null);

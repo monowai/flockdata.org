@@ -20,6 +20,11 @@
 
 package org.flockdata.engine.query.endpoint;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.engine.query.service.MatrixService;
@@ -29,23 +34,26 @@ import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.search.*;
+import org.flockdata.search.EntityKeyResults;
+import org.flockdata.search.EsSearchRequestResult;
+import org.flockdata.search.QueryParams;
+import org.flockdata.search.TagCloud;
+import org.flockdata.search.TagCloudParams;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.MatrixInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Query track services
+ *
  * @author mholdsworth
- * @since 5/04/2014
  * @tag Query, Matrix
+ * @since 5/04/2014
  */
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/query")
@@ -68,9 +76,10 @@ public class QueryEP {
     @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public EsSearchRequestResult searchQueryParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
         CompanyNode company = CompanyResolver.resolveCompany(request);
-        EsSearchRequestResult result =  queryService.search(company, queryParams);
-        if (result.getFdSearchError()!=null )
+        EsSearchRequestResult result = queryService.search(company, queryParams);
+        if (result.getFdSearchError() != null) {
             throw new FlockException(result.getFdSearchError());
+        }
         return result;
     }
 
@@ -94,11 +103,13 @@ public class QueryEP {
         queryParams.setCompany(company.getName());
 
         EsSearchRequestResult result = queryService.search(company, queryParams);
-        if (result.getJson() == null)
+        if (result.getJson() == null) {
             throw new NotFoundException("No search results were found");
+        }
 
-        if (result.getFdSearchError()!=null )
+        if (result.getFdSearchError() != null) {
             throw new FlockException(result.getFdSearchError());
+        }
 
         return JsonUtils.toMap(result.getJson());
     }

@@ -20,11 +20,10 @@
 
 package org.flockdata.transform.model;
 
+import java.util.Map;
 import org.flockdata.helper.FlockException;
 import org.flockdata.transform.entity.EntityPayloadTransformer;
 import org.flockdata.transform.tag.TagPayloadTransformer;
-
-import java.util.Map;
 
 /**
  * Interface to support transformation of Map data into a target object
@@ -32,17 +31,16 @@ import java.util.Map;
  * @author mholdsworth
  * @since 20/11/2013
  */
-public interface PayloadTransformer
-{
+public interface PayloadTransformer {
 
     /**
-     * @see EntityPayloadTransformer
-     * @see TagPayloadTransformer
      * @param map raw input data
      * @return transformed data
      * @throws FlockException transformation issues
+     * @see EntityPayloadTransformer
+     * @see TagPayloadTransformer
      */
-    Map<String,Object> transform(Map<String, Object> map) throws FlockException;
+    Map<String, Object> transform(Map<String, Object> map) throws FlockException;
 
 
 }

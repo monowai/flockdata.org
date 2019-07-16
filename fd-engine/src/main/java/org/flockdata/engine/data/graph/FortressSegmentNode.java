@@ -26,11 +26,15 @@ import org.flockdata.data.Fortress;
 import org.flockdata.data.Segment;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.Fetch;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
- * @tag Fortress, Segment, Entity
  * @author mholdsworth
+ * @tag Fortress, Segment, Entity
  * @since 13/10/2015
  */
 
@@ -47,18 +51,21 @@ public class FortressSegmentNode implements Segment {
     @Indexed(unique = true)
     private String key;
 
-    FortressSegmentNode() {}
+    FortressSegmentNode() {
+    }
 
     public FortressSegmentNode(Fortress fortress) {
         this(fortress, Fortress.DEFAULT);
-        this.fortress = (FortressNode)fortress;
+        this.fortress = (FortressNode) fortress;
     }
+
     public FortressSegmentNode(Fortress fortress, String code) {
         this();
-        this.fortress = (FortressNode)fortress;
+        this.fortress = (FortressNode) fortress;
         this.code = code;
-        if ( fortress == null)
+        if (fortress == null) {
             throw new IllegalArgumentException("An invalid fortress was passed in");
+        }
         this.key = Fortress.key(fortress.getCode(), code);
     }
 
@@ -96,14 +103,24 @@ public class FortressSegmentNode implements Segment {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FortressSegmentNode)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FortressSegmentNode)) {
+            return false;
+        }
 
         FortressSegmentNode segment = (FortressSegmentNode) o;
 
-        if (id != null ? !id.equals(segment.id) : segment.id != null) return false;
-        if (code != null ? !code.equals(segment.code) : segment.code != null) return false;
-        if (key != null ? !key.equals(segment.key) : segment.key != null) return false;
+        if (id != null ? !id.equals(segment.id) : segment.id != null) {
+            return false;
+        }
+        if (code != null ? !code.equals(segment.code) : segment.code != null) {
+            return false;
+        }
+        if (key != null ? !key.equals(segment.key) : segment.key != null) {
+            return false;
+        }
         return !(fortress != null ? !fortress.getId().equals(segment.fortress.getId()) : segment.fortress.getId() != null);
 
     }
@@ -120,8 +137,8 @@ public class FortressSegmentNode implements Segment {
     @Override
     public String toString() {
         return "FortressSegment{" +
-                "code='" + code + '\'' +
-                "key='" + key + '\'' +
-                '}';
+            "code='" + code + '\'' +
+            "key='" + key + '\'' +
+            '}';
     }
 }

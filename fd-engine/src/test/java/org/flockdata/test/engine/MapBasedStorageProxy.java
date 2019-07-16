@@ -31,14 +31,13 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
- *
  * Simple map based storage proxy for testing. Overrides methods and imports the basic MapRepo from kv-store
  *
  * @author mholdsworth
  * @since 18/02/2016
  */
 @Service
-@Profile({"dev"})
+@Profile( {"dev"})
 public class MapBasedStorageProxy extends FdStorageProxy {
     @Autowired
     private InMemoryRepo inMemoryRepo;
@@ -51,7 +50,7 @@ public class MapBasedStorageProxy extends FdStorageProxy {
 
     @Override
     public StoredContent read(LogRequest logRequest) {
-        return inMemoryRepo.read( logRequest);
+        return inMemoryRepo.read(logRequest);
     }
 
 }

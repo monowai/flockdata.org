@@ -20,6 +20,11 @@
 
 package org.flockdata.test.engine.services;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+
 import junit.framework.TestCase;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.Segment;
@@ -35,9 +40,6 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.*;
-
 /**
  * Data for a given fortress+docType can be segmented for easier management
  * This class tests fundamental assertions about the functionality
@@ -45,39 +47,39 @@ import static junit.framework.TestCase.*;
  * @author mholdsworth
  * @since 13/10/2015
  */
-public class TestFortressSegments extends EngineBase{
+public class TestFortressSegments extends EngineBase {
 
     @Test
-    public void fortressHasDefaultSegment() throws Exception{
+    public void fortressHasDefaultSegment() throws Exception {
         SystemUser su = registerSystemUser("testDefaultSegment");
         FortressNode fortress = createFortress(su);
-        assertNotNull ( fortress.getDefaultSegment());
+        assertNotNull(fortress.getDefaultSegment());
         Segment segment = fortressService.getDefaultSegment(fortress);
-        assertNotNull ( segment);
+        assertNotNull(segment);
         assertEquals(Fortress.DEFAULT, segment.getCode());
         assertTrue(segment.isDefault());
     }
 
     @Test
-    public void addSegmentToExistingFortress() throws Exception{
+    public void addSegmentToExistingFortress() throws Exception {
         SystemUser su = registerSystemUser("addSegmentToExistingFortress");
         FortressNode fortress = createFortress(su);
         Segment segment = new FortressSegmentNode(fortress, "SecondSegment");
         Segment createdSegment = fortressService.addSegment(segment);
-        assertNotNull( createdSegment);
-        assertTrue(createdSegment.getId() >0 );
+        assertNotNull(createdSegment);
+        assertTrue(createdSegment.getId() > 0);
 
         TestCase.assertEquals(2, fortressService.getSegments(fortress).size());
     }
 
     @Test
-    public void addDuplicateSegment() throws Exception{
+    public void addDuplicateSegment() throws Exception {
         SystemUser su = registerSystemUser("addDuplicateSegment");
         FortressNode fortress = createFortress(su);
         Segment segment = new FortressSegmentNode(fortress, "SecondSegment");
         Segment createdSegment = fortressService.addSegment(segment);
-        assertNotNull( createdSegment);
-        assertTrue(createdSegment.getId() >0 );
+        assertNotNull(createdSegment);
+        assertTrue(createdSegment.getId() > 0);
 
         Segment duplicateSegment = fortressService.addSegment(segment);
         TestCase.assertEquals(createdSegment.getId(), duplicateSegment.getId());
@@ -86,7 +88,7 @@ public class TestFortressSegments extends EngineBase{
     }
 
     @Test
-    public void segmentsForDocumentType() throws Exception{
+    public void segmentsForDocumentType() throws Exception {
         SystemUser su = registerSystemUser("segmentsForDocumentType");
         FortressNode fortress = createFortress(su);
         EntityInputBean inputBeanA = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "111");
@@ -100,19 +102,19 @@ public class TestFortressSegments extends EngineBase{
         mediationFacade.trackEntity(su.getCompany(), inputBeanB);
         mediationFacade.trackEntity(su.getCompany(), inputBeanC);
         DocumentNode documentType = conceptService.findDocumentType(fortress, resultBean.getDocumentType().getName());
-        DocumentNode resolved = conceptService.findDocumentTypeWithSegments( documentType);
+        DocumentNode resolved = conceptService.findDocumentTypeWithSegments(documentType);
         assertEquals(2, resolved.getSegments().size());
     }
 
     @Test
-    public void createSegmentForIllegalFortress() throws Exception{
+    public void createSegmentForIllegalFortress() throws Exception {
         exception.expect(IllegalArgumentException.class);
         new FortressSegmentNode(null, "SecondSegment");
 
     }
 
     @Test
-    public void moveEntityAcrossSegments() throws Exception{
+    public void moveEntityAcrossSegments() throws Exception {
         logger.debug("### moveEntityAcrossSegments");
         engineConfig.setTestMode(true); // Force sync processing of the content and log
 

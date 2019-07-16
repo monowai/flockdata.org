@@ -23,8 +23,18 @@ package org.flockdata.engine.model.service;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import javax.transaction.Transactional;
 import org.flockdata.authentication.SecurityHelper;
-import org.flockdata.data.*;
+import org.flockdata.data.Company;
+import org.flockdata.data.ContentModel;
+import org.flockdata.data.Document;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Model;
 import org.flockdata.engine.data.dao.ContentModelDaoNeo;
 import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.data.graph.FortressNode;
@@ -33,7 +43,11 @@ import org.flockdata.engine.tag.MediationFacade;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.EntityService;
 import org.flockdata.engine.track.service.FortressService;
-import org.flockdata.helper.*;
+import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.helper.NotFoundException;
+import org.flockdata.helper.TagHelper;
 import org.flockdata.model.ColumnValidationResult;
 import org.flockdata.model.ContentModelResult;
 import org.flockdata.model.ContentValidationRequest;
@@ -53,25 +67,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
 /**
  * @author mholdsworth
- * @since 3/10/2014
  * @tag Service, ContentModel
+ * @since 3/10/2014
  */
 @Service
 @Transactional
 public class ContentModelServiceNeo implements ContentModelService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper(new FdJsonObjectMapper())
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .enable(JsonParser.Feature.ALLOW_COMMENTS);
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .enable(JsonParser.Feature.ALLOW_COMMENTS);
     private final ContentModelDaoNeo contentModelDao;
     private final FortressService fortressService;
     private final EntityService entityService;
@@ -92,8 +99,9 @@ public class ContentModelServiceNeo implements ContentModelService {
     public ContentModel get(Company company, Fortress fortress, Document documentType) throws FlockException {
         Model model = contentModelDao.find(fortress, documentType);
 
-        if (model == null)
+        if (model == null) {
             throw new NotFoundException(String.format("Unable to locate and import model for [%s], [%s]", fortress.getCode(), documentType.getName()));
+        }
 
         // Serialized content profile is stored in a log. Here we retrieve the last saved one
         // but we could return the entire history
@@ -166,8 +174,8 @@ public class ContentModelServiceNeo implements ContentModelService {
     /**
      * Identifies the ContentProfile as being a belonging to a specific Fortress/Document combo
      *
-     * @param company     owner of the model
-     * @param fortress      system the model belongs to
+     * @param company      owner of the model
+     * @param fortress     system the model belongs to
      * @param documentType type of document
      * @param contentModel data
      * @return result of execution
@@ -205,11 +213,13 @@ public class ContentModelServiceNeo implements ContentModelService {
     @Override
     public ContentModel get(Company company, String fortressCode, String documentCode) throws FlockException {
         FortressNode fortress = fortressService.findByCode(company, fortressCode);
-        if (fortress == null)
+        if (fortress == null) {
             throw new NotFoundException("Unable to locate the fortress " + fortressCode);
+        }
         DocumentNode documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
-        if (documentType == null)
+        if (documentType == null) {
             throw new NotFoundException("Unable to resolve document type " + documentCode);
+        }
 
         return get(company, fortress, documentType);
     }
@@ -240,8 +250,9 @@ public class ContentModelServiceNeo implements ContentModelService {
     public ContentModel getTagModel(Company company, String code) throws FlockException {
         Model model = contentModelDao.findTagProfile(company, TagHelper.parseKey(code));
 
-        if (model == null)
+        if (model == null) {
             throw new NotFoundException(String.format("Unable to locate and tag profile for [%s]", code));
+        }
 
         // Serialized content profile is stored in a log. Here we retrieve the last saved one
         // but we could return the entire history
@@ -258,8 +269,9 @@ public class ContentModelServiceNeo implements ContentModelService {
     @Retryable
     public void delete(Company company, String key) {
         ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
-        if (model != null)
+        if (model != null) {
             contentModelDao.delete(company, model.getKey());
+        }
 
     }
 
@@ -269,8 +281,9 @@ public class ContentModelServiceNeo implements ContentModelService {
         assert contentRequest.getContentModel() != null;
         ContentValidationResults validatedContent = new ContentValidationResults();
 
-        if ( contentRequest.getRows() == null)
+        if (contentRequest.getRows() == null) {
             return validatedContent;
+        }
 
         int row = 0;
         if (contentRequest.getContentModel().isTagModel()) {
@@ -279,10 +292,10 @@ public class ContentModelServiceNeo implements ContentModelService {
                 validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel().getContent()));
                 try {
                     validatedContent.add(row, Transformer.toTags(dataRow, contentRequest.getContentModel()));
-                } catch ( Exception e){
+                } catch (Exception e) {
                     validatedContent.addMessage(row, e.getMessage());
                 }
-                row ++;
+                row++;
             }
 
         } else {// do entity
@@ -290,10 +303,10 @@ public class ContentModelServiceNeo implements ContentModelService {
                 validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel().getContent()));
                 try {
                     validatedContent.add(row, Transformer.toEntity(dataRow, contentRequest.getContentModel()));
-                } catch ( Exception e){
+                } catch (Exception e) {
                     validatedContent.addMessage(row, e.getMessage());
                 }
-                row ++;
+                row++;
             }
 
 
@@ -304,11 +317,11 @@ public class ContentModelServiceNeo implements ContentModelService {
     /**
      * Validate the data against the expressions in the ContentModel
      *
-     * @param row   data to validate
+     * @param row                 data to validate
      * @param columnDefinitionMap validate against this
      * @return Identified validation errors
      */
-    private Collection<ColumnValidationResult> validate(Map<String,Object>row, Map<String,ColumnDefinition> columnDefinitionMap){
+    private Collection<ColumnValidationResult> validate(Map<String, Object> row, Map<String, ColumnDefinition> columnDefinitionMap) {
         Collection<ColumnValidationResult> results = new ArrayList<>();
 
         for (String source : columnDefinitionMap.keySet()) {
@@ -316,19 +329,21 @@ public class ContentModelServiceNeo implements ContentModelService {
             ColumnDefinition column = columnDefinitionMap.get(source);
             String sourceColumn = column.getSource();
             try {
-                if ( sourceColumn  == null )
+                if (sourceColumn == null) {
                     sourceColumn = source;
+                }
 
                 Object oVal = row.get(sourceColumn);
 
                 Object o = ExpressionHelper.getValue(row, column.getValue(), column, oVal);
-                if (o == null && column.getValue()!=null)
-                    messages.add("Null was calculated for express ["+column.getValue() +"]");
-                if ( !Transformer.isValidForEs(sourceColumn)){
+                if (o == null && column.getValue() != null) {
+                    messages.add("Null was calculated for express [" + column.getValue() + "]");
+                }
+                if (!Transformer.isValidForEs(sourceColumn)) {
                     messages.add(sourceColumn + " is not valid for ElasticSearch");
                 }
-            } catch (Exception e){
-                messages.add( e.getMessage() );
+            } catch (Exception e) {
+                messages.add(e.getMessage());
             }
             results.add(new ColumnValidationResult(source, columnDefinitionMap.get(source), messages).setExpression(column.getValue()));
 
@@ -339,8 +354,9 @@ public class ContentModelServiceNeo implements ContentModelService {
     @Override
     public ContentModel createDefaultContentModel(ContentValidationRequest contentRequest) {
         ContentModel result = contentRequest.getContentModel();
-        if (result == null)
+        if (result == null) {
             result = new ContentModelHandler();
+        }
 
         result.setContent(Transformer.fromMapToModel(contentRequest.getRows()));
         return result;

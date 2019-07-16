@@ -20,6 +20,10 @@
 
 package org.flockdata.engine.concept.service;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Future;
+import javax.transaction.HeuristicRollbackException;
 import org.flockdata.data.Segment;
 import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.track.service.ConceptService;
@@ -37,15 +41,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.HeuristicRollbackException;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Future;
-
 /**
  * @author mholdsworth
- * @since 2/12/2014
  * @tag Track, DocumentType
+ * @since 2/12/2014
  */
 @Service
 @Async("fd-engine")
@@ -63,10 +62,10 @@ public class DocTypeRetryService {
      * Handles linked entities which may be part of the EntityInputBean.
      * Ensures the segment also exists for the linked Entities
      *
-     * @param segment   all InputBeans are deemed to belong to this segment
+     * @param segment    all InputBeans are deemed to belong to this segment
      * @param inputBeans collection of Entities from which to find DocumentTypes and linked Entities
      * @return Collection of DocumentType objects that were created
-     * @exception FlockException business exception
+     * @throws FlockException business exception
      */
     @Retryable(include = {TransactionFailureException.class, HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Future<Collection<DocumentNode>> createDocTypes(Segment segment, List<EntityInputBean> inputBeans) throws FlockException {

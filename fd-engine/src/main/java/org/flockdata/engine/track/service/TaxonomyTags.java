@@ -20,6 +20,10 @@
 
 package org.flockdata.engine.track.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.Tag;
 import org.flockdata.engine.data.graph.EntityNode;
@@ -34,18 +38,13 @@ import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Assume the tag connected to the entity is a Term tag with a path to an Interest tag.
  * Neo4j then walks the path to return the path between the two.
  * When it gets back to a term then we are walking the second path etc.
- *
+ * <p>
  * Returns only this specific structure, but the approach can be reused for integration
-
+ * <p>
  * In-progress custom version of how to retrieve a hierarchical structure of tags. Can do with
  * figuring out how to allow deployment outside of org.flockdata and ability to customize the
  * path being looked for
@@ -86,7 +85,7 @@ public class TaxonomyTags implements EntityTagFinder {
                     if (label.equals("Term")) {
                         //term = null;
                         term = terms.get(node.getId());
-                        if ( term == null ) {
+                        if (term == null) {
                             TagNode tag = template.projectTo(node, TagNode.class);
 
                             // ETO is arbitrary
@@ -96,16 +95,16 @@ public class TaxonomyTags implements EntityTagFinder {
                             terms.put(tag.getId(), term);
                             results.add(term);
                         }
-                    } else if ( term !=null ) {
+                    } else if (term != null) {
                         label = CypherHelper.getLabel(node.getLabels());
 
                         TagNode tag = template.projectTo(node, TagNode.class);
-                        Collection<Tag> codes = term.getTag().getSubTags( label.toLowerCase());
+                        Collection<Tag> codes = term.getTag().getSubTags(label.toLowerCase());
                         if (codes == null) {
                             codes = new ArrayList<>();
-                            ((TagNode)term.getTag()).addSubTag( label.toLowerCase(), codes);
+                            ((TagNode) term.getTag()).addSubTag(label.toLowerCase(), codes);
                         }
-                        if ( !codes.contains(tag)) {
+                        if (!codes.contains(tag)) {
                             codes.add(tag);
                         }
 

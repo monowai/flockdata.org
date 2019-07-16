@@ -20,18 +20,24 @@
 
 package org.flockdata.test.engine.mvc;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
+
+import java.util.Collection;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.test.engine.services.TestQueryResults;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ConceptResultBean;
+import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityTagResult;
+import org.flockdata.track.bean.TrackRequestResult;
 import org.joda.time.DateTime;
 import org.junit.Test;
-
-import java.util.Collection;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.*;
 
 /**
  * @author mholdsworth
@@ -117,7 +123,7 @@ public class TestDocEP extends MvcBase {
         FortressResultBean fortress = makeFortress(mike(), "make_DocTypes");
 
         DocumentTypeInputBean docType = new DocumentTypeInputBean("docName")
-                .setCode("docCode");
+            .setCode("docCode");
 
 
         login(mike_admin, "123");
@@ -130,8 +136,6 @@ public class TestDocEP extends MvcBase {
         assertNull(result.getSegments());
 
     }
-
-
 
 
 }

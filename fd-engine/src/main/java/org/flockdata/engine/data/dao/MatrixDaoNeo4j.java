@@ -20,6 +20,11 @@
 
 package org.flockdata.engine.data.dao;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import org.flockdata.data.Company;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.integration.search.EntityKeyQuery.EntityKeyGateway;
@@ -45,10 +50,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.util.*;
-
 /**
  * Neo4j matrix queries
+ *
  * @author mholdsworth
  * @tag Neo4j, Matrix, Query
  */
@@ -69,25 +73,29 @@ public class MatrixDaoNeo4j implements MatrixDao {
     public static Collection<? extends FdNode> setTargetTags(Collection<FdNode> fdNodes, Collection<Object> neoNodes) {
         for (Object neoNode : neoNodes) {
             FdNode fdNode = new FdNode((Node) neoNode);
-            if (!fdNodes.contains(fdNode))
+            if (!fdNodes.contains(fdNode)) {
                 fdNodes.add(fdNode);
+            }
         }
         return fdNodes;
     }
 
-    @Autowired(required = false) // Functional tests don't require gateways
-    void setEntityKeyGateway (EntityKeyGateway entityKeyGateway){
+    @Autowired(required = false)
+        // Functional tests don't require gateways
+    void setEntityKeyGateway(EntityKeyGateway entityKeyGateway) {
         this.entityKeyGateway = entityKeyGateway;
     }
 
     @Override
     public MatrixResults buildMatrix(Company company, MatrixInputBean input) throws FlockException {
 
-        if (company == null)
+        if (company == null) {
             throw new FlockException("Authorised company could not be identified");
+        }
 
-        if (input.getCypher() != null)
+        if (input.getCypher() != null) {
             return buildMatrixFromCypher(company, input);
+        }
 
         return buildMatrixWithSearch(company, input);
     }
@@ -96,15 +104,17 @@ public class MatrixDaoNeo4j implements MatrixDao {
         // DAT-109 enhancements
         EntityKeyResults entityKeyResults = null;
 
-        if (input.getQueryString() == null)
+        if (input.getQueryString() == null) {
             input.setQueryString("*");
+        }
 
         if (input.getSampleSize() > 0) {
-            if (input.getSampleSize() > input.getMaxEdges())
+            if (input.getSampleSize() > input.getMaxEdges()) {
                 input.setSampleSize(input.getMaxEdges()); // Neo4j can't handle any more in it's where clause
+            }
             try {
                 entityKeyResults = entityKeyGateway.keys(getQueryParams(company, input));
-            } catch ( ResourceAccessException e){
+            } catch (ResourceAccessException e) {
                 throw new FlockServiceException("The search service is not currently available so we cannot execute your query");
             }
         }
@@ -116,17 +126,18 @@ public class MatrixDaoNeo4j implements MatrixDao {
         String fromRlx = CypherHelper.getRelationships(input.getFromRlxs());
         String toRlx = CypherHelper.getRelationships(input.getToRlxs());
         String conceptString = "";
-        if (!conceptsFrom.equals(""))
+        if (!conceptsFrom.equals("")) {
             conceptString = "where (" + conceptsFrom + ")";
+        }
         if (!conceptsTo.equals("")) {
             conceptString = conceptString + " and ( " + conceptsTo + ") ";
         }
         boolean docFilter = !(docIndexes.equals(":Entity") || docIndexes.equals(""));
         //ToDo: MultiTenant requires restriction by Company
         String entityFilter;
-        if (entityKeyResults == null)
+        if (entityKeyResults == null) {
             entityFilter = (docFilter ? " where " + docIndexes : "");
-        else {
+        } else {
 
             entityFilter = " where entity.key in {0}";
         }
@@ -141,19 +152,20 @@ public class MatrixDaoNeo4j implements MatrixDao {
         }
 
         String query = "match (entity:Entity) " + entityFilter +
-                " with entity " +
-                "match t=(tag1:Tag)-[" + fromRlx + " ]-(entity)-[" + toRlx + " ]-(tag2:Tag) " +     // Concepts
-                conceptString +
-                "with tag1, tag2, count(t) as links " + sumCol +
+            " with entity " +
+            "match t=(tag1:Tag)-[" + fromRlx + " ]-(entity)-[" + toRlx + " ]-(tag2:Tag) " +     // Concepts
+            conceptString +
+            "with tag1, tag2, count(t) as links " + sumCol +
 
-                (input.getMinCount() > 1 ? "where links >={linkCount} " : "") +
-                "return tag1, collect(tag2) as tag2, " +
-                "collect( links) as occurrenceCount " + sumVal;
+            (input.getMinCount() > 1 ? "where links >={linkCount} " : "") +
+            "return tag1, collect(tag2) as tag2, " +
+            "collect( links) as occurrenceCount " + sumVal;
 
         Map<String, Object> params = new HashMap<>();
 
-        if ( entityKeyResults!=null)
-            params.put("0",entityKeyResults.getResults() );
+        if (entityKeyResults != null) {
+            params.put("0", entityKeyResults.getResults());
+        }
         params.put("linkCount", input.getMinCount());
 
         Collection<FdNode> nodes = new ArrayList<>();
@@ -175,7 +187,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         Map<String, Object> uniqueKeys = new HashMap<>();
         while (rows.hasNext()) {
             if (edgeResults.getEdgeResults().size() > input.getMaxEdges()) {
-                String message = "Excessive amount of data was requested "+edgeResults.getEdgeResults().size()+" vs. limit of "+input.getMaxEdges()+". Try increasing the minimum occurrences, applying a search filter or reducing the sample size";
+                String message = "Excessive amount of data was requested " + edgeResults.getEdgeResults().size() + " vs. limit of " + input.getMaxEdges() + ". Try increasing the minimum occurrences, applying a search filter or reducing the sample size";
                 logger.error(message);
                 throw new FlockException(message);
             }
@@ -183,43 +195,47 @@ public class MatrixDaoNeo4j implements MatrixDao {
             Map<String, Object> row = rows.next();
             Collection<Object> tag2 = (Collection<Object>) row.get(conceptToCol);
             Collection<Object> occ;
-            if (row.containsKey("sumValues"))
+            if (row.containsKey("sumValues")) {
                 occ = (Collection<Object>) row.get("sumValues");
-            else
+            } else {
                 occ = (Collection<Object>) row.get("occurrenceCount");
+            }
 
-            Node conceptFrom = (Node)row.get(conceptFmCol);
+            Node conceptFrom = (Node) row.get(conceptFmCol);
 
             if (input.isByKey()) {
                 // Edges will be indexed by Id. This will set the Name values in to the Node collection
                 FdNode source = new FdNode(conceptFrom);
                 //Collection<Object> targetIds = (Collection<Object>) row.get("tag2Ids");
                 Collection<Object> targetVals = (Collection<Object>) row.get("tag2");
-                if (!nodes.contains(source))
+                if (!nodes.contains(source)) {
                     nodes.add(source);
+                }
                 setTargetTags(nodes, targetVals);
             }
 
             Iterator<Object> concept = tag2.iterator();
             Iterator<Object> occurrence = occ.iterator();
             while (concept.hasNext() && occurrence.hasNext()) {
-                Node conceptTo = (Node)concept.next();
+                Node conceptTo = (Node) concept.next();
                 String conceptKey = conceptFrom.getId() + "/" + conceptTo.getId();
-                boolean selfRlx = conceptFrom.getId()==conceptTo.getId();
+                boolean selfRlx = conceptFrom.getId() == conceptTo.getId();
 
                 if (!selfRlx) {
                     String inverseKey = conceptTo.getId() + "/" + conceptFrom.getId();
                     if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
                         Number value;
 
-                        if (input.isSumByCol())
+                        if (input.isSumByCol()) {
                             value = Double.parseDouble(occurrence.next().toString());
-                        else
+                        } else {
                             value = Long.parseLong(occurrence.next().toString());
+                        }
 
                         edgeResults.addResult(new EdgeResult(conceptFrom, conceptTo, value));
-                        if (input.isReciprocalExcluded())
+                        if (input.isReciprocalExcluded()) {
                             uniqueKeys.put(conceptKey, true);
+                        }
                     }
                 }
             }
@@ -230,8 +246,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
         results.setNodes(nodes);
 
         results.setSampleSize(input.getSampleSize());
-        if (entityKeyResults != null)
+        if (entityKeyResults != null) {
             results.setTotalHits(entityKeyResults.getTotalHits());
+        }
         return results;
     }
 
@@ -255,8 +272,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
 
                     edgeResults.addResult(new EdgeResult(conceptFrom, conceptTo, 0));
-                    if (input.isReciprocalExcluded())
+                    if (input.isReciprocalExcluded()) {
                         uniqueKeys.put(conceptKey, true);
+                    }
 
 
                 }
@@ -274,8 +292,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
         for (String fortressName : input.getFortresses()) {
             try {
                 FortressNode fortress = fortressService.findByName(company, fortressName);
-                if (fortress != null)
+                if (fortress != null) {
                     qp.setFortress(fortress.getCode());
+                }
             } catch (NotFoundException e) {
                 throw new FlockException("Unable to locate fortress " + fortressName);
             }

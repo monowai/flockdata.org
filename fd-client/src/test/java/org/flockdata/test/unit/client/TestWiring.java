@@ -45,22 +45,22 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 17/12/16
  */
 @ContextConfiguration(classes = {
-        ClientConfiguration.class,
-        FdTemplate.class,
-        FdClientIo.class,
-        FdRabbitClient.class,
-        Login.class,
-        SearchEsPost.class,
-        AmqpRabbitConfig.class,
-        Exchanges.class,
-        ModelGet.class,
-        ModelPost.class,
-        ModelFieldStructure.class,
-        FileProcessor.class
+    ClientConfiguration.class,
+    FdTemplate.class,
+    FdClientIo.class,
+    FdRabbitClient.class,
+    Login.class,
+    SearchEsPost.class,
+    AmqpRabbitConfig.class,
+    Exchanges.class,
+    ModelGet.class,
+    ModelPost.class,
+    ModelFieldStructure.class,
+    FileProcessor.class
 
 })
 @RunWith(SpringRunner.class)
-@ActiveProfiles({"fd-client"})
+@ActiveProfiles( {"fd-client"})
 public class TestWiring {
 
     @Autowired

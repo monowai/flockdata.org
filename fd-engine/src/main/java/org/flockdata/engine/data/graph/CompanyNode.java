@@ -20,20 +20,19 @@
 
 package org.flockdata.engine.data.graph;
 
+import java.io.Serializable;
 import org.flockdata.data.Company;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 
-import java.io.Serializable;
-
 /**
  * @author mholdsworth
  * @tag Node, Company
  */
 @NodeEntity
-@TypeAlias(value ="FDCompany")
+@TypeAlias(value = "FDCompany")
 public class CompanyNode implements Serializable, Company {
     @GraphId
     Long id;
@@ -71,8 +70,9 @@ public class CompanyNode implements Serializable, Company {
 
     public void setName(String name) {
         this.name = name;
-        if (code == null)
+        if (code == null) {
             this.code = name.toLowerCase().replaceAll("\\s", "");
+        }
     }
 
     public String getApiKey() {
@@ -82,10 +82,10 @@ public class CompanyNode implements Serializable, Company {
     @Override
     public String toString() {
         return "CompanyNode{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", code='" + code + '\'' +
-                '}';
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", code='" + code + '\'' +
+            '}';
     }
 
     // Lower case, no spaces
@@ -95,12 +95,18 @@ public class CompanyNode implements Serializable, Company {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CompanyNode)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CompanyNode)) {
+            return false;
+        }
 
         CompanyNode that = (CompanyNode) o;
 
-        if (apiKey != null ? !apiKey.equals(that.apiKey) : that.apiKey != null) return false;
+        if (apiKey != null ? !apiKey.equals(that.apiKey) : that.apiKey != null) {
+            return false;
+        }
         return !(id != null ? !id.equals(that.id) : that.id != null);
 
     }

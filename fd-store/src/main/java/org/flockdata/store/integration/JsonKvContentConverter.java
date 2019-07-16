@@ -20,6 +20,7 @@
 
 package org.flockdata.store.integration;
 
+import java.io.IOException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.store.bean.StorageBean;
 import org.springframework.amqp.core.Message;
@@ -27,12 +28,10 @@ import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 /**
  * @author mholdsworth
- * @since 19/11/2014
  * @tag Store, Messaging, Json
+ * @since 19/11/2014
  */
 @Component("jsonToKvContentConverter")
 public class JsonKvContentConverter extends SimpleMessageConverter {

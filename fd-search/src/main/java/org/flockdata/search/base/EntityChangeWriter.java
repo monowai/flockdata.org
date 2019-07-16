@@ -20,10 +20,9 @@
 
 package org.flockdata.search.base;
 
+import java.util.Map;
 import org.flockdata.data.Entity;
 import org.flockdata.search.EntitySearchChange;
-
-import java.util.Map;
 
 /**
  * @author mholdsworth
@@ -48,18 +47,18 @@ public interface EntityChangeWriter {
      */
     Map<String, Object> findOne(Entity entity);
 
-    void purgeCache() ;
+    void purgeCache();
 
     boolean delete(EntitySearchChange searchChange);
 
     /**
      * Locates a specific key monitored by the entity.
-     *
+     * <p>
      * If ID is null then the call is the same as findOne(entity)
      * where the searchKey is taken to be LogResultBean.searchKey
      *
      * @param entity used to resolve the index to search
-     * @param id - if null, this is resolved from the entity
+     * @param id     - if null, this is resolved from the entity
      * @return found track change or null if none
      */
     Map<String, Object> findOne(Entity entity, String id);

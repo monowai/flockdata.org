@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.track.service;
 
+import java.io.IOException;
 import org.flockdata.data.Company;
 import org.flockdata.data.Document;
 import org.flockdata.engine.data.graph.CompanyNode;
@@ -27,8 +28,6 @@ import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.ContentValidationRequest;
-
-import java.io.IOException;
 
 /**
  * @author mholdsworth
@@ -41,7 +40,7 @@ public interface BatchService {
 
     int process(Company company, FortressNode fortressCode, Document documentName, String pathToBatch, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException;
 
-    void validateArguments(CompanyNode company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException ;
+    void validateArguments(CompanyNode company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException;
 
 
     ContentValidationRequest process(CompanyNode company, ContentValidationRequest validationRequest);

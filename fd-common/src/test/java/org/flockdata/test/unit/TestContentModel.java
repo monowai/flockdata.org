@@ -16,14 +16,14 @@
 
 package org.flockdata.test.unit;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+
 import org.flockdata.data.ContentModel;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.junit.Test;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * @author mholdsworth
@@ -32,14 +32,14 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 public class TestContentModel {
 
     @Test
-    public void serializeEntityTagRelationship() throws Exception{
+    public void serializeEntityTagRelationship() throws Exception {
         ContentModel model = ContentModelDeserializer.getContentModel("/model/entity-tag-relationship.json");
-        assertNotNull ( model);
+        assertNotNull(model);
         ColumnDefinition jurisdiction = model.getContent().get("jurisdiction_description");
-        assertNotNull ( jurisdiction);
-        assertNotNull ( jurisdiction.getEntityTagLinks());
-        assertEquals (1, jurisdiction.getEntityTagLinks().size());
-        assertTrue ( "Boolean did not set", model.isSearchSuppressed());
-        assertTrue ( "Boolean did not set", model.isTrackSuppressed()) ;
+        assertNotNull(jurisdiction);
+        assertNotNull(jurisdiction.getEntityTagLinks());
+        assertEquals(1, jurisdiction.getEntityTagLinks().size());
+        assertTrue("Boolean did not set", model.isSearchSuppressed());
+        assertTrue("Boolean did not set", model.isTrackSuppressed());
     }
 }

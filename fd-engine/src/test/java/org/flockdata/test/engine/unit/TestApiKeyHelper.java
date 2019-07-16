@@ -20,21 +20,20 @@
 
 package org.flockdata.test.engine.unit;
 
+import static org.junit.Assert.assertEquals;
+
 import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.junit.Assert;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author mholdsworth
- * @since 28/07/2014
  * @tag Test, APIKey
-
+ * @since 28/07/2014
  */
 public class TestApiKeyHelper {
     @org.junit.Test
     @Deprecated
-    public void testApiKeyOrder(){
+    public void testApiKeyOrder() {
         String key = "httpHeader";
         String requestKey = "httpRequest";
         String nullReturned = "{{hello}}";

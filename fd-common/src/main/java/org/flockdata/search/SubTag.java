@@ -20,11 +20,10 @@
 
 package org.flockdata.search;
 
+import java.util.Map;
 import org.flockdata.data.AbstractEntityTag;
 import org.flockdata.data.Entity;
 import org.flockdata.data.Tag;
-
-import java.util.Map;
 
 /**
  * @author mholdsworth
@@ -45,7 +44,7 @@ public class SubTag extends AbstractEntityTag {
         this.relationship = label;
     }
 
-    public SubTag(Tag subTag, String label, Map<String,Object>properties) {
+    public SubTag(Tag subTag, String label, Map<String, Object> properties) {
         this(subTag, label);
         this.properties = properties;
     }
@@ -81,8 +80,9 @@ public class SubTag extends AbstractEntityTag {
     }
 
     public Object getProperty(String key) {
-        if (properties == null)
+        if (properties == null) {
             return null;
+        }
         return properties.get(key);
     }
 

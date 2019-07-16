@@ -20,6 +20,11 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.Collection;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.SystemUser;
@@ -32,15 +37,10 @@ import org.flockdata.track.bean.EntityTagRelationshipInput;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import java.util.Collection;
-
-import static org.junit.Assert.*;
-
 /**
  * @author mholdsworth
- * @since 7/11/2014
  * @tag Test, Tag, Alias, Merge
-
+ * @since 7/11/2014
  */
 public class TestTagMerge extends EngineBase {
 
@@ -49,43 +49,43 @@ public class TestTagMerge extends EngineBase {
         cleanUpGraph();
         SystemUser su = registerSystemUser("merge_Simple");
         FortressNode fortress = fortressService.registerFortress(su.getCompany(),
-                new FortressInputBean("merge_Simple", true));
+            new FortressInputBean("merge_Simple", true));
 
         TagInputBean tagInputA = new TagInputBean("TagA", "MoveTag", new EntityTagRelationshipInput("rlxA").setReverse(true));
         TagInputBean tagInputB = new TagInputBean("TagB", "MoveTag", new EntityTagRelationshipInput("rlxB").setReverse(true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
         inputBean.addTag(tagInputA);
-        Entity entityA =  mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
+        Entity entityA = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
 
         inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
         inputBean.addTag(tagInputB);
-        Entity entityB =  mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
+        Entity entityB = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
 
-        assertEquals(1, entityTagService.findEntityTags(entityA).size()) ;
-        assertEquals(1, entityTagService.findEntityTags(entityB).size()) ;
+        assertEquals(1, entityTagService.findEntityTags(entityA).size());
+        assertEquals(1, entityTagService.findEntityTags(entityB).size());
 
         Tag tagA = tagService.findTag(su.getCompany(), null, tagInputA.getCode());
-        assertNotNull ( tagA);
+        assertNotNull(tagA);
         Tag tagB = tagService.findTag(su.getCompany(), null, tagInputB.getCode());
-        assertNotNull ( tagB);
+        assertNotNull(tagB);
 
         // The above is the setup. We will look to merge tagA into tagB. The end result will be that
         // entity
 
-        Collection<Long>results =entityTagService.mergeTags(tagA.getId(), tagB.getId());
+        Collection<Long> results = entityTagService.mergeTags(tagA.getId(), tagB.getId());
         assertEquals("One Entity should have been affected by this operation", 1, results.size());
         Long entityResult = results.iterator().next();
         assertEquals("The wrong Entity was affected by this operation", entityA.getId(), entityResult);
 
         entityA = entityService.getEntity(su.getCompany(), entityA.getKey());
         Collection<EntityTag> tags = entityTagService.findEntityTags(entityA);
-        assertEquals(1, tags.size()) ;
+        assertEquals(1, tags.size());
         assertEquals(tagInputB.getName(), tags.iterator().next().getTag().getName());
 
-        assertNull("TagA should have been deleted", tagService.findTag(su.getCompany(), null , tagInputA.getCode()));
+        assertNull("TagA should have been deleted", tagService.findTag(su.getCompany(), null, tagInputA.getCode()));
         tags = entityTagService.findEntityTags(entityB);
-        assertEquals(1, tags.size()) ;
+        assertEquals(1, tags.size());
         assertEquals(tagInputB.getName(), tags.iterator().next().getTag().getName());
 
         assertEquals(2, entityTagService.findEntityTagResults(su.getCompany(), tagInputB.getCode()).size());
@@ -99,7 +99,7 @@ public class TestTagMerge extends EngineBase {
         cleanUpGraph();
         SystemUser su = registerSystemUser("alias_Simple");
         FortressNode fortress = fortressService.registerFortress(su.getCompany(),
-                new FortressInputBean("alias_Simple", true));
+            new FortressInputBean("alias_Simple", true));
 
         TagInputBean tagInput = new TagInputBean("TagA", "AliasTest", "rlxA");
 
@@ -108,8 +108,8 @@ public class TestTagMerge extends EngineBase {
         // Creating the tag for an entity
         mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
 
-        Tag tag = tagService.findTag(su.getCompany(),null , tagInput.getCode());
-        assertNotNull ( tag);
+        Tag tag = tagService.findTag(su.getCompany(), null, tagInput.getCode());
+        assertNotNull(tag);
 
         // The above is the setup.
 
@@ -118,17 +118,17 @@ public class TestTagMerge extends EngineBase {
 
         // Now create an alias for TagA such that when we track a new entity with zzz as the tag value
         // the entity will be mapped to TagA
-        tagService.createAlias( su.getCompany(), tag, "AliasTest", "zzz");
+        tagService.createAlias(su.getCompany(), tag, "AliasTest", "zzz");
 
         // Make sure creating it twice doesn't cause an error
-        tagService.createAlias( su.getCompany(), tag, "AliasTest", "zzz");
+        tagService.createAlias(su.getCompany(), tag, "AliasTest", "zzz");
 
         // An alias exists for this tag that points to TagA.
         tagInput = new TagInputBean("zzz", "AliasTest", "rlxA");
         inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
         inputBean.addTag(tagInput);
         mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
-        Tag aliasTag = tagService.findTag(su.getCompany(), "AliasTest",null , "zzz");
+        Tag aliasTag = tagService.findTag(su.getCompany(), "AliasTest", null, "zzz");
         assertNotNull(aliasTag);
         assertEquals("The call to find tag with an alias should find the aliased tag", tag.getId(), aliasTag.getId());
 

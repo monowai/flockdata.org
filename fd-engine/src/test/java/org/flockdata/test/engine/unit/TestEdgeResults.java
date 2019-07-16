@@ -20,6 +20,11 @@
 
 package org.flockdata.test.engine.unit;
 
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.engine.matrix.EdgeResult;
 import org.flockdata.engine.matrix.EdgeResults;
 import org.flockdata.engine.matrix.FdNode;
@@ -27,20 +32,15 @@ import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.JsonUtils;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-
 /**
  * Matrix result objects are used to render graphs.
+ *
  * @author mholdsworth
  * @since 29/04/2015
  */
 public class TestEdgeResults {
     @Test
-    public void edges_DoubleTestResults(){
+    public void edges_DoubleTestResults() {
         EdgeResult resultA = new EdgeResult("ABC", "123", 10d);
         EdgeResult resultB = new EdgeResult("ABC", "123", 10d);
         EdgeResults results = new EdgeResults();
@@ -52,7 +52,7 @@ public class TestEdgeResults {
     }
 
     @Test
-    public void edges_LongTestResults(){
+    public void edges_LongTestResults() {
         EdgeResult resultA = new EdgeResult("ABC", "123", 10L);
         EdgeResult resultB = new EdgeResult("ABC", "123", 10L);
         EdgeResults results = new EdgeResults();
@@ -62,6 +62,7 @@ public class TestEdgeResults {
         Number total = results.getEdgeResults().iterator().next().getCount();
         assertEquals(20d, total);
     }
+
     @Test
     public void serializeMatrix() throws Exception {
         EdgeResult resultA = new EdgeResult("ABC", "123", 10L);

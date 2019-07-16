@@ -21,17 +21,20 @@
 package org.flockdata.engine.data.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.Locale;
+import java.util.TimeZone;
 import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.Segment;
 import org.flockdata.registration.FortressInputBean;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.*;
-
-import java.io.Serializable;
-import java.util.Locale;
-import java.util.TimeZone;
+import org.springframework.data.neo4j.annotation.Fetch;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * @author mholdsworth
@@ -68,7 +71,7 @@ public class FortressNode implements Fortress, Serializable {
     private Boolean system = Boolean.FALSE;
     private Boolean enabled = Boolean.TRUE;
 
-    @Indexed (unique = true)
+    @Indexed(unique = true)
     private String rootIndex = null;
 
     protected FortressNode() {
@@ -100,13 +103,15 @@ public class FortressNode implements Fortress, Serializable {
         storeEnabled = fortressInputBean.isStoreEnabled();
         if (fortressInputBean.getTimeZone() != null) {
             this.timeZone = fortressInputBean.getTimeZone();
-            if (TimeZone.getTimeZone(timeZone) == null)
+            if (TimeZone.getTimeZone(timeZone) == null) {
                 throw new IllegalArgumentException(fortressInputBean.getTimeZone() + " is not a valid TimeZone. If you don't know a timezone to set, leave this null and the system default will be used.");
+            }
         }
-        if (fortressInputBean.getLanguageTag() != null)
+        if (fortressInputBean.getLanguageTag() != null) {
             this.languageTag = fortressInputBean.getLanguageTag();
-        else
+        } else {
             getLanguageTag();
+        }
 
 
         return this;
@@ -131,13 +136,14 @@ public class FortressNode implements Fortress, Serializable {
     }
 
     public void setCompany(Company company) {
-        this.company = (CompanyNode)company;
+        this.company = (CompanyNode) company;
 
     }
 
     public Boolean isStoreEnabled() {
-        if ( storeEnabled == null )
+        if (storeEnabled == null) {
             return Boolean.TRUE;
+        }
         return storeEnabled;
     }
 
@@ -161,32 +167,35 @@ public class FortressNode implements Fortress, Serializable {
     }
 
     public FortressNode setSearchEnabled(Boolean searchEnabled) {
-        if (searchEnabled != null)
+        if (searchEnabled != null) {
             this.searchEnabled = searchEnabled;
+        }
         return this;
     }
 
     public void setAccumulatingChanges(Boolean addChanges) {
         this.accumulatingChanges = addChanges;
-        if (addChanges)
+        if (addChanges) {
             searchEnabled = false;
+        }
     }
 
     @Override
     public String toString() {
         return "Fortress{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                ", searchEnabled=" + searchEnabled +
-                ", storeEnabled=" + storeEnabled +
-                ", rootIndex='" + rootIndex + '\'' +
-                '}';
+            "id=" + id +
+            ", code='" + code + '\'' +
+            ", name='" + name + '\'' +
+            ", searchEnabled=" + searchEnabled +
+            ", storeEnabled=" + storeEnabled +
+            ", rootIndex='" + rootIndex + '\'' +
+            '}';
     }
 
     public String getTimeZone() {
-        if (this.timeZone == null)
+        if (this.timeZone == null) {
             this.timeZone = TimeZone.getDefault().getID();
+        }
         return timeZone;
     }
 
@@ -195,8 +204,9 @@ public class FortressNode implements Fortress, Serializable {
     }
 
     public String getLanguageTag() {
-        if (this.languageTag == null)
+        if (this.languageTag == null) {
             this.languageTag = Locale.getDefault().toLanguageTag();
+        }
         return this.languageTag;
     }
 
@@ -223,14 +233,24 @@ public class FortressNode implements Fortress, Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FortressNode)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FortressNode)) {
+            return false;
+        }
 
         FortressNode that = (FortressNode) o;
 
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (company != null ? !company.equals(that.company) : that.company != null) return false;
-        if (rootIndex != null ? !rootIndex.equals(that.rootIndex) : that.rootIndex != null) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) {
+            return false;
+        }
+        if (company != null ? !company.equals(that.company) : that.company != null) {
+            return false;
+        }
+        if (rootIndex != null ? !rootIndex.equals(that.rootIndex) : that.rootIndex != null) {
+            return false;
+        }
         return !(id != null ? !id.equals(that.id) : that.id != null);
 
     }

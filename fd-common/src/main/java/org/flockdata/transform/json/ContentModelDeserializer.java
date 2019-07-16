@@ -17,7 +17,17 @@
 package org.flockdata.transform.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.registration.FortressInputBean;
@@ -26,23 +36,17 @@ import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.model.ContentModelHandler;
 import org.springframework.util.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * JSON deserializer
- * @tag ContentModel, Json
+ *
  * @author mholdsworth
+ * @tag ContentModel, Json
  * @since 24/06/2016
  */
 public class ContentModelDeserializer extends JsonDeserializer<ContentModel> {
-    private static final ObjectMapper mapper = new ObjectMapper( new FdJsonObjectMapper())
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .enable(JsonParser.Feature.ALLOW_COMMENTS);
+    private static final ObjectMapper mapper = new ObjectMapper(new FdJsonObjectMapper())
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .enable(JsonParser.Feature.ALLOW_COMMENTS);
 
     /**
      * Resolves a content model from disk
@@ -77,81 +81,96 @@ public class ContentModelDeserializer extends JsonDeserializer<ContentModel> {
         JsonNode node = jp.getCodec().readTree(jp);
         JsonNode nodeValue = node.get("documentName");
 
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setDocumentName(nodeValue.asText());
+        }
 
         nodeValue = node.get("documentType");
-        if (!isNull(nodeValue)){
+        if (!isNull(nodeValue)) {
             nodeValue = node.get("documentType");
             contentModel.setDocumentType(mapper.readValue(nodeValue.toString(), DocumentTypeInputBean.class));
         }
 
         nodeValue = node.get("handler");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setHandler(nodeValue.asText());
+        }
 
         nodeValue = node.get("code");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setCode(nodeValue.asText());
+        }
 
         nodeValue = node.get("fortressName");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setFortress(new FortressInputBean(nodeValue.asText()));
+        }
 
         nodeValue = node.get("fortress");
-        if (!isNull(nodeValue)){
+        if (!isNull(nodeValue)) {
             nodeValue = node.get("fortress");
             contentModel.setFortress(mapper.readValue(nodeValue.toString(), FortressInputBean.class));
         }
 
         nodeValue = node.get("name");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setName(nodeValue.asText());
+        }
 
         nodeValue = node.get("condition");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setCondition(nodeValue.asText());
+        }
 
         nodeValue = node.get("emptyIgnored");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setEmptyIgnored(Boolean.parseBoolean(nodeValue.asText()));
+        }
 
         nodeValue = node.get("tagModel");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setTagModel(Boolean.parseBoolean(nodeValue.asText()));
+        }
 
         nodeValue = node.get("entityOnly");
-        if (isNull(nodeValue))
+        if (isNull(nodeValue)) {
             nodeValue = node.get("metaOnly"); // legacy value
+        }
 
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setEntityOnly(Boolean.parseBoolean(nodeValue.asText()));
+        }
 
         nodeValue = node.get("archiveTags");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setArchiveTags(Boolean.parseBoolean(nodeValue.asText()));
+        }
 
         nodeValue = node.get("event");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setEvent(nodeValue.asText());
+        }
 
         nodeValue = node.get("segment");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setSegmentExpression(nodeValue.asText());
+        }
 
         nodeValue = node.get("trackSuppressed");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setTrackSuppressed(nodeValue.asBoolean());
+        }
 
         nodeValue = node.get("searchSuppressed");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             contentModel.setSearchSuppressed(nodeValue.asBoolean());
+        }
 
         nodeValue = node.get("content");
-        if (!isNull(nodeValue)){
+        if (!isNull(nodeValue)) {
 
-            Iterator<Map.Entry<String,JsonNode>> fields = nodeValue.fields();
-            Map<String,ColumnDefinition>content = new HashMap<>();
+            Iterator<Map.Entry<String, JsonNode>> fields = nodeValue.fields();
+            Map<String, ColumnDefinition> content = new HashMap<>();
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> next = fields.next();
                 String colName = next.getKey();

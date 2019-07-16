@@ -20,6 +20,10 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
 import org.flockdata.data.SystemUser;
@@ -41,19 +45,17 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.Assert.*;
-
 /**
  * @author mholdsworth
  * @since 8/10/2014
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {
-        Neo4jConfigTest.class,
+    Neo4jConfigTest.class,
     FdTemplateMock.class,
-        FdServerIo.class,
-        MapBasedStorageProxy.class})
-@ActiveProfiles({"dev", "fd-auth-test"})
+    FdServerIo.class,
+    MapBasedStorageProxy.class})
+@ActiveProfiles( {"dev", "fd-auth-test"})
 public class TestBatch extends EngineBase {
     @Autowired
     FileProcessor fileProcessor;
@@ -73,7 +75,7 @@ public class TestBatch extends EngineBase {
 
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
 
-        contentModelService.saveEntityModel(su.getCompany(), fortress, docType, contentModel );
+        contentModelService.saveEntityModel(su.getCompany(), fortress, docType, contentModel);
         batchService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);
 
         assertNotNull(entityService.findByCode(fortress, docType, "1"));
@@ -81,13 +83,13 @@ public class TestBatch extends EngineBase {
     }
 
     @Test
-    public void import_ValidateArgs() throws Exception{
+    public void import_ValidateArgs() throws Exception {
         try {
             FileProcessor.validateArgs("/illegalFile");
             fail("Exception not thrown");
-        } catch ( NotFoundException nfe){
+        } catch (NotFoundException nfe) {
             // Great
-            assertEquals(true,true);
+            assertEquals(true, true);
         }
     }
 

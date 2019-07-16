@@ -16,6 +16,12 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import junit.framework.TestCase;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
@@ -29,21 +35,14 @@ import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 /**
  * @author mholdsworth
  * @since 20/01/2016
  */
-public class TestDocTypes extends AbstractImport  {
+public class TestDocTypes extends AbstractImport {
 
     @Test
-    public void testDocType() throws Exception{
+    public void testDocType() throws Exception {
 
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-document-type.json");
 
@@ -60,12 +59,12 @@ public class TestDocTypes extends AbstractImport  {
     }
 
     @Test
-    public void entityKeyBeanWithDocType () throws Exception{
+    public void entityKeyBeanWithDocType() throws Exception {
         FortressInputBean fortress = new FortressInputBean("wrapport");
         DocumentTypeInputBean pmv = new DocumentTypeInputBean("PMV");
         DocumentTypeInputBean portfolio = new DocumentTypeInputBean("Portfolio");
 
-        EntityInputBean inputBean = new EntityInputBean(fortress, pmv );
+        EntityInputBean inputBean = new EntityInputBean(fortress, pmv);
 
         EntityKeyBean key = new EntityKeyBean(portfolio.getName(), fortress, "Test", "parent");
         inputBean.addEntityLink("parent", key);
@@ -75,9 +74,8 @@ public class TestDocTypes extends AbstractImport  {
 
         assertNotNull(json);
 
-        Collection<EntityInputBean>inputBeans = new ArrayList<>();
+        Collection<EntityInputBean> inputBeans = new ArrayList<>();
         inputBeans.add(inputBean);
-
 
 
         String jsonArray = JsonUtils.toJson(inputBeans);

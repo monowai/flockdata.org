@@ -16,13 +16,12 @@
 
 package org.flockdata.helper;
 
+import java.util.ArrayList;
+import java.util.Set;
 import org.flockdata.data.Alias;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.Tag;
 import org.flockdata.registration.TagInputBean;
-
-import java.util.ArrayList;
-import java.util.Set;
 
 /**
  * Tag parsing support
@@ -35,17 +34,19 @@ public class TagHelper {
     public static final String TAG = "Tag";
 
     public static String suffixLabel(String label, String tagSuffix) {
-        if (label.startsWith(":"))
+        if (label.startsWith(":")) {
             label = label.substring(1);
+        }
 
-        if ("".equals(tagSuffix))
+        if ("".equals(tagSuffix)) {
             return label;
+        }
         return label + tagSuffix;
     }
 
     /**
      * Converts an incoming search string in to a format for storage as the Tag's key property.
-     *
+     * <p>
      * /'s and .'s are converted to a - to avoid ambiguity with URI paths so can be found as /, - or %2F.
      * There is an assumption that the incoming key could be a URL string that requires decoding.
      *
@@ -65,20 +66,22 @@ public class TagHelper {
 
     public static String parseKey(TagInputBean tagInput) {
         //String prefix = (tagInput.getKeyPrefix() == null ? "" : tagInput.getKeyPrefix().toLowerCase() + "-");
-        return  parseKey(tagInput.getKeyPrefix(), tagInput.getCode());
+        return parseKey(tagInput.getKeyPrefix(), tagInput.getCode());
     }
 
     public static String parseKey(String keyPrefix, String tagCode) {
-        if (keyPrefix == null)
+        if (keyPrefix == null) {
             return parseKey(tagCode);
+        }
         return keyPrefix.toLowerCase() + "-" + parseKey(tagCode);
     }
 
     public static boolean isSystemKey(String key) {
         boolean systemKey = false;
 
-        if (key.equals(EntityTag.SINCE) || key.equals(EntityTag.FD_WHEN) || key.equals(Tag.LAT) || key.equals(Tag.LON))
+        if (key.equals(EntityTag.SINCE) || key.equals(EntityTag.FD_WHEN) || key.equals(Tag.LAT) || key.equals(Tag.LON)) {
             systemKey = true;
+        }
         return systemKey;
 
 
@@ -94,8 +97,9 @@ public class TagHelper {
 
     public static String getLabel(ArrayList<String> labels) {
         for (String label : labels) {
-            if (!NodeHelper.isInternalLabel(label))
+            if (!NodeHelper.isInternalLabel(label)) {
                 return label;
+            }
         }
         return TAG;
 

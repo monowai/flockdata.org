@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.data.graph;
 
+import java.util.ArrayList;
 import org.flockdata.data.Alias;
 import org.flockdata.data.Tag;
 import org.flockdata.registration.AliasInputBean;
@@ -30,12 +31,10 @@ import org.springframework.data.neo4j.annotation.Labels;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
-import java.util.ArrayList;
-
 /**
  * @author mholdsworth
- * @since 1/04/2015
  * @tag Node, Alias
+ * @since 1/04/2015
  */
 @NodeEntity // Only in place to support projection
 @TypeAlias("Alias")
@@ -53,29 +52,30 @@ public class AliasNode implements Alias {
 
     @RelatedTo(elementClass = TagNode.class, type = "HAS_ALIAS", direction = Direction.INCOMING)
     //    @Relationship(type = "HAS_ALIAS", direction = Relationship.INCOMING)
-    private TagNode tag ;
+    private TagNode tag;
 
-    AliasNode(){
+    AliasNode() {
         // ToDo: Remove with SDN4
     }
 
     public AliasNode(String theLabel, AliasInputBean aliasInput, String key, Tag tag) {
         this();
         // ToDo: This should be provided by the caller
-        labels.add(theLabel+"Alias");
+        labels.add(theLabel + "Alias");
         labels.add("Alias");
         labels.add("_Alias");
         this.key = key;
         this.name = aliasInput.getCode();
         this.description = aliasInput.getDescription();
-        this.tag = (TagNode)tag;
+        this.tag = (TagNode) tag;
     }
 
     @Override
     public String getLabel() {
         for (String label : labels) {
-            if (! (label.equals("Alias") || label.equals("_Alias")))
+            if (!(label.equals("Alias") || label.equals("_Alias"))) {
                 return label;
+            }
         }
         return null;
     }
@@ -110,10 +110,10 @@ public class AliasNode implements Alias {
     @Override
     public String toString() {
         return "AliasNode{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", description='" + description + '\'' +
+            '}';
     }
 
     @Override

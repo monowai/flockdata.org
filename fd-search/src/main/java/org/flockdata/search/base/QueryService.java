@@ -20,16 +20,19 @@
 
 package org.flockdata.search.base;
 
+import java.io.IOException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.search.*;
-
-import java.io.IOException;
+import org.flockdata.search.EntityKeyResults;
+import org.flockdata.search.EsSearchRequestResult;
+import org.flockdata.search.QueryParams;
+import org.flockdata.search.TagCloud;
+import org.flockdata.search.TagCloudParams;
 
 /**
  * @author mholdsworth
- * @since 8/09/2014
  * @tag Query, Search
+ * @since 8/09/2014
  */
 public interface QueryService {
     TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException, FlockException;

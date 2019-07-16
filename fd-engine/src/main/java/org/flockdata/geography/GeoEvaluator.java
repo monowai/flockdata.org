@@ -20,6 +20,8 @@
 
 package org.flockdata.geography;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.engine.data.graph.TagNode;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Label;
@@ -27,9 +29,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.Evaluator;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * @author mholdsworth
@@ -47,13 +46,15 @@ public class GeoEvaluator implements Evaluator {
             return Evaluation.INCLUDE_AND_PRUNE;
         }
         String thisLabel = getLabel(path.endNode());
-        if (seenLabels.contains(thisLabel))
+        if (seenLabels.contains(thisLabel)) {
             return Evaluation.EXCLUDE_AND_CONTINUE;
+        }
 
-            if (thisLabel.contains("Alias"))
-                return Evaluation.EXCLUDE_AND_CONTINUE;
+        if (thisLabel.contains("Alias")) {
+            return Evaluation.EXCLUDE_AND_CONTINUE;
+        }
 
-            seenLabels.add(thisLabel);
+        seenLabels.add(thisLabel);
         return Evaluation.INCLUDE_AND_CONTINUE;
     }
 

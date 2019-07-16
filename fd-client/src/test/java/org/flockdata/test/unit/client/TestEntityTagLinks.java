@@ -16,6 +16,12 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -24,11 +30,6 @@ import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfile;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
-
-import java.util.List;
-
-import static junit.framework.TestCase.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author mholdsworth
@@ -43,30 +44,31 @@ public class TestEntityTagLinks extends AbstractImport {
         ExtractProfile params = new ExtractProfileHandler(contentModel);
         long rows = fileProcessor.processFile(params, "/data/test-entity-tag-links.csv");
 
-        assertEquals (1, rows);
+        assertEquals(1, rows);
 
         List<EntityInputBean> entities = getTemplate().getEntities();
 
         for (EntityInputBean entity : entities) {
-            assertEquals (4, entity.getTags().size());
+            assertEquals(4, entity.getTags().size());
 
-            for (TagInputBean tagInputBean: entity.getTags()) {
-                if ( tagInputBean.getLabel().equals("Jurisdiction")){
-                    assertFalse (tagInputBean.getEntityTagLinks().size()==0);
+            for (TagInputBean tagInputBean : entity.getTags()) {
+                if (tagInputBean.getLabel().equals("Jurisdiction")) {
+                    assertFalse(tagInputBean.getEntityTagLinks().size() == 0);
                     EntityTagRelationshipInput jurisdiction = tagInputBean.getEntityTagLinks().get("jurisdiction");
-                    assertNotNull ( jurisdiction);
+                    assertNotNull(jurisdiction);
                     assertTrue(jurisdiction.isGeo());
-                    assertEquals ( "SAM", tagInputBean.getCode());
-                } else if ( tagInputBean.getLabel().equals("Country")){
-                    assertFalse (tagInputBean.getEntityTagLinks().size()==0);
+                    assertEquals("SAM", tagInputBean.getCode());
+                } else if (tagInputBean.getLabel().equals("Country")) {
+                    assertFalse(tagInputBean.getEntityTagLinks().size() == 0);
                     EntityTagRelationshipInput country = tagInputBean.getEntityTagLinks().get("located");
-                    assertNotNull ( country);
+                    assertNotNull(country);
                     assertTrue(country.isGeo());
-                    assertEquals ( "HKG", tagInputBean.getCode());
-                } else if (tagInputBean.getLabel().equals("ServiceProvider")){
+                    assertEquals("HKG", tagInputBean.getCode());
+                } else if (tagInputBean.getLabel().equals("ServiceProvider")) {
                     assertTrue(tagInputBean.isReverse());
-                } else
+                } else {
                     assertFalse(tagInputBean.isReverse());
+                }
 
             }
         }

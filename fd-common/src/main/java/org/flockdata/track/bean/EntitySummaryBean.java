@@ -16,23 +16,22 @@
 
 package org.flockdata.track.bean;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityLog;
 import org.flockdata.data.EntityTag;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 /**
  * @author mholdsworth
- * @since 25/08/2013
  * @tag Contract, Track, Entity, Query
+ * @since 25/08/2013
  */
 public class EntitySummaryBean {
     private EntityResultBean entity;
     private String type;
-    private Collection<EntityLogResult> changes= new ArrayList<>();
-    private Collection<EntityTagResult> tags= new ArrayList<>();
+    private Collection<EntityLogResult> changes = new ArrayList<>();
+    private Collection<EntityTagResult> tags = new ArrayList<>();
     private String index;
 
     private EntitySummaryBean() {

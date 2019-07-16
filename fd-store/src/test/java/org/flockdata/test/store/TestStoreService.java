@@ -20,9 +20,23 @@
 
 package org.flockdata.test.store;
 
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.util.AssertionErrors.fail;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.data.*;
+import java.io.File;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityLog;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Log;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.InMemoryRepo;
@@ -62,24 +76,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import redis.embedded.RedisServer;
 
-import java.io.File;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.util.AssertionErrors.fail;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {FdStore.class})
-@ActiveProfiles({"dev", "fd-auth-none", "riak", "redis"})
+@ActiveProfiles( {"dev", "fd-auth-none", "riak", "redis"})
 public class TestStoreService {
 
     private static RedisServer redisServer;
-    
+
     @Autowired
     private IndexManager indexManager;
 
@@ -90,8 +93,8 @@ public class TestStoreService {
     private InMemoryRepo inMemoryRepo;
 
     @Autowired
-    private RedisRepo redisRepo ;
-    
+    private RedisRepo redisRepo;
+
     private MockMvc mockMvc;
 
     @Autowired
@@ -115,12 +118,12 @@ public class TestStoreService {
             }
             try {
                 redisServer.start();
-            } catch (Exception e ){
+            } catch (Exception e) {
                 tearDown();
                 try {
                     redisServer.start(); // One off?? Had to manually kill redis so trying to be a bit richer in dealing with the scenario
 
-                } catch (RuntimeException re){
+                } catch (RuntimeException re) {
                     System.out.println("Redis REALLY is not available so we cannot test it");
                 }
             }
@@ -129,8 +132,9 @@ public class TestStoreService {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        if (redisServer != null && redisServer.isActive())
+        if (redisServer != null && redisServer.isActive()) {
             redisServer.stop();
+        }
     }
 
     public static String getRandomJson() throws JsonProcessingException {
@@ -143,8 +147,9 @@ public class TestStoreService {
 
     private static Map<String, Object> getData(String s) {
         Map<String, Object> o = getData();
-        if (s == null)
+        if (s == null) {
             return o;
+        }
 
         o.put("random", s);
         return o;
@@ -171,7 +176,7 @@ public class TestStoreService {
     }
 
     @Test
-    public void autoWiredRepos () throws Exception{
+    public void autoWiredRepos() throws Exception {
         assertNotNull(inMemoryRepo);
         assertNotNull(riakRepo);
         assertNotNull(redisRepo);
@@ -180,8 +185,8 @@ public class TestStoreService {
     @Before
     public void resetKvStore() {
         mockMvc = MockMvcBuilders
-                .webAppContextSetup(wac)
-                .build();
+            .webAppContextSetup(wac)
+            .build();
     }
 
     @Test
@@ -208,8 +213,9 @@ public class TestStoreService {
     public void riak_AttachmentTest() throws Exception {
         kvAttachmentTest(Store.RIAK);
     }
+
     private void testStore(Store storeToTest) throws Exception {
-        if ( redisServer == null || !redisServer.isActive()){
+        if (redisServer == null || !redisServer.isActive()) {
             logger.info("!! REDIS is not installed so we cannot test it");
             return;
         }
@@ -226,9 +232,9 @@ public class TestStoreService {
 
         // Represents identifiable entity information
         EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), entityCode)
-                .setContent(new ContentInputBean(theData));
+            .setContent(new ContentInputBean(theData));
 
-        Document documentType = MockDataFactory.getDocument(fort,docType);
+        Document documentType = MockDataFactory.getDocument(fort, docType);
         // The "Data" content
 
         // Emulate the creation of the entity
@@ -245,7 +251,7 @@ public class TestStoreService {
         Log graphLog = mock(Log.class);
         when(graphLog.isMocked()).thenReturn(true);
         long id = entity.getId();
-        when (graphLog.getId()).thenReturn(id);
+        when(graphLog.getId()).thenReturn(id);
         when(graphLog.getStorage()).thenReturn(storeToTest.name());
         StorageBean storageBean = new StorageBean(trackResultBean, storeToTest);
         when(graphLog.getContent()).thenReturn(storageBean);
@@ -253,7 +259,7 @@ public class TestStoreService {
 //        graphLog = StoreHelper.prepareLog(storeToTest, trackResultBean, graphLog);
         // Graph tracks which KVService is storing this content
         when(eLog.getLog()).thenReturn(graphLog);
-                //new EntityLog(entity, graphLog, new DateTime());
+        //new EntityLog(entity, graphLog, new DateTime());
 
         // Wrap the log result in to the TrackResult
         trackResultBean.setCurrentLog(eLog);
@@ -272,9 +278,9 @@ public class TestStoreService {
             String key = indexManager.resolveKey(new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
             assertNotNull(key);
             StoredContent contentResult = storeManager.doRead(storeToTest,
-                    index,
-                    type,
-                    key);
+                index,
+                type,
+                key);
 
             validateContent("Validating result found via the service", contentResult);
 
@@ -330,9 +336,9 @@ public class TestStoreService {
             storeManager.doWrite(storeBean);
             EntityLog entityLog = trackResultBean.getCurrentLog();
             StoredContent entityContent = storeManager.doRead(storeToTest,
-                    indexManager.toStoreIndex(storeToTest, entity),
-                    indexManager.parseType(entity),
-                    trackResultBean.getCurrentLog().getLog().getId().toString());
+                indexManager.toStoreIndex(storeToTest, entity),
+                indexManager.parseType(entity),
+                trackResultBean.getCurrentLog().getLog().getId().toString());
 
             assertNotNull(entityContent);
             // Redis should always be available. RIAK is trickier to install

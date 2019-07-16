@@ -28,7 +28,8 @@ public class AdminResponse {
 
     String message;
 
-    AdminResponse(){}
+    AdminResponse() {
+    }
 
     public AdminResponse(String message) {
         this.message = message;

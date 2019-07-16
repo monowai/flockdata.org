@@ -53,13 +53,14 @@ public class EntityGet {
         String error = null;
         try {
             ResponseEntity<EntityResultBean> response;
-            if (key == null)
+            if (key == null) {
                 response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityResultBean.class,
-                        entityInputBean.getFortress().getName(),
-                        entityInputBean.getDocumentType().getName(),
-                        entityInputBean.getCode());
-            else
+                    entityInputBean.getFortress().getName(),
+                    entityInputBean.getDocumentType().getName(),
+                    entityInputBean.getCode());
+            } else {
                 response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityResultBean.class, key);
+            }
 
             result = response.getBody();
 

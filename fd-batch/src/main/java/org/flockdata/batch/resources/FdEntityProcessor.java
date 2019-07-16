@@ -20,6 +20,8 @@
 
 package org.flockdata.batch.resources;
 
+import java.io.IOException;
+import java.util.Map;
 import org.flockdata.batch.BatchConfig;
 import org.flockdata.data.ContentModel;
 import org.flockdata.track.bean.EntityInputBean;
@@ -31,15 +33,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.Map;
-
 /**
  * @author nabil
  * @tag Entity, Batch
  */
 @Component
-@Profile({"fd-batch", "fd-batch-dev"})
+@Profile( {"fd-batch", "fd-batch-dev"})
 public class FdEntityProcessor implements ItemProcessor<Map<String, Object>, EntityInputBean> {
 
     private final BatchConfig batchConfig;
@@ -61,9 +60,10 @@ public class FdEntityProcessor implements ItemProcessor<Map<String, Object>, Ent
     }
 
     private ContentModel getContentModel(String name) throws IOException, ClassNotFoundException {
-        ContentModel result =batchConfig.getStepConfig(name).getContentModel();
-        if ( result == null )
-            throw new ClassNotFoundException("Unable to resolve the content profile mapping for "+name.toLowerCase());
+        ContentModel result = batchConfig.getStepConfig(name).getContentModel();
+        if (result == null) {
+            throw new ClassNotFoundException("Unable to resolve the content profile mapping for " + name.toLowerCase());
+        }
         return result;
     }
 

@@ -20,9 +20,15 @@
 
 package org.flockdata.integration;
 
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.core.*;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Exchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,16 +38,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Centralised integration configurations for serverside services
- * @tag Integration
+ *
  * @author mholdsworth
+ * @tag Integration
  * @since 12/02/2016
  */
 @Configuration
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class Exchanges {
 
     @Value("${org.fd.messaging.exchange:fd}")
@@ -202,6 +207,7 @@ public class Exchanges {
     Binding searchBinding(Queue fdSearchQueue, Exchange fdExchange) {
         return BindingBuilder.bind(fdSearchQueue).to(fdExchange).with(searchBinding).noargs();
     }
+
     @Bean
     Binding storeBinding(Queue fdStoreQueue, Exchange fdExchange) {
         return BindingBuilder.bind(fdStoreQueue).to(fdExchange).with(storeBinding).noargs();
@@ -242,6 +248,7 @@ public class Exchanges {
     public Queue fdSearchDlx() {
         return new Queue(searchDlx);
     }
+
     @Bean
     public Queue fdEngineDlx() {
         return new Queue(engineDlx);
@@ -261,26 +268,26 @@ public class Exchanges {
     @Bean
     RetryOperationsInterceptor trackInterceptor(AmqpTemplate amqpTemplate) {
         return RetryInterceptorBuilder.stateless()
-                .maxAttempts(1)
-                .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), trackQueue))
-                .build();
+            .maxAttempts(1)
+            .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), trackQueue))
+            .build();
     }
 
 
     @Bean
     RetryOperationsInterceptor searchInterceptor(AmqpTemplate amqpTemplate) {
         return RetryInterceptorBuilder.stateless()
-                .maxAttempts(2)
-                .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), searchQueue))
-                .build();
+            .maxAttempts(2)
+            .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), searchQueue))
+            .build();
     }
 
     @Bean
     RetryOperationsInterceptor storeInterceptor(AmqpTemplate amqpTemplate) {
         return RetryInterceptorBuilder.stateless()
-                .maxAttempts(2)
-                .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), storeQueue))
-                .build();
+            .maxAttempts(2)
+            .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), storeQueue))
+            .build();
     }
 
 }

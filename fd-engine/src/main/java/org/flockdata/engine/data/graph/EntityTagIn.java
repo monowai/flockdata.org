@@ -22,29 +22,33 @@ package org.flockdata.engine.data.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Map;
 import org.flockdata.data.AbstractEntityTag;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.Tag;
 import org.neo4j.graphdb.DynamicRelationshipType;
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.EndNode;
+import org.springframework.data.neo4j.annotation.Fetch;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.RelationshipEntity;
+import org.springframework.data.neo4j.annotation.RelationshipType;
+import org.springframework.data.neo4j.annotation.StartNode;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
-
-import java.util.Map;
 
 /**
  * Creates a Reversed directional relationship between an Entity and a Tag
  *
  * @author mholdsworth
- * @since 29/06/2013
  * @tag Relationship, EntityTag, Tag, Entity
+ * @since 29/06/2013
  */
-@RelationshipEntity (type = "ENTITY-TAG-IN")
+@RelationshipEntity(type = "ENTITY-TAG-IN")
 public class EntityTagIn extends AbstractEntityTag {
 
     @GraphId
-    private Long id =null;
+    private Long id = null;
     @RelationshipType
     @Fetch
     private DynamicRelationshipType relationship;
@@ -61,6 +65,7 @@ public class EntityTagIn extends AbstractEntityTag {
     /**
      * For non-persistent relationship. If caller is not tracking in the graph, then this
      * constructor can be used to create entity data suitable for writing to search
+     *
      * @param entity       Entity object
      * @param tag          Tag object
      * @param relationship Name of the relationship
@@ -68,29 +73,31 @@ public class EntityTagIn extends AbstractEntityTag {
      */
     public EntityTagIn(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
         this();
-        this.entity = (EntityNode)entity;
-        this.tag = (TagNode)tag;
-        this.relationship= DynamicRelationshipType.withName(relationship);
-        if ( propMap!=null && ! propMap.isEmpty())
+        this.entity = (EntityNode) entity;
+        this.tag = (TagNode) tag;
+        this.relationship = DynamicRelationshipType.withName(relationship);
+        if (propMap != null && !propMap.isEmpty()) {
             this.properties = new DynamicPropertiesContainer(propMap);
+        }
     }
 
     public EntityTagIn(EntityNode entity, EntityTag logTag) {
         this.entity = entity;
-        this.tag = (TagNode)logTag.getTag();
+        this.tag = (TagNode) logTag.getTag();
         this.properties = new DynamicPropertiesContainer(logTag.getProperties());
         this.relationship = DynamicRelationshipType.withName(logTag.getRelationship());
 
     }
 
     @Override
-    public Long getId (){
+    public Long getId() {
         return id;
     }
 
     public Object getProperty(String key) {
-        if (properties == null)
+        if (properties == null) {
             return null;
+        }
         return properties.getProperty(key);
     }
 
@@ -100,8 +107,9 @@ public class EntityTagIn extends AbstractEntityTag {
     }
 
     public Boolean isGeoRelationship() {
-        if ( geoRelationship == null )
+        if (geoRelationship == null) {
             return false;
+        }
         return geoRelationship;
     }
 
@@ -128,23 +136,25 @@ public class EntityTagIn extends AbstractEntityTag {
     }
 
     public String getRelationship() {
-        if ( relationship != null)
+        if (relationship != null) {
             return relationship.name();
+        }
         return "ENTITY-TAG-IN";
     }
 
     public void setRelationship(String relationship) {
-        if (relationship != null)
+        if (relationship != null) {
             this.relationship = DynamicRelationshipType.withName(relationship);
+        }
     }
 
     @Override
     public String toString() {
         return "EntityTagIn{" +
-                "id=" + id+
-                ", tag=" + tag +
-                ", entity='" + entity + '\'' +
-                '}';
+            "id=" + id +
+            ", tag=" + tag +
+            ", entity='" + entity + '\'' +
+            '}';
     }
 
 }

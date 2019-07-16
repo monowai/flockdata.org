@@ -29,31 +29,31 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandlingException;
 
 /**
- *
  * KV messages should always be written
- *
+ * <p>
  * To get here, we have gone through a Retry advice chain so likely the DB is down
  * The message will stay on the q as unacknowledged and redelivery will be attempted
  * and the process will begin again.
  *
  * @author mholdsworth
- * @since 11/11/2014
  * @tag Store, ExceptionHandler
+ * @since 11/11/2014
  */
 @IntegrationComponentScan
 public class StoreErrorHandler {
     private Logger logger = LoggerFactory.getLogger(StoreErrorHandler.class);
 
-    @ServiceActivator (inputChannel = "storeErrors")
+    @ServiceActivator(inputChannel = "storeErrors")
     public void handleFailedKvRequest(Message<MessageHandlingException> message) {
         MessageHandlingException payLoad = message.getPayload();
-        if ( payLoad.getCause()!= null ) {
+        if (payLoad.getCause() != null) {
             logger.error(payLoad.getCause().getMessage());
-            if ( payLoad.getCause() instanceof FlockDataTagException){
+            if (payLoad.getCause() instanceof FlockDataTagException) {
                 return; // Log and get out of here
             }
-        } else
+        } else {
             logger.error(payLoad.getMessage());
+        }
 
         throw payLoad;
 

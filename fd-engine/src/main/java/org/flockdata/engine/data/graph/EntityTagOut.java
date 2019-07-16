@@ -22,48 +22,55 @@ package org.flockdata.engine.data.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Map;
 import org.flockdata.data.AbstractEntityTag;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.Tag;
 import org.neo4j.graphdb.DynamicRelationshipType;
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.EndNode;
+import org.springframework.data.neo4j.annotation.Fetch;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.RelationshipEntity;
+import org.springframework.data.neo4j.annotation.RelationshipType;
+import org.springframework.data.neo4j.annotation.StartNode;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
-
-import java.util.Map;
 
 /**
  * Regular non-reversed relationship between an entity and a tag
  *
  * @author mholdsworth
- * @since 29/06/2013
  * @tag Relationship, EntityTag, Tag, Entity
+ * @since 29/06/2013
  */
-@RelationshipEntity  (type = "ENTITY-TAG-OUT")
+@RelationshipEntity(type = "ENTITY-TAG-OUT")
 public class EntityTagOut extends AbstractEntityTag {
 
-    @StartNode protected EntityNode entity;
+    @StartNode
+    protected EntityNode entity;
     @EndNode
-    @Fetch protected TagNode tag;
+    @Fetch
+    protected TagNode tag;
     protected DynamicProperties properties = new DynamicPropertiesContainer();
     @GraphId
     private Long id;
     @RelationshipType
     @Fetch
-    private DynamicRelationshipType relationship ;
+    private DynamicRelationshipType relationship;
 
     protected EntityTagOut() {
 
     }
 
     public EntityTagOut(EntityNode entity, TagNode tag) {
-        this(entity, tag,  "ENTITY-TAG-OUT", null);
+        this(entity, tag, "ENTITY-TAG-OUT", null);
     }
 
     /**
      * For non-persistent relationship. If caller is not tracking in the graph, then this
      * constructor can be used to create entity data suitable for writing to search
+     *
      * @param entity       Entity object
      * @param tag          Tag object
      * @param relationship Name of the relationship
@@ -71,17 +78,18 @@ public class EntityTagOut extends AbstractEntityTag {
      */
     public EntityTagOut(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
         this();
-        this.entity = (EntityNode)entity;
-        this.tag = (TagNode)tag;
+        this.entity = (EntityNode) entity;
+        this.tag = (TagNode) tag;
         this.relationship = DynamicRelationshipType.withName(relationship);
-        if (propMap != null && !propMap.isEmpty())
+        if (propMap != null && !propMap.isEmpty()) {
             this.properties = new DynamicPropertiesContainer(propMap);
+        }
 
     }
 
     public EntityTagOut(EntityNode entity, EntityTag logTag) {
         this.entity = entity;
-        this.tag = (TagNode)logTag.getTag();
+        this.tag = (TagNode) logTag.getTag();
         this.properties = new DynamicPropertiesContainer(logTag.getProperties());
         this.relationship = DynamicRelationshipType.withName(logTag.getRelationship());
 
@@ -104,14 +112,16 @@ public class EntityTagOut extends AbstractEntityTag {
     }
 
     public String getRelationship() {
-        if ( relationship != null)
+        if (relationship != null) {
             return relationship.name();
+        }
         return "ENTITY-TAG-OUT";
     }
 
-    public void setRelationship(String relationship){
-        if ( relationship != null )
+    public void setRelationship(String relationship) {
+        if (relationship != null) {
             this.relationship = DynamicRelationshipType.withName(relationship);
+        }
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -121,14 +131,16 @@ public class EntityTagOut extends AbstractEntityTag {
 
     @Override
     public Boolean isGeoRelationship() {
-        if ( geoRelationship == null )
+        if (geoRelationship == null) {
             return false;
+        }
         return geoRelationship;
     }
 
     public Object getProperty(String key) {
-        if (properties == null)
+        if (properties == null) {
             return null;
+        }
         return properties.getProperty(key);
     }
 
@@ -146,16 +158,17 @@ public class EntityTagOut extends AbstractEntityTag {
     @Override
     public String toString() {
         return "EntityTagOut {" +
-                "id=" + id +
-                ", tag=" + tag +
-                ", entity='" + entity + '\'' +
-                '}';
+            "id=" + id +
+            ", tag=" + tag +
+            ", entity='" + entity + '\'' +
+            '}';
     }
 
     public int compareTo(AbstractEntityTag o) {
         int val = getRelationship().compareTo(o.getRelationship());
-        if (val == 0)
+        if (val == 0) {
             return getTag().getCode().compareTo(o.getTag().getCode());
+        }
         return val;
 
     }

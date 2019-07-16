@@ -20,29 +20,37 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.data.Entity;
-import org.flockdata.data.SystemUser;
-import org.flockdata.engine.data.graph.*;
-import org.flockdata.registration.FortressInputBean;
-import org.flockdata.store.Store;
-import org.flockdata.test.engine.FdNodeHelper;
-import org.flockdata.test.helper.ContentDataHelper;
-import org.flockdata.track.bean.*;
-import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.Collection;
-import java.util.Map;
-
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Collection;
+import java.util.Map;
+import org.flockdata.data.Entity;
+import org.flockdata.data.SystemUser;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.EntityLog;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.LogNode;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.store.Store;
+import org.flockdata.test.engine.FdNodeHelper;
+import org.flockdata.test.helper.ContentDataHelper;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityLogResult;
+import org.flockdata.track.bean.EntitySummaryBean;
+import org.flockdata.track.bean.TrackResultBean;
+import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
  * Fortress
+ *
  * @author mholdsworth
  * @since 22/03/2015
  */
@@ -94,50 +102,51 @@ public class TestVersioning extends EngineBase {
         eib.setContent(cib);
         TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), eib);
         assertEquals("Fortress did not have the store Disabled", Boolean.FALSE, trackResult.getEntity().getFortress().isStoreEnabled());
-        EntityLog entityLog= entityService.getLastEntityLog(trackResult.getEntity().getId());
-        assertNotNull ( entityLog);
+        EntityLog entityLog = entityService.getLastEntityLog(trackResult.getEntity().getId());
+        assertNotNull(entityLog);
 
-        assertNotNull ( entityLog.getLog());
-        assertNotNull ( entityLog.getId());
+        assertNotNull(entityLog.getLog());
+        assertNotNull(entityLog.getId());
         assertTrue(entityLog.getLog().isMocked());
-        assertTrue( "Mocked log has an ID set to current system time", entityLog.getLog().getId()>0);
+        assertTrue("Mocked log has an ID set to current system time", entityLog.getLog().getId() > 0);
         assertEquals("Mocked log should have the same ID as the Entity", trackResult.getEntity().getId(), entityLog.getId());
 
 
         EntityNode entity = entityService.getEntity(su.getCompany(), trackResult.getEntity().getKey());
-        assertNotNull ( entity);
+        assertNotNull(entity);
 
         Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), trackResult.getEntity().getKey());
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());
         // Check various properties that we still want to return
         for (EntityLogResult log : logs) {
-            assertEquals (entity.getFortressCreatedTz().getMillis(),log.getWhen().longValue() );
-            assertNotNull ( log.getEvent());
+            assertEquals(entity.getFortressCreatedTz().getMillis(), log.getWhen().longValue());
+            assertNotNull(log.getEvent());
             assertEquals("Create", log.getEvent().getName());
             assertNotNull(log.getWhen());
             assertNotNull(log.getMadeBy());
             assertFalse(log.isVersioned());
         }
         EntityLog mockLog = entityService.getLogForEntity(entity, 0L);
-        assertNotNull (mockLog);
+        assertNotNull(mockLog);
         assertNotNull(mockLog.getLog());
-        assertTrue( mockLog.isMocked());
+        assertTrue(mockLog.isMocked());
         Assert.assertEquals(Store.NONE.name(), mockLog.getLog().getStorage());
 
         EntitySummaryBean summaryBean = entityService.getEntitySummary(su.getCompany(), entity.getKey());
-        assertNotNull ( summaryBean);
-        assertNotNull ( summaryBean.getChanges());
-        assertEquals ( 1, summaryBean.getChanges().size());
+        assertNotNull(summaryBean);
+        assertNotNull(summaryBean.getChanges());
+        assertEquals(1, summaryBean.getChanges().size());
 
         // See TestFdIntegration for a fully integrated version of this test
     }
+
     @Test
-    public void log_ValidateValues() throws Exception{
+    public void log_ValidateValues() throws Exception {
         Map<String, Object> json = ContentDataHelper.getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("store_Disabled");
 
-        FortressInputBean fib= new FortressInputBean("store_Disabled", true);
+        FortressInputBean fib = new FortressInputBean("store_Disabled", true);
         fib.setStoreEnabled(false);
         FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
 
@@ -161,7 +170,7 @@ public class TestVersioning extends EngineBase {
         // DAT-353
         engineConfig.setStoreEnabled(true);
         // The system default store is MEMORY
-        ContentInputBean content  = new ContentInputBean(ContentDataHelper.getRandomMap());
+        ContentInputBean content = new ContentInputBean(ContentDataHelper.getRandomMap());
         // Fortress is not enabled but the overall configuration says the store is enabled
         Entity entity = FdNodeHelper.getEntity("blah", "abc", "abc", "123");
 
@@ -174,12 +183,12 @@ public class TestVersioning extends EngineBase {
         LogNode log = new LogNode(entity);
 
         log = logRetryService.prepareLog(engineConfig.store(), trackResult, log);
-        assertEquals("Store should be set to that of the fortress", Store.NONE.name(), log.getContent().getStore() );
+        assertEquals("Store should be set to that of the fortress", Store.NONE.name(), log.getContent().getStore());
 
         fortress.setStoreEnabled(true);
         log = logRetryService.prepareLog(engineConfig.store(), trackResult, log);
         // Falls back to the system default
-        assertEquals("Store should be set to the system default", Store.MEMORY.name(), log.getContent().getStore() );
+        assertEquals("Store should be set to the system default", Store.MEMORY.name(), log.getContent().getStore());
 
 
     }

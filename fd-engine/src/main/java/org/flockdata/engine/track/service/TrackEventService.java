@@ -42,13 +42,13 @@ public class TrackEventService {
      * @param eventCode - descriptive name of the event - duplicates for a company will not be created
      * @return created ChangeEvent
      */
-    @Transactional(propagation =  Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public ChangeEvent processEvent(String eventCode) {
         //Company company = securityHelper.getCompany();
         return processEvent(null, eventCode);
     }
 
-    @Transactional(propagation =  Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public ChangeEvent processEvent(Company company, String eventCode) {
         //return trackEventDao.createEvent(company, eventCode);
         return new ChangeEventNode(eventCode);

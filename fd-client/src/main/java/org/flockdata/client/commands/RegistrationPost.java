@@ -31,8 +31,8 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * Handles the RegistrationInputBean through to Flockdata
  *
- * @tag Command, SystemUser, Security, Administration
  * @author mholdsworth
+ * @tag Command, SystemUser, Security, Administration
  * @since 13/04/2016
  */
 @Component
@@ -51,10 +51,10 @@ public class RegistrationPost {
         HttpEntity requestEntity = new HttpEntity<>(registrationBean, fdIoInterface.getHeaders());
         SystemUserResultBean result = null;
         try {
-            ResponseEntity<SystemUserResultBean> response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+"/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
+            ResponseEntity<SystemUserResultBean> response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
             result = response.getBody();
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error= e.getMessage();
+            error = e.getMessage();
         }
 
         return new CommandResponse<>(error, result);// Everything worked

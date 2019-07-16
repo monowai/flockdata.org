@@ -17,6 +17,11 @@
 package org.flockdata.transform.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
@@ -28,46 +33,50 @@ import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.tag.TagProfile;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-
 /**
  * @author mholdsworth
  * @since 9/12/2014
  */
-public class JsonEntityTransformer extends EntityInputBean  {
+public class JsonEntityTransformer extends EntityInputBean {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(JsonEntityTransformer.class);
 
     public void setData(JsonNode node, ContentModel profile) {
         for (Map.Entry<String, ColumnDefinition> entry : profile.getContent().entrySet()) {
             JsonNode nodeField = node.get(entry.getKey());
-            if ( nodeField!=null )
-                if ( nodeField.isArray())
+            if (nodeField != null) {
+                if (nodeField.isArray()) {
                     handleArray(nodeField, entry.getValue());
-                else {
+                } else {
                     ColumnDefinition colDef = profile.getColumnDef(entry.getKey());
-                    if ( colDef != null ) {
-                        if (TransformationHelper.evaluate(colDef.isCallerRef(), false))
+                    if (colDef != null) {
+                        if (TransformationHelper.evaluate(colDef.isCallerRef(), false)) {
                             setCode(nodeField.asText());
-                        if (TransformationHelper.evaluate(colDef.isTitle(), false))
+                        }
+                        if (TransformationHelper.evaluate(colDef.isTitle(), false)) {
                             setName(nodeField.asText());
-                        if (TransformationHelper.evaluate(colDef.isDescription(), false))
+                        }
+                        if (TransformationHelper.evaluate(colDef.isDescription(), false)) {
                             setDescription(nodeField.asText());
-                        if (TransformationHelper.evaluate(colDef.isDocument(), false))
+                        }
+                        if (TransformationHelper.evaluate(colDef.isDocument(), false)) {
                             setDocumentType(new DocumentTypeInputBean(nodeField.asText()));
-                        if (TransformationHelper.evaluate(colDef.isTag(), false))
+                        }
+                        if (TransformationHelper.evaluate(colDef.isTag(), false)) {
                             addTag(getTagFromNode(nodeField, colDef));
+                        }
 
                     }
                 }
+            }
         }
         logger.debug("entity calcd {}", this.toString());
     }
 
-    private void handleArray(JsonNode arrayValues, ColumnDefinition colDef){
-        Collection<TagInputBean>results = new ArrayList<>();
-        Iterator<JsonNode>nodes = arrayValues.elements();
-        while (nodes.hasNext()){
+    private void handleArray(JsonNode arrayValues, ColumnDefinition colDef) {
+        Collection<TagInputBean> results = new ArrayList<>();
+        Iterator<JsonNode> nodes = arrayValues.elements();
+        while (nodes.hasNext()) {
             JsonNode thisNode = nodes.next();
             results.add(getTagFromNode(thisNode, colDef));
         }
@@ -79,55 +88,59 @@ public class JsonEntityTransformer extends EntityInputBean  {
     private TagInputBean getTagFromNode(JsonNode thisNode, ColumnDefinition colDef) {
         String code;
         boolean readRow = true;
-        if (colDef.isArrayDelimited()){
+        if (colDef.isArrayDelimited()) {
             code = thisNode.asText();
             readRow = false;
-        } else if (colDef.getCode() == null ) {
+        } else if (colDef.getCode() == null) {
             code = thisNode.asText();
-            readRow=false;
-        } else
-            code= thisNode.get(colDef.getCode()).asText();
+            readRow = false;
+        } else {
+            code = thisNode.get(colDef.getCode()).asText();
+        }
 
         TagInputBean tag = new TagInputBean(code);
 
-        if (readRow)
+        if (readRow) {
             tag.setName(thisNode.get(colDef.getName()).asText());
+        }
 
         tag.setLabel(colDef.getLabel());
-        Map<String,Object> rlxProperties = new HashMap<>();
+        Map<String, Object> rlxProperties = new HashMap<>();
 
-        if ( colDef.hasRelationshipProps() ) {
+        if (colDef.hasRelationshipProps()) {
             for (ColumnDefinition rlx : colDef.getRlxProperties()) {
-                if (!thisNode.get(rlx.getSource()).hasNonNull(rlx.getSource()))
+                if (!thisNode.get(rlx.getSource()).hasNonNull(rlx.getSource())) {
                     rlxProperties.put(rlx.getTarget(), thisNode.get(rlx.getSource()).textValue());
+                }
             }
         }
         setSubTags(tag, colDef.getTargets(), thisNode);
         Collection<EntityTagRelationshipDefinition> links = colDef.getEntityTagLinks();
-        String rlx ;
+        String rlx;
         boolean geo = false;
-        if ( links == null || links.isEmpty())
+        if (links == null || links.isEmpty()) {
             rlx = "default";
-        else {
+        } else {
             EntityTagRelationshipDefinition etr = links.iterator().next();
             geo = etr.getGeo();
             rlx = links.iterator().next().getRelationshipName();
         }
 
-        tag.addEntityTagLink(new EntityTagRelationshipInput(rlx,geo));
+        tag.addEntityTagLink(new EntityTagRelationshipInput(rlx, geo));
         return tag;
     }
 
-    private void setSubTags(TagInputBean parentTag, ArrayList<TagProfile> subTags, JsonNode jsonNode){
-        if ( subTags != null && !subTags.isEmpty()) {
+    private void setSubTags(TagInputBean parentTag, ArrayList<TagProfile> subTags, JsonNode jsonNode) {
+        if (subTags != null && !subTags.isEmpty()) {
             for (TagProfile subTag : subTags) {
                 String codeValue = jsonNode.get(subTag.getCode()).textValue();
-                if ( codeValue !=null ) {
+                if (codeValue != null) {
                     TagInputBean tagInputBean = new TagInputBean(codeValue);
                     tagInputBean.setLabel(subTag.getLabel());
                     String rlx = subTag.getRelationship();
-                    if ( rlx==null )
+                    if (rlx == null) {
                         rlx = "undefined";
+                    }
 
                     parentTag.setTargets(rlx, tagInputBean);
                     setSubTags(tagInputBean, subTag.getTargets(), jsonNode);

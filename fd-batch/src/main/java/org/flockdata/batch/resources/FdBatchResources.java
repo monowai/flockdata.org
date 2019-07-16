@@ -16,6 +16,9 @@
 
 package org.flockdata.batch.resources;
 
+import java.sql.Driver;
+import java.sql.SQLException;
+import javax.sql.DataSource;
 import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.listener.FdJobListener;
 import org.flockdata.batch.listener.FdSkipListener;
@@ -33,19 +36,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
-import java.sql.Driver;
-import java.sql.SQLException;
-
 /**
  * Encapsulates basic DataSource functionality
  * Kept here for reference only
+ *
  * @author mholdsworth
- * @since 28/01/2016
  * @tag Batch, FdClient
+ * @since 28/01/2016
  */
 @Component
-@Profile({"fd-batch", "fd-batch-dev"})
+@Profile( {"fd-batch", "fd-batch-dev"})
 public class FdBatchResources {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
@@ -72,13 +72,13 @@ public class FdBatchResources {
      * }
      *
      * @return datasource to read from
-     * @throws SQLException connection errors
+     * @throws SQLException           connection errors
      * @throws ClassNotFoundException driver couldn't be found
      * @throws IllegalAccessException driver issue
      * @throws InstantiationException driver issue
      */
     @Bean
-    @Profile({"fd-batch", "fd-batch-dev"})
+    @Profile( {"fd-batch", "fd-batch-dev"})
     @Qualifier("dataSource")
     @Primary
     public DataSource dataSource() throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {

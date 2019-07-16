@@ -20,31 +20,35 @@
 
 package org.flockdata.test.engine.mvc;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Collection;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.test.helper.ContentDataHelper;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityLogResult;
+import org.flockdata.track.bean.EntityResultBean;
+import org.flockdata.track.bean.TrackRequestResult;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * @author mholdsworth
+ * @tag Test, Track, MVC
  * @since 29/10/2014
- * @tag Test,Track,MVC
  */
 public class TestTrackEP extends MvcBase {
 
     @Test
-    public void track_MinimalArguments () throws Exception {
-        FortressResultBean f = makeFortress(mike(),  new FortressInputBean("track_MinimalArguments", true));
+    public void track_MinimalArguments() throws Exception {
+        FortressResultBean f = makeFortress(mike(), new FortressInputBean("track_MinimalArguments", true));
         EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("usera");
         eib.setCode(new DateTime().toString());
@@ -53,7 +57,7 @@ public class TestTrackEP extends MvcBase {
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull(trackResult);
         assertEquals("A new entity should have been created", true, trackResult.isNewEntity());
-        assertEquals( "No service message was returned", 1, trackResult.getServiceMessages().size());
+        assertEquals("No service message was returned", 1, trackResult.getServiceMessages().size());
         EntityResultBean e = getEntity(mike(), trackResult.getKey());
         //Entity e = entityService.getEntity(su.getCompany(), trackResult.getKey());
 
@@ -61,14 +65,14 @@ public class TestTrackEP extends MvcBase {
         assertEquals("usera", e.getCreatedBy().getCode());
         assertNotNull(e.getSearchKey());
 
-        trackResult =track(mike(), eib);
+        trackResult = track(mike(), eib);
         assertEquals("Existing entity should have been found", true, !trackResult.isNewEntity());
 
     }
 
     @Test
     public void track_FortressUserInEntity() throws Exception {
-        FortressResultBean f = makeFortress(mike(),  new FortressInputBean("track_MinimalArguments", true));
+        FortressResultBean f = makeFortress(mike(), new FortressInputBean("track_MinimalArguments", true));
         EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("userA");
         ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
@@ -83,7 +87,7 @@ public class TestTrackEP extends MvcBase {
 
     @Test
     public void entity_findLogs() throws Exception {
-        FortressResultBean f = makeFortress(mike(),  new FortressInputBean("entity_findLogs", true));
+        FortressResultBean f = makeFortress(mike(), new FortressInputBean("entity_findLogs", true));
         EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("userA");
         ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
@@ -96,19 +100,19 @@ public class TestTrackEP extends MvcBase {
 
     @Test
     public void entity_findLogsWithIllegalEntity() throws Exception {
-        FortressResultBean f = makeFortress(mike(),  new FortressInputBean("entity_findLogsWithIllegalEntity", true));
+        FortressResultBean f = makeFortress(mike(), new FortressInputBean("entity_findLogsWithIllegalEntity", true));
         EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
         eib.setFortressUser("userA");
         ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
         eib.setContent(cib);
         // Test Serialization
-        byte[] bytes =JsonUtils.toJsonBytes(eib);
-        eib = JsonUtils.toObject(bytes,EntityInputBean.class);
+        byte[] bytes = JsonUtils.toJsonBytes(eib);
+        eib = JsonUtils.toObject(bytes, EntityInputBean.class);
 
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull(trackResult);
         login("mike", "123");
-        getEntityLogsIllegalEntity(mike(), trackResult.getKey() +"123");
+        getEntityLogsIllegalEntity(mike(), trackResult.getKey() + "123");
 
     }
 
@@ -121,8 +125,8 @@ public class TestTrackEP extends MvcBase {
     }
 
     @Test
-    public void fortress_DuplicateNameWithProperties() throws Exception{
-        String fName= "fortress_DuplicateNameWithProperties";
+    public void fortress_DuplicateNameWithProperties() throws Exception {
+        String fName = "fortress_DuplicateNameWithProperties";
 //        cleanUpGraph();
         FortressInputBean fortressInputBean = new FortressInputBean(fName);
         FortressResultBean result = makeFortress(sally(), fortressInputBean);

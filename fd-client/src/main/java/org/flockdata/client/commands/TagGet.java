@@ -30,8 +30,8 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * Locate a tag by it's Label and Code
  *
- * @tag Command, Tag, Query
  * @author mholdsworth
+ * @tag Command, Tag, Query
  * @since 17/04/2016
  */
 @Component
@@ -49,14 +49,14 @@ public class TagGet {
         HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
         TagResultBean result = null;
         String error = null;
-        
+
         try {
-            ResponseEntity<TagResultBean> response ;
-                response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+"/api/v1/tag/{label}/{code}", HttpMethod.GET, requestEntity, TagResultBean.class, label,code );
+            ResponseEntity<TagResultBean> response;
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/tag/{label}/{code}", HttpMethod.GET, requestEntity, TagResultBean.class, label, code);
 
             result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error= e.getMessage();
+            error = e.getMessage();
         }
         return new CommandResponse<>(error, result);// Everything worked
     }

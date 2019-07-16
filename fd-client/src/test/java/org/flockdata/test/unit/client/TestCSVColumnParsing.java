@@ -16,6 +16,11 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -25,14 +30,9 @@ import org.flockdata.transform.model.ExtractProfile;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
 
-import java.util.List;
-
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-
 /**
  * Handling columns from content profile
+ *
  * @author mholdsworth
  * @since 27/01/2015
  */
@@ -49,21 +49,21 @@ public class TestCSVColumnParsing extends AbstractImport {
         long rows = fileProcessor.processFile(extractProfile, "/data/pac.txt");
         assertEquals(1L, rows);
         List<TagInputBean> tagInputBeans = getTemplate().getTags();
-        assertNotNull ( tagInputBeans);
+        assertNotNull(tagInputBeans);
         assertEquals(4, tagInputBeans.size());
-        boolean foundA = false, foundB= false,foundC= false, foundD= false;
+        boolean foundA = false, foundB = false, foundC = false, foundD = false;
         for (TagInputBean tagInputBean : tagInputBeans) {
-            if ( tagInputBean.getLabel().equals("OSCategory")){
+            if (tagInputBean.getLabel().equals("OSCategory")) {
                 foundA = true;
                 assertEquals("E1140", tagInputBean.getCode());
-            } else if ( tagInputBean.getLabel().equals("Expenditure")){
+            } else if (tagInputBean.getLabel().equals("Expenditure")) {
                 foundB = true;
                 assertEquals("D", tagInputBean.getCode());
                 assertEquals("Direct", tagInputBean.getName());
-            }  else if ( tagInputBean.getLabel().equals("InterestGroup")){
+            } else if (tagInputBean.getLabel().equals("InterestGroup")) {
                 foundC = true;
                 assertEquals("C00485250", tagInputBean.getCode());
-            }  else if ( tagInputBean.getLabel().equals("Politician")){
+            } else if (tagInputBean.getLabel().equals("Politician")) {
                 foundD = true;
                 assertEquals("N00031647", tagInputBean.getCode());
             }
@@ -82,7 +82,7 @@ public class TestCSVColumnParsing extends AbstractImport {
     public void segment_SetInPayloadFromSource() throws Exception {
 
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/column-parsing.json");
-        ExtractProfile profile = new ExtractProfileHandler(contentModel,false);
+        ExtractProfile profile = new ExtractProfileHandler(contentModel, false);
         assertEquals(false, profile.hasHeader());
         profile.setQuoteCharacter("|");
         long rows = fileProcessor.processFile(profile, "/data/pac.txt");
@@ -91,7 +91,6 @@ public class TestCSVColumnParsing extends AbstractImport {
             assertEquals("The segment was not set in to the EntityInput", "2014", entityInputBean.getSegment());
         }
     }
-
 
 
 }

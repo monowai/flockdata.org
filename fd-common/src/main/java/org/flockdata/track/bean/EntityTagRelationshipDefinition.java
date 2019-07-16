@@ -20,17 +20,16 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.transform.ColumnDefinition;
-
 import java.util.Collection;
+import org.flockdata.transform.ColumnDefinition;
 
 /**
  * @author mholdsworth
- * @since 19/07/2016
  * @tag Relationship, EntityTag
+ * @since 19/07/2016
  */
 public class EntityTagRelationshipDefinition {
-    private boolean geo ; // Links to a Geo relationship
+    private boolean geo; // Links to a Geo relationship
     private boolean reverse; // default is Entity->Tag
     private String relationshipName;
     private Collection<ColumnDefinition> properties;
@@ -55,7 +54,7 @@ public class EntityTagRelationshipDefinition {
     @Override
     public String toString() {
         return "EntityTagRelationshipDefinition{" +
-                "relationshipName='" + relationshipName + '\'' +
-                '}';
+            "relationshipName='" + relationshipName + '\'' +
+            '}';
     }
 }

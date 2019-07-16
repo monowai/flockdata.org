@@ -20,6 +20,8 @@
 
 package org.flockdata.search.integration;
 
+import java.io.IOException;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.ClientConfiguration;
@@ -45,14 +47,12 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-
 /**
  * Services ENTITY requests from the Engine
+ *
  * @author mholdsworth
- * @since 12/04/2014
  * @tag Search, Entity, Messaging
+ * @since 12/04/2014
  */
 @Configuration
 @IntegrationComponentScan
@@ -71,9 +71,9 @@ public class InboundSearchHandler {
         this.searchWriter = searchWriter;
     }
 
-    @Autowired (required = false)
-    void setExchanges(Exchanges exchanges){
-        this.exchanges= exchanges;
+    @Autowired(required = false)
+    void setExchanges(Exchanges exchanges) {
+        this.exchanges = exchanges;
     }
 
     @PostConstruct
@@ -82,7 +82,7 @@ public class InboundSearchHandler {
     }
 
     @Bean
-    MessageChannel writeSearchDoc(){
+    MessageChannel writeSearchDoc() {
         return new DirectChannel();
     }
 
@@ -92,7 +92,7 @@ public class InboundSearchHandler {
     }
 
     @Bean
-    MessageChannel searchDocSyncResult () {
+    MessageChannel searchDocSyncResult() {
         return new DirectChannel();
     }
 
@@ -100,12 +100,12 @@ public class InboundSearchHandler {
     @Profile("fd-server")
     public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory) {
         return IntegrationFlows.from(
-                Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
-                    .outputChannel(writeSearchDoc())
-                        .mappedRequestHeaders(ClientConfiguration.KEY_MSG_KEY, ClientConfiguration.KEY_MSG_TYPE)
-                )
-                .handle(handler())
-                .get();
+            Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
+                .outputChannel(writeSearchDoc())
+                .mappedRequestHeaders(ClientConfiguration.KEY_MSG_KEY, ClientConfiguration.KEY_MSG_TYPE)
+        )
+            .handle(handler())
+            .get();
     }
 
     @Bean
@@ -114,10 +114,10 @@ public class InboundSearchHandler {
         return message -> {
             try {
                 Object oType = message.getHeaders().get(ClientConfiguration.KEY_MSG_TYPE);
-                if ( oType == null || oType.toString().equalsIgnoreCase("W"))
-                    searchWriter.createSearchableChange(JsonUtils.toObject((byte[])message.getPayload(), SearchChanges.class));
-                else if ( oType.toString().equalsIgnoreCase("ADMIN")){
-                    AdminRequest adminRequest =JsonUtils.toObject(((String)message.getPayload()).getBytes(),AdminRequest.class);
+                if (oType == null || oType.toString().equalsIgnoreCase("W")) {
+                    searchWriter.createSearchableChange(JsonUtils.toObject((byte[]) message.getPayload(), SearchChanges.class));
+                } else if (oType.toString().equalsIgnoreCase("ADMIN")) {
+                    AdminRequest adminRequest = JsonUtils.toObject(((String) message.getPayload()).getBytes(), AdminRequest.class);
                     searchAdmin.deleteIndexes(adminRequest.getIndexesToDelete());
                     log.debug("Got an admin request");
                 }
@@ -128,8 +128,6 @@ public class InboundSearchHandler {
 
         };
     }
-
-
 
 
 }

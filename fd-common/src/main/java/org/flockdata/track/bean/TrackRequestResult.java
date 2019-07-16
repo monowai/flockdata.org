@@ -21,14 +21,13 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.io.Serializable;
 import java.util.Collection;
 
 /**
  * @author mholdsworth
- * @since 20/07/2015
  * @tag Contract, Track, Content
+ * @since 20/07/2015
  */
 public class TrackRequestResult implements Serializable {
 

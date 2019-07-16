@@ -28,9 +28,10 @@ import org.springframework.messaging.MessageChannel;
 
 /**
  * Channel definitions
+ *
  * @author mholdsworth
- * @since 13/02/2016
  * @tag Store, Messaging
+ * @since 13/02/2016
  */
 
 
@@ -43,7 +44,7 @@ public class StoreChannels {
     }
 
     @Bean
-    MessageChannel storePing () {
+    MessageChannel storePing() {
         return new DirectChannel();
     }
 

@@ -18,19 +18,19 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Map;
 import org.flockdata.data.ChangeEvent;
 import org.flockdata.data.EntityLog;
 import org.flockdata.data.Log;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 
-import java.util.Map;
-
 /**
  * Returns a view on to a tracked Entity log and it's content
+ *
  * @author mholdsworth
- * @since 21/04/2016
  * @tag Contract, EntityLog, Query
+ * @since 21/04/2016
  */
 public class EntityLogResult {
 
@@ -50,7 +50,8 @@ public class EntityLogResult {
     private Log log;
     private boolean mocked = false;
 
-    EntityLogResult(){}
+    EntityLogResult() {
+    }
 
     public EntityLogResult(EntityLog entityLog) {
         this();
@@ -64,19 +65,22 @@ public class EntityLogResult {
         this.checkSum = log.getChecksum();
         this.versioned = !log.isMocked();
         this.event = new ChangeEventResultBean(log.getEvent());
-        if (log.getContent()!=null )
+        if (log.getContent() != null) {
             this.data = log.getContent().getData();
-        if ( log.getMadeBy()!=null)
+        }
+        if (log.getMadeBy() != null) {
             this.madeBy = log.getMadeBy().getCode();
-        this.comment= log.getComment();
+        }
+        this.comment = log.getComment();
         this.when = entityLog.getFortressWhen();
 
     }
 
     public EntityLogResult(EntityLog log, StoredContent storedContent) {
         this(log);
-        if ( storedContent!=null )
+        if (storedContent != null) {
             this.data = storedContent.getData();
+        }
     }
 
     public Long getId() {
@@ -90,10 +94,10 @@ public class EntityLogResult {
     @Override
     public String toString() {
         return "LogRequest{" +
-                "store=" + store +
-                ", id=" + id +
-                ", entity=" + entityKey +
-                '}';
+            "store=" + store +
+            ", id=" + id +
+            ", entity=" + entityKey +
+            '}';
     }
 
     public String getContentType() {

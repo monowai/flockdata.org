@@ -20,7 +20,14 @@
 
 package org.flockdata.test.engine.suites;
 
-import org.flockdata.test.engine.services.*;
+import org.flockdata.test.engine.services.TestBatch;
+import org.flockdata.test.engine.services.TestCallerCode;
+import org.flockdata.test.engine.services.TestCsvImportIntegration;
+import org.flockdata.test.engine.services.TestEntityDeadlock;
+import org.flockdata.test.engine.services.TestForceDuplicateRlx;
+import org.flockdata.test.engine.services.TestNonTransactional;
+import org.flockdata.test.engine.services.TestSchemaManagement;
+import org.flockdata.test.engine.services.TestTagDeadlock;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.springframework.retry.annotation.EnableRetry;
@@ -34,19 +41,20 @@ import org.springframework.retry.annotation.EnableRetry;
 
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-        TestCsvImportIntegration.class,
-        TestBatch.class,
-        TestCallerCode.class,
-        TestEntityDeadlock.class,
-        TestForceDuplicateRlx.class,
-        TestNonTransactional.class,
-        TestTagDeadlock.class,
-        TestSchemaManagement.class
+@Suite.SuiteClasses( {
+    TestCsvImportIntegration.class,
+    TestBatch.class,
+    TestCallerCode.class,
+    TestEntityDeadlock.class,
+    TestForceDuplicateRlx.class,
+    TestNonTransactional.class,
+    TestTagDeadlock.class,
+    TestSchemaManagement.class
 })
 @EnableRetry
 public class Concurrency {
 
-    public Concurrency(){}
+    public Concurrency() {
+    }
 
 }

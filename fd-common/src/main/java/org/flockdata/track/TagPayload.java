@@ -20,10 +20,9 @@
 
 package org.flockdata.track;
 
+import java.util.Collection;
 import org.flockdata.data.Company;
 import org.flockdata.registration.TagInputBean;
-
-import java.util.Collection;
 
 /**
  * @author mholdsworth

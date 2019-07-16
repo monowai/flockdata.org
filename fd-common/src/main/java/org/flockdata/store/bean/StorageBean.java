@@ -17,6 +17,11 @@
 package org.flockdata.store.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
@@ -24,17 +29,12 @@ import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityResultBean;
 import org.flockdata.track.bean.TrackResultBean;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Map;
-import java.util.zip.CRC32;
-import java.util.zip.Checksum;
-
 /**
  * Encapsulate KV Content properties
+ *
  * @author mholdsworth
- * @since 19/11/2014
  * @tag Payload, Store
+ * @since 19/11/2014
  */
 public class StorageBean implements StoredContent, Serializable {
     private EntityResultBean entity;
@@ -42,7 +42,7 @@ public class StorageBean implements StoredContent, Serializable {
     private String checksum;
     private ContentInputBean content = null;
     private String store;
-    private String type ;
+    private String type;
     private boolean noResult;
 
     public StorageBean() {
@@ -69,7 +69,7 @@ public class StorageBean implements StoredContent, Serializable {
 
         this.entity = new EntityResultBean(trackResultBean.getEntity());
         this.type = entity.getType();
-        assert this.type!=null;
+        assert this.type != null;
 
         if (trackResultBean.getCurrentLog() != null) {
             if (trackResultBean.getCurrentLog().getLog() != null) {
@@ -96,21 +96,22 @@ public class StorageBean implements StoredContent, Serializable {
 
     @JsonIgnore
     public String getAttachment() {
-        if (content == null)
+        if (content == null) {
             return null;
+        }
         return content.getAttachment();
     }
 
     @JsonIgnore
     public Map<String, Object> getData() {
-        if (content == null)
+        if (content == null) {
             return null;
+        }
 
         return content.getData();
     }
 
     /**
-     *
      * @return version of the contentModel used to create the payload
      */
     @JsonIgnore
@@ -120,21 +121,23 @@ public class StorageBean implements StoredContent, Serializable {
 
     public String getChecksum() {
 
-        assert getData()!=null || getAttachment()!=null;
+        assert getData() != null || getAttachment() != null;
 
-        if (checksum != null)
+        if (checksum != null) {
             return checksum;
+        }
 
         Checksum crcChecksum = new CRC32();
         byte[] bytes;
-        if (getAttachment() != null)
+        if (getAttachment() != null) {
             bytes = getAttachment().getBytes();
-        else
+        } else {
             try {
                 bytes = JsonUtils.toJsonBytes(getData());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
         crcChecksum.update(bytes, 0, bytes.length);
         checksum = Long.toHexString(crcChecksum.getValue());
         return checksum;
@@ -160,7 +163,7 @@ public class StorageBean implements StoredContent, Serializable {
     }
 
     @Override
-    public EntityResultBean getEntity(){
+    public EntityResultBean getEntity() {
         return entity;
     }
 }

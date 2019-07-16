@@ -25,14 +25,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.transform.model.ExtractProfile;
 import org.flockdata.transform.model.ExtractProfileHandler;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * @author mholdsworth
@@ -54,8 +53,10 @@ public class ExtractProfileDeserializer extends JsonDeserializer<ExtractProfile>
                 importProfile = om.readValue(stream, ExtractProfileHandler.class);
                 importProfile.setContentModel(contentModel);
             } else
-                // Defaults??
+            // Defaults??
+            {
                 importProfile = new ExtractProfileHandler(contentModel);
+            }
         }
 
         return importProfile;
@@ -71,24 +72,29 @@ public class ExtractProfileDeserializer extends JsonDeserializer<ExtractProfile>
         // Batch handling
         // ********
         nodeValue = node.get("header");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             importProfile.setHeader(Boolean.parseBoolean(nodeValue.asText()));
+        }
 
         nodeValue = node.get("handler");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             importProfile.setHandler(nodeValue.asText());
+        }
 
         nodeValue = node.get("preParseRowExp");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             importProfile.setPreParseRowExp(nodeValue.asText());
+        }
 
         nodeValue = node.get("delimiter");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             importProfile.setDelimiter(nodeValue.asText());
+        }
 
         nodeValue = node.get("quoteCharacter");
-        if (!isNull(nodeValue))
+        if (!isNull(nodeValue)) {
             importProfile.setQuoteCharacter(nodeValue.asText());
+        }
 
         nodeValue = node.get("contentType");
         if (!isNull(nodeValue)) {

@@ -1,5 +1,7 @@
 package org.flockdata.graph.dao;
 
+import static org.neo4j.driver.v1.Values.parameters;
+
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
 import org.flockdata.graph.DriverManager;
@@ -15,8 +17,6 @@ import org.neo4j.driver.v1.types.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static org.neo4j.driver.v1.Values.parameters;
-
 /**
  * @author mikeh
  * @since 10/06/18
@@ -26,6 +26,31 @@ public class CompanyRepo {
 
     private DriverManager driverManager;
     private KeyGenService keyGenService;
+
+    private static Company createCompanyNode(Transaction tx, Company company) {
+
+        StatementResult statementResult = tx.run(
+            "CREATE (company:FDCompany {name: $name, code: $code, apiKey: $apiKey}) return company",
+            parameters(
+                "code", company.getCode().toLowerCase(),
+                "name", company.getName(),
+                "apiKey", company.getApiKey())
+        );
+
+        Node eNode = statementResult.single().get("company").asNode();
+        return CompanyNode.build(eNode);
+    }
+
+    private static Company findByCode(Transaction tx, String code) {
+        String cmd = "match (company:FDCompany {code: $code}) return company";
+        StatementResult statementResult = tx.run(cmd, parameters("code", code.toLowerCase()));
+        if (!statementResult.hasNext()) {
+            return null;
+        }
+        Node eNode = statementResult.single().get("company").asNode();
+        return CompanyNode.build(eNode);
+
+    }
 
     @Autowired
     void setDriverManager(DriverManager driverManager) {
@@ -43,26 +68,6 @@ public class CompanyRepo {
         }
     }
 
-    public Company findByCode(Company company) {
-        try (Session session = driverManager.session()) {
-            return session.readTransaction(tx -> findByCode(tx, company.getCode()));
-        }
-    }
-
-    private static Company createCompanyNode(Transaction tx, Company company) {
-
-        StatementResult statementResult = tx.run(
-            "CREATE (company:FDCompany {name: $name, code: $code, apiKey: $apiKey}) return company",
-            parameters(
-                "code", company.getCode().toLowerCase(),
-                "name", company.getName(),
-                "apiKey", company.getApiKey())
-        );
-
-        Node eNode = statementResult.single().get("company").asNode();
-        return CompanyNode.build(eNode);
-    }
-
 //    private static Company findByKey(Transaction tx, String key) {
 //        String cmd = "match (company:FDCompany {key: $key}) return company";
 //        StatementResult statementResult = tx.run(cmd, parameters("apiKey", key));
@@ -71,15 +76,10 @@ public class CompanyRepo {
 //
 //    }
 
-    private static Company findByCode(Transaction tx, String code) {
-        String cmd = "match (company:FDCompany {code: $code}) return company";
-        StatementResult statementResult = tx.run(cmd, parameters("code", code.toLowerCase()));
-        if (!statementResult.hasNext()) {
-            return null;
+    public Company findByCode(Company company) {
+        try (Session session = driverManager.session()) {
+            return session.readTransaction(tx -> findByCode(tx, company.getCode()));
         }
-        Node eNode = statementResult.single().get("company").asNode();
-        return CompanyNode.build(eNode);
-
     }
 
     public SystemUser findSysUserByLogin(String login) {

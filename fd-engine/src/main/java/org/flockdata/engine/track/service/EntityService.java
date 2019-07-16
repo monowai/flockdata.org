@@ -20,20 +20,39 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.data.*;
-import org.flockdata.engine.data.graph.*;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import org.flockdata.data.Company;
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.data.graph.EntityLog;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.LogNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.SearchResult;
 import org.flockdata.store.StoredContent;
-import org.flockdata.track.bean.*;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.track.bean.EntityLogResult;
+import org.flockdata.track.bean.EntitySummaryBean;
+import org.flockdata.track.bean.EntityToEntityLinkInput;
+import org.flockdata.track.bean.FdTagResultBean;
+import org.flockdata.track.bean.LogDetailBean;
+import org.flockdata.track.bean.TrackResultBean;
 
 /**
  * @author mholdsworth
@@ -41,9 +60,9 @@ import java.util.concurrent.Future;
  */
 public interface EntityService {
 
-    Map<String,Object> getEntityDataLast(Company company, Entity entity) throws FlockException;
+    Map<String, Object> getEntityDataLast(Company company, Entity entity) throws FlockException;
 
-    Map<String,Object> getEntityDataLast(Company company, String key) throws FlockException;
+    Map<String, Object> getEntityDataLast(Company company, String key) throws FlockException;
 
     Collection<EntityKeyBean> getEntities(Company company, List<EntityKeyBean> linkTo);
 
@@ -105,8 +124,9 @@ public interface EntityService {
 
     /**
      * Locates cross linked entities with the given relationship type
+     *
      * @param company      Owner
-     * @param key      FD UID
+     * @param key          FD UID
      * @param relationship relationship
      * @return all entities connected
      * @throws FlockException problems
@@ -116,13 +136,12 @@ public interface EntityService {
     Map<String, Collection<EntityNode>> getCrossReference(Company company, String fortressName, String code, String xRefName) throws FlockException;
 
     /**
-     *
      * Source Entity MUST exist otherwise an exception will be thrown
      *
-     * @param company       who owns the data
-     * @param sourceKey     what we will link from
-     * @param targetKeys    collection of entities we will link to
-     * @param xRefName      the name to give the relationship
+     * @param company    who owns the data
+     * @param sourceKey  what we will link from
+     * @param targetKeys collection of entities we will link to
+     * @param xRefName   the name to give the relationship
      * @return all targetkeys that were ignored
      * @throws FlockException problems
      */
@@ -141,11 +160,10 @@ public interface EntityService {
     org.flockdata.data.EntityLog getEntityLog(CompanyNode company, String key, Long logId) throws FlockException;
 
     /**
-     *
      * It a tag is removed from an entity, then it is associated to the last log that it was known to belong to
      * This call returns those entity tags associated with
      *
-     * @param company company caller is authorized to work with
+     * @param company   company caller is authorized to work with
      * @param entityLog Log for which tags might exist
      * @return All entity Tags archived to the log
      */

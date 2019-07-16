@@ -16,19 +16,18 @@
 
 package org.flockdata.search;
 
+import static org.flockdata.helper.TagHelper.isSystemKey;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.flockdata.data.EntityTag;
-import org.flockdata.data.Tag;
-import org.flockdata.helper.TagHelper;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.flockdata.helper.TagHelper.isSystemKey;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Tag;
+import org.flockdata.helper.TagHelper;
 
 /**
  * Creates a representation of a tag, plug it's geo content, suitable for representation
@@ -58,17 +57,20 @@ public class SearchTag {
         this.code = entityTag.getTag().getCode();
         this.name = entityTag.getTag().getName();
 
-        if (this.name != null && this.name.equalsIgnoreCase(code))
+        if (this.name != null && this.name.equalsIgnoreCase(code)) {
             this.name = null; // Prefer code over name if they are the same
+        }
 
         // DAT-446 - ignore the code if it it is numeric, short and we have a textual name
-        if (NumberUtils.isNumber(this.code) && this.code.length() < 3 && this.name != null)
+        if (NumberUtils.isNumber(this.code) && this.code.length() < 3 && this.name != null) {
             this.code = null;
+        }
 
         for (String key : entityTag.getTag().getProperties().keySet()) {
             if (!TagHelper.isSystemKey(key)) {
-                if ( properties == null )
-                    properties= new HashMap<>();
+                if (properties == null) {
+                    properties = new HashMap<>();
+                }
                 this.properties.put(key, entityTag.getTag().getProperties().get(key));
             }
         }
@@ -76,14 +78,17 @@ public class SearchTag {
 
 
         if (entityTag.getGeoData() != null) {
-            if (geo == null)
+            if (geo == null) {
                 geo = new HashMap<>();
+            }
             for (String s : entityTag.getGeoData().getGeoBeans().keySet()) {
                 Object geoCode = entityTag.getGeoData().getGeoBeans().get(s).getCode();
-                if (geoCode != null)
+                if (geoCode != null) {
                     geo.put(s + "Code", geoCode);
-                if (entityTag.getGeoData().getGeoBeans().get(s).getName() != null)
+                }
+                if (entityTag.getGeoData().getGeoBeans().get(s).getName() != null) {
                     geo.put(s + "Name", entityTag.getGeoData().getGeoBeans().get(s).getName());
+                }
                 if (entityTag.getGeoData().getPoints() != null) {
                     geo.put("points", entityTag.getGeoData().getPoints());
                 }
@@ -96,10 +101,10 @@ public class SearchTag {
             this.rlx = new HashMap<>();
             // Know one will want to see these column values. Applicable for a graph viz.
             entityTag.getProperties().keySet().stream().filter
-                    (key -> !isSystemKey(key)).
-                    forEach(key -> {
-                        rlx.put(key, entityTag.getProperties().get(key));
-                    });
+                (key -> !isSystemKey(key)).
+                forEach(key -> {
+                    rlx.put(key, entityTag.getProperties().get(key));
+                });
         }
 
     }
@@ -153,9 +158,9 @@ public class SearchTag {
     @Override
     public String toString() {
         return "SearchTag{" +
-                "code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+            "code='" + code + '\'' +
+            ", name='" + name + '\'' +
+            '}';
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

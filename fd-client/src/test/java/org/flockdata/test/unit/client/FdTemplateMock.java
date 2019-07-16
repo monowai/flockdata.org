@@ -25,14 +25,14 @@ import org.springframework.stereotype.Service;
 /**
  * To support unit testing. The entities and tags are not flushed so that the
  * transformed results can be retrieved and asserted in a test
- *
+ * <p>
  * User can, and should, call reset() to clear down cached data which is handled automatically if your test
  * extends AbstractImport
- *
+ * <p>
  * You can include AbstractImport in your project by including org.flockdata:fd-client:test-jar
  *
- * @tag Rest, Test, Integration
  * @author mholdsworth
+ * @tag Rest, Test, Integration
  * @since 13/04/2016
  */
 @Profile("dev")
@@ -41,14 +41,14 @@ public class FdTemplateMock extends FdTemplate {
 
     @Autowired
     public FdTemplateMock(ClientConfiguration clientConfiguration) {
-      super(clientConfiguration);
+        super(clientConfiguration);
     }
 
     /**
      * Prevents clearing down
      */
     @Override
-    public void flush(){
+    public void flush() {
         // Noop. Client can call reset() to clear cached data but otherwise we want to return
         //       transformed results
     }

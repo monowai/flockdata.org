@@ -20,6 +20,8 @@
 
 package org.flockdata.batch.resources;
 
+import java.io.IOException;
+import java.util.Map;
 import org.flockdata.batch.BatchConfig;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.TagInputBean;
@@ -32,15 +34,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.Map;
-
 /**
  * @author nabil
  * @tag Batch, Tag
  */
 @Component
-@Profile({"fd-batch", "fd-batch-dev"})
+@Profile( {"fd-batch", "fd-batch-dev"})
 @Service
 public class FdTagProcessor implements ItemProcessor<Map<String, Object>, TagInputBean> {
 
@@ -62,9 +61,10 @@ public class FdTagProcessor implements ItemProcessor<Map<String, Object>, TagInp
     }
 
     private ContentModel getContentModel(String name) throws IOException, ClassNotFoundException {
-        ContentModel result =batchConfig.getStepConfig(name).getContentModel();
-        if ( result == null )
-            throw new ClassNotFoundException(String.format("Unable to resolve the content model [%s] for step [%s]",name,batchConfig.getStepConfig(name).getModel()));
+        ContentModel result = batchConfig.getStepConfig(name).getContentModel();
+        if (result == null) {
+            throw new ClassNotFoundException(String.format("Unable to resolve the content model [%s] for step [%s]", name, batchConfig.getStepConfig(name).getModel()));
+        }
         return result;
     }
 

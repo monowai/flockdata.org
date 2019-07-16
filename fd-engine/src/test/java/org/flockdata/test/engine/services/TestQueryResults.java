@@ -20,6 +20,11 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.data.Entity;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.FortressNode;
@@ -30,12 +35,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.MatrixInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author mholdsworth
@@ -56,7 +55,7 @@ public class TestQueryResults extends EngineBase {
         inputBean.addTag(new TagInputBean("Oranges", TestQueryResults.FRUIT, "dislikes").setLabel(TestQueryResults.FRUIT));
         inputBean.addTag(new TagInputBean("Grapes", TestQueryResults.FRUIT, "allergic").setLabel(TestQueryResults.FRUIT));
         inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes").setLabel(VEGETABLE)); // No co-occurrence
-        Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity() ;
+        Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
         assertEquals(5, entityTagService.findEntityTags(entity).size());
 
         inputBean = new EntityInputBean(fortress, "mike", "Study", new DateTime(), "StudyB");
@@ -66,23 +65,23 @@ public class TestQueryResults extends EngineBase {
         inputBean.addTag(new TagInputBean("Grapes", TestQueryResults.FRUIT, "dislikes"));
         inputBean.addTag(new TagInputBean("Kiwi", TestQueryResults.FRUIT, "likes"));
         inputBean.addTag(new TagInputBean("Peas", TestQueryResults.VEGETABLE, "dislikes"));
-        entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity() ;
+        entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
         assertEquals(6, entityTagService.findEntityTags(entity).size());
 
         MatrixInputBean input = new MatrixInputBean();
         input.setSampleSize(-1); // Disable fd-search
-        ArrayList<String>docs = new ArrayList<>();
+        ArrayList<String> docs = new ArrayList<>();
         docs.add("Study");
-        ArrayList<String>concepts = new ArrayList<>();
+        ArrayList<String> concepts = new ArrayList<>();
 
         concepts.add(FRUIT);
         input.setConcepts(concepts);
         int fruitCount = 5, things = 2;
 
-        MatrixResults results= matrixService.getMatrix(su.getCompany(), input);
+        MatrixResults results = matrixService.getMatrix(su.getCompany(), input);
         //MatrixResults results = queryEP.getMatrixResult(input, su.getApiKey(), su.getApiKey());
         assertFalse(results.getEdges().isEmpty());
-        assertEquals(4+(4*4), results.getEdges().size());
+        assertEquals(4 + (4 * 4), results.getEdges().size());
         int cCount = 5;
         // ToDo: How to assert it worked!
 
@@ -94,7 +93,7 @@ public class TestQueryResults extends EngineBase {
         results = matrixService.getMatrix(su.getCompany(), input);
         cCount = 7;
         assertFalse(results.getEdges().isEmpty());
-  //      assertEquals(concepts * (concepts-1), results.getEdges().size());
+        //      assertEquals(concepts * (concepts-1), results.getEdges().size());
 
         concepts.clear();
         concepts.add(VEGETABLE);
@@ -106,7 +105,7 @@ public class TestQueryResults extends EngineBase {
 
         concepts.clear();
         concepts.add(FRUIT);
-        ArrayList<String>filter = new ArrayList<>();
+        ArrayList<String> filter = new ArrayList<>();
         filter.add("allergic");
         filter.add("dislikes");
 
@@ -114,17 +113,17 @@ public class TestQueryResults extends EngineBase {
         input.setToRlxs(filter);
         results = matrixService.getMatrix(su.getCompany(), input);
         assertFalse(results.getEdges().isEmpty());
-        ArrayList<String>fortresses = new ArrayList<>();
+        ArrayList<String> fortresses = new ArrayList<>();
         fortresses.add(fortress.getName());
 
-        Collection<DocumentResultBean>documentTypes = conceptService.getDocumentsInUse(su.getCompany(), fortresses);
+        Collection<DocumentResultBean> documentTypes = conceptService.getDocumentsInUse(su.getCompany(), fortresses);
         assertFalse(documentTypes.isEmpty());
 
-        ArrayList<String>filterFrom = new ArrayList<>();
+        ArrayList<String> filterFrom = new ArrayList<>();
         filterFrom.add("allergic");
 
         // Bipartite
-        ArrayList<String>filterTo = new ArrayList<>();
+        ArrayList<String> filterTo = new ArrayList<>();
         filterTo.add("dislikes");
         input.setFromRlxs(filterFrom);
         input.setToRlxs(filterTo);
@@ -136,7 +135,6 @@ public class TestQueryResults extends EngineBase {
         results = matrixService.getMatrix(su.getCompany(), input);
         assertFalse(results.getEdges().isEmpty());
     }
-
 
 
 }

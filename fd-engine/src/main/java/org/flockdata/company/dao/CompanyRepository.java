@@ -20,31 +20,30 @@
 
 package org.flockdata.company.dao;
 
+import java.util.Collection;
 import org.flockdata.data.Company;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.data.graph.SystemUserNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
-import java.util.Collection;
-
 
 public interface CompanyRepository extends GraphRepository<CompanyNode> {
 
-    @Query( elementClass = SystemUserNode.class, value =  "match (company:FDCompany)-[r:ACCESSES]- (systemUser:SystemUser) " +
-            "where id(company) = {0} and systemUser.login ={1} return systemUser")
+    @Query(elementClass = SystemUserNode.class, value = "match (company:FDCompany)-[r:ACCESSES]- (systemUser:SystemUser) " +
+        "where id(company) = {0} and systemUser.login ={1} return systemUser")
     SystemUserNode getAdminUser(long companyId, String userName);
 
 
     @Query(elementClass = CompanyNode.class,
-            value = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) " +
-                    "where id(su)={0}" +
-                    "return company ")
+        value = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) " +
+            "where id(su)={0}" +
+            "return company ")
     Collection<Company> getCompaniesForUser(Long sysUserId);
 
     @Query(elementClass = CompanyNode.class,
-            value = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) " +
-                    "where su.apiKey={0}" +
-                    "return company ")
+        value = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) " +
+            "where su.apiKey={0}" +
+            "return company ")
     Collection<Company> findCompanies(String userApiKey);
 }

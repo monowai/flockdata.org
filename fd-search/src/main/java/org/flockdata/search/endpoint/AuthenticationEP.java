@@ -26,9 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Root level controller
+ *
  * @author mholdsworth
- * @since 4/04/2016
  * @tag Endpoint, Search, Ping
+ * @since 4/04/2016
  */
 @RestController
 @RequestMapping("${org.fd.search.system.api:api}/")

@@ -20,10 +20,9 @@
 
 package org.flockdata.search.base;
 
+import java.io.IOException;
 import org.flockdata.search.SearchChanges;
 import org.flockdata.search.SearchResults;
-
-import java.io.IOException;
 
 /**
  * @author mholdsworth

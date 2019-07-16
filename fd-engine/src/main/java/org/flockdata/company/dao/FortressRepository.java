@@ -20,29 +20,29 @@
 
 package org.flockdata.company.dao;
 
+import java.util.List;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.data.graph.FortressUserNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
-import java.util.List;
 public interface FortressRepository extends GraphRepository<FortressNode> {
 
-	@Query(value = " match (fortress:Fortress)<-[:BELONGS_TO]-(fortress@author FortressUser) where id(fortress)={0}"
-			+ " and fortressUser.code ={1} return fortressUser")
-	FortressUserNode getFortressUser(Long fortressId, String userName);
+    @Query(value = " match (fortress:Fortress)<-[:BELONGS_TO]-(fortress@author FortressUser) where id(fortress)={0}"
+        + " and fortressUser.code ={1} return fortressUser")
+    FortressUserNode getFortressUser(Long fortressId, String userName);
 
-	@Query(elementClass = FortressNode.class, value = " match (company:FDCompany)-[:OWNS]->f where id(company) ={0} return f")
-	List<FortressNode> findCompanyFortresses(Long companyID);
+    @Query(elementClass = FortressNode.class, value = " match (company:FDCompany)-[:OWNS]->f where id(company) ={0} return f")
+    List<FortressNode> findCompanyFortresses(Long companyID);
 
-	@Query( value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
-			+ "where id(company)={0} and fortress.name ={1} "
-			+ "return fortress")
+    @Query(value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
+        + "where id(company)={0} and fortress.name ={1} "
+        + "return fortress")
     FortressNode getFortressByName(Long companyId, String fortressName);
 
-	@Query(value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
-			+ "where  id(company)={0}  and fortress.code ={1} "
-			+ "return fortress")
+    @Query(value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
+        + "where  id(company)={0}  and fortress.code ={1} "
+        + "return fortress")
     FortressNode getFortressByCode(Long companyId, String fortressCode);
 
 }

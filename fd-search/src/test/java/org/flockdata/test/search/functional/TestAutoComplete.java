@@ -20,6 +20,11 @@
 
 package org.flockdata.test.search.functional;
 
+import static org.junit.Assert.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.registration.TagInputBean;
@@ -33,12 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
-import static org.junit.Assert.assertNotNull;
-
 /**
  * Autocomplete type tests
  *
@@ -46,7 +45,7 @@ import static org.junit.Assert.assertNotNull;
  * @since 28/05/2015
  */
 @RunWith(SpringRunner.class)
-public class TestAutoComplete extends ESBase{
+public class TestAutoComplete extends ESBase {
 
     private Logger logger = LoggerFactory.getLogger(TestAutoComplete.class);
 
@@ -63,7 +62,7 @@ public class TestAutoComplete extends ESBase{
         // 2 char code as this is the minimum we will index from
         TagInputBean noName = new TagInputBean("11", "NumCode", "rlxname");
         TagInputBean numCodeWithName = new TagInputBean("21", "AutoComplete", "rlxname")
-                .setName("Code should not be indexed");
+            .setName("Code should not be indexed");
         TagInputBean zipCode = new TagInputBean("70612", "ZipCode");
 
         Collection<EntityTag> tags = new ArrayList<>();
@@ -88,7 +87,6 @@ public class TestAutoComplete extends ESBase{
         doCompletionQuery(entity, zipCode.getCode(), 1, "Didn't find the zip code");
         doTermQuery(entity, "tag.rlxname.autocomplete.code", numCodeWithName.getCode(), 0, "AutoComplete code should not be indexed");
         doTermQuery(entity, "tag.rlxname.autocomplete.name", numCodeWithName.getName());
-
 
 
     }

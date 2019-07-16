@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.track.service;
 
+import java.util.Collection;
+import java.util.Set;
 import org.flockdata.data.Company;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
@@ -32,13 +34,10 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityTagInputBean;
 import org.flockdata.track.bean.EntityTagResult;
 
-import java.util.Collection;
-import java.util.Set;
-
 /**
  * @author mholdsworth
- * @since 6/09/2014
  * @tag Entity, Tag, EntityTag
+ * @since 6/09/2014
  */
 public interface EntityTagService {
     void processTag(EntityNode entity, EntityTagInputBean tagInput);

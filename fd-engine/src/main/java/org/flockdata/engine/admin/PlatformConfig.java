@@ -20,10 +20,9 @@
 
 package org.flockdata.engine.admin;
 
+import java.util.Map;
 import org.flockdata.data.Company;
 import org.flockdata.store.Store;
-
-import java.util.Map;
 
 /**
  * @author mholdsworth
@@ -66,7 +65,7 @@ public interface PlatformConfig {
 
     void setStoreEnabled(boolean enabled);
 
-    Boolean isSearchRequiredToConfirm() ;
+    Boolean isSearchRequiredToConfirm();
 
     String getFdSearch();
 

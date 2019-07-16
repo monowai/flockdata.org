@@ -33,7 +33,7 @@ public class TagKey {
     String label;
     String prefix;
     String code;
-    Tag tag ; // Carried in to help with cache eviction
+    Tag tag; // Carried in to help with cache eviction
 
     public TagKey(String label, String prefix, String code) {
         this.label = label;
@@ -67,13 +67,21 @@ public class TagKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TagKey)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TagKey)) {
+            return false;
+        }
 
         TagKey tagKey = (TagKey) o;
 
-        if (label != null ? !label.equals(tagKey.label) : tagKey.label != null) return false;
-        if (prefix != null ? !prefix.equals(tagKey.prefix) : tagKey.prefix != null) return false;
+        if (label != null ? !label.equals(tagKey.label) : tagKey.label != null) {
+            return false;
+        }
+        if (prefix != null ? !prefix.equals(tagKey.prefix) : tagKey.prefix != null) {
+            return false;
+        }
         return code != null ? code.equals(tagKey.code) : tagKey.code == null;
 
     }

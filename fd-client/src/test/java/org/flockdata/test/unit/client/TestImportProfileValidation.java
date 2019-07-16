@@ -16,6 +16,12 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertEquals;
+
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.FortressInputBean;
@@ -25,9 +31,6 @@ import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import static junit.framework.TestCase.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Parameter import checks for ImportProfile
@@ -43,7 +46,7 @@ public class TestImportProfileValidation extends AbstractImport {
     public void valid_Properties() throws Exception {
 
         ContentModel profile = ContentModelDeserializer.getContentModel("/model/properties-rlx.json");
-        ExtractProfile extractProfile = new ExtractProfileHandler(profile,false);
+        ExtractProfile extractProfile = new ExtractProfileHandler(profile, false);
         extractProfile.setQuoteCharacter("|");
         assertEquals(',', extractProfile.getDelimiter());
         assertEquals(false, extractProfile.hasHeader());
@@ -87,8 +90,8 @@ public class TestImportProfileValidation extends AbstractImport {
     public void argumentsAreTrimmed() throws Exception {
 
         ContentModel profile = ContentModelDeserializer.getContentModel(" /model/properties-rlx.json ");
-        assertNotNull ( "Locating profile did not trim leading and trailing white space", profile);
-        ExtractProfile extractProfile = new ExtractProfileHandler(profile,false);
+        assertNotNull("Locating profile did not trim leading and trailing white space", profile);
+        ExtractProfile extractProfile = new ExtractProfileHandler(profile, false);
         extractProfile.setQuoteCharacter("|");
         assertEquals(',', extractProfile.getDelimiter());
         assertEquals(false, extractProfile.hasHeader());

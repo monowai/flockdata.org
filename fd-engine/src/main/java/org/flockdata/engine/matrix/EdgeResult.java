@@ -21,17 +21,16 @@
 package org.flockdata.engine.matrix;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.neo4j.graphdb.Node;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.neo4j.graphdb.Node;
 
 /**
  * Carries details about an edge between 2 nodes
  *
  * @author mholdsworth
- * @since 19/04/2014
  * @tag Matrix, Query
+ * @since 19/04/2014
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EdgeResult {
@@ -85,15 +84,17 @@ public class EdgeResult {
 
     public String getRelationship() {
         Object o = getData().get("relationship");
-        if ( o == null )
+        if (o == null) {
             return null;
+        }
         return o.toString();
     }
 
     public Number getCount() {
         Number result = (Number) getData().get("count");
-        if (result == null )
+        if (result == null) {
             return 0d;
+        }
         return result;
     }
 
@@ -104,21 +105,29 @@ public class EdgeResult {
     @Override
     public String toString() {
         return "EdgeResult{" +
-                "source='" + getSource() + '\'' +
-                ", target='" + getTarget() + '\'' +
-                ", count=" + getCount() +
-                '}';
+            "source='" + getSource() + '\'' +
+            ", target='" + getTarget() + '\'' +
+            ", count=" + getCount() +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EdgeResult)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EdgeResult)) {
+            return false;
+        }
 
         EdgeResult that = (EdgeResult) o;
 
-        if (getSource() != null ? !getSource().equals(that.getSource()) : that.getSource() != null) return false;
-        if (getRelationship() != null ? !getRelationship().equals(that.getRelationship()) : that.getRelationship() != null) return false;
+        if (getSource() != null ? !getSource().equals(that.getSource()) : that.getSource() != null) {
+            return false;
+        }
+        if (getRelationship() != null ? !getRelationship().equals(that.getRelationship()) : that.getRelationship() != null) {
+            return false;
+        }
         return !(getTarget() != null ? !getTarget().equals(that.getTarget()) : that.getTarget() != null);
 
     }
@@ -132,7 +141,8 @@ public class EdgeResult {
     }
 
     public void addProperty(String key, Object property) {
-        if (!data.containsKey(key))
+        if (!data.containsKey(key)) {
             data.put(key, property);
+        }
     }
 }

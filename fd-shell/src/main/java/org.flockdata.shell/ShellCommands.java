@@ -56,6 +56,7 @@ import org.springframework.shell.standard.ShellOption;
 @ShellComponent
 public class ShellCommands {
 
+    private final LineReader reader;
     //    private Logger logger = LoggerFactory.getLogger(ShellCommands.class);
     private EnginePing enginePing;
     private Health health;
@@ -65,7 +66,6 @@ public class ShellCommands {
     private RegistrationPost registrationPost;
     private FdIoInterface fdIoInterface;
     private Importer importer;
-    private final LineReader reader;
     private SystemUserResultBean unauthenticated;
 
     @Autowired
@@ -119,11 +119,11 @@ public class ShellCommands {
     /**
      * Commands supported by this ShellRunner
      *
-     * @param importer data file import
+     * @param importer         data file import
      * @param registrationPost register a system user as a data acess user
-     * @param login login under a different system user account
-     * @param enginePing ping the tracking API
-     * @param health verify connectivity health of services
+     * @param login            login under a different system user account
+     * @param enginePing       ping the tracking API
+     * @param health           verify connectivity health of services
      */
     @Autowired
     void setCommands(Importer importer, RegistrationPost registrationPost, Login login, EnginePing enginePing, Health health) {
@@ -163,6 +163,7 @@ public class ShellCommands {
         }
         return result;
     }
+
     //help = "Ping the fd-engine service"
     @ShellMethod(value = "ping")
     public String ping() {
@@ -278,7 +279,6 @@ public class ShellCommands {
         }
         return login;
     }
-
 
 
 }

@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.tag.service;
 
+import java.util.Collection;
+import java.util.Map;
 import org.flockdata.data.Tag;
 import org.flockdata.engine.data.dao.TagPathDao;
 import org.flockdata.engine.data.graph.CompanyNode;
@@ -29,9 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * @author mholdsworth
@@ -55,8 +54,9 @@ public class TagPath {
 
     public Collection<Map<String, Object>> getPaths(CompanyNode company, String label, String code, int length, String targetLabel) throws NotFoundException {
         Tag tag = tagService.findTag(company, label, null, code, false);
-        if ( length <1 )
+        if (length < 1) {
             length = 4;
+        }
         return tagPathDao.getPaths(tag, length, targetLabel);
     }
 }

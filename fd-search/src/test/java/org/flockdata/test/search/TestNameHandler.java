@@ -20,22 +20,21 @@
 
 package org.flockdata.test.search;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+import java.util.Map;
 import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.SearchSchema;
 import org.flockdata.search.dao.EntityChangeMapper;
 import org.junit.Test;
 
-import java.util.Map;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
-
 /**
  * FD's default search queries return a Description so that the user can get some useful data about the
  * search doc hit. Description will default to the Name if it is provided.
- *
+ * <p>
  * To save space in the ES index we only store the node name if it is different to the description
- *
+ * <p>
  * Neither name nor description are mandatory
  *
  * @author mholdsworth

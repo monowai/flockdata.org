@@ -27,6 +27,9 @@ package org.flockdata.test.engine;
  * @since 31/03/2015
  */
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.PostConstruct;
 import org.flockdata.engine.configure.WrappingCommunityNeoServer;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -44,17 +47,13 @@ import org.springframework.data.neo4j.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.Map;
-
 @EnableTransactionManagement
 @EnableNeo4jRepositories(basePackages = {"org.flockdata.company.dao",
-        "org.flockdata.geography.dao",
-        "org.flockdata.engine.*",
+    "org.flockdata.geography.dao",
+    "org.flockdata.engine.*",
 })
 @Configuration
-@Profile({"dev"})
+@Profile( {"dev"})
 public class Neo4jConfigTest extends Neo4jConfiguration {
 
     GraphDatabaseService graphdb = null;
@@ -71,11 +70,11 @@ public class Neo4jConfigTest extends Neo4jConfiguration {
 
     @Bean
     public GraphDatabaseService graphDatabaseService(
-            @Value("${org.neo4j.server.webserver.port:0}") Integer port) {
+        @Value("${org.neo4j.server.webserver.port:0}") Integer port) {
         setBasePackage("org.flockdata.engine.data.graph");
         graphdb = graphDatabaseFactory().newEmbeddedDatabase(getNeoStoreDir());
         ServerConfigurator config = new ServerConfigurator((GraphDatabaseAPI) graphdb);
-        if ( port > 0 ) {
+        if (port > 0) {
             config.configuration().setProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, port);
             new WrappingCommunityNeoServer((GraphDatabaseAPI) graphdb, config).start();
         }

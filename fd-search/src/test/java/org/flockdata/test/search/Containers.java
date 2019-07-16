@@ -1,6 +1,7 @@
 package org.flockdata.test.search;
 
 import com.github.dockerjava.core.command.PullImageResultCallback;
+import java.time.Duration;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -10,8 +11,6 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.utility.LazyFuture;
 
-import java.time.Duration;
-
 /**
  * @author mikeh
  * @since 6/05/18
@@ -19,8 +18,8 @@ import java.time.Duration;
 @Configuration
 public class Containers {
 
-    private GenericContainer esContainer;
     private static Containers es = null;
+    private GenericContainer esContainer;
 
     public static Containers getInstance() {
         if (es == null) {

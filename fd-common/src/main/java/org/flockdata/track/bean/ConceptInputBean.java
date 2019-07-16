@@ -16,18 +16,17 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.registration.TagResultBean;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import org.flockdata.registration.TagResultBean;
 
 /**
  * Concept represents either an Entity or a Tag. It is used to record the structure of data passed to the service
  *
  * @author mholdsworth
- * @since 19/06/2014
  * @tag Contract, Concept, Entity, Tag
+ * @since 19/06/2014
  */
 public class ConceptInputBean {
     Collection<String> relationships = new HashSet<>();
@@ -35,7 +34,8 @@ public class ConceptInputBean {
     private boolean tag = true;
     private String description;
 
-    private ConceptInputBean() {}
+    private ConceptInputBean() {
+    }
 
     public ConceptInputBean(String name) {
         this();
@@ -56,14 +56,15 @@ public class ConceptInputBean {
         return this;
     }
 
-    public Collection<String> getRelationships(){
+    public Collection<String> getRelationships() {
         return relationships;
     }
 
     public ConceptInputBean setRelationships(Set<String> relationships) {
         for (String relationship : relationships) {
-            if ( !this.relationships.contains(relationship))
+            if (!this.relationships.contains(relationship)) {
                 this.relationships.add(relationship);
+            }
         }
         return this;
     }
@@ -90,12 +91,18 @@ public class ConceptInputBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ConceptInputBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ConceptInputBean)) {
+            return false;
+        }
 
         ConceptInputBean that = (ConceptInputBean) o;
 
-        if (tag != that.tag) return false;
+        if (tag != that.tag) {
+            return false;
+        }
         return !(name != null ? !name.equals(that.name) : that.name != null);
 
     }
@@ -110,8 +117,8 @@ public class ConceptInputBean {
     @Override
     public String toString() {
         return "ConceptInputBean{" +
-                "name='" + name + '\'' +
-                '}';
+            "name='" + name + '\'' +
+            '}';
     }
 
     public String getDescription() {

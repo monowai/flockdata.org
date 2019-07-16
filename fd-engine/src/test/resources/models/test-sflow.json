@@ -27,7 +27,6 @@
           "relationshipName": "ASKS"
         }
       ],
-
       "createUser": true
     },
     "j": {
@@ -38,7 +37,6 @@
           "relationshipName": "HAS_ANSWER"
         }
       ],
-
       "updateUser": true
     },
     "at": {

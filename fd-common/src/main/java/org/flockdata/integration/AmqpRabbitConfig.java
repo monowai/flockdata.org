@@ -35,8 +35,8 @@ import org.springframework.integration.annotation.IntegrationComponentScan;
 /**
  * Rabbit MQ / AMQP Configuration and channel initialization
  *
- * @tag Configuration, Rabbit, Integration
  * @author mholdsworth
+ * @tag Configuration, Rabbit, Integration
  * @since 3/07/2015
  */
 
@@ -169,9 +169,9 @@ public class AmqpRabbitConfig {
 
     @PostConstruct
     public String logStatus() {
-      String message = String.format("**** FlockData RabbitAMQP configuration deployed. \r\n" +
-              "spring.rabbitmq.host set to [%s:%s], spring.rabbitmq.user [%s]",
-          getHost(), getPort(), getUser());
+        String message = String.format("**** FlockData RabbitAMQP configuration deployed. \r\n" +
+                "spring.rabbitmq.host set to [%s:%s], spring.rabbitmq.user [%s]",
+            getHost(), getPort(), getUser());
         logger.info(message);
         return message;
     }

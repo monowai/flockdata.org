@@ -25,7 +25,11 @@ import org.flockdata.data.SystemUser;
 import org.flockdata.registration.RegistrationBean;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.annotation.Fetch;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * Authorised user acting on behalf of fortress
@@ -52,7 +56,7 @@ public class SystemUserNode implements SystemUser {
 
     //@Relationship( type = "ACCESSES", direction = Relationship.OUTGOING)
     @Fetch
-    @RelatedTo( type = "ACCESSES", direction = Direction.OUTGOING)
+    @RelatedTo(type = "ACCESSES", direction = Direction.OUTGOING)
     private CompanyNode company;
     private boolean active = true;
 
@@ -61,12 +65,14 @@ public class SystemUserNode implements SystemUser {
 
     public SystemUserNode(String name, String login, Company company, boolean admin) {
         setName(name);
-        if ( login == null )
+        if (login == null) {
             login = name;
+        }
         setLogin(login);
 
-        if (admin)
+        if (admin) {
             setCompanyAccess(company);
+        }
 //        if ( company != null) // GUEST user does not belong to any company
 //            companyLogin = company.getId()+"."+login;
     }
@@ -97,7 +103,7 @@ public class SystemUserNode implements SystemUser {
 
     public SystemUserNode setLogin(String login) {
         this.login = login.toLowerCase();
-        return  this;
+        return this;
 
     }
 
@@ -128,16 +134,16 @@ public class SystemUserNode implements SystemUser {
     }
 
     private void setCompanyAccess(Company company) {
-        this.company = (CompanyNode)company;
+        this.company = (CompanyNode) company;
     }
 
     @Override
     public String toString() {
         return "SystemUser{" +
-                "id=" + id +
-                ", login='" + login + '\'' +
-                ", company=" + company +
-                '}';
+            "id=" + id +
+            ", login='" + login + '\'' +
+            ", company=" + company +
+            '}';
     }
 
     @Override

@@ -17,17 +17,16 @@
 package org.flockdata.search;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.track.bean.SearchChange;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.flockdata.track.bean.SearchChange;
 
 /**
  * Object to tie the keys between fd-engine and fd-search so that fd-engine can keep the document up-to-date
  *
  * @author mholdsworth
- * @since 13/07/2013
  * @tag Search, Entity, Contract
+ * @since 13/07/2013
  */
 public class EsSearchResult implements SearchResult {
 
@@ -50,8 +49,10 @@ public class EsSearchResult implements SearchResult {
     private Long dateCreated;
     private Long lastUpdate;
     private long whenCreated;
+
     protected EsSearchResult() {
     }
+
     public EsSearchResult(SearchChange thisChange) {
         this();
         this.entityId = thisChange.getId();
@@ -66,16 +67,17 @@ public class EsSearchResult implements SearchResult {
 
 
     }
+
     public EsSearchResult(
-            String searchKey,
-            String key,
-            String fortress,
-            String event,
-            String type,
-            String lastUser,
-            String lastUpdate,
-            String whenCreated,
-            String fdTimestamp) {
+        String searchKey,
+        String key,
+        String fortress,
+        String event,
+        String type,
+        String lastUser,
+        String lastUpdate,
+        String whenCreated,
+        String fdTimestamp) {
         this.key = key;
         this.documentType = type;
         this.searchKey = searchKey;
@@ -83,14 +85,17 @@ public class EsSearchResult implements SearchResult {
         this.event = event;
         this.fortress = fortress;
         this.lastUser = lastUser;
-        if ( whenCreated !=null )
-            this.whenCreated= Long.decode(whenCreated);
+        if (whenCreated != null) {
+            this.whenCreated = Long.decode(whenCreated);
+        }
 
-        if ( lastUpdate != null && !lastUpdate.equals(whenCreated) )
+        if (lastUpdate != null && !lastUpdate.equals(whenCreated)) {
             this.lastUpdate = Long.decode(lastUpdate);
+        }
 
-        if ( fdTimestamp !=null )
+        if (fdTimestamp != null) {
             this.fdTimestamp = Long.decode(fdTimestamp);
+        }
 
     }
 
@@ -175,12 +180,12 @@ public class EsSearchResult implements SearchResult {
     @Override
     public String toString() {
         return "SearchResult{" +
-                "entityId='" + entityId + '\'' +
-                ", key='" + key + '\'' +
-                ", logId='" + logId + '\'' +
-                ", fortress='" + fortress + '\'' +
-                ", documentType='" + documentType + '\'' +
-                '}';
+            "entityId='" + entityId + '\'' +
+            ", key='" + key + '\'' +
+            ", logId='" + logId + '\'' +
+            ", fortress='" + fortress + '\'' +
+            ", documentType='" + documentType + '\'' +
+            '}';
     }
 
     @Override
@@ -225,15 +230,17 @@ public class EsSearchResult implements SearchResult {
     }
 
     public void addFieldValue(String field, Object value) {
-        if ( this.data == null )
+        if (this.data == null) {
             data = new HashMap<>();
-        if ( field.contains(SearchSchema.DATA))
-            field = field.substring(SearchSchema.DATA.length()+1);
+        }
+        if (field.contains(SearchSchema.DATA)) {
+            field = field.substring(SearchSchema.DATA.length() + 1);
+        }
         this.data.put(field, value);
     }
 
     @Override
-    public Map<String,Object> getData(){
+    public Map<String, Object> getData() {
         return data;
     }
 

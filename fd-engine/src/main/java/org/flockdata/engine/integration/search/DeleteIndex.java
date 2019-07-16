@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.integration.search;
 
+import java.util.Collections;
+import java.util.Map;
 import org.flockdata.integration.AmqpRabbitConfig;
 import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.Exchanges;
@@ -32,7 +34,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
 import org.springframework.integration.amqp.support.DefaultAmqpHeaderMapper;
-import org.springframework.integration.annotation.*;
+import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.NullChannel;
 import org.springframework.integration.transformer.HeaderEnricher;
@@ -41,14 +47,10 @@ import org.springframework.integration.transformer.support.StaticHeaderValueMess
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 
-import java.util.Collections;
-import java.util.Map;
-
 /**
  * @author mholdsworth
- * @since 12/02/2016
- *
  * @tag Configuration, Integration, Search, Administration
+ * @since 12/02/2016
  */
 @Configuration
 @IntegrationComponentScan
@@ -64,8 +66,8 @@ public class DeleteIndex {
     @Autowired
     private MessageSupport messageSupport;
 
-    @Transformer(inputChannel="startIndexDelete", outputChannel="adminHeadersChannel")
-    public Message<?> deleteSearchIndex(Message message){
+    @Transformer(inputChannel = "startIndexDelete", outputChannel = "adminHeadersChannel")
+    public Message<?> deleteSearchIndex(Message message) {
         return messageSupport.toJson(message);
     }
 
@@ -73,13 +75,13 @@ public class DeleteIndex {
     @Transformer(inputChannel = "adminHeadersChannel", outputChannel = "writeAdminChanges")
     public HeaderEnricher enrichHeaders() {
         Map<String, ? extends HeaderValueMessageProcessor<?>> headersToAdd =
-                Collections.singletonMap(ClientConfiguration.KEY_MSG_TYPE,
-                        new StaticHeaderValueMessageProcessor<>("admin"));
+            Collections.singletonMap(ClientConfiguration.KEY_MSG_TYPE,
+                new StaticHeaderValueMessageProcessor<>("admin"));
         return new HeaderEnricher(headersToAdd);
     }
 
     @Bean
-    MessageChannel startIndexDelete(){
+    MessageChannel startIndexDelete() {
         return new DirectChannel();
     }
 

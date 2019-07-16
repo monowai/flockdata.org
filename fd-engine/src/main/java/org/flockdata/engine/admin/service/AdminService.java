@@ -20,7 +20,21 @@
 
 package org.flockdata.engine.admin.service;
 
-import org.flockdata.data.*;
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import org.flockdata.data.Company;
+import org.flockdata.data.Document;
+import org.flockdata.data.Entity;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.configure.CacheConfiguration;
 import org.flockdata.engine.data.graph.DocumentNode;
@@ -47,17 +61,6 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
-
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * General maintenance activities across fortress entities. Async in nature
@@ -88,15 +91,16 @@ public class AdminService implements EngineAdminService {
         this.fortressService = fortressService;
     }
 
-    @Autowired (required =  false) // Functional tests don't require it
-    private void setCacheConfiguration( CacheConfiguration cacheConfiguration){
-        this.cacheConfiguration=cacheConfiguration;
+    @Autowired(required = false) // Functional tests don't require it
+    private void setCacheConfiguration(CacheConfiguration cacheConfiguration) {
+        this.cacheConfiguration = cacheConfiguration;
     }
 
-    @Autowired (required =  false) // Functional tests don't require it
-    private void setSearchService( SearchServiceFacade searchService){
-        this.searchService= searchService;
+    @Autowired(required = false) // Functional tests don't require it
+    private void setSearchService(SearchServiceFacade searchService) {
+        this.searchService = searchService;
     }
+
     @Async("fd-engine")
     public Future<Boolean> purge(Company company, Fortress fortress, Document documentType, String segmentToDelete) {
         NumberFormat nf = NumberFormat.getInstance();
@@ -109,53 +113,61 @@ public class AdminService implements EngineAdminService {
         Collection<Segment> segmentsToDelete = new ArrayList<>();
 
 //        if (segmentToDelete != null) {
-            for (Segment segment : segments) {
-                if (segmentToDelete==null || segment.getCode().equalsIgnoreCase(segmentToDelete.toLowerCase()))
-                    segmentsToDelete.add(segment);
+        for (Segment segment : segments) {
+            if (segmentToDelete == null || segment.getCode().equalsIgnoreCase(segmentToDelete.toLowerCase())) {
+                segmentsToDelete.add(segment);
             }
+        }
 //        }
 
         long total = 0;
         String searchIndexToDelete = null;
 
-        if ( cacheConfiguration!=null)
+        if (cacheConfiguration != null) {
             cacheConfiguration.resetCache();
+        }
 
         for (Segment segment : segmentsToDelete) {
 
             do {
                 Collection<String> entities = entityService.getEntityBatch(fortress, documentType, segment, 2000);
 
-                if ( searchService !=null && searchIndexToDelete == null && segment.getFortress().isSearchEnabled()){
-                    if ( entities.size()> 0) {
+                if (searchService != null && searchIndexToDelete == null && segment.getFortress().isSearchEnabled()) {
+                    if (entities.size() > 0) {
                         EntityNode entity = entityService.getEntity(company, entities.iterator().next());
                         // We need to get an entity to figure out which search index it is in
                         searchIndexToDelete = indexManager.toIndex(entity);
-                    }  else
+                    } else {
                         searchIndexToDelete = indexManager.getIndexRoot(segment.getFortress(), documentType);
+                    }
                 }
                 entityService.purge(fortress, entities);
 
                 keepRunning = entities.size() > 0;
                 total = total + entities.size();
-                if (total % 100000 == 0)
+                if (total % 100000 == 0) {
                     logger.info("Progress update - {} entities purged ... ", nf.format(total));
+                }
 
             } while (keepRunning);
-            if ( searchIndexToDelete !=null ){
+            if (searchIndexToDelete != null) {
                 searchService.purge(searchIndexToDelete);
             }
-            logger.info ("Purged {}, {}, {}", fortress.getName(), documentType.getName(), segment.getCode());
+            logger.info("Purged {}, {}, {}", fortress.getName(), documentType.getName(), segment.getCode());
             searchIndexToDelete = null;
-            if ( !segment.isDefault())
-                conceptService.delete(documentType,segment);
+            if (!segment.isDefault()) {
+                conceptService.delete(documentType, segment);
+            }
         }
-        if ( segmentToDelete== null && total ==0 ) // First purge is data only. Delete again to remove the docType
-            // Removing the DocumentType
+        if (segmentToDelete == null && total == 0) // First purge is data only. Delete again to remove the docType
+        // Removing the DocumentType
+        {
             conceptService.delete(documentType);
+        }
 
-        if ( cacheConfiguration!=null)
+        if (cacheConfiguration != null) {
             cacheConfiguration.resetCache();
+        }
 
         return new AsyncResult<>(true);
     }
@@ -178,15 +190,17 @@ public class AdminService implements EngineAdminService {
             entityService.purge(fortress, entities);
             keepRunning = entities.size() > 0;
             total = total + entities.size();
-            if (total % 100000 == 0)
+            if (total % 100000 == 0) {
                 logger.info("Progress update - {} entities purged ... ", nf.format(total));
+            }
 
         } while (keepRunning);
         entityService.purgeFortressDocs(fortress);
         searchService.purge(fortress);
         fortressService.purge(fortress);
-        if ( cacheConfiguration!=null)
+        if (cacheConfiguration != null) {
             cacheConfiguration.resetCache();
+        }
         watch.stop();
         logger.info("Completed purge. Removed " + nf.format(total) + " entities for fortress " + fortress);
 
@@ -237,8 +251,9 @@ public class AdminService implements EngineAdminService {
 
             start = start + size;
 
-            if (start % 100000 == 0)
+            if (start % 100000 == 0) {
                 logger.info("Progress update - {} entities analyzed ...", nf.format(start));
+            }
 
             rowsAnalyzed = rowsAnalyzed + searchResults.size();
             continueSearch = searchResults.size() != 0;
@@ -247,8 +262,9 @@ public class AdminService implements EngineAdminService {
         watch.stop();
         logger.info("Finished  - validated " + nf.format(rowsAnalyzed) + " entities out of a reported hit count of " + nf.format(Integer.parseInt(totalHits)) + (errors.isEmpty() ? ". No problems found" : " " + nf.format(errors.size()) + ". errors found"));
 
-        if (errors.isEmpty())
+        if (errors.isEmpty()) {
             errors.add("No problems found!");
+        }
 
         return new AsyncResult<>(errors);
 
@@ -256,12 +272,12 @@ public class AdminService implements EngineAdminService {
 
     private QueryParams getPagedQueryParams(Company company, int size, String docType) throws IOException {
         String esQuery = "{\n" +
-                "  \"query\": {\n" +
-                "    \"query_string\": {\n" +
-                "      \"query\": \"*\"\n" +
-                "    }\n" +
-                "  }\n" +
-                "}";
+            "  \"query\": {\n" +
+            "    \"query_string\": {\n" +
+            "      \"query\": \"*\"\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
         QueryParams qp;
         qp = JsonUtils.toObject(esQuery.getBytes(), QueryParams.class);
 
@@ -353,8 +369,9 @@ public class AdminService implements EngineAdminService {
         do {
             entities = entityService.getEntities(fortress, lastEntityId);
             processed = processed + entities.size();
-            if (entities.isEmpty())
+            if (entities.isEmpty()) {
                 return processed;
+            }
             lastEntityId = reindexEntities(entities, lastEntityId);
 
         } while (!entities.isEmpty());
@@ -369,8 +386,9 @@ public class AdminService implements EngineAdminService {
         do {
             entities = entityService.getEntities(fortress, docType, lastEntityId);
             processed = processed + entities.size();
-            if (entities.isEmpty())
+            if (entities.isEmpty()) {
                 return lastEntityId;
+            }
             reindexEntities(entities, lastEntityId);
 
         } while (!entities.isEmpty());
@@ -392,8 +410,9 @@ public class AdminService implements EngineAdminService {
 //            searchService.getEntityChange(trackResultBean,lastLog);
             EntitySearchChange searchDoc = searchService.rebuild(entity, lastLog);
             lastEntityId = entity.getId();
-            if (searchDoc != null && entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed())
+            if (searchDoc != null && entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed()) {
                 searchDocuments.add(searchDoc);
+            }
         }
         searchService.makeChangesSearchable(searchDocuments);
         return lastEntityId;

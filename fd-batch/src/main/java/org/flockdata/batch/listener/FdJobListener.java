@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile({"fd-batch", "fd-batch-dev"})
+@Profile( {"fd-batch", "fd-batch-dev"})
 public class FdJobListener implements JobExecutionListener {
     private static final Logger logger = LoggerFactory.getLogger(FdJobListener.class);
 

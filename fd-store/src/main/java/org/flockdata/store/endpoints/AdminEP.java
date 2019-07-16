@@ -20,6 +20,7 @@
 
 package org.flockdata.store.endpoints;
 
+import java.util.Map;
 import org.flockdata.store.Store;
 import org.flockdata.store.service.StoreManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 /**
  * @author mholdsworth
- * @since 19/02/2016
  * @tag Store, Endpoint, Administration
+ * @since 19/02/2016
  */
 @RequestMapping("${org.fd.store.system.api:api}/v1/admin")
 @RestController
@@ -58,8 +57,8 @@ public class AdminEP {
             // Pings the underlying storage service
             Store store = Store.valueOf(service.toUpperCase());
             return storeManager.ping(store);
-        } catch ( IllegalArgumentException e){
-            return "Unknown store service " +service.toUpperCase();
+        } catch (IllegalArgumentException e) {
+            return "Unknown store service " + service.toUpperCase();
         }
     }
 

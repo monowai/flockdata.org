@@ -20,7 +20,19 @@
 
 package org.flockdata.engine.data.dao;
 
-import org.flockdata.data.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import javax.transaction.HeuristicRollbackException;
+import org.flockdata.data.Company;
+import org.flockdata.data.Concept;
+import org.flockdata.data.Document;
+import org.flockdata.data.Fortress;
+import org.flockdata.data.Segment;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.flockdata.engine.data.graph.ConceptNode;
 import org.flockdata.engine.data.graph.DocumentNode;
@@ -32,7 +44,12 @@ import org.flockdata.engine.matrix.MatrixResults;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ConceptInputBean;
+import org.flockdata.track.bean.ConceptResultBean;
+import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.track.bean.FdTagResultBean;
+import org.flockdata.track.bean.RelationshipResultBean;
 import org.neo4j.graphalgo.impl.util.PathImpl;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.DynamicRelationshipType;
@@ -55,15 +72,12 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import scala.collection.convert.Wrappers;
 
-import javax.transaction.HeuristicRollbackException;
-import java.util.*;
-
 /**
  * IO routines to handle registration of concepts in Neo4j
  *
  * @author mholdsworth
- * @since 19/06/2015
  * @tag Neo4j, Concept, Tag
+ * @since 19/06/2015
  */
 @Repository
 public class ConceptDaoNeo {
@@ -83,14 +97,14 @@ public class ConceptDaoNeo {
         this.template = template;
     }
 
-    public boolean linkEntities(DocumentNode fromDoc, DocumentNode toDoc, EntityKeyBean entityKeyBean)  {
+    public boolean linkEntities(DocumentNode fromDoc, DocumentNode toDoc, EntityKeyBean entityKeyBean) {
         Node from = template.getNode(fromDoc.getId());
         Node to = template.getNode(toDoc.getId());
         if (!relationshipExists(from, to, entityKeyBean.getRelationshipName())) {
-            Map<String,Object> props = new HashMap<>();
+            Map<String, Object> props = new HashMap<>();
             Direction direction = Direction.BOTH; // Association
-            props.put(ConceptDaoNeo.PARENT,entityKeyBean.isParent());
-            if ( entityKeyBean.isParent()) {
+            props.put(ConceptDaoNeo.PARENT, entityKeyBean.isParent());
+            if (entityKeyBean.isParent()) {
                 direction = Direction.OUTGOING; // Point to the parent
             }
             template.getOrCreateRelationship(from, to, DynamicRelationshipType.withName(entityKeyBean.getRelationshipName()), direction, props);
@@ -120,7 +134,7 @@ public class ConceptDaoNeo {
     }
 
     private boolean relationshipExists(Node from, Node to, String relationship) {
-        assert relationship!=null;
+        assert relationship != null;
         return template.getRelationshipBetween(from, to, relationship) != null;
     }
 
@@ -196,10 +210,11 @@ public class ConceptDaoNeo {
     public Set<DocumentResultBean> findConcepts(Company company, Collection<String> docNames) {
         Set<DocumentResultBean> documentResults = new HashSet<>();
         Set<DocumentNode> documents;
-        if (docNames == null)
+        if (docNames == null) {
             documents = documentTypeRepo.findAllDocuments(company);
-        else
+        } else {
             documents = documentTypeRepo.findDocuments(company, docNames);
+        }
 
         for (DocumentNode document : documents) {
 
@@ -245,14 +260,14 @@ public class ConceptDaoNeo {
     /**
      * The general Schema is tracked to understand the general structure
      *
-     * @param company who owns the tags
+     * @param company       who owns the tags
      * @param tagResultBean Internal flockdata payload result class
      * @return true if it was created for the first time
      */
     @Async
     @Transactional
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20,
-            backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
+        backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
     public ConceptNode registerTag(CompanyNode company, FdTagResultBean tagResultBean) {
         ConceptNode source;
         TagHelper.isDefault(tagResultBean.getTag());
@@ -265,10 +280,11 @@ public class ConceptDaoNeo {
             }
             processNestedTags(company, source, tagResultBean.getTargets());
         } else {
-            if (tagResultBean.getLabel() != null)
+            if (tagResultBean.getLabel() != null) {
                 source = findConcept(tagResultBean);
-            else
+            } else {
                 source = null;
+            }
             processNestedTags(company, source, tagResultBean.getTargets()); // Current tag is not new but sub tags may be
         }
         return source;
@@ -279,8 +295,9 @@ public class ConceptDaoNeo {
     }
 
     private void processNestedTags(CompanyNode company, ConceptNode source, Map<FdTagResultBean, Collection<String>> targets) {
-        if (targets == null || targets.isEmpty())
+        if (targets == null || targets.isEmpty()) {
             return;
+        }
 
         for (FdTagResultBean tagResultBean : targets.keySet()) {
             ConceptNode target = registerTag(company, tagResultBean);
@@ -313,8 +330,9 @@ public class ConceptDaoNeo {
     }
 
     public DocumentNode findDocumentTypeWithSegments(DocumentNode documentType) {
-        if (documentType == null)
+        if (documentType == null) {
             throw new NotFoundException("Unable to find the requested DocumentType");
+        }
         template.fetch(documentType);
         template.fetch(documentType.getSegments());
         return documentType;
@@ -322,8 +340,9 @@ public class ConceptDaoNeo {
 
     public DocumentResultBean findDocumentTypeWithSegments(FortressNode f, String doc) {
         DocumentNode documentType = findDocumentType(f, doc, false);
-        if (documentType == null)
+        if (documentType == null) {
             throw new NotFoundException("Failed to find DocumentType " + doc);
+        }
 
         template.fetch(documentType.getSegments());
         return new DocumentResultBean(documentType, documentType.getSegments());
@@ -352,11 +371,13 @@ public class ConceptDaoNeo {
 
             FdNode source = new FdNode(relationship.getStartNode());
             FdNode target = new FdNode(relationship.getEndNode());
-            if ( filter.contains(source.getLabel()) && filter.contains(target.getLabel())) {
-                if (!nodes.contains(source))
+            if (filter.contains(source.getLabel()) && filter.contains(target.getLabel())) {
+                if (!nodes.contains(source)) {
                     nodes.add(source);
-                if (!nodes.contains(target))
+                }
+                if (!nodes.contains(target)) {
                     nodes.add(target);
+                }
 
                 EdgeResult er = new EdgeResult(target, source, relationship.getType().name());
                 for (String key : relationship.getPropertyKeys()) {
@@ -372,20 +393,21 @@ public class ConceptDaoNeo {
     }
 
     public Map<String, DocumentResultBean> getParents(Document documentType) {
-        if (documentType == null )
+        if (documentType == null) {
             return new HashMap<>();
+        }
         String query = "match p=shortestPath( (d:DocType)-[*]->(o:DocType)) where id(d) = {start}  return p";
-        Map<String,Object>params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
         params.put("start", documentType.getId());
         Result<Map<String, Object>> results = template.query(query, params);
         Iterator<Map<String, Object>> rows = results.iterator();
-        Map<String,DocumentResultBean>parents = new HashMap<>();
+        Map<String, DocumentResultBean> parents = new HashMap<>();
         while (rows.hasNext()) {
             Object o = rows.next().get("p");
-            PathImpl path = (PathImpl)o;
+            PathImpl path = (PathImpl) o;
             for (Relationship relationship : path.relationships()) {
                 boolean parent = false;
-                if ( relationship.hasProperty(PARENT)){
+                if (relationship.hasProperty(PARENT)) {
                     parent = Boolean.parseBoolean(relationship.getProperty(PARENT).toString());
                 }
                 if (parent) {

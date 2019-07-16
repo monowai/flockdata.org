@@ -39,7 +39,7 @@ public interface QueryInterface {
     // This request is only to be made on tags
     boolean isSearchTagsOnly();
 
-    Map<String,Object> getFilter();
+    Map<String, Object> getFilter();
 
     QueryParams addTerm(String field, Object searchText);
 }

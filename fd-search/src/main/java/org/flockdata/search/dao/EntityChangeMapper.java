@@ -1,12 +1,15 @@
 package org.flockdata.search.dao;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.SearchSchema;
 import org.flockdata.search.SearchTag;
 import org.flockdata.track.bean.EntityKeyBean;
-
-import java.util.*;
 
 /**
  * @author mikeh

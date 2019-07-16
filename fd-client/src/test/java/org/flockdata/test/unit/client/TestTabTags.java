@@ -16,6 +16,11 @@
 
 package org.flockdata.test.unit.client;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Collection;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.Transformer;
@@ -24,14 +29,9 @@ import org.flockdata.transform.model.ExtractProfileHandler;
 import org.flockdata.transform.tag.TagPayloadTransformer;
 import org.junit.Test;
 
-import java.util.Collection;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * Tag targets are handled
+ *
  * @author mholdsworth
  * @since 27/01/2015
  */
@@ -40,8 +40,8 @@ public class TestTabTags {
     public void string_NestedTags() throws Exception {
         ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/sectors.json");
         TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(contentModel);
-        String[] headers = new String[]{"Catcode","Catname","Catorder","Industry","Sector","Sector Long"};
-        String[] data = new String[]{"F2600","Private Equity & Investment Firms","F07","Securities & Investment","Finance/Insur/RealEst","Finance","Insurance & Real Estate"};
+        String[] headers = new String[] {"Catcode", "Catname", "Catorder", "Industry", "Sector", "Sector Long"};
+        String[] data = new String[] {"F2600", "Private Equity & Investment Firms", "F07", "Securities & Investment", "Finance/Insur/RealEst", "Finance", "Insurance & Real Estate"};
 
         Map<String, Object> json = tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)));
         assertEquals(1, tagTransformer.getTags().size());

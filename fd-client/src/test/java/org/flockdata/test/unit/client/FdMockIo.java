@@ -16,6 +16,8 @@
 
 package org.flockdata.test.unit.client;
 
+import java.io.IOException;
+import java.util.Collection;
 import org.flockdata.data.ContentModel;
 import org.flockdata.data.Document;
 import org.flockdata.data.Fortress;
@@ -31,9 +33,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.Collection;
-
 /**
  * Mock writer that satisfies the interface for testing purposes
  *
@@ -41,14 +40,13 @@ import java.util.Collection;
  * @since 1/03/2015
  */
 @Service
-@Profile({"dev"})
+@Profile( {"dev"})
 public class FdMockIo implements FdIoInterface {
 
     public Collection<EntityInputBean> entities = null;
     public Collection<TagInputBean> tags = null;
 
     /**
-     *
      * @return entities that would have been written to the service
      */
     public Collection<EntityInputBean> getEntities() {
@@ -56,7 +54,6 @@ public class FdMockIo implements FdIoInterface {
     }
 
     /**
-     *
      * @return tags that would have been written to the service
      */
     public Collection<TagInputBean> getTags() {
@@ -69,7 +66,6 @@ public class FdMockIo implements FdIoInterface {
     }
 
     /**
-     *
      * @param tagInputBeans tags to write
      * @return usually an error message, but null for testing purposes
      * @throws FlockException should never happen
@@ -93,7 +89,7 @@ public class FdMockIo implements FdIoInterface {
     }
 
     @Override
-    public ContentModel getContentModel( String modelKey) throws IOException {
+    public ContentModel getContentModel(String modelKey) throws IOException {
         return ContentModelDeserializer.getContentModel(modelKey);
     }
 

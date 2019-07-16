@@ -20,25 +20,24 @@
 
 package org.flockdata.engine;
 
+import javax.annotation.PostConstruct;
 import org.flockdata.services.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Java configuration of fd-engines graphWriting services
  *
  * @author mholdsworth
- * @since 15/12/2014
  * @tag Application
+ * @since 15/12/2014
  */
 // test and store are required for functional testing only. not sure how to scan for them
 @SpringBootApplication(
-        scanBasePackages = {"org.flockdata.company",
-                "org.flockdata.engine", "org.flockdata.geography",
-                "org.flockdata.authentication", "org.flockdata.engine.configure", "org.flockdata.integration"})
+    scanBasePackages = {"org.flockdata.company",
+        "org.flockdata.engine", "org.flockdata.geography",
+        "org.flockdata.authentication", "org.flockdata.engine.configure", "org.flockdata.integration"})
 
 public class FdEngine {
     @Autowired
@@ -47,7 +46,7 @@ public class FdEngine {
     public static void main(String[] args) {
         try {
             SpringApplication.run(FdEngine.class, args);
-        } catch ( Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getLocalizedMessage());
         }
 

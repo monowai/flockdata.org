@@ -20,6 +20,16 @@
 
 package org.flockdata.test.search.functional;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static org.springframework.test.util.AssertionErrors.fail;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.data.Entity;
 import org.flockdata.search.EntitySearchChange;
 import org.flockdata.search.base.EntityChangeWriter;
@@ -29,17 +39,6 @@ import org.junit.runner.RunWith;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static org.springframework.test.util.AssertionErrors.fail;
 
 /**
  * DAT-359
@@ -53,8 +52,8 @@ public class TestDataTypes extends ESBase {
     @Autowired
     private EntityChangeWriter searchRepo;
 
-    @Test (expected =AmqpRejectAndDontRequeueException.class )
-    public void validate_MismatchSubsequentValue() throws Exception{
+    @Test(expected = AmqpRejectAndDontRequeueException.class)
+    public void validate_MismatchSubsequentValue() throws Exception {
         String fortress = "mismatch";
         String doc = "doc";
         String user = "mike";
@@ -63,9 +62,9 @@ public class TestDataTypes extends ESBase {
         deleteEsIndex(entity);
 
         EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity))
-                .setDescription("Test Description");
+            .setDescription("Test Description");
 
-        Map<String,Object> numMap = ContentDataHelper.getSimpleMap("num", 100);
+        Map<String, Object> numMap = ContentDataHelper.getSimpleMap("num", 100);
         change.setData(numMap);
 
         indexMappingService.ensureIndexMapping(change);
@@ -75,7 +74,7 @@ public class TestDataTypes extends ESBase {
         doQuery(entity, "*");
 
         Entity entityB = getEntity(fortress, fortress, user, doc);
-        Map<String,Object> strMap = ContentDataHelper.getSimpleMap("num", "NA");
+        Map<String, Object> strMap = ContentDataHelper.getSimpleMap("num", "NA");
         change = new EntitySearchChange(entityB, searchConfig.getIndexManager().toIndex(entityB));
         change.setDescription("Test Description");
         change.setData(strMap);
@@ -86,7 +85,7 @@ public class TestDataTypes extends ESBase {
     }
 
     @Test
-    public void dateStrings () throws Exception {
+    public void dateStrings() throws Exception {
         String fortress = "dateStrings";
         String doc = "dates";
         String user = "mike";
@@ -95,16 +94,16 @@ public class TestDataTypes extends ESBase {
         deleteEsIndex(entity);
 
         EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity))
-                .setDescription("Test Description");
+            .setDescription("Test Description");
 
         Date date = new Date();
         DateFormat outputFormatter = new SimpleDateFormat("yyyy/MM/dd");
         String output = outputFormatter.format(date);
 
-        Map<String,Object> dateMap = new HashMap<>();
+        Map<String, Object> dateMap = new HashMap<>();
         dateMap.put("someDate", "2017-12-31");
         dateMap.put("rawDate", outputFormatter.parse(output));
-        
+
         change.setData(dateMap);
 
         indexMappingService.ensureIndexMapping(change);
@@ -113,15 +112,15 @@ public class TestDataTypes extends ESBase {
 
         String result = doQuery(entity, "*");
         assertNotNull(result);
-        Collection<Map<String,Object>>hits = getHits(result);
+        Collection<Map<String, Object>> hits = getHits(result);
         assertEquals(1, hits.size());
-        Map<String,Object> source = (Map<String, Object>) hits.iterator().next().get("_source");
-        assertNotNull ( source);
+        Map<String, Object> source = (Map<String, Object>) hits.iterator().next().get("_source");
+        assertNotNull(source);
         assertEquals(entity.getKey(), source.get("code"));
-        Map<String,Object>theData = (Map<String, Object>) source.get("data");
-        assertNotNull (theData.get("someDate"));
+        Map<String, Object> theData = (Map<String, Object>) source.get("data");
+        assertNotNull(theData.get("someDate"));
         assertEquals(dateMap.get("someDate"), theData.get("someDate"));
-        Date foundDate = (Date)dateMap.get("rawDate");
+        Date foundDate = (Date) dateMap.get("rawDate");
         assertEquals("Dates did not match", dateMap.get("rawDate"), foundDate);
 
     }

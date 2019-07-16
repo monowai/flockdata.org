@@ -16,7 +16,15 @@
 
 package org.flockdata.test.unit.client;
 
+import static junit.framework.Assert.assertNull;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collection;
+import java.util.List;
 import junit.framework.TestCase;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.FlockException;
@@ -26,15 +34,6 @@ import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfile;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
-
-import java.util.Collection;
-import java.util.List;
-
-import static junit.framework.Assert.assertNull;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author mholdsworth
@@ -55,16 +54,16 @@ public class TestCSVEntitiesWithDelimiter extends AbstractImport {
 
         List<EntityInputBean> entities = fdTemplate.getEntities();
         for (EntityInputBean entity : entities) {
-            assertNotNull ( "Remapping column name to target", entity.getContent().getData().get("institution"));
+            assertNotNull("Remapping column name to target", entity.getContent().getData().get("institution"));
             // DAT-528
             assertNull("Column 11 is flagged as false for persistence", entity.getContent().getData().get("11"));
 
             assertEquals(3, entity.getTags().size());
             List<TagInputBean> tagInputBeans = entity.getTags();
             for (TagInputBean tagInputBean : tagInputBeans) {
-                if( tagInputBean.getLabel().equals("Year")) {
+                if (tagInputBean.getLabel().equals("Year")) {
                     assertEquals("2012", tagInputBean.getCode());
-                } else  if ( tagInputBean.getLabel().equals("Institution"))  {
+                } else if (tagInputBean.getLabel().equals("Institution")) {
                     assertFalse(tagInputBean.getCode().contains("|"));
                     assertFalse(tagInputBean.getName().contains("|"));
                     assertEquals("Institution", tagInputBean.getLabel());
@@ -74,7 +73,7 @@ public class TestCSVEntitiesWithDelimiter extends AbstractImport {
                         assertFalse(represents.getCode().contains("|"));
                         assertTrue(represents.isMustExist());
                     }
-                } else if ( tagInputBean.getLabel().equals("ZipCode")){
+                } else if (tagInputBean.getLabel().equals("ZipCode")) {
                     assertEquals("Data type was not preserved as a string", "01", tagInputBean.getCode());
                 }
             }

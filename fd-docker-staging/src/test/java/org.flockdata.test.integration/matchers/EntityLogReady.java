@@ -42,7 +42,7 @@ public class EntityLogReady implements ReadyMatcher {
     public boolean isReady(FdIoInterface fdIoInterface) {
         response = entityLogs.exec(key);
 
-        return response.getResult() != null && response.getResult().length >= waitFor && response.getResult()[waitFor-1].getData()!=null;
+        return response.getResult() != null && response.getResult().length >= waitFor && response.getResult()[waitFor - 1].getData() != null;
     }
 
     @Override

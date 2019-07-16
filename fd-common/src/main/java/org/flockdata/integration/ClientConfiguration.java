@@ -16,6 +16,11 @@
 
 package org.flockdata.integration;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import javax.annotation.PostConstruct;
 import org.flockdata.registration.SystemUserResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,18 +28,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-
 /**
  * Configures fd-client from properties source from a configuration file
  *
  * @author mholdsworth
- * @since 30/04/2014
  * @tag Configuration, FdClient
+ * @since 30/04/2014
  */
 @Configuration
 public class ClientConfiguration {
@@ -52,45 +51,45 @@ public class ClientConfiguration {
     private static final String KEY_TRACK_QUEUE = "org.fd.track.messaging.queue";
     private static final String KEY_TRACK_EXCHANGE = "org.fd.messaging.exchange";
     private static final String KEY_TRACK_BINDING = "org.fd.track.messaging.binding";
-    @Value ("${"+ KEY_COMPANY +":flockdata}")
+    @Value("${" + KEY_COMPANY + ":flockdata}")
     private String company;
 
-    @Value ("${"+ KEY_FORTRESS +":#{null}}")
+    @Value("${" + KEY_FORTRESS + ":#{null}}")
     private String fortress;
 
-    @Value("${"+ KEY_TRACK_QUEUE +":fd.track.queue}")
+    @Value("${" + KEY_TRACK_QUEUE + ":fd.track.queue}")
     private String trackQueue = "fd.track.queue";
 
-    @Value("${"+ KEY_TRACK_EXCHANGE +":fd}")
+    @Value("${" + KEY_TRACK_EXCHANGE + ":fd}")
     private String fdExchange = "fd";
 
-    @Value("${"+ KEY_TRACK_BINDING +":fd.track.queue}")
+    @Value("${" + KEY_TRACK_BINDING + ":fd.track.queue}")
     private String trackRoutingKey = "fd.track.queue}";
 
-    @Value("${"+ KEY_ENGINE_API +":http://localhost:8080}")
+    @Value("${" + KEY_ENGINE_API + ":http://localhost:8080}")
     private
     String engineUrl = "http://localhost:8080";
 
-    @Value("${"+ KEY_API_KEY +":#{null}}")
+    @Value("${" + KEY_API_KEY + ":#{null}}")
     private String apiKey = null;
 
-    @Value("${"+ KEY_HTTP_USER +":mike}")
+    @Value("${" + KEY_HTTP_USER + ":mike}")
     private
     String httpUser = null;
 
-    @Value("${"+ KEY_HTTP_PASS +":123}")
+    @Value("${" + KEY_HTTP_PASS + ":123}")
     private
     String httpPass = null;
 
-    @Value("${"+ KEY_BATCH_SIZE +":1}")
+    @Value("${" + KEY_BATCH_SIZE + ":1}")
     private
     int batchSize = 1;
 
     private boolean validateOnly;
-    private boolean amqp=true;
+    private boolean amqp = true;
 
-    private int stopRowProcessCount =0;
-    private int skipCount=0;
+    private int stopRowProcessCount = 0;
+    private int skipCount = 0;
     private File file;
     private Collection<String> filesToImport = new ArrayList<>();
 
@@ -100,8 +99,9 @@ public class ClientConfiguration {
     }
 
     public String getServiceUrl() {
-        if ( engineUrl !=null && !engineUrl.equals("") && !engineUrl.startsWith("http"))
-            engineUrl =  "http://" + engineUrl;
+        if (engineUrl != null && !engineUrl.equals("") && !engineUrl.startsWith("http")) {
+            engineUrl = "http://" + engineUrl;
+        }
         return engineUrl;
     }
 
@@ -131,16 +131,17 @@ public class ClientConfiguration {
     @PostConstruct
     public String toString() {
         String auth;
-        if (apiKey != null && !apiKey.isEmpty())
+        if (apiKey != null && !apiKey.isEmpty()) {
             auth = KEY_API_KEY + "='" + "** set **";
-        else
+        } else {
             auth = KEY_HTTP_USER + " [" + httpUser;
+        }
 
         return "ClientConfiguration - " +
-                ""+ KEY_ENGINE_API +" [" + engineUrl + ']' +
-                ", " + auth + ']' +
-                ", "+ KEY_BATCH_SIZE +" [" + batchSize +
-                "]";
+            "" + KEY_ENGINE_API + " [" + engineUrl + ']' +
+            ", " + auth + ']' +
+            ", " + KEY_BATCH_SIZE + " [" + batchSize +
+            "]";
     }
 
     public String getCompany() {
@@ -152,7 +153,6 @@ public class ClientConfiguration {
     }
 
     /**
-     *
      * @return optionally defined default fortress
      */
     public String getFortress() {
@@ -193,6 +193,7 @@ public class ClientConfiguration {
 
     /**
      * stop count
+     *
      * @return stop processing after this row is reached
      */
     public int getStopRowProcessCount() {
@@ -254,7 +255,7 @@ public class ClientConfiguration {
     }
 
     public void setSystemUser(SystemUserResultBean systemUser) {
-        if ( systemUser != null) {
+        if (systemUser != null) {
             setApiKey(systemUser.getApiKey());
             setHttpUser(systemUser.getLogin());
             setCompany(systemUser.getCompanyName());

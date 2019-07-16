@@ -30,9 +30,10 @@ import org.springframework.messaging.MessageChannel;
 
 /**
  * Search integration objects
+ *
  * @author mholdsworth
+ * @tag Configuration, Messaging, Channels
  * @since 3/07/2015
- *  @tag Configuration, Messaging, Channels
  */
 @Configuration
 @IntegrationComponentScan
@@ -40,7 +41,7 @@ import org.springframework.messaging.MessageChannel;
 public class FdSearchChannels {
 
     @Bean
-    MessageChannel doContentQuery(){
+    MessageChannel doContentQuery() {
         return new DirectChannel();
     }
 
@@ -76,17 +77,17 @@ public class FdSearchChannels {
     }
 
     @Bean
-    MessageChannel sendSearchRequest()  {
+    MessageChannel sendSearchRequest() {
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel sendKeyQuery(){
+    MessageChannel sendKeyQuery() {
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel sendTagCloudRequest (){
+    MessageChannel sendTagCloudRequest() {
         return new DirectChannel();
     }
 

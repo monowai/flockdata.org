@@ -26,14 +26,14 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 
 /**
  * @author mholdsworth
- * @since 14/04/2013
  * @tag GraphRepository, Transactions
+ * @since 14/04/2013
  */
 public interface TxRepo extends GraphRepository<TxRefNode> {
 
     @Query(value = "   MATCH (company:FDCompany)-[:TX]->(txTag:TxRef) " +
-            "   where id(company) = {1} and txTag.name = {0} " +
-            "return txTag")
+        "   where id(company) = {1} and txTag.name = {0} " +
+        "return txTag")
     TxRefNode findTxTag(String userTag, Long company);
 
 }

@@ -20,6 +20,8 @@
 
 package org.flockdata.test.engine.services;
 
+import static org.junit.Assert.assertEquals;
+
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
@@ -32,8 +34,6 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Tests that deal with log changes - correct number, detecting changes etc
@@ -49,29 +49,41 @@ public class TestLogCounts extends EngineBase {
         // DAT-267
         logger.debug("### historic_BackFillingLogsDontCreateDuplicates");
         SystemUser su = registerSystemUser("historic_BackFillingLogsDontCreateDuplicates");
-        FortressNode fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("historic_BackFillingLogsWontCreateDuplicates", true));
+        FortressNode fortWP = fortressService.registerFortress(su.getCompany(),
+            new FortressInputBean("historic_BackFillingLogsWontCreateDuplicates", true));
         EntityInputBean inputBean = new EntityInputBean(fortWP, new DocumentTypeInputBean("poppy"));
 
         DateTime today = DateTime.now();
         inputBean.setContent(new ContentInputBean("poppy", today, ContentDataHelper.getSimpleMap("name", "a")));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        assertEquals("Exactly 1 log expected", 1, entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
+        assertEquals("Exactly 1 log expected",
+            1,
+            entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
         DateTime yesterday = today.minusDays(1);
         inputBean.setKey(result.getEntity().getKey());
-        inputBean.setContent(new ContentInputBean("poppy", yesterday, ContentDataHelper.getSimpleMap("name", "b")));
-        mediationFacade.trackEntity(su.getCompany(), inputBean);
-        assertEquals("Exactly 2 logs expected", 2, entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
+        inputBean.setContent(new ContentInputBean("poppy",
+            yesterday,
+            ContentDataHelper.getSimpleMap("name", "b")));
 
         mediationFacade.trackEntity(su.getCompany(), inputBean);
-        assertEquals("Back filling an identical log should not create a new one", 2, entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
+        assertEquals("Exactly 2 logs expected",
+            2,
+            entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
+
+        mediationFacade.trackEntity(su.getCompany(), inputBean);
+        assertEquals("Back filling an identical log should not create a new one", 2,
+            entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
 
         // Insert a log for which only the FortressDate time has changed. Should not create a new log
         DateTime yesterdayMoreRecent = yesterday.plusHours(1);
-        inputBean.setContent(new ContentInputBean("poppy", yesterdayMoreRecent, ContentDataHelper.getSimpleMap("name", "b")));
+        inputBean.setContent(new ContentInputBean(
+            "poppy", yesterdayMoreRecent, ContentDataHelper.getSimpleMap("name", "b")));
         mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        assertEquals("Back filling an identical log should not create a new one", 2, entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
+        assertEquals("Back filling an identical log should not create a new one",
+            2,
+            entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
     }
 
     @Test
@@ -79,8 +91,9 @@ public class TestLogCounts extends EngineBase {
         // DAT-267
         logger.debug("### historic_AttachmentsWithSameChecksumWontCreateDuplicates");
         SystemUser su = registerSystemUser("historic_AttachmentsWithSameChecksumWontCreateDuplicates");
-        FortressNode fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("historic_AttachmentsWithSameChecksumWontCreateDuplicates", true));
-        EntityInputBean inputBean = new EntityInputBean(fortWP, new DocumentTypeInputBean("poppy" ));
+        FortressNode fortWP = fortressService.registerFortress(su.getCompany(),
+            new FortressInputBean("historic_AttachmentsWithSameChecksumWontCreateDuplicates", true));
+        EntityInputBean inputBean = new EntityInputBean(fortWP, new DocumentTypeInputBean("poppy"));
 
         DateTime today = DateTime.now();
         ContentInputBean cib = new ContentInputBean("poppy", today);
@@ -88,10 +101,14 @@ public class TestLogCounts extends EngineBase {
         inputBean.setContent(cib);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        assertEquals("Exactly 1 log expected", 1, entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
+        assertEquals("Exactly 1 log expected",
+            1,
+            entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
 
         result = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        assertEquals("Tracking the same content should not create a new log", 1, entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
+        assertEquals("Tracking the same content should not create a new log",
+            1,
+            entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
 
         DateTime yesterday = today.minusDays(1);
         inputBean.setKey(result.getEntity().getKey());
@@ -99,27 +116,10 @@ public class TestLogCounts extends EngineBase {
         cib.setAttachment(ContentDataHelper.getPdfDoc(), "pdf", "test.pdf");
         inputBean.setContent(cib);
         mediationFacade.trackEntity(su.getCompany(), inputBean);
-        assertEquals("Same content but different fortress date should not create  new log", 1, entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
+        assertEquals("Same content but different fortress date should not create  new log",
+            1,
+            entityService.getLogCount(su.getCompany(), result.getEntity().getKey()));
 
     }
 
-//    @Test
-//    public void reprocess_ChangingWhatOnSameDatetimeCreatesLogs() throws Exception {
-//        SystemUserInterface su = registerSystemUser("fixing");
-//        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fixing", true));
-//        assertFalse(fortress.isSearchEnabled());
-//        String code = UUID.randomUUID().toString();
-//
-//        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), code);
-//        ContentInputBean contentInputBean = new ContentInputBean("mike", new DateTime(), Helper.getSimpleMap("col", 123));
-//        inputBean.setContent(contentInputBean);
-//        TrackResultBean result = mediationFacade.trackEntity(inputBean, su.getApiKey());
-//        Entity entity = result.getEntity();
-//        waitForFirstLog(su.getCompany(), entity);
-//        contentInputBean.setData(Helper.getSimpleMap("col", 124));
-//        mediationFacade.trackEntity(inputBean, su.getApiKey());
-//        // See LogNode.logKey (setCurrentLog)
-//        assertEquals("All content dates the same except What - got wrong count", 2, trackService.getEntityLogs(entity.getId()).size());
-//
-//    }
 }

@@ -20,16 +20,15 @@
 
 package org.flockdata.integration;
 
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 /**
  * Generates unique keys based on various algorithms.
  *
- * @tag Entity
  * @author mholdsworth
+ * @tag Entity
  * @since 11/09/2013
  */
 @Service
@@ -47,13 +46,13 @@ public class KeyGenService {
 
     String getUniqueKey(METHOD method) {
         // Snowflake?
-        if (method.equals(METHOD.SNOWFLAKE))
+        if (method.equals(METHOD.SNOWFLAKE)) {
             return getSnowFlake();
-        else if (method.equals(METHOD.BASE64))
+        } else if (method.equals(METHOD.BASE64)) {
             return base64.format(UUID.randomUUID());
-        else
-
-        return getUUID();
+        } else {
+            return getUUID();
+        }
     }
 
     //ToDo: Implement!
@@ -68,7 +67,6 @@ public class KeyGenService {
     private enum METHOD {
         UUID, SNOWFLAKE, BASE64
     }
-
 
 
 }

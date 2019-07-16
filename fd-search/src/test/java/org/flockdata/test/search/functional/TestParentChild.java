@@ -20,6 +20,8 @@
 
 package org.flockdata.test.search.functional;
 
+import static org.junit.Assert.assertNotNull;
+
 import io.searchbox.client.JestResult;
 import io.searchbox.core.Search;
 import org.flockdata.data.Entity;
@@ -34,10 +36,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.Assert.assertNotNull;
-
 /**
  * ES Parent/Child structures
+ *
  * @author mholdsworth
  * @since 10/09/2015
  */
@@ -55,52 +56,52 @@ public class TestParentChild extends ESBase {
 
         // Comes from TestEntityLinks.testLinkedToSearch
         String json = "{\n" +
-                "  \"documentType\": \"work\",\n" +
-                "  \"description\": null,\n" +
-                "  \"" + SearchSchema.DATA + "\": null,\n" +
-                "  \"props\": {},\n" +
-                "  \"attachment\": null,\n" +
-                "  \"fortressName\": \"timesheet\",\n" +
-                "  \"who\": null,\n" +
-                "  \"event\": null,\n" +
-                "  \"key\": \"81Rpuh8WQw6xD4pDwijZPQ\",\n" +
-                "  \"code\": \"ABC321\",\n" +
-                "  \"logId\": null,\n" +
-                "  \"tagValues\": {},\n" +
-                "  \"id\": 10,\n" +
+            "  \"documentType\": \"work\",\n" +
+            "  \"description\": null,\n" +
+            "  \"" + SearchSchema.DATA + "\": null,\n" +
+            "  \"props\": {},\n" +
+            "  \"attachment\": null,\n" +
+            "  \"fortressName\": \"timesheet\",\n" +
+            "  \"who\": null,\n" +
+            "  \"event\": null,\n" +
+            "  \"key\": \"81Rpuh8WQw6xD4pDwijZPQ\",\n" +
+            "  \"code\": \"ABC321\",\n" +
+            "  \"logId\": null,\n" +
+            "  \"tagValues\": {},\n" +
+            "  \"id\": 10,\n" +
             "  \"indexName\": \"" + searchConfig.getIndexManager().toIndex(entity) + "\",\n" +
-                "  \"sysWhen\": 1450644354230,\n" +
-                "  \"replyRequired\": true,\n" +
-                "  \"forceReindex\": false,\n" +
-                "  \"delete\": false,\n" +
-                "  \"createdDate\": 1450644354202,\n" +
-                "  \"updatedDate\": null,\n" +
-                "  \"contentType\": null,\n" +
-                "  \"fileName\": null,\n" +
-                "  \"tagStructure\": \"DEFAULT\",\n" +
-                "  \"parent\": null,\n" +
-                "  \"segment\": null,\n" +
-                "  \"entityLinks\": [\n" +
-                "    {\n" +
-                "      \"fortress\": \"timesheet\",\n" +
-                "      \"documentName\": \"Staff\",\n" +
-                "      \"key\": \"ZnU0EpMaQHKFtUT2eZE9LQ\",\n" +
-                "      \"code\": \"ABC123\",\n" +
+            "  \"sysWhen\": 1450644354230,\n" +
+            "  \"replyRequired\": true,\n" +
+            "  \"forceReindex\": false,\n" +
+            "  \"delete\": false,\n" +
+            "  \"createdDate\": 1450644354202,\n" +
+            "  \"updatedDate\": null,\n" +
+            "  \"contentType\": null,\n" +
+            "  \"fileName\": null,\n" +
+            "  \"tagStructure\": \"DEFAULT\",\n" +
+            "  \"parent\": null,\n" +
+            "  \"segment\": null,\n" +
+            "  \"entityLinks\": [\n" +
+            "    {\n" +
+            "      \"fortress\": \"timesheet\",\n" +
+            "      \"documentName\": \"Staff\",\n" +
+            "      \"key\": \"ZnU0EpMaQHKFtUT2eZE9LQ\",\n" +
+            "      \"code\": \"ABC123\",\n" +
             "      \"index\": \"" + searchConfig.getIndexManager().getPrefix() + "xref_frominputbeans.timesheet\",\n" +
-                "      \"searchTags\": {\n" +
-                "        \"role\": {\n" +
-                "          \"position\": [\n" +
-                "            {\n" +
-                "              \"code\": \"Cleaner\"\n" +
-                "            }\n" +
-                "          ]\n" +
-                "        }\n" +
-                "      },\n" +
-                "      \"relationshipName\": \"\"\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"searchKey\": \"ABC321\"\n" +
-                "}";
+            "      \"searchTags\": {\n" +
+            "        \"role\": {\n" +
+            "          \"position\": [\n" +
+            "            {\n" +
+            "              \"code\": \"Cleaner\"\n" +
+            "            }\n" +
+            "          ]\n" +
+            "        }\n" +
+            "      },\n" +
+            "      \"relationshipName\": \"\"\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"searchKey\": \"ABC321\"\n" +
+            "}";
         EntitySearchChange change = JsonUtils.toObject(json.getBytes(), EntitySearchChange.class);
         esSearchWriter.createSearchableChange(new SearchChanges(change));
         Thread.sleep(2000);
@@ -135,7 +136,7 @@ public class TestParentChild extends ESBase {
         EntitySearchChange childChange =
             new EntitySearchChange(childEntity, searchConfig.getIndexManager().toIndex(parentEntity))
                 .setParent(new EntityKeyBean(parentEntity, searchConfig.getIndexManager().toIndex(parentEntity)))
-                        .setData(ContentDataHelper.getSimpleMap("childKey", "childValue"));
+                .setData(ContentDataHelper.getSimpleMap("childKey", "childValue"));
 
         esSearchWriter.createSearchableChange(new SearchChanges(childChange));
         // I'm calling Parent/Child mapping broken for the time being. This test fails if the parent already exists
@@ -147,8 +148,9 @@ public class TestParentChild extends ESBase {
         // One document of parent type
         doQuery(parentEntity, "*");
 
-        if (!searchConfig.getIndexManager().isSuffixed())
+        if (!searchConfig.getIndexManager().isSuffixed()) {
             doQuery(childEntity, "*");
+        }
 
         // Should find both the parent and the child when searching just the index
         doQuery(searchConfig.getIndexManager().getIndexRoot(parentEntity.getFortress()) + "*", "*", "*", 2);
@@ -169,23 +171,23 @@ public class TestParentChild extends ESBase {
         do {
 
             String query = "{\n" +
-                    "  \"query\": {\n" +
-                    "    \"has_child\": {\n" +
-                    "      \"type\": \"" + childType + "\", \n" +
-                    "      \"query\": {\n" +
-                    "          query_string : {\n" +
-                    "              \"query\" : \"" + queryString + "\"" +
-                    "           }\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}";
+                "  \"query\": {\n" +
+                "    \"has_child\": {\n" +
+                "      \"type\": \"" + childType + "\", \n" +
+                "      \"query\": {\n" +
+                "          query_string : {\n" +
+                "              \"query\" : \"" + queryString + "\"" +
+                "           }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
 
             //
             Search search = new Search.Builder(query)
                 .addIndex(searchConfig.getIndexManager().toIndex(entity))
                 .addType(searchConfig.getIndexManager().parseType(entity))
-                    .build();
+                .build();
 
             jResult = esClient.execute(search);
             assertNotNull(jResult);

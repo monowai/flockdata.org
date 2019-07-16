@@ -20,17 +20,16 @@
 
 package org.flockdata.engine.data.dao;
 
+import java.util.Collection;
 import org.flockdata.data.EntityTag;
 import org.flockdata.engine.data.graph.EntityTagIn;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
-import java.util.Collection;
-
 /**
  * @author mholdsworth
- * @since 6/04/2015
  * @tag Neo4j, GraphRepository, Relationship, EntityTag
+ * @since 6/04/2015
  */
 public interface EntityTagInRepo extends GraphRepository<EntityTagIn> {
 

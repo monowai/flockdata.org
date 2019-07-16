@@ -16,27 +16,27 @@
 
 package org.flockdata.test.unit.importer;
 
-import org.flockdata.integration.FileProcessor;
-import org.junit.Test;
-
-import java.util.Collection;
-
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.util.Collection;
+import org.flockdata.integration.FileProcessor;
+import org.junit.Test;
+
 /**
  * Validate File Processor routines - Please add to this as you can
+ *
  * @author mholdsworth
  * @since 24/03/2015
  */
 public class TestFileProcessor {
     @Test
-    public void validate_RowsToProcess () throws Exception {
+    public void validate_RowsToProcess() throws Exception {
         FileProcessor fp = new FileProcessor();
-        assertFalse("No check should be made",fp.stopProcessing(1));
+        assertFalse("No check should be made", fp.stopProcessing(1));
 
-        fp = new FileProcessor(50,50);
+        fp = new FileProcessor(50, 50);
         // Skip the first 50 rows
         assertFalse("Less than skip count failed", fp.stopProcessing(49));
         assertFalse("Processing should continue", fp.stopProcessing(50));
@@ -45,10 +45,10 @@ public class TestFileProcessor {
         assertTrue("Processing should stop", fp.stopProcessing(101));
         assertTrue("Processing should really have stopped", fp.stopProcessing(101));
 
-        fp = new FileProcessor(50000,10);
+        fp = new FileProcessor(50000, 10);
         assertFalse("Processing should continue with no log message", fp.stopProcessing(1));
 
-        fp = new FileProcessor(50000,1);
+        fp = new FileProcessor(50000, 1);
         assertFalse("Processing should not continue", fp.stopProcessing(50000));
 
     }
@@ -71,7 +71,7 @@ public class TestFileProcessor {
 
         files = fileProcessor.resolveFiles("./data/*");
         assertFalse(files.isEmpty());
-        assertTrue("Not enough files found", files.size()> 5);
+        assertTrue("Not enough files found", files.size() > 5);
 
         files = fileProcessor.resolveFiles("./data/");
         assertFalse(files.isEmpty());

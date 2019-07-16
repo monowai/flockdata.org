@@ -16,18 +16,18 @@
 
 package org.flockdata.search;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.Segment;
 import org.flockdata.track.bean.MatrixInputBean;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Encapsulated search parameters
+ *
  * @author mholdsworth
  * @since 12/04/2014
  */
@@ -48,16 +48,17 @@ public class QueryParams implements QueryInterface {
     private String code;
     private Map<String, Object> query; // Raw query to pass through to ES
     private Map<String, Object> aggs; // Raw aggs to pass through to ES
-    private Map<String,Object> filter; // Raw filter to pass through to ES
-    private Map<String,Object> terms= new HashMap<>(); // Raw filter to pass through to ES
+    private Map<String, Object> filter; // Raw filter to pass through to ES
+    private Map<String, Object> terms = new HashMap<>(); // Raw filter to pass through to ES
     private ArrayList<String> tags;
     private ArrayList<String> relationships = new ArrayList<>();
     private boolean matchAll;
 
     public QueryParams(String searchText) {
         this.searchText = searchText;
-        if ( this.searchText.equals("*"))
+        if (this.searchText.equals("*")) {
             setMatchAll(true);
+        }
     }
 
     public QueryParams(Segment segment) {
@@ -86,11 +87,13 @@ public class QueryParams implements QueryInterface {
         this.company = company.getName();
         this.size = input.getSampleSize();
         this.tags = input.getConcepts();
-        if (input.getFromRlxs() != null && !input.getFromRlxs().isEmpty())
+        if (input.getFromRlxs() != null && !input.getFromRlxs().isEmpty()) {
             this.relationships.addAll(input.getFromRlxs());
+        }
 
-        if (input.getToRlxs() != null && !input.getToRlxs().isEmpty())
+        if (input.getToRlxs() != null && !input.getToRlxs().isEmpty()) {
             this.relationships.addAll(input.getToRlxs());
+        }
 
         if (input.getDocuments() != null && !input.getDocuments().isEmpty()) {
             types = new String[input.getDocuments().size()];
@@ -168,12 +171,12 @@ public class QueryParams implements QueryInterface {
     @Override
     public String toString() {
         return "QueryParams{" +
-                "searchText='" + searchText + '\'' +
-                ", company='" + company + '\'' +
-                ", fortress='" + fortress + '\'' +
-                ", docTypes='" + Arrays.toString(types) + '\'' +
-                ", segment='" + segment + '\'' +
-                '}';
+            "searchText='" + searchText + '\'' +
+            ", company='" + company + '\'' +
+            ", fortress='" + fortress + '\'' +
+            ", docTypes='" + Arrays.toString(types) + '\'' +
+            ", segment='" + segment + '\'' +
+            '}';
     }
 
     public boolean isEntityOnly() {
@@ -260,7 +263,7 @@ public class QueryParams implements QueryInterface {
     }
 
     @Override
-    public Map<String,Object> getFilter() {
+    public Map<String, Object> getFilter() {
         return filter;
     }
 

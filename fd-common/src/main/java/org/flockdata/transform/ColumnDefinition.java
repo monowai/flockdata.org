@@ -19,6 +19,9 @@ package org.flockdata.transform;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.EntityTagRelationshipDefinition;
@@ -27,10 +30,6 @@ import org.flockdata.transform.json.EntityTagRelationshipDeserializer;
 import org.flockdata.transform.json.GeoDeserializer;
 import org.flockdata.transform.json.TagProfileDeserializer;
 import org.flockdata.transform.tag.TagProfile;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
 
 /**
  * @author mholdsworth
@@ -43,7 +42,7 @@ public class ColumnDefinition implements GeoDefinition {
     private String source; // source property to read from
     private String keyPrefix; // Optional value to prefix a code with
     private String target; // New name for the source - null by default
-    private String dateFormat =null; // Java valid date format
+    private String dateFormat = null; // Java valid date format
     private String timeZone = null; // To use for dates
 
     private String dataType;
@@ -51,18 +50,18 @@ public class ColumnDefinition implements GeoDefinition {
     private Boolean persistent = true;
     private Boolean storeNull = true;
     // Flags that profile the properties of a column
-    private Boolean callerRef=null;
-    private Boolean title=null;
-    private Boolean description=null;
-    private Boolean createDate=null;
-    private Boolean document=null;
-    private Boolean tag=null;
-    private Boolean mustExist=null;
-    private Boolean createUser=null;
-    private Boolean updateUser=null;
+    private Boolean callerRef = null;
+    private Boolean title = null;
+    private Boolean description = null;
+    private Boolean createDate = null;
+    private Boolean document = null;
+    private Boolean tag = null;
+    private Boolean mustExist = null;
+    private Boolean createUser = null;
+    private Boolean updateUser = null;
     private Boolean reverse = false;
-    private Boolean updateDate=null;
-    private Boolean merge=null;
+    private Boolean updateDate = null;
+    private Boolean merge = null;
     private String fortress = null;
     private String documentType = null;
     private String label;
@@ -81,7 +80,7 @@ public class ColumnDefinition implements GeoDefinition {
     private ArrayList<ColumnDefinition> properties; // Properties to add to this object
     private ArrayList<EntityKeyBean> entityLinks = new ArrayList<>();
     @JsonDeserialize(using = EntityTagRelationshipDeserializer.class)
-    private Collection<EntityTagRelationshipDefinition> entityTagLinks ;
+    private Collection<EntityTagRelationshipDefinition> entityTagLinks;
     private ArrayList<AliasInputBean> aliases;
     private String delimiter;    // value delimiter
     @JsonDeserialize(using = TagProfileDeserializer.class)
@@ -108,11 +107,12 @@ public class ColumnDefinition implements GeoDefinition {
 
     /**
      * This block of Json is a Tag.
-     * @see org.flockdata.registration.TagInputBean
+     *
      * @return true if this column supports tag semantics
+     * @see org.flockdata.registration.TagInputBean
      */
     public Boolean isTag() {
-        return (tag !=null && tag) ;
+        return (tag != null && tag);
     }
 
     /**
@@ -158,14 +158,14 @@ public class ColumnDefinition implements GeoDefinition {
     }
 
     /**
-     *
      * @return rename the source column to this value
      */
     public String getTarget() {
-        if (target == null)
+        if (target == null) {
             return source;
-        else
+        } else {
             return target;
+        }
     }
 
     public void setTarget(String target) {
@@ -265,6 +265,7 @@ public class ColumnDefinition implements GeoDefinition {
 
     /**
      * used to hold an expression for most columns.
+     *
      * @return expression
      */
     public String getValue() {
@@ -279,14 +280,16 @@ public class ColumnDefinition implements GeoDefinition {
     /**
      * evaluates a system column from an expression and set's it as appropriate
      * code :"row#['mycol']"
+     *
      * @param expCol pre-defined column
      * @return property to be evaluated
      */
     @JsonIgnore
     @Deprecated // Favour getValue
     public String getExpression(ExpressionType expCol) {
-        if (expCol == null)
+        if (expCol == null) {
             return null;
+        }
         switch (expCol) {
             case NAME:
                 return name;
@@ -322,12 +325,12 @@ public class ColumnDefinition implements GeoDefinition {
     @Override
     public String toString() {
         return "ColumnDefinition{" +
-                "label='" + label + '\'' +
-                ", source='" + source + '\'' +
-                ", target='" + target + '\'' +
-                ", name='" + name + '\'' +
-                ", type='" + type + '\'' +
-                '}';
+            "label='" + label + '\'' +
+            ", source='" + source + '\'' +
+            ", target='" + target + '\'' +
+            ", name='" + name + '\'' +
+            ", type='" + type + '\'' +
+            '}';
     }
 
     public ArrayList<AliasInputBean> getAliases() {
@@ -336,7 +339,7 @@ public class ColumnDefinition implements GeoDefinition {
 
     @JsonIgnore
     public boolean hasAliases() {
-        return ( aliases != null && !aliases.isEmpty());
+        return (aliases != null && !aliases.isEmpty());
     }
 
     /**
@@ -356,7 +359,7 @@ public class ColumnDefinition implements GeoDefinition {
     @JsonIgnore
     public boolean isDate() {
         // DAT-523
-        return (dataType != null && dataType.equals("date")) ;
+        return (dataType != null && dataType.equals("date"));
     }
 
     public String getValueOnError() {
@@ -365,7 +368,7 @@ public class ColumnDefinition implements GeoDefinition {
 
     @JsonIgnore
     public boolean hasEntityProperties() {
-        return !(tag!=null && tag ) && properties!=null && !properties.isEmpty();
+        return !(tag != null && tag) && properties != null && !properties.isEmpty();
     }
 
     public String getNotFound() {
@@ -396,7 +399,6 @@ public class ColumnDefinition implements GeoDefinition {
     }
 
     /**
-     *
      * @return should properties in this payload be merged if the tag is existing?
      */
     public Boolean isMerge() {
@@ -441,16 +443,16 @@ public class ColumnDefinition implements GeoDefinition {
         }
         final ColumnDefinition other = (ColumnDefinition) obj;
         return Objects.equals(this.code, other.code)
-                && Objects.equals(this.source, other.source)
-                && Objects.equals(this.keyPrefix, other.keyPrefix)
-                && Objects.equals(this.target, other.target)
-                && Objects.equals(this.dataType, other.dataType)
-                && Objects.equals(this.fortress, other.fortress)
-                && Objects.equals(this.documentType, other.documentType)
-                && Objects.equals(this.label, other.label)
-                && Objects.equals(this.type, other.type)
-                && Objects.equals(this.name, other.name)
-                && Objects.equals(this.value, other.value);
+            && Objects.equals(this.source, other.source)
+            && Objects.equals(this.keyPrefix, other.keyPrefix)
+            && Objects.equals(this.target, other.target)
+            && Objects.equals(this.dataType, other.dataType)
+            && Objects.equals(this.fortress, other.fortress)
+            && Objects.equals(this.documentType, other.documentType)
+            && Objects.equals(this.label, other.label)
+            && Objects.equals(this.type, other.type)
+            && Objects.equals(this.name, other.name)
+            && Objects.equals(this.value, other.value);
     }
 
     public enum ExpressionType {CODE, NAME, RELATIONSHIP, KEY_PREFIX, PROP_EXP, LABEL, CALLER_REF}

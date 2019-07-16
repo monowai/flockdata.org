@@ -20,13 +20,12 @@
 
 package org.flockdata.model;
 
-import org.flockdata.registration.TagInputBean;
-import org.flockdata.track.bean.EntityInputBean;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.track.bean.EntityInputBean;
 
 /**
  * All the validation results. Maps are indexed from 0
@@ -36,11 +35,11 @@ import java.util.Map;
  */
 public class ContentValidationResults {
 
-    private Map<Integer,EntityInputBean> entity = new HashMap<>();
-    private Map<Integer,Collection<TagInputBean>> tags= new HashMap<>();
+    private Map<Integer, EntityInputBean> entity = new HashMap<>();
+    private Map<Integer, Collection<TagInputBean>> tags = new HashMap<>();
 
-    private Map<Integer,Collection<ColumnValidationResult>> results = new HashMap<>();
-    private Map<Integer,Collection<String>> messages = new HashMap<>();
+    private Map<Integer, Collection<ColumnValidationResult>> results = new HashMap<>();
+    private Map<Integer, Collection<String>> messages = new HashMap<>();
     private String message;
 
     public Collection<ColumnValidationResult> getResults(Integer row) {
@@ -53,19 +52,19 @@ public class ContentValidationResults {
     }
 
     public ContentValidationResults add(Integer row, Collection<TagInputBean> tags) {
-        this.tags .put(row, tags);
+        this.tags.put(row, tags);
         return this;
     }
 
     public ContentValidationResults add(Integer row, EntityInputBean entityInputBean) {
-        this.entity.put(row,entityInputBean);
+        this.entity.put(row, entityInputBean);
         return this;
     }
 
 
     public void addMessage(int row, String message) {
-        Collection<String>messages = this.messages.get(row);
-        if (messages == null ) {
+        Collection<String> messages = this.messages.get(row);
+        if (messages == null) {
             messages = new ArrayList<>();
             this.messages.put(row, messages);
         }
@@ -73,7 +72,7 @@ public class ContentValidationResults {
 
     }
 
-    public Collection<String> getMessage(int row ) {
+    public Collection<String> getMessage(int row) {
         return messages.get(row);
     }
 

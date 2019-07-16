@@ -1,10 +1,10 @@
 package org.flockdata.test.neo.unit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.flockdata.data.Entity;
 import org.flockdata.graph.model.EntityNode;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author mikeh

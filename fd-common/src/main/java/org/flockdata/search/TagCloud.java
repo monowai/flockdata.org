@@ -22,13 +22,13 @@ package org.flockdata.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * POJO representing a TagCloud .
  * Example : {"colera":12,"Cancer":1};
+ *
  * @author mholdsworth
  * @since 12/10/2014
  */
@@ -76,18 +76,21 @@ public class TagCloud {
 
         if (workingMap.size() >= maxEntries) {
             // We have to get rid of a random small value
-            if ( occurrence > workingMap.get(smallestTerm)) {
+            if (occurrence > workingMap.get(smallestTerm)) {
                 workingMap.remove(smallestTerm);
                 smallestTerm = term;
-            } else
+            } else {
                 return;
+            }
         }
 
         // Value has been accepted, so track max and min for subsequent scaling operations.
-        if ( occurrence > maxValue)
+        if (occurrence > maxValue) {
             maxValue = occurrence;
-        if ( occurrence < minValue)
+        }
+        if (occurrence < minValue) {
             minValue = occurrence;
+        }
 
         workingMap.put(term, occurrence);
 

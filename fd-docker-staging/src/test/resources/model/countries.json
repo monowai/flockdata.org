@@ -1,0 +1,575 @@
+{
+  "name": "ISO Countries of the world",
+  "code": "Countries",
+  "delimiter": ";",
+  "tagModel": true,
+  "content": {
+    "UNc_latitude": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "FAOit_proper": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "BGNc_latitude": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNGEGNlc_capital": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISOen_ro_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "year": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "PCGN_longname": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNGEGNlc_ro_longname": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "language": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ITU": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISO3166N3": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "BGNc_longitude": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "BGNlc_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "subcontinent": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISOen_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "BGN_demonym": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNGEGNlc_ro_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNc_longitude": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "url_stats": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "conabbr": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "longitude": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISOen_proper": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNGEGNfr_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "maxlatitude": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "maxlongitude": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "PCGN_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "BGN_proper": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "EKI_capital": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNGEGNen_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "minlatitude": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNen_capital": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "water": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNGEGNes_longname": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNGEGNes_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNfr_capital": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "population": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISO3166A2": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISO3166A3": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "minlongitude": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "IVC": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNGEGNen_longname": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "BGN_longname": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "FAOit_longname": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "FIPS104": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "land_total": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISOregion": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNGEGNru_longname": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "continent": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "EKI_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "PCGN_proper": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "latitude": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISOen_ro_proper": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISOfr_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "BGN_name": {
+      "code": "ISO3166A2",
+      "persistent": true,
+      "storeNull": true,
+      "tag": true,
+      "reverse": false,
+      "label": "Country",
+      "name": "BGN_name",
+      "properties": [
+        {
+          "source": "UNc_latitude",
+          "target": "latitude",
+          "persistent": true,
+          "storeNull": true,
+          "tag": false,
+          "reverse": false
+        },
+        {
+          "source": "UNc_longitude",
+          "target": "longitude",
+          "persistent": true,
+          "storeNull": true,
+          "tag": false,
+          "reverse": false
+        }
+      ],
+      "aliases": [
+        {
+          "code": "ISOen_name",
+          "description": "ISOen_name"
+        },
+        {
+          "code": "BGN_proper",
+          "description": "BGN_proper"
+        },
+        {
+          "code": "BGN_longname",
+          "description": "BGN_longname"
+        },
+        {
+          "code": "ISO3166A3",
+          "description": "ISO3166A3"
+        }
+      ],
+      "targets": [
+        {
+          "code": "BGN_capital",
+          "keyPrefix": "['ISO3166A2']",
+          "reverse": false,
+          "relationship": "capital",
+          "label": "City",
+          "condition": "[HasCapital].trim().equals('1')",
+          "properties": [
+            {
+              "source": "UNc_latitude",
+              "target": "latitude",
+              "persistent": true,
+              "storeNull": true,
+              "tag": false,
+              "reverse": false
+            },
+            {
+              "source": "UNc_longitude",
+              "target": "longitude",
+              "persistent": true,
+              "storeNull": true,
+              "tag": false,
+              "reverse": false
+            }
+          ],
+          "mustExist": false,
+          "merge": false,
+          "$$id": "tag_6"
+        }
+      ],
+      "$$id": "tag_5"
+    },
+    "BGNlc_longname": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISOfr_proper": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "land": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNru_capital": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "url_post": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "url_gov": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "url_gis": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISOsubregion": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNGEGNru_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "ISOes_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "FAOit_name": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNGEGNfr_longname": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "UNes_capital": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "HasCapital": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "BGN_demomyn_adj": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "BGN_capital": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    },
+    "EKI_longname": {
+      "dataType": "string",
+      "persistent": true,
+      "storeNull": true,
+      "tag": false,
+      "reverse": false
+    }
+  }
+}

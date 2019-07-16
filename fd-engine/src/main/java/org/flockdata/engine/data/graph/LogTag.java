@@ -20,15 +20,23 @@
 
 package org.flockdata.engine.data.graph;
 
-import org.flockdata.data.*;
-import org.springframework.data.neo4j.annotation.*;
+import java.util.Map;
+import org.flockdata.data.AbstractEntityTag;
+import org.flockdata.data.Entity;
+import org.flockdata.data.EntityTag;
+import org.flockdata.data.Log;
+import org.flockdata.data.Tag;
+import org.springframework.data.neo4j.annotation.EndNode;
+import org.springframework.data.neo4j.annotation.Fetch;
+import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.RelationshipEntity;
+import org.springframework.data.neo4j.annotation.StartNode;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
-import java.util.Map;
-
 /**
  * A relationship that once existed between and Entity and a Tag
+ *
  * @author mholdsworth
  * @since 4/04/2015
  */
@@ -39,7 +47,7 @@ public class LogTag extends AbstractEntityTag {
     private Long id = null;
     @EndNode
     @Fetch
-    private Log log =null;
+    private Log log = null;
     @StartNode
     @Fetch
     private TagNode tag = null;
@@ -47,16 +55,17 @@ public class LogTag extends AbstractEntityTag {
     private Boolean reversed;
     private Boolean geoRelationship;
 
-    LogTag(){}
+    LogTag() {
+    }
 
     public LogTag(EntityTag entityTag, Log log, String name) {
         this();
         this.relationship = name;
         this.properties = new DynamicPropertiesContainer(entityTag.getProperties());
         this.reversed = entityTag.isReversed();
-        this.tag = (TagNode)entityTag.getTag();
+        this.tag = (TagNode) entityTag.getTag();
         this.log = log;
-        this.geoRelationship=entityTag.isGeoRelationship();
+        this.geoRelationship = entityTag.isGeoRelationship();
 
     }
 
@@ -71,7 +80,7 @@ public class LogTag extends AbstractEntityTag {
     }
 
     //@Override
-    public Log getLog(){
+    public Log getLog() {
         return log;
     }
 
@@ -90,7 +99,7 @@ public class LogTag extends AbstractEntityTag {
         return relationship;
     }
 
-    public void setRelationship(String relationship){
+    public void setRelationship(String relationship) {
         this.relationship = relationship;
     }
 
@@ -101,8 +110,9 @@ public class LogTag extends AbstractEntityTag {
 
 
     public Object getProperty(String key) {
-        if (properties == null)
+        if (properties == null) {
             return null;
+        }
         return properties.getProperty(key);
     }
 

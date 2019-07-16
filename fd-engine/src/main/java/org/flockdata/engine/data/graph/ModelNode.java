@@ -33,9 +33,10 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * ContentModel persistence.
+ *
  * @author mholdsworth
- * @since 3/10/2014
  * @tag Node, ContentModel
+ * @since 3/10/2014
  */
 @NodeEntity()
 @TypeAlias("Model")
@@ -56,7 +57,7 @@ public class ModelNode implements Model {
     private String fortressName;
 
     //@Relationship( type = "DOCUMENT_PROFILE")
-    @RelatedTo( type = "DOCUMENT_MODEL")
+    @RelatedTo(type = "DOCUMENT_MODEL")
     private DocumentNode document;
 
     private String documentName;
@@ -67,22 +68,23 @@ public class ModelNode implements Model {
     private String name;
 
 
-    ModelNode() {}
+    ModelNode() {
+    }
 
     public ModelNode(Company company, TrackResultBean trackResultBean, Fortress fortress, Document documentType) {
         this();
-        this.company = (CompanyNode)company;
-        this.fortress = (FortressNode)fortress;
-        this.document = (DocumentNode)documentType;
+        this.company = (CompanyNode) company;
+        this.fortress = (FortressNode) fortress;
+        this.document = (DocumentNode) documentType;
         this.fortressName = fortress.getName();
-        this.documentName = (documentType==null?null:documentType.getName());
+        this.documentName = (documentType == null ? null : documentType.getName());
         this.name = trackResultBean.getEntity().getName();
         this.key = trackResultBean.getKey();
 
     }
 
     public ModelNode(Company company, TrackResultBean trackResult, String code, Document documentType) {
-        this.company = (CompanyNode)company;
+        this.company = (CompanyNode) company;
         this.document = (DocumentNode) documentType;
         this.name = trackResult.getEntity().getName();
         this.key = trackResult.getKey();

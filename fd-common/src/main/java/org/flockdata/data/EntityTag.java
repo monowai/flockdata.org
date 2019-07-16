@@ -17,9 +17,8 @@
 package org.flockdata.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.track.bean.GeoDataBeans;
-
 import java.util.Map;
+import org.flockdata.track.bean.GeoDataBeans;
 
 /**
  * @author mholdsworth
@@ -33,13 +32,13 @@ public interface EntityTag {
 
     Boolean isGeoRelationship();
 
-    Long getId() ;
+    Long getId();
 
-    Entity getEntity() ;
+    Entity getEntity();
 
-    Tag getTag() ;
+    Tag getTag();
 
-    String getRelationship() ;
+    String getRelationship();
 
     void setRelationship(String name);
 

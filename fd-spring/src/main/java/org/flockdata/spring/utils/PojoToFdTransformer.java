@@ -16,6 +16,11 @@
 
 package org.flockdata.spring.utils;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.helper.FlockException;
 import org.flockdata.spring.annotations.*;
 import org.flockdata.track.bean.ContentInputBean;
@@ -24,21 +29,14 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-
 @Component
 public class PojoToFdTransformer {
 
     /**
-     *
      * @param pojo data object to transform
      * @return EntityInputBean to track to FlockData
      * @throws IllegalAccessException error
-     * @throws FlockException error
+     * @throws FlockException         error
      */
 
     public static EntityInputBean transformEntity(Object pojo) throws FlockException, IllegalAccessException {
@@ -129,11 +127,12 @@ public class PojoToFdTransformer {
 
     /**
      * Logs a data change event in flockdata for the entity
+     *
      * @param pojo data to change
      * @return Content data
      * @throws IllegalAccessException error
-     * @throws IOException error
-     * @throws FlockException   error
+     * @throws IOException            error
+     * @throws FlockException         error
      */
     public static ContentInputBean transformToFdContent(Object pojo) throws IllegalAccessException, IOException, FlockException {
         ContentInputBean contentInputBean = new ContentInputBean("mike", new DateTime(), null);

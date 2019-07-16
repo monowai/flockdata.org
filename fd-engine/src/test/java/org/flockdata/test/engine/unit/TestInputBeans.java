@@ -20,11 +20,23 @@
 
 package org.flockdata.test.engine.unit;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Date;
 import junit.framework.TestCase;
 import org.flockdata.data.Document;
 import org.flockdata.data.Entity;
 import org.flockdata.data.TxRef;
-import org.flockdata.engine.data.graph.*;
+import org.flockdata.engine.data.graph.CompanyNode;
+import org.flockdata.engine.data.graph.DocumentNode;
+import org.flockdata.engine.data.graph.EntityNode;
+import org.flockdata.engine.data.graph.FortressNode;
+import org.flockdata.engine.data.graph.TxRefNode;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.integration.IndexManager;
 import org.flockdata.registration.FortressInputBean;
@@ -36,10 +48,6 @@ import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
-
-import java.util.Date;
-
-import static org.junit.Assert.*;
 
 /**
  * @author mholdsworth
@@ -67,8 +75,8 @@ public class TestInputBeans {
     public void testFortressInputBean() {
 
         FortressInputBean fib = new FortressInputBean("ABC");
-        assertEquals (null, fib.isSearchEnabled());
-        assertEquals (null, fib.isStoreEnabled());
+        assertEquals(null, fib.isSearchEnabled());
+        assertEquals(null, fib.isStoreEnabled());
 
         fib = new FortressInputBean("ABC", false);
         assertTrue(fib.isSearchEnabled());
@@ -83,7 +91,7 @@ public class TestInputBeans {
         assertFalse(fib.isStoreEnabled());
 
         fib.setStoreEnabled(null);
-        assertEquals (null, fib.isStoreEnabled());
+        assertEquals(null, fib.isStoreEnabled());
     }
 
     @Test
@@ -121,7 +129,7 @@ public class TestInputBeans {
     }
 
     @Test
-    public void valuesDefaultCorrectly(){
+    public void valuesDefaultCorrectly() {
         TagInputBean tib = new TagInputBean("Hello");
         assertEquals("Hello", tib.getCode());
         tib.setCode("hello");
@@ -131,8 +139,8 @@ public class TestInputBeans {
     }
 
     @Test
-    public void mergeTags(){
-        TagInputBean dest   = new TagInputBean("hello");
+    public void mergeTags() {
+        TagInputBean dest = new TagInputBean("hello");
         TagInputBean source = new TagInputBean("hello");
 
         TagInputBean target = new TagInputBean("target");
@@ -142,7 +150,7 @@ public class TestInputBeans {
         source.setTargets("somerlx", target);
         source.setTargets("otherrlx", target);
 
-        dest.setTargets("somerlx", other );// This one appends to somerlx collection
+        dest.setTargets("somerlx", other);// This one appends to somerlx collection
 
         dest.mergeTags(source);
         //assertEquals(1, dest.getEntityLinks().size());
@@ -151,15 +159,15 @@ public class TestInputBeans {
     }
 
     @Test
-    public void entityTagLinksFromInput(){
+    public void entityTagLinksFromInput() {
         TagInputBean tag = new TagInputBean("SimpleName");
         tag.addEntityTagLink("myrlx");
-        assertFalse ( tag.getEntityTagLinks().isEmpty());
+        assertFalse(tag.getEntityTagLinks().isEmpty());
         assertTrue(tag.getEntityTagLinks().containsKey("myrlx"));
     }
 
     @Test
-    public void serialize_SearchChanges () throws Exception {
+    public void serialize_SearchChanges() throws Exception {
         CompanyNode mockCompany = new CompanyNode("company");
         mockCompany.setName("company");
 
@@ -168,10 +176,10 @@ public class TestInputBeans {
 
         DateTime now = new DateTime();
         EntityInputBean eib = new EntityInputBean(fortress,
-                "harry",
-                "docType",
-                now,
-                "abc");
+            "harry",
+            "docType",
+            now,
+            "abc");
 
         Document doc = new DocumentNode(fortress, "docType");
         Entity entity = new EntityNode("abc", fortress, eib, doc);
@@ -182,7 +190,7 @@ public class TestInputBeans {
 
         SearchChanges fromJson = JsonUtils.toObject(json.getBytes(), SearchChanges.class);
 
-        TestCase.assertTrue("", fromJson.getChanges().size()==1);
+        TestCase.assertTrue("", fromJson.getChanges().size() == 1);
 
     }
 

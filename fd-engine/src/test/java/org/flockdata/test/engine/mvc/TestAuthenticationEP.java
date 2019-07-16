@@ -20,6 +20,11 @@
 
 package org.flockdata.test.engine.mvc;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.LoginRequest;
@@ -29,11 +34,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 public class TestAuthenticationEP extends MvcBase {
 
@@ -45,14 +45,14 @@ public class TestAuthenticationEP extends MvcBase {
         loginReq.setPassword("123");
 
         MvcResult response = mvc()
-                .perform(
-                        MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(JsonUtils.toJson(loginReq)))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            .perform(
+                MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtils.toJson(loginReq)))
+            .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
         SystemUserResultBean systemUserResultBean = JsonUtils.toObject(response
-                .getResponse().getContentAsByteArray(), SystemUserResultBean.class);
+            .getResponse().getContentAsByteArray(), SystemUserResultBean.class);
         assertNotNull(systemUserResultBean);
     }
 
@@ -64,11 +64,11 @@ public class TestAuthenticationEP extends MvcBase {
         loginReq.setPassword("1234");
 
         mvc().perform(
-                MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.toJson(loginReq)))
-                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                .andReturn();
+            MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(loginReq)))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+            .andReturn();
 
     }
 
@@ -80,22 +80,22 @@ public class TestAuthenticationEP extends MvcBase {
         loginReq.setPassword("123");
 
         MvcResult response = mvc()
-                .perform(
-                        MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(JsonUtils.toJson(loginReq)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$.userRoles", hasSize(3))).andReturn();
+            .perform(
+                MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtils.toJson(loginReq)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(jsonPath("$.userRoles", hasSize(3))).andReturn();
         // FD_USER, FD_ADMIN & USER
 
         SystemUserResultBean systemUser = JsonUtils.toObject(response
-                .getResponse().getContentAsByteArray(), SystemUserResultBean.class);
+            .getResponse().getContentAsByteArray(), SystemUserResultBean.class);
         assertNotNull(systemUser.getUserRoles());
     }
 
     @Test
     public void whenLoggedInAsMike_ShouldBelongToAdminAndUserRoles()
-            throws Exception {
+        throws Exception {
 
         // As per the entry in test-security.xml
         LoginRequest loginReq = new LoginRequest();
@@ -103,13 +103,13 @@ public class TestAuthenticationEP extends MvcBase {
         loginReq.setPassword("123");
 
         mvc().perform(
-                MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.toJson(loginReq)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$.userRoles[0]", is(FdRoles.FD_ROLE_ADMIN)))
-                .andExpect(jsonPath("$.userRoles[1]", is(FdRoles.FD_ROLE_USER)))
-                .andReturn();
+            MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(loginReq)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(jsonPath("$.userRoles[0]", is(FdRoles.FD_ROLE_ADMIN)))
+            .andExpect(jsonPath("$.userRoles[1]", is(FdRoles.FD_ROLE_USER)))
+            .andReturn();
     }
 
 }

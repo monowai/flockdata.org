@@ -26,9 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Root level controller
+ *
  * @author mholdsworth
- * @since 4/04/2016
  * @tag Store, Security
+ * @since 4/04/2016
  */
 @RestController
 @RequestMapping("${org.fd.store.system.api:api}/")

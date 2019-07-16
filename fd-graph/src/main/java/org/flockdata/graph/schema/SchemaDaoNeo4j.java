@@ -20,6 +20,8 @@
 
 package org.flockdata.graph.schema;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.data.Fortress;
 import org.flockdata.graph.DriverManager;
 import org.flockdata.graph.model.CompanyNode;
@@ -27,9 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Maintains company specific Schema details. Structure of the nodes that FD has established
@@ -42,9 +41,8 @@ import java.util.Collection;
 @Repository
 public class SchemaDaoNeo4j {
 
-    private DriverManager template;
-
     private static final Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
+    private DriverManager template;
 
     @Autowired
     public SchemaDaoNeo4j(DriverManager template) {

@@ -21,11 +21,10 @@
 package org.flockdata.engine.matrix;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.flockdata.helper.CypherHelper;
-import org.neo4j.graphdb.Node;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.flockdata.helper.CypherHelper;
+import org.neo4j.graphdb.Node;
 
 /**
  * Represents a node structure used by Cytoscape to visualise graphs
@@ -42,7 +41,7 @@ public class FdNode {
 
     public FdNode(long id) {
         this();
-        data.put("id", id) ;
+        data.put("id", id);
     }
 
     public FdNode(Node node) {
@@ -51,9 +50,12 @@ public class FdNode {
         if (node.hasProperty("name")) {
             nameValue = node.getProperty("name").toString();
             if (node.hasProperty("code")) // Concept nodes don't have a code property :/
+            {
                 data.put("code", node.getProperty("code"));
-        } else
+            }
+        } else {
             nameValue = node.getProperty("code").toString();
+        }
         data.put("name", nameValue);
         data.put("label", CypherHelper.getLabel(node.getLabels()));
     }
@@ -67,8 +69,9 @@ public class FdNode {
     }
 
     public String getLabel() {
-        if ( !data.containsKey("label"))
+        if (!data.containsKey("label")) {
             return null;
+        }
         return data.get("label").toString();
     }
 
@@ -78,12 +81,18 @@ public class FdNode {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FdNode)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FdNode)) {
+            return false;
+        }
 
         FdNode fdNode = (FdNode) o;
 
-        if (getKey() != null ? !getKey().equals(fdNode.getKey()) : fdNode.getKey() != null) return false;
+        if (getKey() != null ? !getKey().equals(fdNode.getKey()) : fdNode.getKey() != null) {
+            return false;
+        }
         return !(getLabel() != null ? !getLabel().equals(fdNode.getLabel()) : fdNode.getLabel() != null);
 
     }
@@ -98,9 +107,9 @@ public class FdNode {
     @Override
     public String toString() {
         return "FdNode{" +
-                "key='" + getKey() + '\'' +
-                ", name=" + getName() +
-                ", label=" + getLabel() +
-                '}';
+            "key='" + getKey() + '\'' +
+            ", name=" + getName() +
+            ", label=" + getLabel() +
+            '}';
     }
 }

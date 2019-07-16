@@ -20,12 +20,11 @@
 
 package org.flockdata.graph.helper;
 
+import java.util.Collection;
 import org.flockdata.helper.NodeHelper;
 import org.flockdata.helper.TagHelper;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
-
-import java.util.Collection;
 
 
 /**

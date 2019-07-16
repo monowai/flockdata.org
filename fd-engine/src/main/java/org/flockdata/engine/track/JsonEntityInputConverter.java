@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.track;
 
+import java.io.IOException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.track.bean.EntityInputBean;
 import org.springframework.amqp.core.Message;
@@ -27,15 +28,13 @@ import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 /**
  * @author mholdsworth
- * @since 25/11/2014
  * @tag Json, Messaging
+ * @since 25/11/2014
  */
 @Component("jsonToEntityInput")
-public class JsonEntityInputConverter  extends SimpleMessageConverter {
+public class JsonEntityInputConverter extends SimpleMessageConverter {
 
     @Override
     public Object fromMessage(final Message message) throws MessageConversionException {

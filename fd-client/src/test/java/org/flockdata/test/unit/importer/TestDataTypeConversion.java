@@ -16,6 +16,16 @@
 
 package org.flockdata.test.unit.importer;
 
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.test.util.AssertionErrors.fail;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.flockdata.data.ContentModel;
 import org.flockdata.registration.TagInputBean;
@@ -29,19 +39,14 @@ import org.flockdata.transform.model.ExtractProfileHandler;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import java.util.*;
-
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.springframework.test.util.AssertionErrors.fail;
-
 /**
  * Datatypes
+ *
  * @author mholdsworth
  * @since 27/02/2015
  */
 
-public class TestDataTypeConversion  extends AbstractImport {
+public class TestDataTypeConversion extends AbstractImport {
 
     @Test
     public void preserve_NumberValueAsString() throws Exception {
@@ -54,11 +59,12 @@ public class TestDataTypeConversion  extends AbstractImport {
         List<TagInputBean> tagInputBeans = getTemplate().getTags();
         assertEquals(2, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
-            if (tagInputBean.getLabel().equals("as-string"))
+            if (tagInputBean.getLabel().equals("as-string")) {
                 assertEquals("00165", tagInputBean.getCode());
+            }
         }
         EntityInputBean entity = getTemplate().getEntities().iterator().next();
-        assertNotNull ( entity.getContent());
+        assertNotNull(entity.getContent());
         assertEquals("The N/A string should have been set to the default of 0", 0, entity.getContent().getData().get("illegal-num"));
         assertEquals("The Blank string should have been set to the default of 0", 0, entity.getContent().getData().get("blank-num"));
     }
@@ -92,13 +98,14 @@ public class TestDataTypeConversion  extends AbstractImport {
         List<TagInputBean> tagInputBeans = getTemplate().getTags();
         assertEquals(2, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
-            if (tagInputBean.getLabel().equals("tag-code"))
+            if (tagInputBean.getLabel().equals("tag-code")) {
                 assertEquals("123", tagInputBean.getCode());
+            }
         }
         List<EntityInputBean> entities = getTemplate().getEntities();
         for (EntityInputBean entity : entities) {
             Object whatString = entity.getContent().getData().get("tag-code");
-            assertEquals(""+whatString.getClass(), true, whatString instanceof String);
+            assertEquals("" + whatString.getClass(), true, whatString instanceof String);
         }
 
     }
@@ -110,12 +117,12 @@ public class TestDataTypeConversion  extends AbstractImport {
         ContentModel contentModel = ContentModelDeserializer.getContentModel(fileName);
         ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
 
-        String header[] = new String[]{"num"};
-        String row[] = new String[]{"0045"};
+        String header[] = new String[] {"num"};
+        String row[] = new String[] {"0045"};
         Map<String, Object> converted = Transformer.convertToMap(header, row, extractProfile);
         assertEquals("45", converted.get("num").toString());
 
-        row = new String[]{null};
+        row = new String[] {null};
         converted = Transformer.convertToMap(header, row, extractProfile);
         assertEquals(null, converted.get("num"));
 
@@ -129,17 +136,17 @@ public class TestDataTypeConversion  extends AbstractImport {
         ContentModel contentModel = ContentModelDeserializer.getContentModel(fileName);
         ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
 
-        String header[] = new String[]{"num"};
-        String row[] = new String[]{"50,000.99"}; // Not internatioalised
+        String header[] = new String[] {"num"};
+        String row[] = new String[] {"50,000.99"}; // Not internatioalised
         Map<String, Object> converted = Transformer.convertToMap(header, row, extractProfile);
         assertEquals("50000.99", converted.get("num").toString());
 
 
-        row = new String[]{""};
+        row = new String[] {""};
         converted = Transformer.convertToMap(header, row, extractProfile);
         assertEquals(null, converted.get("num"));
 
-        row = new String[]{null};
+        row = new String[] {null};
         converted = Transformer.convertToMap(header, row, extractProfile);
         assertEquals(null, converted.get("num"));
 
@@ -208,16 +215,16 @@ public class TestDataTypeConversion  extends AbstractImport {
 
     @Test
     public void map_NoArgsSuppliedToGetDefaultContentModel() throws Exception {
-        assertEquals("Null map should return 0 entries", 0, Transformer.fromMapToModel( null ).size());
+        assertEquals("Null map should return 0 entries", 0, Transformer.fromMapToModel(null).size());
         Collection<Map<String, Object>> rows = new ArrayList<>();
-        assertEquals("Empty row set should return 0 entries", 0, Transformer.fromMapToModel( rows ).size());
+        assertEquals("Empty row set should return 0 entries", 0, Transformer.fromMapToModel(rows).size());
         rows.add(new HashMap<>());
-        assertEquals("Empty row should return 0 entries", 0, Transformer.fromMapToModel( rows ).size());
+        assertEquals("Empty row should return 0 entries", 0, Transformer.fromMapToModel(rows).size());
     }
 
     @Test
-    public void map_SimpleDefaultContentModelFromInputData() throws Exception{
-        Map<String,Object>firstRow = new HashMap<>();
+    public void map_SimpleDefaultContentModelFromInputData() throws Exception {
+        Map<String, Object> firstRow = new HashMap<>();
         firstRow.put("NumCol", 120);
         firstRow.put("StrCol", "Abc");
         firstRow.put("DateCol", "2015-12-12");
@@ -227,7 +234,7 @@ public class TestDataTypeConversion  extends AbstractImport {
         firstRow.put("NumberThatIsNotADate", 90);
 
 
-        Map<String,Object>secondRow = new HashMap<>();
+        Map<String, Object> secondRow = new HashMap<>();
         secondRow.put("NumCol", 122);
         secondRow.put("StrCol", "Abc");
         secondRow.put("DateCol", "2015-12-12");
@@ -243,7 +250,7 @@ public class TestDataTypeConversion  extends AbstractImport {
         assertEquals(firstRow.size(), columnDefinitions.size());
         for (String column : columnDefinitions.keySet()) {
             ColumnDefinition colDef = columnDefinitions.get(column);
-            assertNotNull ( colDef);
+            assertNotNull(colDef);
             switch (column) {
                 case "NumCol":
                 case "LongNotADate":
@@ -257,7 +264,7 @@ public class TestDataTypeConversion  extends AbstractImport {
                     assertEquals("date", colDef.getDataType());
                     break;
                 case "StringThatLooksLikeANumber":
-                    assertEquals("DataType should be String as its the lower common denominator","string", colDef.getDataType());
+                    assertEquals("DataType should be String as its the lower common denominator", "string", colDef.getDataType());
                     break;
                 case "NumberThatIsNotADate":
                     assertEquals("DataType should be Number", "number", colDef.getDataType());
@@ -268,8 +275,6 @@ public class TestDataTypeConversion  extends AbstractImport {
             }
         }
     }
-
-
 
 
 }

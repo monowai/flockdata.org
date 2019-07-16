@@ -19,6 +19,7 @@
  */
 
 package org.flockdata.engine.configure;
+
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -40,11 +41,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @EnableTransactionManagement
 @EnableNeo4jRepositories(basePackages = {"org.flockdata.company.dao",
-        "org.flockdata.geography.dao",
-        "org.flockdata.engine.*"
+    "org.flockdata.geography.dao",
+    "org.flockdata.engine.*"
 })
 @Configuration
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class Neo4jConfig extends Neo4jConfiguration {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
@@ -66,23 +67,26 @@ public class Neo4jConfig extends Neo4jConfiguration {
 
             this.dbPath = dbPath;
             setBasePackage("org.flockdata.engine.data.graph");
-            if (pageCache != null && pageCache.equals("@null"))
+            if (pageCache != null && pageCache.equals("@null")) {
                 pageCache = null;
+            }
             GraphDatabaseBuilder graphdbBuilder = new GraphDatabaseFactory()
-                    .newEmbeddedDatabaseBuilder(dbPath)
-                    .loadPropertiesFromFile(configFile);
+                .newEmbeddedDatabaseBuilder(dbPath)
+                .loadPropertiesFromFile(configFile);
 
-            if (pageCache != null)
+            if (pageCache != null) {
                 graphdbBuilder.setConfig("dbms.pagecache.memory", pageCache);
+            }
 
             GraphDatabaseAPI graphdb = (GraphDatabaseAPI) graphdbBuilder
-                    .newGraphDatabase();
+                .newGraphDatabase();
             if (port > 0) {
                 logger.info("**** Neo4j browser enabled at url [{}] port [{}]", address, port);
                 ServerConfigurator config = new ServerConfigurator(graphdb);
                 config.configuration().setProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, port);
-                if (!address.equals("disable"))
+                if (!address.equals("disable")) {
                     config.configuration().setProperty(Configurator.WEBSERVER_ADDRESS_PROPERTY_KEY, address);
+                }
                 config.configuration().setProperty("dbms.security.auth_enabled", enableSecurity);
                 new WrappingCommunityNeoServer(graphdb, config).start();
             } else {

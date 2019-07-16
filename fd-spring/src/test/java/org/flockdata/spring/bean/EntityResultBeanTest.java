@@ -23,7 +23,8 @@ import org.junit.Test;
 
 /**
  * Created with IntelliJ IDEA.
- * @author  nabil
+ *
+ * @author nabil
  * @since 05/09/2013
  * To change this template use File | Settings | File Templates.
  */

@@ -20,10 +20,17 @@
 
 package org.flockdata.test.engine;
 
-import org.neo4j.graphdb.*;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.ReturnableEvaluator;
+import org.neo4j.graphdb.StopEvaluator;
+import org.neo4j.graphdb.Traverser;
 
 /**
  * @author mholdsworth
@@ -31,7 +38,7 @@ import java.util.Map;
  */
 public class MockNode implements Node {
     long id;
-    Map<String,Object>properties = new HashMap();
+    Map<String, Object> properties = new HashMap();
 
     public MockNode(int id) {
         this.id = id;

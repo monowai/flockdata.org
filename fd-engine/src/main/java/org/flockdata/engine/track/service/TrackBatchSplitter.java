@@ -20,6 +20,12 @@
 
 package org.flockdata.engine.track.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.transaction.HeuristicRollbackException;
 import org.flockdata.data.Company;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.Segment;
@@ -35,9 +41,6 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.transaction.HeuristicRollbackException;
-import java.util.*;
 
 /**
  * @author mholdsworth
@@ -77,7 +80,7 @@ public class TrackBatchSplitter {
 
     @Transactional
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class},
-            maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
+        maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Map<Segment, List<EntityInputBean>> getEntitiesBySegment(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
         Map<Segment, List<EntityInputBean>> results = new HashMap<>();
 
@@ -88,7 +91,7 @@ public class TrackBatchSplitter {
 
             String segmentKey = Fortress.key(Fortress.code(entityInputBean.getFortress().getName()), entityInputBean.getSegment());
             Segment segment = resolvedSegments.get(segmentKey);
-            if ( segment == null ) {
+            if (segment == null) {
                 segment = fortressService.resolveSegment(company, entityInputBean.getFortress(), entityInputBean.getSegment(), entityInputBean.getTimezone());
                 resolvedSegments.put(segmentKey, segment);
             }

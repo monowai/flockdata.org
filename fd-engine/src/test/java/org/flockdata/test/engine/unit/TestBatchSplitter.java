@@ -20,6 +20,12 @@
 
 package org.flockdata.test.engine.unit;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import org.flockdata.engine.data.graph.DocumentNode;
 import org.flockdata.engine.data.graph.EntityNode;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
@@ -27,20 +33,13 @@ import org.flockdata.test.engine.FdNodeHelper;
 import org.flockdata.track.bean.TrackResultBean;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
-
 /**
  * @author mholdsworth
  * @since 21/03/2015
  */
 public class TestBatchSplitter {
     @Test
-    public void entities() throws Exception{
+    public void entities() throws Exception {
         Collection<TrackResultBean> inputs = new ArrayList<>();
         EntityNode entityNewA = (EntityNode) FdNodeHelper.getEntity("blah", "abc", "123", "abc");
         DocumentNode documentType = new DocumentNode(entityNewA.getFortress(), "abc");
@@ -52,13 +51,13 @@ public class TestBatchSplitter {
         entityOldB.setNewEntity(false);
         assertFalse(entityOldA.isNewEntity());
 
-        inputs.add(new TrackResultBean(entityNewA,documentType));
+        inputs.add(new TrackResultBean(entityNewA, documentType));
         assertTrue(inputs.iterator().next().isNewEntity());
-        inputs.add(new TrackResultBean(entityNewB,documentType));
-        inputs.add(new TrackResultBean(entityOldA,documentType));
-        inputs.add(new TrackResultBean(entityOldB,documentType));
+        inputs.add(new TrackResultBean(entityNewB, documentType));
+        inputs.add(new TrackResultBean(entityOldA, documentType));
+        inputs.add(new TrackResultBean(entityOldB, documentType));
         assertEquals(4, inputs.size());
-        Collection<TrackResultBean>newEntities = TrackBatchSplitter.getNewEntities(inputs);
+        Collection<TrackResultBean> newEntities = TrackBatchSplitter.getNewEntities(inputs);
         assertEquals(2, newEntities.size());
 
         assertEquals(2, TrackBatchSplitter.getExistingEntities(inputs).size());

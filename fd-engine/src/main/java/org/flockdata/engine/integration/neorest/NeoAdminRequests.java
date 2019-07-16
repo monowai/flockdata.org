@@ -21,7 +21,6 @@
 package org.flockdata.engine.integration.neorest;
 
 /**
- *
  * For SDN4 Un-managed Extensions
  *
  * @author mholdsworth
@@ -59,21 +58,21 @@ public class NeoAdminRequests {
     IntegrationFlow doFdNeoHealth() {
 
         return IntegrationFlows.from("neoFdHealth")
-                .handle(fdHealthRequest())
-                .get();
+            .handle(fdHealthRequest())
+            .get();
     }
 
     @Bean
     IntegrationFlow doFdNeoPing() {
 
         return IntegrationFlows.from("neoFdPing")
-                .handle(fdPingRequest())
-                .get();
+            .handle(fdPingRequest())
+            .get();
     }
 
     private MessageHandler fdPingRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(channels.getUriRoot());
+            new HttpRequestExecutingMessageHandler(channels.getUriRoot());
         handler.setExpectedResponseType(String.class);
         handler.setHttpMethod(HttpMethod.GET);
 
@@ -82,7 +81,7 @@ public class NeoAdminRequests {
 
     private MessageHandler fdHealthRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getHealthUrl());
+            new HttpRequestExecutingMessageHandler(getHealthUrl());
         handler.setExpectedResponseType(String.class);
         handler.setHttpMethod(HttpMethod.GET);
 
@@ -90,9 +89,8 @@ public class NeoAdminRequests {
     }
 
     public String getHealthUrl() {
-        return channels.getUriRoot()+ "health";
+        return channels.getUriRoot() + "health";
     }
-
 
 
 }

@@ -16,16 +16,15 @@
 
 package org.flockdata.test.unit.client;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 import org.flockdata.data.ContentModel;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.flockdata.transform.model.ExtractProfile;
 import org.flockdata.transform.model.ExtractProfileHandler;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author mholdsworth
@@ -42,7 +41,7 @@ public class TestBlankTag extends AbstractImport {
         fileProcessor.processFile(extractProfile, "/data/blank-tags.txt");
 
         List<EntityInputBean> entities = getTemplate().getEntities();
-        assertEquals(3,entities.size());
+        assertEquals(3, entities.size());
 
         // Tags must have a non-null non-blank code value to be valid. Data row 1 is such a scenario
 
@@ -50,12 +49,12 @@ public class TestBlankTag extends AbstractImport {
         for (EntityInputBean entity : entities) {
             if (count == 0) {
                 assertEquals(0, entity.getTags().size());
-            } else if ( count ==1 ){
+            } else if (count == 1) {
                 assertEquals(1, entity.getTags().size());
-            } else if (count ==3) {
+            } else if (count == 3) {
                 assertEquals("Delimited country tags did not parse", 7, entity.getTags().size());
             }
-            count ++;
+            count++;
         }
 
     }

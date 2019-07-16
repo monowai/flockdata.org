@@ -29,6 +29,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Spring MVC configuration
+ *
  * @author mholdsworth
  * @since 18/02/2016
  */
@@ -43,7 +44,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 
     @RequestMapping("/api")
-    String api () {
+    String api() {
         return home();
     }
 

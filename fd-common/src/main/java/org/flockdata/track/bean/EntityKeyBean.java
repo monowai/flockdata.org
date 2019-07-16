@@ -18,23 +18,22 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.data.Document;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityTag;
 import org.flockdata.data.Fortress;
 import org.flockdata.search.SearchTag;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Links an Entity to another Entity with user supplied keys
  *
  * @author mholdsworth
- * @since 9/07/2014
  * @tag Track, Contract, EntityKey
+ * @since 9/07/2014
  */
 public class EntityKeyBean {
     private String relationshipName; // Entity to Entity relationship name
@@ -46,21 +45,22 @@ public class EntityKeyBean {
     private String key;
     private String code;
     private String name;
-    private boolean parent ;
+    private boolean parent;
 
     private Document resolvedDocument;
 
     private String description;
 
-    private  HashMap<String, Map<String, ArrayList<SearchTag>>>  searchTags = new HashMap<>();
+    private HashMap<String, Map<String, ArrayList<SearchTag>>> searchTags = new HashMap<>();
 
-    private ACTION missingAction =ACTION.IGNORE; // default action to take when source resolvedEntity to link to is missing
+    private ACTION missingAction = ACTION.IGNORE; // default action to take when source resolvedEntity to link to is missing
     private Entity resolvedEntity;
 
-    private EntityKeyBean(){}
+    private EntityKeyBean() {
+    }
 
-    public EntityKeyBean(String documentType, Fortress fortress, String code){
-        assert (fortress.getName() !=null );
+    public EntityKeyBean(String documentType, Fortress fortress, String code) {
+        assert (fortress.getName() != null);
         this.documentType = documentType;
         this.fortressName = fortress.getName();
         this.code = code;
@@ -68,6 +68,7 @@ public class EntityKeyBean {
 
     /**
      * Convenience function for testing purposes
+     *
      * @param documentType
      * @param fortress
      * @param code
@@ -77,7 +78,7 @@ public class EntityKeyBean {
         this.documentType = documentType;
         this.fortressName = fortress.getName();
         this.code = code;
-        this.relationshipName=relationshipName;
+        this.relationshipName = relationshipName;
     }
 
     public EntityKeyBean(String documentName, String fortress, String value) {
@@ -114,21 +115,21 @@ public class EntityKeyBean {
         this(resolvedEntity, index);
         for (EntityTag entityTag : entityTags) {
             Map<String, ArrayList<SearchTag>> byRelationship = searchTags.get(entityTag.getRelationship());
-            if ( byRelationship == null){
+            if (byRelationship == null) {
                 byRelationship = new HashMap<>();
                 String rlx = entityTag.getRelationship();
 
-                if (rlx == null ){
+                if (rlx == null) {
                     rlx = "default";
                 }
                 searchTags.put(rlx.toLowerCase(), byRelationship);
             }
             ArrayList<SearchTag> tags = byRelationship.get(entityTag.getTag().getLabel().toLowerCase());
-            if ( tags == null ){
+            if (tags == null) {
                 tags = new ArrayList<>();
                 byRelationship.put(entityTag.getTag().getLabel().toLowerCase(), tags);
             }
-            tags.add(new SearchTag(entityTag)) ;
+            tags.add(new SearchTag(entityTag));
         }
     }
 
@@ -144,8 +145,9 @@ public class EntityKeyBean {
     }
 
     public String getDocumentType() {
-        if ( documentType == null || documentType.equals(""))
+        if (documentType == null || documentType.equals("")) {
             return "*";
+        }
         return documentType;
     }
 
@@ -203,6 +205,7 @@ public class EntityKeyBean {
 
     /**
      * Flags this EntityKeyBean as a parent of the EntityBean it is being tracked against
+     *
      * @param parent yes - create an outbound relationship
      * @return this
      */
@@ -239,14 +242,21 @@ public class EntityKeyBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EntityKeyBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EntityKeyBean)) {
+            return false;
+        }
 
         EntityKeyBean entityKey = (EntityKeyBean) o;
 
-        if (!code.equals(entityKey.code)) return false;
-        if (documentType != null ? !documentType.equals(entityKey.documentType) : entityKey.documentType != null)
+        if (!code.equals(entityKey.code)) {
             return false;
+        }
+        if (documentType != null ? !documentType.equals(entityKey.documentType) : entityKey.documentType != null) {
+            return false;
+        }
         return !(fortressName != null ? !fortressName.equals(entityKey.fortressName) : entityKey.fortressName != null);
 
     }
@@ -262,10 +272,10 @@ public class EntityKeyBean {
     @Override
     public String toString() {
         return "EntityKey {" +
-                "fortressName='" + fortressName + '\'' +
-                ", documentType='" + documentType + '\'' +
-                ", code='" + code + '\'' +
-                '}';
+            "fortressName='" + fortressName + '\'' +
+            ", documentType='" + documentType + '\'' +
+            ", code='" + code + '\'' +
+            '}';
     }
 
     public enum ACTION {ERROR, IGNORE, CREATE}

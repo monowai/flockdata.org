@@ -18,6 +18,14 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import org.flockdata.data.Document;
 import org.flockdata.data.Fortress;
 import org.flockdata.data.FortressUser;
@@ -25,9 +33,6 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.UserProperties;
 import org.joda.time.DateTime;
-
-import java.io.Serializable;
-import java.util.*;
 
 /**
  * @author mholdsworth
@@ -123,11 +128,13 @@ public class EntityInputBean implements Serializable, UserProperties {
      * @return when created in the owning fortress
      */
     public Date getWhen() {
-        if (when != null)
+        if (when != null) {
             return when;
+        }
         // Default to the content date
-        if (content != null && content.getWhen() != null && content.getWhen().getTime() > 0)
+        if (content != null && content.getWhen() != null && content.getWhen().getTime() > 0) {
             return content.getWhen();
+        }
         return null;
     }
 
@@ -147,8 +154,9 @@ public class EntityInputBean implements Serializable, UserProperties {
     }
 
     public EntityInputBean setFortress(FortressInputBean fortress) {
-        if (fortress != null && fortress.getName().equals(""))
+        if (fortress != null && fortress.getName().equals("")) {
             throw new IllegalArgumentException("Fortress name cannot be blank or null");
+        }
         this.fortress = fortress;
         return this;
     }
@@ -220,8 +228,9 @@ public class EntityInputBean implements Serializable, UserProperties {
 
     @Override
     public Object getProperty(String key) {
-        if (properties == null)
+        if (properties == null) {
             return null;
+        }
         return properties.get(key);
     }
 
@@ -237,10 +246,13 @@ public class EntityInputBean implements Serializable, UserProperties {
 
     public EntityInputBean setProperty(String key, Object value) {
         if (value == null || key == null) // DAT-568
+        {
             return this; // We don't accept NULL values for a map
+        }
 
-        if (properties == null)
+        if (properties == null) {
             properties = new HashMap<>();
+        }
         properties.put(key, value);
         return this;
     }
@@ -358,22 +370,24 @@ public class EntityInputBean implements Serializable, UserProperties {
 
     @Deprecated // use addEntityLink ( EntityKeyBean )
     public EntityInputBean addEntityLink(String relationshipName, EntityKeyBean entityKey) {
-        if (entityKey.getRelationshipName() == null)
+        if (entityKey.getRelationshipName() == null) {
             entityKey.setRelationshipName(relationshipName);
+        }
 
-        return addEntityLink( entityKey);
+        return addEntityLink(entityKey);
     }
 
     /**
      * Connect this Entity to another Entity. Other entity should already exist.
      * By default, entityLinks are flagged as Parent which means that they will carry across to fd-search
      * as related data
+     *
      * @param entityKey payload
-     * @tag Entity, Parent, Search
      * @return this
+     * @tag Entity, Parent, Search
      */
-    public EntityInputBean addEntityLink ( EntityKeyBean entityKey){
-        assert entityKey.getRelationshipName() !=null;
+    public EntityInputBean addEntityLink(EntityKeyBean entityKey) {
+        assert entityKey.getRelationshipName() != null;
         List<EntityKeyBean> refs = entityLinks.computeIfAbsent(entityKey.getRelationshipName(), k -> new ArrayList<>());
         refs.add(entityKey);
         return this;
@@ -398,13 +412,13 @@ public class EntityInputBean implements Serializable, UserProperties {
     @Override
     public String toString() {
         return "EntityInputBean{" +
-                "for='" + getFortress() + '\'' +
-                ", doc='" + getDocumentType() + '\'' +
-                ", seg='" + getSegment() + '\'' +
-                ", mek='" + getKey() + '\'' +
-                ", cod='" + getCode() + '\'' +
-                ", nam='" + getName() + '\'' +
-                '}';
+            "for='" + getFortress() + '\'' +
+            ", doc='" + getDocumentType() + '\'' +
+            ", seg='" + getSegment() + '\'' +
+            ", mek='" + getKey() + '\'' +
+            ", cod='" + getCode() + '\'' +
+            ", nam='" + getName() + '\'' +
+            '}';
     }
 
     public String getName() {
@@ -439,8 +453,9 @@ public class EntityInputBean implements Serializable, UserProperties {
      * @return TimeZone.getTimeZone(fortressTz).getID();
      */
     public String getTimezone() {
-        if (timezone != null)
+        if (timezone != null) {
             return timezone;
+        }
         return TimeZone.getDefault().getID();
     }
 
@@ -495,14 +510,24 @@ public class EntityInputBean implements Serializable, UserProperties {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EntityInputBean)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EntityInputBean)) {
+            return false;
+        }
 
         EntityInputBean that = (EntityInputBean) o;
 
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (!getDocumentType().getName().equals(that.getDocumentType().getName())) return false;
-        if (!fortress.equals(that.fortress)) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) {
+            return false;
+        }
+        if (!getDocumentType().getName().equals(that.getDocumentType().getName())) {
+            return false;
+        }
+        if (!fortress.equals(that.fortress)) {
+            return false;
+        }
         return !(key != null ? !key.equals(that.key) : that.key != null);
 
     }
@@ -565,11 +590,11 @@ public class EntityInputBean implements Serializable, UserProperties {
             }
             for (String key : entityInputBean.getEntityLinks().keySet()) {
                 List<EntityKeyBean> links = entityInputBean.getEntityLinks().get(key);
-                if (getEntityLinks().containsKey(key))
+                if (getEntityLinks().containsKey(key)) {
                     for (EntityKeyBean link : links) {
                         getEntityLinks().get(key).add(link);
                     }
-                else {
+                } else {
                     getEntityLinks().put(key, links);
                 }
             }

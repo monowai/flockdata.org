@@ -30,8 +30,8 @@ import org.springframework.web.client.ResourceAccessException;
 /**
  * Returns metadata about the field structures from ElasticSearch.
  *
- * @tag Command, Fortress, Search, ElasticSearch
  * @author mholdsworth
+ * @tag Command, Fortress, Search, ElasticSearch
  * @since 31/08/2016
  */
 @Component
@@ -48,18 +48,18 @@ public class ModelFieldStructure {
     public CommandResponse<ContentStructure> exec(String fortress, String documentType) {
         HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
         ContentStructure result = null;
-        String error =null;
+        String error = null;
         try {
 
-            ResponseEntity<ContentStructure> response ;
-                response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl()+"/api/v1/model/{fortress}/{docType}/fields", HttpMethod.GET, requestEntity, ContentStructure.class,
-                        fortress,
-                        documentType);
+            ResponseEntity<ContentStructure> response;
+            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/model/{fortress}/{docType}/fields", HttpMethod.GET, requestEntity, ContentStructure.class,
+                fortress,
+                documentType);
 
             result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
 
         } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
-            error= e.getMessage();
+            error = e.getMessage();
         }
         return new CommandResponse<>(error, result);// Everything worked
     }

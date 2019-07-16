@@ -21,27 +21,25 @@
 package org.flockdata.store;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Map;
 import org.flockdata.store.bean.StorageBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityResultBean;
-
-import java.util.Map;
 
 /**
  * @author mholdsworth
  * @since 17/09/2014
  */
-@JsonDeserialize(as=StorageBean.class)
+@JsonDeserialize(as = StorageBean.class)
 public interface StoredContent {
 
     String getAttachment();
 
-    Map<String, Object> getData() ;
+    Map<String, Object> getData();
 
-    String getChecksum() ;
+    String getChecksum();
 
     /**
-     *
      * @return primary key for this content
      */
     Object getId();

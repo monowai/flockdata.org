@@ -30,7 +30,7 @@ import org.springframework.integration.annotation.ServiceActivator;
 @MessageEndpoint
 public class MonitoringService {
 
-    @ServiceActivator(inputChannel = "doEsPingRequest",outputChannel = "doEsPingResponse") // Subscriber
+    @ServiceActivator(inputChannel = "doEsPingRequest", outputChannel = "doEsPingResponse") // Subscriber
     public PingResult ping() {
         return new PingResult("pong");
     }

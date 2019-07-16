@@ -96,7 +96,7 @@ public class FdClientIo implements FdIoInterface {
     }
 
     @Autowired
-    void setCommands(SearchEsPost postQuery, ModelGet modelGet, Login login ){
+    void setCommands(SearchEsPost postQuery, ModelGet modelGet, Login login) {
         this.postQuery = postQuery;
         this.modelGet = modelGet;
         this.login = login;
@@ -119,8 +119,9 @@ public class FdClientIo implements FdIoInterface {
 
     private String writeEntitiesAmqp(Collection<EntityInputBean> entityInputs) throws FlockException {
         try {
-            if ( clientConfiguration.getApiKey()== null)
+            if (clientConfiguration.getApiKey() == null) {
                 login();
+            }
             fdRabbitClient.publish(entityInputs);
         } catch (IOException ioe) {
             logger.error(ioe.getLocalizedMessage());
@@ -132,8 +133,9 @@ public class FdClientIo implements FdIoInterface {
 
     private String writeTagsAmqp(Collection<TagInputBean> tagInputs) throws FlockException {
         try {
-            if ( clientConfiguration.getApiKey()== null)
+            if (clientConfiguration.getApiKey() == null) {
                 login();
+            }
             fdRabbitClient.publishTags(tagInputs);
         } catch (IOException | AlreadyClosedException ioe) {
             logger.error(ioe.getLocalizedMessage());
@@ -144,28 +146,31 @@ public class FdClientIo implements FdIoInterface {
     }
 
     public String writeEntities(Collection<EntityInputBean> entityInputs) throws FlockException {
-        if (entityInputs.isEmpty())
+        if (entityInputs.isEmpty()) {
             return "OK";
+        }
 
         return writeEntitiesAmqp(entityInputs);
 
     }
 
     public RestTemplate getRestTemplate() {
-        if ( restTemplate == null)
-            setRestTemplate( new RestTemplate());
+        if (restTemplate == null) {
+            setRestTemplate(new RestTemplate());
+        }
         return restTemplate;
     }
 
     @Autowired(required = false)
-    void setRestTemplate (RestTemplate restTemplate){
+    void setRestTemplate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
         this.restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
     }
 
     public String writeTags(Collection<TagInputBean> tagInputs) throws FlockException {
-        if (tagInputs.isEmpty())
+        if (tagInputs.isEmpty()) {
             return "OK";
+        }
 
         return writeTagsAmqp(tagInputs);
 
@@ -178,15 +183,16 @@ public class FdClientIo implements FdIoInterface {
     public HttpHeaders getHeaders(String user, String pass, final String apiKey) {
         String auth = user + ":" + pass;
         byte[] encodedAuth = Base64.encodeBase64(
-                auth.getBytes(Charset.forName("UTF-8")));
+            auth.getBytes(Charset.forName("UTF-8")));
         String authHeader = "Basic " + new String(encodedAuth);
 
         if (httpHeaders != null && httpHeaders.get("Authorization") != null && httpHeaders
             .get("Authorization")
             .iterator()
             .next()
-            .equals(authHeader))
+            .equals(authHeader)) {
             return httpHeaders;
+        }
 
         httpHeaders = new HttpHeaders() {
             {
@@ -195,14 +201,16 @@ public class FdClientIo implements FdIoInterface {
                     set("Authorization", authHeader);
                 }
 
-                if (apiKey != null && !apiKey.equals(""))
+                if (apiKey != null && !apiKey.equals("")) {
                     set("api-key", apiKey);
+                }
 
                 setContentType(MediaType.APPLICATION_JSON);
                 set("charset", ObjectHelper.charSet.toString());
 
-                if (compress)
+                if (compress) {
                     set("Accept-Encoding", "gzip,deflate");
+                }
             }
         };
 
@@ -212,9 +220,9 @@ public class FdClientIo implements FdIoInterface {
     @Override
     public String toString() {
         return "FdRestWriter{" +
-                "userName='" + clientConfiguration.getHttpUser() + '\'' +
-                ", serviceEndpoint='" + clientConfiguration.getServiceUrl() +
-                '}';
+            "userName='" + clientConfiguration.getHttpUser() + '\'' +
+            ", serviceEndpoint='" + clientConfiguration.getServiceUrl() +
+            '}';
     }
 
     public SystemUserResultBean login() {
@@ -255,11 +263,12 @@ public class FdClientIo implements FdIoInterface {
     public ContentModel getContentModel(String type, String clazz) {
         CommandResponse<ContentModel> response = modelGet.exec(type, clazz);
         String error = response.getError();
-        if (error != null)
+        if (error != null) {
             logger.error("Get Model resulted in {} for {} {} on {} for {}",
-                    error, type, clazz,
-                    clientConfiguration.getServiceUrl(),
-                    clientConfiguration.getHttpUser());
+                error, type, clazz,
+                clientConfiguration.getServiceUrl(),
+                clientConfiguration.getHttpUser());
+        }
 
         return response.getResult();
     }
@@ -273,8 +282,9 @@ public class FdClientIo implements FdIoInterface {
             logger.error(e.getMessage(), e);
 
         }
-        if (extractProfile == null)
+        if (extractProfile == null) {
             extractProfile = new ExtractProfileHandler(contentModel);
+        }
         return extractProfile;
     }
 
@@ -315,18 +325,18 @@ public class FdClientIo implements FdIoInterface {
     public SystemUserResultBean login(String user, String pass) {
         httpHeaders = null;
         getClientConfiguration()
-                .setHttpUser(user)
-                .setHttpPass(pass);
+            .setHttpUser(user)
+            .setHttpPass(pass);
 
         return login();
     }
 
 
-
     public Map<String, Object> search(QueryParams qp) {
         CommandResponse<Map<String, Object>> response = postQuery.exec(qp);
-        if (response.getError() != null)
+        if (response.getError() != null) {
             logger.error(response.getError());
+        }
         return response.getResult();
     }
 

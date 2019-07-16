@@ -20,6 +20,8 @@
 
 package org.flockdata.engine.integration.engine;
 
+import java.io.IOException;
+import javax.annotation.PostConstruct;
 import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
@@ -42,9 +44,6 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-
 /**
  * fd-search (outbound) to fd-engine (inbound)
  *
@@ -53,7 +52,7 @@ import java.io.IOException;
  * @since 21/07/2015
  */
 @Service
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class WriteEntityIndexResult {
 
     private static final com.fasterxml.jackson.databind.ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();

@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author mholdsworth
  * @since 25/08/2014
  */
-@ResponseStatus(value= HttpStatus.NOT_FOUND, reason="Resource not found ")  // 404
+@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Resource not found ")  // 404
 public class NotFoundException extends RuntimeException {
 
     public NotFoundException(String message) {

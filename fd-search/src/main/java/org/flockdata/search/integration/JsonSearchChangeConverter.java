@@ -20,6 +20,7 @@
 
 package org.flockdata.search.integration;
 
+import java.io.IOException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.search.SearchChanges;
@@ -27,8 +28,6 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 /**
  * Convert incoming bytes to SearchChanges

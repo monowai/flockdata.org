@@ -1,5 +1,7 @@
 package org.flockdata.test.neo.integ;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.flockdata.authentication.SecurityHelper;
 import org.flockdata.data.SystemUser;
 import org.flockdata.graph.DriverManager;
@@ -17,13 +19,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author mikeh
  * @since 10/06/18
  */
-@ActiveProfiles({"test"})
+@ActiveProfiles( {"test"})
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
     DriverManager.class,

@@ -21,23 +21,26 @@
 package org.flockdata.transform.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.ArrayList;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.transform.tag.TagProfile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 /**
  * @author mholdsworth
- * @since 27/05/2014
  * @tag Tag, ContentModel, Json, Serialization
+ * @since 27/05/2014
  */
 public class TagProfileDeserializer extends JsonDeserializer<ArrayList<TagProfile>> {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper( new FdJsonObjectMapper())
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .enable(JsonParser.Feature.ALLOW_COMMENTS);
+    private static final ObjectMapper objectMapper = new ObjectMapper(new FdJsonObjectMapper())
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .enable(JsonParser.Feature.ALLOW_COMMENTS);
 
     @Override
     public ArrayList<TagProfile> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {

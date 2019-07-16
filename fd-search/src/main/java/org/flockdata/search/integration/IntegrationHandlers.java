@@ -29,12 +29,13 @@ import org.springframework.messaging.MessageHandler;
 
 /**
  * Not sure we need this.
+ *
  * @author mholdsworth
  * @since 13/02/2016
  */
 @Configuration
 @IntegrationComponentScan
-@Profile({"fd-server"})
+@Profile( {"fd-server"})
 public class IntegrationHandlers {
 
     @Bean

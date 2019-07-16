@@ -20,6 +20,10 @@
 
 package org.flockdata.search.configure;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import javax.annotation.PreDestroy;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.RestClient;
@@ -39,17 +43,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PreDestroy;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 /**
  * Encapsulate configuration of an ES client and transport infrastructure
- * 
+ *
  * @author mholdsworth
- * @since 16/02/2016
  * @tag Search, Configuration
+ * @since 16/02/2016
  */
 @Configuration
 @Service
@@ -84,12 +83,6 @@ public class SearchConfig {
     private Logger logger = LoggerFactory.getLogger("configuration");
 
     @Autowired
-    void setIndexManager(IndexManager indexManager) {
-        this.indexManager = indexManager;
-    }
-
-
-    @Autowired
     public void initSearchConfig() {
         restClient = RestClient.builder(
             new HttpHost(httpHost, httpPort, "http")).build();
@@ -111,19 +104,26 @@ public class SearchConfig {
         return indexManager;
     }
 
+    @Autowired
+    void setIndexManager(IndexManager indexManager) {
+        this.indexManager = indexManager;
+    }
+
     public String getTransportAddresses() {
         StringBuilder result = null;
         for (InetSocketTransportAddress address : addresses) {
-            if (result != null)
+            if (result != null) {
                 result.append(",").append(address.toString());
-            else
+            } else {
                 result = new StringBuilder(address.toString());
+            }
         }
         return result != null ? result.toString() : null;
     }
+
     /**
      * Transport hosts
-     *
+     * <p>
      * HostA:9300,HostB:9300,HostC:9300.....
      *
      * @param urls , separated list of hosts to connect to
@@ -131,7 +131,7 @@ public class SearchConfig {
     @Autowired
     @Deprecated
     void setTransportClient(@Value("${es.nodes:localhost:9303}") String[] urls) throws UnknownHostException {
-        if (urls == null || urls.length== 0) {
+        if (urls == null || urls.length == 0) {
             return;
         }
         addresses = new InetSocketTransportAddress[urls.length];
@@ -156,14 +156,16 @@ public class SearchConfig {
 
     public String getEsMappingPath() {
 
-        if (esMappingPath.equals("${es.mappings}"))
+        if (esMappingPath.equals("${es.mappings}")) {
             esMappingPath = "."; // Internal
+        }
         return esMappingPath;
     }
 
     public String getEsDefaultSettings() {
-        if (esSettings.equals("${es.settings}"))
+        if (esSettings.equals("${es.settings}")) {
             esSettings = "fd-default-settings.json";
+        }
         return esSettings;
     }
 
@@ -171,10 +173,11 @@ public class SearchConfig {
         if (searchChange.isType(SearchChange.Type.ENTITY)) {
             String esDefaultMapping = "fd-default-mapping.json";
             String esTaxonomyMapping = "fd-taxonomy-mapping.json";
-            if (searchChange.getTagStructure() != null && searchChange.getTagStructure() == EntityTag.TAG_STRUCTURE.TAXONOMY)
+            if (searchChange.getTagStructure() != null && searchChange.getTagStructure() == EntityTag.TAG_STRUCTURE.TAXONOMY) {
                 return esTaxonomyMapping;
-            else
+            } else {
                 return esDefaultMapping;
+            }
         } else {
             return "fd-tag-mapping.json";
         }

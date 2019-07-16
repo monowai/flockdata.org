@@ -20,6 +20,9 @@
 
 package org.flockdata.test.engine.services;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
+
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.registration.FortressInputBean;
@@ -30,9 +33,6 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
-
 /**
  * @author mholdsworth
  * @since 17/09/2014
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertFalse;
 
 public class TestAttachments extends EngineBase {
     @Test
-    public void duplicate_sameContentIgnored() throws Exception{
+    public void duplicate_sameContentIgnored() throws Exception {
         SystemUser su = registerSystemUser("duplicate_sameContentIgnored", mike_admin);
         FortressInputBean f = new FortressInputBean("attachmentFun", true);
         FortressNode fortress = fortressService.registerFortress(su.getCompany(), f);
@@ -54,6 +54,6 @@ public class TestAttachments extends EngineBase {
 
         // Update without changing the content
         trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), entity);
-        assertTrue("Tracked the same file, so should have been ignored",trackResult.entityExists());
+        assertTrue("Tracked the same file, so should have been ignored", trackResult.entityExists());
     }
 }

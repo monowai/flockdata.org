@@ -20,18 +20,17 @@
 
 package org.flockdata.company.dao;
 
+import java.util.Collection;
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.CompanyNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-
 /**
  * @author mholdsworth
- * @since 20/04/2013
  * @tag Company, Neo4j,
+ * @since 20/04/2013
  */
 @Repository
 public class CompanyDaoNeo {
@@ -44,7 +43,7 @@ public class CompanyDaoNeo {
     }
 
     public Company update(Company company) {
-        return companyRepo.save((CompanyNode)company);
+        return companyRepo.save((CompanyNode) company);
     }
 
     public Company findByPropertyValue(String property, Object value) {
@@ -61,7 +60,7 @@ public class CompanyDaoNeo {
 
     public Company create(Company company) {
 
-        return companyRepo.save((CompanyNode)company);
+        return companyRepo.save((CompanyNode) company);
     }
 
     public SystemUser getAdminUser(Long companyId, String name) {

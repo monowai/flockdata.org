@@ -20,6 +20,15 @@
 
 package org.flockdata.test.engine.mvc;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.data.ContentModel;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.ContentValidationRequest;
@@ -28,13 +37,6 @@ import org.flockdata.registration.TagResultBean;
 import org.flockdata.transform.json.ContentModelDeserializer;
 import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import static junit.framework.TestCase.*;
 
 /**
  * @author mholdsworth

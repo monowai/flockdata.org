@@ -20,6 +20,10 @@
 
 package org.flockdata.test.store;
 
+import static junit.framework.TestCase.assertNull;
+import static org.mockito.Mockito.when;
+
+import java.util.Map;
 import junit.framework.TestCase;
 import org.flockdata.data.Document;
 import org.flockdata.data.Entity;
@@ -33,11 +37,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
-
-import java.util.Map;
-
-import static junit.framework.TestCase.assertNull;
-import static org.mockito.Mockito.when;
 
 /**
  * @author mholdsworth
@@ -58,9 +57,9 @@ public class TestKvPojos {
 
         // Represents identifiable entity information
         EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), entityCode)
-                .setContent(new ContentInputBean(what));
+            .setContent(new ContentInputBean(what));
 
-        Document documentType = MockDataFactory.getDocument(fort,docType);
+        Document documentType = MockDataFactory.getDocument(fort, docType);
         // The "What" content
 
         // Emulate the creation of the entity
@@ -71,7 +70,7 @@ public class TestKvPojos {
         TrackResultBean trackResultBean = new TrackResultBean(fort, entity, documentType, entityInputBean);
         StorageBean storeBean = new StorageBean(trackResultBean);
 
-        byte[] bytes =JsonUtils.toJsonBytes(storeBean);
+        byte[] bytes = JsonUtils.toJsonBytes(storeBean);
         StorageBean deserializedBean = JsonUtils.toObject(bytes, StorageBean.class);
         TestCase.assertNotNull(deserializedBean);
         assertNull("Not handling a null fortress name ", Fortress.code(null));

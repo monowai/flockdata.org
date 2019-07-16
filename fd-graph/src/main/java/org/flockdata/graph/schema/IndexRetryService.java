@@ -20,6 +20,7 @@
 
 package org.flockdata.graph.schema;
 
+import java.util.Collection;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.TagInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,6 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
 
 /**
  * @author mholdsworth

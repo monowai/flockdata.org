@@ -24,7 +24,7 @@ import java.util.Map;
  * @since 19/04/2016
  */
 public class Helper {
-//    private static final Logger logger = LoggerFactory.getLogger(Helper.class);
+    //    private static final Logger logger = LoggerFactory.getLogger(Helper.class);
     static Map<String, Object> getSimpleMap(String key, Object value) {
         Map<String, Object> result = new HashMap<>();
         result.put(key, value);

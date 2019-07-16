@@ -18,6 +18,11 @@ package org.flockdata.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.flockdata.data.Entity;
 import org.flockdata.data.EntityLog;
 import org.flockdata.data.EntityTag;
@@ -26,8 +31,6 @@ import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;
 import org.joda.time.DateTime;
-
-import java.util.*;
 
 /**
  * Encapsulates the information to make an Entity and it's log in to
@@ -93,22 +96,26 @@ public class EntitySearchChange implements SearchChange {
         assert entity.getType() != null;
         setDocumentType(entity.getType().toLowerCase());
         setFortress(entity.getSegment().getFortress());
-        if (!entity.getSegment().isDefault())
+        if (!entity.getSegment().isDefault()) {
             setSegment(entity.getSegment().getCode());
+        }
         this.indexName = indexName;
 
         this.searchKey = entity.getSearchKey();
         this.code = entity.getCode();
-        if (entity.getLastUser() != null)
+        if (entity.getLastUser() != null) {
             this.who = entity.getLastUser().getCode();
-        else
+        } else {
             this.who = (entity.getCreatedBy() != null ? entity.getCreatedBy().getCode() : null);
+        }
         this.sysWhen = entity.getDateCreated();
-        if (entity.getProperties() != null && !entity.getProperties().isEmpty())
+        if (entity.getProperties() != null && !entity.getProperties().isEmpty()) {
             this.props = entity.getProperties(); // Userdefined entity properties
+        }
         this.createdDate = entity.getFortressCreatedTz().toDate(); // UTC When created in the Fortress
-        if (entity.getFortressUpdatedTz() != null)
+        if (entity.getFortressUpdatedTz() != null) {
             this.updatedDate = entity.getFortressUpdatedTz().toDate();
+        }
         this.event = entity.getEvent();
     }
 
@@ -128,14 +135,16 @@ public class EntitySearchChange implements SearchChange {
             this.event = entityLog.getLog().getEvent().getCode();
             this.fileName = entityLog.getLog().getFileName();
             this.contentType = entityLog.getLog().getContentType();
-            if (entityLog.getFortressWhen() != null)
+            if (entityLog.getFortressWhen() != null) {
                 this.updatedDate = new Date(entityLog.getFortressWhen());
+            }
             this.createdDate = entity.getFortressCreatedTz().toDate();
         } else {
             event = entity.getEvent();
             this.createdDate = entity.getFortressCreatedTz().toDate();
-            if (entity.getFortressUpdatedTz() != null)
+            if (entity.getFortressUpdatedTz() != null) {
                 this.updatedDate = entity.getFortressUpdatedTz().toDate();
+            }
         }
     }
 
@@ -175,8 +184,9 @@ public class EntitySearchChange implements SearchChange {
     }
 
     public void setWhen(DateTime when) {
-        if ((when != null) && (when.getMillis() != 0))
+        if ((when != null) && (when.getMillis() != 0)) {
             this.when = when.toDate();
+        }
     }
 
     public String getFortressName() {
@@ -189,8 +199,9 @@ public class EntitySearchChange implements SearchChange {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getIndexName() {
-        if (indexName == null)
+        if (indexName == null) {
             return indexName;
+        }
         return indexName.toLowerCase();
     }
 
@@ -251,8 +262,9 @@ public class EntitySearchChange implements SearchChange {
             ArrayList<SearchTag> values;
             if (object == null) {
                 values = new ArrayList<>();
-            } else
+            } else {
                 values = object;
+            }
 
             values.add(new SearchTag(entityTag));
             // ToDo: Convert to a "search tag"
@@ -263,8 +275,9 @@ public class EntitySearchChange implements SearchChange {
     private String parseTagType(EntityTag tag) {
         String code = tag.getTag().getCode();
         String type = tag.getRelationship();
-        if (code.equals(type))
+        if (code.equals(type)) {
             return code;
+        }
 
         return null;
     }
@@ -275,8 +288,9 @@ public class EntitySearchChange implements SearchChange {
             ArrayList values;
             if (object == null) {
                 values = new ArrayList();
-            } else
+            } else {
                 values = (ArrayList) object;
+            }
 
             values.add(value);
             masterValues.put(key, values);
@@ -346,10 +360,10 @@ public class EntitySearchChange implements SearchChange {
     @Override
     public String toString() {
         return "EntitySearchChange{" +
-                "indexName='" + indexName + '\'' +
-                ", code='" + code + '\'' +
-                ", key='" + key + '\'' +
-                '}';
+            "indexName='" + indexName + '\'' +
+            ", code='" + code + '\'' +
+            ", key='" + key + '\'' +
+            '}';
     }
 
     public boolean isReplyRequired() {
@@ -430,19 +444,39 @@ public class EntitySearchChange implements SearchChange {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EntitySearchChange)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EntitySearchChange)) {
+            return false;
+        }
 
         EntitySearchChange that = (EntitySearchChange) o;
 
-        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
-        if (fortressName != null ? !fortressName.equals(that.fortressName) : that.fortressName != null) return false;
-        if (companyName != null ? !companyName.equals(that.companyName) : that.companyName != null) return false;
-        if (key != null ? !key.equals(that.key) : that.key != null) return false;
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (logId != null ? !logId.equals(that.logId) : that.logId != null) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
+        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) {
+            return false;
+        }
+        if (fortressName != null ? !fortressName.equals(that.fortressName) : that.fortressName != null) {
+            return false;
+        }
+        if (companyName != null ? !companyName.equals(that.companyName) : that.companyName != null) {
+            return false;
+        }
+        if (key != null ? !key.equals(that.key) : that.key != null) {
+            return false;
+        }
+        if (code != null ? !code.equals(that.code) : that.code != null) {
+            return false;
+        }
+        if (logId != null ? !logId.equals(that.logId) : that.logId != null) {
+            return false;
+        }
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+        if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) {
+            return false;
+        }
         return !(searchKey != null ? !searchKey.equals(that.searchKey) : that.searchKey != null);
 
     }
