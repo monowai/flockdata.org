@@ -21,7 +21,7 @@
             <comments>A copy left OSS license</comments>
         </license>
     </licenses>
-    <version>0.98.10-SNAPSHOT</version>
+    <version>0.98.10</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -164,7 +164,7 @@
         <connection>scm:git:https://github.com/monowai/flockdata.org</connection>
         <developerConnection>scm:git:https://github.com/monowai/flockdata.org</developerConnection>
         <url>https://github.com/monowai/flockdata.org</url>
-        <tag>v0.98.9</tag>
+        <tag>v0.98.10</tag>
     </scm>
 
     <distributionManagement>
