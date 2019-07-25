@@ -4,21 +4,21 @@
     <parent>
         <groupId>org.flockdata</groupId>
         <artifactId>flockdata</artifactId>
-        <version>0.98.10</version>
+        <version>0.98.11-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
     <artifactId>fd-engine</artifactId>
-    <version>0.98.10</version>
+    <version>0.98.11-SNAPSHOT</version>
 
     <properties>
         <license-text.header>GPL-3-header.txt</license-text.header>
         <start-class>org.flockdata.engine.FdEngine</start-class>
         <docs.url>http://wiki.flockdata.com</docs.url>
-        <org.flockdata.client.version>0.98.10</org.flockdata.client.version>
-        <org.flockdata.common.version>0.98.10</org.flockdata.common.version>
-        <org.flockdata.security.version>0.98.10</org.flockdata.security.version>
+        <org.flockdata.client.version>0.98.11-SNAPSHOT</org.flockdata.client.version>
+        <org.flockdata.common.version>0.98.11-SNAPSHOT</org.flockdata.common.version>
+        <org.flockdata.security.version>0.98.11-SNAPSHOT</org.flockdata.security.version>
         <org.spring-integration.version>4.3.17.RELEASE</org.spring-integration.version>
         <neo4j.jersey.version>1.19.1</neo4j.jersey.version>
         <org.springboot.version>1.5.18.RELEASE</org.springboot.version>
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
-            <version>0.98.10</version>
+            <version>0.98.11-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>

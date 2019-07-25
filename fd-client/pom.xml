@@ -6,14 +6,14 @@
     <parent>
         <groupId>org.flockdata</groupId>
         <artifactId>flockdata</artifactId>
-        <version>0.98.10</version>
+        <version>0.98.11-SNAPSHOT</version>
     </parent>
 
     <properties>
         <license-text.header>apache_v2</license-text.header>
         <testcontainers.version>master-SNAPSHOT</testcontainers.version>
-        <org.flockdata.security.version>0.98.10</org.flockdata.security.version>
-        <org.flockdata.common.version>0.98.10</org.flockdata.common.version>
+        <org.flockdata.security.version>0.98.11-SNAPSHOT</org.flockdata.security.version>
+        <org.flockdata.common.version>0.98.11-SNAPSHOT</org.flockdata.common.version>
         <org.springboot.version>2.0.5.RELEASE</org.springboot.version>
         <!--<jackson.version></jackson.version>-->
     </properties>
@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fd-client</artifactId>
-    <version>0.98.10</version>
+    <version>0.98.11-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>

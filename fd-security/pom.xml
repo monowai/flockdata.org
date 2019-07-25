@@ -4,17 +4,17 @@
     <parent>
         <groupId>org.flockdata</groupId>
         <artifactId>flockdata</artifactId>
-        <version>0.98.10</version>
+        <version>0.98.11-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <properties>
-        <org.flockdata.common.version>0.98.10</org.flockdata.common.version>
+        <org.flockdata.common.version>0.98.11-SNAPSHOT</org.flockdata.common.version>
         <org.springsecurity.version>4.2.4.RELEASE</org.springsecurity.version>
     </properties>
 
     <artifactId>fd-security</artifactId>
-    <version>0.98.10</version>
+    <version>0.98.11-SNAPSHOT</version>
     
     <dependencies>
         <dependency>
