@@ -70,50 +70,50 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles( {"fd-auth-test", "dev"})
 public class TestCsvImportIntegration extends EngineBase {
 
-    @Autowired
-    private FileProcessor fileProcessor;
+  @Autowired
+  private FileProcessor fileProcessor;
 
-    @Autowired
-    private Template fdTemplate;
+  @Autowired
+  private Template fdTemplate;
 
-    @Override
-    public void cleanUpGraph() {
-        super.cleanUpGraph();   // DAT-363
-    }
+  @Override
+  public void cleanUpGraph() {
+    super.cleanUpGraph();   // DAT-363
+  }
 
-    @Test
-    public void csvImport_DuplicateLogsNotCreated() throws Exception {
-        assertNotNull(fdTemplate);
-        cleanUpGraph(); // No transaction so need to clear down the graph
+  @Test
+  public void csvImport_DuplicateLogsNotCreated() throws Exception {
+    assertNotNull(fdTemplate);
+    cleanUpGraph(); // No transaction so need to clear down the graph
 
-        logger.debug("### csvImport_DuplicateLogsNotCreated");
-        engineConfig.setTestMode(true);
-        assertTrue(engineConfig.store().equals(Store.MEMORY));
-        setSecurity();
-        final SystemUser su = registerSystemUser("importSflow", mike_admin);
+    logger.debug("### csvImport_DuplicateLogsNotCreated");
+    engineConfig.setTestMode(true);
+    assertTrue(engineConfig.store().equals(Store.MEMORY));
+    setSecurity();
+    final SystemUser su = registerSystemUser("importSflow", mike_admin);
 
-        FortressNode f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("StackOverflow", true));
-        DocumentNode docType = conceptService.resolveByDocCode(f, "QuestionEvent");
-        int i = 1, maxRuns = 4;
-        do {
-            fileProcessor.processFile(new ExtractProfileHandler(ContentModelDeserializer.getContentModel("/models/test-sflow.json")), "/data/test-sflow.csv");
-            Thread.yield();
-            Entity entityA = entityService.findByCode(su.getCompany(), f.getName(), docType.getName(), "563890");
-            assertNotNull(entityA);
-            TestCase.assertEquals("563890", entityA.getSegment().getCode());
+    FortressNode f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("StackOverflow", true));
+    DocumentNode docType = conceptService.resolveByDocCode(f, "QuestionEvent");
+    int i = 1, maxRuns = 4;
+    do {
+      fileProcessor.processFile(new ExtractProfileHandler(ContentModelDeserializer.getContentModel("/models/test-sflow.json")), "/data/test-sflow.csv");
+      Thread.yield();
+      Entity entityA = entityService.findByCode(su.getCompany(), f.getName(), docType.getName(), "563890");
+      assertNotNull(entityA);
+      TestCase.assertEquals("563890", entityA.getSegment().getCode());
 
-            EntityLog log = entityService.getLastEntityLog(entityA.getId());
-            Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entityA.getKey());
-            for (EntityLogResult entityLog : logs) {
-                logger.debug("{}, {}", new DateTime(entityLog.getWhen()), entityLog.getChecksum());
-            }
-            logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
-            Thread.yield();
-            assertEquals("Run " + i + " Log was not set to the most recent", new DateTime(1235020128000l), new DateTime(log.getFortressWhen()));
-            assertEquals("Run " + i + " has wrong log count", 6, entityService.getLogCount(su.getCompany(), entityA.getKey()));
-            i++;
-        } while (i <= maxRuns);
-    }
+      EntityLog log = entityService.getLastEntityLog(entityA.getId());
+      Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entityA.getKey());
+      for (EntityLogResult entityLog : logs) {
+        logger.debug("{}, {}", new DateTime(entityLog.getWhen()), entityLog.getChecksum());
+      }
+      logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
+      Thread.yield();
+      assertEquals("Run " + i + " Log was not set to the most recent", new DateTime(1235020128000l), new DateTime(log.getFortressWhen()));
+      assertEquals("Run " + i + " has wrong log count", 6, entityService.getLogCount(su.getCompany(), entityA.getKey()));
+      i++;
+    } while (i <= maxRuns);
+  }
 
 
 }

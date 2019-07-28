@@ -21,18 +21,30 @@
       "tag": true,
       "delimiter": " / ",
       "label": "Genre",
-      "entityTagLinks": [{"relationshipName": "OF_TYPE"}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "OF_TYPE"
+        }
+      ]
     },
     "director": {
       "tag": true,
       "delimiter": " / ",
       "label": "Person",
-      "entityTagLinks": [{"relationshipName": "directed"}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "directed"
+        }
+      ]
     },
     "actor": {
       "tag": true,
       "label": "Person",
-      "entityTagLinks": [{"relationshipName": "acted"}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "acted"
+        }
+      ]
     },
     "rating": {
       // Properties to set against the entity
@@ -41,7 +53,8 @@
           "source": "rating",
           "target": "value",
           "dataType": "numeric",
-          "valueOnError": 0 // If it's not a valid value, then what should we set it to?
+          "valueOnError": 0
+          // If it's not a valid value, then what should we set it to?
         }
       ]
     }

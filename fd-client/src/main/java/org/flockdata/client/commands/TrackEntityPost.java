@@ -38,25 +38,25 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class TrackEntityPost {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public TrackEntityPost(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public TrackEntityPost(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+
+  public CommandResponse<TrackRequestResult> exec(EntityInputBean entityInputBean) {
+    TrackRequestResult result = null;
+    String error = null;
+    HttpEntity<EntityInputBean> requestEntity = new HttpEntity<>(entityInputBean, fdIoInterface.getHeaders());
+
+    try {
+      ResponseEntity<TrackRequestResult> restResult = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/track/", HttpMethod.POST, requestEntity, TrackRequestResult.class);
+      result = restResult.getBody();
+    } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+      error = e.getMessage();
     }
-
-
-    public CommandResponse<TrackRequestResult> exec(EntityInputBean entityInputBean) {
-        TrackRequestResult result = null;
-        String error = null;
-        HttpEntity<EntityInputBean> requestEntity = new HttpEntity<>(entityInputBean, fdIoInterface.getHeaders());
-
-        try {
-            ResponseEntity<TrackRequestResult> restResult = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/track/", HttpMethod.POST, requestEntity, TrackRequestResult.class);
-            result = restResult.getBody();
-        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, result);
-    }
+    return new CommandResponse<>(error, result);
+  }
 }

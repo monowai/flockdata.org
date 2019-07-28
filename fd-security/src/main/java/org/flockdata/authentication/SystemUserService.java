@@ -16,6 +16,7 @@
 
 package org.flockdata.authentication;
 
+import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
 import org.flockdata.registration.RegistrationBean;
 
@@ -24,11 +25,11 @@ import org.flockdata.registration.RegistrationBean;
  * @since 22/08/2014
  */
 public interface SystemUserService {
-    SystemUser findByLogin(String userEmail);
+  SystemUser findByLogin(String userEmail);
 
-    SystemUser findByApiKey(String apiKey);
+  SystemUser findByApiKey(String apiKey);
 
-    SystemUser save(RegistrationBean regBean);
+  SystemUser save(Company company, RegistrationBean regBean);
 
-    void save(SystemUser systemUser);
+  void save(SystemUser systemUser);
 }

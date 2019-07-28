@@ -33,37 +33,37 @@ import org.flockdata.transform.tag.TagPayloadTransformer;
  * @since 20/06/2014
  */
 public class TestCSVConcepts {
-    @org.junit.Test
-    public void csvTags() throws Exception {
-        ContentModel model = ContentModelDeserializer.getContentModel("/model/csv-tag-import.json");
-        String[] headers = new String[] {"company_name", "device_name", "device_code", "type", "city", "ram", "tags"};
-        String[] data = new String[] {"Samsoon", "Palaxy", "PX", "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};
+  @org.junit.Test
+  public void csvTags() throws Exception {
+    ContentModel model = ContentModelDeserializer.getContentModel("/model/csv-tag-import.json");
+    String[] headers = new String[] {"company_name", "device_name", "device_code", "type", "city", "ram", "tags"};
+    String[] data = new String[] {"Samsoon", "Palaxy", "PX", "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};
 
-        TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(model);
-        Map<String, Object> json = tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(model)));
-        assertEquals(1, tagTransformer.getTags().size());
-        TagInputBean tag = tagTransformer.getTags().iterator().next();
+    TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(model);
+    Map<String, Object> json = tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(model)));
+    assertEquals(1, tagTransformer.getTags().size());
+    TagInputBean tag = tagTransformer.getTags().iterator().next();
 
-        assertNotNull(json);
-        Map<String, Collection<TagInputBean>> allTargets = tag.getTargets();
-        assertNotNull(allTargets);
-        assertEquals(3, allTargets.size());
-        assertEquals("Should have overridden the column name of device_name", "Device", tag.getLabel());
-        assertEquals("Name value should be that of the defined column", "Palaxy", tag.getName());
-        assertEquals("PX", tag.getCode());
-        assertEquals("Device", tag.getLabel());
-        assertNotNull(tag.getProperties().get("RAM"));
+    assertNotNull(json);
+    Map<String, Collection<TagInputBean>> allTargets = tag.getTargets();
+    assertNotNull(allTargets);
+    assertEquals(3, allTargets.size());
+    assertEquals("Should have overridden the column name of device_name", "Device", tag.getLabel());
+    assertEquals("Name value should be that of the defined column", "Palaxy", tag.getName());
+    assertEquals("PX", tag.getCode());
+    assertEquals("Device", tag.getLabel());
+    assertNotNull(tag.getProperties().get("RAM"));
 
-        TagInputBean makes = allTargets.get("makes").iterator().next();
-        assertEquals("Manufacturer", makes.getLabel());
-        assertEquals("Nested City tag not found", 1, makes.getTargets().size());
-        TagInputBean city = makes.getTargets().get("located").iterator().next();
-        assertEquals("Auckland", city.getCode());
+    TagInputBean makes = allTargets.get("makes").iterator().next();
+    assertEquals("Manufacturer", makes.getLabel());
+    assertEquals("Nested City tag not found", 1, makes.getTargets().size());
+    TagInputBean city = makes.getTargets().get("located").iterator().next();
+    assertEquals("Auckland", city.getCode());
 
 
-        assertEquals("Samsoon", makes.getCode());
-        assertEquals("Should be using the column name", "type", allTargets.get("of-type").iterator().next().getLabel());
-        assertEquals(3, allTargets.get("mentions").size());
+    assertEquals("Samsoon", makes.getCode());
+    assertEquals("Should be using the column name", "type", allTargets.get("of-type").iterator().next().getLabel());
+    assertEquals(3, allTargets.get("mentions").size());
 
-    }
+  }
 }

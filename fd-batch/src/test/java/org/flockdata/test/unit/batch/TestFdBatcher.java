@@ -34,23 +34,23 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("dev")
 public class TestFdBatcher extends AbstractImport {
 
-    @Autowired
-    private Template myBatcher;
+  @Autowired
+  private Template myBatcher;
 
-    @Test
-    public void fdBatcherAccumulation() throws Exception {
-        EntityInputBean eib = new EntityInputBean(new FortressInputBean("fort"), new DocumentTypeInputBean("type"));
-        eib.setCode("tt111");
+  @Test
+  public void fdBatcherAccumulation() throws Exception {
+    EntityInputBean eib = new EntityInputBean(new FortressInputBean("fort"), new DocumentTypeInputBean("type"));
+    eib.setCode("tt111");
 
-        myBatcher.writeEntity(eib);
-        myBatcher.writeEntity(eib);
-        assertEquals(1, myBatcher.getEntities().size());
+    myBatcher.writeEntity(eib);
+    myBatcher.writeEntity(eib);
+    assertEquals(1, myBatcher.getEntities().size());
 
-        eib = new EntityInputBean(new FortressInputBean("fort"), new DocumentTypeInputBean("Type"));
-        eib.setCode("tt222");
-        myBatcher.writeEntity(eib);
-        myBatcher.writeEntity(eib);
+    eib = new EntityInputBean(new FortressInputBean("fort"), new DocumentTypeInputBean("Type"));
+    eib.setCode("tt222");
+    myBatcher.writeEntity(eib);
+    myBatcher.writeEntity(eib);
 
-        assertEquals(2, myBatcher.getEntities().size());
-    }
+    assertEquals(2, myBatcher.getEntities().size());
+  }
 }

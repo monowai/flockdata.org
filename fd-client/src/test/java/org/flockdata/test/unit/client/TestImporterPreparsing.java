@@ -41,53 +41,53 @@ import org.junit.Test;
  * @since 28/01/2015
  */
 public class TestImporterPreparsing extends AbstractImport {
-    @Test
-    public void string_PreParseRow() throws Exception {
+  @Test
+  public void string_PreParseRow() throws Exception {
 
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/pre-parse.json");
-        ExtractProfile params = new ExtractProfileHandler(contentModel, false);
-        assertEquals(',', params.getDelimiter());
-        params.setQuoteCharacter("|");
-        assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/data/properties-rlx.txt");
-        assertEquals(4, rows);
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/pre-parse.json");
+    ExtractProfile params = new ExtractProfileHandler(contentModel, false);
+    assertEquals(',', params.getDelimiter());
+    params.setQuoteCharacter("|");
+    assertEquals(false, params.hasHeader());
+    long rows = fileProcessor.processFile(params, "/data/properties-rlx.txt");
+    assertEquals(4, rows);
 
-        List<EntityInputBean> entityBatch = fdTemplate.getEntities();
+    List<EntityInputBean> entityBatch = fdTemplate.getEntities();
 
-        for (EntityInputBean entityInputBean : entityBatch) {
-            assertFalse("Expression not parsed for code", entityInputBean.getCode().contains("|"));
-            assertTrue("Tag not set", entityInputBean.getTags().size() == 3);
-            TagInputBean politician = null;
-            for (TagInputBean tagInputBean : entityInputBean.getTags()) {
-                assertFalse("Expression not parsed for code", tagInputBean.getCode().contains("|"));
-                if (tagInputBean.getLabel().equals("Politician")) {
-                    politician = tagInputBean;
-                }
-                if (tagInputBean.getLabel().equals("InterestGroup")) {
-                    assertEquals("direct", tagInputBean.getEntityTagLinks().keySet().iterator().next());
-                    for (String key : tagInputBean.getEntityTagLinks().keySet()) {
-                        EntityTagRelationshipInput etib = tagInputBean.getEntityTagLinks().get(key);
-                        TestCase.assertEquals(2, etib.getProperties().size());
-                        TestCase.assertNotNull(etib.getProperties().get("amount"));
-                        TestCase.assertEquals("ABC123", etib.getProperties().get("calculatedColumn"));
-
-                    }
-                }
-            }
-            assertNotNull(politician);
-            EntityTagRelationshipInput link = politician.getEntityTagLinks().get("receives");
-            assertNotNull(link);
-            assertNotNull(link.getProperties().get("amount"));
-            assertTrue("Amount not calculated as a value", Integer.parseInt(link.getProperties().get("amount").toString()) > 0);
-
+    for (EntityInputBean entityInputBean : entityBatch) {
+      assertFalse("Expression not parsed for code", entityInputBean.getCode().contains("|"));
+      assertTrue("Tag not set", entityInputBean.getTags().size() == 3);
+      TagInputBean politician = null;
+      for (TagInputBean tagInputBean : entityInputBean.getTags()) {
+        assertFalse("Expression not parsed for code", tagInputBean.getCode().contains("|"));
+        if (tagInputBean.getLabel().equals("Politician")) {
+          politician = tagInputBean;
         }
-        ObjectMapper om = new ObjectMapper();
-        try {
-            om.writeValueAsString(entityBatch);
-        } catch (Exception e) {
-            throw new FlockException("Failed to serialize");
+        if (tagInputBean.getLabel().equals("InterestGroup")) {
+          assertEquals("direct", tagInputBean.getEntityTagLinks().keySet().iterator().next());
+          for (String key : tagInputBean.getEntityTagLinks().keySet()) {
+            EntityTagRelationshipInput etib = tagInputBean.getEntityTagLinks().get(key);
+            TestCase.assertEquals(2, etib.getProperties().size());
+            TestCase.assertNotNull(etib.getProperties().get("amount"));
+            TestCase.assertEquals("ABC123", etib.getProperties().get("calculatedColumn"));
+
+          }
         }
+      }
+      assertNotNull(politician);
+      EntityTagRelationshipInput link = politician.getEntityTagLinks().get("receives");
+      assertNotNull(link);
+      assertNotNull(link.getProperties().get("amount"));
+      assertTrue("Amount not calculated as a value", Integer.parseInt(link.getProperties().get("amount").toString()) > 0);
 
     }
+    ObjectMapper om = new ObjectMapper();
+    try {
+      om.writeValueAsString(entityBatch);
+    } catch (Exception e) {
+      throw new FlockException("Failed to serialize");
+    }
+
+  }
 
 }

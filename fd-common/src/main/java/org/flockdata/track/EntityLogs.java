@@ -30,13 +30,13 @@ import org.flockdata.data.EntityLog;
  */
 public class EntityLogs {
 
-    Set<EntityLog> entityLogs = new HashSet<>();
+  Set<EntityLog> entityLogs = new HashSet<>();
 
-    public Set<EntityLog> getEntityLogs() {
-        return entityLogs;
-    }
+  public Set<EntityLog> getEntityLogs() {
+    return entityLogs;
+  }
 
-    public void add(EntityLog entityLog) {
-        this.entityLogs.add(entityLog);
-    }
+  public void add(EntityLog entityLog) {
+    this.entityLogs.add(entityLog);
+  }
 }

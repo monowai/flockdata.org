@@ -47,64 +47,64 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class TestElasticSearch extends ESBase {
 
+  ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
+  private Logger logger = LoggerFactory.getLogger(TestElasticSearch.class);
+
+  @Test
+  public void testMappingJson() throws Exception {
+    String escWhat = "{\"house\": \"house\"}";
     ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-    private Logger logger = LoggerFactory.getLogger(TestElasticSearch.class);
 
-    @Test
-    public void testMappingJson() throws Exception {
-        String escWhat = "{\"house\": \"house\"}";
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
+    Map<String, Object> indexMe = new HashMap<>(40);
+    indexMe.put("auditKey", "abc");
+    Map what = om.readValue(escWhat, Map.class);
+    indexMe.put(SearchSchema.DATA, what);
+    logger.info(indexMe.get(SearchSchema.DATA).toString());
+  }
 
-        Map<String, Object> indexMe = new HashMap<>(40);
-        indexMe.put("auditKey", "abc");
-        Map what = om.readValue(escWhat, Map.class);
-        indexMe.put(SearchSchema.DATA, what);
-        logger.info(indexMe.get(SearchSchema.DATA).toString());
-    }
+  @Test
+  public void testJson() throws Exception {
+    // Basic JSON/ES tests to figure our what is going on
 
-    @Test
-    public void testJson() throws Exception {
-        // Basic JSON/ES tests to figure our what is going on
+    EntitySearchChange change = new EntitySearchChange();
+    change.setSysWhen(new DateTime().getMillis());
 
-        EntitySearchChange change = new EntitySearchChange();
-        change.setSysWhen(new DateTime().getMillis());
+    // Add Who Parameter because it's used in creating the Document in ES as a Type .
+    change.setWho("Who");
 
-        // Add Who Parameter because it's used in creating the Document in ES as a Type .
-        change.setWho("Who");
+    HashMap<String, Object> name = new HashMap<>();
+    name.put("first", "Joe");
+    name.put("last", "Sixpack");
+    change.setData(name);
 
-        HashMap<String, Object> name = new HashMap<>();
-        name.put("first", "Joe");
-        name.put("last", "Sixpack");
-        change.setData(name);
+    GetResponse response = writeSimple(change);
+    assertNotNull(response);
 
-        GetResponse response = writeSimple(change);
-        assertNotNull(response);
-
-        EntitySearchChange found = om.readValue(response.getSourceAsBytes(), EntitySearchChange.class);
-        assertNotNull(found);
-        assertEquals(0, change.getSysWhen().compareTo(found.getSysWhen()));
+    EntitySearchChange found = om.readValue(response.getSourceAsBytes(), EntitySearchChange.class);
+    assertNotNull(found);
+    assertEquals(0, change.getSysWhen().compareTo(found.getSysWhen()));
 
 
-    }
+  }
 
-    private GetResponse writeSimple(EntitySearchChange change) throws Exception {
+  private GetResponse writeSimple(EntitySearchChange change) throws Exception {
 
-        // Elasticsearch
-        RestHighLevelClient client = searchConfig.getRestHighLevelClient();
+    // Elasticsearch
+    RestHighLevelClient client = searchConfig.getRestHighLevelClient();
 
-        String indexKey = change.getIndexName() == null ? "indexkey" : change.getIndexName();
-        IndexRequest indexRequest = new IndexRequest(indexKey, change.getWho())
-            .source(om.writeValueAsString(change));
+    String indexKey = change.getIndexName() == null ? "indexkey" : change.getIndexName();
+    IndexRequest indexRequest = new IndexRequest(indexKey, change.getWho())
+        .source(om.writeValueAsString(change));
 
-        IndexResponse indexResponse = client.index(indexRequest);
+    IndexResponse indexResponse = client.index(indexRequest);
 
-        assertNotNull(indexResponse);
-        logger.info(indexResponse.getId());
+    assertNotNull(indexResponse);
+    logger.info(indexResponse.getId());
 
-        return client.get
-            (new GetRequest(indexKey, change.getWho(), indexResponse.getId())
-            );
-    }
+    return client.get
+        (new GetRequest(indexKey, change.getWho(), indexResponse.getId())
+        );
+  }
 
 
 }

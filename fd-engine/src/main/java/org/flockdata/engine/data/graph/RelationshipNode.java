@@ -40,77 +40,77 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 @NodeEntity
 @TypeAlias("Relationship")
 public class RelationshipNode implements Comparable<RelationshipNode> {
-    @GraphId
-    Long id;
+  @GraphId
+  Long id;
 
-    @RelatedTo(elementClass = DocumentNode.class, type = "DOC_RELATIONSHIP", direction = Direction.OUTGOING)
-    Collection<DocumentNode> documentTypes;
-    private String name;
+  @RelatedTo(elementClass = DocumentNode.class, type = "DOC_RELATIONSHIP", direction = Direction.OUTGOING)
+  Collection<DocumentNode> documentTypes;
+  private String name;
 
-    RelationshipNode() {
+  RelationshipNode() {
+  }
+
+  public RelationshipNode(String relationship, DocumentNode documentType) {
+    this();
+    setName(relationship);
+    addDocumentType(documentType);
+  }
+
+  public void addDocumentType(DocumentNode documentType) {
+    if (documentTypes == null) {
+      documentTypes = new HashSet<>();
     }
+    documentTypes.add(documentType);
+  }
 
-    public RelationshipNode(String relationship, DocumentNode documentType) {
-        this();
-        setName(relationship);
-        addDocumentType(documentType);
+  @Override
+  public String toString() {
+    return "RelationshipNode{" +
+        "name='" + name + '\'' +
+        ", id=" + id +
+        '}';
+  }
+
+  public boolean hasDocumentType(DocumentNode document) {
+    if (documentTypes == null) {
+      return false;
     }
-
-    public void addDocumentType(DocumentNode documentType) {
-        if (documentTypes == null) {
-            documentTypes = new HashSet<>();
-        }
-        documentTypes.add(documentType);
+    for (DocumentNode documentType : documentTypes) {
+      if (documentType.getId().equals(document.getId())) {
+        return true;
+      }
     }
+    return false;
+  }
 
-    @Override
-    public String toString() {
-        return "RelationshipNode{" +
-            "name='" + name + '\'' +
-            ", id=" + id +
-            '}';
+  public Long getId() {
+    return id;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @JsonIgnore
+  public Collection<DocumentNode> getDocumentTypes() {
+    return documentTypes;
+  }
+
+  @Override
+  public int compareTo(RelationshipNode o) {
+    if (o == null || name == null) {
+      return -1;
     }
+    // ToDO: Review this implementation
+    //int d =  (concept== null ?0:concept.getDocumentTypes().getCode().compareTo(o.getConcept().getDocumentTypes().getCode()));
+    //if ( d==0)
+    return name.compareTo(o.getName());
+    //return d;
 
-    public boolean hasDocumentType(DocumentNode document) {
-        if (documentTypes == null) {
-            return false;
-        }
-        for (DocumentNode documentType : documentTypes) {
-            if (documentType.getId().equals(document.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @JsonIgnore
-    public Collection<DocumentNode> getDocumentTypes() {
-        return documentTypes;
-    }
-
-    @Override
-    public int compareTo(RelationshipNode o) {
-        if (o == null || name == null) {
-            return -1;
-        }
-        // ToDO: Review this implementation
-        //int d =  (concept== null ?0:concept.getDocumentTypes().getCode().compareTo(o.getConcept().getDocumentTypes().getCode()));
-        //if ( d==0)
-        return name.compareTo(o.getName());
-        //return d;
-
-    }
+  }
 }

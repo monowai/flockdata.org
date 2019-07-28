@@ -48,6 +48,6 @@ import org.junit.runners.Suite;
     TestEntityLinks.class
 })
 public class Entity {
-    Entity() {
-    }
+  Entity() {
+  }
 }

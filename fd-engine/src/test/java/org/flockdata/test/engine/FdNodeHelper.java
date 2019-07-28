@@ -39,26 +39,26 @@ import org.joda.time.DateTime;
  * @since 4/01/17
  */
 public class FdNodeHelper {
-    public static Entity getEntity(String comp, String fort, String userName, String docType) throws FlockException {
-        String code = new DateTime().toString();
-        return getEntity(comp, fort, userName, docType, code);
-    }
+  public static Entity getEntity(String comp, String fort, String userName, String docType) throws FlockException {
+    String code = new DateTime().toString();
+    return getEntity(comp, fort, userName, docType, code);
+  }
 
-    public static Entity getEntity(String comp, String fort, String userName, String docType, String code) throws FlockException {
-        // These are the minimum objects necessary to create Entity data
+  public static Entity getEntity(String comp, String fort, String userName, String docType, String code) throws FlockException {
+    // These are the minimum objects necessary to create Entity data
 
-        CompanyNode mockCompany = new CompanyNode(comp);
-        mockCompany.setName(comp);
+    CompanyNode mockCompany = CompanyNode.builder().name(comp).build();
+    mockCompany.setName(comp);
 
-        FortressInputBean fib = new FortressInputBean(fort, false);
+    FortressInputBean fib = new FortressInputBean(fort, false);
 
-        FortressNode fortress = new FortressNode(fib, mockCompany);
+    FortressNode fortress = new FortressNode(fib, mockCompany);
 
-        DateTime now = new DateTime();
-        EntityInputBean entityInput = new EntityInputBean(fortress, userName, docType, now, code);
+    DateTime now = new DateTime();
+    EntityInputBean entityInput = new EntityInputBean(fortress, userName, docType, now, code);
 
-        Document doc = new DocumentNode(fortress, docType);
-        return new EntityNode(Long.toString(System.currentTimeMillis()), fortress.getDefaultSegment(), entityInput, doc);
+    Document doc = new DocumentNode(fortress, docType);
+    return new EntityNode(Long.toString(System.currentTimeMillis()), fortress.getDefaultSegment(), entityInput, doc);
 
-    }
+  }
 }

@@ -47,38 +47,38 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ConceptRetryService {
 
-    private final ConceptService conceptService;
+  private final ConceptService conceptService;
 
-    private final PlatformConfig engineConfig;
+  private final PlatformConfig engineConfig;
 
-    private Logger logger = LoggerFactory.getLogger(ConceptRetryService.class);
+  private Logger logger = LoggerFactory.getLogger(ConceptRetryService.class);
 
-    @Autowired
-    public ConceptRetryService(ConceptService conceptService, PlatformConfig engineConfig) {
-        this.conceptService = conceptService;
-        this.engineConfig = engineConfig;
+  @Autowired
+  public ConceptRetryService(ConceptService conceptService, PlatformConfig engineConfig) {
+    this.conceptService = conceptService;
+    this.engineConfig = engineConfig;
+  }
+
+  @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20,
+      backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
+  @Async("fd-tag")
+  public Future<Void> trackConcepts(Iterable<TrackResultBean> resultBeans)
+      throws InterruptedException, ExecutionException, FlockException {
+    doRegister(resultBeans);
+    return new AsyncResult<>(null);
+  }
+
+  @Transactional
+  void doRegister(Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException {
+    if (!engineConfig.isConceptsEnabled()) {
+      return;
     }
 
-    @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20,
-        backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
-    @Async("fd-tag")
-    public Future<Void> trackConcepts(Iterable<TrackResultBean> resultBeans)
-        throws InterruptedException, ExecutionException, FlockException {
-        doRegister(resultBeans);
-        return new AsyncResult<>(null);
-    }
+    logger.debug("Register concepts");
+    conceptService.registerConcepts(resultBeans);
+    logger.debug("Completed concept registrations");
 
-    @Transactional
-    void doRegister(Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException {
-        if (!engineConfig.isConceptsEnabled()) {
-            return;
-        }
-
-        logger.debug("Register concepts");
-        conceptService.registerConcepts(resultBeans);
-        logger.debug("Completed concept registrations");
-
-    }
+  }
 
 
 }

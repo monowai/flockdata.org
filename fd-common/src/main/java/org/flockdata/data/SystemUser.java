@@ -26,17 +26,17 @@ package org.flockdata.data;
  * @since 2/01/17
  */
 public interface SystemUser {
-    String getName();
+  String getName();
 
-    String getLogin();
+  String getLogin();
 
-    String getApiKey();
+  String getApiKey();
 
-    Company getCompany();
+  Company getCompany();
 
-    String getEmail();
+  String getEmail();
 
-    Long getId();
+  Long getId();
 
-    boolean isActive();
+  boolean isActive();
 }

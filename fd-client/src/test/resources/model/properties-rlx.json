@@ -31,7 +31,8 @@
       "entityTagLinks": [
         {
           "relationshipName": "['8']=='D' ?'direct':'indirect'",
-          "properties": [{
+          "properties": [
+            {
               "value": "['4']",
               "target": "amount"
             }

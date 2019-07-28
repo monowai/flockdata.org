@@ -47,43 +47,43 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/batch")
 public class BatchEP {
-    private final BatchService batchService;
+  private final BatchService batchService;
 
-    @Autowired
-    public BatchEP(BatchService batchService) {
-        this.batchService = batchService;
+  @Autowired
+  public BatchEP(BatchService batchService) {
+    this.batchService = batchService;
+  }
+
+  @RequestMapping(value = "/{fortress}/{document}/import", consumes = "application/json", method = RequestMethod.POST)
+  @ResponseStatus(value = HttpStatus.ACCEPTED)
+  public void track(
+      HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName, @RequestBody Map file) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    Object filename = file.get("file");
+    if (filename == null) {
+      throw new NotFoundException("No file to process");
     }
 
-    @RequestMapping(value = "/{fortress}/{document}/import", consumes = "application/json", method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public void track(
-        HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName, @RequestBody Map file) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        Object filename = file.get("file");
-        if (filename == null) {
-            throw new NotFoundException("No file to process");
-        }
-
-        batchService.validateArguments(company, fortressCode, documentName, filename.toString());
-        boolean async = false;
-        Object value = file.get("async");
-        if (value != null) {
-            async = Boolean.parseBoolean(value.toString());
-        }
-
-        if (async) {
-            batchService.processAsync(company, fortressCode, documentName, filename.toString());
-        } else {
-            batchService.process(company, fortressCode, documentName, filename.toString(), async);
-        }
+    batchService.validateArguments(company, fortressCode, documentName, filename.toString());
+    boolean async = false;
+    Object value = file.get("async");
+    if (value != null) {
+      async = Boolean.parseBoolean(value.toString());
     }
 
-
-    @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    public ContentValidationRequest trackData(@RequestBody ContentValidationRequest validationRequest,
-                                              HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return batchService.process(company, validationRequest);
-
+    if (async) {
+      batchService.processAsync(company, fortressCode, documentName, filename.toString());
+    } else {
+      batchService.process(company, fortressCode, documentName, filename.toString(), async);
     }
+  }
+
+
+  @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+  public ContentValidationRequest trackData(@RequestBody ContentValidationRequest validationRequest,
+                                            HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return batchService.process(company, validationRequest);
+
+  }
 }

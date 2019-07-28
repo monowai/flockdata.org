@@ -17,10 +17,10 @@ spring:
     name: fd-search
   profiles:
     include: fd-server
-#    Run with the "discovery" profile active to connect
-#  cloud:
-#    discovery:
-#      enabled: false
+  #    Run with the "discovery" profile active to connect
+  #  cloud:
+  #    discovery:
+  #      enabled: false
   messages:
     encoding: UTF-8
   rabbitmq:

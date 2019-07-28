@@ -41,67 +41,67 @@ import org.slf4j.LoggerFactory;
  * @since 20/04/2015
  */
 public class TestEntitySearch extends EngineBase {
-    private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
+  private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
 
-    @Test
-    public void count_SearchDocsFromTrackRequestForNew() throws Exception {
-        // DAT-387
-        logger.debug("### count_SearchDocsFromTrackRequest");
-        String callerRef = "mk1hz";
-        SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
+  @Test
+  public void count_SearchDocsFromTrackRequestForNew() throws Exception {
+    // DAT-387
+    logger.debug("### count_SearchDocsFromTrackRequest");
+    String callerRef = "mk1hz";
+    SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
 
-        EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
-            new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
+    EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
+        new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
-        EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
-            new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
+    EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
+        new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
-        Collection<EntityInputBean> beans = new ArrayList<>();
-        beans.add(beanA);
-        beans.add(beanB);
-        Collection<TrackRequestResult> results = mediationFacade.trackEntities(beans, su.getApiKey());
-        assertEquals(2, results.size());
+    Collection<EntityInputBean> beans = new ArrayList<>();
+    beans.add(beanA);
+    beans.add(beanB);
+    Collection<TrackRequestResult> results = mediationFacade.trackEntities(beans, su.getApiKey());
+    assertEquals(2, results.size());
 
-    }
+  }
 
-    @Test
-    public void count_SearchDocsFromTrackRequestNewAndExisting() throws Exception {
-        // DAT-387
-        logger.debug("### count_SearchDocsFromTrackRequest");
+  @Test
+  public void count_SearchDocsFromTrackRequestNewAndExisting() throws Exception {
+    // DAT-387
+    logger.debug("### count_SearchDocsFromTrackRequest");
 
-        SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
+    SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
 
-        EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
-            new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
+    EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
+        new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
-        mediationFacade.trackEntity(su.getCompany(), beanA); // Handle beanA as an existing entity
-        // Now add a new one
-        EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
-            new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
-
-
-        ArrayList<EntityInputBean> beans = new ArrayList<>();
-        beans.add(beanA);
-        beans.add(beanB);
-        Collection<TrackRequestResult> results = mediationFacade.trackEntities(beans, su.getApiKey());
-        assertEquals(2, results.size());
-
-        results = mediationFacade.trackEntities(beans, su.getApiKey());
-        assertEquals("Should be one new and one existing TrackResult returned", 2, results.size());
+    mediationFacade.trackEntity(su.getCompany(), beanA); // Handle beanA as an existing entity
+    // Now add a new one
+    EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
+        new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
 
 
-    }
+    ArrayList<EntityInputBean> beans = new ArrayList<>();
+    beans.add(beanA);
+    beans.add(beanB);
+    Collection<TrackRequestResult> results = mediationFacade.trackEntities(beans, su.getApiKey());
+    assertEquals(2, results.size());
+
+    results = mediationFacade.trackEntities(beans, su.getApiKey());
+    assertEquals("Should be one new and one existing TrackResult returned", 2, results.size());
 
 
-    private EntityInputBean getContentBean(FortressNode fortress, String fortUserName, String companyName, String callerRef, ContentInputBean contentInputBean) {
-        EntityInputBean entityBean = new EntityInputBean(fortress, fortUserName, companyName, DateTime.now(), callerRef);
-        entityBean.setContent(contentInputBean);
-        return entityBean;
-    }
+  }
+
+
+  private EntityInputBean getContentBean(FortressNode fortress, String fortUserName, String companyName, String callerRef, ContentInputBean contentInputBean) {
+    EntityInputBean entityBean = new EntityInputBean(fortress, fortUserName, companyName, DateTime.now(), callerRef);
+    entityBean.setContent(contentInputBean);
+    return entityBean;
+  }
 
 }

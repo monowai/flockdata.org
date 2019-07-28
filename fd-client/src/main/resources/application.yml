@@ -1,4 +1,3 @@
-
 #Random port as, by default, this just starts and shuts down
 server:
   port: 0

@@ -31,7 +31,7 @@ import org.flockdata.track.bean.SearchChange;
  */
 public interface IndexMappingService {
 
-    boolean ensureIndexMapping(SearchChange change);
+  boolean ensureIndexMapping(SearchChange change);
 
-    void deleteIndexes(Collection<String> delete);
+  void deleteIndexes(Collection<String> delete);
 }

@@ -27,26 +27,26 @@ import org.flockdata.transform.FdIoInterface;
  */
 public class EntityLogReady implements ReadyMatcher {
 
-    private EntityLogsGet entityLogs;
-    private int waitFor;
-    private CommandResponse<EntityLogResult[]> response;
-    private String key;
+  private EntityLogsGet entityLogs;
+  private int waitFor;
+  private CommandResponse<EntityLogResult[]> response;
+  private String key;
 
-    public EntityLogReady(EntityLogsGet entityLogs, int waitFor, String key) {
-        this.waitFor = waitFor;
-        this.entityLogs = entityLogs;
-        this.key = key;
-    }
+  public EntityLogReady(EntityLogsGet entityLogs, int waitFor, String key) {
+    this.waitFor = waitFor;
+    this.entityLogs = entityLogs;
+    this.key = key;
+  }
 
-    @Override
-    public boolean isReady(FdIoInterface fdIoInterface) {
-        response = entityLogs.exec(key);
+  @Override
+  public boolean isReady(FdIoInterface fdIoInterface) {
+    response = entityLogs.exec(key);
 
-        return response.getResult() != null && response.getResult().length >= waitFor && response.getResult()[waitFor - 1].getData() != null;
-    }
+    return response.getResult() != null && response.getResult().length >= waitFor && response.getResult()[waitFor - 1].getData() != null;
+  }
 
-    @Override
-    public CommandResponse<EntityLogResult[]> getResponse() {
-        return response;
-    }
+  @Override
+  public CommandResponse<EntityLogResult[]> getResponse() {
+    return response;
+  }
 }

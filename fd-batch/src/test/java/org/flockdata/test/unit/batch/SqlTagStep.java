@@ -49,38 +49,38 @@ import org.springframework.context.annotation.Profile;
 @Profile( {"fd-batch-dev", "dev"})
 public class SqlTagStep extends FdAbstractSqlStep {
 
-    @Autowired
-    FdRowMapper fdRowMapper;
+  @Autowired
+  FdRowMapper fdRowMapper;
 
 
-    public String getStepName() {
-        return "olympic.athlete.as.tag";
-    }
+  public String getStepName() {
+    return "olympic.athlete.as.tag";
+  }
 
-    @Bean
-    public Job runEntityQuery(JobBuilderFactory jobs, @Qualifier("testReadTagFromSQL") Step s1, JobExecutionListener listener) {
-        return jobs.get(getStepName())
-            .incrementer(new RunIdIncrementer())
-            .listener(listener)
-            .flow(s1)
-            .end()
-            .build();
-    }
+  @Bean
+  public Job runEntityQuery(JobBuilderFactory jobs, @Qualifier("testReadTagFromSQL") Step s1, JobExecutionListener listener) {
+    return jobs.get(getStepName())
+        .incrementer(new RunIdIncrementer())
+        .listener(listener)
+        .flow(s1)
+        .end()
+        .build();
+  }
 
-    @Bean
-    public Step testReadTagFromSQL(ItemReader<Map<String, Object>> tagItemReader, FdTagWriter fdTagWriter, StepBuilderFactory stepBuilderFactory,
-                                   FdTagProcessor fdTagProcessor) {
+  @Bean
+  public Step testReadTagFromSQL(ItemReader<Map<String, Object>> tagItemReader, FdTagWriter fdTagWriter, StepBuilderFactory stepBuilderFactory,
+                                 FdTagProcessor fdTagProcessor) {
 
-        return stepBuilderFactory.get(getStepName())
-            .<Map<String, Object>, TagInputBean>chunk(10)
-            .reader(tagItemReader)
-            .processor(fdTagProcessor)
-            .writer(fdTagWriter)
-            .build();
-    }
+    return stepBuilderFactory.get(getStepName())
+        .<Map<String, Object>, TagInputBean>chunk(10)
+        .reader(tagItemReader)
+        .processor(fdTagProcessor)
+        .writer(fdTagWriter)
+        .build();
+  }
 
-    @Bean
-    public ItemReader tagItemReader() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, IOException {
-        return getItemReader();
-    }
+  @Bean
+  public ItemReader tagItemReader() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, IOException {
+    return getItemReader();
+  }
 }

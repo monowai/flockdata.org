@@ -52,57 +52,57 @@ import org.springframework.messaging.MessageHandler;
 @Profile( {"fd-server"})
 public class TagCloudRequest {
 
-    @Autowired
-    @Qualifier("engineConfig")
-    private PlatformConfig engineConfig;
+  @Autowired
+  @Qualifier("engineConfig")
+  private PlatformConfig engineConfig;
 
-    @Autowired
-    private MessageSupport messageSupport;
+  @Autowired
+  private MessageSupport messageSupport;
 
-    @Bean
-    MessageChannel tagCloudResult() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel tagCloudResult() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel tagCloudReply() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel tagCloudReply() {
+    return new DirectChannel();
+  }
 
-    // ToDo: Can we handle this more via the flow or handler?
-    @Transformer(inputChannel = "sendTagCloudRequest", outputChannel = "doTagCloudQuery")
-    public Message<?> transformTagCloudParams(Message theObject) {
-        return messageSupport.toJson(theObject);
-    }
+  // ToDo: Can we handle this more via the flow or handler?
+  @Transformer(inputChannel = "sendTagCloudRequest", outputChannel = "doTagCloudQuery")
+  public Message<?> transformTagCloudParams(Message theObject) {
+    return messageSupport.toJson(theObject);
+  }
 
-    @Bean
-    IntegrationFlow tagCloudQuery() {
+  @Bean
+  IntegrationFlow tagCloudQuery() {
 
-        return IntegrationFlows.from("doTagCloudQuery")
-            .handle(tagCloudHandler())
-            .get();
-    }
+    return IntegrationFlows.from("doTagCloudQuery")
+        .handle(tagCloudHandler())
+        .get();
+  }
 
-    private MessageHandler tagCloudHandler() {
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/query/tagCloud");
-        handler.setExpectedResponseType(String.class);
-        handler.setHttpMethod(HttpMethod.POST);
-        handler.setOutputChannel(tagCloudReply());
-        return handler;
-    }
+  private MessageHandler tagCloudHandler() {
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/query/tagCloud");
+    handler.setExpectedResponseType(String.class);
+    handler.setHttpMethod(HttpMethod.POST);
+    handler.setOutputChannel(tagCloudReply());
+    return handler;
+  }
 
-    // ToDo: Can this be integrated to the handler?
-    @Transformer(inputChannel = "tagCloudReply", outputChannel = "tagCloudResult")
-    public TagCloud transformTagCloudResponse(Message<String> theObject) throws IOException {
-        return JsonUtils.toObject(theObject.getPayload().getBytes(), TagCloud.class);
-    }
+  // ToDo: Can this be integrated to the handler?
+  @Transformer(inputChannel = "tagCloudReply", outputChannel = "tagCloudResult")
+  public TagCloud transformTagCloudResponse(Message<String> theObject) throws IOException {
+    return JsonUtils.toObject(theObject.getPayload().getBytes(), TagCloud.class);
+  }
 
-    @MessagingGateway
+  @MessagingGateway
 //    @Profile({"fd-server"})
-    public interface TagCloudGateway {
-        @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "tagCloudResult")
-        TagCloud getTagCloud(TagCloudParams tagCloudParams);
-    }
+  public interface TagCloudGateway {
+    @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "tagCloudResult")
+    TagCloud getTagCloud(TagCloudParams tagCloudParams);
+  }
 
 }

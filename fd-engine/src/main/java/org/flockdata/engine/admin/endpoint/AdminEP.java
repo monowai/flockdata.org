@@ -52,108 +52,108 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/admin")
 public class AdminEP {
 
-    private static Logger logger = LoggerFactory.getLogger(AdminEP.class);
-    private final MediationFacade mediationFacade;
-    private final SecurityHelper securityHelper;
-    private final PlatformConfig engineConfig;
+  private static Logger logger = LoggerFactory.getLogger(AdminEP.class);
+  private final MediationFacade mediationFacade;
+  private final SecurityHelper securityHelper;
+  private final PlatformConfig engineConfig;
 
-    @Autowired
-    public AdminEP(@Qualifier("mediationFacadeNeo") MediationFacade mediationFacade, SecurityHelper securityHelper, PlatformConfig engineConfig) {
-        this.mediationFacade = mediationFacade;
-        this.securityHelper = securityHelper;
-        this.engineConfig = engineConfig;
+  @Autowired
+  public AdminEP(@Qualifier("mediationFacadeNeo") MediationFacade mediationFacade, SecurityHelper securityHelper, PlatformConfig engineConfig) {
+    this.mediationFacade = mediationFacade;
+    this.securityHelper = securityHelper;
+    this.engineConfig = engineConfig;
+  }
+
+  @RequestMapping(value = "/ping", method = RequestMethod.GET)
+  public String getPing() {
+    // curl -X GET http://localhost:8081/api/v1/track/ping
+    return engineConfig.authPing();
+  }
+
+
+  @RequestMapping(value = "/health", method = RequestMethod.GET)
+  public Map<String, Object> getHealth(HttpServletRequest request) throws FlockException {
+    Object o = request.getAttribute(ApiKeyInterceptor.API_KEY);
+    if (o == null) {
+      o = request.getHeader(ApiKeyInterceptor.API_KEY);
+    }
+    String apiKey = "";
+    if (o != null) {
+      apiKey = o.toString();
     }
 
-    @RequestMapping(value = "/ping", method = RequestMethod.GET)
-    public String getPing() {
-        // curl -X GET http://localhost:8081/api/v1/track/ping
-        return engineConfig.authPing();
+    if ("".equals(apiKey)) {
+      apiKey = null;
     }
-
-
-    @RequestMapping(value = "/health", method = RequestMethod.GET)
-    public Map<String, Object> getHealth(HttpServletRequest request) throws FlockException {
-        Object o = request.getAttribute(ApiKeyInterceptor.API_KEY);
-        if (o == null) {
-            o = request.getHeader(ApiKeyInterceptor.API_KEY);
-        }
-        String apiKey = "";
-        if (o != null) {
-            apiKey = o.toString();
-        }
-
-        if ("".equals(apiKey)) {
-            apiKey = null;
-        }
-        if (request.getAttribute(ApiKeyInterceptor.COMPANY) == null &&
-            apiKey == null) {
-            return engineConfig.getHealthAuth();// Caller may have admin role but not belong to a company
-        }
-        return engineConfig.getHealth();
+    if (request.getAttribute(ApiKeyInterceptor.COMPANY) == null &&
+        apiKey == null) {
+      return engineConfig.getHealthAuth();// Caller may have admin role but not belong to a company
     }
+    return engineConfig.getHealth();
+  }
 
 
-    @RequestMapping(value = "/{fortressCode:.*}/rebuild", method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public AdminResponse rebuildSearch(@PathVariable("fortressCode") String fortressCode,
-                                       HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        logger.info("Reindex command received for " + fortressCode + " from [" + securityHelper.getLoggedInUser() + "]");
-        String message = mediationFacade.reindex(company, fortressCode);
-        return new AdminResponse(message);
-    }
+  @RequestMapping(value = "/{fortressCode:.*}/rebuild", method = RequestMethod.POST)
+  @ResponseStatus(value = HttpStatus.ACCEPTED)
+  public AdminResponse rebuildSearch(@PathVariable("fortressCode") String fortressCode,
+                                     HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    logger.info("Reindex command received for " + fortressCode + " from [" + securityHelper.getLoggedInUser() + "]");
+    String message = mediationFacade.reindex(company, fortressCode);
+    return new AdminResponse(message);
+  }
 
 
-    @RequestMapping(value = "/{fortressName:.*}/{docType}/rebuild", method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public AdminResponse rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
-                                       HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
+  @RequestMapping(value = "/{fortressName:.*}/{docType}/rebuild", method = RequestMethod.POST)
+  @ResponseStatus(value = HttpStatus.ACCEPTED)
+  public AdminResponse rebuildSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
+                                     HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
 
-        logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
-        String message = mediationFacade.reindexByDocType(company, fortressName, docType);
-        return new AdminResponse(message);
-    }
+    logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
+    String message = mediationFacade.reindexByDocType(company, fortressName, docType);
+    return new AdminResponse(message);
+  }
 
-    @RequestMapping(value = "/{code:.*}/{docType}", method = RequestMethod.DELETE)
-    public AdminResponse deleteDocType(@PathVariable("code") String fortressCode, @PathVariable("docType") String docType, HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        mediationFacade.purge(company, fortressCode, docType);
-        return new AdminResponse("Purging " + fortressCode + "... This may take a while");
-    }
+  @RequestMapping(value = "/{code:.*}/{docType}", method = RequestMethod.DELETE)
+  public AdminResponse deleteDocType(@PathVariable("code") String fortressCode, @PathVariable("docType") String docType, HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    mediationFacade.purge(company, fortressCode, docType);
+    return new AdminResponse("Purging " + fortressCode + "... This may take a while");
+  }
 
-    @RequestMapping(value = "/{fortressName:.*}", method = RequestMethod.DELETE)
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public AdminResponse purgeFortress(@PathVariable("fortressName") String fortressCode,
-                                       HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
+  @RequestMapping(value = "/{fortressName:.*}", method = RequestMethod.DELETE)
+  @ResponseStatus(value = HttpStatus.ACCEPTED)
+  public AdminResponse purgeFortress(@PathVariable("fortressName") String fortressCode,
+                                     HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
 
-        mediationFacade.purge(company, fortressCode);
-        return new AdminResponse("Purging " + fortressCode + "... This may take a while");
+    mediationFacade.purge(company, fortressCode);
+    return new AdminResponse("Purging " + fortressCode + "... This may take a while");
 
-    }
-
-
-    @RequestMapping(value = "/{code:.*}/{docType}/{segment}", method = RequestMethod.DELETE)
-    public AdminResponse deleteDocType(@PathVariable("code") String fortressCode,
-                                       @PathVariable("docType") String docType,
-                                       @PathVariable("segment") String segment, HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        mediationFacade.purge(company, fortressCode, docType, segment);
-        return new AdminResponse("Purging " + fortressCode + "... This may take a while");
-    }
+  }
 
 
-    @RequestMapping(value = "/{fortressName:.*}/{docType}/validate", method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public AdminResponse validateFromSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
-                                            HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
+  @RequestMapping(value = "/{code:.*}/{docType}/{segment}", method = RequestMethod.DELETE)
+  public AdminResponse deleteDocType(@PathVariable("code") String fortressCode,
+                                     @PathVariable("docType") String docType,
+                                     @PathVariable("segment") String segment, HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    mediationFacade.purge(company, fortressCode, docType, segment);
+    return new AdminResponse("Purging " + fortressCode + "... This may take a while");
+  }
 
-        logger.info("Validate command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
-        String message = mediationFacade.validateFromSearch(company, fortressName, docType);
 
-        return new AdminResponse(message);
-    }
+  @RequestMapping(value = "/{fortressName:.*}/{docType}/validate", method = RequestMethod.POST)
+  @ResponseStatus(value = HttpStatus.ACCEPTED)
+  public AdminResponse validateFromSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
+                                          HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+
+    logger.info("Validate command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
+    String message = mediationFacade.validateFromSearch(company, fortressName, docType);
+
+    return new AdminResponse(message);
+  }
 
 }

@@ -1,10 +1,14 @@
 {
-  "documentType": {"name": "TestDocType", "versionStrategy": "ENABLE", "tagStructure":"TAXONOMY"},
+  "documentType": {
+    "name": "TestDocType",
+    "versionStrategy": "ENABLE",
+    "tagStructure": "TAXONOMY"
+  },
   "entityOnly": "true",
   "fortressName": "TestDocType",
   "content": {
-    "Id":{
-      "callerRef":true
+    "Id": {
+      "callerRef": true
     },
     "EmployeeNumber": {
       "dataType": "string",

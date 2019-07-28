@@ -43,67 +43,67 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class TxService {
 
-    @Autowired
-    SystemUserService sysUserService;
-    @Autowired
-    EntityDaoNeo trackDao;
-    @Autowired
-    private KeyGenService keyGenService;
-    @Autowired
-    private SecurityHelper securityHelper;
+  @Autowired
+  SystemUserService sysUserService;
+  @Autowired
+  EntityDaoNeo trackDao;
+  @Autowired
+  private KeyGenService keyGenService;
+  @Autowired
+  private SecurityHelper securityHelper;
 
-    TxRef beginTransaction(CompanyNode company) {
-        return beginTransaction(keyGenService.getUniqueKey(), company);
+  TxRef beginTransaction(CompanyNode company) {
+    return beginTransaction(keyGenService.getUniqueKey(), company);
+  }
+
+  TxRef beginTransaction(String id, CompanyNode company) {
+    return trackDao.beginTransaction(id, company);
+
+  }
+
+  public Map<String, Object> findByTXRef(String txRef) {
+    TxRef tx = findTx(txRef);
+    return (tx == null ? null : trackDao.findByTransaction(tx));
+  }
+
+  public TxRef handleTxRef(ContentInputBean input, CompanyNode company) {
+    TxRef txRef = null;
+    if (input.isTransactional()) {
+      if (input.getTxRef() == null) {
+        txRef = beginTransaction(company);
+        input.setTxRef(txRef.getName());
+      } else {
+        txRef = beginTransaction(input.getTxRef(), company);
+      }
     }
 
-    TxRef beginTransaction(String id, CompanyNode company) {
-        return trackDao.beginTransaction(id, company);
+    return txRef;
+  }
 
+  public TxRef findTx(String txRef) {
+    return findTx(txRef, false);
+  }
+
+  TxRef findTx(String txRef, boolean fetchHeaders) {
+    String userName = securityHelper.getLoggedInUser();
+    SystemUser su = sysUserService.findByLogin(userName);
+
+    if (su == null) {
+      throw new SecurityException("Not authorised");
     }
-
-    public Map<String, Object> findByTXRef(String txRef) {
-        TxRef tx = findTx(txRef);
-        return (tx == null ? null : trackDao.findByTransaction(tx));
+    TxRef tx = trackDao.findTxTag(txRef, su.getCompany());
+    if (tx == null) {
+      return null;
     }
+    return tx;
+  }
 
-    public TxRef handleTxRef(ContentInputBean input, CompanyNode company) {
-        TxRef txRef = null;
-        if (input.isTransactional()) {
-            if (input.getTxRef() == null) {
-                txRef = beginTransaction(company);
-                input.setTxRef(txRef.getName());
-            } else {
-                txRef = beginTransaction(input.getTxRef(), company);
-            }
-        }
-
-        return txRef;
+  public Set<EntityNode> findTxEntities(String txName) {
+    TxRef txRef = findTx(txName);
+    if (txRef == null) {
+      return null;
     }
-
-    public TxRef findTx(String txRef) {
-        return findTx(txRef, false);
-    }
-
-    TxRef findTx(String txRef, boolean fetchHeaders) {
-        String userName = securityHelper.getLoggedInUser();
-        SystemUser su = sysUserService.findByLogin(userName);
-
-        if (su == null) {
-            throw new SecurityException("Not authorised");
-        }
-        TxRef tx = trackDao.findTxTag(txRef, su.getCompany());
-        if (tx == null) {
-            return null;
-        }
-        return tx;
-    }
-
-    public Set<EntityNode> findTxEntities(String txName) {
-        TxRef txRef = findTx(txName);
-        if (txRef == null) {
-            return null;
-        }
-        return trackDao.findEntitiesByTxRef(txRef.getId());
-    }
+    return trackDao.findEntitiesByTxRef(txRef.getId());
+  }
 
 }

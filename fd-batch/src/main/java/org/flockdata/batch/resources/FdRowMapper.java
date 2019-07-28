@@ -31,14 +31,14 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class FdRowMapper implements RowMapper<Map<String, Object>> {
-    @Override
-    public Map<String, Object> mapRow(ResultSet resultSet, int i) throws SQLException {
-        Map<String, Object> resultMap = new HashMap<>();
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        Integer columnCount = metaData.getColumnCount();
-        for (int j = 0; j < columnCount; j++) {
-            resultMap.put(metaData.getColumnName(j + 1), resultSet.getObject(j + 1));
-        }
-        return resultMap;
+  @Override
+  public Map<String, Object> mapRow(ResultSet resultSet, int i) throws SQLException {
+    Map<String, Object> resultMap = new HashMap<>();
+    ResultSetMetaData metaData = resultSet.getMetaData();
+    Integer columnCount = metaData.getColumnCount();
+    for (int j = 0; j < columnCount; j++) {
+      resultMap.put(metaData.getColumnName(j + 1), resultSet.getObject(j + 1));
     }
+    return resultMap;
+  }
 }

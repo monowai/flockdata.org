@@ -38,77 +38,77 @@ import org.flockdata.registration.TagResultBean;
  * @since 1/01/17
  */
 public class FdTagResultBean extends TagResultBean {
-    @JsonIgnore
-    private Tag tag = null;
+  @JsonIgnore
+  private Tag tag = null;
 
-    private Map<FdTagResultBean, Collection<String>> targets = new HashMap<>();
+  private Map<FdTagResultBean, Collection<String>> targets = new HashMap<>();
 
-    FdTagResultBean() {
+  FdTagResultBean() {
+  }
+
+  public FdTagResultBean(TagInputBean tagInput, Tag startTag, boolean isNew) {
+    this(tagInput, startTag);
+    this.newTag = isNew;
+  }
+
+  public FdTagResultBean(TagInputBean tagInputBean, Tag tag) {
+
+    this(tag);
+    if (tag == null) {
+      this.code = tagInputBean.getCode();
+      this.name = tagInputBean.getName();
+    }
+    if (tagInputBean != null) {
+      this.message = tagInputBean.setServiceMessage();
+      this.description = tagInputBean.getDescription();
     }
 
-    public FdTagResultBean(TagInputBean tagInput, Tag startTag, boolean isNew) {
-        this(tagInput, startTag);
-        this.newTag = isNew;
+  }
+
+  public FdTagResultBean(Tag tag) {
+    this();
+    this.tag = tag;
+
+    if (tag != null) {
+      this.newTag = tag.isNew();
+      this.code = tag.getCode();
+      this.key = tag.getKey();
+      this.name = tag.getName();
+      this.label = tag.getLabel();
+      if (code.equals(name)) {
+        name = null;
+      }
+      this.properties = tag.getProperties();
+
+      for (Alias alias : tag.getAliases()) {
+        aliases.add(new AliasResultBean(alias));
+      }
     }
+  }
 
-    public FdTagResultBean(TagInputBean tagInputBean, Tag tag) {
+  public FdTagResultBean(TagInputBean tagInput) {
+    this(tagInput, null);
+  }
 
-        this(tag);
-        if (tag == null) {
-            this.code = tagInputBean.getCode();
-            this.name = tagInputBean.getName();
-        }
-        if (tagInputBean != null) {
-            this.message = tagInputBean.setServiceMessage();
-            this.description = tagInputBean.getDescription();
-        }
+  public Tag getTag() {
+    return tag;
+  }
 
+  public void setTag(Tag tag) {
+    this.tag = tag;
+  }
+
+  @JsonIgnore
+  public Map<FdTagResultBean, Collection<String>> getTargets() {
+    return targets;
+  }
+
+  public void addTargetResult(String rlxName, FdTagResultBean targetTag) {
+    Collection<String> relationships = targets.get(targetTag);
+    if (relationships == null) {
+      relationships = new ArrayList<>();
     }
-
-    public FdTagResultBean(Tag tag) {
-        this();
-        this.tag = tag;
-
-        if (tag != null) {
-            this.newTag = tag.isNew();
-            this.code = tag.getCode();
-            this.key = tag.getKey();
-            this.name = tag.getName();
-            this.label = tag.getLabel();
-            if (code.equals(name)) {
-                name = null;
-            }
-            this.properties = tag.getProperties();
-
-            for (Alias alias : tag.getAliases()) {
-                aliases.add(new AliasResultBean(alias));
-            }
-        }
-    }
-
-    public FdTagResultBean(TagInputBean tagInput) {
-        this(tagInput, null);
-    }
-
-    public Tag getTag() {
-        return tag;
-    }
-
-    public void setTag(Tag tag) {
-        this.tag = tag;
-    }
-
-    @JsonIgnore
-    public Map<FdTagResultBean, Collection<String>> getTargets() {
-        return targets;
-    }
-
-    public void addTargetResult(String rlxName, FdTagResultBean targetTag) {
-        Collection<String> relationships = targets.get(targetTag);
-        if (relationships == null) {
-            relationships = new ArrayList<>();
-        }
-        relationships.add(rlxName);
-        targets.put(targetTag, relationships);
-    }
+    relationships.add(rlxName);
+    targets.put(targetTag, relationships);
+  }
 }

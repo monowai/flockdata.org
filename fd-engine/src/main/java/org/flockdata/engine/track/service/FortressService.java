@@ -41,61 +41,61 @@ import org.flockdata.track.bean.DocumentResultBean;
  * @since 14/11/2014
  */
 public interface FortressService {
-    FortressNode getFortress(Long id);
+  FortressNode getFortress(Long id);
 
-    FortressUserNode getUser(Long id);
+  FortressUserNode getUser(Long id);
 
-    //    @Cacheable(value = "fortressName", unless = "#result == null")
-    FortressNode findByName(Company company, String fortressName) throws NotFoundException;
+  //    @Cacheable(value = "fortressName", unless = "#result == null")
+  FortressNode findByName(Company company, String fortressName) throws NotFoundException;
 
-    FortressNode findByName(String fortressName) throws NotFoundException;
+  FortressNode findByName(String fortressName) throws NotFoundException;
 
-    FortressNode findByCode(Company company, String fortressCode);
+  FortressNode findByCode(Company company, String fortressCode);
 
 //    Fortress findByCode(Company company, String fortressCode);
 
-    FortressUserNode getFortressUser(Company company, String fortressName, String fortressUser) throws NotFoundException;
+  FortressUserNode getFortressUser(Company company, String fortressName, String fortressUser) throws NotFoundException;
 
-    FortressUserNode getFortressUser(Fortress fortress, String fortressUser);
+  FortressUserNode getFortressUser(Fortress fortress, String fortressUser);
 
-    FortressUserNode getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing);
+  FortressUserNode getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing);
 
-    Collection<FortressResultBean> findFortresses() throws FlockException;
+  Collection<FortressResultBean> findFortresses() throws FlockException;
 
-    Collection<FortressResultBean> findFortresses(Company company) throws FlockException;
+  Collection<FortressResultBean> findFortresses(Company company) throws FlockException;
 
-    void purge(Fortress fortress) throws FlockException;
+  void purge(Fortress fortress) throws FlockException;
 
-    FortressNode registerFortress(Company company, FortressInputBean fortressInputBean);
+  FortressNode registerFortress(Company company, FortressInputBean fortressInputBean);
 
-    FortressNode registerFortress(Company company, String fortressName);
+  FortressNode registerFortress(Company company, String fortressName);
 
-    FortressNode registerFortress(Company company, FortressInputBean fib, boolean createIfMissing);
+  FortressNode registerFortress(Company company, FortressInputBean fib, boolean createIfMissing);
 
-    Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) throws NotFoundException;
+  Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) throws NotFoundException;
 
-    Fortress getFortress(Company company, String fortressName) throws NotFoundException;
+  Fortress getFortress(Company company, String fortressName) throws NotFoundException;
 
-    String delete(Company company, String fortressName);
+  String delete(Company company, String fortressName);
 
-    FortressUserNode createFortressUser(Fortress fortress, ContentInputBean inputBean);
+  FortressUserNode createFortressUser(Fortress fortress, ContentInputBean inputBean);
 
-    String getGeoQuery(Entity entity);
+  String getGeoQuery(Entity entity);
 
-    EntityTag.TAG_STRUCTURE getTagStructureFinder(Entity entity);
+  EntityTag.TAG_STRUCTURE getTagStructureFinder(Entity entity);
 
-    Segment getDefaultSegment(Fortress fortress);
+  Segment getDefaultSegment(Fortress fortress);
 
-    Segment addSegment(Segment segment);
+  Segment addSegment(Segment segment);
 
-    Collection<Segment> getSegments(Fortress fortress);
+  Collection<Segment> getSegments(Fortress fortress);
 
-    Segment resolveSegment(Company company, FortressInputBean fortress, String segmentName, String timeZone) throws NotFoundException;
+  Segment resolveSegment(Company company, FortressInputBean fortress, String segmentName, String timeZone) throws NotFoundException;
 
-    FortressNode updateFortress(CompanyNode company, FortressNode existing, FortressInputBean fortressInputBean);
+  FortressNode updateFortress(CompanyNode company, FortressNode existing, FortressInputBean fortressInputBean);
 
-    FortressNode findInternalFortress(Company company);
+  FortressNode findInternalFortress(Company company);
 
-    FortressInputBean createDefaultFortressInput();
+  FortressInputBean createDefaultFortressInput();
 
 }

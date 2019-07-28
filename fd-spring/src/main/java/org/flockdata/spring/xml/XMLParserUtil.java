@@ -23,19 +23,19 @@ import org.w3c.dom.Element;
  * Source from: http://www.java2s.com/Tutorial/Java/0440__XML/GetElementBooleanValue.htm
  */
 class XMLParserUtil {
-    public static boolean getElementBooleanValue(Element element, String attribute) {
-        return getElementBooleanValue(element, attribute, false);
-    }
+  public static boolean getElementBooleanValue(Element element, String attribute) {
+    return getElementBooleanValue(element, attribute, false);
+  }
 
-    private static boolean getElementBooleanValue(Element element, String attribute, boolean defaultValue) {
-        if (!element.hasAttribute(attribute)) {
-            return defaultValue;
-        }
-        return Boolean
-            .valueOf(getElementStringValue(element, attribute));
+  private static boolean getElementBooleanValue(Element element, String attribute, boolean defaultValue) {
+    if (!element.hasAttribute(attribute)) {
+      return defaultValue;
     }
+    return Boolean
+        .valueOf(getElementStringValue(element, attribute));
+  }
 
-    public static String getElementStringValue(Element element, String attribute) {
-        return element.getAttribute(attribute);
-    }
+  public static String getElementStringValue(Element element, String attribute) {
+    return element.getAttribute(attribute);
+  }
 }

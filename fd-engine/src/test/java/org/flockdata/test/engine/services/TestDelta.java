@@ -42,39 +42,39 @@ import org.junit.Test;
  */
 public class TestDelta extends EngineBase {
 
-    @Test
-    public void jsonDeltasAreFound() throws Exception {
-        setSecurity();
-        SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
+  @Test
+  public void jsonDeltasAreFound() throws Exception {
+    setSecurity();
+    SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
 
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("DELTAForce", true));
-        assertNotNull(fortress);
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("DELTAForce", true));
+    assertNotNull(fortress);
 
-        Map<String, Object> jsonA = ContentDataHelper.getSimpleMap("house", "red");
-        jsonA.put("bedrooms", 2);
-        jsonA.put("garage", "Y");
+    Map<String, Object> jsonA = ContentDataHelper.getSimpleMap("house", "red");
+    jsonA.put("bedrooms", 2);
+    jsonA.put("garage", "Y");
 
-        //String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
-        Map<String, Object> jsonB = ContentDataHelper.getSimpleMap("house", "green");
-        jsonB.put("bedrooms", 2);
-        ArrayList<Integer> values = new ArrayList<>();
-        values.add(1);
-        values.add(2);
-        values.add(3);
-        jsonB.put("list", values);
+    //String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
+    Map<String, Object> jsonB = ContentDataHelper.getSimpleMap("house", "green");
+    jsonB.put("bedrooms", 2);
+    ArrayList<Integer> values = new ArrayList<>();
+    values.add(1);
+    values.add(2);
+    values.add(3);
+    jsonB.put("list", values);
 
-        EntityInputBean entity = new EntityInputBean(fortress, "auditTestz", "Delta", new DateTime(), "abdelta");
-        ContentInputBean log = new ContentInputBean("Mike", new DateTime(), jsonA);
-        entity.setContent(log);
-        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entity);
-        EntityLog first = logService.getLastLog((EntityNode) result.getEntity());
-        assertNotNull(first);
-        log = new ContentInputBean("Mike", result.getEntity().getKey(), new DateTime(), jsonB);
-        mediationFacade.trackLog(su.getCompany(), log);
-        EntityLog second = logService.getLastLog((EntityNode) result.getEntity());
-        assertNotNull(second);
+    EntityInputBean entity = new EntityInputBean(fortress, "auditTestz", "Delta", new DateTime(), "abdelta");
+    ContentInputBean log = new ContentInputBean("Mike", new DateTime(), jsonA);
+    entity.setContent(log);
+    TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entity);
+    EntityLog first = logService.getLastLog((EntityNode) result.getEntity());
+    assertNotNull(first);
+    log = new ContentInputBean("Mike", result.getEntity().getKey(), new DateTime(), jsonB);
+    mediationFacade.trackLog(su.getCompany(), log);
+    EntityLog second = logService.getLastLog((EntityNode) result.getEntity());
+    assertNotNull(second);
 
-        //ToDo: fd-store - fix me
+    //ToDo: fd-store - fix me
 //        DeltaResultBean deltaResultBean = storageService.getDelta(result.getEntity(), first.getLog(), second.getLog());
 //        Map added = deltaResultBean.getAdded();
 //        assertNotNull(added);
@@ -91,7 +91,7 @@ public class TestDelta extends EngineBase {
 //        assertNotNull(deltaResultBean);
 
 
-    }
+  }
 
 
 }

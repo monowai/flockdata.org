@@ -35,26 +35,26 @@ import org.flockdata.search.TagCloudParams;
  * @since 8/09/2014
  */
 public interface QueryService {
-    TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException, FlockException;
+  TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException, FlockException;
 
-    Long getHitCount(String index) throws IOException;
+  Long getHitCount(String index) throws IOException;
 
-    EsSearchRequestResult doFdViewSearch(QueryParams queryParams) throws FlockException;
+  EsSearchRequestResult doFdViewSearch(QueryParams queryParams) throws FlockException;
 
-    /**
-     * Returns the "data" associated with the entity resolved from the queryParams
-     *
-     * @param queryParams key to search for
-     * @return searchResult with the what Map populated
-     * @throws FlockException business exception occurred
-     * @see QueryParams
-     * @see EsSearchRequestResult
-     */
-    EsSearchRequestResult doParametrizedQuery(QueryParams queryParams) throws FlockException;
+  /**
+   * Returns the "data" associated with the entity resolved from the queryParams
+   *
+   * @param queryParams key to search for
+   * @return searchResult with the what Map populated
+   * @throws FlockException business exception occurred
+   * @see QueryParams
+   * @see EsSearchRequestResult
+   */
+  EsSearchRequestResult doParametrizedQuery(QueryParams queryParams) throws FlockException;
 
-    EntityKeyResults doKeyQuery(QueryParams queryParams) throws FlockException;
+  EntityKeyResults doKeyQuery(QueryParams queryParams) throws FlockException;
 
-    String doSearch(QueryParams queryParams) throws FlockException;
+  String doSearch(QueryParams queryParams) throws FlockException;
 
-    void getTags(String indexName);
+  void getTags(String indexName);
 }

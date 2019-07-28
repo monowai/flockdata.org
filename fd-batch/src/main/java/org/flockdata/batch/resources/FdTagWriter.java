@@ -39,24 +39,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class FdTagWriter implements ItemWriter<TagInputBean> {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdTagWriter.class);
-    private final Template fdTemplate;
+  private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdTagWriter.class);
+  private final Template fdTemplate;
 
-    @Autowired
-    public FdTagWriter(FdIoInterface fdIoInterface, Template fdTemplate) {
-        this.fdTemplate = fdTemplate;
-        try {
-            fdIoInterface.validateConnectivity();
-        } catch (FlockException e) {
-            logger.error("Error validating connectivity");
-        }
+  @Autowired
+  public FdTagWriter(FdIoInterface fdIoInterface, Template fdTemplate) {
+    this.fdTemplate = fdTemplate;
+    try {
+      fdIoInterface.validateConnectivity();
+    } catch (FlockException e) {
+      logger.error("Error validating connectivity");
     }
+  }
 
-    @Override
-    public void write(List<? extends TagInputBean> items) throws Exception {
+  @Override
+  public void write(List<? extends TagInputBean> items) throws Exception {
 
-        for (TagInputBean item : items) {
-            fdTemplate.writeTag(item);
-        }
+    for (TagInputBean item : items) {
+      fdTemplate.writeTag(item);
     }
+  }
 }

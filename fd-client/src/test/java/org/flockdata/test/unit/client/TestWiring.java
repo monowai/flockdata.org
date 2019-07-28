@@ -63,24 +63,24 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles( {"fd-client"})
 public class TestWiring {
 
-    @Autowired
-    private FdIoInterface fdIoInterface;
-    @Autowired
-    private FdRabbitClient rabbitClient;
+  @Autowired
+  private FdIoInterface fdIoInterface;
+  @Autowired
+  private FdRabbitClient rabbitClient;
 
-    @Autowired
-    private ClientConfiguration clientConfiguration;
+  @Autowired
+  private ClientConfiguration clientConfiguration;
 
-    @Test
-    public void wiringWorks() {
-        assertNotNull(rabbitClient);
-        assertNotNull(fdIoInterface);
-        assertNotNull(clientConfiguration);
-    }
+  @Test
+  public void wiringWorks() {
+    assertNotNull(rabbitClient);
+    assertNotNull(fdIoInterface);
+    assertNotNull(clientConfiguration);
+  }
 
-    @Test
-    public void clientDefaults() {
-        assertNull(clientConfiguration.getApiKey());
-        assertNotNull(clientConfiguration.getHttpUser());
-    }
+  @Test
+  public void clientDefaults() {
+    assertNull(clientConfiguration.apiKey());
+    assertNotNull(clientConfiguration.httpUser());
+  }
 }

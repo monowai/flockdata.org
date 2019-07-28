@@ -41,98 +41,98 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 @NodeEntity()
 @TypeAlias("Model")
 public class ModelNode implements Model {
-    @GraphId
-    private Long id;
+  @GraphId
+  private Long id;
 
-    @Indexed(unique = true)
-    private String key;
+  @Indexed(unique = true)
+  private String key;
 
-    @Indexed
-    private String code;
+  @Indexed
+  private String code;
 
-    //@Relationship(type = "FORTRESS_PROFILE")
-    @RelatedTo(type = "FORTRESS_MODEL")
-    private FortressNode fortress;
+  //@Relationship(type = "FORTRESS_PROFILE")
+  @RelatedTo(type = "FORTRESS_MODEL")
+  private FortressNode fortress;
 
-    private String fortressName;
+  private String fortressName;
 
-    //@Relationship( type = "DOCUMENT_PROFILE")
-    @RelatedTo(type = "DOCUMENT_MODEL")
-    private DocumentNode document;
+  //@Relationship( type = "DOCUMENT_PROFILE")
+  @RelatedTo(type = "DOCUMENT_MODEL")
+  private DocumentNode document;
 
-    private String documentName;
+  private String documentName;
 
-    @RelatedTo(type = "COMPANY_MODEL")
-    private CompanyNode company;
+  @RelatedTo(type = "COMPANY_MODEL")
+  private CompanyNode company;
 
-    private String name;
+  private String name;
 
 
-    ModelNode() {
-    }
+  ModelNode() {
+  }
 
-    public ModelNode(Company company, TrackResultBean trackResultBean, Fortress fortress, Document documentType) {
-        this();
-        this.company = (CompanyNode) company;
-        this.fortress = (FortressNode) fortress;
-        this.document = (DocumentNode) documentType;
-        this.fortressName = fortress.getName();
-        this.documentName = (documentType == null ? null : documentType.getName());
-        this.name = trackResultBean.getEntity().getName();
-        this.key = trackResultBean.getKey();
+  public ModelNode(Company company, TrackResultBean trackResultBean, Fortress fortress, Document documentType) {
+    this();
+    this.company = (CompanyNode) company;
+    this.fortress = (FortressNode) fortress;
+    this.document = (DocumentNode) documentType;
+    this.fortressName = fortress.getName();
+    this.documentName = (documentType == null ? null : documentType.getName());
+    this.name = trackResultBean.getEntity().getName();
+    this.key = trackResultBean.getKey();
 
-    }
+  }
 
-    public ModelNode(Company company, TrackResultBean trackResult, String code, Document documentType) {
-        this.company = (CompanyNode) company;
-        this.document = (DocumentNode) documentType;
-        this.name = trackResult.getEntity().getName();
-        this.key = trackResult.getKey();
-        this.code = code;
-    }
+  public ModelNode(Company company, TrackResultBean trackResult, String code, Document documentType) {
+    this.company = (CompanyNode) company;
+    this.document = (DocumentNode) documentType;
+    this.name = trackResult.getEntity().getName();
+    this.key = trackResult.getKey();
+    this.code = code;
+  }
 
-    @Override
-    public Company getCompany() {
-        return company;
-    }
+  @Override
+  public Company getCompany() {
+    return company;
+  }
 
-    @Override
-    public String getKey() {
-        return key;
-    }
+  @Override
+  public String getKey() {
+    return key;
+  }
 
-    @Override
-    public Long getId() {
-        return id;
-    }
+  @Override
+  public Long getId() {
+    return id;
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Fortress getFortress() {
-        return fortress;
-    }
+  public Fortress getFortress() {
+    return fortress;
+  }
 
-    public Document getDocument() {
-        return document;
-    }
+  public Document getDocument() {
+    return document;
+  }
 
-    @Override
-    public String getCode() {
-        return code;
-    }
+  @Override
+  public String getCode() {
+    return code;
+  }
 
-    public String getFortressName() {
-        return fortressName;
-    }
+  public String getFortressName() {
+    return fortressName;
+  }
 
-    public String getDocumentName() {
-        return documentName;
-    }
+  public String getDocumentName() {
+    return documentName;
+  }
 }

@@ -40,23 +40,23 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         "org.flockdata.authentication", "org.flockdata.engine.configure", "org.flockdata.integration"})
 
 public class FdEngine {
-    @Autowired
-    SchemaService schemaService;
+  @Autowired
+  private SchemaService schemaService;
 
-    public static void main(String[] args) {
-        try {
-            SpringApplication.run(FdEngine.class, args);
-        } catch (Exception e) {
-            System.out.println(e.getLocalizedMessage());
-        }
-
+  public static void main(String[] args) {
+    try {
+      SpringApplication.run(FdEngine.class, args);
+    } catch (Exception e) {
+      System.out.println(e.getLocalizedMessage());
     }
 
-    @PostConstruct
-    public void ensureSystemIndexes() {
-        schemaService.ensureSystemIndexes(null);
+  }
 
-    }
+  @PostConstruct
+  public void ensureSystemIndexes() {
+    schemaService.ensureSystemIndexes(null);
+
+  }
 
 
 }

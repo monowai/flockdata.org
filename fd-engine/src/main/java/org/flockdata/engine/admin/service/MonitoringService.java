@@ -29,10 +29,11 @@ import org.springframework.integration.annotation.ServiceActivator;
 @MessageEndpoint
 public class MonitoringService {
 
-    @ServiceActivator(inputChannel = "doFdEnginePingRequest", outputChannel = "doFdEnginePingResponse") // Subscriber
-    public PingResult ping() {
-        PingResult pingResult = new PingResult("pong");
-        return pingResult;
-    }
+  @ServiceActivator(inputChannel = "doFdEnginePingRequest", outputChannel = "doFdEnginePingResponse")
+  // Subscriber
+  public PingResult ping() {
+    PingResult pingResult = new PingResult("pong");
+    return pingResult;
+  }
 
 }

@@ -39,70 +39,70 @@ import org.neo4j.graphdb.Node;
  * @since 12/06/2014
  */
 public class TestQueryParameters {
-    @Test
-    public void documentTypes() throws Exception {
-        MatrixInputBean inputBean = new MatrixInputBean();
-        String result = ":Entity";
-        Assert.assertEquals(result, CypherHelper.getLabels("meta", inputBean.getDocuments()));
-        ArrayList<String> docs = new ArrayList<>();
-        docs.add("With Space");
-        docs.add("SecondDoc");
-        docs.add("third-doc");
-        inputBean.setDocuments(docs);
-        result = "meta:`With Space` or meta:SecondDoc or meta:`third-doc`";
-        assertEquals(result, CypherHelper.getLabels("meta", inputBean.getDocuments()));
+  @Test
+  public void documentTypes() throws Exception {
+    MatrixInputBean inputBean = new MatrixInputBean();
+    String result = ":Entity";
+    Assert.assertEquals(result, CypherHelper.getLabels("meta", inputBean.getDocuments()));
+    ArrayList<String> docs = new ArrayList<>();
+    docs.add("With Space");
+    docs.add("SecondDoc");
+    docs.add("third-doc");
+    inputBean.setDocuments(docs);
+    result = "meta:`With Space` or meta:SecondDoc or meta:`third-doc`";
+    assertEquals(result, CypherHelper.getLabels("meta", inputBean.getDocuments()));
 
-        docs.clear();
-        docs.add(null);
-        inputBean.setDocuments(docs);
-        assertEquals("", CypherHelper.getLabels("meta", inputBean.getDocuments()));
+    docs.clear();
+    docs.add(null);
+    inputBean.setDocuments(docs);
+    assertEquals("", CypherHelper.getLabels("meta", inputBean.getDocuments()));
+
+  }
+
+  @Test
+  public void concepts() throws Exception {
+    Collection<Object> nodes = new ArrayList<>();
+    Node n = new MockNode(123);
+    n.setProperty("name", "Name A");
+    nodes.add(n);
+    nodes.add(n);
+    n = new MockNode(456);
+    n.setProperty("name", "Name B");
+    nodes.add(n);
+    Collection<FdNode> values = new ArrayList<>();
+    MatrixDaoNeo4j.setTargetTags(values, nodes);
+    assertEquals(2, values.size());
+    for (FdNode value : values) {
+      switch (value.getKey()) {
+        case "123":
+          assertEquals("Name A", value.getName());
+          break;
+        case "456":
+          assertEquals("Name B", value.getName());
+          break;
+        default:
+          throw new Exception("Unexpected value");
+      }
 
     }
+  }
 
-    @Test
-    public void concepts() throws Exception {
-        Collection<Object> nodes = new ArrayList<>();
-        Node n = new MockNode(123);
-        n.setProperty("name", "Name A");
-        nodes.add(n);
-        nodes.add(n);
-        n = new MockNode(456);
-        n.setProperty("name", "Name B");
-        nodes.add(n);
-        Collection<FdNode> values = new ArrayList<>();
-        MatrixDaoNeo4j.setTargetTags(values, nodes);
-        assertEquals(2, values.size());
-        for (FdNode value : values) {
-            switch (value.getKey()) {
-                case "123":
-                    assertEquals("Name A", value.getName());
-                    break;
-                case "456":
-                    assertEquals("Name B", value.getName());
-                    break;
-                default:
-                    throw new Exception("Unexpected value");
-            }
-
-        }
-    }
-
-    @Test
-    public void relationships() throws Exception {
-        MatrixInputBean inputBean = new MatrixInputBean();
-        assertEquals("", CypherHelper.getRelationships(inputBean.getFromRlxs()));
-        assertEquals("", CypherHelper.getRelationships(inputBean.getToRlxs()));
-        ArrayList<String> relationships = new ArrayList<>();
-        relationships.add("With Space");
-        relationships.add("SecondConcept");
-        relationships.add("third-concept");
-        relationships.add("dot.concept");
-        relationships.add("2010");        // Numbers need to be escaped
-        inputBean.setFromRlxs(relationships);
-        inputBean.setToRlxs(relationships);
-        assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept` |:`2010`", CypherHelper.getRelationships(inputBean.getFromRlxs()));
-        assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept` |:`2010`", CypherHelper.getRelationships(inputBean.getToRlxs()));
-    }
+  @Test
+  public void relationships() throws Exception {
+    MatrixInputBean inputBean = new MatrixInputBean();
+    assertEquals("", CypherHelper.getRelationships(inputBean.getFromRlxs()));
+    assertEquals("", CypherHelper.getRelationships(inputBean.getToRlxs()));
+    ArrayList<String> relationships = new ArrayList<>();
+    relationships.add("With Space");
+    relationships.add("SecondConcept");
+    relationships.add("third-concept");
+    relationships.add("dot.concept");
+    relationships.add("2010");        // Numbers need to be escaped
+    inputBean.setFromRlxs(relationships);
+    inputBean.setToRlxs(relationships);
+    assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept` |:`2010`", CypherHelper.getRelationships(inputBean.getFromRlxs()));
+    assertEquals(":`With Space` |:SecondConcept |:`third-concept` |:`dot.concept` |:`2010`", CypherHelper.getRelationships(inputBean.getToRlxs()));
+  }
 
 
 }

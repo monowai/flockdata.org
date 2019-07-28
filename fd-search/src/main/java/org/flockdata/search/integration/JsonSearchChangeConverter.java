@@ -39,19 +39,19 @@ import org.springframework.stereotype.Component;
 @Component("jsonToSearchChangeConverter")
 public class JsonSearchChangeConverter extends SimpleMessageConverter {
 
-    @Override
-    public Object fromMessage(final Message message) throws MessageConversionException {
+  @Override
+  public Object fromMessage(final Message message) throws MessageConversionException {
 
-        final Object content = super.fromMessage(message);
-        try {
-            if (content instanceof String) {
-                return FdJsonObjectMapper.getObjectMapper().readValue(((String) content).getBytes(ObjectHelper.charSet), SearchChanges.class);
-            }
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            throw new MessageConversionException("failed to convert text-based Message content", e1);
-        }
-        return content;
+    final Object content = super.fromMessage(message);
+    try {
+      if (content instanceof String) {
+        return FdJsonObjectMapper.getObjectMapper().readValue(((String) content).getBytes(ObjectHelper.charSet), SearchChanges.class);
+      }
+    } catch (IOException e1) {
+      e1.printStackTrace();
+      throw new MessageConversionException("failed to convert text-based Message content", e1);
     }
+    return content;
+  }
 
 }

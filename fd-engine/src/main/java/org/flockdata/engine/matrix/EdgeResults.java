@@ -28,22 +28,22 @@ import java.util.List;
  * @since 29/04/2015
  */
 public class EdgeResults {
-    private List<EdgeResult> edgeResults = new ArrayList<>();
+  private List<EdgeResult> edgeResults = new ArrayList<>();
 
-    public void addResult(EdgeResult edgeResult) {
-        int index = edgeResults.indexOf(edgeResult);
-        if (index == -1) {
-            edgeResults.add(edgeResult);
-        } else {
-            EdgeResult edge = edgeResults.get(index);
+  public void addResult(EdgeResult edgeResult) {
+    int index = edgeResults.indexOf(edgeResult);
+    if (index == -1) {
+      edgeResults.add(edgeResult);
+    } else {
+      EdgeResult edge = edgeResults.get(index);
 
-            edge.setCount(edge.getCount().doubleValue() + edgeResult.getCount().doubleValue());
-        }
-
-
+      edge.setCount(edge.getCount().doubleValue() + edgeResult.getCount().doubleValue());
     }
 
-    public List<EdgeResult> getEdgeResults() {
-        return edgeResults;
-    }
+
+  }
+
+  public List<EdgeResult> getEdgeResults() {
+    return edgeResults;
+  }
 }

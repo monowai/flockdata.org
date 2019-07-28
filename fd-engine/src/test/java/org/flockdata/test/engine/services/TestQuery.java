@@ -36,49 +36,49 @@ import org.junit.Test;
  */
 public class TestQuery extends EngineBase {
 
-    @Test
-    public void queryInputsReturned() throws Exception {
-        //      Each fortress one Entity (diff docs)
-        //          One MH with same tags over both companies
-        //          One MH with company unique tags
-        setSecurity();
+  @Test
+  public void queryInputsReturned() throws Exception {
+    //      Each fortress one Entity (diff docs)
+    //          One MH with same tags over both companies
+    //          One MH with company unique tags
+    setSecurity();
 
-        // Two companies
-        //  Each with two fortresses
+    // Two companies
+    //  Each with two fortresses
 
-        SystemUser suA = registerSystemUser("CompanyA", "userA");
-        SystemUser suB = registerSystemUser("CompanyB", "userB");
+    SystemUser suA = registerSystemUser("CompanyA", "userA");
+    SystemUser suB = registerSystemUser("CompanyB", "userB");
 
-        FortressNode coAfA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfA", true));
-        FortressNode coAfB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfB", true));
+    FortressNode coAfA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfA", true));
+    FortressNode coAfB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfB", true));
 
-        FortressNode coBfA = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfA", true));
-        FortressNode coBfB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfB", true));
+    FortressNode coBfA = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfA", true));
+    FortressNode coBfB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfB", true));
 
-        setSecurity();
-        //
-        //
-        EntityInputBean inputBean = new EntityInputBean(coAfA, "poppy", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
-        inputBean.addTag(new TagInputBean("c123", "Customer", "purchased")); // This tag tracks over two fortresses
-        mediationFacade.trackEntity(suA.getCompany(), inputBean);
-        inputBean = new EntityInputBean(coAfB, "poppy", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
-        inputBean.addTag(new TagInputBean("c123", "Customer", "called")); // Customer number - this will be the same tag as for the sales fortress
-        inputBean.addTag(new TagInputBean("p111", "Product", "about"));   // Product code - unique to this fortress
-        mediationFacade.trackEntity(suA.getCompany(), inputBean);
+    setSecurity();
+    //
+    //
+    EntityInputBean inputBean = new EntityInputBean(coAfA, "poppy", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
+    inputBean.addTag(new TagInputBean("c123", "Customer", "purchased")); // This tag tracks over two fortresses
+    mediationFacade.trackEntity(suA.getCompany(), inputBean);
+    inputBean = new EntityInputBean(coAfB, "poppy", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
+    inputBean.addTag(new TagInputBean("c123", "Customer", "called")); // Customer number - this will be the same tag as for the sales fortress
+    inputBean.addTag(new TagInputBean("p111", "Product", "about"));   // Product code - unique to this fortress
+    mediationFacade.trackEntity(suA.getCompany(), inputBean);
 
 
-        inputBean = new EntityInputBean(coBfA, "petal", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
-        inputBean.addTag(new TagInputBean("c123", "Customer", "purchased")); // This tag tracks over two fortresses
-        inputBean.addTag(new TagInputBean("ricky", "SalesRep", "from").setLabel("SalesRep")); // This tag is unique to this company
-        mediationFacade.trackEntity(suB.getCompany(), inputBean);
-        inputBean = new EntityInputBean(coBfB, "petal", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
-        inputBean.addTag(new TagInputBean("c123", "Customer", "called")); // Customer number - this will be the same tag as for the sales fortress
-        inputBean.addTag(new TagInputBean("p111", "Product", "about"));   // Product code - unique to this fortress
-        mediationFacade.trackEntity(suB.getCompany(), inputBean);
+    inputBean = new EntityInputBean(coBfA, "petal", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
+    inputBean.addTag(new TagInputBean("c123", "Customer", "purchased")); // This tag tracks over two fortresses
+    inputBean.addTag(new TagInputBean("ricky", "SalesRep", "from").setLabel("SalesRep")); // This tag is unique to this company
+    mediationFacade.trackEntity(suB.getCompany(), inputBean);
+    inputBean = new EntityInputBean(coBfB, "petal", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
+    inputBean.addTag(new TagInputBean("c123", "Customer", "called")); // Customer number - this will be the same tag as for the sales fortress
+    inputBean.addTag(new TagInputBean("p111", "Product", "about"));   // Product code - unique to this fortress
+    mediationFacade.trackEntity(suB.getCompany(), inputBean);
 
-        Collection<String> fortresses = new ArrayList<>();
-        fortresses.add(coAfA.getName());
-        //ToDo: Fix Me. How to untangle this test
+    Collection<String> fortresses = new ArrayList<>();
+    fortresses.add(coAfA.getName());
+    //ToDo: Fix Me. How to untangle this test
 //        Collection<DocumentResultBean> foundDocs = getDocuments(suA, fortresses);
 //        assertEquals(1, foundDocs.size());
 //
@@ -93,6 +93,6 @@ public class TestQuery extends EngineBase {
 //        fortresses.add(coBfB.getName());
 //        assertEquals(2, getDocuments(suB, fortresses).size());
 
-    }
+  }
 
 }

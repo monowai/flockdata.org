@@ -42,83 +42,83 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ContentModelDaoNeo {
 
-    private final ContentModelRepo contentModelRepo;
+  private final ContentModelRepo contentModelRepo;
 
-    private final Neo4jTemplate template;
+  private final Neo4jTemplate template;
 
-    @Autowired
-    public ContentModelDaoNeo(ContentModelRepo contentModelRepo, Neo4jTemplate template) {
-        this.contentModelRepo = contentModelRepo;
-        this.template = template;
-    }
+  @Autowired
+  public ContentModelDaoNeo(ContentModelRepo contentModelRepo, Neo4jTemplate template) {
+    this.contentModelRepo = contentModelRepo;
+    this.template = template;
+  }
 
 
-    public ModelNode findTagProfile(Company company, String code) {
-        return contentModelRepo.findTagModel(company.getId(), code);
-    }
+  public ModelNode findTagProfile(Company company, String code) {
+    return contentModelRepo.findTagModel(company.getId(), code);
+  }
 
-    public ModelNode find(Fortress fortress, Document documentType) {
-        return contentModelRepo.findTagModel(fortress.getId(), documentType.getId());
-    }
+  public ModelNode find(Fortress fortress, Document documentType) {
+    return contentModelRepo.findTagModel(fortress.getId(), documentType.getId());
+  }
 
-    public Model save(Model modelToSave) {
-        ModelNode model = contentModelRepo.save((ModelNode) modelToSave);
-        template.fetch(model.getDocument());
+  public Model save(Model modelToSave) {
+    ModelNode model = contentModelRepo.save((ModelNode) modelToSave);
+    template.fetch(model.getDocument());
+    template.fetch(model.getFortress());
+    return model;
+  }
+
+  public Collection<ContentModelResult> find(Long companyId) {
+    Collection<ModelNode> models = contentModelRepo.findCompanyModels(companyId);
+    Collection<ContentModelResult> results = new ArrayList<>(models.size());
+    for (Model model : models) {
+      if (model.getFortress() != null) {
         template.fetch(model.getFortress());
-        return model;
+      }
+      if (model.getDocument() != null) {
+        template.fetch(model.getDocument());
+      }
+      results.add(new ContentModelResult(model));
+    }
+    return results;
+  }
+
+  public ContentModelResult findByKey(Long companyID, String key) {
+    ModelNode model = contentModelRepo.findByKey(key);
+    if (model == null) {
+      return null;
     }
 
-    public Collection<ContentModelResult> find(Long companyId) {
-        Collection<ModelNode> models = contentModelRepo.findCompanyModels(companyId);
-        Collection<ContentModelResult> results = new ArrayList<>(models.size());
-        for (Model model : models) {
-            if (model.getFortress() != null) {
-                template.fetch(model.getFortress());
-            }
-            if (model.getDocument() != null) {
-                template.fetch(model.getDocument());
-            }
-            results.add(new ContentModelResult(model));
-        }
-        return results;
+    if (!Objects.equals(model.getCompany().getId(), companyID)) {
+      return null; // Somehow you have a key but it ain't for this company
     }
 
-    public ContentModelResult findByKey(Long companyID, String key) {
-        ModelNode model = contentModelRepo.findByKey(key);
-        if (model == null) {
-            return null;
-        }
-
-        if (!Objects.equals(model.getCompany().getId(), companyID)) {
-            return null; // Somehow you have a key but it ain't for this company
-        }
-
-        // Profiles can simply be stored against the company if they just import tags
-        if (model.getFortress() != null) {
-            template.fetch(model.getFortress());
-        }
-        if (model.getDocument() != null) {
-            template.fetch(model.getDocument());
-        }
-        if (model.getCompany() != null) {
-            template.fetch(model.getCompany());
-        }
-
-        return new ContentModelResult(model);
+    // Profiles can simply be stored against the company if they just import tags
+    if (model.getFortress() != null) {
+      template.fetch(model.getFortress());
+    }
+    if (model.getDocument() != null) {
+      template.fetch(model.getDocument());
+    }
+    if (model.getCompany() != null) {
+      template.fetch(model.getCompany());
     }
 
-    public void delete(Company company, String key) {
-        ModelNode model = contentModelRepo.findByKey(key);
-        if (model == null) {
-            return;
-        }
+    return new ContentModelResult(model);
+  }
 
-        if (!Objects.equals(model.getCompany().getId(), company.getId())) {
-            return; // Somehow you have a key but it ain't for this company
-        }
-
-        contentModelRepo.delete(model);
-
-        // ToDo: delete the associated Entity
+  public void delete(Company company, String key) {
+    ModelNode model = contentModelRepo.findByKey(key);
+    if (model == null) {
+      return;
     }
+
+    if (!Objects.equals(model.getCompany().getId(), company.getId())) {
+      return; // Somehow you have a key but it ain't for this company
+    }
+
+    contentModelRepo.delete(model);
+
+    // ToDo: delete the associated Entity
+  }
 }

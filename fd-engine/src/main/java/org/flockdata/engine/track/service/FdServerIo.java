@@ -53,109 +53,109 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class FdServerIo implements FdIoInterface {
 
-    private final FortressService fortressService;
+  private final FortressService fortressService;
 
-    private final ConceptService conceptService;
+  private final ConceptService conceptService;
 
-    private final MediationFacade mediationFacade;
+  private final MediationFacade mediationFacade;
 
-    private final SecurityHelper securityHelper;
+  private final SecurityHelper securityHelper;
 
-    private final ContentModelService contentModelService;
+  private final ContentModelService contentModelService;
 
-    @Autowired
-    public FdServerIo(MediationFacade mediationFacade, SecurityHelper securityHelper, ContentModelService contentModelService, FortressService fortressService, ConceptService conceptService) {
-        this.mediationFacade = mediationFacade;
-        this.securityHelper = securityHelper;
-        this.contentModelService = contentModelService;
-        this.fortressService = fortressService;
-        this.conceptService = conceptService;
+  @Autowired
+  public FdServerIo(MediationFacade mediationFacade, SecurityHelper securityHelper, ContentModelService contentModelService, FortressService fortressService, ConceptService conceptService) {
+    this.mediationFacade = mediationFacade;
+    this.securityHelper = securityHelper;
+    this.contentModelService = contentModelService;
+    this.fortressService = fortressService;
+    this.conceptService = conceptService;
+  }
+
+  @Override
+  public SystemUserResultBean me() {
+    return new SystemUserResultBean(securityHelper.getSysUser(false));
+  }
+
+  @Override
+  public String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException {
+    Company company = securityHelper.getCompany();
+    try {
+      mediationFacade.createTags(company, tagInputBeans);
+    } catch (ExecutionException | InterruptedException e) {
+      throw new FlockException("Interrupted", e);
     }
+    return null;
+  }
 
-    @Override
-    public SystemUserResultBean me() {
-        return new SystemUserResultBean(securityHelper.getSysUser(false));
+  @Override
+  public String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException {
+    Company company = securityHelper.getCompany();
+    try {
+      for (EntityInputBean entityInputBean : entityBatch) {
+        mediationFacade.trackEntity(company, entityInputBean);
+      }
+      return "ok";
+    } catch (InterruptedException e) {
+      throw new FlockException("Interrupted", e);
+    } catch (ExecutionException e) {
+      throw new FlockException("Execution Problem", e);
     }
+  }
 
-    @Override
-    public String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException {
-        Company company = securityHelper.getCompany();
-        try {
-            mediationFacade.createTags(company, tagInputBeans);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new FlockException("Interrupted", e);
-        }
-        return null;
+  @Override
+  public ContentModel getContentModel(Fortress fortress, Document documentType) {
+    return null;
+  }
+
+
+  @Override
+  public ContentModel getContentModel(String modelKey) throws IOException {
+    String[] args = modelKey.split(":");
+    // ToDo: this is not yet properly supported - needs to be tested with Tag fortress - which is logical
+    if (args.length == 2) {
+      Company company = securityHelper.getCompany();
+      Fortress fortress = fortressService.getFortress(company, args[0]);
+      DocumentNode docType = conceptService.findDocumentType(fortress, args[1]);
+      try {
+        return contentModelService.get(company, fortress, docType);
+      } catch (FlockException e) {
+        throw new IOException("Problem locating content model [" + modelKey + "]");
+      }
+
     }
+    return null;
+  }
 
-    @Override
-    public String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException {
-        Company company = securityHelper.getCompany();
-        try {
-            for (EntityInputBean entityInputBean : entityBatch) {
-                mediationFacade.trackEntity(company, entityInputBean);
-            }
-            return "ok";
-        } catch (InterruptedException e) {
-            throw new FlockException("Interrupted", e);
-        } catch (ExecutionException e) {
-            throw new FlockException("Execution Problem", e);
-        }
-    }
+  @Override
+  public SystemUserResultBean validateConnectivity() throws FlockException {
+    return me();
+  }
 
-    @Override
-    public ContentModel getContentModel(Fortress fortress, Document documentType) {
-        return null;
-    }
+  @Override
+  public SystemUserResultBean login(String userName, String password) {
+    throw new UnsupportedOperationException("login is not supported in this class");
+  }
 
+  @Override
+  public String getUrl() {
+    throw new UnsupportedOperationException("This function is not supported");
+  }
 
-    @Override
-    public ContentModel getContentModel(String modelKey) throws IOException {
-        String[] args = modelKey.split(":");
-        // ToDo: this is not yet properly supported - needs to be tested with Tag fortress - which is logical
-        if (args.length == 2) {
-            Company company = securityHelper.getCompany();
-            Fortress fortress = fortressService.getFortress(company, args[0]);
-            DocumentNode docType = conceptService.findDocumentType(fortress, args[1]);
-            try {
-                return contentModelService.get(company, fortress, docType);
-            } catch (FlockException e) {
-                throw new IOException("Problem locating content model [" + modelKey + "]");
-            }
+  @Override
+  public RestTemplate getRestTemplate() {
+    return null;
+  }
 
-        }
-        return null;
-    }
+  @Override
+  public HttpHeaders getHeaders() {
+    return null;
+  }
 
-    @Override
-    public SystemUserResultBean validateConnectivity() throws FlockException {
-        return me();
-    }
-
-    @Override
-    public SystemUserResultBean login(String userName, String password) {
-        throw new UnsupportedOperationException("login is not supported in this class");
-    }
-
-    @Override
-    public String getUrl() {
-        throw new UnsupportedOperationException("This function is not supported");
-    }
-
-    @Override
-    public RestTemplate getRestTemplate() {
-        return null;
-    }
-
-    @Override
-    public HttpHeaders getHeaders() {
-        return null;
-    }
-
-    @Override
-    public ExtractProfile getExtractProfile(String fileModel, ContentModel contentModel) {
-        // ToDo: FixMe
-        return null;
-    }
+  @Override
+  public ExtractProfile getExtractProfile(String fileModel, ContentModel contentModel) {
+    // ToDo: FixMe
+    return null;
+  }
 
 }

@@ -45,16 +45,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/path")
 public class PathEP {
 
-    @Autowired
-    TagPath tagPath;
+  @Autowired
+  TagPath tagPath;
 
-    @RequestMapping(value = "/{label}/{code}/{length}/{targetLabel}", produces = "application/json", method = RequestMethod.GET)
-    public Collection<Map<String, Object>> getConnectedTags(@PathVariable("label") String label, @PathVariable("code") String code,
-                                                            HttpServletRequest request, @PathVariable("targetLabel") String targetLabel, @PathVariable("length") Integer length) throws FlockException, UnsupportedEncodingException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return tagPath.getPaths(company, URLDecoder.decode(label, "UTF-8"), URLDecoder.decode(code, "UTF-8"), length, URLDecoder.decode(targetLabel, "UTF-8"));
+  @RequestMapping(value = "/{label}/{code}/{length}/{targetLabel}", produces = "application/json", method = RequestMethod.GET)
+  public Collection<Map<String, Object>> getConnectedTags(@PathVariable("label") String label, @PathVariable("code") String code,
+                                                          HttpServletRequest request, @PathVariable("targetLabel") String targetLabel, @PathVariable("length") Integer length) throws FlockException, UnsupportedEncodingException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return tagPath.getPaths(company, URLDecoder.decode(label, "UTF-8"), URLDecoder.decode(code, "UTF-8"), length, URLDecoder.decode(targetLabel, "UTF-8"));
 //        return tagService.findTags(company, label, code, relationship, targetLabel);
-    }
+  }
 
 
 }

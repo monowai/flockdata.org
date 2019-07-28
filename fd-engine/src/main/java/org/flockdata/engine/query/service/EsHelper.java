@@ -31,28 +31,28 @@ import org.springframework.stereotype.Service;
 @Service
 public class EsHelper {
 
-    /**
-     * Walks the ES Raw result to extract the _source
-     *
-     * @param jsonMap all results
-     * @return Source Document
-     */
-    public Map<String, Object> extractData(Map<String, Object> jsonMap) {
-        if (!jsonMap.containsKey("hits")) {
-            return null;
-        }
-        Map<String, Object> hitMap = (Map<String, Object>) jsonMap.get("hits");
-        if (!hitMap.containsKey("hits")) {
-            return null;
-        }
-
-        Collection<Map<String, Object>> hits = (Collection<Map<String, Object>>) hitMap.get("hits");
-        if (hits.size() == 1) {
-            for (Map<String, Object> hit : hits) {
-                return (Map<String, Object>) hit.get("_source");
-            }
-        }
-        return null;
-
+  /**
+   * Walks the ES Raw result to extract the _source
+   *
+   * @param jsonMap all results
+   * @return Source Document
+   */
+  public Map<String, Object> extractData(Map<String, Object> jsonMap) {
+    if (!jsonMap.containsKey("hits")) {
+      return null;
     }
+    Map<String, Object> hitMap = (Map<String, Object>) jsonMap.get("hits");
+    if (!hitMap.containsKey("hits")) {
+      return null;
+    }
+
+    Collection<Map<String, Object>> hits = (Collection<Map<String, Object>>) hitMap.get("hits");
+    if (hits.size() == 1) {
+      for (Map<String, Object> hit : hits) {
+        return (Map<String, Object>) hit.get("_source");
+      }
+    }
+    return null;
+
+  }
 }

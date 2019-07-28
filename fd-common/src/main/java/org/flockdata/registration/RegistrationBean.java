@@ -20,6 +20,7 @@ package org.flockdata.registration;
 import lombok.Builder;
 import lombok.Data;
 import org.flockdata.data.Company;
+import org.flockdata.track.bean.CompanyInputBean;
 
 /**
  * @author mholdsworth
@@ -28,31 +29,28 @@ import org.flockdata.data.Company;
 @Builder
 @Data
 public class RegistrationBean {
-    private String name;
-    private String login;
-    private String companyName;
-    private Company company;
-    private boolean unique;
-    private String email;
+  private String name;
+  private String login;
+  private String companyName;
+  private Company company;
+  private boolean unique;
+  private String email;
 
-    public RegistrationBean setCompany(final Company company) {
-        this.company = company;
-        if (company != null) {
-            this.companyName = company.getName();
-        }
+  public RegistrationBean setCompany(final Company company) {
+    this.company = new CompanyInputBean(company.getName());
+    this.companyName = company.getName();
+    return this;
+  }
 
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return "RegistrationBean{" +
-            "companyName='" + companyName + '\'' +
-            ", company=" + company +
-            ", login='" + login + '\'' +
-            ", name='" + name + '\'' +
-            '}';
-    }
+  @Override
+  public String toString() {
+    return "RegistrationBean{" +
+        "companyName='" + companyName + '\'' +
+        ", company=" + company +
+        ", login='" + login + '\'' +
+        ", name='" + name + '\'' +
+        '}';
+  }
 
 }
 

@@ -30,27 +30,27 @@ import org.springframework.jdbc.core.RowMapper;
  * @since 3/03/2016
  */
 public abstract class FdAbstractSqlStep {
-    @Autowired
-    protected FdBatchResources batchResources;
+  @Autowired
+  protected FdBatchResources batchResources;
 
-    @Autowired
-    protected BatchConfig batchConfig;
+  @Autowired
+  protected BatchConfig batchConfig;
 
-    @Autowired
-    protected ClientConfiguration clientConfiguration;
+  @Autowired
+  protected ClientConfiguration clientConfiguration;
 
-    @Autowired
-    protected RowMapper fdRowMapper;
+  @Autowired
+  protected RowMapper fdRowMapper;
 
-    protected abstract String getStepName();
+  protected abstract String getStepName();
 
-    protected ItemReader getItemReader() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, IOException {
-        JdbcCursorItemReader itemReader = new JdbcCursorItemReader();
-        itemReader.setSql(batchConfig.getStepConfig(getStepName()).getQuery());
-        itemReader.setDataSource(batchResources.dataSource());
-        itemReader.setRowMapper(fdRowMapper);
-        return itemReader;
+  protected ItemReader getItemReader() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, IOException {
+    JdbcCursorItemReader itemReader = new JdbcCursorItemReader();
+    itemReader.setSql(batchConfig.getStepConfig(getStepName()).getQuery());
+    itemReader.setDataSource(batchResources.dataSource());
+    itemReader.setRowMapper(fdRowMapper);
+    return itemReader;
 
-    }
+  }
 
 }

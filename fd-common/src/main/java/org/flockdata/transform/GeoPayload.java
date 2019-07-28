@@ -21,66 +21,66 @@ package org.flockdata.transform;
  * @since 29/07/2015
  */
 public class GeoPayload {
-    private String sourceFormat;
-    private String x;
-    private String y;
-    private double xValue;
-    private double yValue;
-    private boolean storeInverted = true;
+  private String sourceFormat;
+  private String x;
+  private String y;
+  private double xValue;
+  private double yValue;
+  private boolean storeInverted = true;
 
-    GeoPayload() {
-    }
+  GeoPayload() {
+  }
 
-    public GeoPayload(String sourceFormat, double xValue, double yValue) {
-        this();
-        this.sourceFormat = sourceFormat;
-        this.xValue = xValue;
-        this.yValue = yValue;
-    }
+  public GeoPayload(String sourceFormat, double xValue, double yValue) {
+    this();
+    this.sourceFormat = sourceFormat;
+    this.xValue = xValue;
+    this.yValue = yValue;
+  }
 
-    public String getSourceFormat() {
-        return sourceFormat;
-    }
+  public String getSourceFormat() {
+    return sourceFormat;
+  }
 
-    public double getXValue() {
-        return xValue;
-    }
+  public double getXValue() {
+    return xValue;
+  }
 
-    public double getYValue() {
-        return yValue;
-    }
+  public double getYValue() {
+    return yValue;
+  }
 
-    public boolean isStoreInverted() {
-        return storeInverted;
-    }
+  public boolean isStoreInverted() {
+    return storeInverted;
+  }
 
-    /**
-     * @return Column name that contains the actual value we want
-     */
-    public String getX() {
-        return x;
-    }
+  /**
+   * @return Column name that contains the actual value we want
+   */
+  public String getX() {
+    return x;
+  }
 
-    public void setX(String x) {
-        this.x = x;
-    }
+  public void setX(String x) {
+    this.x = x;
+  }
 
-    /**
-     * @return Column name that contains the actual value we want
-     */
-    public String getY() {
-        return y;
-    }
+  /**
+   * @return Column name that contains the actual value we want
+   */
+  public String getY() {
+    return y;
+  }
 
-    public void setY(String y) {
-        this.y = y;
-    }
+  public void setY(String y) {
+    this.y = y;
+  }
 
-    public void setxValue(double xValue) {
-        this.xValue = xValue;
-    }
+  public void setxValue(double xValue) {
+    this.xValue = xValue;
+  }
 
-    public void setyValue(double yValue) {
-        this.yValue = yValue;
-    }
+  public void setyValue(double yValue) {
+    this.yValue = yValue;
+  }
 }

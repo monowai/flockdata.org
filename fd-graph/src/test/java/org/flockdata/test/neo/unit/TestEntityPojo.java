@@ -11,17 +11,17 @@ import org.junit.Test;
  * @since 23/06/18
  */
 public class TestEntityPojo {
-    @Test
-    public void entityNodeDefaults() {
-        Entity entity = EntityNode.builder().code("test").build();
-        assertThat(entity)
-            .hasFieldOrPropertyWithValue("code", "test")
-            .hasFieldOrProperty("lastUpdate")
-            .hasFieldOrProperty("dateCreated")
-            .hasFieldOrProperty("labels");
+  @Test
+  public void entityNodeDefaults() {
+    Entity entity = EntityNode.builder().code("test").build();
+    assertThat(entity)
+        .hasFieldOrPropertyWithValue("code", "test")
+        .hasFieldOrProperty("lastUpdate")
+        .hasFieldOrProperty("dateCreated")
+        .hasFieldOrProperty("labels");
 
-        assertThat(entity.getDateCreated())
-            .isNotEqualTo(0l)
-            .isEqualTo(entity.getLastUpdate());
-    }
+    assertThat(entity.getDateCreated())
+        .isNotEqualTo(0l)
+        .isEqualTo(entity.getLastUpdate());
+  }
 }

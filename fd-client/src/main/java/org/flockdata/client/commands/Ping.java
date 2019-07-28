@@ -37,48 +37,48 @@ import org.springframework.web.client.ResourceAccessException;
 
 public class Ping {
 
-    private static Logger logger = LoggerFactory.getLogger(Ping.class);
-    String api = null;
-    private FdIoInterface fdIoInterface;
+  private static Logger logger = LoggerFactory.getLogger(Ping.class);
+  String api = null;
+  private FdIoInterface fdIoInterface;
 
 
-    @Autowired
-    public Ping(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public Ping(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+  public String getPath() {
+    return "/api/v1/admin/ping/";
+  }
+
+  public CommandResponse<String> exec() {
+    String result = null;
+    String error;
+
+    if (getApi() == null) {
+      this.api = fdIoInterface.getUrl();
     }
 
-    public String getPath() {
-        return "/api/v1/admin/ping/";
+    String exec = getApi() + getPath();
+    logger.debug("Pinging [{}]", getApi());
+    HttpEntity requestEntity = new HttpEntity<>(null);
+    try {
+      ResponseEntity<String> response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
+      result = response.getBody();
+      error = null;
+    } catch (HttpClientErrorException e) {
+      if (e.getMessage().startsWith("401")) {
+        error = "auth";
+      } else {
+        error = e.getMessage();
+      }
+    } catch (HttpServerErrorException | ResourceAccessException e) {
+      error = e.getMessage();
     }
+    return new CommandResponse<>(error, result);
+  }
 
-    public CommandResponse<String> exec() {
-        String result = null;
-        String error;
-
-        if (getApi() == null) {
-            this.api = fdIoInterface.getUrl();
-        }
-
-        String exec = getApi() + getPath();
-        logger.debug("Pinging [{}]", getApi());
-        HttpEntity requestEntity = new HttpEntity<>(null);
-        try {
-            ResponseEntity<String> response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
-            result = response.getBody();
-            error = null;
-        } catch (HttpClientErrorException e) {
-            if (e.getMessage().startsWith("401")) {
-                error = "auth";
-            } else {
-                error = e.getMessage();
-            }
-        } catch (HttpServerErrorException | ResourceAccessException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, result);
-    }
-
-    public String getApi() {
-        return api;
-    }
+  public String getApi() {
+    return api;
+  }
 }

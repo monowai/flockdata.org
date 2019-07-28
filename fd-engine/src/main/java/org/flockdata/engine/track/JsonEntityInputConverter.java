@@ -36,14 +36,14 @@ import org.springframework.stereotype.Component;
 @Component("jsonToEntityInput")
 public class JsonEntityInputConverter extends SimpleMessageConverter {
 
-    @Override
-    public Object fromMessage(final Message message) throws MessageConversionException {
+  @Override
+  public Object fromMessage(final Message message) throws MessageConversionException {
 
-        try {
-            return JsonUtils.toCollection(message.getBody(), EntityInputBean.class);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            throw new MessageConversionException("failed to convert text-based Message content", e1);
-        }
+    try {
+      return JsonUtils.toCollection(message.getBody(), EntityInputBean.class);
+    } catch (IOException e1) {
+      e1.printStackTrace();
+      throw new MessageConversionException("failed to convert text-based Message content", e1);
     }
+  }
 }

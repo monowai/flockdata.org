@@ -41,35 +41,35 @@ import org.springframework.stereotype.Component;
 @Profile( {"fd-batch", "fd-batch-dev"})
 public class FdEntityProcessor implements ItemProcessor<Map<String, Object>, EntityInputBean> {
 
-    private final BatchConfig batchConfig;
+  private final BatchConfig batchConfig;
 
-    private String stepName;
+  private String stepName;
 
-    @Autowired
-    public FdEntityProcessor(BatchConfig batchConfig) {
-        this.batchConfig = batchConfig;
+  @Autowired
+  public FdEntityProcessor(BatchConfig batchConfig) {
+    this.batchConfig = batchConfig;
+  }
+
+  @Override
+  public EntityInputBean process(Map<String, Object> item) throws Exception {
+    // This should be initialised just the once
+    ContentModel contentModel = getContentModel(stepName);
+
+    return Transformer.toEntity(item, contentModel);
+
+  }
+
+  private ContentModel getContentModel(String name) throws IOException, ClassNotFoundException {
+    ContentModel result = batchConfig.getStepConfig(name).getContentModel();
+    if (result == null) {
+      throw new ClassNotFoundException("Unable to resolve the content profile mapping for " + name.toLowerCase());
     }
-
-    @Override
-    public EntityInputBean process(Map<String, Object> item) throws Exception {
-        // This should be initialised just the once
-        ContentModel contentModel = getContentModel(stepName);
-
-        return Transformer.toEntity(item, contentModel);
-
-    }
-
-    private ContentModel getContentModel(String name) throws IOException, ClassNotFoundException {
-        ContentModel result = batchConfig.getStepConfig(name).getContentModel();
-        if (result == null) {
-            throw new ClassNotFoundException("Unable to resolve the content profile mapping for " + name.toLowerCase());
-        }
-        return result;
-    }
+    return result;
+  }
 
 
-    @BeforeStep
-    public void beforeStep(StepExecution stepExecution) {
-        this.stepName = stepExecution.getStepName();
-    }
+  @BeforeStep
+  public void beforeStep(StepExecution stepExecution) {
+    this.stepName = stepExecution.getStepName();
+  }
 }

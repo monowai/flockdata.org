@@ -1,6 +1,11 @@
 {
-  "documentType": {"name":"Address"},
-  "fortress": {"name":"NZPost", "storeEnabled": false},
+  "documentType": {
+    "name": "Address"
+  },
+  "fortress": {
+    "name": "NZPost",
+    "storeEnabled": false
+  },
   "emptyIgnored": true,
   "delimiter": "|",
   "condition": "[ACTION_INDICATOR] !='D'",
@@ -65,7 +70,6 @@
     "RD_NUMBER": {
       "dataType": "string"
     },
-
     "POSTCODE": {
       "dataType": "string"
     },

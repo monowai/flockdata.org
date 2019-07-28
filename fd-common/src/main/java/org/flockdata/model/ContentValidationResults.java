@@ -35,64 +35,64 @@ import org.flockdata.track.bean.EntityInputBean;
  */
 public class ContentValidationResults {
 
-    private Map<Integer, EntityInputBean> entity = new HashMap<>();
-    private Map<Integer, Collection<TagInputBean>> tags = new HashMap<>();
+  private Map<Integer, EntityInputBean> entity = new HashMap<>();
+  private Map<Integer, Collection<TagInputBean>> tags = new HashMap<>();
 
-    private Map<Integer, Collection<ColumnValidationResult>> results = new HashMap<>();
-    private Map<Integer, Collection<String>> messages = new HashMap<>();
-    private String message;
+  private Map<Integer, Collection<ColumnValidationResult>> results = new HashMap<>();
+  private Map<Integer, Collection<String>> messages = new HashMap<>();
+  private String message;
 
-    public Collection<ColumnValidationResult> getResults(Integer row) {
-        return results.get(row);
+  public Collection<ColumnValidationResult> getResults(Integer row) {
+    return results.get(row);
+  }
+
+  // 0 based row index
+  public EntityInputBean getEntity(Integer row) {
+    return entity.get(row);
+  }
+
+  public ContentValidationResults add(Integer row, Collection<TagInputBean> tags) {
+    this.tags.put(row, tags);
+    return this;
+  }
+
+  public ContentValidationResults add(Integer row, EntityInputBean entityInputBean) {
+    this.entity.put(row, entityInputBean);
+    return this;
+  }
+
+
+  public void addMessage(int row, String message) {
+    Collection<String> messages = this.messages.get(row);
+    if (messages == null) {
+      messages = new ArrayList<>();
+      this.messages.put(row, messages);
     }
+    messages.add(message);
 
-    // 0 based row index
-    public EntityInputBean getEntity(Integer row) {
-        return entity.get(row);
-    }
+  }
 
-    public ContentValidationResults add(Integer row, Collection<TagInputBean> tags) {
-        this.tags.put(row, tags);
-        return this;
-    }
+  public Collection<String> getMessage(int row) {
+    return messages.get(row);
+  }
 
-    public ContentValidationResults add(Integer row, EntityInputBean entityInputBean) {
-        this.entity.put(row, entityInputBean);
-        return this;
-    }
+  public void addResults(int row, Collection<ColumnValidationResult> validatedResults) {
+    this.results.put(row, validatedResults);
+  }
 
+  public Map<Integer, EntityInputBean> getEntity() {
+    return entity;
+  }
 
-    public void addMessage(int row, String message) {
-        Collection<String> messages = this.messages.get(row);
-        if (messages == null) {
-            messages = new ArrayList<>();
-            this.messages.put(row, messages);
-        }
-        messages.add(message);
+  public Map<Integer, Collection<TagInputBean>> getTags() {
+    return tags;
+  }
 
-    }
+  public Map<Integer, Collection<ColumnValidationResult>> getResults() {
+    return results;
+  }
 
-    public Collection<String> getMessage(int row) {
-        return messages.get(row);
-    }
-
-    public void addResults(int row, Collection<ColumnValidationResult> validatedResults) {
-        this.results.put(row, validatedResults);
-    }
-
-    public Map<Integer, EntityInputBean> getEntity() {
-        return entity;
-    }
-
-    public Map<Integer, Collection<TagInputBean>> getTags() {
-        return tags;
-    }
-
-    public Map<Integer, Collection<ColumnValidationResult>> getResults() {
-        return results;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  public void setMessage(String message) {
+    this.message = message;
+  }
 }

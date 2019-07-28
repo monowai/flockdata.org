@@ -27,9 +27,9 @@ package org.flockdata.data;
  */
 public interface FortressUser {
 
-    Long getId();
+  Long getId();
 
-    String getCode();
+  String getCode();
 
-    String getName();
+  String getName();
 }

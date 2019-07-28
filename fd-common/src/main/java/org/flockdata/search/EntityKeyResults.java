@@ -26,42 +26,42 @@ import java.util.Collection;
 
 public class EntityKeyResults {
 
-    private Collection<String> results = new ArrayList<>();
-    private int startedFrom;
+  private Collection<String> results = new ArrayList<>();
+  private int startedFrom;
 
-    public EntityKeyResults() {
+  public EntityKeyResults() {
+  }
+
+  public EntityKeyResults(Collection<String> results) {
+    this.results = results;
+  }
+
+
+  public Collection<String> getResults() {
+    return results;
+  }
+
+  public void setResults(Collection<String> results) {
+    this.results = results;
+  }
+
+  @JsonIgnore
+  public long getTotalHits() {
+    return results.size();
+  }
+
+  public int getStartedFrom() {
+    return startedFrom;
+  }
+
+  public void setStartedFrom(int startedFrom) {
+    this.startedFrom = startedFrom;
+  }
+
+  public void add(Object value) {
+    if (value == null) {
+      return;
     }
-
-    public EntityKeyResults(Collection<String> results) {
-        this.results = results;
-    }
-
-
-    public Collection<String> getResults() {
-        return results;
-    }
-
-    public void setResults(Collection<String> results) {
-        this.results = results;
-    }
-
-    @JsonIgnore
-    public long getTotalHits() {
-        return results.size();
-    }
-
-    public int getStartedFrom() {
-        return startedFrom;
-    }
-
-    public void setStartedFrom(int startedFrom) {
-        this.startedFrom = startedFrom;
-    }
-
-    public void add(Object value) {
-        if (value == null) {
-            return;
-        }
-        results.add(value.toString());
-    }
+    results.add(value.toString());
+  }
 }

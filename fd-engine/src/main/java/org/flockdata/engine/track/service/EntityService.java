@@ -60,123 +60,123 @@ import org.flockdata.track.bean.TrackResultBean;
  */
 public interface EntityService {
 
-    Map<String, Object> getEntityDataLast(Company company, Entity entity) throws FlockException;
+  Map<String, Object> getEntityDataLast(Company company, Entity entity) throws FlockException;
 
-    Map<String, Object> getEntityDataLast(Company company, String key) throws FlockException;
+  Map<String, Object> getEntityDataLast(Company company, String key) throws FlockException;
 
-    Collection<EntityKeyBean> getEntities(Company company, List<EntityKeyBean> linkTo);
+  Collection<EntityKeyBean> getEntities(Company company, List<EntityKeyBean> linkTo);
 
-    Collection<EntityKeyBean> getNestedParentEntities(Entity company, Document docType);
+  Collection<EntityKeyBean> getNestedParentEntities(Entity company, Document docType);
 
-    Entity find(Company company, EntityKeyBean entityKeyBean);
+  Entity find(Company company, EntityKeyBean entityKeyBean);
 
-    StoredContent getContent(EntityNode entity, LogNode change);
+  StoredContent getContent(EntityNode entity, LogNode change);
 
-    EntityNode getEntity(Company company, String key);
+  EntityNode getEntity(Company company, String key);
 
 //    Entity getEntity(Company company, String key) throws NotFoundException;
 
-    EntityNode getEntity(Company company, String key, boolean inflate);
+  EntityNode getEntity(Company company, String key, boolean inflate);
 
-    Entity getEntity(EntityNode entity);
+  Entity getEntity(EntityNode entity);
 
-    Collection<Entity> getEntities(Fortress fortress, Long skipTo);
+  Collection<Entity> getEntities(Fortress fortress, Long skipTo);
 
-    Collection<Entity> getEntities(Fortress fortress, String docTypeName, Long skipTo);
+  Collection<Entity> getEntities(Fortress fortress, String docTypeName, Long skipTo);
 
-    void updateEntity(EntityNode entity);
+  void updateEntity(EntityNode entity);
 
-    EntityLog getLastEntityLog(Company company, String key) throws FlockException;
+  EntityLog getLastEntityLog(Company company, String key) throws FlockException;
 
-    EntityLog getLastEntityLog(Long entityId);
+  EntityLog getLastEntityLog(Long entityId);
 
-    Collection<org.flockdata.data.EntityLog> getEntityLogs(Entity entity);
+  Collection<org.flockdata.data.EntityLog> getEntityLogs(Entity entity);
 
-    Collection<EntityLogResult> getEntityLogs(Company company, String key) throws FlockException;
+  Collection<EntityLogResult> getEntityLogs(Company company, String key) throws FlockException;
 
-    Collection<EntityLogResult> getEntityLogs(Company company, String key, boolean withData);
+  Collection<EntityLogResult> getEntityLogs(Company company, String key, boolean withData);
 
-    Set<EntityLog> getEntityLogs(Company company, String key, Date from, Date to) throws FlockException;
+  Set<EntityLog> getEntityLogs(Company company, String key, Date from, Date to) throws FlockException;
 
-    EntitySearchChange cancelLastLog(Company company, EntityNode entity) throws IOException, FlockException;
+  EntitySearchChange cancelLastLog(Company company, EntityNode entity) throws IOException, FlockException;
 
-    int getLogCount(Company company, String key) throws FlockException;
+  int getLogCount(Company company, String key) throws FlockException;
 
-    Entity findByCode(Fortress fortress, Document documentType, String code);
+  Entity findByCode(Fortress fortress, Document documentType, String code);
 
-    Entity findByCode(Company company, String fortress, String documentCode, String code) throws NotFoundException;
+  Entity findByCode(Company company, String fortress, String documentCode, String code) throws NotFoundException;
 
-    Entity findByCodeFull(FortressNode fortress, String documentType, String code);
+  Entity findByCodeFull(FortressNode fortress, String documentType, String code);
 
-    Iterable<Entity> findByCode(Company company, String fortressName, String code) throws NotFoundException;
+  Iterable<Entity> findByCode(Company company, String fortressName, String code) throws NotFoundException;
 
-    Entity findByCode(Fortress fortress, String documentName, String code);
+  Entity findByCode(Fortress fortress, String documentName, String code);
 
-    EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException;
+  EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException;
 
-    LogDetailBean getFullDetail(Company company, String key, Long logId);
+  LogDetailBean getFullDetail(Company company, String key, Long logId);
 
-    EntityLog getLogForEntity(EntityNode entity, Long logId);
+  EntityLog getLogForEntity(EntityNode entity, Long logId);
 
-    Collection<TrackResultBean> trackEntities(DocumentNode documentType, Segment segment, Collection<EntityInputBean> inputBeans, Future<Collection<FdTagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException;
+  Collection<TrackResultBean> trackEntities(DocumentNode documentType, Segment segment, Collection<EntityInputBean> inputBeans, Future<Collection<FdTagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException;
 
-    Collection<String> crossReference(Company company, String key, Collection<String> xRef, String relationshipName) throws FlockException;
+  Collection<String> crossReference(Company company, String key, Collection<String> xRef, String relationshipName) throws FlockException;
 
-    /**
-     * Locates cross linked entities with the given relationship type
-     *
-     * @param company      Owner
-     * @param key          FD UID
-     * @param relationship relationship
-     * @return all entities connected
-     * @throws FlockException problems
-     */
-    Map<String, Collection<EntityNode>> getCrossReference(Company company, String key, String relationship) throws FlockException;
+  /**
+   * Locates cross linked entities with the given relationship type
+   *
+   * @param company      Owner
+   * @param key          FD UID
+   * @param relationship relationship
+   * @return all entities connected
+   * @throws FlockException problems
+   */
+  Map<String, Collection<EntityNode>> getCrossReference(Company company, String key, String relationship) throws FlockException;
 
-    Map<String, Collection<EntityNode>> getCrossReference(Company company, String fortressName, String code, String xRefName) throws FlockException;
+  Map<String, Collection<EntityNode>> getCrossReference(Company company, String fortressName, String code, String xRefName) throws FlockException;
 
-    /**
-     * Source Entity MUST exist otherwise an exception will be thrown
-     *
-     * @param company    who owns the data
-     * @param sourceKey  what we will link from
-     * @param targetKeys collection of entities we will link to
-     * @param xRefName   the name to give the relationship
-     * @return all targetkeys that were ignored
-     * @throws FlockException problems
-     */
-    Collection<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> targetKeys, String xRefName) throws FlockException;
+  /**
+   * Source Entity MUST exist otherwise an exception will be thrown
+   *
+   * @param company    who owns the data
+   * @param sourceKey  what we will link from
+   * @param targetKeys collection of entities we will link to
+   * @param xRefName   the name to give the relationship
+   * @return all targetkeys that were ignored
+   * @throws FlockException problems
+   */
+  Collection<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> targetKeys, String xRefName) throws FlockException;
 
-    Map<String, EntityNode> getEntities(Company company, Collection<String> keys);
+  Map<String, EntityNode> getEntities(Company company, Collection<String> keys);
 
-    void purge(Fortress fortress, Collection<String> keys);
+  void purge(Fortress fortress, Collection<String> keys);
 
-    void purgeFortressDocs(Fortress fortress);
+  void purgeFortressDocs(Fortress fortress);
 
-    void recordSearchResult(SearchResult searchResult, Long metaId) throws FlockException;
+  void recordSearchResult(SearchResult searchResult, Long metaId) throws FlockException;
 
-    Collection<EntityTag> getLastLogTags(Company company, String key) throws FlockException;
+  Collection<EntityTag> getLastLogTags(Company company, String key) throws FlockException;
 
-    org.flockdata.data.EntityLog getEntityLog(CompanyNode company, String key, Long logId) throws FlockException;
+  org.flockdata.data.EntityLog getEntityLog(CompanyNode company, String key, Long logId) throws FlockException;
 
-    /**
-     * It a tag is removed from an entity, then it is associated to the last log that it was known to belong to
-     * This call returns those entity tags associated with
-     *
-     * @param company   company caller is authorized to work with
-     * @param entityLog Log for which tags might exist
-     * @return All entity Tags archived to the log
-     */
-    Collection<EntityTag> getLogTags(Company company, org.flockdata.data.EntityLog entityLog);
+  /**
+   * It a tag is removed from an entity, then it is associated to the last log that it was known to belong to
+   * This call returns those entity tags associated with
+   *
+   * @param company   company caller is authorized to work with
+   * @param entityLog Log for which tags might exist
+   * @return All entity Tags archived to the log
+   */
+  Collection<EntityTag> getLogTags(Company company, org.flockdata.data.EntityLog entityLog);
 
-    Collection<EntityToEntityLinkInput> linkEntities(Company company, Collection<EntityToEntityLinkInput> entityLinks);
+  Collection<EntityToEntityLinkInput> linkEntities(Company company, Collection<EntityToEntityLinkInput> entityLinks);
 
-    EntityNode save(EntityNode entity);
+  EntityNode save(EntityNode entity);
 
-    Collection<EntityNode> getEntities(Collection<Long> entities);
+  Collection<EntityNode> getEntities(Collection<Long> entities);
 
-    Collection<String> getEntityBatch(Fortress fortress, int count);
+  Collection<String> getEntityBatch(Fortress fortress, int count);
 
-    Collection<String> getEntityBatch(Fortress fortress, Document documentType, Segment fortressSegment, int count);
+  Collection<String> getEntityBatch(Fortress fortress, Document documentType, Segment fortressSegment, int count);
 
 }

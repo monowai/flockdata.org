@@ -46,70 +46,70 @@ import org.springframework.messaging.MessageHandler;
 @Profile("neorest")
 public class EntityTagRequests extends NeoRequestBase {
 
-    @Bean
-    public IntegrationFlow addEntityTag() {
+  @Bean
+  public IntegrationFlow addEntityTag() {
 
-        return IntegrationFlows.from(channels.neoFdAddEntityTag())
-            .transform(getTransformer())
-            .handle(fdAddEntityTagRequest())
-            .get();
-    }
+    return IntegrationFlows.from(channels.neoFdAddEntityTag())
+        .transform(getTransformer())
+        .handle(fdAddEntityTagRequest())
+        .get();
+  }
 
-    private MessageHandler fdAddEntityTagRequest() {
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getEntityTagUrl());
+  private MessageHandler fdAddEntityTagRequest() {
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getEntityTagUrl());
 
-        handler.setExpectedResponseType(String.class);
-        return handler;
-    }
+    handler.setExpectedResponseType(String.class);
+    return handler;
+  }
 
-    @Bean
-    public IntegrationFlow findEntityTag() {
-        return IntegrationFlows.from(channels.neoFdGetEntityTag())
-            //.transform(getTransformer())
-            .handle(neoFindEntityTag())
-            .get();
-    }
+  @Bean
+  public IntegrationFlow findEntityTag() {
+    return IntegrationFlows.from(channels.neoFdGetEntityTag())
+        //.transform(getTransformer())
+        .handle(neoFindEntityTag())
+        .get();
+  }
 
-    private MessageHandler neoFindEntityTag() {
-        SpelExpressionParser expressionParser = new SpelExpressionParser();
+  private MessageHandler neoFindEntityTag() {
+    SpelExpressionParser expressionParser = new SpelExpressionParser();
 
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getEntityTag());
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getEntityTag());
 
-        handler.setExpectedResponseType(AbstractEntityTag.class);
-        Map<String, Expression> vars = new HashMap<>();
-        vars.put("entityId", expressionParser.parseExpression("payload[0]"));
-        vars.put("tagType", expressionParser.parseExpression("payload[1]"));
-        vars.put("tagCode", expressionParser.parseExpression("payload[2]"));
-        vars.put("relationshipType", expressionParser.parseExpression("payload[3]"));
-        handler.setUriVariableExpressions(vars);
+    handler.setExpectedResponseType(AbstractEntityTag.class);
+    Map<String, Expression> vars = new HashMap<>();
+    vars.put("entityId", expressionParser.parseExpression("payload[0]"));
+    vars.put("tagType", expressionParser.parseExpression("payload[1]"));
+    vars.put("tagCode", expressionParser.parseExpression("payload[2]"));
+    vars.put("relationshipType", expressionParser.parseExpression("payload[3]"));
+    handler.setUriVariableExpressions(vars);
 
-        handler.setHttpMethod(HttpMethod.GET);
-        return handler;
-    }
+    handler.setHttpMethod(HttpMethod.GET);
+    return handler;
+  }
 
-    @Bean
-    public IntegrationFlow findEntityTags() {
-        return IntegrationFlows.from(channels.neoFdGetEntityTags())
-            //.transform(getTransformer())
-            .handle(neoFindEntityTags())
-            .get();
-    }
+  @Bean
+  public IntegrationFlow findEntityTags() {
+    return IntegrationFlows.from(channels.neoFdGetEntityTags())
+        //.transform(getTransformer())
+        .handle(neoFindEntityTags())
+        .get();
+  }
 
-    private MessageHandler neoFindEntityTags() {
-        SpelExpressionParser expressionParser = new SpelExpressionParser();
+  private MessageHandler neoFindEntityTags() {
+    SpelExpressionParser expressionParser = new SpelExpressionParser();
 
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getEntityTags());
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getEntityTags());
 
-        handler.setExpectedResponseTypeExpression(expressionParser.parseExpression("T (org.flockdata.model.EntityTag[])"));
-        Map<String, Expression> vars = new HashMap<>();
-        vars.put("entityId", expressionParser.parseExpression("payload[0]"));
-        handler.setUriVariableExpressions(vars);
+    handler.setExpectedResponseTypeExpression(expressionParser.parseExpression("T (org.flockdata.model.EntityTag[])"));
+    Map<String, Expression> vars = new HashMap<>();
+    vars.put("entityId", expressionParser.parseExpression("payload[0]"));
+    handler.setUriVariableExpressions(vars);
 
-        handler.setHttpMethod(HttpMethod.GET);
-        return handler;
-    }
+    handler.setHttpMethod(HttpMethod.GET);
+    return handler;
+  }
 
 }

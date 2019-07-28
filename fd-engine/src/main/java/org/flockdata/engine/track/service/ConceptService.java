@@ -43,52 +43,52 @@ import org.flockdata.track.bean.TrackResultBean;
  */
 public interface ConceptService {
 
-    Collection<DocumentResultBean> getDocumentsInUse(Company company);
+  Collection<DocumentResultBean> getDocumentsInUse(Company company);
 
-    Set<DocumentResultBean> findConcepts(Company company, String documentName, boolean withRelationships);
+  Set<DocumentResultBean> findConcepts(Company company, String documentName, boolean withRelationships);
 
-    Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships);
+  Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships);
 
-    DocumentNode resolveByDocCode(Fortress fortress, String documentCode);
+  DocumentNode resolveByDocCode(Fortress fortress, String documentCode);
 
-    DocumentNode resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing);
+  DocumentNode resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing);
 
-    void registerConcepts(Iterable<TrackResultBean> resultBeans);
+  void registerConcepts(Iterable<TrackResultBean> resultBeans);
 
-    void linkEntities(DocumentNode sourceType, DocumentNode targetType, EntityKeyBean entityKeyBean) throws FlockException;
+  void linkEntities(DocumentNode sourceType, DocumentNode targetType, EntityKeyBean entityKeyBean) throws FlockException;
 
-    DocumentNode save(DocumentNode documentType);
+  DocumentNode save(DocumentNode documentType);
 
-    DocumentNode findDocumentType(Fortress fortress, String documentName);
+  DocumentNode findDocumentType(Fortress fortress, String documentName);
 
-    DocumentNode findDocumentType(Fortress fortress, String documentName, boolean createIfMissing);
+  DocumentNode findDocumentType(Fortress fortress, String documentName, boolean createIfMissing);
 
-    DocumentNode findOrCreate(Fortress fortress, DocumentNode documentType);
+  DocumentNode findOrCreate(Fortress fortress, DocumentNode documentType);
 
-    Set<DocumentResultBean> getConceptsWithRelationships(Company company, Collection<String> documents);
+  Set<DocumentResultBean> getConceptsWithRelationships(Company company, Collection<String> documents);
 
-    Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, Collection<String> fortresses) throws FlockException;
+  Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, Collection<String> fortresses) throws FlockException;
 
-    Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, String fortress) throws FlockException;
+  Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, String fortress) throws FlockException;
 
-    Collection<DocumentNode> makeDocTypes(Segment segment, List<EntityInputBean> inputBeans) throws FlockException;
+  Collection<DocumentNode> makeDocTypes(Segment segment, List<EntityInputBean> inputBeans) throws FlockException;
 
-    void delete(Document documentType);
+  void delete(Document documentType);
 
-    DocumentNode findDocumentTypeWithSegments(DocumentNode documentType);
+  DocumentNode findDocumentTypeWithSegments(DocumentNode documentType);
 
-    DocumentResultBean findDocumentTypeWithSegments(FortressNode f, String doc);
+  DocumentResultBean findDocumentTypeWithSegments(FortressNode f, String doc);
 
-    void delete(Document documentType, Segment segment);
+  void delete(Document documentType, Segment segment);
 
-    /**
-     * Concept structure associated to a Fortress. All DocumentTypes and connected concepts
-     *
-     * @param company  org that owns the fortress
-     * @param fortress that which we are interested in
-     * @return edges and nodes
-     */
-    MatrixResults getContentStructure(Company company, String fortress);
+  /**
+   * Concept structure associated to a Fortress. All DocumentTypes and connected concepts
+   *
+   * @param company  org that owns the fortress
+   * @param fortress that which we are interested in
+   * @return edges and nodes
+   */
+  MatrixResults getContentStructure(Company company, String fortress);
 
-    Map<String, DocumentResultBean> getParents(Document documentType);
+  Map<String, DocumentResultBean> getParents(Document documentType);
 }

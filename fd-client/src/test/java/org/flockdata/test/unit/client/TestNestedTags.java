@@ -33,19 +33,19 @@ import org.junit.Test;
  */
 public class TestNestedTags extends AbstractImport {
 
-    @Test
-    public void label_missingColumnDoesNotCreateTargetTag() throws Exception {
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/interest-groups.json");
-        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/csv-header-pipe-quote.json", contentModel);
+  @Test
+  public void label_missingColumnDoesNotCreateTargetTag() throws Exception {
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/interest-groups.json");
+    ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/csv-header-pipe-quote.json", contentModel);
 
-        fileProcessor.processFile(extractProfile, "/data/tags-inputs.csv");
+    fileProcessor.processFile(extractProfile, "/data/tags-inputs.csv");
 
-        List<TagInputBean> tagInputBeans = getTemplate().getTags();
-        // The profile defines a nested tag but the value is missing in the source
+    List<TagInputBean> tagInputBeans = getTemplate().getTags();
+    // The profile defines a nested tag but the value is missing in the source
 
-        assertEquals(1, tagInputBeans.size());
-        for (TagInputBean tagInputBean : tagInputBeans) {
-            assertFalse("The target tag should not exist as the source value was missing", tagInputBean.hasTargets());
-        }
+    assertEquals(1, tagInputBeans.size());
+    for (TagInputBean tagInputBean : tagInputBeans) {
+      assertFalse("The target tag should not exist as the source value was missing", tagInputBean.hasTargets());
     }
+  }
 }

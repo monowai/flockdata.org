@@ -54,50 +54,50 @@ import org.springframework.stereotype.Service;
 @Profile("fd-server")
 public class EntitySearchWriter {
 
-    private final AmqpRabbitConfig rabbitConfig;
+  private final AmqpRabbitConfig rabbitConfig;
 
-    private final Exchanges exchanges;
+  private final Exchanges exchanges;
 
-    private final MessageSupport messageSupport;
+  private final MessageSupport messageSupport;
 
-    @Autowired
-    public EntitySearchWriter(AmqpRabbitConfig rabbitConfig, Exchanges exchanges, MessageSupport messageSupport) {
-        this.rabbitConfig = rabbitConfig;
-        this.exchanges = exchanges;
-        this.messageSupport = messageSupport;
-    }
+  @Autowired
+  public EntitySearchWriter(AmqpRabbitConfig rabbitConfig, Exchanges exchanges, MessageSupport messageSupport) {
+    this.rabbitConfig = rabbitConfig;
+    this.exchanges = exchanges;
+    this.messageSupport = messageSupport;
+  }
 
-    // ToDo: Can we handle this more via the flow or handler?
-    @Transformer(inputChannel = "sendEntityIndexRequest", outputChannel = "indexSearchChanges")
-    public Message<?> transformSearchChanges(Message theObject) {
-        return messageSupport.toJson(theObject);
-    }
+  // ToDo: Can we handle this more via the flow or handler?
+  @Transformer(inputChannel = "sendEntityIndexRequest", outputChannel = "indexSearchChanges")
+  public Message<?> transformSearchChanges(Message theObject) {
+    return messageSupport.toJson(theObject);
+  }
 
-    @Bean
-    MessageChannel indexSearchChanges() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel indexSearchChanges() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    @ServiceActivator(inputChannel = "indexSearchChanges")
-    public AmqpOutboundEndpoint fdSearchAMQPOutbound(AmqpTemplate amqpTemplate) {
-        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
-        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setRoutingKey(exchanges.searchBinding());
-        outbound.setExchangeName(exchanges.fdExchangeName());
-        outbound.setExpectReply(false);
-        outbound.setConfirmAckChannel(new NullChannel());// NOOP
-        //outbound.setConfirmAckChannel();
-        return outbound;
+  @Bean
+  @ServiceActivator(inputChannel = "indexSearchChanges")
+  public AmqpOutboundEndpoint fdSearchAMQPOutbound(AmqpTemplate amqpTemplate) {
+    AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
+    outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
+    outbound.setRoutingKey(exchanges.searchBinding());
+    outbound.setExchangeName(exchanges.fdExchangeName());
+    outbound.setExpectReply(false);
+    outbound.setConfirmAckChannel(new NullChannel());// NOOP
+    //outbound.setConfirmAckChannel();
+    return outbound;
 
-    }
+  }
 
-    @MessagingGateway
-    public interface EntitySearchWriterGateway {
-        @Profile("fd-server")
-        @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel")
-        void makeSearchChanges(SearchChanges searchChanges);
-    }
+  @MessagingGateway
+  public interface EntitySearchWriterGateway {
+    @Profile("fd-server")
+    @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel")
+    void makeSearchChanges(SearchChanges searchChanges);
+  }
 
 
 }

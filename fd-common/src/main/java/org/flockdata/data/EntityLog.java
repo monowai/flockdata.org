@@ -28,14 +28,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @since 3/01/17
  */
 public interface EntityLog {
-    Long getSysWhen();
+  Long getSysWhen();
 
-    Log getLog();
+  Log getLog();
 
-    @JsonIgnore
-    Entity getEntity();
+  @JsonIgnore
+  Entity getEntity();
 
-    Long getId();
+  Long getId();
 
-    Long getFortressWhen();
+  Long getFortressWhen();
 }

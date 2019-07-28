@@ -39,18 +39,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class FdTemplateMock extends FdTemplate {
 
-    @Autowired
-    public FdTemplateMock(ClientConfiguration clientConfiguration) {
-        super(clientConfiguration);
-    }
+  @Autowired
+  public FdTemplateMock(ClientConfiguration clientConfiguration) {
+    super(clientConfiguration);
+  }
 
-    /**
-     * Prevents clearing down
-     */
-    @Override
-    public void flush() {
-        // Noop. Client can call reset() to clear cached data but otherwise we want to return
-        //       transformed results
-    }
+  /**
+   * Prevents clearing down
+   */
+  @Override
+  public void flush() {
+    // Noop. Client can call reset() to clear cached data but otherwise we want to return
+    //       transformed results
+  }
 
 }

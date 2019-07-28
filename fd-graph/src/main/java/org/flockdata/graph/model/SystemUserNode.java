@@ -16,47 +16,47 @@ import org.neo4j.driver.v1.types.Node;
 @Data
 @AllArgsConstructor
 public class SystemUserNode implements SystemUser {
-    private Long id;
+  private Long id;
 
-    private String name;
+  private String name;
 
-    //@Indexed
-    private String login;
+  //@Indexed
+  private String login;
 
-    private String email;
+  private String email;
 
-    // @Indexed
-    private String apiKey;
+  // @Indexed
+  private String apiKey;
 
-    private Company company;
+  private Company company;
 
-    @Builder.Default
-    private boolean active;
+  @Builder.Default
+  private boolean active = true;
 
-    public SystemUserNode() {
-        active = true;
-    }
+  public SystemUserNode() {
+    active = true;
+  }
 
-    public static SystemUser build(Company company, Node node) {
-        return SystemUserNode.builder()
-            .company(company)
-            .id(node.id())
-            .login(node.get("login").asString())
-            .name(node.get("name").asString())
-            .active(node.get("active").asBoolean())
-            .apiKey(node.get("apiKey").asString())
-            .email(node.get("email").asString())
-            .build();
-    }
+  public static SystemUser build(Company company, Node node) {
+    return SystemUserNode.builder()
+        .company(company)
+        .id(node.id())
+        .login(node.get("login").asString())
+        .name(node.get("name").asString())
+        .active(node.get("active").asBoolean())
+        .apiKey(node.get("apiKey").asString())
+        .email(node.get("email").asString())
+        .build();
+  }
 
-    public static SystemUser build(RegistrationBean regBean, String apiKey) {
-        return SystemUserNode.builder()
-            .login(regBean.getLogin())
-            .name(regBean.getName())
-            .login(regBean.getLogin())
-            .apiKey(apiKey)
-            .company(regBean.getCompany())
-            .build();
-    }
+  public static SystemUser build(Company company, RegistrationBean regBean, String apiKey) {
+    return SystemUserNode.builder()
+        .login(regBean.getLogin())
+        .name(regBean.getName())
+        .login(regBean.getLogin())
+        .apiKey(apiKey)
+        .company(company)
+        .build();
+  }
 
 }

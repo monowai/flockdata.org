@@ -28,57 +28,57 @@ import org.flockdata.registration.FortressResultBean;
  * @since 3/01/17
  */
 public class SegmentResultBean implements Segment {
-    private boolean isDefault = false;
-    private String code;
-    private FortressResultBean fortressResultBean;
+  private boolean isDefault = false;
+  private String code;
+  private FortressResultBean fortressResultBean;
 
-    SegmentResultBean() {
-    }
+  SegmentResultBean() {
+  }
 
-    ;
+  ;
 
-    public SegmentResultBean(Segment segment) {
-        this();
-        this.code = segment.getCode();
-        this.fortressResultBean = new FortressResultBean(segment.getFortress());
-        this.isDefault = segment.isDefault();
-    }
+  public SegmentResultBean(Segment segment) {
+    this();
+    this.code = segment.getCode();
+    this.fortressResultBean = new FortressResultBean(segment.getFortress());
+    this.isDefault = segment.isDefault();
+  }
 
-    @Override
-    public String getCode() {
-        return code;
-    }
+  @Override
+  public String getCode() {
+    return code;
+  }
 
-    @Override
-    @JsonIgnore
-    public Fortress getFortress() {
-        return fortressResultBean;
-    }
+  @Override
+  @JsonIgnore
+  public Fortress getFortress() {
+    return fortressResultBean;
+  }
 
-    @Override
-    @JsonIgnore
-    public Long getId() {
-        return null;
-    }
+  @Override
+  @JsonIgnore
+  public Long getId() {
+    return null;
+  }
 
-    @Override
-    @JsonIgnore
-    public String getKey() {
-        return null;
-    }
+  @Override
+  @JsonIgnore
+  public String getKey() {
+    return null;
+  }
 
-    @Override
-    public boolean isDefault() {
-        return isDefault;
-    }
+  @Override
+  public boolean isDefault() {
+    return isDefault;
+  }
 
-    public void setDefault(Boolean isDefault) {
-        this.isDefault = isDefault;
-    }
+  public void setDefault(Boolean isDefault) {
+    this.isDefault = isDefault;
+  }
 
-    @Override
-    @JsonIgnore
-    public Company getCompany() {
-        return null;
-    }
+  @Override
+  @JsonIgnore
+  public Company getCompany() {
+    return null;
+  }
 }

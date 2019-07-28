@@ -28,48 +28,48 @@ import org.flockdata.data.EntityTag;
  * @since 25/08/2013
  */
 public class EntitySummaryBean {
-    private EntityResultBean entity;
-    private String type;
-    private Collection<EntityLogResult> changes = new ArrayList<>();
-    private Collection<EntityTagResult> tags = new ArrayList<>();
-    private String index;
+  private EntityResultBean entity;
+  private String type;
+  private Collection<EntityLogResult> changes = new ArrayList<>();
+  private Collection<EntityTagResult> tags = new ArrayList<>();
+  private String index;
 
-    private EntitySummaryBean() {
-    }
+  private EntitySummaryBean() {
+  }
 
-    public EntitySummaryBean(Entity entity, Collection<EntityLog> changes, Collection<EntityTag> tags) {
-        this();
-        this.entity = new EntityResultBean(entity);
-        this.type = entity.getType().toLowerCase();
-        for (EntityLog change : changes) {
-            this.changes.add(new EntityLogResult(change));
-        }
-        for (EntityTag tag : tags) {
-            this.tags.add(new EntityTagResult(tag));
-        }
+  public EntitySummaryBean(Entity entity, Collection<EntityLog> changes, Collection<EntityTag> tags) {
+    this();
+    this.entity = new EntityResultBean(entity);
+    this.type = entity.getType().toLowerCase();
+    for (EntityLog change : changes) {
+      this.changes.add(new EntityLogResult(change));
     }
+    for (EntityTag tag : tags) {
+      this.tags.add(new EntityTagResult(tag));
+    }
+  }
 
-    public Entity getEntity() {
-        return entity;
-    }
+  public Entity getEntity() {
+    return entity;
+  }
 
-    public Collection<EntityLogResult> getChanges() {
-        return changes;
-    }
+  public Collection<EntityLogResult> getChanges() {
+    return changes;
+  }
 
-    public Collection<EntityTagResult> getTags() {
-        return tags;
-    }
+  public Collection<EntityTagResult> getTags() {
+    return tags;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public String getIndex() {
-        return index;
-    }
+  public String getIndex() {
+    return index;
+  }
 
-    public void setIndex(String index) {
-        this.index = index;
-    }
+  public void setIndex(String index) {
+    this.index = index;
+  }
 }

@@ -32,13 +32,13 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  */
 public interface ChangeEventRepo extends GraphRepository<ChangeEventNode> {
 
-    @Query(value = " match (company:FDCompany)-[:COMPANY_EVENT]->(event:Event {code:{1}}) " +
-        " where id(company)={0}" +
-        "  return event")
-    ChangeEventNode findCompanyEvent(Long companyId, String eventName);
+  @Query(value = " match (company:FDCompany)-[:COMPANY_EVENT]->(event:Event {code:{1}}) " +
+      " where id(company)={0}" +
+      "  return event")
+  ChangeEventNode findCompanyEvent(Long companyId, String eventName);
 
-    @Query(value =
-        "   match (company:FDCompany)-[:COMPANY_EVENT]->events where id(company)={0}" +
-            "  return events")
-    Set<ChangeEventNode> findCompanyEvents(Long id);
+  @Query(value =
+      "   match (company:FDCompany)-[:COMPANY_EVENT]->events where id(company)={0}" +
+          "  return events")
+  Set<ChangeEventNode> findCompanyEvents(Long id);
 }

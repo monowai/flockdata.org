@@ -26,16 +26,16 @@ package org.flockdata.engine.admin;
  */
 public class AdminResponse {
 
-    String message;
+  String message;
 
-    AdminResponse() {
-    }
+  AdminResponse() {
+  }
 
-    public AdminResponse(String message) {
-        this.message = message;
-    }
+  public AdminResponse(String message) {
+    this.message = message;
+  }
 
-    public String getMessage() {
-        return message;
-    }
+  public String getMessage() {
+    return message;
+  }
 }

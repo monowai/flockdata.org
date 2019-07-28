@@ -23,66 +23,66 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SimpleTrackedService {
-    private static Logger logger = LoggerFactory.getLogger(SimpleTrackedService.class);
+  private static Logger logger = LoggerFactory.getLogger(SimpleTrackedService.class);
 
-    @FlockEntity
-    Customer save(Customer customer) {
-        logger.info("call save Method");
-        if (customer.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,3}$")) {
-            customer.setId(324325L);
-            return customer;
-        } else {
-            throw new IllegalArgumentException("invalid email");
-        }
+  @FlockEntity
+  Customer save(Customer customer) {
+    logger.info("call save Method");
+    if (customer.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,3}$")) {
+      customer.setId(324325L);
+      return customer;
+    } else {
+      throw new IllegalArgumentException("invalid email");
+    }
+  }
+
+  @FlockLog
+  Customer update(Customer customer) {
+    logger.info("call update Method");
+    if (customer.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,3}$")) {
+      customer.setId(324325L);
+      return customer;
+    } else {
+      throw new IllegalArgumentException("invalid email");
+    }
+  }
+
+  @Trackable
+  public static class Customer {
+    @FdUid
+    private Long id;
+
+    private String name;
+
+    @FdCallerRef
+    private String email;
+
+    public Long getId() {
+      return id;
     }
 
-    @FlockLog
-    Customer update(Customer customer) {
-        logger.info("call update Method");
-        if (customer.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,3}$")) {
-            customer.setId(324325L);
-            return customer;
-        } else {
-            throw new IllegalArgumentException("invalid email");
-        }
+    void setId(Long id) {
+      this.id = id;
     }
 
-    @Trackable
-    public static class Customer {
-        @FdUid
-        private Long id;
-
-        private String name;
-
-        @FdCallerRef
-        private String email;
-
-        public Long getId() {
-            return id;
-        }
-
-        void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        void setName(String name) {
-            this.name = name;
-        }
-
-        String getEmail() {
-            return email;
-        }
-
-        void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String toString() {
-            return String.format("[id=%s,name=%s,email=%s]", id, name, email);
-        }
+    public String getName() {
+      return name;
     }
+
+    void setName(String name) {
+      this.name = name;
+    }
+
+    String getEmail() {
+      return email;
+    }
+
+    void setEmail(String email) {
+      this.email = email;
+    }
+
+    public String toString() {
+      return String.format("[id=%s,name=%s,email=%s]", id, name, email);
+    }
+  }
 }

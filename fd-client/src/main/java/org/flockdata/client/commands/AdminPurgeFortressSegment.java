@@ -37,31 +37,31 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class AdminPurgeFortressSegment {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public AdminPurgeFortressSegment(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
-    }
+  @Autowired
+  public AdminPurgeFortressSegment(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
 
-    public CommandResponse<String> exec(String fortress, String docType, String segment) {
-        String exec = fdIoInterface.getUrl() + "/api/v1/admin/{fortress}/{docType}/{segment}";
-        String result = null;
-        String error = null;
-        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
-        try {
-            ResponseEntity<String> response;
-            response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress, docType, segment);
-            result = response.getBody();
-        } catch (HttpClientErrorException e) {
-            if (e.getMessage().startsWith("401")) {
-                error = "auth";
-            } else {
-                error = e.getMessage();
-            }
-        } catch (HttpServerErrorException | ResourceAccessException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, result);
+  public CommandResponse<String> exec(String fortress, String docType, String segment) {
+    String exec = fdIoInterface.getUrl() + "/api/v1/admin/{fortress}/{docType}/{segment}";
+    String result = null;
+    String error = null;
+    HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+    try {
+      ResponseEntity<String> response;
+      response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.DELETE, requestEntity, String.class, fortress, docType, segment);
+      result = response.getBody();
+    } catch (HttpClientErrorException e) {
+      if (e.getMessage().startsWith("401")) {
+        error = "auth";
+      } else {
+        error = e.getMessage();
+      }
+    } catch (HttpServerErrorException | ResourceAccessException e) {
+      error = e.getMessage();
     }
+    return new CommandResponse<>(error, result);
+  }
 }

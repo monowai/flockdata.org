@@ -30,67 +30,67 @@ import org.flockdata.data.Tag;
  * @since 25/03/2016
  */
 public class TagKey {
-    String label;
-    String prefix;
-    String code;
-    Tag tag; // Carried in to help with cache eviction
+  String label;
+  String prefix;
+  String code;
+  Tag tag; // Carried in to help with cache eviction
 
-    public TagKey(String label, String prefix, String code) {
-        this.label = label;
-        this.prefix = prefix;
-        this.code = code;
+  public TagKey(String label, String prefix, String code) {
+    this.label = label;
+    this.prefix = prefix;
+    this.code = code;
+  }
+
+  public TagKey(Tag tag) {
+    this.label = tag.getLabel();
+    this.code = tag.getCode();
+    this.tag = tag;
+    // Figure out the prefix
+    //this.prefix = tag.ge
+  }
+
+  public Tag getTag() {
+    return tag;
+  }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public String getPrefix() {
+    return prefix;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof TagKey)) {
+      return false;
     }
 
-    public TagKey(Tag tag) {
-        this.label = tag.getLabel();
-        this.code = tag.getCode();
-        this.tag = tag;
-        // Figure out the prefix
-        //this.prefix = tag.ge
+    TagKey tagKey = (TagKey) o;
+
+    if (label != null ? !label.equals(tagKey.label) : tagKey.label != null) {
+      return false;
     }
-
-    public Tag getTag() {
-        return tag;
+    if (prefix != null ? !prefix.equals(tagKey.prefix) : tagKey.prefix != null) {
+      return false;
     }
+    return code != null ? code.equals(tagKey.code) : tagKey.code == null;
 
-    public String getLabel() {
-        return label;
-    }
+  }
 
-    public String getPrefix() {
-        return prefix;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof TagKey)) {
-            return false;
-        }
-
-        TagKey tagKey = (TagKey) o;
-
-        if (label != null ? !label.equals(tagKey.label) : tagKey.label != null) {
-            return false;
-        }
-        if (prefix != null ? !prefix.equals(tagKey.prefix) : tagKey.prefix != null) {
-            return false;
-        }
-        return code != null ? code.equals(tagKey.code) : tagKey.code == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = label != null ? label.hashCode() : 0;
-        result = 31 * result + (prefix != null ? prefix.hashCode() : 0);
-        result = 31 * result + (code != null ? code.hashCode() : 0);
-        return result;
-    }
+  @Override
+  public int hashCode() {
+    int result = label != null ? label.hashCode() : 0;
+    result = 31 * result + (prefix != null ? prefix.hashCode() : 0);
+    result = 31 * result + (code != null ? code.hashCode() : 0);
+    return result;
+  }
 }

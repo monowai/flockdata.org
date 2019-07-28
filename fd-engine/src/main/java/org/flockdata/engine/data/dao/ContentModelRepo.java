@@ -33,30 +33,30 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  */
 public interface ContentModelRepo extends GraphRepository<ModelNode> {
 
-    @Query(elementClass = ModelNode.class, value = "match (c:FDCompany)<-[COMPANY_MODEL]-(model:Model) where id(c)={0} with c,model " +
-        " optional match (model)-[]-(d:DocType)-[]-(f:Fortress) " +
-        " return model order by lower(f.name), lower(d.name) " +
-        " limit 100 ")
-    Collection<ModelNode> findCompanyModels(Long companyId);
+  @Query(elementClass = ModelNode.class, value = "match (c:FDCompany)<-[COMPANY_MODEL]-(model:Model) where id(c)={0} with c,model " +
+      " optional match (model)-[]-(d:DocType)-[]-(f:Fortress) " +
+      " return model order by lower(f.name), lower(d.name) " +
+      " limit 100 ")
+  Collection<ModelNode> findCompanyModels(Long companyId);
 
-    @Query(elementClass = ModelNode.class, value = " match (c:FDCompany)-[:OWNS]->(f:Fortress)-[:FORTRESS_MODEL]-(model:Model)" +
-        " where id(c)={0} " +
-        " return model " +
-        " limit 100 ")
-    Collection<ModelNode> findEntityModels(Long companyId);
+  @Query(elementClass = ModelNode.class, value = " match (c:FDCompany)-[:OWNS]->(f:Fortress)-[:FORTRESS_MODEL]-(model:Model)" +
+      " where id(c)={0} " +
+      " return model " +
+      " limit 100 ")
+  Collection<ModelNode> findEntityModels(Long companyId);
 
-    @Query(elementClass = ModelNode.class, value = " match (model:Model {key:{0}})" +
-        " return model ")
-    ModelNode findByKey(String key);
+  @Query(elementClass = ModelNode.class, value = " match (model:Model {key:{0}})" +
+      " return model ")
+  ModelNode findByKey(String key);
 
-    @Query(elementClass = ModelNode.class, value = " match (f:Fortress)<-[:FORTRESS_MODEL]-(model:Model)-[:DOCUMENT_MODEL]-(d:DocType)" +
-        " where id(f)={0} and id(d)={1}" +
-        " return model ")
-    ModelNode findTagModel(Long fortressId, Long documentId);
+  @Query(elementClass = ModelNode.class, value = " match (f:Fortress)<-[:FORTRESS_MODEL]-(model:Model)-[:DOCUMENT_MODEL]-(d:DocType)" +
+      " where id(f)={0} and id(d)={1}" +
+      " return model ")
+  ModelNode findTagModel(Long fortressId, Long documentId);
 
-    @Query(elementClass = ModelNode.class, value = " match (c:FDCompany)<-[:COMPANY_MODEL]-(model:Model{code:{1}})" +
-        " where id(c)={0} " +
-        " return model ")
-    ModelNode findTagModel(Long companyId, String code);
+  @Query(elementClass = ModelNode.class, value = " match (c:FDCompany)<-[:COMPANY_MODEL]-(model:Model{code:{1}})" +
+      " where id(c)={0} " +
+      " return model ")
+  ModelNode findTagModel(Long companyId, String code);
 
 }

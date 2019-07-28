@@ -29,18 +29,18 @@ import org.junit.Test;
  */
 public class TestAdminRequest {
 
-    @Test
-    public void jsonSerialization() throws Exception {
+  @Test
+  public void jsonSerialization() throws Exception {
 
-        AdminRequest adminRequest = new AdminRequest("delete.this.index");
+    AdminRequest adminRequest = new AdminRequest("delete.this.index");
 
-        assertEquals(1, adminRequest.getIndexesToDelete().size());
-        String json = JsonUtils.toJson(adminRequest);
-        assertNotNull(json);
-        AdminRequest deserialized = JsonUtils.toObject(json.getBytes(), AdminRequest.class);
-        assertNotNull(deserialized.getIndexesToDelete());
-        assertEquals(1, deserialized.getIndexesToDelete().size());
-        assertEquals(adminRequest.getIndexesToDelete().iterator().next(), deserialized.getIndexesToDelete().iterator().next());
+    assertEquals(1, adminRequest.getIndexesToDelete().size());
+    String json = JsonUtils.toJson(adminRequest);
+    assertNotNull(json);
+    AdminRequest deserialized = JsonUtils.toObject(json.getBytes(), AdminRequest.class);
+    assertNotNull(deserialized.getIndexesToDelete());
+    assertEquals(1, deserialized.getIndexesToDelete().size());
+    assertEquals(adminRequest.getIndexesToDelete().iterator().next(), deserialized.getIndexesToDelete().iterator().next());
 
-    }
+  }
 }

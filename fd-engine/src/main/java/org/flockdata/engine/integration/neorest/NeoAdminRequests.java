@@ -51,46 +51,46 @@ import org.springframework.messaging.MessageHandler;
 @Profile("neorest")
 public class NeoAdminRequests {
 
-    @Autowired
-    FdNeoChannels channels;
+  @Autowired
+  FdNeoChannels channels;
 
-    @Bean
-    IntegrationFlow doFdNeoHealth() {
+  @Bean
+  IntegrationFlow doFdNeoHealth() {
 
-        return IntegrationFlows.from("neoFdHealth")
-            .handle(fdHealthRequest())
-            .get();
-    }
+    return IntegrationFlows.from("neoFdHealth")
+        .handle(fdHealthRequest())
+        .get();
+  }
 
-    @Bean
-    IntegrationFlow doFdNeoPing() {
+  @Bean
+  IntegrationFlow doFdNeoPing() {
 
-        return IntegrationFlows.from("neoFdPing")
-            .handle(fdPingRequest())
-            .get();
-    }
+    return IntegrationFlows.from("neoFdPing")
+        .handle(fdPingRequest())
+        .get();
+  }
 
-    private MessageHandler fdPingRequest() {
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(channels.getUriRoot());
-        handler.setExpectedResponseType(String.class);
-        handler.setHttpMethod(HttpMethod.GET);
+  private MessageHandler fdPingRequest() {
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(channels.getUriRoot());
+    handler.setExpectedResponseType(String.class);
+    handler.setHttpMethod(HttpMethod.GET);
 
-        return handler;
-    }
+    return handler;
+  }
 
-    private MessageHandler fdHealthRequest() {
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getHealthUrl());
-        handler.setExpectedResponseType(String.class);
-        handler.setHttpMethod(HttpMethod.GET);
+  private MessageHandler fdHealthRequest() {
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getHealthUrl());
+    handler.setExpectedResponseType(String.class);
+    handler.setHttpMethod(HttpMethod.GET);
 
-        return handler;
-    }
+    return handler;
+  }
 
-    public String getHealthUrl() {
-        return channels.getUriRoot() + "health";
-    }
+  public String getHealthUrl() {
+    return channels.getUriRoot() + "health";
+  }
 
 
 }

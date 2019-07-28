@@ -36,35 +36,35 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractStore implements FdStoreRepo {
 
-    private static Logger logger = LoggerFactory.getLogger(AbstractStore.class);
+  private static Logger logger = LoggerFactory.getLogger(AbstractStore.class);
 
-    ObjectMapper objectMapper = new ObjectMapper();
+  ObjectMapper objectMapper = new ObjectMapper();
 
-    public ContentInputBean extractBytes(String base64Json) throws IOException {
-        try {
-            return objectMapper.readValue(base64Json, ContentInputBean.class);
-        } catch (UnrecognizedPropertyException upe) {
-            // Stored as a map
-            Map<String, Object> result = objectMapper.readValue(base64Json, HashMap.class);
-            return new StorageBean(result).getContent();
-        }
-
+  public ContentInputBean extractBytes(String base64Json) throws IOException {
+    try {
+      return objectMapper.readValue(base64Json, ContentInputBean.class);
+    } catch (UnrecognizedPropertyException upe) {
+      // Stored as a map
+      Map<String, Object> result = objectMapper.readValue(base64Json, HashMap.class);
+      return new StorageBean(result).getContent();
     }
 
-    protected StoredContent getContent(Object key, Object oResult) {
-        if (oResult == null) {
-            return null;
-        }
-        if (oResult instanceof ContentInputBean) {
-            return new StorageBean(key, (ContentInputBean) oResult);
-        } else if (oResult instanceof Map) {
-            return new StorageBean(key, (Map<String, Object>) oResult);
-        } else {
-            logger.error("Unable to handle object result " + oResult.getClass().getCanonicalName());
-            return null;
-        }
+  }
 
+  protected StoredContent getContent(Object key, Object oResult) {
+    if (oResult == null) {
+      return null;
     }
+    if (oResult instanceof ContentInputBean) {
+      return new StorageBean(key, (ContentInputBean) oResult);
+    } else if (oResult instanceof Map) {
+      return new StorageBean(key, (Map<String, Object>) oResult);
+    } else {
+      logger.error("Unable to handle object result " + oResult.getClass().getCanonicalName());
+      return null;
+    }
+
+  }
 
 
 }

@@ -41,104 +41,104 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 @NodeEntity
 @TypeAlias("FortressSegment")
 public class FortressSegmentNode implements Segment {
-    @GraphId
-    private Long id;
-    @RelatedTo(type = "DEFINES", direction = Direction.INCOMING)
-    @Fetch
-    private FortressNode fortress;
-    @Indexed
-    private String code;
-    @Indexed(unique = true)
-    private String key;
+  @GraphId
+  private Long id;
+  @RelatedTo(type = "DEFINES", direction = Direction.INCOMING)
+  @Fetch
+  private FortressNode fortress;
+  @Indexed
+  private String code;
+  @Indexed(unique = true)
+  private String key;
 
-    FortressSegmentNode() {
+  FortressSegmentNode() {
+  }
+
+  public FortressSegmentNode(Fortress fortress) {
+    this(fortress, Fortress.DEFAULT);
+    this.fortress = (FortressNode) fortress;
+  }
+
+  public FortressSegmentNode(Fortress fortress, String code) {
+    this();
+    this.fortress = (FortressNode) fortress;
+    this.code = code;
+    if (fortress == null) {
+      throw new IllegalArgumentException("An invalid fortress was passed in");
+    }
+    this.key = Fortress.key(fortress.getCode(), code);
+  }
+
+  @Override
+  public String getCode() {
+    return code;
+  }
+
+  @Override
+  public Fortress getFortress() {
+    return fortress;
+  }
+
+  @Override
+  public Long getId() {
+    return id;
+  }
+
+  @Override
+  public String getKey() {
+    return key;
+  }
+
+  @Override
+  @JsonIgnore
+  public boolean isDefault() {
+    return code.equals(Fortress.DEFAULT);
+  }
+
+  @Override
+  @JsonIgnore
+  public Company getCompany() {
+    return fortress.getCompany();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof FortressSegmentNode)) {
+      return false;
     }
 
-    public FortressSegmentNode(Fortress fortress) {
-        this(fortress, Fortress.DEFAULT);
-        this.fortress = (FortressNode) fortress;
+    FortressSegmentNode segment = (FortressSegmentNode) o;
+
+    if (id != null ? !id.equals(segment.id) : segment.id != null) {
+      return false;
     }
-
-    public FortressSegmentNode(Fortress fortress, String code) {
-        this();
-        this.fortress = (FortressNode) fortress;
-        this.code = code;
-        if (fortress == null) {
-            throw new IllegalArgumentException("An invalid fortress was passed in");
-        }
-        this.key = Fortress.key(fortress.getCode(), code);
+    if (code != null ? !code.equals(segment.code) : segment.code != null) {
+      return false;
     }
-
-    @Override
-    public String getCode() {
-        return code;
+    if (key != null ? !key.equals(segment.key) : segment.key != null) {
+      return false;
     }
+    return !(fortress != null ? !fortress.getId().equals(segment.fortress.getId()) : segment.fortress.getId() != null);
 
-    @Override
-    public Fortress getFortress() {
-        return fortress;
-    }
+  }
 
-    @Override
-    public Long getId() {
-        return id;
-    }
+  @Override
+  public int hashCode() {
+    int result = id != null ? id.hashCode() : 0;
+    result = 31 * result + (code != null ? code.hashCode() : 0);
+    result = 31 * result + (key != null ? key.hashCode() : 0);
+    result = 31 * result + (fortress != null ? fortress.hashCode() : 0);
+    return result;
+  }
 
-    @Override
-    public String getKey() {
-        return key;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isDefault() {
-        return code.equals(Fortress.DEFAULT);
-    }
-
-    @Override
-    @JsonIgnore
-    public Company getCompany() {
-        return fortress.getCompany();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof FortressSegmentNode)) {
-            return false;
-        }
-
-        FortressSegmentNode segment = (FortressSegmentNode) o;
-
-        if (id != null ? !id.equals(segment.id) : segment.id != null) {
-            return false;
-        }
-        if (code != null ? !code.equals(segment.code) : segment.code != null) {
-            return false;
-        }
-        if (key != null ? !key.equals(segment.key) : segment.key != null) {
-            return false;
-        }
-        return !(fortress != null ? !fortress.getId().equals(segment.fortress.getId()) : segment.fortress.getId() != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (code != null ? code.hashCode() : 0);
-        result = 31 * result + (key != null ? key.hashCode() : 0);
-        result = 31 * result + (fortress != null ? fortress.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "FortressSegment{" +
-            "code='" + code + '\'' +
-            "key='" + key + '\'' +
-            '}';
-    }
+  @Override
+  public String toString() {
+    return "FortressSegment{" +
+        "code='" + code + '\'' +
+        "key='" + key + '\'' +
+        '}';
+  }
 }

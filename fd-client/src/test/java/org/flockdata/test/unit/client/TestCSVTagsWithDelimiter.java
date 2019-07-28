@@ -40,41 +40,41 @@ import org.junit.Test;
  */
 public class TestCSVTagsWithDelimiter extends AbstractImport {
 
-    @Test
-    public void string_NoHeaderWithDelimiter() throws Exception {
-        String file = "/model/no-header.json";
+  @Test
+  public void string_NoHeaderWithDelimiter() throws Exception {
+    String file = "/model/no-header.json";
 
-        ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
-        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/csv-tags-with-delimiter.json", contentModel);
-        //assertEquals('|', params.getDelimiter());
-        assertEquals(false, extractProfile.hasHeader());
-        long rows = fileProcessor.processFile(extractProfile, "/data/no-header.txt");
-        int expectedRows = 6;
-        assertEquals(expectedRows, rows);
-        List<TagInputBean> tagInputBeans = getTemplate().getTags();
-        TestCase.assertEquals(expectedRows, tagInputBeans.size());
-        for (TagInputBean tagInputBean : tagInputBeans) {
-            assertFalse(tagInputBean.getCode().contains("|"));
-            assertFalse(tagInputBean.getName().contains("|"));
-            TestCase.assertEquals(1, tagInputBean.getTargets().size());
-            assertFalse("non-persistent mapping was not ignored", tagInputBean.hasTagProperties());
-            Collection<TagInputBean> targets = tagInputBean.getTargets().get("represents");
-            for (TagInputBean represents : targets) {
-                assertFalse(represents.getCode().contains("|"));
-                assertTrue(represents.isMustExist());
+    ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
+    ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/csv-tags-with-delimiter.json", contentModel);
+    //assertEquals('|', params.getDelimiter());
+    assertEquals(false, extractProfile.hasHeader());
+    long rows = fileProcessor.processFile(extractProfile, "/data/no-header.txt");
+    int expectedRows = 6;
+    assertEquals(expectedRows, rows);
+    List<TagInputBean> tagInputBeans = getTemplate().getTags();
+    TestCase.assertEquals(expectedRows, tagInputBeans.size());
+    for (TagInputBean tagInputBean : tagInputBeans) {
+      assertFalse(tagInputBean.getCode().contains("|"));
+      assertFalse(tagInputBean.getName().contains("|"));
+      TestCase.assertEquals(1, tagInputBean.getTargets().size());
+      assertFalse("non-persistent mapping was not ignored", tagInputBean.hasTagProperties());
+      Collection<TagInputBean> targets = tagInputBean.getTargets().get("represents");
+      for (TagInputBean represents : targets) {
+        assertFalse(represents.getCode().contains("|"));
+        assertTrue(represents.isMustExist());
 
-            }
-        }
-
-        // Check that the payload will serialize
-        ObjectMapper om = new ObjectMapper();
-        try {
-            om.writeValueAsString(tagInputBeans);
-        } catch (Exception e) {
-            throw new FlockException("Failed to serialize");
-        }
-
+      }
     }
+
+    // Check that the payload will serialize
+    ObjectMapper om = new ObjectMapper();
+    try {
+      om.writeValueAsString(tagInputBeans);
+    } catch (Exception e) {
+      throw new FlockException("Failed to serialize");
+    }
+
+  }
 
 
 }

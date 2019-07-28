@@ -27,34 +27,34 @@ import org.springframework.stereotype.Component;
 @Component
 @Aspect
 public class FlockDataAspect {
-    private static Logger logger = LoggerFactory.getLogger(FlockDataAspect.class);
+  private static Logger logger = LoggerFactory.getLogger(FlockDataAspect.class);
 
 
-    @Around(value = "@annotation(annotation)")
-    public void createEntity(final ProceedingJoinPoint joinPoint, final FlockEntity annotation) throws Throwable {
-        try {
-            logger.debug("createEntity() is running!");
-            logger.debug("hijacked method : {}", joinPoint.getSignature().getName());
-            logger.debug("hijacked arguments : {}", Arrays.toString(joinPoint.getArgs()));
-            joinPoint.proceed();
-            logger.debug("Around before is running!\r\n");
-            joinPoint.proceed(); //continue on the intercepted method
-        } finally {
-            logger.info("Around after is running!");
-        }
+  @Around(value = "@annotation(annotation)")
+  public void createEntity(final ProceedingJoinPoint joinPoint, final FlockEntity annotation) throws Throwable {
+    try {
+      logger.debug("createEntity() is running!");
+      logger.debug("hijacked method : {}", joinPoint.getSignature().getName());
+      logger.debug("hijacked arguments : {}", Arrays.toString(joinPoint.getArgs()));
+      joinPoint.proceed();
+      logger.debug("Around before is running!\r\n");
+      joinPoint.proceed(); //continue on the intercepted method
+    } finally {
+      logger.info("Around after is running!");
     }
+  }
 
-    @Around(value = "@annotation(annotation)")
-    public void createEntityLog(final ProceedingJoinPoint joinPoint, final FlockLog annotation) throws Throwable {
-        try {
-            logger.debug("createAuditLog() is running!");
-            logger.debug("hijacked method : {}", joinPoint.getSignature().getName());
-            logger.debug("hijacked arguments : {}", Arrays.toString(joinPoint.getArgs()));
-            joinPoint.proceed();
-            logger.debug("Around before is running!\r\n");
-            joinPoint.proceed(); //continue on the intercepted method
-        } finally {
-            logger.debug("Around after is running!");
-        }
+  @Around(value = "@annotation(annotation)")
+  public void createEntityLog(final ProceedingJoinPoint joinPoint, final FlockLog annotation) throws Throwable {
+    try {
+      logger.debug("createAuditLog() is running!");
+      logger.debug("hijacked method : {}", joinPoint.getSignature().getName());
+      logger.debug("hijacked arguments : {}", Arrays.toString(joinPoint.getArgs()));
+      joinPoint.proceed();
+      logger.debug("Around before is running!\r\n");
+      joinPoint.proceed(); //continue on the intercepted method
+    } finally {
+      logger.debug("Around after is running!");
     }
+  }
 }

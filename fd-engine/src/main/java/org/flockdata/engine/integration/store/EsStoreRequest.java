@@ -51,29 +51,29 @@ import org.springframework.integration.dsl.support.Transformers;
 @IntegrationComponentScan
 @Profile( {"fd-server"})
 public class EsStoreRequest extends AbstractIntegrationRequest {
-    @Autowired
-    @Qualifier("engineConfig")
-    private PlatformConfig platformConfig;
+  @Autowired
+  @Qualifier("engineConfig")
+  private PlatformConfig platformConfig;
 
-    @Bean
-    IntegrationFlow dataQuery() {
-        return IntegrationFlows
-            .from("doDataQuery")
-            .transform(Transformers.toJson(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .handle(Http.outboundGateway(platformConfig.getFdSearch() + "/v1/query/data")
-                .charset(StandardCharsets.UTF_8.name())
-                .httpMethod(HttpMethod.POST)
-                .mappedRequestHeaders("*")
-                .extractPayload(true)
-                .expectedResponseType(EsSearchRequestResult.class))
-            .get();
-    }
+  @Bean
+  IntegrationFlow dataQuery() {
+    return IntegrationFlows
+        .from("doDataQuery")
+        .transform(Transformers.toJson(MediaType.APPLICATION_JSON_UTF8_VALUE))
+        .handle(Http.outboundGateway(platformConfig.getFdSearch() + "/v1/query/data")
+            .charset(StandardCharsets.UTF_8.name())
+            .httpMethod(HttpMethod.POST)
+            .mappedRequestHeaders("*")
+            .extractPayload(true)
+            .expectedResponseType(EsSearchRequestResult.class))
+        .get();
+  }
 
-    @MessagingGateway
-    public interface ContentStoreEs {
-        //        @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
-        @Gateway(requestChannel = "doDataQuery")
-        EsSearchRequestResult getData(QueryParams queryParams);
-    }
+  @MessagingGateway
+  public interface ContentStoreEs {
+    //        @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
+    @Gateway(requestChannel = "doDataQuery")
+    EsSearchRequestResult getData(QueryParams queryParams);
+  }
 
 }

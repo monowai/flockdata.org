@@ -34,30 +34,30 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class AttachmentTests extends ESBase {
 
-    @Autowired
-    FdQueryEP searchEP;
+  @Autowired
+  FdQueryEP searchEP;
 
-    //    @Test  DAT-521
-    public void attachment_PdfIndexedAndFound() throws Exception {
-        // ToDo: FixMe Not working since ES 1.6
-        // https://github.com/elastic/elasticsearch-mapper-attachments/issues/20131
+  //    @Test  DAT-521
+  public void attachment_PdfIndexedAndFound() throws Exception {
+    // ToDo: FixMe Not working since ES 1.6
+    // https://github.com/elastic/elasticsearch-mapper-attachments/issues/20131
 //        if ( true==true )
 //            return ;
-        Entity entity = getEntity("cust", "fort", "anyuser", "fort");
+    Entity entity = getEntity("cust", "fort", "anyuser", "fort");
 
-        EntitySearchChange changeA = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
-        changeA.setAttachment(ContentDataHelper.getPdfDoc());
+    EntitySearchChange changeA = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
+    changeA.setAttachment(ContentDataHelper.getPdfDoc());
 
-        deleteEsIndex(entity);
+    deleteEsIndex(entity);
 
-        indexMappingService.ensureIndexMapping(changeA);
-        changeA = entityWriter.handle(changeA);
-        Thread.sleep(1000);
-        assertNotNull(changeA);
-        assertNotNull(changeA.getSearchKey());
-        doQuery(entity, "brown");
+    indexMappingService.ensureIndexMapping(changeA);
+    changeA = entityWriter.handle(changeA);
+    Thread.sleep(1000);
+    assertNotNull(changeA);
+    assertNotNull(changeA.getSearchKey());
+    doQuery(entity, "brown");
 
-    }
+  }
 
 
 }

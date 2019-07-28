@@ -38,37 +38,37 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer {
 
 
-    @RequestMapping("/")
-    String home() {
-        return "index.html";
+  @RequestMapping("/")
+  String home() {
+    return "index.html";
+  }
+
+  @RequestMapping("/api")
+  String api() {
+    return home();
+  }
+
+  @Configuration
+  public static class ApiSecurity extends WebSecurityConfigurerAdapter {
+
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+      // Security in FD take place at the service level so acess to all endpoints is granted
+      // ApiKeyInterceptor is a part of the auth chain
+
+      http.authorizeRequests()
+          .antMatchers("/api/login", "/api/ping", "/api/logout", "/api/account").permitAll()
+          .antMatchers("/api/v1/**").permitAll()
+          .antMatchers("/").permitAll()
+      ;
+
+
+      //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side/
+      //https://github.com/aditzel/spring-security-csrf-token-interceptor
+      http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
+      http.httpBasic();
     }
-
-    @RequestMapping("/api")
-    String api() {
-        return home();
-    }
-
-    @Configuration
-    public static class ApiSecurity extends WebSecurityConfigurerAdapter {
-
-        @Override
-        public void configure(HttpSecurity http) throws Exception {
-            // Security in FD take place at the service level so acess to all endpoints is granted
-            // ApiKeyInterceptor is a part of the auth chain
-
-            http.authorizeRequests()
-                .antMatchers("/api/login", "/api/ping", "/api/logout", "/api/account").permitAll()
-                .antMatchers("/api/v1/**").permitAll()
-                .antMatchers("/").permitAll()
-            ;
-
-
-            //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side/
-            //https://github.com/aditzel/spring-security-csrf-token-interceptor
-            http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
-            http.httpBasic();
-        }
-    }
+  }
 
 
 }

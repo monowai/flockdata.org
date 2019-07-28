@@ -45,27 +45,27 @@ import org.springframework.test.context.junit4.SpringRunner;
 })
 public class SimpleFlockServiceTest {
 
-    @Autowired
-    private SimpleTrackedService simpleTrackedService;
-    @Autowired
-    private Template fdTemplate;
+  @Autowired
+  private SimpleTrackedService simpleTrackedService;
+  @Autowired
+  private Template fdTemplate;
 
-    @Test
-    public void testCreateEntityAnnotation() {
-        SimpleTrackedService.Customer customer = new SimpleTrackedService.Customer();
-        customer.setId(1L);
-        customer.setName("name");
-        customer.setEmail("email@email.com");
-        simpleTrackedService.save(customer);
-        fdTemplate.getEntities();
-    }
+  @Test
+  public void testCreateEntityAnnotation() {
+    SimpleTrackedService.Customer customer = new SimpleTrackedService.Customer();
+    customer.setId(1L);
+    customer.setName("name");
+    customer.setEmail("email@email.com");
+    simpleTrackedService.save(customer);
+    fdTemplate.getEntities();
+  }
 
-    @Test
-    public void testCreateEntityLogAnnotation() {
-        SimpleTrackedService.Customer customer = new SimpleTrackedService.Customer();
-        customer.setId(1L);
-        customer.setName("name");
-        customer.setEmail("email@email.com");
-        simpleTrackedService.update(customer);
-    }
+  @Test
+  public void testCreateEntityLogAnnotation() {
+    SimpleTrackedService.Customer customer = new SimpleTrackedService.Customer();
+    customer.setId(1L);
+    customer.setName("name");
+    customer.setEmail("email@email.com");
+    simpleTrackedService.update(customer);
+  }
 }

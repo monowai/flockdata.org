@@ -55,53 +55,53 @@ import org.springframework.messaging.handler.annotation.Payload;
 @Profile( {"fd-server"})
 public class StorageReader {
 
-    @Autowired
-    EngineConfig engineConfig;
+  @Autowired
+  EngineConfig engineConfig;
 
-    @Bean
-    MessageChannel startStoreRead() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel startStoreRead() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel storeReadResult() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel storeReadResult() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel receiveStoreReadReply() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel receiveStoreReadReply() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    IntegrationFlow storeFlow() {
+  @Bean
+  IntegrationFlow storeFlow() {
 
-        return IntegrationFlows.from(startStoreRead())
-            .handle(handler())
-            .get();
-    }
+    return IntegrationFlows.from(startStoreRead())
+        .handle(handler())
+        .get();
+  }
 
-    private MessageHandler handler() {
-        SpelExpressionParser expressionParser = new SpelExpressionParser();
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/data/{store}/{index}/{type}/{key}");
-        handler.setHttpMethod(HttpMethod.GET);
-        Map<String, Expression> vars = new HashMap<>();
-        vars.put("store", expressionParser.parseExpression("payload[0]"));
-        vars.put("index", expressionParser.parseExpression("payload[1]"));
-        vars.put("type", expressionParser.parseExpression("payload[2]"));
-        vars.put("key", expressionParser.parseExpression("payload[3]"));
-        handler.setUriVariableExpressions(vars);
-        handler.setExpectedResponseType(StorageBean.class);
-        return handler;
-    }
+  private MessageHandler handler() {
+    SpelExpressionParser expressionParser = new SpelExpressionParser();
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/data/{store}/{index}/{type}/{key}");
+    handler.setHttpMethod(HttpMethod.GET);
+    Map<String, Expression> vars = new HashMap<>();
+    vars.put("store", expressionParser.parseExpression("payload[0]"));
+    vars.put("index", expressionParser.parseExpression("payload[1]"));
+    vars.put("type", expressionParser.parseExpression("payload[2]"));
+    vars.put("key", expressionParser.parseExpression("payload[3]"));
+    handler.setUriVariableExpressions(vars);
+    handler.setExpectedResponseType(StorageBean.class);
+    return handler;
+  }
 
-    @MessagingGateway
-    public interface StorageReaderGateway {
-        @Payload("#args")
-        @Gateway(requestChannel = "startStoreRead", requestTimeout = 5000, replyChannel = "storeReadResult")
-        StoredContent read(Store store, String index, String type, String key);
-    }
+  @MessagingGateway
+  public interface StorageReaderGateway {
+    @Payload("#args")
+    @Gateway(requestChannel = "startStoreRead", requestTimeout = 5000, replyChannel = "storeReadResult")
+    StoredContent read(Store store, String index, String type, String key);
+  }
 
 
 }

@@ -41,22 +41,22 @@ import org.springframework.messaging.MessageHandlingException;
  */
 @IntegrationComponentScan
 public class StoreErrorHandler {
-    private Logger logger = LoggerFactory.getLogger(StoreErrorHandler.class);
+  private Logger logger = LoggerFactory.getLogger(StoreErrorHandler.class);
 
-    @ServiceActivator(inputChannel = "storeErrors")
-    public void handleFailedKvRequest(Message<MessageHandlingException> message) {
-        MessageHandlingException payLoad = message.getPayload();
-        if (payLoad.getCause() != null) {
-            logger.error(payLoad.getCause().getMessage());
-            if (payLoad.getCause() instanceof FlockDataTagException) {
-                return; // Log and get out of here
-            }
-        } else {
-            logger.error(payLoad.getMessage());
-        }
-
-        throw payLoad;
-
-
+  @ServiceActivator(inputChannel = "storeErrors")
+  public void handleFailedKvRequest(Message<MessageHandlingException> message) {
+    MessageHandlingException payLoad = message.getPayload();
+    if (payLoad.getCause() != null) {
+      logger.error(payLoad.getCause().getMessage());
+      if (payLoad.getCause() instanceof FlockDataTagException) {
+        return; // Log and get out of here
+      }
+    } else {
+      logger.error(payLoad.getMessage());
     }
+
+    throw payLoad;
+
+
+  }
 }

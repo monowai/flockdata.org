@@ -30,39 +30,39 @@ import org.flockdata.search.EntitySearchChange;
  */
 public interface EntityChangeWriter {
 
-    /**
-     * Rewrites an existing document
-     *
-     * @param searchChange values to update from
-     * @return Result object with any potential error messages
-     * @see EntitySearchChange
-     */
-    EntitySearchChange handle(EntitySearchChange searchChange);
+  /**
+   * Rewrites an existing document
+   *
+   * @param searchChange values to update from
+   * @return Result object with any potential error messages
+   * @see EntitySearchChange
+   */
+  EntitySearchChange handle(EntitySearchChange searchChange);
 
-    /**
-     * locates a document using what is known about the Entity
-     *
-     * @param entity auditHeader
-     * @return document context as bytes
-     */
-    Map<String, Object> findOne(Entity entity);
+  /**
+   * locates a document using what is known about the Entity
+   *
+   * @param entity auditHeader
+   * @return document context as bytes
+   */
+  Map<String, Object> findOne(Entity entity);
 
-    void purgeCache();
+  void purgeCache();
 
-    boolean delete(EntitySearchChange searchChange);
+  boolean delete(EntitySearchChange searchChange);
 
-    /**
-     * Locates a specific key monitored by the entity.
-     * <p>
-     * If ID is null then the call is the same as findOne(entity)
-     * where the searchKey is taken to be LogResultBean.searchKey
-     *
-     * @param entity used to resolve the index to search
-     * @param id     - if null, this is resolved from the entity
-     * @return found track change or null if none
-     */
-    Map<String, Object> findOne(Entity entity, String id);
+  /**
+   * Locates a specific key monitored by the entity.
+   * <p>
+   * If ID is null then the call is the same as findOne(entity)
+   * where the searchKey is taken to be LogResultBean.searchKey
+   *
+   * @param entity used to resolve the index to search
+   * @param id     - if null, this is resolved from the entity
+   * @return found track change or null if none
+   */
+  Map<String, Object> findOne(Entity entity, String id);
 
-    Map<String, Object> ping();
+  Map<String, Object> ping();
 
 }

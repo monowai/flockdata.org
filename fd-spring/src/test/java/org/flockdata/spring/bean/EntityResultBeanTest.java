@@ -30,17 +30,17 @@ import org.junit.Test;
  */
 public class EntityResultBeanTest {
 
-    @Test
-    public void testGetEntityLogInputBean() throws Exception {
-        ContentInputBean contentInputBean = new ContentInputBean("", "auditKey", new DateTime(), null);
-        EntityResultBean entityResultBean = new EntityResultBean(contentInputBean);
-        Assert.assertEquals(entityResultBean.getKey(), "auditKey");
-    }
+  @Test
+  public void testGetEntityLogInputBean() throws Exception {
+    ContentInputBean contentInputBean = new ContentInputBean("", "auditKey", new DateTime(), null);
+    EntityResultBean entityResultBean = new EntityResultBean(contentInputBean);
+    Assert.assertEquals(entityResultBean.getKey(), "auditKey");
+  }
 
-    @Test
-    public void testGetResultLogInputBean() throws Exception {
-        ContentInputBean contentInputBean = new ContentInputBean("", "auditKey", new DateTime(), null);
-        EntityResultBean entityResultBean = new EntityResultBean(contentInputBean);
-        Assert.assertEquals(entityResultBean.getResult().getClass(), ContentInputBean.class);
-    }
+  @Test
+  public void testGetResultLogInputBean() throws Exception {
+    ContentInputBean contentInputBean = new ContentInputBean("", "auditKey", new DateTime(), null);
+    EntityResultBean entityResultBean = new EntityResultBean(contentInputBean);
+    Assert.assertEquals(entityResultBean.getResult().getClass(), ContentInputBean.class);
+  }
 }

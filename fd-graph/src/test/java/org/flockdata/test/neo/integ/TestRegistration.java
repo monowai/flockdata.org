@@ -37,31 +37,31 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 public class TestRegistration extends BaseNeo {
 
-    @Autowired
-    RegistrationService registrationService;
+  @Autowired
+  RegistrationService registrationService;
 
-    @Test
-    public void testRegistration() throws Exception {
-        RegistrationBean registrationBean = RegistrationBean.builder()
-            .companyName("testRegistration")
-            .login("test@login.com")
-            .build();
+  @Test
+  public void testRegistration() throws Exception {
+    RegistrationBean registrationBean = RegistrationBean.builder()
+        .companyName("testRegistration")
+        .login("test@login.com")
+        .build();
 
-        SystemUser created = registrationService.registerSystemUser(registrationBean);
-        assertThat(created).isNotNull()
-            .hasNoNullFieldsOrProperties();
+    SystemUser created = registrationService.registerSystemUser(registrationBean);
+    assertThat(created).isNotNull()
+        .hasNoNullFieldsOrProperties();
 
-        SystemUser found = registrationService.getSystemUser(created.getApiKey());
+    SystemUser found = registrationService.getSystemUser(created.getApiKey());
 
-        assertThat(found).isNotNull()
-            .hasFieldOrPropertyWithValue("apiKey", created.getApiKey())
-            .hasFieldOrPropertyWithValue("id", created.getId());
+    assertThat(found).isNotNull()
+        .hasFieldOrPropertyWithValue("apiKey", created.getApiKey())
+        .hasFieldOrPropertyWithValue("id", created.getId());
 
-        SystemUser existing = registrationService.registerSystemUser(registrationBean);
+    SystemUser existing = registrationService.registerSystemUser(registrationBean);
 
-        assertThat(existing).isNotNull()
-            .hasFieldOrPropertyWithValue("apiKey", found.getApiKey());
+    assertThat(existing).isNotNull()
+        .hasFieldOrPropertyWithValue("apiKey", found.getApiKey());
 
 //        assertThat(found).isNotNull().hasFieldOrProperty("id");
-    }
+  }
 }

@@ -25,42 +25,42 @@ import org.springframework.messaging.Message;
 @Slf4j
 public class OutboundResultHandler {
 
-    private AmqpRabbitConfig rabbitConfig;
-    private MessageSupport messageSupport;
-    private Exchanges exchanges;
+  private AmqpRabbitConfig rabbitConfig;
+  private MessageSupport messageSupport;
+  private Exchanges exchanges;
 
-    @Autowired(required = false)
-    void setRabbitConfig(AmqpRabbitConfig rabbitConfig) {
-        this.rabbitConfig = rabbitConfig;
-    }
+  @Autowired(required = false)
+  void setRabbitConfig(AmqpRabbitConfig rabbitConfig) {
+    this.rabbitConfig = rabbitConfig;
+  }
 
-    @Autowired(required = false)
-    void setMessageSupport(MessageSupport messageSupport) {
-        this.messageSupport = messageSupport;
-    }
+  @Autowired(required = false)
+  void setMessageSupport(MessageSupport messageSupport) {
+    this.messageSupport = messageSupport;
+  }
 
-    @Autowired(required = false)
-    void setExchanges(Exchanges exchanges) {
-        this.exchanges = exchanges;
-    }
+  @Autowired(required = false)
+  void setExchanges(Exchanges exchanges) {
+    this.exchanges = exchanges;
+  }
 
-    @Transformer(inputChannel = "searchReply", outputChannel = "searchDocSyncResult")
-    @Profile("fd-server")
-    public Message<?> transformSearchResults(Message message) {
-        return messageSupport.toJson(message);
-    }
+  @Transformer(inputChannel = "searchReply", outputChannel = "searchDocSyncResult")
+  @Profile("fd-server")
+  public Message<?> transformSearchResults(Message message) {
+    return messageSupport.toJson(message);
+  }
 
-    @Bean
-    @ServiceActivator(inputChannel = "searchDocSyncResult")
-    @Profile("fd-server")
-    public AmqpOutboundEndpoint writeEntitySearchResult(AmqpTemplate amqpTemplate) {
-        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
-        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setExchangeName(exchanges.fdExchangeName());
-        outbound.setRoutingKey(exchanges.fdEngineBinding());
-        outbound.setExpectReply(false);
-        return outbound;
+  @Bean
+  @ServiceActivator(inputChannel = "searchDocSyncResult")
+  @Profile("fd-server")
+  public AmqpOutboundEndpoint writeEntitySearchResult(AmqpTemplate amqpTemplate) {
+    AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
+    outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
+    outbound.setExchangeName(exchanges.fdExchangeName());
+    outbound.setRoutingKey(exchanges.fdEngineBinding());
+    outbound.setExpectReply(false);
+    return outbound;
 
-    }
+  }
 
 }

@@ -35,42 +35,42 @@ import org.springframework.stereotype.Component;
 @Component
 class SearchHelper {
 
-    @Autowired
-    private IndexManager indexManager;
+  @Autowired
+  private IndexManager indexManager;
 
-    QueryParams getTagQuery(String company, String label, String searchText) {
-        return new QueryParams(searchText)
-            .searchTags()
-            .setIndex(indexManager.getTagIndexRoot(company, label))
-            .setTypes(label.toLowerCase());
-    }
+  QueryParams getTagQuery(String company, String label, String searchText) {
+    return new QueryParams(searchText)
+        .searchTags()
+        .setIndex(indexManager.getTagIndexRoot(company, label))
+        .setTypes(label.toLowerCase());
+  }
 
-    QueryParams getTagMatchQuery(String company, String label, String field, String searchText) {
-        return new QueryParams()
-            .searchTags()
-            .setIndex(indexManager.getTagIndexRoot(company, label))
-            .setTypes(label.toLowerCase())
-            .addTerm(field, searchText);
-    }
+  QueryParams getTagMatchQuery(String company, String label, String field, String searchText) {
+    return new QueryParams()
+        .searchTags()
+        .setIndex(indexManager.getTagIndexRoot(company, label))
+        .setTypes(label.toLowerCase())
+        .addTerm(field, searchText);
+  }
 
-    void assertHitCount(String message, int expectedCount, Map<String, Object> esResult) {
-        assertNotNull(esResult);
-        int count = getHitCount(esResult);
-        assertEquals(message + " got " + count, expectedCount, count);
-    }
+  void assertHitCount(String message, int expectedCount, Map<String, Object> esResult) {
+    assertNotNull(esResult);
+    int count = getHitCount(esResult);
+    assertEquals(message + " got " + count, expectedCount, count);
+  }
 
-    private Integer getHitCount(Map<String, Object> esResult) {
-        Map hits = (Map) esResult.get("hits");
-        assertNotNull(hits);
-        return (Integer) hits.get("total");
-    }
+  private Integer getHitCount(Map<String, Object> esResult) {
+    Map hits = (Map) esResult.get("hits");
+    assertNotNull(hits);
+    return (Integer) hits.get("total");
+  }
 
-    /**
-     * @param esResult Map of ES results
-     * @return the hits as a Json string
-     */
-    String getHits(Map<String, Object> esResult) {
-        assertNotNull(esResult);
-        return JsonUtils.toJson(esResult.get("hits"));
-    }
+  /**
+   * @param esResult Map of ES results
+   * @return the hits as a Json string
+   */
+  String getHits(Map<String, Object> esResult) {
+    assertNotNull(esResult);
+    return JsonUtils.toJson(esResult.get("hits"));
+  }
 }

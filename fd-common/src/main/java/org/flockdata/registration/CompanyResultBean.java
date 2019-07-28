@@ -33,39 +33,39 @@ import org.flockdata.data.Company;
  */
 public class CompanyResultBean implements Company {
 
-    private String apiKey;
-    private String name;
+  private String apiKey;
+  private String name;
 
-    CompanyResultBean() {
+  CompanyResultBean() {
 
-    }
+  }
 
-    public CompanyResultBean(Company company) {
-        this();
-        this.name = company.getName();
-        this.apiKey = company.getApiKey();
-    }
+  public CompanyResultBean(Company company) {
+    this();
+    this.name = company.getName();
+    this.apiKey = company.getApiKey();
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    @Override
-    @JsonIgnore
-    public String getCode() {
-        return null;
-    }
+  @Override
+  @JsonIgnore
+  public String getCode() {
+    return null;
+  }
 
-    @Override
-    @JsonIgnore
-    public Long getId() {
-        return null;
-    }
+  @Override
+  @JsonIgnore
+  public Long getId() {
+    return null;
+  }
 
-    @Override
-    @JsonIgnore
-    public String getApiKey() {
-        return apiKey;
-    }
+  @Override
+  @JsonIgnore
+  public String getApiKey() {
+    return apiKey;
+  }
 }

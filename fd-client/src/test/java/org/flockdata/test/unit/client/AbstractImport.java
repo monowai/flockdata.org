@@ -47,38 +47,38 @@ import org.springframework.test.context.junit4.SpringRunner;
 })
 @TestPropertySource( {"/application_dev.properties"})
 public class AbstractImport {
-    // Re-implement an FdWriter class if you want to validate data in the flush routines
+  // Re-implement an FdWriter class if you want to validate data in the flush routines
 
-    @Autowired
-    protected Template fdTemplate;
-    @Autowired
-    protected FileProcessor fileProcessor;
-    @Autowired
-    protected ClientConfiguration clientConfiguration;
+  @Autowired
+  protected Template fdTemplate;
+  @Autowired
+  protected FileProcessor fileProcessor;
+  @Autowired
+  protected ClientConfiguration clientConfiguration;
 
-    protected Template getTemplate() {
-        return fdTemplate;
-    }
+  protected Template getTemplate() {
+    return fdTemplate;
+  }
 
-    /**
-     * Clear out any cached data in the template
-     * <p>
-     * For testing purposes we need to analyse the batched payload without flushing
-     * If we don't reset the batched payload then any previous runs contents will also be in the result
-     */
-    @Before
-    public void clearLoader() {
-        fdTemplate.reset();
-        assertNotNull(fdTemplate.getFdIoInterface());
-    }
+  /**
+   * Clear out any cached data in the template
+   * <p>
+   * For testing purposes we need to analyse the batched payload without flushing
+   * If we don't reset the batched payload then any previous runs contents will also be in the result
+   */
+  @Before
+  public void clearLoader() {
+    fdTemplate.reset();
+    assertNotNull(fdTemplate.getFdIoInterface());
+  }
 
-    @Test
-    public void autoWiringWorks() {
-        assertNotNull(clientConfiguration);
-        assertTrue("" + clientConfiguration.getBatchSize(), clientConfiguration.getBatchSize() > 10);
-        assertNotNull(fdTemplate);
-        assertNotNull(fileProcessor);
-    }
+  @Test
+  public void autoWiringWorks() {
+    assertNotNull(clientConfiguration);
+    assertTrue("" + clientConfiguration.batchSize(), clientConfiguration.batchSize() > 10);
+    assertNotNull(fdTemplate);
+    assertNotNull(fileProcessor);
+  }
 
 
 }

@@ -30,25 +30,25 @@ import org.flockdata.store.StoredContent;
  */
 public class LogDetailBean {
 
-    private EntityLog log;
-    private StoredContent what;
+  private EntityLog log;
+  private StoredContent what;
 
-    private LogDetailBean() {
-    }
+  private LogDetailBean() {
+  }
 
-    public LogDetailBean(EntityLog log, StoredContent what) {
-        this();
-        this.log = log;
-        this.what = what;
+  public LogDetailBean(EntityLog log, StoredContent what) {
+    this();
+    this.log = log;
+    this.what = what;
 
-    }
+  }
 
-    public EntityLog getLog() {
-        return this.log;
-    }
+  public EntityLog getLog() {
+    return this.log;
+  }
 
-    public StoredContent getWhat() {
-        return this.what;
-    }
+  public StoredContent getWhat() {
+    return this.what;
+  }
 
 }

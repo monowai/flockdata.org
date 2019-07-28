@@ -29,89 +29,89 @@ import org.flockdata.data.SystemUser;
  */
 public class SystemUserResultBean {
 
-    private String login;
-    private String name;
-    private String companyName;
-    private String apiKey;
-    private String email;
-    private String status;
-    private Object[] userRoles;
-    private boolean active = true;
+  private String login;
+  private String name;
+  private String companyName;
+  private String apiKey;
+  private String email;
+  private String status;
+  private Object[] userRoles;
+  private boolean active = true;
 
-    public SystemUserResultBean() {
+  public SystemUserResultBean() {
+  }
+
+  public SystemUserResultBean(SystemUser su) {
+    this();
+    if (su != null) {
+      this.apiKey = su.getApiKey();
+      this.name = su.getName();
+      this.login = su.getLogin();
+      this.email = su.getEmail();
+      if (this.name == null) {
+        this.name = login;
+      }
+      if (su.getCompany() != null) // an unauthenticated user does not have a company
+      {
+        this.companyName = su.getCompany().getName();
+      }
     }
 
-    public SystemUserResultBean(SystemUser su) {
-        this();
-        if (su != null) {
-            this.apiKey = su.getApiKey();
-            this.name = su.getName();
-            this.login = su.getLogin();
-            this.email = su.getEmail();
-            if (this.name == null) {
-                this.name = login;
-            }
-            if (su.getCompany() != null) // an unauthenticated user does not have a company
-            {
-                this.companyName = su.getCompany().getName();
-            }
-        }
+  }
 
-    }
+  public SystemUserResultBean(SystemUser sysUser, UserProfile userProfile) {
+    this(sysUser);
+    this.userRoles = userProfile.getUserRoles();
+    this.status = userProfile.getStatus();
+    this.email = (userProfile.getUserEmail() != null ? userProfile.getUserEmail() : sysUser.getEmail());
 
-    public SystemUserResultBean(SystemUser sysUser, UserProfile userProfile) {
-        this(sysUser);
-        this.userRoles = userProfile.getUserRoles();
-        this.status = userProfile.getStatus();
-        this.email = (userProfile.getUserEmail() != null ? userProfile.getUserEmail() : sysUser.getEmail());
+  }
 
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getApiKey() {
+    return apiKey;
+  }
 
-    public String getApiKey() {
-        return apiKey;
-    }
+  public String getLogin() {
+    return login;
+  }
 
-    public String getLogin() {
-        return login;
-    }
+  public String getCompanyName() {
+    return companyName;
+  }
 
-    public String getCompanyName() {
-        return companyName;
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    public String getEmail() {
-        return email;
-    }
+  public String getStatus() {
+    return status;
+  }
 
-    public String getStatus() {
-        return status;
-    }
+  public Object[] getUserRoles() {
+    return userRoles;
+  }
 
-    public Object[] getUserRoles() {
-        return userRoles;
-    }
+  @Override
+  public String toString() {
+    return "SystemUser{" +
+        "login='" + login + '\'' +
+        ", name='" + name + '\'' +
+        ", apiKey='" + apiKey + '\'' +
+        ", status='" + status + '\'' +
+        ", userRoles=" + Arrays.toString(userRoles) +
+        ", companyName='" + companyName + '\'' +
+        '}';
+  }
 
-    @Override
-    public String toString() {
-        return "SystemUser{" +
-            "login='" + login + '\'' +
-            ", name='" + name + '\'' +
-            ", apiKey='" + apiKey + '\'' +
-            ", status='" + status + '\'' +
-            ", userRoles=" + Arrays.toString(userRoles) +
-            ", companyName='" + companyName + '\'' +
-            '}';
-    }
+  public boolean isActive() {
+    return active;
+  }
 
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+  public void setActive(boolean active) {
+    this.active = active;
+  }
 }

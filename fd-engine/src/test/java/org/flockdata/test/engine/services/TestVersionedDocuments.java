@@ -45,77 +45,77 @@ import org.junit.Test;
  */
 public class TestVersionedDocuments extends EngineBase {
 
-    @Test
-    public void defaults_ByDocumentType() throws Exception {
+  @Test
+  public void defaults_ByDocumentType() throws Exception {
 
-        // Document properties can be overridden from the fortress default
-        SystemUser su = registerSystemUser("defaults_ByDocumentType");
+    // Document properties can be overridden from the fortress default
+    SystemUser su = registerSystemUser("defaults_ByDocumentType");
 
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(),
-            new FortressInputBean("DocTypeTest", true)
-                .setStoreEnabled(true));
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(),
+        new FortressInputBean("DocTypeTest", true)
+            .setStoreEnabled(true));
 
-        assertTrue(fortress.isStoreEnabled());
+    assertTrue(fortress.isStoreEnabled());
 
-        DocumentNode documentType = conceptService.findOrCreate(fortress,
-            new DocumentNode(fortress.getDefaultSegment(),
-                new DocumentTypeInputBean("Default")
-                    .setCode("Default")));
+    DocumentNode documentType = conceptService.findOrCreate(fortress,
+        new DocumentNode(fortress.getDefaultSegment(),
+            new DocumentTypeInputBean("Default")
+                .setCode("Default")));
 
-        assertEquals("Basic default is not being honoured", Document.VERSION.FORTRESS, documentType.getVersionStrategy());
-        documentType.setVersionStrategy(Document.VERSION.DISABLE);
-        documentType = conceptService.save(documentType);
-        TestCase.assertEquals("Update of version strategy property not working", Document.VERSION.DISABLE, documentType.getVersionStrategy());
-    }
+    assertEquals("Basic default is not being honoured", Document.VERSION.FORTRESS, documentType.getVersionStrategy());
+    documentType.setVersionStrategy(Document.VERSION.DISABLE);
+    documentType = conceptService.save(documentType);
+    TestCase.assertEquals("Update of version strategy property not working", Document.VERSION.DISABLE, documentType.getVersionStrategy());
+  }
 
 
-    @Test
-    public void trackResult_Kv() throws Exception {
+  @Test
+  public void trackResult_Kv() throws Exception {
 
-        // Check that the same fortress can have DocTypes with kv stores selectively enabled
-        SystemUser su = registerSystemUser("trackResult_Kv");
+    // Check that the same fortress can have DocTypes with kv stores selectively enabled
+    SystemUser su = registerSystemUser("trackResult_Kv");
 
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(),
-            new FortressInputBean("trackResult_Kv", true)
-                .setStoreEnabled(true));
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(),
+        new FortressInputBean("trackResult_Kv", true)
+            .setStoreEnabled(true));
 
-        assertTrue(fortress.isStoreEnabled());
+    assertTrue(fortress.isStoreEnabled());
 
-        DocumentNode memoryType = conceptService.findOrCreate(fortress,
-            new DocumentNode(fortress.getDefaultSegment(),
-                new DocumentTypeInputBean("Memory")
-                    .setCode("Memory"))
-                .setVersionStrategy(Document.VERSION.FORTRESS));
+    DocumentNode memoryType = conceptService.findOrCreate(fortress,
+        new DocumentNode(fortress.getDefaultSegment(),
+            new DocumentTypeInputBean("Memory")
+                .setCode("Memory"))
+            .setVersionStrategy(Document.VERSION.FORTRESS));
 
-        EntityInputBean eib = new EntityInputBean(fortress, new DocumentTypeInputBean(memoryType.getName()))
-            .setCode("ABC");
+    EntityInputBean eib = new EntityInputBean(fortress, new DocumentTypeInputBean(memoryType.getName()))
+        .setCode("ABC");
 
-        TrackResultBean memResultBean = mediationFacade.trackEntity(su.getCompany(), eib);
+    TrackResultBean memResultBean = mediationFacade.trackEntity(su.getCompany(), eib);
 
-        Store kvStore = StoreHelper.resolveStore(memResultBean, Store.MEMORY);
+    Store kvStore = StoreHelper.resolveStore(memResultBean, Store.MEMORY);
 
-        TestCase.assertEquals(Store.MEMORY, kvStore);
-        Document documentTypeInputBean = new DocumentTypeInputBean("None")
-            .setCode("None")
-            .setVersionStrategy(Document.VERSION.DISABLE);
+    TestCase.assertEquals(Store.MEMORY, kvStore);
+    Document documentTypeInputBean = new DocumentTypeInputBean("None")
+        .setCode("None")
+        .setVersionStrategy(Document.VERSION.DISABLE);
 
-        // Validate JSON serialization
-        String json = JsonUtils.toJson(documentTypeInputBean);
-        documentTypeInputBean = JsonUtils.toObject(json.getBytes(), DocumentTypeInputBean.class);
+    // Validate JSON serialization
+    String json = JsonUtils.toJson(documentTypeInputBean);
+    documentTypeInputBean = JsonUtils.toObject(json.getBytes(), DocumentTypeInputBean.class);
 
-        TestCase.assertEquals(Document.VERSION.DISABLE, documentTypeInputBean.getVersionStrategy());
+    TestCase.assertEquals(Document.VERSION.DISABLE, documentTypeInputBean.getVersionStrategy());
 
-        DocumentNode noneType = conceptService.findOrCreate(fortress,
-            new DocumentNode(fortress.getDefaultSegment(), documentTypeInputBean));
+    DocumentNode noneType = conceptService.findOrCreate(fortress,
+        new DocumentNode(fortress.getDefaultSegment(), documentTypeInputBean));
 
-        TestCase.assertEquals(Document.VERSION.DISABLE, noneType.getVersionStrategy());
+    TestCase.assertEquals(Document.VERSION.DISABLE, noneType.getVersionStrategy());
 
-        eib = new EntityInputBean(fortress, new DocumentTypeInputBean(noneType.getName()))
-            .setCode("CBA");
+    eib = new EntityInputBean(fortress, new DocumentTypeInputBean(noneType.getName()))
+        .setCode("CBA");
 
-        TrackResultBean noneResultBean = mediationFacade.trackEntity(su.getCompany(), eib);
-        kvStore = StoreHelper.resolveStore(noneResultBean, Store.NONE);
-        TestCase.assertEquals(Store.NONE, kvStore);
+    TrackResultBean noneResultBean = mediationFacade.trackEntity(su.getCompany(), eib);
+    kvStore = StoreHelper.resolveStore(noneResultBean, Store.NONE);
+    TestCase.assertEquals(Store.NONE, kvStore);
 
-    }
+  }
 }

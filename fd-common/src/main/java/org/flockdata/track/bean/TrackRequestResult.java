@@ -31,59 +31,59 @@ import java.util.Collection;
  */
 public class TrackRequestResult implements Serializable {
 
-    private String company;
-    private String fortressCode;
-    private String code;
-    private String key;
+  private String company;
+  private String fortressCode;
+  private String code;
+  private String key;
 
-    private boolean newEntity;
-    private ContentInputBean.LogStatus logStatus;
+  private boolean newEntity;
+  private ContentInputBean.LogStatus logStatus;
 
-    private Collection<String> serviceMessages = null;
+  private Collection<String> serviceMessages = null;
 
-    TrackRequestResult() {
-    }
+  TrackRequestResult() {
+  }
 
-    public TrackRequestResult(TrackResultBean resultBean) {
-        this();
-        this.key = resultBean.getKey();
-        this.code = resultBean.getEntity().getCode();
-        this.fortressCode = resultBean.getEntity().getSegment().getFortress().getCode();
-        logStatus = resultBean.getLogStatus();
-        this.company = resultBean.getCompany().getCode();
-        serviceMessages = resultBean.getServiceMessages();
-        newEntity = resultBean.isNewEntity();
-    }
+  public TrackRequestResult(TrackResultBean resultBean) {
+    this();
+    this.key = resultBean.getKey();
+    this.code = resultBean.getEntity().getCode();
+    this.fortressCode = resultBean.getEntity().getSegment().getFortress().getCode();
+    logStatus = resultBean.getLogStatus();
+    this.company = resultBean.getCompany().getCode();
+    serviceMessages = resultBean.getServiceMessages();
+    newEntity = resultBean.isNewEntity();
+  }
 
-    public String getKey() {
-        return key;
-    }
+  public String getKey() {
+    return key;
+  }
 
-    public String getCode() {
-        return code;
-    }
+  public String getCode() {
+    return code;
+  }
 
-    public String getFortressCode() {
-        return fortressCode;
-    }
+  public String getFortressCode() {
+    return fortressCode;
+  }
 
-    public String getCompany() {
-        return company;
-    }
+  public String getCompany() {
+    return company;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public ContentInputBean.LogStatus getLogStatus() {
-        return logStatus;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public ContentInputBean.LogStatus getLogStatus() {
+    return logStatus;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Collection<String> getServiceMessages() {
-        return serviceMessages;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Collection<String> getServiceMessages() {
+    return serviceMessages;
+  }
 
-    public boolean isNewEntity() {
-        return newEntity;
-    }
+  public boolean isNewEntity() {
+    return newEntity;
+  }
 
 
 }

@@ -32,25 +32,25 @@ import org.flockdata.track.bean.SearchChange;
 @JsonDeserialize(using = SearchChangesDeserializer.class)
 public class SearchChanges {
 
-    Collection<SearchChange> searchChanges = new ArrayList<>();
+  Collection<SearchChange> searchChanges = new ArrayList<>();
 
-    public SearchChanges() {
-    }
+  public SearchChanges() {
+  }
 
-    public SearchChanges(Collection<SearchChange> searchDocuments) {
-        this();
-        this.searchChanges = searchDocuments;
-    }
+  public SearchChanges(Collection<SearchChange> searchDocuments) {
+    this();
+    this.searchChanges = searchDocuments;
+  }
 
-    public SearchChanges(SearchChange change) {
-        searchChanges.add(change);
-    }
+  public SearchChanges(SearchChange change) {
+    searchChanges.add(change);
+  }
 
-    public Collection<SearchChange> getChanges() {
-        return searchChanges;
-    }
+  public Collection<SearchChange> getChanges() {
+    return searchChanges;
+  }
 
-    public void addChange(SearchChange change) {
-        searchChanges.add(change);
-    }
+  public void addChange(SearchChange change) {
+    searchChanges.add(change);
+  }
 }

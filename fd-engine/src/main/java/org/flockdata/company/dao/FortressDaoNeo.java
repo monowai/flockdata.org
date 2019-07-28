@@ -45,96 +45,96 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class FortressDaoNeo {
-    @Autowired
-    Neo4jTemplate template;
-    @Autowired
-    private FortressRepository fortressRepo;
-    @Autowired
-    private FortressSegmentRepository fortressSegmentRepo;
-    @Autowired
-    private FortressUserRepository fortressUserRepo;
-    @Autowired
-    private IndexManager indexManager;
-    @Autowired
-    private EngineConfig engineConfig;
-    private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
+  @Autowired
+  Neo4jTemplate template;
+  @Autowired
+  private FortressRepository fortressRepo;
+  @Autowired
+  private FortressSegmentRepository fortressSegmentRepo;
+  @Autowired
+  private FortressUserRepository fortressUserRepo;
+  @Autowired
+  private IndexManager indexManager;
+  @Autowired
+  private EngineConfig engineConfig;
+  private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
 
-    public FortressNode save(Company company, FortressInputBean fortressInput) {
-        if (fortressInput.isSearchEnabled() == null) {
-            fortressInput.setSearchEnabled(engineConfig.isSearchEnabled());
-        }
-
-        FortressNode fortress = new FortressNode(fortressInput, company);
-        fortress.setRootIndex(indexManager.getIndexRoot(fortress));
-        return fortressRepo.save(fortress);
+  public FortressNode save(Company company, FortressInputBean fortressInput) {
+    if (fortressInput.isSearchEnabled() == null) {
+      fortressInput.setSearchEnabled(engineConfig.isSearchEnabled());
     }
 
-    public FortressNode findOne(Long fortressId) {
-        return fortressRepo.findOne(fortressId);
-    }
+    FortressNode fortress = new FortressNode(fortressInput, company);
+    fortress.setRootIndex(indexManager.getIndexRoot(fortress));
+    return fortressRepo.save(fortress);
+  }
 
-    @Cacheable(value = "fortressUser", unless = "#result==null")
-    public FortressUserNode getFortressUser(Long fortressId, String name) {
-        return fortressUserRepo.findBySchemaPropertyValue("key", fortressId + "." + name);
-    }
+  public FortressNode findOne(Long fortressId) {
+    return fortressRepo.findOne(fortressId);
+  }
 
-    public List<FortressNode> findFortresses(Long companyID) {
-        return fortressRepo.findCompanyFortresses(companyID);
-    }
+  @Cacheable(value = "fortressUser", unless = "#result==null")
+  public FortressUserNode getFortressUser(Long fortressId, String name) {
+    return fortressUserRepo.findBySchemaPropertyValue("key", fortressId + "." + name);
+  }
 
-    public FortressUserNode findOneUser(Long fortressUserId) {
-        return fortressUserRepo.findOne(fortressUserId);
-    }
+  public List<FortressNode> findFortresses(Long companyID) {
+    return fortressRepo.findCompanyFortresses(companyID);
+  }
 
-    public FortressUserNode save(FortressNode fortress, String fortressUserName) {
-        return fortressUserRepo.save(new FortressUserNode(fortress, fortressUserName));
-    }
+  public FortressUserNode findOneUser(Long fortressUserId) {
+    return fortressUserRepo.findOne(fortressUserId);
+  }
 
-    public String delete(Fortress fortress) {
-        fortressRepo.delete((FortressNode) fortress);
-        return "OK";
-    }
+  public FortressUserNode save(FortressNode fortress, String fortressUserName) {
+    return fortressUserRepo.save(new FortressUserNode(fortress, fortressUserName));
+  }
 
-    public FortressNode getFortressByName(Long companyId, String fortressName) {
-        return fortressRepo.getFortressByName(companyId, fortressName);
-    }
+  public String delete(Fortress fortress) {
+    fortressRepo.delete((FortressNode) fortress);
+    return "OK";
+  }
 
-    public FortressNode getFortressByCode(Long companyId, String fortressCode) {
-        return fortressRepo.getFortressByCode(companyId, fortressCode.toLowerCase());
-    }
+  public FortressNode getFortressByName(Long companyId, String fortressName) {
+    return fortressRepo.getFortressByName(companyId, fortressName);
+  }
 
-    public Segment saveSegment(Segment segment) {
-        Segment result = findSegment(segment.getFortress(), segment.getKey());
-        if (result == null) {
-            result = fortressSegmentRepo.save((FortressSegmentNode) segment);
-        }
-        return result;
-    }
+  public FortressNode getFortressByCode(Long companyId, String fortressCode) {
+    return fortressRepo.getFortressByCode(companyId, fortressCode.toLowerCase());
+  }
 
-    public Segment getDefaultSegment(Fortress fortress) {
-        FortressSegmentNode segment = (FortressSegmentNode) fortress.getDefaultSegment();
-        template.fetch(segment);
-        return segment;
+  public Segment saveSegment(Segment segment) {
+    Segment result = findSegment(segment.getFortress(), segment.getKey());
+    if (result == null) {
+      result = fortressSegmentRepo.save((FortressSegmentNode) segment);
     }
+    return result;
+  }
 
-    public Collection<Segment> getSegments(Fortress fortress) {
-        return fortressSegmentRepo.findFortressSegments(fortress.getId());
-    }
+  public Segment getDefaultSegment(Fortress fortress) {
+    FortressSegmentNode segment = (FortressSegmentNode) fortress.getDefaultSegment();
+    template.fetch(segment);
+    return segment;
+  }
 
-    Segment findSegment(Fortress fortress, String segmentKey) {
-        return fortressSegmentRepo.findSegment(fortress.getId(), segmentKey);
-    }
+  public Collection<Segment> getSegments(Fortress fortress) {
+    return fortressSegmentRepo.findFortressSegments(fortress.getId());
+  }
 
-    public void purgeFortress(Long fortressId) {
-        fortressSegmentRepo.purgeFortressSegments(fortressId);
-    }
+  Segment findSegment(Fortress fortress, String segmentKey) {
+    return fortressSegmentRepo.findSegment(fortress.getId(), segmentKey);
+  }
 
-    public FortressNode update(FortressNode existing) {
-        return template.save(existing);
-    }
+  public void purgeFortress(Long fortressId) {
+    fortressSegmentRepo.purgeFortressSegments(fortressId);
+  }
 
-    public Fortress save(FortressNode fortress) {
-        template.save(fortress);
-        return fortress;
-    }
+  public FortressNode update(FortressNode existing) {
+    return template.save(existing);
+  }
+
+  public Fortress save(FortressNode fortress) {
+    template.save(fortress);
+    return fortress;
+  }
 }

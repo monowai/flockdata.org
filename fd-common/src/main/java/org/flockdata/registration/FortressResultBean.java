@@ -28,90 +28,90 @@ import org.flockdata.track.bean.SegmentResultBean;
  * @since 21/12/2013
  */
 public class FortressResultBean implements Fortress, Serializable {
-    private String code;
-    private String name;
-    private String rootIndex;
-    private String timeZone;
-    private String message;
-    private Boolean enabled = Boolean.TRUE;
-    private Boolean searchEnabled;
-    private Boolean storeEnabled;
-    private CompanyResultBean company;
-    private SegmentResultBean defaultSegment;
-    private boolean system;
+  private String code;
+  private String name;
+  private String rootIndex;
+  private String timeZone;
+  private String message;
+  private Boolean enabled = Boolean.TRUE;
+  private Boolean searchEnabled;
+  private Boolean storeEnabled;
+  private CompanyResultBean company;
+  private SegmentResultBean defaultSegment;
+  private boolean system;
 
-    protected FortressResultBean() {
+  protected FortressResultBean() {
 
-    }
+  }
 
-    public FortressResultBean(Fortress fortress) {
-        this();
-        this.name = fortress.getName();
-        this.code = fortress.getCode();
-        this.rootIndex = fortress.getRootIndex();
-        this.timeZone = fortress.getTimeZone();
-        this.enabled = fortress.isEnabled();
-        this.system = fortress.isSystem();
-        this.searchEnabled = fortress.isSearchEnabled();
-        this.company = new CompanyResultBean(fortress.getCompany());
-        this.storeEnabled = fortress.isStoreEnabled();
-        //this.defaultSegment= new SegmentResultBean(fortress.getDefaultSegment());
-    }
+  public FortressResultBean(Fortress fortress) {
+    this();
+    this.name = fortress.getName();
+    this.code = fortress.getCode();
+    this.rootIndex = fortress.getRootIndex();
+    this.timeZone = fortress.getTimeZone();
+    this.enabled = fortress.isEnabled();
+    this.system = fortress.isSystem();
+    this.searchEnabled = fortress.isSearchEnabled();
+    this.company = new CompanyResultBean(fortress.getCompany());
+    this.storeEnabled = fortress.isStoreEnabled();
+    //this.defaultSegment= new SegmentResultBean(fortress.getDefaultSegment());
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getTimeZone() {
-        return timeZone;
-    }
+  public String getTimeZone() {
+    return timeZone;
+  }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+  public boolean isEnabled() {
+    return enabled;
+  }
 
-    public Boolean isStoreEnabled() {
-        return storeEnabled;
-    }
+  public Boolean isStoreEnabled() {
+    return storeEnabled;
+  }
 
-    @Override
-    public Company getCompany() {
-        return company;
-    }
+  @Override
+  public Company getCompany() {
+    return company;
+  }
 
-    @Override
-    public Boolean isSearchEnabled() {
-        return searchEnabled;
-    }
+  @Override
+  public Boolean isSearchEnabled() {
+    return searchEnabled;
+  }
 
-    @Override
-    @JsonIgnore
-    public Long getId() {
-        return null;
-    }
+  @Override
+  @JsonIgnore
+  public Long getId() {
+    return null;
+  }
 
-    public String getCode() {
-        return code;
-    }
+  public String getCode() {
+    return code;
+  }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+  public void setCode(String code) {
+    this.code = code;
+  }
 
-    public String getRootIndex() {
-        return rootIndex;
-    }
+  public String getRootIndex() {
+    return rootIndex;
+  }
 
-    @Override
-    public Segment getDefaultSegment() {
-        return defaultSegment;
-    }
+  @Override
+  public Segment getDefaultSegment() {
+    return defaultSegment;
+  }
 
-    public Boolean isSystem() {
-        return system;
-    }
+  public Boolean isSystem() {
+    return system;
+  }
 
-    public String getMessage() {
-        return message;
-    }
+  public String getMessage() {
+    return message;
+  }
 }

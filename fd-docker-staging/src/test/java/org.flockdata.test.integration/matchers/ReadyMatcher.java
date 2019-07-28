@@ -24,7 +24,7 @@ import org.flockdata.transform.FdIoInterface;
  */
 public interface ReadyMatcher<T> {
 
-    boolean isReady(FdIoInterface fdIoInterface);
+  boolean isReady(FdIoInterface fdIoInterface);
 
-    T getResponse();
+  T getResponse();
 }

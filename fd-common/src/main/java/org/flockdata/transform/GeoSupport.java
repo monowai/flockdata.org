@@ -38,33 +38,33 @@ import org.slf4j.Logger;
  * @since 29/07/2015
  */
 public class GeoSupport {
-    static final CoordinateReferenceSystem targetCrs = DefaultGeographicCRS.WGS84;
-    private static final Logger logger = getLogger(GeoSupport.class);
+  static final CoordinateReferenceSystem targetCrs = DefaultGeographicCRS.WGS84;
+  private static final Logger logger = getLogger(GeoSupport.class);
 
-    public static double[] convert(String sourceFormat, double x, double y) throws FlockException {
+  public static double[] convert(String sourceFormat, double x, double y) throws FlockException {
 
-        try {
-            CoordinateReferenceSystem sourceCrs = CRS.decode(sourceFormat);
+    try {
+      CoordinateReferenceSystem sourceCrs = CRS.decode(sourceFormat);
 
 
-            MathTransform mathTransform
-                = CRS.findMathTransform(sourceCrs, targetCrs, true);
+      MathTransform mathTransform
+          = CRS.findMathTransform(sourceCrs, targetCrs, true);
 
-            DirectPosition srcDirectPosition2D
-                = new DirectPosition2D(sourceCrs, x, y);
+      DirectPosition srcDirectPosition2D
+          = new DirectPosition2D(sourceCrs, x, y);
 
-            DirectPosition destDirectPosition2D
-                = new DirectPosition2D();
+      DirectPosition destDirectPosition2D
+          = new DirectPosition2D();
 
-            return mathTransform.transform(srcDirectPosition2D, destDirectPosition2D).getCoordinate();
-        } catch (Exception e) {
-            logger.error("Geo conversion exception ", e);
-            return null;
-        }
-
+      return mathTransform.transform(srcDirectPosition2D, destDirectPosition2D).getCoordinate();
+    } catch (Exception e) {
+      logger.error("Geo conversion exception ", e);
+      return null;
     }
 
-    public static double[] convert(GeoPayload geoPayload) throws FlockException {
-        return convert(geoPayload.getSourceFormat(), geoPayload.getXValue(), geoPayload.getYValue());
-    }
+  }
+
+  public static double[] convert(GeoPayload geoPayload) throws FlockException {
+    return convert(geoPayload.getSourceFormat(), geoPayload.getXValue(), geoPayload.getYValue());
+  }
 }

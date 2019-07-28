@@ -27,13 +27,13 @@ import org.springframework.integration.annotation.Gateway;
  * @tag Messaging, Administration
  */
 public interface FdMonitoringGateway {
-    /**
-     * A required Payload must be declared due to spring Integration constraint
-     * http://docs.spring.io/spring-integration/reference/html/messaging-endpoints-chapter.html#gateway-calling-no-argument-methods
-     *
-     * @return PingResult
-     */
-    @Gateway(requestChannel = "pingFdEngineRequest", replyChannel = "pingFdEngineReply")
-    PingResult ping();
+  /**
+   * A required Payload must be declared due to spring Integration constraint
+   * http://docs.spring.io/spring-integration/reference/html/messaging-endpoints-chapter.html#gateway-calling-no-argument-methods
+   *
+   * @return PingResult
+   */
+  @Gateway(requestChannel = "pingFdEngineRequest", replyChannel = "pingFdEngineReply")
+  PingResult ping();
 }
 

@@ -48,59 +48,60 @@ import org.junit.Test;
  * @since 1/10/2014
  */
 public class TestEntitySearch {
-    @Test
-    public void tags_ArrayWork() throws Exception {
-        Collection<EntityTag> tags = new ArrayList<>();
+  @Test
+  public void tags_ArrayWork() throws Exception {
+    Collection<EntityTag> tags = new ArrayList<>();
 
-        EntityNode e = getEntity("test", "blah", "asdf", "don'tcare");
-        String relationship = "dupe";
+    EntityNode e = getEntity("test", "blah", "asdf", "don'tcare");
+    String relationship = "dupe";
 
-        // ToDo: What is the diff between these relationships
-        tags.add(new EntityTagOut(e, getTag("NameA", relationship), relationship, null));
-        tags.add(new EntityTagOut(e, getTag("NameB", "Dupe"), "Dupe", null));
-        tags.add(new EntityTagOut(e, getTag("NameC", relationship), relationship, null));
+    // ToDo: What is the diff between these relationships
+    tags.add(new EntityTagOut(e, getTag("NameA", relationship), relationship, null));
+    tags.add(new EntityTagOut(e, getTag("NameB", "Dupe"), "Dupe", null));
+    tags.add(new EntityTagOut(e, getTag("NameC", relationship), relationship, null));
 
-        EntitySearchChange entitySearchChange = new EntitySearchChange(e, "");
+    EntitySearchChange entitySearchChange = new EntitySearchChange(e, "");
 
-        entitySearchChange.setStructuredTags(tags);
-        assertEquals(1, entitySearchChange.getTagValues().size());
-        // Find by relationship
-        Map<String, ArrayList<SearchTag>> values = entitySearchChange.getTagValues().get(relationship);
-        //assertTrue (values.get("code") instanceof Collection);
+    entitySearchChange.setStructuredTags(tags);
+    assertEquals(1, entitySearchChange.getTagValues().size());
+    // Find by relationship
+    Map<String, ArrayList<SearchTag>> values = entitySearchChange.getTagValues().get(relationship);
+    //assertTrue (values.get("code") instanceof Collection);
 
-        Collection mValues = values.get("tag");
-        // Each entry has a Name and Code value
-        assertNotNull("Could not find the Tag in the result set", mValues);
-        assertEquals("Incorrect Values found for the relationship. Not ignoring case?", 3, mValues.size());
+    Collection mValues = values.get("tag");
+    // Each entry has a Name and Code value
+    assertNotNull("Could not find the Tag in the result set", mValues);
+    assertEquals("Incorrect Values found for the relationship. Not ignoring case?", 3, mValues.size());
 
-        System.out.println(entitySearchChange.getTagValues());
-    }
+    System.out.println(entitySearchChange.getTagValues());
+  }
 
-    TagNode getTag(String tagName, String rlxName) {
-        TagInputBean tagInputBean = new TagInputBean(tagName, null, rlxName);
-        return new TagNode(tagInputBean);
-    }
+  TagNode getTag(String tagName, String rlxName) {
+    TagInputBean tagInputBean = new TagInputBean(tagName, null, rlxName);
+    return new TagNode(tagInputBean);
+  }
 
-    EntityNode getEntity(String comp, String fort, String userName, String doctype) throws FlockException {
-        // These are the minimum objects necessary to create Entity data
-        FortressNode fortress = new FortressNode(new FortressInputBean(fort, false), new CompanyNode(comp));
-        FortressUserNode user = new FortressUserNode(fortress, userName);
-        DocumentNode doc = new DocumentNode(fortress, doctype);
+  EntityNode getEntity(String comp, String fort, String userName, String doctype) throws FlockException {
+    // These are the minimum objects necessary to create Entity data
+    FortressNode fortress = new FortressNode(new FortressInputBean(fort, false),
+        CompanyNode.builder().name(comp).build());
+    FortressUserNode user = new FortressUserNode(fortress, userName);
+    DocumentNode doc = new DocumentNode(fortress, doctype);
 
-        DateTime now = new DateTime();
-        EntityInputBean mib = getEntityInputBean(doc, user, now.toString(), now);
+    DateTime now = new DateTime();
+    EntityInputBean mib = getEntityInputBean(doc, user, now.toString(), now);
 
-        return new EntityNode(now.toString(), fortress.getDefaultSegment(), mib, doc, user);
+    return new EntityNode(now.toString(), fortress.getDefaultSegment(), mib, doc, user);
 
-    }
+  }
 
-    EntityInputBean getEntityInputBean(DocumentNode docType, FortressUserNode fortressUser, String code, DateTime now) {
+  EntityInputBean getEntityInputBean(DocumentNode docType, FortressUserNode fortressUser, String code, DateTime now) {
 
-        return new EntityInputBean(fortressUser.getFortress(),
-            fortressUser.getCode(),
-            docType.getName(),
-            now,
-            code);
+    return new EntityInputBean(fortressUser.getFortress(),
+        fortressUser.getCode(),
+        docType.getName(),
+        now,
+        code);
 
-    }
+  }
 }

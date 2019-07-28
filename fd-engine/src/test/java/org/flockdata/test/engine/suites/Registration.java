@@ -36,6 +36,6 @@ import org.junit.runners.Suite;
     TestRegistration.class
 })
 public class Registration {
-    Registration() {
-    }
+  Registration() {
+  }
 }

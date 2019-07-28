@@ -41,38 +41,41 @@ import org.junit.Test;
  */
 public class TestIndexManager {
 
-    @Test
-    public void testIM() throws Exception {
-        CompanyNode company = new CompanyNode("comp");
-        FortressInputBean fortressInput = new FortressInputBean("fort");
-        FortressNode fortress = new FortressNode(fortressInput, company);
-        IndexManager indexManager = new IndexManager("blah.", true);
-        TestCase.assertEquals("overriding the default search prefix is failing", "blah.", indexManager.getPrefix());
-        TestCase.assertEquals(indexManager.getPrefix() + company.getCode() + "." + fortress.getCode(), indexManager.getIndexRoot(fortress));
-    }
+  @Test
+  public void testIM() throws Exception {
+    CompanyNode company = CompanyNode.builder()
+        .name("comp")
+        .code("comp")
+        .build();
+    FortressInputBean fortressInput = new FortressInputBean("fort");
+    FortressNode fortress = new FortressNode(fortressInput, company);
+    IndexManager indexManager = new IndexManager("blah.", true);
+    TestCase.assertEquals("overriding the default search prefix is failing", "blah.", indexManager.getPrefix());
+    TestCase.assertEquals(indexManager.getPrefix() + company.getCode() + "." + fortress.getCode(), indexManager.getIndexRoot(fortress));
+  }
 
-    @Test
-    public void json_QueryParams() throws Exception {
-        QueryParams queryParams = new QueryParams("*");
-        String json = JsonUtils.toJson(queryParams);
-        TestCase.assertNotNull(json);
+  @Test
+  public void json_QueryParams() throws Exception {
+    QueryParams queryParams = new QueryParams("*");
+    String json = JsonUtils.toJson(queryParams);
+    TestCase.assertNotNull(json);
 
-        QueryParams qp = JsonUtils.toObject(json.getBytes(), QueryParams.class);
-        assertThat(qp)
-            .isNotNull()
-            .hasFieldOrPropertyWithValue("searchText", qp.getSearchText());
-    }
+    QueryParams qp = JsonUtils.toObject(json.getBytes(), QueryParams.class);
+    assertThat(qp)
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("searchText", qp.getSearchText());
+  }
 
-    @Test
-    public void json_TagResult() throws Exception {
-        TagInputBean tagInputBean = new TagInputBean("abc", "label");
-        TagResultBean tagResult = new FdTagResultBean(tagInputBean);
-        String json = JsonUtils.toJson(tagResult);
-        TestCase.assertNotNull(json);
+  @Test
+  public void json_TagResult() throws Exception {
+    TagInputBean tagInputBean = new TagInputBean("abc", "label");
+    TagResultBean tagResult = new FdTagResultBean(tagInputBean);
+    String json = JsonUtils.toJson(tagResult);
+    TestCase.assertNotNull(json);
 
-        TagResultBean tr = JsonUtils.toObject(json.getBytes(), TagResultBean.class);
-        TestCase.assertNotNull(tr);
-        TestCase.assertEquals(tagResult.getCode(), tr.getCode());
-    }
+    TagResultBean tr = JsonUtils.toObject(json.getBytes(), TagResultBean.class);
+    TestCase.assertNotNull(tr);
+    TestCase.assertEquals(tagResult.getCode(), tr.getCode());
+  }
 
 }

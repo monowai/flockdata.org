@@ -38,30 +38,30 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class SearchFdPost {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public SearchFdPost(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public SearchFdPost(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+
+  public CommandResponse<EsSearchRequestResult> exec(QueryParams queryParams) {
+    String error;
+
+    EsSearchRequestResult result = null;
+    HttpEntity requestEntity = new HttpEntity<>(queryParams, fdIoInterface.getHeaders());
+
+    try {
+
+      ResponseEntity<EsSearchRequestResult> response;
+      response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchRequestResult.class);
+
+      result = response.getBody();
+      error = result.getFdSearchError();
+    } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+      error = e.getMessage();
     }
-
-
-    public CommandResponse<EsSearchRequestResult> exec(QueryParams queryParams) {
-        String error;
-
-        EsSearchRequestResult result = null;
-        HttpEntity requestEntity = new HttpEntity<>(queryParams, fdIoInterface.getHeaders());
-
-        try {
-
-            ResponseEntity<EsSearchRequestResult> response;
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchRequestResult.class);
-
-            result = response.getBody();
-            error = result.getFdSearchError();
-        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, result);// Everything worked
-    }
+    return new CommandResponse<>(error, result);// Everything worked
+  }
 }

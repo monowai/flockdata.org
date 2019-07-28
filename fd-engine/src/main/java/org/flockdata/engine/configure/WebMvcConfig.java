@@ -39,39 +39,39 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Controller
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
-    @Value("#{'${cors.allowOrigin:http://127.0.0.1:9000,http://localhost:9000}'.split(',')}")
-    String[] origins;
-    @Value("#{'${cors.supportedHeaders:*}'.split(',')}")
-    String[] headers;
-    @Value("#{'${cors.supportedMethods:GET,POST,HEAD,OPTIONS,PUT,DELETE}'.split(',')}")
-    String[] methods;
-    @Value("${cors.supportsCredentials:true}")
-    Boolean allowCredentials;
-    @Autowired
-    private ApiKeyInterceptor apiKeyInterceptor;
+  @Value("#{'${cors.allowOrigin:http://127.0.0.1:9000,http://localhost:9000}'.split(',')}")
+  String[] origins;
+  @Value("#{'${cors.supportedHeaders:*}'.split(',')}")
+  String[] headers;
+  @Value("#{'${cors.supportedMethods:GET,POST,HEAD,OPTIONS,PUT,DELETE}'.split(',')}")
+  String[] methods;
+  @Value("${cors.supportsCredentials:true}")
+  Boolean allowCredentials;
+  @Autowired
+  private ApiKeyInterceptor apiKeyInterceptor;
 
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(apiKeyInterceptor);
-    }
+  public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(apiKeyInterceptor);
+  }
 
-    @RequestMapping("/")
-    String home() {
-        return "index.html";
-    }
+  @RequestMapping("/")
+  String home() {
+    return "index.html";
+  }
 
-    @RequestMapping("/api")
-    String api() {
-        return home();
-    }
+  @RequestMapping("/api")
+  String api() {
+    return home();
+  }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-            .allowedOrigins(origins)
-            .allowedHeaders(headers)
-            .allowedMethods(methods)
-            .allowCredentials(allowCredentials)
-        ;
-    }
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+    registry.addMapping("/api/**")
+        .allowedOrigins(origins)
+        .allowedHeaders(headers)
+        .allowedMethods(methods)
+        .allowCredentials(allowCredentials)
+    ;
+  }
 
 }

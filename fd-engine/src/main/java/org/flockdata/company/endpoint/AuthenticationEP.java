@@ -50,71 +50,71 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.engine.system.api:api}/")
 public class AuthenticationEP {
 
-    //private static final Logger logger = LoggerFactory.getLogger(AuthenticationEP.class);
+  //private static final Logger logger = LoggerFactory.getLogger(AuthenticationEP.class);
 
-    private final AuthenticationManager authenticationManager;
+  private final AuthenticationManager authenticationManager;
 
-    private final RegistrationService regService;
+  private final RegistrationService regService;
 
 
-    private final UserProfileService userProfileService;
+  private final UserProfileService userProfileService;
 
-    @Autowired(required = false)
-    public AuthenticationEP(@Qualifier("authenticationManager") AuthenticationManager authenticationManager, RegistrationService regService, UserProfileService userProfileService) {
-        this.authenticationManager = authenticationManager;
-        this.regService = regService;
-        this.userProfileService = userProfileService;
+  @Autowired(required = false)
+  public AuthenticationEP(@Qualifier("authenticationManager") AuthenticationManager authenticationManager, RegistrationService regService, UserProfileService userProfileService) {
+    this.authenticationManager = authenticationManager;
+    this.regService = regService;
+    this.userProfileService = userProfileService;
+  }
+
+  @RequestMapping(value = "/ping", method = RequestMethod.GET)
+  public String getPing() {
+    // curl -X GET http://localhost:8081/api/ping
+    return "pong";
+  }
+
+
+  @RequestMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+  public ResponseEntity<SystemUserResultBean> handleLogin(@RequestBody LoginRequest loginRequest) throws Exception {
+    String username = loginRequest.getUsername();
+    String password = loginRequest.getPassword();
+
+    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+        username, password);
+    Authentication auth = authenticationManager.authenticate(token);
+    SecurityContextHolder.getContext().setAuthentication(auth);
+    return new ResponseEntity<>(new SystemUserResultBean(regService.getSystemUser(), userProfileService.getUser(auth)), HttpStatus.OK);
+  }
+
+  /**
+   * GET  /account returns current logged in user
+   *
+   * @param apiHeaderKey optional, user can be located via an apiKey if you have one
+   * @return view of user associated with the key
+   * @throws Exception error
+   */
+  @RequestMapping(value = "/account", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+  public ResponseEntity<SystemUserResultBean> checkUser(@RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws Exception {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @RequestMapping(value = "/ping", method = RequestMethod.GET)
-    public String getPing() {
-        // curl -X GET http://localhost:8081/api/ping
-        return "pong";
+    return new ResponseEntity<>(new SystemUserResultBean(regService.getSystemUser(apiHeaderKey), userProfileService.getUser(auth)), HttpStatus.OK);
+  }
+
+  /**
+   * GET  /logout logout the currently logged in user.
+   *
+   * @param request  servlet request context
+   * @param response servlet response
+   */
+  @RequestMapping(value = "/logout", method = RequestMethod.GET)
+  public void handleLogout(HttpServletRequest request, HttpServletResponse response) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null) {
+      new SecurityContextLogoutHandler().logout(request, response, auth);
     }
-
-
-    @RequestMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-    public ResponseEntity<SystemUserResultBean> handleLogin(@RequestBody LoginRequest loginRequest) throws Exception {
-        String username = loginRequest.getUsername();
-        String password = loginRequest.getPassword();
-
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-            username, password);
-        Authentication auth = authenticationManager.authenticate(token);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        return new ResponseEntity<>(new SystemUserResultBean(regService.getSystemUser(), userProfileService.getUser(auth)), HttpStatus.OK);
-    }
-
-    /**
-     * GET  /account returns current logged in user
-     *
-     * @param apiHeaderKey optional, user can be located via an apiKey if you have one
-     * @return view of user associated with the key
-     * @throws Exception error
-     */
-    @RequestMapping(value = "/account", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<SystemUserResultBean> checkUser(@RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws Exception {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
-
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
-        return new ResponseEntity<>(new SystemUserResultBean(regService.getSystemUser(apiHeaderKey), userProfileService.getUser(auth)), HttpStatus.OK);
-    }
-
-    /**
-     * GET  /logout logout the currently logged in user.
-     *
-     * @param request  servlet request context
-     * @param response servlet response
-     */
-    @RequestMapping(value = "/logout", method = RequestMethod.GET)
-    public void handleLogout(HttpServletRequest request, HttpServletResponse response) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            new SecurityContextLogoutHandler().logout(request, response, auth);
-        }
-        SecurityContextHolder.getContext().setAuthentication(null);
-    }
+    SecurityContextHolder.getContext().setAuthentication(null);
+  }
 }

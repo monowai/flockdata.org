@@ -39,29 +39,29 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class Login {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public Login(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public Login(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+
+  /**
+   * @return an error message (if one occurred) and null if everything is worked. Call result() to get, umm, the result
+   */
+  public CommandResponse<SystemUserResultBean> exec(String user, String pass) {
+    String error = null;
+    SystemUserResultBean result = null;
+    try {
+      ResponseEntity<SystemUserResultBean> response;
+      HttpEntity<LoginRequest> request = new HttpEntity<>(new LoginRequest(user, pass), fdIoInterface.getHeaders());
+      response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/login", HttpMethod.POST, request, SystemUserResultBean.class);
+      result = response.getBody();
+    } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
+      error = String.format("Login for %s on %s failed with %s", fdIoInterface.getUrl(), user, e.getMessage());
     }
-
-
-    /**
-     * @return an error message (if one occurred) and null if everything is worked. Call result() to get, umm, the result
-     */
-    public CommandResponse<SystemUserResultBean> exec(String user, String pass) {
-        String error = null;
-        SystemUserResultBean result = null;
-        try {
-            ResponseEntity<SystemUserResultBean> response;
-            HttpEntity<LoginRequest> request = new HttpEntity<>(new LoginRequest(user, pass), fdIoInterface.getHeaders());
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/login", HttpMethod.POST, request, SystemUserResultBean.class);
-            result = response.getBody();
-        } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
-            error = String.format("Login for %s on %s failed with %s", fdIoInterface.getUrl(), user, e.getMessage());
-        }
-        return new CommandResponse<>(error, result);
-    }
+    return new CommandResponse<>(error, result);
+  }
 
 }

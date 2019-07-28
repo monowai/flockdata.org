@@ -32,7 +32,7 @@ import org.neo4j.server.configuration.Configurator;
  */
 public class WrappingCommunityNeoServer extends WrappingNeoServer {
 
-    public WrappingCommunityNeoServer(GraphDatabaseAPI db, Configurator configurator) {
-        super(db, configurator);
-    }
+  public WrappingCommunityNeoServer(GraphDatabaseAPI db, Configurator configurator) {
+    super(db, configurator);
+  }
 }

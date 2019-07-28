@@ -30,20 +30,20 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 
 public interface CompanyRepository extends GraphRepository<CompanyNode> {
 
-    @Query(elementClass = SystemUserNode.class, value = "match (company:FDCompany)-[r:ACCESSES]- (systemUser:SystemUser) " +
-        "where id(company) = {0} and systemUser.login ={1} return systemUser")
-    SystemUserNode getAdminUser(long companyId, String userName);
+  @Query(elementClass = SystemUserNode.class, value = "match (company:FDCompany)-[r:ACCESSES]- (systemUser:SystemUser) " +
+      "where id(company) = {0} and systemUser.login ={1} return systemUser")
+  SystemUserNode getAdminUser(long companyId, String userName);
 
 
-    @Query(elementClass = CompanyNode.class,
-        value = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) " +
-            "where id(su)={0}" +
-            "return company ")
-    Collection<Company> getCompaniesForUser(Long sysUserId);
+  @Query(elementClass = CompanyNode.class,
+      value = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) " +
+          "where id(su)={0}" +
+          "return company ")
+  Collection<Company> getCompaniesForUser(Long sysUserId);
 
-    @Query(elementClass = CompanyNode.class,
-        value = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) " +
-            "where su.apiKey={0}" +
-            "return company ")
-    Collection<Company> findCompanies(String userApiKey);
+  @Query(elementClass = CompanyNode.class,
+      value = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) " +
+          "where su.apiKey={0}" +
+          "return company ")
+  Collection<Company> findCompanies(String userApiKey);
 }

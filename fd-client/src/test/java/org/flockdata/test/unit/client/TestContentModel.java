@@ -38,42 +38,42 @@ import org.junit.Test;
  */
 public class TestContentModel {
 
-    @Test
-    public void contentModelDeserializes() throws Exception {
-        String fileName = "/model/document-type.json";
-        ContentModel model = ContentModelDeserializer.getContentModel(fileName);
-        assertNotNull(model.getDocumentType());
-        TestCase.assertEquals("PAC", model.getDocumentType().getName());
-    }
+  @Test
+  public void contentModelDeserializes() throws Exception {
+    String fileName = "/model/document-type.json";
+    ContentModel model = ContentModelDeserializer.getContentModel(fileName);
+    assertNotNull(model.getDocumentType());
+    TestCase.assertEquals("PAC", model.getDocumentType().getName());
+  }
 
-    @Test
-    public void mergeColumnDefinitions() throws Exception {
-        ContentModel contentModel = new ContentModelHandler();
-        ColumnDefinition columnDefinition = new ColumnDefinition();
-        columnDefinition.setDataType("String");
-        Map<String, ColumnDefinition> columns = new HashMap<>();
-        columns.put("Existing", columnDefinition);
-        contentModel.setContent(columns);
+  @Test
+  public void mergeColumnDefinitions() throws Exception {
+    ContentModel contentModel = new ContentModelHandler();
+    ColumnDefinition columnDefinition = new ColumnDefinition();
+    columnDefinition.setDataType("String");
+    Map<String, ColumnDefinition> columns = new HashMap<>();
+    columns.put("Existing", columnDefinition);
+    contentModel.setContent(columns);
 
-        columns = new HashMap<>(); // Create new payload to merge
-        columns.put("Second", columnDefinition);
+    columns = new HashMap<>(); // Create new payload to merge
+    columns.put("Second", columnDefinition);
 
-        assertEquals("Existing model did not have 1 ColDef", 1, contentModel.getContent().size());
+    assertEquals("Existing model did not have 1 ColDef", 1, contentModel.getContent().size());
 
-        contentModel.setContent(columns);
-        assertEquals("Second ColDef did not merge with the existing one", 2, contentModel.getContent().size());
+    contentModel.setContent(columns);
+    assertEquals("Second ColDef did not merge with the existing one", 2, contentModel.getContent().size());
 
-    }
+  }
 
-    @Test
-    public void suppressionFlags() throws Exception {
-        ContentModel model = ContentModelDeserializer.getContentModel("/model/track-suppression.json");
-        Map<String, Object> row = new HashMap<>();
-        row.put("blah", 10);
-        EntityInputBean result = org.flockdata.transform.Transformer.toEntity(row, model);
-        assertNotNull(result);
-        assertTrue(result.isSearchSuppressed());
-        assertTrue(result.isTrackSuppressed());
-    }
+  @Test
+  public void suppressionFlags() throws Exception {
+    ContentModel model = ContentModelDeserializer.getContentModel("/model/track-suppression.json");
+    Map<String, Object> row = new HashMap<>();
+    row.put("blah", 10);
+    EntityInputBean result = org.flockdata.transform.Transformer.toEntity(row, model);
+    assertNotNull(result);
+    assertTrue(result.isSearchSuppressed());
+    assertTrue(result.isTrackSuppressed());
+  }
 
 }

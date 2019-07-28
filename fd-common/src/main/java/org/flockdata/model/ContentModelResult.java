@@ -30,84 +30,84 @@ import org.flockdata.data.Model;
  */
 public class ContentModelResult {
 
-    private String key;
-    private String code;
-    private String name;
-    private String documentType;
-    private String fortress;
-    private ContentModel contentModel;
+  private String key;
+  private String code;
+  private String name;
+  private String documentType;
+  private String fortress;
+  private ContentModel contentModel;
 
-    ContentModelResult() {
+  ContentModelResult() {
 
+  }
+
+  public ContentModelResult(Model model) {
+    this();
+    this.key = model.getKey();
+    this.name = model.getName();
+    this.code = model.getCode();
+    if (model.getFortress() != null) {
+      this.fortress = model.getFortress().getName();
+    } else if (model.getFortressName() != null) {
+      this.fortress = model.getFortressName();
+    } else {
+      this.fortress = "Tag";
     }
 
-    public ContentModelResult(Model model) {
-        this();
-        this.key = model.getKey();
-        this.name = model.getName();
+    if (model.getDocument() == null) {
+      if (model.getCode() != null) {
         this.code = model.getCode();
-        if (model.getFortress() != null) {
-            this.fortress = model.getFortress().getName();
-        } else if (model.getFortressName() != null) {
-            this.fortress = model.getFortressName();
-        } else {
-            this.fortress = "Tag";
-        }
-
-        if (model.getDocument() == null) {
-            if (model.getCode() != null) {
-                this.code = model.getCode();
-                this.documentType = model.getCode();
-            } else {
-                this.documentType = model.getDocumentName();
-            }
-        } else {
-            this.documentType = model.getDocument().getName();
-
-        }
+        this.documentType = model.getCode();
+      } else {
+        this.documentType = model.getDocumentName();
+      }
+    } else {
+      this.documentType = model.getDocument().getName();
 
     }
 
-    public String getKey() {
-        return key;
-    }
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getCode() {
-        return code;
-    }
+  public String getKey() {
+    return key;
+  }
 
-    public String getName() {
-        return name;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getCode() {
+    return code;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getDocumentType() {
-        return documentType;
-    }
+  public String getName() {
+    return name;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getFortress() {
-        return fortress;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getDocumentType() {
+    return documentType;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public ContentModel getContentModel() {
-        return contentModel;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getFortress() {
+    return fortress;
+  }
 
-    public void setContentModel(ContentModel contentModel) {
-        this.contentModel = contentModel;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public ContentModel getContentModel() {
+    return contentModel;
+  }
 
-    @Override
-    public String toString() {
-        return "ContentModelResult{" +
-            "code='" + code + '\'' +
-            ", name='" + name + '\'' +
-            ", documentType='" + documentType + '\'' +
-            ", fortress='" + fortress + '\'' +
-            ", key='" + key + '\'' +
-            '}';
-    }
+  public void setContentModel(ContentModel contentModel) {
+    this.contentModel = contentModel;
+  }
+
+  @Override
+  public String toString() {
+    return "ContentModelResult{" +
+        "code='" + code + '\'' +
+        ", name='" + name + '\'' +
+        ", documentType='" + documentType + '\'' +
+        ", fortress='" + fortress + '\'' +
+        ", key='" + key + '\'' +
+        '}';
+  }
 }

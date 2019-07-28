@@ -35,22 +35,22 @@ import org.junit.Test;
  * @since 29/05/2016
  */
 public class TestTagsToSearch extends EngineBase {
-    @Test
-    public void searchTags() throws Exception {
-        engineConfig.setMultiTenanted(false);
-        SystemUser su = registerSystemUser("searchTags", mike_admin);
+  @Test
+  public void searchTags() throws Exception {
+    engineConfig.setMultiTenanted(false);
+    SystemUser su = registerSystemUser("searchTags", mike_admin);
 
-        Collection<TagInputBean> tagInputs = new ArrayList<>();
-        TagInputBean deliveryPoint = new TagInputBean("7md", "Street").setName("7 Manor Drive");
-        AliasInputBean dpAlias = new AliasInputBean("7mdxxx", "Street Alias");
-        deliveryPoint.addAlias(dpAlias);
-        tagInputs.add(deliveryPoint);
+    Collection<TagInputBean> tagInputs = new ArrayList<>();
+    TagInputBean deliveryPoint = new TagInputBean("7md", "Street").setName("7 Manor Drive");
+    AliasInputBean dpAlias = new AliasInputBean("7mdxxx", "Street Alias");
+    deliveryPoint.addAlias(dpAlias);
+    tagInputs.add(deliveryPoint);
 
-        Collection<FdTagResultBean> tagResults = mediationFacade.createTags(su.getCompany(), tagInputs);
-        assertEquals(true, searchService.makeTagsSearchable(su.getCompany(), tagResults));
+    Collection<FdTagResultBean> tagResults = mediationFacade.createTags(su.getCompany(), tagInputs);
+    assertEquals(true, searchService.makeTagsSearchable(su.getCompany(), tagResults));
 
 //        tagService.findTag(su.getCompany(), deliveryPoint.getLabel(), null, dpAlias.getCode());
 
 
-    }
+  }
 }

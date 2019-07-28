@@ -38,38 +38,38 @@ import org.springframework.stereotype.Service;
 @Service
 public class SearchHandler {
 
-    private EntityService entityService;
-    private Logger logger = LoggerFactory.getLogger(SearchHandler.class);
+  private EntityService entityService;
+  private Logger logger = LoggerFactory.getLogger(SearchHandler.class);
 
-    public void handleResults(SearchResults searchResults) {
-        Collection<SearchResult> theResults = searchResults.getSearchResults();
-        int count = 0;
-        int size = theResults.size();
-        logger.debug("searchDocSyncResult processing {} incoming search results", size);
-        for (SearchResult searchResult : theResults) {
-            count++;
-            logger.debug("Updating {}/{} from search key =[{}]", count, size, searchResult);
-            Long entityId = searchResult.getEntityId();
-            if (entityId == null) {
-                return;
-            }
+  public void handleResults(SearchResults searchResults) {
+    Collection<SearchResult> theResults = searchResults.getSearchResults();
+    int count = 0;
+    int size = theResults.size();
+    logger.debug("searchDocSyncResult processing {} incoming search results", size);
+    for (SearchResult searchResult : theResults) {
+      count++;
+      logger.debug("Updating {}/{} from search key =[{}]", count, size, searchResult);
+      Long entityId = searchResult.getEntityId();
+      if (entityId == null) {
+        return;
+      }
 
-            try {
-                entityService.recordSearchResult(searchResult, entityId);
-            } catch (FlockException e) {
-                logger.error("Unexpected error recording searchResult for entityId " + entityId, e);
-            }
-        }
-        logger.trace("Finished processing search results");
+      try {
+        entityService.recordSearchResult(searchResult, entityId);
+      } catch (FlockException e) {
+        logger.error("Unexpected error recording searchResult for entityId " + entityId, e);
+      }
     }
+    logger.trace("Finished processing search results");
+  }
 
-    public EntityService getEntityService() {
-        return entityService;
-    }
+  public EntityService getEntityService() {
+    return entityService;
+  }
 
-    @Autowired
-    public void setEntityService(EntityService entityService) {
-        this.entityService = entityService;
-    }
+  @Autowired
+  public void setEntityService(EntityService entityService) {
+    this.entityService = entityService;
+  }
 
 }

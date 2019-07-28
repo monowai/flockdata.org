@@ -38,15 +38,15 @@ import org.springframework.messaging.MessageChannel;
 @Configuration
 @IntegrationComponentScan
 public class StoreChannels {
-    @Bean
-    MessageChannel storeErrors() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel storeErrors() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel storePing() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel storePing() {
+    return new DirectChannel();
+  }
 
 
 }

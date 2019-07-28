@@ -1,19 +1,19 @@
 {
-    "documentName": "Athlete",
-    "contentType": "csv",
-    "tagOrEntity": "entity",
-    "entityOnly": true,
-    "fortress": "Olympic",
-    "fortressUser": "mike",
-    "header": true,
-    "content": {
-        "Title": {
-            "callerRef": true,
-            "title": true
-        },
-        "Tag": {
-            "delimiter": ",",
-            "relationship": "subject"
-        }
+  "documentName": "Athlete",
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "entityOnly": true,
+  "fortress": "Olympic",
+  "fortressUser": "mike",
+  "header": true,
+  "content": {
+    "Title": {
+      "callerRef": true,
+      "title": true
+    },
+    "Tag": {
+      "delimiter": ",",
+      "relationship": "subject"
     }
+  }
 }

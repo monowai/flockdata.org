@@ -41,15 +41,15 @@ import org.flockdata.track.bean.TrackResultBean;
  */
 public interface LogService {
 
-    Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, ExecutionException, InterruptedException;
+  Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, ExecutionException, InterruptedException;
 
-    Collection<TrackResultBean> processLogsSync(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, InterruptedException, ExecutionException;
+  Collection<TrackResultBean> processLogsSync(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, InterruptedException, ExecutionException;
 
-    TrackResultBean writeLog(Document documentType, Entity entity, ContentInputBean input, FortressUser fu) throws FlockException, IOException, ExecutionException, InterruptedException;
+  TrackResultBean writeLog(Document documentType, Entity entity, ContentInputBean input, FortressUser fu) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    EntityLog getLastLog(Entity entity) throws FlockException;
+  EntityLog getLastLog(Entity entity) throws FlockException;
 
-    StoredContent getContent(Entity entity, LogNode log);
+  StoredContent getContent(Entity entity, LogNode log);
 
 //    Log prepareLog (Store defaultStore, TrackResultBean trackResult, Log log);
 

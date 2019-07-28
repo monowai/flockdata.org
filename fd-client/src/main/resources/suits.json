@@ -1,255 +1,251 @@
 [
-    {
-        "name": "Oracle",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Google"
-                }
-            ]
+  {
+    "name": "Oracle",
+    "targets": {
+      "suit": [
+        {
+          "name": "Google"
         }
-    },
-    {
-        "name": "Samsung",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Apple"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Samsung",
-        "targets": {
-            "resolved": [
-                {
-                    "name": "Kodak"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Motorola",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Apple"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Nokia",
-        "targets": {
-            "resolved": [
-                {
-                    "name": "Apple"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Nokia",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Qualcomm"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Qualcomm",
-        "targets": {
-            "resolved": [
-                {
-                    "name": "Nokia"
-                }
-            ]
-        }
-    },
-
-    {
-        "name": "HTC",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Apple"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Kodak",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Apple"
-                },
-                {
-                    "name": "RIM"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Kodak",
-        "targets": {
-            "resolved": [
-                {
-                    "name": "LG"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Kodak",
-        "targets": {
-            "resolved": [
-                {
-                    "name": "Samsung"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Apple",
-        "targets": {
-            "suit": [
-                {
-                    "name": "HTC"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Apple",
-        "targets": {
-            "resolved": [
-                {
-                    "name": "Nokia"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Apple",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Motorola"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Microsoft",
-        "targets": {
-            "licensing": [
-                {
-                    "name": "Amazon"
-                },
-                {
-                    "name": "HTC"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Microsoft",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Barnes & Nobel"
-                },
-                {
-                    "name": "Samsung"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Microsoft",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Inventec"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Microsoft",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Motorola"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Motorola",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Microsoft"
-                }
-            ]
-        }
-    },
-    {
-        "name": "LG",
-        "targets": {
-            "resolved": [
-                {
-                    "name": "Kodak"
-                }
-            ]
-        }
-    },
-
-    {
-        "name": "RIM",
-        "targets": {
-            "suit": [
-                {
-                    "name": "Kodak"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Sony",
-        "targets": {
-            "suit": [
-                {
-                    "name": "LG"
-                }
-            ]
-        }
-    },
-
-    {
-        "name": "Huawei",
-        "targets": {
-            "suit": [
-                {
-                    "name": "ZTE"
-                }
-            ]
-        }
-    },
-    {
-        "name": "Ericsson",
-        "targets": {
-            "suit": [
-                {
-                    "name": "ZTE"
-                }
-            ]
-        }
+      ]
     }
-
+  },
+  {
+    "name": "Samsung",
+    "targets": {
+      "suit": [
+        {
+          "name": "Apple"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Samsung",
+    "targets": {
+      "resolved": [
+        {
+          "name": "Kodak"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Motorola",
+    "targets": {
+      "suit": [
+        {
+          "name": "Apple"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Nokia",
+    "targets": {
+      "resolved": [
+        {
+          "name": "Apple"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Nokia",
+    "targets": {
+      "suit": [
+        {
+          "name": "Qualcomm"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Qualcomm",
+    "targets": {
+      "resolved": [
+        {
+          "name": "Nokia"
+        }
+      ]
+    }
+  },
+  {
+    "name": "HTC",
+    "targets": {
+      "suit": [
+        {
+          "name": "Apple"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Kodak",
+    "targets": {
+      "suit": [
+        {
+          "name": "Apple"
+        },
+        {
+          "name": "RIM"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Kodak",
+    "targets": {
+      "resolved": [
+        {
+          "name": "LG"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Kodak",
+    "targets": {
+      "resolved": [
+        {
+          "name": "Samsung"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Apple",
+    "targets": {
+      "suit": [
+        {
+          "name": "HTC"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Apple",
+    "targets": {
+      "resolved": [
+        {
+          "name": "Nokia"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Apple",
+    "targets": {
+      "suit": [
+        {
+          "name": "Motorola"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Microsoft",
+    "targets": {
+      "licensing": [
+        {
+          "name": "Amazon"
+        },
+        {
+          "name": "HTC"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Microsoft",
+    "targets": {
+      "suit": [
+        {
+          "name": "Barnes & Nobel"
+        },
+        {
+          "name": "Samsung"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Microsoft",
+    "targets": {
+      "suit": [
+        {
+          "name": "Inventec"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Microsoft",
+    "targets": {
+      "suit": [
+        {
+          "name": "Motorola"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Motorola",
+    "targets": {
+      "suit": [
+        {
+          "name": "Microsoft"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LG",
+    "targets": {
+      "resolved": [
+        {
+          "name": "Kodak"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RIM",
+    "targets": {
+      "suit": [
+        {
+          "name": "Kodak"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Sony",
+    "targets": {
+      "suit": [
+        {
+          "name": "LG"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Huawei",
+    "targets": {
+      "suit": [
+        {
+          "name": "ZTE"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Ericsson",
+    "targets": {
+      "suit": [
+        {
+          "name": "ZTE"
+        }
+      ]
+    }
+  }
 ]

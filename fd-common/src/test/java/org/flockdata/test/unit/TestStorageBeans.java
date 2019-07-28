@@ -31,13 +31,13 @@ import org.junit.Test;
  */
 public class TestStorageBeans {
 
-    @Test
-    public void storedContent() throws Exception {
-        Map<String, Object> data = new HashMap<>();
-        data.put("key", "property");
-        StorageBean storedContent = new StorageBean(123, data);
-        storedContent.setStore("SomeStore");
-        byte[] bytes = JsonUtils.toJsonBytes(storedContent);
-        assertNotNull(JsonUtils.toObject(bytes, StorageBean.class));
-    }
+  @Test
+  public void storedContent() throws Exception {
+    Map<String, Object> data = new HashMap<>();
+    data.put("key", "property");
+    StorageBean storedContent = new StorageBean(123, data);
+    storedContent.setStore("SomeStore");
+    byte[] bytes = JsonUtils.toJsonBytes(storedContent);
+    assertNotNull(JsonUtils.toObject(bytes, StorageBean.class));
+  }
 }

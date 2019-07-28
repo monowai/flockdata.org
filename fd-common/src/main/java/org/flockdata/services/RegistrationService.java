@@ -32,13 +32,13 @@ import org.flockdata.registration.RegistrationBean;
  */
 public interface RegistrationService {
 
-    SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException;
+  SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException;
 
-    SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException;
+  SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException;
 
-    Company resolveCompany(String apiKey) throws FlockException;
+  Company resolveCompany(String apiKey) throws FlockException;
 
-    SystemUser getSystemUser(String apiKey);
+  SystemUser getSystemUser(String apiKey);
 
-    SystemUser getSystemUser();
+  SystemUser getSystemUser();
 }

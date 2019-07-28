@@ -39,35 +39,35 @@ import org.springframework.stereotype.Component;
 @Profile( {"fd-server"})
 public class MessageSupport {
 
-    private ObjectToJsonTransformer objectToJsonTransformer;
-    private JsonToObjectTransformer j2o;
+  private ObjectToJsonTransformer objectToJsonTransformer;
+  private JsonToObjectTransformer j2o;
 
-    @PostConstruct
-    public void createTransformer() {
-        objectToJsonTransformer = new ObjectToJsonTransformer(
-            new Jackson2JsonObjectMapper(JsonUtils.getMapper())
-        );
-        objectToJsonTransformer.setContentType(MediaType.APPLICATION_JSON_UTF8.getType());
+  @PostConstruct
+  public void createTransformer() {
+    objectToJsonTransformer = new ObjectToJsonTransformer(
+        new Jackson2JsonObjectMapper(JsonUtils.getMapper())
+    );
+    objectToJsonTransformer.setContentType(MediaType.APPLICATION_JSON_UTF8.getType());
 
-        j2o = new JsonToObjectTransformer(
-            new Jackson2JsonObjectMapper(JsonUtils.getMapper())
-        );
+    j2o = new JsonToObjectTransformer(
+        new Jackson2JsonObjectMapper(JsonUtils.getMapper())
+    );
 
-    }
+  }
 
-    public JsonToObjectTransformer jsonToObject() {
-        return j2o;
-    }
+  public JsonToObjectTransformer jsonToObject() {
+    return j2o;
+  }
 
-    ObjectToJsonTransformer objectToJson() {
-        return objectToJsonTransformer;
-    }
+  ObjectToJsonTransformer objectToJson() {
+    return objectToJsonTransformer;
+  }
 
-    public Message<?> toJson(Message theObject) {
-        return objectToJson().transform(theObject);
-    }
+  public Message<?> toJson(Message theObject) {
+    return objectToJson().transform(theObject);
+  }
 
-    public Message<?> toObject(Message theObject) {
-        return j2o.transform(theObject);
-    }
+  public Message<?> toObject(Message theObject) {
+    return j2o.transform(theObject);
+  }
 }

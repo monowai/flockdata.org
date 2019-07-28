@@ -46,49 +46,49 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TagPathDao {
-    private final Neo4jTemplate template;
+  private final Neo4jTemplate template;
 
 
-    private Logger logger = LoggerFactory.getLogger(TagPathDao.class);
+  private Logger logger = LoggerFactory.getLogger(TagPathDao.class);
 
-    @Autowired
-    public TagPathDao(Neo4jTemplate template) {
-        this.template = template;
-    }
+  @Autowired
+  public TagPathDao(Neo4jTemplate template) {
+    this.template = template;
+  }
 
-    public Collection<Map<String, Object>> getPaths(Tag tag, int length, String label) {
-        String query = "match p=(t) -[*.." + length + "]->(targetTag:`" + label + "`) where id(t)= {0}   return p";
-        Map<String, Object> params = new HashMap<>();
-        params.put("0", tag.getId());
-        Collection<Map<String, Object>> results = new ArrayList<>();
-        Result<Map<String, Object>> qResults = template.query(query, params);
-        for (Map<String, Object> row : qResults) {
-            PathImpl paths = (PathImpl) row.get("p");
+  public Collection<Map<String, Object>> getPaths(Tag tag, int length, String label) {
+    String query = "match p=(t) -[*.." + length + "]->(targetTag:`" + label + "`) where id(t)= {0}   return p";
+    Map<String, Object> params = new HashMap<>();
+    params.put("0", tag.getId());
+    Collection<Map<String, Object>> results = new ArrayList<>();
+    Result<Map<String, Object>> qResults = template.query(query, params);
+    for (Map<String, Object> row : qResults) {
+      PathImpl paths = (PathImpl) row.get("p");
 
-            Map<String, Object> path = new HashMap<>();
-            results.add(path);
-            Integer pathCount = 0;
-            TagResultBean root = null;
-            String relationship = null;
-            for (Iterator<PropertyContainer> iterator = paths.iterator(); iterator.hasNext(); ) {
-                PropertyContainer pc = iterator.next();
-                if (pc instanceof Node) {
-                    TagResultBean tagResultBean = TagResultBuilder.make((Node) pc);
-                    path.put((pathCount++).toString(), tagResultBean);
-                    if (iterator.hasNext()) {
-                        Relationship rel = (Relationship) iterator.next(); // Get the relationship
-                        relationship = rel.getType().name();
-                        tagResultBean.setRelationship(relationship);
+      Map<String, Object> path = new HashMap<>();
+      results.add(path);
+      Integer pathCount = 0;
+      TagResultBean root = null;
+      String relationship = null;
+      for (Iterator<PropertyContainer> iterator = paths.iterator(); iterator.hasNext(); ) {
+        PropertyContainer pc = iterator.next();
+        if (pc instanceof Node) {
+          TagResultBean tagResultBean = TagResultBuilder.make((Node) pc);
+          path.put((pathCount++).toString(), tagResultBean);
+          if (iterator.hasNext()) {
+            Relationship rel = (Relationship) iterator.next(); // Get the relationship
+            relationship = rel.getType().name();
+            tagResultBean.setRelationship(relationship);
 //                        logger.info("Ignoring {} for {}, tag {}", rel.getType().name(), pathCount--, tagResultBean);
-                    }
-                } else {
-                    logger.info("What the hell am I doing here?");
-                }
-
-
-            }
+          }
+        } else {
+          logger.info("What the hell am I doing here?");
         }
-        return results;
+
+
+      }
     }
+    return results;
+  }
 
 }

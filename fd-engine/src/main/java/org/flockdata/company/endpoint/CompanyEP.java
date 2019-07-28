@@ -51,56 +51,56 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/company")
 public class CompanyEP {
 
-    private static final Logger logger = LoggerFactory
-        .getLogger(CompanyEP.class);
+  private static final Logger logger = LoggerFactory
+      .getLogger(CompanyEP.class);
 
-    private final CompanyService companyService;
+  private final CompanyService companyService;
 
-    private final ConceptService conceptService;
+  private final ConceptService conceptService;
 
-    @Autowired
-    public CompanyEP(CompanyService companyService, ConceptService conceptService) {
-        this.companyService = companyService;
-        this.conceptService = conceptService;
+  @Autowired
+  public CompanyEP(CompanyService companyService, ConceptService conceptService) {
+    this.companyService = companyService;
+    this.conceptService = conceptService;
+  }
+
+
+  @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
+
+  public Collection<Company> findCompanies(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
+    return companyService.findCompanies(ApiKeyInterceptor.ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+  }
+
+  @RequestMapping(value = "/{companyName}", produces = "application/json", method = RequestMethod.GET)
+  public CompanyNode getCompany(@PathVariable("companyName") String companyName,
+                                HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
+
+    CompanyNode callersCompany = CompanyResolver.resolveCompany(request);
+    if (callersCompany == null) {
+      throw new NotFoundException(companyName);
     }
 
-
-    @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-
-    public Collection<Company> findCompanies(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
-        return companyService.findCompanies(ApiKeyInterceptor.ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-    }
-
-    @RequestMapping(value = "/{companyName}", produces = "application/json", method = RequestMethod.GET)
-    public CompanyNode getCompany(@PathVariable("companyName") String companyName,
-                                  HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
-
-        CompanyNode callersCompany = CompanyResolver.resolveCompany(request);
-        if (callersCompany == null) {
-            throw new NotFoundException(companyName);
-        }
-
-        // ToDo Figure out what we need this to do. Currently a caller can only belong to one company
-        //   so why bother letting them chose another one?
-        return callersCompany;
-    }
+    // ToDo Figure out what we need this to do. Currently a caller can only belong to one company
+    //   so why bother letting them chose another one?
+    return callersCompany;
+  }
 
 
-    /**
-     * All documents in use by a company
-     *
-     * @param request used to resolve the company the logged in user represents
-     * @return Documents in use by th company
-     * @throws FlockException business exception
-     */
-    @RequestMapping(value = "/documents", method = RequestMethod.GET)
-    public Collection<DocumentResultBean> getDocumentsInUse(
-        HttpServletRequest request) throws FlockException {
+  /**
+   * All documents in use by a company
+   *
+   * @param request used to resolve the company the logged in user represents
+   * @return Documents in use by th company
+   * @throws FlockException business exception
+   */
+  @RequestMapping(value = "/documents", method = RequestMethod.GET)
+  public Collection<DocumentResultBean> getDocumentsInUse(
+      HttpServletRequest request) throws FlockException {
 
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return conceptService.getDocumentsInUse(company);
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return conceptService.getDocumentsInUse(company);
 
-    }
+  }
 
 
 }

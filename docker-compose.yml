@@ -10,21 +10,21 @@ services:
       - fd-dev-es:/usr/share/elasticsearch/data
     expose:
       - 9200
-      - 9300  
-#  kibana:
-#    image: docker.elastic.co/kibana/kibana:5.6.9
-#    expose:
-#      - 5601
-#      - 32776
-#    ports:
-#      - '5601:5601'
-#      - '32776:32776'
-#
-#    environment:
-#      SERVER_NAME: kibana.localhost
-#      ELASTICSEARCH_URL: http://elasticsearch:9200
-#      XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: "false"
-    
+      - 9300
+    #  kibana:
+    #    image: docker.elastic.co/kibana/kibana:5.6.9
+    #    expose:
+    #      - 5601
+    #      - 32776
+    #    ports:
+    #      - '5601:5601'
+    #      - '32776:32776'
+    #
+    #    environment:
+    #      SERVER_NAME: kibana.localhost
+    #      ELASTICSEARCH_URL: http://elasticsearch:9200
+    #      XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: "false"
+
   rabbit:
     image: rabbitmq:3-management
     ports:

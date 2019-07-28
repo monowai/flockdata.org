@@ -8,7 +8,6 @@
     "Politician": {
       "tag": true,
       "name": "['last_name']+ ', ' + ['first_name']",
-
       "code": "thomas_id",
       "targets": [
         {
@@ -27,8 +26,12 @@
           "source": "birthday",
           "target": "dob"
         },
-        {"source": "url"},
-        {"source": "gender"}
+        {
+          "source": "url"
+        },
+        {
+          "source": "gender"
+        }
       ]
     }
   }

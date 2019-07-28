@@ -35,10 +35,10 @@ import org.flockdata.transform.GeoPayload;
  */
 public class GeoDeserializer extends JsonDeserializer<GeoPayload> {
 
-    @Override
-    public GeoPayload deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        JsonNode node = jp.getCodec().readTree(jp);
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-        return om.readValue(node.toString(), GeoPayload.class);
-    }
+  @Override
+  public GeoPayload deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    JsonNode node = jp.getCodec().readTree(jp);
+    ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
+    return om.readValue(node.toString(), GeoPayload.class);
+  }
 }

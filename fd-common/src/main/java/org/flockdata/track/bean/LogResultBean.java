@@ -30,83 +30,83 @@ import org.flockdata.data.TxRef;
  * @since 28/08/2013
  */
 public class LogResultBean implements Serializable {
-    public static final String OK = "OK";
-    private String fortress;
-    private String documentType;
-    private String code;
-    private ContentInputBean.LogStatus status = ContentInputBean.LogStatus.OK;
+  public static final String OK = "OK";
+  private String fortress;
+  private String documentType;
+  private String code;
+  private ContentInputBean.LogStatus status = ContentInputBean.LogStatus.OK;
 
-    private String fortressUser;
-    private String txReference = null;
-    private Long sysWhen;
+  private String fortressUser;
+  private String txReference = null;
+  private Long sysWhen;
 
-    private LogResultBean() {
+  private LogResultBean() {
+  }
+
+  public LogResultBean(ContentInputBean content) {
+    this();
+    setFortressUser(content.getFortressUser());
+
+  }
+
+  public ContentInputBean.LogStatus getStatus() {
+    return status;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getTxReference() {
+    return txReference;
+  }
+
+  public void setTxReference(TxRef txReference) {
+    if (txReference != null) {
+      this.txReference = txReference.getName();
     }
+  }
 
-    public LogResultBean(ContentInputBean content) {
-        this();
-        setFortressUser(content.getFortressUser());
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getFortressUser() {
+    return fortressUser;
+  }
 
-    }
+  public void setFortressUser(String fortressUser) {
+    this.fortressUser = fortressUser;
+  }
 
-    public ContentInputBean.LogStatus getStatus() {
-        return status;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getCode() {
+    return code;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getTxReference() {
-        return txReference;
-    }
+  public void setCode(String code) {
+    this.code = code;
+  }
 
-    public void setTxReference(TxRef txReference) {
-        if (txReference != null) {
-            this.txReference = txReference.getName();
-        }
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getFortress() {
+    return fortress;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getFortressUser() {
-        return fortressUser;
-    }
+  public void setFortress(String fortress) {
+    this.fortress = fortress;
+  }
 
-    public void setFortressUser(String fortressUser) {
-        this.fortressUser = fortressUser;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getDocumentType() {
+    return documentType;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getCode() {
-        return code;
-    }
+  public void setDocumentType(String documentType) {
+    this.documentType = documentType;
+  }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+  public Long getSysWhen() {
+    return sysWhen;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getFortress() {
-        return fortress;
-    }
-
-    public void setFortress(String fortress) {
-        this.fortress = fortress;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getDocumentType() {
-        return documentType;
-    }
-
-    public void setDocumentType(String documentType) {
-        this.documentType = documentType;
-    }
-
-    public Long getSysWhen() {
-        return sysWhen;
-    }
-
-    public void setSysWhen(Long sysWhen) {
-        this.sysWhen = sysWhen;
-    }
+  public void setSysWhen(Long sysWhen) {
+    this.sysWhen = sysWhen;
+  }
 
 
 }

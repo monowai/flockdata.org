@@ -54,129 +54,129 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class StoreManager implements StoreService {
 
-    private RedisRepo redisRepo;
-    private RiakRepo riakRepo;
-    private InMemoryRepo inMemoryRepo;
-    private Logger logger = LoggerFactory.getLogger(StoreManager.class);
+  private RedisRepo redisRepo;
+  private RiakRepo riakRepo;
+  private InMemoryRepo inMemoryRepo;
+  private Logger logger = LoggerFactory.getLogger(StoreManager.class);
 
-    private FdStoreConfig storeConfig;
+  private FdStoreConfig storeConfig;
 
-    @Autowired(required = false)
-    void setRedisRepo(RedisRepo redisRepo) {
-        this.redisRepo = redisRepo;
+  @Autowired(required = false)
+  void setRedisRepo(RedisRepo redisRepo) {
+    this.redisRepo = redisRepo;
+  }
+
+  @Autowired(required = false)
+  void setRiakRepo(RiakRepo riakRepo) {
+    this.riakRepo = riakRepo;
+  }
+
+  @Autowired(required = false)
+  void setInMemoryRepo(InMemoryRepo inMemoryRepo) {
+    this.inMemoryRepo = inMemoryRepo;
+  }
+
+  @Autowired
+  void setStoreConfig(FdStoreConfig storeConfig) {
+    this.storeConfig = storeConfig;
+  }
+
+  @Override
+  public String ping(Store store) {
+    FdStoreRepo storeService = getStore(store);
+    if (storeService == null) {
+      return store.toString() + " is not enabled";
     }
+    return storeService.ping();
+  }
 
-    @Autowired(required = false)
-    void setRiakRepo(RiakRepo riakRepo) {
-        this.riakRepo = riakRepo;
+  @Override
+  public StoredContent doRead(Store store, String index, String type, String id) {
+    if (id == null) {
+      return null;
     }
-
-    @Autowired(required = false)
-    void setInMemoryRepo(InMemoryRepo inMemoryRepo) {
-        this.inMemoryRepo = inMemoryRepo;
+    logger.debug("Looking for {} value for {}", store.name(), id);
+    StoredContent content = getStore(store).read(index, type, id);
+    if (content == null) {
+      throw new NotFoundException("Didn't locate the id " + id + " for type" + type);
     }
-
-    @Autowired
-    void setStoreConfig(FdStoreConfig storeConfig) {
-        this.storeConfig = storeConfig;
-    }
-
-    @Override
-    public String ping(Store store) {
-        FdStoreRepo storeService = getStore(store);
-        if (storeService == null) {
-            return store.toString() + " is not enabled";
-        }
-        return storeService.ping();
-    }
-
-    @Override
-    public StoredContent doRead(Store store, String index, String type, String id) {
-        if (id == null) {
-            return null;
-        }
-        logger.debug("Looking for {} value for {}", store.name(), id);
-        StoredContent content = getStore(store).read(index, type, id);
-        if (content == null) {
-            throw new NotFoundException("Didn't locate the id " + id + " for type" + type);
-        }
-        return content;
+    return content;
 //        return getStore(store).read(index, type, id);
+  }
+
+  /**
+   * Persists the payload
+   *
+   * @param storeBean payload to write to a store
+   */
+  public void doWrite(StorageBean storeBean) throws FlockServiceException {
+
+    if (storeBean.getStore().equals(Store.NONE.name())) {
+      return; // This service does not write to ES, that is handled via fd-engine
     }
 
-    /**
-     * Persists the payload
-     *
-     * @param storeBean payload to write to a store
-     */
-    public void doWrite(StorageBean storeBean) throws FlockServiceException {
-
-        if (storeBean.getStore().equals(Store.NONE.name())) {
-            return; // This service does not write to ES, that is handled via fd-engine
-        }
-
-        if (storeBean.getType() == null) {
-            throw new AmqpRejectAndDontRequeueException("Couldn't figure out the type for entity " + storeBean.getId());
-        }
-
-        try {
-            logger.debug("Received request to add storeBean {}", storeBean);
-            FdStoreRepo store = getStore(Store.valueOf(storeBean.getStore().toUpperCase()));
-            if (store == null) {
-                throw new AmqpRejectAndDontRequeueException("Configured store manager " + storeBean.getStore().toUpperCase() + " was configured but not available");
-            }
-            store.add(storeBean);
-
-        } catch (IOException e) {
-            String errorMsg = String.format("Error writing to the %s Store.", storeBean.getStore());
-            logger.error(errorMsg); // Hopefully an ops team will monitor for this event and
-            //           resolve the underlying DB problem
-            throw new AmqpRejectAndDontRequeueException(errorMsg, e); // Keep the message on the queue
-        }
-        //}
+    if (storeBean.getType() == null) {
+      throw new AmqpRejectAndDontRequeueException("Couldn't figure out the type for entity " + storeBean.getId());
     }
 
-    // Returns the kvstore based on log.storage
-    FdStoreRepo getStore(Log log) {
-        return getStore(Store.valueOf(log.getStorage()));
+    try {
+      logger.debug("Received request to add storeBean {}", storeBean);
+      FdStoreRepo store = getStore(Store.valueOf(storeBean.getStore().toUpperCase()));
+      if (store == null) {
+        throw new AmqpRejectAndDontRequeueException("Configured store manager " + storeBean.getStore().toUpperCase() + " was configured but not available");
+      }
+      store.add(storeBean);
+
+    } catch (IOException e) {
+      String errorMsg = String.format("Error writing to the %s Store.", storeBean.getStore());
+      logger.error(errorMsg); // Hopefully an ops team will monitor for this event and
+      //           resolve the underlying DB problem
+      throw new AmqpRejectAndDontRequeueException(errorMsg, e); // Keep the message on the queue
+    }
+    //}
+  }
+
+  // Returns the kvstore based on log.storage
+  FdStoreRepo getStore(Log log) {
+    return getStore(Store.valueOf(log.getStorage()));
+  }
+
+  FdStoreRepo getStore(Store store) {
+    if (store == Store.REDIS) {
+      if (redisRepo == null) {
+        throw new AmqpRejectAndDontRequeueException("Redis store was requested but not enabled");
+      }
+      return redisRepo;
+    } else if (store == Store.RIAK) {
+      if (riakRepo == null) {
+        throw new AmqpRejectAndDontRequeueException("Riak store was requested but not enabled");
+      }
+      return riakRepo;
+    } else if (store == Store.MEMORY) {
+      if (inMemoryRepo == null) {
+        throw new AmqpRejectAndDontRequeueException("Non-persistent InMemory store was requested but not enabled");
+      }
+
+      return inMemoryRepo;
+    } else {
+      logger.info("The only supported persistent KV Stores supported are redis & riak. Returning a non-persistent memory based map");
+      return inMemoryRepo;
     }
 
-    FdStoreRepo getStore(Store store) {
-        if (store == Store.REDIS) {
-            if (redisRepo == null) {
-                throw new AmqpRejectAndDontRequeueException("Redis store was requested but not enabled");
-            }
-            return redisRepo;
-        } else if (store == Store.RIAK) {
-            if (riakRepo == null) {
-                throw new AmqpRejectAndDontRequeueException("Riak store was requested but not enabled");
-            }
-            return riakRepo;
-        } else if (store == Store.MEMORY) {
-            if (inMemoryRepo == null) {
-                throw new AmqpRejectAndDontRequeueException("Non-persistent InMemory store was requested but not enabled");
-            }
+  }
 
-            return inMemoryRepo;
-        } else {
-            logger.info("The only supported persistent KV Stores supported are redis & riak. Returning a non-persistent memory based map");
-            return inMemoryRepo;
-        }
+  @Override
+  public void delete(Entity entity, Log change) {
 
-    }
+    getStore(change).delete(new LogRequest(entity, change));
+  }
 
-    @Override
-    public void delete(Entity entity, Log change) {
-
-        getStore(change).delete(new LogRequest(entity, change));
-    }
-
-    public Map<String, String> health() {
-        Map<String, String> result = storeConfig.health();
-        String redis = ping(Store.REDIS);
-        String riak = ping(Store.RIAK);
-        result.put("redis.ping", redis);
-        result.put("riak.ping", riak);
-        return result;
-    }
+  public Map<String, String> health() {
+    Map<String, String> result = storeConfig.health();
+    String redis = ping(Store.REDIS);
+    String riak = ping(Store.RIAK);
+    result.put("redis.ping", redis);
+    result.put("riak.ping", riak);
+    return result;
+  }
 }

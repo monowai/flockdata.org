@@ -30,34 +30,34 @@ package org.flockdata.data;
  */
 
 public interface Document {
-    String getName();
+  String getName();
 
-    String getGeoQuery();
+  String getGeoQuery();
 
-    Boolean isSearchEnabled();
+  Boolean isSearchEnabled();
 
-    Boolean isStoreEnabled();
+  Boolean isStoreEnabled();
 
-    Boolean isTrackEnabled();
+  Boolean isTrackEnabled();
 
-    EntityTag.TAG_STRUCTURE getTagStructure();
+  EntityTag.TAG_STRUCTURE getTagStructure();
 
-    Document.VERSION getVersionStrategy();
+  Document.VERSION getVersionStrategy();
 
-    String getCode();
+  String getCode();
 
-    Long getId();
+  Long getId();
 
-    Fortress getFortress();
+  Fortress getFortress();
 
-    /**
-     * Set the version strategy on a per DocumentType basis
-     * <p>
-     * Enable version control when segment.storeEnabled== false
-     * Suppress when your segment.storeEnabled== true and you don't want to version
-     * Fortress (default) means use whatever the segment default is
-     */
-    enum VERSION {
-        FORTRESS, ENABLE, DISABLE
-    }
+  /**
+   * Set the version strategy on a per DocumentType basis
+   * <p>
+   * Enable version control when segment.storeEnabled== false
+   * Suppress when your segment.storeEnabled== true and you don't want to version
+   * Fortress (default) means use whatever the segment default is
+   */
+  enum VERSION {
+    FORTRESS, ENABLE, DISABLE
+  }
 }

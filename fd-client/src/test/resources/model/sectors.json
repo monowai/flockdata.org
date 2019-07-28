@@ -16,12 +16,14 @@
           "label": "OSIndustry",
           "relationship": "comprises",
           "labelDescription": "'tweee'",
-          "targets": [{
-            "code": "Sector",
-            "name": "Sector Long",
-            "label": "OSSector",
-            "relationship": "industry"
-          }]
+          "targets": [
+            {
+              "code": "Sector",
+              "name": "Sector Long",
+              "label": "OSSector",
+              "relationship": "industry"
+            }
+          ]
         }
       ],
       "properties": [

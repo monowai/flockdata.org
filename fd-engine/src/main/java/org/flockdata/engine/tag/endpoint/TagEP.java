@@ -57,99 +57,99 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/tag")
 public class TagEP {
 
-    private final TagService tagService;
+  private final TagService tagService;
 
-    private final MediationFacade mediationFacade;
+  private final MediationFacade mediationFacade;
 
-    @Autowired
-    public TagEP(TagService tagService, MediationFacade mediationFacade) {
-        this.tagService = tagService;
-        this.mediationFacade = mediationFacade;
+  @Autowired
+  public TagEP(TagService tagService, MediationFacade mediationFacade) {
+    this.tagService = tagService;
+    this.mediationFacade = mediationFacade;
+  }
+
+  @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  public Collection<FdTagResultBean> createTags(@RequestBody List<TagInputBean> tagInputs,
+                                                HttpServletRequest request) throws FlockException, ExecutionException, InterruptedException {
+
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return mediationFacade.createTags(company, tagInputs);
+  }
+
+  @RequestMapping(value = "/{label}", produces = "application/json", method = RequestMethod.GET)
+  public Collection<TagResultBean> getTags(@PathVariable("label") String label,
+                                           HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    Collection<Tag> tags = tagService.findTags(company, label);
+    Collection<TagResultBean> results = new ArrayList<>();
+    for (Tag tag : tags) {
+      results.add(new FdTagResultBean(null, tag));
     }
+    return results;
+  }
 
-    @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public Collection<FdTagResultBean> createTags(@RequestBody List<TagInputBean> tagInputs,
-                                                  HttpServletRequest request) throws FlockException, ExecutionException, InterruptedException {
+  @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
+  public Collection<TagResultBean> getTags(
+      HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return tagService.findTags(company);
+  }
 
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return mediationFacade.createTags(company, tagInputs);
+
+  @RequestMapping(value = "/{label}/{code}", produces = "application/json", method = RequestMethod.GET)
+  public TagResultBean getTag(@PathVariable("label") String label, @PathVariable("code") String code,
+                              HttpServletRequest request) throws FlockException, UnsupportedEncodingException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return new FdTagResultBean(tagService.findTag(company, label, null, URLDecoder.decode(code, "UTF-8"), true));
+  }
+
+  @RequestMapping(value = "/{label}/{keyPrefix}/{code}", produces = "application/json", method = RequestMethod.GET)
+  public TagResultBean getTagWithPrefix(@PathVariable("label") String label,
+                                        @PathVariable("keyPrefix") String keyPrefix,
+                                        @PathVariable("code") String code,
+
+                                        HttpServletRequest request) throws FlockException, UnsupportedEncodingException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return new FdTagResultBean(tagService.findTag(company, label, keyPrefix, URLDecoder.decode(code, "UTF-8"), true));
+  }
+
+
+  @RequestMapping(value = "/{label}/{sourceTag}/merge/{targetTag}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  public void mergeTags(@PathVariable("sourceTag") String sourceTag, @PathVariable("targetTag") String targetTag, @PathVariable("label") String label,
+                        HttpServletRequest request) throws FlockException, UnsupportedEncodingException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    Tag source = tagService.findTag(company, label, null, URLDecoder.decode(sourceTag, "UTF-8"));
+    Tag target = tagService.findTag(company, label, null, URLDecoder.decode(targetTag, "UTF-8"));
+    mediationFacade.mergeTags(company, source.getId(), target.getId());
+
+  }
+
+  @RequestMapping(value = "/{label}/{sourceTag}/alias/{akaValue}", produces = "application/json", method = RequestMethod.PUT)
+  @ResponseStatus(HttpStatus.CREATED)
+  public void aliasTag(@PathVariable("sourceTag") String sourceTag, @PathVariable("akaValue") String akaValue, @PathVariable("label") String label,
+                       HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    Tag source = tagService.findTag(company, label, null, sourceTag);
+    if (source == null) {
+      throw new NotFoundException(String.format("Unable to locate the tag {%s}/{%s}", label, sourceTag));
     }
+    tagService.createAlias(company, source, label, akaValue);
 
-    @RequestMapping(value = "/{label}", produces = "application/json", method = RequestMethod.GET)
-    public Collection<TagResultBean> getTags(@PathVariable("label") String label,
-                                             HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        Collection<Tag> tags = tagService.findTags(company, label);
-        Collection<TagResultBean> results = new ArrayList<>();
-        for (Tag tag : tags) {
-            results.add(new FdTagResultBean(null, tag));
-        }
-        return results;
-    }
+  }
 
-    @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-    public Collection<TagResultBean> getTags(
-        HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return tagService.findTags(company);
-    }
+  @RequestMapping(value = "/{label}/{code}/alias", produces = "application/json", method = RequestMethod.GET)
+  public Collection<AliasInputBean> getTagAliases(@PathVariable("label") String label, @PathVariable("code") String code,
+                                                  HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return tagService.findTagAliases(company, label, null, code);
+  }
 
 
-    @RequestMapping(value = "/{label}/{code}", produces = "application/json", method = RequestMethod.GET)
-    public TagResultBean getTag(@PathVariable("label") String label, @PathVariable("code") String code,
-                                HttpServletRequest request) throws FlockException, UnsupportedEncodingException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return new FdTagResultBean(tagService.findTag(company, label, null, URLDecoder.decode(code, "UTF-8"), true));
-    }
-
-    @RequestMapping(value = "/{label}/{keyPrefix}/{code}", produces = "application/json", method = RequestMethod.GET)
-    public TagResultBean getTagWithPrefix(@PathVariable("label") String label,
-                                          @PathVariable("keyPrefix") String keyPrefix,
-                                          @PathVariable("code") String code,
-
-                                          HttpServletRequest request) throws FlockException, UnsupportedEncodingException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return new FdTagResultBean(tagService.findTag(company, label, keyPrefix, URLDecoder.decode(code, "UTF-8"), true));
-    }
-
-
-    @RequestMapping(value = "/{label}/{sourceTag}/merge/{targetTag}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void mergeTags(@PathVariable("sourceTag") String sourceTag, @PathVariable("targetTag") String targetTag, @PathVariable("label") String label,
-                          HttpServletRequest request) throws FlockException, UnsupportedEncodingException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        Tag source = tagService.findTag(company, label, null, URLDecoder.decode(sourceTag, "UTF-8"));
-        Tag target = tagService.findTag(company, label, null, URLDecoder.decode(targetTag, "UTF-8"));
-        mediationFacade.mergeTags(company, source.getId(), target.getId());
-
-    }
-
-    @RequestMapping(value = "/{label}/{sourceTag}/alias/{akaValue}", produces = "application/json", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.CREATED)
-    public void aliasTag(@PathVariable("sourceTag") String sourceTag, @PathVariable("akaValue") String akaValue, @PathVariable("label") String label,
-                         HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        Tag source = tagService.findTag(company, label, null, sourceTag);
-        if (source == null) {
-            throw new NotFoundException(String.format("Unable to locate the tag {%s}/{%s}", label, sourceTag));
-        }
-        tagService.createAlias(company, source, label, akaValue);
-
-    }
-
-    @RequestMapping(value = "/{label}/{code}/alias", produces = "application/json", method = RequestMethod.GET)
-    public Collection<AliasInputBean> getTagAliases(@PathVariable("label") String label, @PathVariable("code") String code,
-                                                    HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return tagService.findTagAliases(company, label, null, code);
-    }
-
-
-    @RequestMapping(value = "/{label}/{code}/path/{relationship}/{targetLabel}", produces = "application/json", method = RequestMethod.GET)
-    public Map<String, Collection<FdTagResultBean>> getConnectedTags(@PathVariable("label") String label, @PathVariable("code") String code,
-                                                                     HttpServletRequest request, @PathVariable("relationship") String relationship, @PathVariable("targetLabel") String targetLabel) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return tagService.findTags(company, label, code, relationship, targetLabel);
-    }
+  @RequestMapping(value = "/{label}/{code}/path/{relationship}/{targetLabel}", produces = "application/json", method = RequestMethod.GET)
+  public Map<String, Collection<FdTagResultBean>> getConnectedTags(@PathVariable("label") String label, @PathVariable("code") String code,
+                                                                   HttpServletRequest request, @PathVariable("relationship") String relationship, @PathVariable("targetLabel") String targetLabel) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return tagService.findTags(company, label, code, relationship, targetLabel);
+  }
 }

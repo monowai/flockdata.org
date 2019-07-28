@@ -22,13 +22,13 @@ spring:
   application:
     name: fd-store
   profiles:
-#    Switch memstore to something like riak when you're needs are more persistent
+    #    Switch memstore to something like riak when you're needs are more persistent
     active: memstore
     include: fd-server
-#  Run with the "discovery" profile active to connect
-#  cloud:
-#    discovery:
-#      enabled: false
+  #  Run with the "discovery" profile active to connect
+  #  cloud:
+  #    discovery:
+  #      enabled: false
   messages:
     encoding: UTF-8
   rabbitmq:

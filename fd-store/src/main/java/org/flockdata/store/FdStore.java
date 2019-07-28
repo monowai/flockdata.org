@@ -34,12 +34,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
     "org.flockdata.integration",
     "org.flockdata.store"})
 public class FdStore {
-    public static void main(String[] args) {
-        try {
-            SpringApplication.run(FdStore.class, args);
-        } catch (Exception e) {
-            System.out.println(e.getLocalizedMessage());
-        }
-
+  public static void main(String[] args) {
+    try {
+      SpringApplication.run(FdStore.class, args);
+    } catch (Exception e) {
+      System.out.println(e.getLocalizedMessage());
     }
+
+  }
 }

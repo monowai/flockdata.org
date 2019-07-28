@@ -44,60 +44,60 @@ import org.springframework.util.StopWatch;
  */
 public class TestForceDuplicateRlx extends EngineBase {
 
-    private Logger logger = LoggerFactory.getLogger(TestForceDuplicateRlx.class);
+  private Logger logger = LoggerFactory.getLogger(TestForceDuplicateRlx.class);
 
-    @Test
-    public void uniqueChangeRLXUnderLoad() throws Exception {
-        logger.debug("### uniqueChangeRLXUnderLoad started");
-        SystemUser su = registerSystemUser("TestTrack", mike_admin);
+  @Test
+  public void uniqueChangeRLXUnderLoad() throws Exception {
+    logger.debug("### uniqueChangeRLXUnderLoad started");
+    SystemUser su = registerSystemUser("TestTrack", mike_admin);
 
-        int auditMax = 10;
-        int logMax = 10;
-        int fName = 1;
-        ArrayList<Long> list = new ArrayList<>();
+    int auditMax = 10;
+    int logMax = 10;
+    int fName = 1;
+    ArrayList<Long> list = new ArrayList<>();
 
-        int fortressMax = 1;
-        logger.debug("FortressCount: " + fortressMax + " AuditCount: " + auditMax + " LogCount: " + logMax);
-        logger.debug("We will be expecting a total of " + (auditMax * logMax * fortressMax) + " messages to be handled");
+    int fortressMax = 1;
+    logger.debug("FortressCount: " + fortressMax + " AuditCount: " + auditMax + " LogCount: " + logMax);
+    logger.debug("We will be expecting a total of " + (auditMax * logMax * fortressMax) + " messages to be handled");
 
-        StopWatch watch = new StopWatch();
-        watch.start();
-        double splitTotals = 0;
-        long totalRows = 0;
+    StopWatch watch = new StopWatch();
+    watch.start();
+    double splitTotals = 0;
+    long totalRows = 0;
 
-        DecimalFormat f = new DecimalFormat("##.000");
+    DecimalFormat f = new DecimalFormat("##.000");
 
-        while (fName <= fortressMax) {
-            String fortressName = "bulkloada" + fName;
-            int count = 1;
-            long requests = 0;
+    while (fName <= fortressMax) {
+      String fortressName = "bulkloada" + fName;
+      int count = 1;
+      long requests = 0;
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(fortressName, true));
-            requests++;
-            logger.info("Starting run for " + fortressName);
-            while (count <= auditMax) {
-                EntityInputBean entityInputBean = new EntityInputBean(fortress, fortress.getName() + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + count);
-                TrackResultBean arb = mediationFacade.trackEntity(su.getCompany(), entityInputBean);
-                requests++;
-                int log = 1;
-                while (log <= logMax) {
-                    createLog(su, arb, log);
-                    requests++;
-                    log++;
-                } // Logs created
-                count++;
-            } // finished with Entities
-            totalRows = totalRows + requests;
-            list.add(fortress.getId());
-            fName++;
-        }
-
-        logger.debug("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
+      Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(fortressName, true));
+      requests++;
+      logger.info("Starting run for " + fortressName);
+      while (count <= auditMax) {
+        EntityInputBean entityInputBean = new EntityInputBean(fortress, fortress.getName() + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + count);
+        TrackResultBean arb = mediationFacade.trackEntity(su.getCompany(), entityInputBean);
+        requests++;
+        int log = 1;
+        while (log <= logMax) {
+          createLog(su, arb, log);
+          requests++;
+          log++;
+        } // Logs created
+        count++;
+      } // finished with Entities
+      totalRows = totalRows + requests;
+      list.add(fortress.getId());
+      fName++;
     }
 
-    private void createLog(SystemUser su, TrackResultBean arb, int log) throws FlockException, IOException, ExecutionException, InterruptedException {
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("who cares", arb.getEntity().getKey(), new DateTime(), ContentDataHelper.getSimpleMap("who", log)));
-    }
+    logger.debug("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
+  }
+
+  private void createLog(SystemUser su, TrackResultBean arb, int log) throws FlockException, IOException, ExecutionException, InterruptedException {
+    mediationFacade.trackLog(su.getCompany(), new ContentInputBean("who cares", arb.getEntity().getKey(), new DateTime(), ContentDataHelper.getSimpleMap("who", log)));
+  }
 
 
 }

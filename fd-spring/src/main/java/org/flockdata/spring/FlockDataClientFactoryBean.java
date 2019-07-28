@@ -25,14 +25,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FlockDataClientFactoryBean {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FlockDataClientFactoryBean.class);
-    private final Template fdTemplate;
+  private static org.slf4j.Logger logger = LoggerFactory.getLogger(FlockDataClientFactoryBean.class);
+  private final Template fdTemplate;
 
-    private ClientConfiguration clientConfiguration;
+  private ClientConfiguration clientConfiguration;
 
-    @Autowired
-    public FlockDataClientFactoryBean(ClientConfiguration clientConfiguration, Template fdTemplate) {
-        this.fdTemplate = fdTemplate;
-        this.clientConfiguration = clientConfiguration;
-    }
+  @Autowired
+  public FlockDataClientFactoryBean(ClientConfiguration clientConfiguration, Template fdTemplate) {
+    this.fdTemplate = fdTemplate;
+    this.clientConfiguration = clientConfiguration;
+  }
 }

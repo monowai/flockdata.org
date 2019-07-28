@@ -12,17 +12,17 @@ import org.neo4j.driver.v1.types.Node;
 @Data
 @Builder
 public class CompanyNode implements Company {
-    private Long id;
-    private String name;
-    private String code;
-    private String apiKey;
+  private Long id;
+  private String name;
+  private String code;
+  private String apiKey;
 
-    public static Company build(Node node) {
-        return CompanyNode.builder()
-            .id(node.id())
-            .name(node.get("name").asString())
-            .code(node.get("code").asString())
-            .apiKey(node.get("apiKey").asString())
-            .build();
-    }
+  public static Company build(Node node) {
+    return CompanyNode.builder()
+        .id(node.id())
+        .name(node.get("name").asString())
+        .code(node.get("code").asString())
+        .apiKey(node.get("apiKey").asString())
+        .build();
+  }
 }

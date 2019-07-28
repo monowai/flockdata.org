@@ -32,19 +32,19 @@ import org.junit.Test;
  */
 public class TestEntityKeys {
 
-    @Test
-    public void equalityAndDefaults() throws Exception {
+  @Test
+  public void equalityAndDefaults() throws Exception {
 
-        // ToDo: Case sensitivity
-        EntityKeyBean entityKeyA = new EntityKeyBean("123", "abc", "456");
-        EntityKeyBean entityKeyB = new EntityKeyBean("123", "abc", "456");
+    // ToDo: Case sensitivity
+    EntityKeyBean entityKeyA = new EntityKeyBean("123", "abc", "456");
+    EntityKeyBean entityKeyB = new EntityKeyBean("123", "abc", "456");
 
-        assertEquals("Keys should match", entityKeyA, entityKeyB);
-        assertEquals("Hashcodes should match", entityKeyA.hashCode(), entityKeyB.hashCode());
+    assertEquals("Keys should match", entityKeyA, entityKeyB);
+    assertEquals("Hashcodes should match", entityKeyA.hashCode(), entityKeyB.hashCode());
 
-        EntityKeyBean entityKeyC = new EntityKeyBean(null, "abc", "456");
-        assertEquals("WildCard document not working", "*", entityKeyC.getDocumentType());
-        entityKeyC = new EntityKeyBean("code");
-        assertEquals("WildCard document not working", "*", entityKeyC.getDocumentType());
-    }
+    EntityKeyBean entityKeyC = new EntityKeyBean(null, "abc", "456");
+    assertEquals("WildCard document not working", "*", entityKeyC.getDocumentType());
+    entityKeyC = new EntityKeyBean("code");
+    assertEquals("WildCard document not working", "*", entityKeyC.getDocumentType());
+  }
 }

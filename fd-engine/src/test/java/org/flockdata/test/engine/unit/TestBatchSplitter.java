@@ -38,28 +38,28 @@ import org.junit.Test;
  * @since 21/03/2015
  */
 public class TestBatchSplitter {
-    @Test
-    public void entities() throws Exception {
-        Collection<TrackResultBean> inputs = new ArrayList<>();
-        EntityNode entityNewA = (EntityNode) FdNodeHelper.getEntity("blah", "abc", "123", "abc");
-        DocumentNode documentType = new DocumentNode(entityNewA.getFortress(), "abc");
-        assertTrue("Entity did not default to a new state", entityNewA.isNewEntity());
-        EntityNode entityNewB = (EntityNode) FdNodeHelper.getEntity("blah", "abc", "123", "abcd");
-        EntityNode entityOldA = (EntityNode) FdNodeHelper.getEntity("blah", "abc", "123", "abcde");
-        EntityNode entityOldB = (EntityNode) FdNodeHelper.getEntity("blah", "abc", "123", "abcdef");
-        entityOldA.setNewEntity(false);
-        entityOldB.setNewEntity(false);
-        assertFalse(entityOldA.isNewEntity());
+  @Test
+  public void entities() throws Exception {
+    Collection<TrackResultBean> inputs = new ArrayList<>();
+    EntityNode entityNewA = (EntityNode) FdNodeHelper.getEntity("blah", "abc", "123", "abc");
+    DocumentNode documentType = new DocumentNode(entityNewA.getFortress(), "abc");
+    assertTrue("Entity did not default to a new state", entityNewA.isNewEntity());
+    EntityNode entityNewB = (EntityNode) FdNodeHelper.getEntity("blah", "abc", "123", "abcd");
+    EntityNode entityOldA = (EntityNode) FdNodeHelper.getEntity("blah", "abc", "123", "abcde");
+    EntityNode entityOldB = (EntityNode) FdNodeHelper.getEntity("blah", "abc", "123", "abcdef");
+    entityOldA.setNewEntity(false);
+    entityOldB.setNewEntity(false);
+    assertFalse(entityOldA.isNewEntity());
 
-        inputs.add(new TrackResultBean(entityNewA, documentType));
-        assertTrue(inputs.iterator().next().isNewEntity());
-        inputs.add(new TrackResultBean(entityNewB, documentType));
-        inputs.add(new TrackResultBean(entityOldA, documentType));
-        inputs.add(new TrackResultBean(entityOldB, documentType));
-        assertEquals(4, inputs.size());
-        Collection<TrackResultBean> newEntities = TrackBatchSplitter.getNewEntities(inputs);
-        assertEquals(2, newEntities.size());
+    inputs.add(new TrackResultBean(entityNewA, documentType));
+    assertTrue(inputs.iterator().next().isNewEntity());
+    inputs.add(new TrackResultBean(entityNewB, documentType));
+    inputs.add(new TrackResultBean(entityOldA, documentType));
+    inputs.add(new TrackResultBean(entityOldB, documentType));
+    assertEquals(4, inputs.size());
+    Collection<TrackResultBean> newEntities = TrackBatchSplitter.getNewEntities(inputs);
+    assertEquals(2, newEntities.size());
 
-        assertEquals(2, TrackBatchSplitter.getExistingEntities(inputs).size());
-    }
+    assertEquals(2, TrackBatchSplitter.getExistingEntities(inputs).size());
+  }
 }

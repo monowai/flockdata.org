@@ -22,6 +22,7 @@ package org.flockdata.test.engine.mvc;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -39,6 +40,7 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityLogResult;
 import org.flockdata.track.bean.EntityTagRelationshipInput;
 import org.flockdata.track.bean.TrackRequestResult;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -49,99 +51,99 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
  */
 public class TestEntityEP extends MvcBase {
 
-    @Test
-    public void find_EntityData() throws Exception {
-        FortressResultBean f = makeFortress(mike(), new FortressInputBean("find_EntityData")
+  @Test
+  public void findEntityDataWhenStoreIsEnabled() throws Exception {
+    FortressResultBean f = makeFortress(mike(), new FortressInputBean("find_EntityData")
+        .setSearchEnabled(false)
+        .setStoreEnabled(true));
+    EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("find_EntityData")
+        .setVersionStrategy(Document.VERSION.ENABLE))
+        .setCode("XXX");
+    eib.setFortressUser("userA");
+    Map<String, Object> data = new HashMap<>();
+    data.put("key", "value");
+    ContentInputBean cib = new ContentInputBean(data);
+    eib.setContent(cib);
+    TrackRequestResult trackResult = track(mike(), eib);
+    assertNotNull(trackResult);
+    Map<String, Object> results = getEntityData(mike(), trackResult.getKey());
+    assertNotNull(results);
+    assertEquals(data.size(), results.size());
+    assertEquals(data.get("key"), results.get("key"));
+
+    results = getEntityData(mike(), eib);
+    assertNotNull(results);
+    assertEquals(data.size(), results.size());
+    assertEquals(data.get("key"), results.get("key"));
+
+  }
+
+  @Test
+  public void getEntitySummary() throws Exception {
+    FortressResultBean f = makeFortress(mike(), new FortressInputBean("entity_Summary", true));
+    EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("Summary"));
+    eib.setFortressUser("userA");
+    eib.addTag(new TagInputBean("anyTag", "MyLabel", new EntityTagRelationshipInput("twaddle")));
+    ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
+    eib.setContent(cib);
+    TrackRequestResult trackResult = track(mike(), eib);
+    assertNotNull(getEntity(mike(), trackResult.getKey(), MockMvcResultMatchers.status().isOk()));
+    assertNotNull(getEntitySummary(mike(), trackResult.getKey(), MockMvcResultMatchers.status().isOk()));
+
+  }
+
+  @Test
+  public void mockEntityLogs() throws Exception {
+    FortressResultBean f = makeFortress(mike(),
+        new FortressInputBean("mocked_EntityLogs")
+            .setStoreEnabled(false).setSearchEnabled(false));
+
+    EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("mocked_EntityLogs"));
+    eib.setFortressUser("userA");
+    ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
+    eib.setContent(cib);
+    TrackRequestResult trackResult = track(mike(), eib);
+    Collection<EntityLogResult> logs = getEntityLogs(mike(), trackResult.getKey());
+    assertEquals("Expected one log", 1, logs.size());
+    EntityLogResult entityLog = logs.iterator().next();
+
+    assertNull("The log is not serializable in this view", entityLog.getLog());
+    assertTrue(entityLog.isMocked());
+
+  }
+
+  @Test
+  public void identifyEntityAsNew() throws Exception {
+    Map<String, Object> dataMap = new HashMap<>();
+    dataMap.put("value", "alpha");
+
+    EntityInputBean entityInputBean = new EntityInputBean()
+        .setCode("suppressVersionsOnByDocBasis")
+        .setFortress(new FortressInputBean("suppressVersionsOnByDocBasis")
             .setSearchEnabled(false)
-            .setStoreEnabled(false));
-        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("find_EntityData")
-            .setVersionStrategy(Document.VERSION.ENABLE))
-            .setCode("XXX");
-        eib.setFortressUser("userA");
-        Map<String, Object> data = new HashMap<>();
-        data.put("key", "value");
-        ContentInputBean cib = new ContentInputBean(data);
-        eib.setContent(cib);
-        TrackRequestResult trackResult = track(mike(), eib);
-        assertNotNull(trackResult);
-        Map<String, Object> results = getEntityData(mike(), trackResult.getKey());
-        assertNotNull(results);
-        assertEquals(data.size(), results.size());
-        assertEquals(data.get("key"), results.get("key"));
+            .setStoreEnabled(true)) // Enable the store
+        .setDocumentType(new DocumentTypeInputBean("someThing")
+            .setVersionStrategy(Document.VERSION.DISABLE)) // But suppress version history for this class of Entity
+        .setContent(new ContentInputBean(dataMap));
 
-        results = getEntityData(mike(), eib);
-        assertNotNull(results);
-        assertEquals(data.size(), results.size());
-        assertEquals(data.get("key"), results.get("key"));
+    TrackRequestResult result = track(mike(), entityInputBean);
+    Assert.assertTrue(result.isNewEntity());
 
-    }
+    dataMap.put("value", "beta");
 
-    @Test
-    public void entity_Summary() throws Exception {
-        FortressResultBean f = makeFortress(mike(), new FortressInputBean("entity_Summary", true));
-        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("Summary"));
-        eib.setFortressUser("userA");
-        eib.addTag(new TagInputBean("anyTag", "MyLabel", new EntityTagRelationshipInput("twaddle")));
-        ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
-        eib.setContent(cib);
-        TrackRequestResult trackResult = track(mike(), eib);
-        assertNotNull(getEntity(mike(), trackResult.getKey(), MockMvcResultMatchers.status().isOk()));
-        assertNotNull(getEntitySummary(mike(), trackResult.getKey(), MockMvcResultMatchers.status().isOk()));
+    entityInputBean = new EntityInputBean()
+        .setCode("suppressVersionsOnByDocBasis")
+        .setFortress(new FortressInputBean("suppressVersionsOnByDocBasis")
+            .setSearchEnabled(false)
+            .setStoreEnabled(true)) // Enable the store
+        .setDocumentType(new DocumentTypeInputBean("someThing")
+            .setVersionStrategy(Document.VERSION.DISABLE)) // But suppress version history for this class of Entity
+        .setContent(new ContentInputBean(dataMap));
 
-    }
+    result = track(mike(), entityInputBean);
 
-    @Test
-    public void mocked_EntityLogs() throws Exception {
-        FortressResultBean f = makeFortress(mike(),
-            new FortressInputBean("mocked_EntityLogs")
-                .setStoreEnabled(false).setSearchEnabled(false));
+    assertFalse("Entity with ame code already exists", result.isNewEntity());
 
-        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("mocked_EntityLogs"));
-        eib.setFortressUser("userA");
-        ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
-        eib.setContent(cib);
-        TrackRequestResult trackResult = track(mike(), eib);
-        Collection<EntityLogResult> logs = getEntityLogs(mike(), trackResult.getKey());
-        assertEquals("Expected one log", 1, logs.size());
-        EntityLogResult entityLog = logs.iterator().next();
-
-        assertNull("The log is not serializable in this view", entityLog.getLog());
-        assertTrue(entityLog.isMocked());
-
-    }
-
-    @Test
-    public void new_EntityIdentified() throws Exception {
-        Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("value", "alpha");
-
-        EntityInputBean entityInputBean = new EntityInputBean()
-            .setCode("suppressVersionsOnByDocBasis")
-            .setFortress(new FortressInputBean("suppressVersionsOnByDocBasis")
-                .setSearchEnabled(false)
-                .setStoreEnabled(true)) // Enable the store
-            .setDocumentType(new DocumentTypeInputBean("someThing")
-                .setVersionStrategy(Document.VERSION.DISABLE)) // But suppress version history for this class of Entity
-            .setContent(new ContentInputBean(dataMap));
-
-        TrackRequestResult result = track(mike(), entityInputBean);
-        assertEquals(true, result.isNewEntity());
-
-        dataMap.put("value", "beta");
-
-        entityInputBean = new EntityInputBean()
-            .setCode("suppressVersionsOnByDocBasis")
-            .setFortress(new FortressInputBean("suppressVersionsOnByDocBasis")
-                .setSearchEnabled(false)
-                .setStoreEnabled(true)) // Enable the store
-            .setDocumentType(new DocumentTypeInputBean("someThing")
-                .setVersionStrategy(Document.VERSION.DISABLE)) // But suppress version history for this class of Entity
-            .setContent(new ContentInputBean(dataMap));
-
-        result = track(mike(), entityInputBean);
-
-        assertEquals("Entity with ame code already exists", false, result.isNewEntity());
-
-    }
+  }
 
 }

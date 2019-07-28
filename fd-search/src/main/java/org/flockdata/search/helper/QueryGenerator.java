@@ -31,111 +31,111 @@ import org.slf4j.LoggerFactory;
  * @since 04/08/2014
  */
 public class QueryGenerator {
-    private static Logger logger = LoggerFactory.getLogger(QueryGenerator.class);
+  private static Logger logger = LoggerFactory.getLogger(QueryGenerator.class);
 
-    public static String getSimpleQuery(QueryInterface params, Boolean highlightEnabled) {
-        if (params.getFilter() != null) {
-            return getFilteredQuery(params, highlightEnabled);
-        }
-        String queryString = params.getSearchText();
-        if (queryString == null) {
-            queryString = "*";
-        }
-
-        logger.debug("getSearchText {}", queryString);
-        StringBuilder simpleQuery = new StringBuilder();
-        if (queryString.contains("\"")) {
-            queryString = StringEscapeUtils.escapeJson(queryString);
-        }
-
-        simpleQuery.append("{ \n"
-            + "   \"query_string\": { \n"
-            + "            \"query\": " + '"').append(queryString.toLowerCase()).append('"')
-            .append("  \n}");
-
-        if (highlightEnabled) {
-            simpleQuery.append(",\n" +
-                "  \"highlight\": { " +
-                "\"pre_tags\" : [\"<strong>\"]," +
-                "\"post_tags\" : [\"</strong>\"]," +
-                "\"order\": \"score\", " +
-                "\"require_field_match\": false, " +
-
-                "\"encoder\" : \"html\"," +
-                "    \"fields\": { " +
-                "      \"*\": {} " +
-                "    } " +
-                "  }");
-        }
-        simpleQuery.append(" }");
-        return simpleQuery.toString();
+  public static String getSimpleQuery(QueryInterface params, Boolean highlightEnabled) {
+    if (params.getFilter() != null) {
+      return getFilteredQuery(params, highlightEnabled);
+    }
+    String queryString = params.getSearchText();
+    if (queryString == null) {
+      queryString = "*";
     }
 
-    public static String getFilteredQuery(QueryInterface queryParams, Boolean highlightEnabled) {
-        String queryString = queryParams.getSearchText();
-        if (queryString == null) {
-            queryString = "*";
-        }
+    logger.debug("getSearchText {}", queryString);
+    StringBuilder simpleQuery = new StringBuilder();
+    if (queryString.contains("\"")) {
+      queryString = StringEscapeUtils.escapeJson(queryString);
+    }
 
-        logger.debug("getSearchText {}", queryString);
-        StringBuilder simpleQuery = new StringBuilder();
-        if (queryString.contains("\"")) {
-            queryString = StringEscapeUtils.escapeJson(queryString);
-        }
-        if (queryString.equals("")) {
-            queryString = "*";
-        }
-        String filter = getRelationshipFilter(queryParams);
-        simpleQuery.append("{\n" +
+    simpleQuery.append("{ \n"
+        + "   \"query_string\": { \n"
+        + "            \"query\": " + '"').append(queryString.toLowerCase()).append('"')
+        .append("  \n}");
+
+    if (highlightEnabled) {
+      simpleQuery.append(",\n" +
+          "  \"highlight\": { " +
+          "\"pre_tags\" : [\"<strong>\"]," +
+          "\"post_tags\" : [\"</strong>\"]," +
+          "\"order\": \"score\", " +
+          "\"require_field_match\": false, " +
+
+          "\"encoder\" : \"html\"," +
+          "    \"fields\": { " +
+          "      \"*\": {} " +
+          "    } " +
+          "  }");
+    }
+    simpleQuery.append(" }");
+    return simpleQuery.toString();
+  }
+
+  public static String getFilteredQuery(QueryInterface queryParams, Boolean highlightEnabled) {
+    String queryString = queryParams.getSearchText();
+    if (queryString == null) {
+      queryString = "*";
+    }
+
+    logger.debug("getSearchText {}", queryString);
+    StringBuilder simpleQuery = new StringBuilder();
+    if (queryString.contains("\"")) {
+      queryString = StringEscapeUtils.escapeJson(queryString);
+    }
+    if (queryString.equals("")) {
+      queryString = "*";
+    }
+    String filter = getRelationshipFilter(queryParams);
+    simpleQuery.append("{\n" +
 //                " \"query\": {\n" +
-            "    \"bool\": {\n" +
-            "       \"must\": {\n" +
-            "           \"match\":" + " {\n" +
-            "               \"text\":\"" + queryString.toLowerCase() + "\"\n}" +
-            "   " + (!filter.equals("") ? "}\n," + filter : "}\n") +
-            "    }\n" +
+        "    \"bool\": {\n" +
+        "       \"must\": {\n" +
+        "           \"match\":" + " {\n" +
+        "               \"text\":\"" + queryString.toLowerCase() + "\"\n}" +
+        "   " + (!filter.equals("") ? "}\n," + filter : "}\n") +
+        "    }\n" +
 //                "  }\n" +
-            "}\n");
+        "}\n");
 
-        if (highlightEnabled) {
-            simpleQuery.append(",\n" +
-                "  \"highlight\": { " +
-                "\"pre_tags\" : [\"<strong>\"]," +
-                "\"post_tags\" : [\"</strong>\"]," +
-                "\"encoder\" : \"html\"," +
-                "    \"fields\": { " +
-                "      \"*\": {} " +
-                "    } " +
-                "  }");
-        }
-        simpleQuery.append(" }");
-        return simpleQuery.toString();
+    if (highlightEnabled) {
+      simpleQuery.append(",\n" +
+          "  \"highlight\": { " +
+          "\"pre_tags\" : [\"<strong>\"]," +
+          "\"post_tags\" : [\"</strong>\"]," +
+          "\"encoder\" : \"html\"," +
+          "    \"fields\": { " +
+          "      \"*\": {} " +
+          "    } " +
+          "  }");
+    }
+    simpleQuery.append(" }");
+    return simpleQuery.toString();
+  }
+
+  private static String getRelationshipFilter(QueryInterface queryParams) {
+    if (queryParams.getFilter() != null) {
+      return "\"filter\":" + JsonUtils.toJson(queryParams.getFilter());
+    }
+    if (queryParams.getRelationships().isEmpty()) {
+      return "";
     }
 
-    private static String getRelationshipFilter(QueryInterface queryParams) {
-        if (queryParams.getFilter() != null) {
-            return "\"filter\":" + JsonUtils.toJson(queryParams.getFilter());
-        }
-        if (queryParams.getRelationships().isEmpty()) {
-            return "";
-        }
-
-        // Open filter
-        String filter = "\t\t \"filter\" : {\n" +
-            "            \"and\" : [\n";
-        boolean first = true;
-        for (String relationship : queryParams.getRelationships()) {
-            if (first) {
-                filter += "     { \"exists\":{    \"field\" : \"tag." + relationship.toLowerCase() + ".*\" }}\n";
-                first = false;
-            } else {
-                filter += "    ,{ \"exists\":{    \"field\" : \"tag." + relationship.toLowerCase() + ".*\" }}\n";
-            }
-        }
-
-        filter += "      ]}\n"; // Close filter
-
-        return filter;
-
+    // Open filter
+    String filter = "\t\t \"filter\" : {\n" +
+        "            \"and\" : [\n";
+    boolean first = true;
+    for (String relationship : queryParams.getRelationships()) {
+      if (first) {
+        filter += "     { \"exists\":{    \"field\" : \"tag." + relationship.toLowerCase() + ".*\" }}\n";
+        first = false;
+      } else {
+        filter += "    ,{ \"exists\":{    \"field\" : \"tag." + relationship.toLowerCase() + ".*\" }}\n";
+      }
     }
+
+    filter += "      ]}\n"; // Close filter
+
+    return filter;
+
+  }
 }

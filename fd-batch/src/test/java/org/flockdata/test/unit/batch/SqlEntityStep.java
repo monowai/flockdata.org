@@ -49,38 +49,38 @@ import org.springframework.context.annotation.Profile;
 @Profile( {"fd-batch-dev", "dev"})
 public class SqlEntityStep extends FdAbstractSqlStep {
 
-    @Autowired
-    private FdRowMapper fdRowMapper;
+  @Autowired
+  private FdRowMapper fdRowMapper;
 
 
-    public String getStepName() {
-        return "olympic.athlete";
-    }
+  public String getStepName() {
+    return "olympic.athlete";
+  }
 
-    @Bean
-    public Job runEntityQuery(JobBuilderFactory jobs, @Qualifier("readEntitySql") Step s1, JobExecutionListener listener) {
-        return jobs.get(getStepName())
-            .incrementer(new RunIdIncrementer())
-            .listener(listener)
-            .flow(s1)
-            .end()
-            .build();
-    }
+  @Bean
+  public Job runEntityQuery(JobBuilderFactory jobs, @Qualifier("readEntitySql") Step s1, JobExecutionListener listener) {
+    return jobs.get(getStepName())
+        .incrementer(new RunIdIncrementer())
+        .listener(listener)
+        .flow(s1)
+        .end()
+        .build();
+  }
 
-    @Bean
-    public Step readEntitySql(StepBuilderFactory stepBuilderFactory, ItemReader<Map<String, Object>> entityItemReader,
-                              FdEntityWriter fdEntityWriter, FdEntityProcessor fdEntityProcessor) {
+  @Bean
+  public Step readEntitySql(StepBuilderFactory stepBuilderFactory, ItemReader<Map<String, Object>> entityItemReader,
+                            FdEntityWriter fdEntityWriter, FdEntityProcessor fdEntityProcessor) {
 
-        return stepBuilderFactory.get(getStepName())
-            .<Map<String, Object>, EntityInputBean>chunk(10)
-            .reader(entityItemReader)
-            .processor(fdEntityProcessor)
-            .writer(fdEntityWriter)
-            .build();
-    }
+    return stepBuilderFactory.get(getStepName())
+        .<Map<String, Object>, EntityInputBean>chunk(10)
+        .reader(entityItemReader)
+        .processor(fdEntityProcessor)
+        .writer(fdEntityWriter)
+        .build();
+  }
 
-    @Bean
-    public ItemReader entityItemReader() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, IOException {
-        return getItemReader();
-    }
+  @Bean
+  public ItemReader entityItemReader() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, IOException {
+    return getItemReader();
+  }
 }

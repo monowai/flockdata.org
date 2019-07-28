@@ -4,7 +4,7 @@
     "Occupancy": {
       "tag": true,
       "label": "Occupancy"
-    } ,
+    },
     "Loan_Type": {
       "tag": true,
       "label": "Loan Type"

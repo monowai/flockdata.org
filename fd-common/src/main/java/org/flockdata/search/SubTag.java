@@ -30,66 +30,66 @@ import org.flockdata.data.Tag;
  * @since 22/08/2015
  */
 public class SubTag extends AbstractEntityTag {
-    private Long id;
-    private Tag tag;
-    private String relationship;
-    private Map<String, Object> properties;
+  private Long id;
+  private Tag tag;
+  private String relationship;
+  private Map<String, Object> properties;
 
-    public SubTag() {
-    }
+  public SubTag() {
+  }
 
-    public SubTag(Tag subTag, String label) {
-        this();
-        this.tag = subTag;
-        this.relationship = label;
-    }
+  public SubTag(Tag subTag, String label) {
+    this();
+    this.tag = subTag;
+    this.relationship = label;
+  }
 
-    public SubTag(Tag subTag, String label, Map<String, Object> properties) {
-        this(subTag, label);
-        this.properties = properties;
-    }
+  public SubTag(Tag subTag, String label, Map<String, Object> properties) {
+    this(subTag, label);
+    this.properties = properties;
+  }
 
-    @Override
-    public Long getId() {
-        return id;
-    }
+  @Override
+  public Long getId() {
+    return id;
+  }
 
-    @Override
-    public Entity getEntity() {
-        return null;
-    }
+  @Override
+  public Entity getEntity() {
+    return null;
+  }
 
-    @Override
-    public Tag getTag() {
-        return tag;
-    }
+  @Override
+  public Tag getTag() {
+    return tag;
+  }
 
-    @Override
-    public String getRelationship() {
-        return relationship;
-    }
+  @Override
+  public String getRelationship() {
+    return relationship;
+  }
 
-    @Override
-    public void setRelationship(String name) {
-        this.relationship = name;
-    }
+  @Override
+  public void setRelationship(String name) {
+    this.relationship = name;
+  }
 
-    @Override
-    public Boolean isReversed() {
-        return false;
-    }
+  @Override
+  public Boolean isReversed() {
+    return false;
+  }
 
-    public Object getProperty(String key) {
-        if (properties == null) {
-            return null;
-        }
-        return properties.get(key);
+  public Object getProperty(String key) {
+    if (properties == null) {
+      return null;
     }
+    return properties.get(key);
+  }
 
-    @Override
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
+  @Override
+  public Map<String, Object> getProperties() {
+    return properties;
+  }
 
 
 }

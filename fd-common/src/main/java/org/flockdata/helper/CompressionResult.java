@@ -27,49 +27,49 @@ import java.io.UnsupportedEncodingException;
  * @since 20/07/2013
  */
 public class CompressionResult {
-    private Method method;
-    private byte[] bytes;
+  private Method method;
+  private byte[] bytes;
 
-    CompressionResult(byte[] bytes, boolean compressed) {
-        this(bytes);
-        if (!compressed) {
-            this.method = Method.NONE;
-        }
+  CompressionResult(byte[] bytes, boolean compressed) {
+    this(bytes);
+    if (!compressed) {
+      this.method = Method.NONE;
     }
+  }
 
-    CompressionResult(String value) throws UnsupportedEncodingException {
-        this();
-        method = Method.NONE;
-        this.bytes = value.getBytes(ObjectHelper.charSet);// DAT-75
-    }
+  CompressionResult(String value) throws UnsupportedEncodingException {
+    this();
+    method = Method.NONE;
+    this.bytes = value.getBytes(ObjectHelper.charSet);// DAT-75
+  }
 
-    private CompressionResult() {
-    }
+  private CompressionResult() {
+  }
 
-    CompressionResult(byte[] bytes) {
-        this();
-        method = Method.GZIP;
-        this.bytes = bytes;
-    }
+  CompressionResult(byte[] bytes) {
+    this();
+    method = Method.GZIP;
+    this.bytes = bytes;
+  }
 
-    public int length() {
-        return bytes.length;
-    }
+  public int length() {
+    return bytes.length;
+  }
 
-    public byte[] getAsBytes() {
-        return bytes;
-    }
+  public byte[] getAsBytes() {
+    return bytes;
+  }
 
-    public byte[] getBytes() {
-        return bytes;
-    }
+  public byte[] getBytes() {
+    return bytes;
+  }
 
-    public Method getMethod() {
-        return method;
-    }
+  public Method getMethod() {
+    return method;
+  }
 
-    public enum Method {
-        NONE, GZIP
-    }
+  public enum Method {
+    NONE, GZIP
+  }
 
 }

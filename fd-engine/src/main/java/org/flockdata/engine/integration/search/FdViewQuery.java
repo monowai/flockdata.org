@@ -52,34 +52,34 @@ import org.springframework.integration.dsl.support.Transformers;
 @Profile( {"fd-server"})
 public class FdViewQuery {
 
-    private final PlatformConfig engineConfig;
+  private final PlatformConfig engineConfig;
 
-    @Autowired
-    public FdViewQuery(@Qualifier("engineConfig") PlatformConfig engineConfig) {
-        this.engineConfig = engineConfig;
-    }
+  @Autowired
+  public FdViewQuery(@Qualifier("engineConfig") PlatformConfig engineConfig) {
+    this.engineConfig = engineConfig;
+  }
 
-    @Bean
-    IntegrationFlow fdViewQueryFlow() {
-        return IntegrationFlows
-            .from("doFdViewQuery")
-            .transform(Transformers.toJson(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .handle(Http.outboundGateway(engineConfig.getFdSearch() + "/v1/query/fdView")
-                .charset(StandardCharsets.UTF_8.name())
-                .httpMethod(HttpMethod.POST)
-                .mappedRequestHeaders("*")
-                .extractPayload(true)
-                .expectedResponseType(EsSearchRequestResult.class))
-            .get();
-    }
+  @Bean
+  IntegrationFlow fdViewQueryFlow() {
+    return IntegrationFlows
+        .from("doFdViewQuery")
+        .transform(Transformers.toJson(MediaType.APPLICATION_JSON_UTF8_VALUE))
+        .handle(Http.outboundGateway(engineConfig.getFdSearch() + "/v1/query/fdView")
+            .charset(StandardCharsets.UTF_8.name())
+            .httpMethod(HttpMethod.POST)
+            .mappedRequestHeaders("*")
+            .extractPayload(true)
+            .expectedResponseType(EsSearchRequestResult.class))
+        .get();
+  }
 
-    @MessagingGateway
-    public interface FdViewQueryGateway {
+  @MessagingGateway
+  public interface FdViewQueryGateway {
 
-        @Gateway(requestChannel = "doFdViewQuery")
-        EsSearchRequestResult fdSearch(QueryParams queryParams);
+    @Gateway(requestChannel = "doFdViewQuery")
+    EsSearchRequestResult fdSearch(QueryParams queryParams);
 
-    }
+  }
 
 
 }

@@ -43,84 +43,84 @@ import org.springframework.web.client.RestTemplate;
 @Profile( {"dev"})
 public class FdMockIo implements FdIoInterface {
 
-    public Collection<EntityInputBean> entities = null;
-    public Collection<TagInputBean> tags = null;
+  public Collection<EntityInputBean> entities = null;
+  public Collection<TagInputBean> tags = null;
 
-    /**
-     * @return entities that would have been written to the service
-     */
-    public Collection<EntityInputBean> getEntities() {
-        return entities;
-    }
+  /**
+   * @return entities that would have been written to the service
+   */
+  public Collection<EntityInputBean> getEntities() {
+    return entities;
+  }
 
-    /**
-     * @return tags that would have been written to the service
-     */
-    public Collection<TagInputBean> getTags() {
-        return tags;
-    }
+  /**
+   * @return tags that would have been written to the service
+   */
+  public Collection<TagInputBean> getTags() {
+    return tags;
+  }
 
-    @Override
-    public SystemUserResultBean me() {
-        return null;
-    }
+  @Override
+  public SystemUserResultBean me() {
+    return null;
+  }
 
-    /**
-     * @param tagInputBeans tags to write
-     * @return usually an error message, but null for testing purposes
-     * @throws FlockException should never happen
-     */
-    @Override
-    public String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException {
-        this.tags = tagInputBeans;
-        return null;
-    }
+  /**
+   * @param tagInputBeans tags to write
+   * @return usually an error message, but null for testing purposes
+   * @throws FlockException should never happen
+   */
+  @Override
+  public String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException {
+    this.tags = tagInputBeans;
+    return null;
+  }
 
-    @Override
-    public String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException {
-        this.entities = entityBatch;
-        return null;
-    }
+  @Override
+  public String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException {
+    this.entities = entityBatch;
+    return null;
+  }
 
-    @Override
-    public ContentModel getContentModel(Fortress fortress, Document documentType) {
-        //return getContentModel(fortress.getName(), documentType.getCode());
-        return null;
-    }
+  @Override
+  public ContentModel getContentModel(Fortress fortress, Document documentType) {
+    //return getContentModel(fortress.getName(), documentType.getCode());
+    return null;
+  }
 
-    @Override
-    public ContentModel getContentModel(String modelKey) throws IOException {
-        return ContentModelDeserializer.getContentModel(modelKey);
-    }
+  @Override
+  public ContentModel getContentModel(String modelKey) throws IOException {
+    return ContentModelDeserializer.getContentModel(modelKey);
+  }
 
-    @Override
-    public SystemUserResultBean validateConnectivity() throws FlockException {
-        return null;
-        // noop
-    }
+  @Override
+  public SystemUserResultBean validateConnectivity() throws FlockException {
+    return null;
+    // noop
+  }
 
-    @Override
-    public SystemUserResultBean login(String userName, String password) {
-        return me();
-    }
+  @Override
+  public SystemUserResultBean login(String userName, String password) {
+    return me();
+  }
 
-    @Override
-    public String getUrl() {
-        return "mock";
-    }
+  @Override
+  public String getUrl() {
+    return "mock";
+  }
 
-    @Override
-    public RestTemplate getRestTemplate() {
-        return null;
-    }
+  @Override
+  public RestTemplate getRestTemplate() {
+    return null;
+  }
 
-    @Override
-    public HttpHeaders getHeaders() {
-        return null;
-    }
+  @Override
+  public HttpHeaders getHeaders() {
+    return null;
+  }
 
-    @Override
-    public ExtractProfile getExtractProfile(String fileModel, ContentModel contentModel) {
-        return null;
-    }
+  @Override
+  public ExtractProfile getExtractProfile(String fileModel, ContentModel contentModel) {
+    return null;
+  }
 }

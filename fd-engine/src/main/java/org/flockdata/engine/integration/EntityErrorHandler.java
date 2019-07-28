@@ -41,62 +41,62 @@ import org.springframework.messaging.MessageHandlingException;
 @IntegrationComponentScan
 @Configuration
 public class EntityErrorHandler {
-    private Logger logger = LoggerFactory.getLogger(EntityErrorHandler.class);
+  private Logger logger = LoggerFactory.getLogger(EntityErrorHandler.class);
 
-    @Bean
-    MessageChannel trackError() {
-        return new DirectChannel();
+  @Bean
+  MessageChannel trackError() {
+    return new DirectChannel();
+  }
+
+  @Bean
+  MessageChannel messagingError() {
+    return new DirectChannel();
+  }
+
+
+  @ServiceActivator(inputChannel = "trackError")
+  public void handleFailedTrackRequest(Message<MessageHandlingException> message) {
+    // ToDo: How to persist failed messages
+    MessageHandlingException payLoad = message.getPayload();
+    String errorMessage = null;
+    if (payLoad != null) {
+      Object msgPayload = payLoad.getFailedMessage().getPayload();
+
+      if (payLoad.getCause() != null) {
+        errorMessage = payLoad.getCause().getMessage();
+      } else {
+        errorMessage = payLoad.getMessage();
+      }
+
+      if (msgPayload instanceof String) {
+        errorMessage = errorMessage + " [" + msgPayload.toString() + "]";
+      } else {
+        Object o = payLoad.getFailedMessage().getPayload();
+        errorMessage = errorMessage + ". " + o.toString();
+
+      }
     }
+    logger.error(errorMessage, payLoad);
+    throw new AmqpRejectAndDontRequeueException(errorMessage);
+    //throw payLoad;
+  }
 
-    @Bean
-    MessageChannel messagingError() {
-        return new DirectChannel();
+  @ServiceActivator(inputChannel = "messagingError")
+  public void handleMessageDeliveryException(Message<MessageDeliveryException> message) {
+    // ToDo: How to persist failed messages
+    MessageDeliveryException payLoad = message.getPayload();
+    String errorMessage;
+    if (payLoad.getCause() != null) {
+      errorMessage = payLoad.getCause().getMessage();
+
+    } else {
+      errorMessage = payLoad.getMessage();
     }
+    logger.error(errorMessage, payLoad);
 
+    //throw new AmqpRejectAndDontRequeueException(errorMessage);
 
-    @ServiceActivator(inputChannel = "trackError")
-    public void handleFailedTrackRequest(Message<MessageHandlingException> message) {
-        // ToDo: How to persist failed messages
-        MessageHandlingException payLoad = message.getPayload();
-        String errorMessage = null;
-        if (payLoad != null) {
-            Object msgPayload = payLoad.getFailedMessage().getPayload();
-
-            if (payLoad.getCause() != null) {
-                errorMessage = payLoad.getCause().getMessage();
-            } else {
-                errorMessage = payLoad.getMessage();
-            }
-
-            if (msgPayload instanceof String) {
-                errorMessage = errorMessage + " [" + msgPayload.toString() + "]";
-            } else {
-                Object o = payLoad.getFailedMessage().getPayload();
-                errorMessage = errorMessage + ". " + o.toString();
-
-            }
-        }
-        logger.error(errorMessage, payLoad);
-        throw new AmqpRejectAndDontRequeueException(errorMessage);
-        //throw payLoad;
-    }
-
-    @ServiceActivator(inputChannel = "messagingError")
-    public void handleMessageDeliveryException(Message<MessageDeliveryException> message) {
-        // ToDo: How to persist failed messages
-        MessageDeliveryException payLoad = message.getPayload();
-        String errorMessage;
-        if (payLoad.getCause() != null) {
-            errorMessage = payLoad.getCause().getMessage();
-
-        } else {
-            errorMessage = payLoad.getMessage();
-        }
-        logger.error(errorMessage, payLoad);
-
-        //throw new AmqpRejectAndDontRequeueException(errorMessage);
-
-    }
+  }
 
 }
 

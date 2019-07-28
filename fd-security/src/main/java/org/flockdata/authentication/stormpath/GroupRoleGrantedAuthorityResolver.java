@@ -65,25 +65,25 @@ import java.util.Map;
  */
 public class GroupRoleGrantedAuthorityResolver {//implements GroupGrantedAuthorityResolver {
 
-    private Map<String, List<String>> rolesMap;
+  private Map<String, List<String>> rolesMap;
 
-    public GroupRoleGrantedAuthorityResolver(Map<String, List<String>> roleMap) {
-        if (roleMap == null || roleMap.size() == 0) {
-            throw new IllegalArgumentException("roleMap property cannot be null or empty.");
-        }
-        this.rolesMap = roleMap;
+  public GroupRoleGrantedAuthorityResolver(Map<String, List<String>> roleMap) {
+    if (roleMap == null || roleMap.size() == 0) {
+      throw new IllegalArgumentException("roleMap property cannot be null or empty.");
     }
+    this.rolesMap = roleMap;
+  }
 
-    public Map<String, List<String>> getRolesMap() {
-        return rolesMap;
-    }
+  public Map<String, List<String>> getRolesMap() {
+    return rolesMap;
+  }
 
-    public void setRolesMap(Map<String, List<String>> roleMap) {
-        if (roleMap == null || roleMap.size() == 0) {
-            throw new IllegalArgumentException("roleMap property cannot be null or empty.");
-        }
-        this.rolesMap = roleMap;
+  public void setRolesMap(Map<String, List<String>> roleMap) {
+    if (roleMap == null || roleMap.size() == 0) {
+      throw new IllegalArgumentException("roleMap property cannot be null or empty.");
     }
+    this.rolesMap = roleMap;
+  }
 
 //    @Override
 //    public Set<GrantedAuthority> resolveGrantedAuthorities(Group group) {

@@ -28,41 +28,41 @@ package org.flockdata.data;
  * @since 19/02/2016
  */
 public interface Fortress {
-    String DEFAULT = "Default";
+  String DEFAULT = "Default";
 
-    static String key(String fortressCode, String segmentCode) {
-        if (segmentCode == null) {
-            return null;
-        }
-        return fortressCode + "-" + segmentCode.toLowerCase();
+  static String key(String fortressCode, String segmentCode) {
+    if (segmentCode == null) {
+      return null;
     }
+    return fortressCode + "-" + segmentCode.toLowerCase();
+  }
 
-    static String code(String name) {
-        if (name == null) {
-            return null;
-        }
-        return name.toLowerCase().replaceAll("\\s+", "");
+  static String code(String name) {
+    if (name == null) {
+      return null;
     }
+    return name.toLowerCase().replaceAll("\\s+", "");
+  }
 
-    String getName();
+  String getName();
 
-    String getCode();
+  String getCode();
 
-    Company getCompany();
+  Company getCompany();
 
-    Boolean isSearchEnabled();
+  Boolean isSearchEnabled();
 
-    Long getId();
+  Long getId();
 
-    Boolean isStoreEnabled();
+  Boolean isStoreEnabled();
 
-    Boolean isSystem();
+  Boolean isSystem();
 
-    String getRootIndex();
+  String getRootIndex();
 
-    Segment getDefaultSegment();
+  Segment getDefaultSegment();
 
-    String getTimeZone();
+  String getTimeZone();
 
-    boolean isEnabled();
+  boolean isEnabled();
 }

@@ -40,84 +40,84 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 @TypeAlias("Alias")
 public class AliasNode implements Alias {
 
-    @GraphId
-    private Long id;
+  @GraphId
+  private Long id;
 
-    private String description;
-    private String name;
-    private String key;
+  private String description;
+  private String name;
+  private String key;
 
-    @Labels
-    private ArrayList<String> labels = new ArrayList<>();
+  @Labels
+  private ArrayList<String> labels = new ArrayList<>();
 
-    @RelatedTo(elementClass = TagNode.class, type = "HAS_ALIAS", direction = Direction.INCOMING)
-    //    @Relationship(type = "HAS_ALIAS", direction = Relationship.INCOMING)
-    private TagNode tag;
+  @RelatedTo(elementClass = TagNode.class, type = "HAS_ALIAS", direction = Direction.INCOMING)
+  //    @Relationship(type = "HAS_ALIAS", direction = Relationship.INCOMING)
+  private TagNode tag;
 
-    AliasNode() {
-        // ToDo: Remove with SDN4
+  AliasNode() {
+    // ToDo: Remove with SDN4
+  }
+
+  public AliasNode(String theLabel, AliasInputBean aliasInput, String key, Tag tag) {
+    this();
+    // ToDo: This should be provided by the caller
+    labels.add(theLabel + "Alias");
+    labels.add("Alias");
+    labels.add("_Alias");
+    this.key = key;
+    this.name = aliasInput.getCode();
+    this.description = aliasInput.getDescription();
+    this.tag = (TagNode) tag;
+  }
+
+  @Override
+  public String getLabel() {
+    for (String label : labels) {
+      if (!(label.equals("Alias") || label.equals("_Alias"))) {
+        return label;
+      }
     }
+    return null;
+  }
 
-    public AliasNode(String theLabel, AliasInputBean aliasInput, String key, Tag tag) {
-        this();
-        // ToDo: This should be provided by the caller
-        labels.add(theLabel + "Alias");
-        labels.add("Alias");
-        labels.add("_Alias");
-        this.key = key;
-        this.name = aliasInput.getCode();
-        this.description = aliasInput.getDescription();
-        this.tag = (TagNode) tag;
-    }
+  @Override
+  public String getDescription() {
+    return description;
+  }
 
-    @Override
-    public String getLabel() {
-        for (String label : labels) {
-            if (!(label.equals("Alias") || label.equals("_Alias"))) {
-                return label;
-            }
-        }
-        return null;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    @Override
-    public String getDescription() {
-        return description;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public Tag getTag() {
+    return tag;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setTag(TagNode tag) {
+    this.tag = tag;
+  }
 
-    @Override
-    public Tag getTag() {
-        return tag;
-    }
+  @Override
+  public String toString() {
+    return "AliasNode{" +
+        "id=" + id +
+        ", name='" + name + '\'' +
+        ", description='" + description + '\'' +
+        '}';
+  }
 
-    public void setTag(TagNode tag) {
-        this.tag = tag;
-    }
-
-    @Override
-    public String toString() {
-        return "AliasNode{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", description='" + description + '\'' +
-            '}';
-    }
-
-    @Override
-    public String getKey() {
-        return key;
-    }
+  @Override
+  public String getKey() {
+    return key;
+  }
 }

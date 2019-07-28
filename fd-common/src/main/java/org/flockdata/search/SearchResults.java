@@ -31,23 +31,23 @@ import lombok.Data;
 @Data
 public class SearchResults {
 
-    @JsonDeserialize(contentAs = EsSearchResult.class)
-    private Collection<SearchResult> searchResults = new ArrayList<>();
+  @JsonDeserialize(contentAs = EsSearchResult.class)
+  private Collection<SearchResult> searchResults = new ArrayList<>();
 
-    public SearchResults() {
+  public SearchResults() {
 
-    }
+  }
 
-    public SearchResults(Collection<SearchResult> searchResults) {
-        setSearchResults(searchResults);
-    }
+  public SearchResults(Collection<SearchResult> searchResults) {
+    setSearchResults(searchResults);
+  }
 
-    public void addSearchResult(SearchResult result) {
-        searchResults.add(result);
-    }
+  public void addSearchResult(SearchResult result) {
+    searchResults.add(result);
+  }
 
-    @JsonIgnore
-    public boolean isEmpty() {
-        return searchResults.isEmpty();
-    }
+  @JsonIgnore
+  public boolean isEmpty() {
+    return searchResults.isEmpty();
+  }
 }

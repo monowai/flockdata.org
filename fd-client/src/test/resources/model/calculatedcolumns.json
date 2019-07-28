@@ -28,10 +28,10 @@
     "WorkHours": {
       "dataType": "double",
       "target": "WorkHours",
-      "value":  "['Hours']+['BulkHours']",
+      "value": "['Hours']+['BulkHours']",
       "properties": [
         {
-          "source":  "WorkHours",
+          "source": "WorkHours",
           "target": "value"
         }
       ]

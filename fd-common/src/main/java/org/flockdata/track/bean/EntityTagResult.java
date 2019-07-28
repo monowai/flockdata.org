@@ -31,54 +31,54 @@ import org.flockdata.registration.TagResultBean;
  * @since 14/01/17
  */
 public class EntityTagResult {
-    private Long id;
-    private Entity entity;
-    private TagResultBean tag;
-    private String relationship;
-    private GeoDataBeans geoData;
-    private Map<String, Object> properties;
+  private Long id;
+  private Entity entity;
+  private TagResultBean tag;
+  private String relationship;
+  private GeoDataBeans geoData;
+  private Map<String, Object> properties;
 
-    EntityTagResult() {
-    }
+  EntityTagResult() {
+  }
 
-    public EntityTagResult(EntityTag entityTag) {
-        this.id = entityTag.getId();
-        this.entity = entityTag.getEntity();
-        this.tag = new TagResultBean(entityTag.getTag());
-        this.properties = entityTag.getProperties();
-        relationship = entityTag.getRelationship();
-        geoData = entityTag.getGeoData();
-    }
+  public EntityTagResult(EntityTag entityTag) {
+    this.id = entityTag.getId();
+    this.entity = entityTag.getEntity();
+    this.tag = new TagResultBean(entityTag.getTag());
+    this.properties = entityTag.getProperties();
+    relationship = entityTag.getRelationship();
+    geoData = entityTag.getGeoData();
+  }
 
-    public TagResultBean getTag() {
-        return tag;
-    }
+  public TagResultBean getTag() {
+    return tag;
+  }
 
-    public String getRelationship() {
-        return relationship;
-    }
+  public String getRelationship() {
+    return relationship;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public GeoDataBeans getGeoData() {
-        return geoData;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public GeoDataBeans getGeoData() {
+    return geoData;
+  }
 
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
+  public Map<String, Object> getProperties() {
+    return properties;
+  }
 
-    @JsonIgnore
-    public Integer getWeight() {
-        return (Integer) getProperties().get("weight");
-    }
+  @JsonIgnore
+  public Integer getWeight() {
+    return (Integer) getProperties().get("weight");
+  }
 
-    @JsonIgnore
-    public Long getId() {
-        return id;
-    }
+  @JsonIgnore
+  public Long getId() {
+    return id;
+  }
 
-    @JsonIgnore
-    public Entity getEntity() {
-        return entity;
-    }
+  @JsonIgnore
+  public Entity getEntity() {
+    return entity;
+  }
 }

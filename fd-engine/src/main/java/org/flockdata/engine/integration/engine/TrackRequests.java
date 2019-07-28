@@ -67,116 +67,116 @@ import org.springframework.stereotype.Service;
 @Profile( {"fd-server"})
 public class TrackRequests {
 
-    private final MediationFacade mediationFacade;
+  private final MediationFacade mediationFacade;
 
-    private final SecurityHelper securityHelper;
-
-
-    private Exchanges exchanges;
-    private Logger logger = LoggerFactory.getLogger(TrackRequests.class);
-
-    @Autowired
-    public TrackRequests(MediationFacade mediationFacade, SecurityHelper securityHelper) {
-        this.mediationFacade = mediationFacade;
-        this.securityHelper = securityHelper;
-    }
-
-    @Autowired(required = false)
-    void setExchanges(Exchanges exchanges) {
-        this.exchanges = exchanges;
-    }
-
-    @Bean
-    MessageChannel doTrackEntity() {
-        return new DirectChannel();
-    }
-
-    @Bean
-    MessageChannel startEntityWrite() {
-        return new DirectChannel();
-    }
-
-    @Bean
-    MessageChannel trackResult() {
-        return new DirectChannel();
-    }
-
-    public MessageHandler handler() throws FlockException, ExecutionException, InterruptedException {
-
-        return message -> {
-            try {
-
-                Object oKey = message.getHeaders().get(KEY_MSG_KEY);
-                if (oKey == null) {
-                    throw new AmqpRejectAndDontRequeueException("No api key");
-                }
-                Company company = securityHelper.getCompany(oKey.toString());
-                if (company == null) {
-                    logger.error("Could not resolve company for apiKey [{}]", oKey);
-                    throw new AmqpRejectAndDontRequeueException("Illegal api key");
-                }
-
-                Object oType = message.getHeaders().get(KEY_MSG_TYPE);
-                if (oType == null || oType.toString().equalsIgnoreCase("E")) {
-                    Collection<EntityInputBean> inputBeans = JsonUtils.toCollection((byte[]) message.getPayload(), EntityInputBean.class);
-                    mediationFacade.trackEntities(company, inputBeans);
-                } else {
-                    Collection<TagInputBean> inputBeans = JsonUtils.toCollection((byte[]) message.getPayload(), TagInputBean.class);
-                    mediationFacade.createTags(company, inputBeans);
-                }
-            } catch (IOException e) {
-                throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
-            } catch (InterruptedException |
-                ExecutionException |
-                InvalidDataAccessResourceUsageException |
-                InvalidDataAccessApiUsageException |
-                FlockException e) {
-                logger.error(e.getMessage());
-                throw new AmqpRejectAndDontRequeueException(String.format("Processing exception %s", e.getMessage()), e);
-            }
-
-        };
-    }
-
-    @Bean
-    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory, RetryOperationsInterceptor trackInterceptor) throws InterruptedException, FlockException, ExecutionException, IOException {
-        return IntegrationFlows.from(
-            Amqp.inboundAdapter(connectionFactory, exchanges.fdTrackQueue())
-                .maxConcurrentConsumers(exchanges.trackConcurrentConsumers())
-                .mappedRequestHeaders(KEY_MSG_KEY, KEY_MSG_TYPE)
-                .adviceChain(trackInterceptor)
-                .outputChannel(doTrackEntity())
-                .prefetchCount(exchanges.trackPreFetchCount())
-        )
-            .handle(handler())
-            .get();
-    }
-
-    @Bean
-    public MessageChannel loggingChannel() {
-        return MessageChannels.direct().get();
-    }
-
-    @Bean
-    public MessageChannel errorLoggingChannel() {
-        return MessageChannels.direct().get();
-    }
+  private final SecurityHelper securityHelper;
 
 
-    @Bean
-    public IntegrationFlow integrationLogging() {
-        return IntegrationFlows.from("errorLoggingChannel").handle((p, h) -> {
-            logger.error("Outgoing Request - " + p.toString());
-            return p;
-        }).channel("nullChannel").get();
-    }
+  private Exchanges exchanges;
+  private Logger logger = LoggerFactory.getLogger(TrackRequests.class);
+
+  @Autowired
+  public TrackRequests(MediationFacade mediationFacade, SecurityHelper securityHelper) {
+    this.mediationFacade = mediationFacade;
+    this.securityHelper = securityHelper;
+  }
+
+  @Autowired(required = false)
+  void setExchanges(Exchanges exchanges) {
+    this.exchanges = exchanges;
+  }
+
+  @Bean
+  MessageChannel doTrackEntity() {
+    return new DirectChannel();
+  }
+
+  @Bean
+  MessageChannel startEntityWrite() {
+    return new DirectChannel();
+  }
+
+  @Bean
+  MessageChannel trackResult() {
+    return new DirectChannel();
+  }
+
+  public MessageHandler handler() throws FlockException, ExecutionException, InterruptedException {
+
+    return message -> {
+      try {
+
+        Object oKey = message.getHeaders().get(KEY_MSG_KEY);
+        if (oKey == null) {
+          throw new AmqpRejectAndDontRequeueException("No api key");
+        }
+        Company company = securityHelper.getCompany(oKey.toString());
+        if (company == null) {
+          logger.error("Could not resolve company for apiKey [{}]", oKey);
+          throw new AmqpRejectAndDontRequeueException("Illegal api key");
+        }
+
+        Object oType = message.getHeaders().get(KEY_MSG_TYPE);
+        if (oType == null || oType.toString().equalsIgnoreCase("E")) {
+          Collection<EntityInputBean> inputBeans = JsonUtils.toCollection((byte[]) message.getPayload(), EntityInputBean.class);
+          mediationFacade.trackEntities(company, inputBeans);
+        } else {
+          Collection<TagInputBean> inputBeans = JsonUtils.toCollection((byte[]) message.getPayload(), TagInputBean.class);
+          mediationFacade.createTags(company, inputBeans);
+        }
+      } catch (IOException e) {
+        throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
+      } catch (InterruptedException |
+          ExecutionException |
+          InvalidDataAccessResourceUsageException |
+          InvalidDataAccessApiUsageException |
+          FlockException e) {
+        logger.error(e.getMessage());
+        throw new AmqpRejectAndDontRequeueException(String.format("Processing exception %s", e.getMessage()), e);
+      }
+
+    };
+  }
+
+  @Bean
+  public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory, RetryOperationsInterceptor trackInterceptor) throws InterruptedException, FlockException, ExecutionException, IOException {
+    return IntegrationFlows.from(
+        Amqp.inboundAdapter(connectionFactory, exchanges.fdTrackQueue())
+            .maxConcurrentConsumers(exchanges.trackConcurrentConsumers())
+            .mappedRequestHeaders(KEY_MSG_KEY, KEY_MSG_TYPE)
+            .adviceChain(trackInterceptor)
+            .outputChannel(doTrackEntity())
+            .prefetchCount(exchanges.trackPreFetchCount())
+    )
+        .handle(handler())
+        .get();
+  }
+
+  @Bean
+  public MessageChannel loggingChannel() {
+    return MessageChannels.direct().get();
+  }
+
+  @Bean
+  public MessageChannel errorLoggingChannel() {
+    return MessageChannels.direct().get();
+  }
 
 
-    @ServiceActivator(inputChannel = "doTrackEntity")
-    Collection<TagResultBean> sendResult() {
-        return new ArrayList<>();
-        // What do with the response?
-    }
+  @Bean
+  public IntegrationFlow integrationLogging() {
+    return IntegrationFlows.from("errorLoggingChannel").handle((p, h) -> {
+      logger.error("Outgoing Request - " + p.toString());
+      return p;
+    }).channel("nullChannel").get();
+  }
+
+
+  @ServiceActivator(inputChannel = "doTrackEntity")
+  Collection<TagResultBean> sendResult() {
+    return new ArrayList<>();
+    // What do with the response?
+  }
 
 //
 //    @MessagingGateway(errorChannel = "trackError", asyncExecutor = "fd-track")

@@ -31,55 +31,55 @@ import org.junit.Test;
  * @since 24/03/2015
  */
 public class TestFileProcessor {
-    @Test
-    public void validate_RowsToProcess() throws Exception {
-        FileProcessor fp = new FileProcessor();
-        assertFalse("No check should be made", fp.stopProcessing(1));
+  @Test
+  public void validate_RowsToProcess() throws Exception {
+    FileProcessor fp = new FileProcessor();
+    assertFalse("No check should be made", fp.stopProcessing(1));
 
-        fp = new FileProcessor(50, 50);
-        // Skip the first 50 rows
-        assertFalse("Less than skip count failed", fp.stopProcessing(49));
-        assertFalse("Processing should continue", fp.stopProcessing(50));
-        assertFalse("Processing should start", fp.stopProcessing(51));
-        assertTrue("Processing should stop", fp.stopProcessing(100));
-        assertTrue("Processing should stop", fp.stopProcessing(101));
-        assertTrue("Processing should really have stopped", fp.stopProcessing(101));
+    fp = new FileProcessor(50, 50);
+    // Skip the first 50 rows
+    assertFalse("Less than skip count failed", fp.stopProcessing(49));
+    assertFalse("Processing should continue", fp.stopProcessing(50));
+    assertFalse("Processing should start", fp.stopProcessing(51));
+    assertTrue("Processing should stop", fp.stopProcessing(100));
+    assertTrue("Processing should stop", fp.stopProcessing(101));
+    assertTrue("Processing should really have stopped", fp.stopProcessing(101));
 
-        fp = new FileProcessor(50000, 10);
-        assertFalse("Processing should continue with no log message", fp.stopProcessing(1));
+    fp = new FileProcessor(50000, 10);
+    assertFalse("Processing should continue with no log message", fp.stopProcessing(1));
 
-        fp = new FileProcessor(50000, 1);
-        assertFalse("Processing should not continue", fp.stopProcessing(50000));
+    fp = new FileProcessor(50000, 1);
+    assertFalse("Processing should not continue", fp.stopProcessing(50000));
 
-    }
+  }
 
-    @Test
-    public void collection_FilesInDirectory() throws Exception {
+  @Test
+  public void collection_FilesInDirectory() throws Exception {
 
-        FileProcessor fileProcessor = new FileProcessor();
-        Collection<String> files = fileProcessor.resolveFiles("/data/dummy1.json");
-        assertFalse(files.isEmpty());
-        assertEquals(1, files.size());
+    FileProcessor fileProcessor = new FileProcessor();
+    Collection<String> files = fileProcessor.resolveFiles("/data/dummy1.json");
+    assertFalse(files.isEmpty());
+    assertEquals(1, files.size());
 
-        files = fileProcessor.resolveFiles("./data/*.json");
-        assertFalse(files.isEmpty());
-        assertEquals(2, files.size());
+    files = fileProcessor.resolveFiles("./data/*.json");
+    assertFalse(files.isEmpty());
+    assertEquals(2, files.size());
 
-        files = fileProcessor.resolveFiles("./data/*.json");
-        assertFalse(files.isEmpty());
-        assertEquals(2, files.size());
+    files = fileProcessor.resolveFiles("./data/*.json");
+    assertFalse(files.isEmpty());
+    assertEquals(2, files.size());
 
-        files = fileProcessor.resolveFiles("./data/*");
-        assertFalse(files.isEmpty());
-        assertTrue("Not enough files found", files.size() > 5);
+    files = fileProcessor.resolveFiles("./data/*");
+    assertFalse(files.isEmpty());
+    assertTrue("Not enough files found", files.size() > 5);
 
-        files = fileProcessor.resolveFiles("./data/");
-        assertFalse(files.isEmpty());
-        assertTrue("Not enough files found", files.size() > 5);
+    files = fileProcessor.resolveFiles("./data/");
+    assertFalse(files.isEmpty());
+    assertTrue("Not enough files found", files.size() > 5);
 
-        files = fileProcessor.resolveFiles("/model/csvtest.json");
-        assertFalse(files.isEmpty());
-        assertEquals(1, files.size());
+    files = fileProcessor.resolveFiles("/model/csvtest.json");
+    assertFalse(files.isEmpty());
+    assertEquals(1, files.size());
 
-    }
+  }
 }

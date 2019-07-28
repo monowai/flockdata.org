@@ -1,61 +1,59 @@
 {
-    "mapping": {
-        "properties": {
-            "key": {
-                "type": "keyword",
-                "index": "not_analyzed"
-            },
-            "code": {
-                "type": "keyword",
-                "boost": "2.0",
-                "index": "not_analyzed"
-            },
-            "docType": {
-                "type": "keyword",
-                "index": "not_analyzed"
-            },
-            "fortress": {
-                "type": "keyword",
-                "index": "not_analyzed"
-            },
-            "lastEvent": {
-                "type": "keyword",
-                "index": "not_analyzed"
-            },
-            "timestamp": {
-                "type": "date"
-            },
-            "whenCreated": {
-                "type": "date"
-            },
-            "description": {
-                "type": "keyword",
-                "index": "not_analyzed"
-            },
-            "when": {
-                "type": "date"
-            },
-            "who": {
-                "type": "keyword",
-                "index": "not_analyzed"
-            }
-        },
-
-        "dynamic_templates": [
-            {
-                "fd.tag-template": {
-                    "path_match": "tag.*.code",
-                    "match_mapping_type": "text",
-                    "mapping": {
-                        "type": "keyword",
-                        "doc_values": true,
-                        "boost": 3.0,
-                        "index": "not_analyzed",
-                        "store": "true"
-                    }
-                }
-            }
-        ]
-
-    }
+  "mapping": {
+    "properties": {
+      "key": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      },
+      "code": {
+        "type": "keyword",
+        "boost": "2.0",
+        "index": "not_analyzed"
+      },
+      "docType": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      },
+      "fortress": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      },
+      "lastEvent": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      },
+      "timestamp": {
+        "type": "date"
+      },
+      "whenCreated": {
+        "type": "date"
+      },
+      "description": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      },
+      "when": {
+        "type": "date"
+      },
+      "who": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      }
+    },
+    "dynamic_templates": [
+      {
+        "fd.tag-template": {
+          "path_match": "tag.*.code",
+          "match_mapping_type": "text",
+          "mapping": {
+            "type": "keyword",
+            "doc_values": true,
+            "boost": 3.0,
+            "index": "not_analyzed",
+            "store": "true"
+          }
+        }
+      }
+    ]
+  }
 }

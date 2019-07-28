@@ -49,37 +49,37 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(locations = {"classpath:root-context-neo-rest.xml"})
 public class TestNeoRestInterface {
 
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
+  @Rule
+  public final ExpectedException exception = ExpectedException.none();
 
-    public static HttpHeaders getHttpHeaders() {
+  public static HttpHeaders getHttpHeaders() {
 
-        return new HttpHeaders() {
-            {
-                setContentType(MediaType.APPLICATION_JSON);
-                set("charset", "UTF-8");
-            }
-        };
-    }
+    return new HttpHeaders() {
+      {
+        setContentType(MediaType.APPLICATION_JSON);
+        set("charset", "UTF-8");
+      }
+    };
+  }
 
-    @Test
-    public void neo4j_EnsureRestAPIWorks() throws Exception {
-        Authentication auth = new UsernamePasswordAuthenticationToken(
-            "neo4j", "neo4j");
+  @Test
+  public void neo4j_EnsureRestAPIWorks() throws Exception {
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+        "neo4j", "neo4j");
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
+    SecurityContextHolder.getContext().setAuthentication(auth);
 
-        // Now find something - anything
-        TestRestTemplate restTemplate = new TestRestTemplate();
-        HttpHeaders httpHeaders = getHttpHeaders();
-        String query = "{ \"statements\":[{\"statement\":\"return 1\"}]}";
-        HttpEntity<String> requestEntity = new HttpEntity<>(query, httpHeaders);
-        ResponseEntity<Map> result = restTemplate.exchange("http://localhost:7474/db/data/transaction/commit/", HttpMethod.POST, requestEntity, Map.class);
-        // ToDo: Auth check. At the moment a 401 is good enough
-        Map response = result.getBody();
-        assertNotNull(response);
-        assertTrue(response.containsKey("errors"));
+    // Now find something - anything
+    TestRestTemplate restTemplate = new TestRestTemplate();
+    HttpHeaders httpHeaders = getHttpHeaders();
+    String query = "{ \"statements\":[{\"statement\":\"return 1\"}]}";
+    HttpEntity<String> requestEntity = new HttpEntity<>(query, httpHeaders);
+    ResponseEntity<Map> result = restTemplate.exchange("http://localhost:7474/db/data/transaction/commit/", HttpMethod.POST, requestEntity, Map.class);
+    // ToDo: Auth check. At the moment a 401 is good enough
+    Map response = result.getBody();
+    assertNotNull(response);
+    assertTrue(response.containsKey("errors"));
 
-    }
+  }
 
 }

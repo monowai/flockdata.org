@@ -53,30 +53,30 @@ import org.springframework.integration.dsl.support.Transformers;
 @Profile( {"fd-server"})
 public class EntityKeyQuery {
 
-    private final PlatformConfig engineConfig;
+  private final PlatformConfig engineConfig;
 
-    @Autowired
-    public EntityKeyQuery(@Qualifier("engineConfig") PlatformConfig engineConfig) {
-        this.engineConfig = engineConfig;
-    }
+  @Autowired
+  public EntityKeyQuery(@Qualifier("engineConfig") PlatformConfig engineConfig) {
+    this.engineConfig = engineConfig;
+  }
 
-    @Bean
-    IntegrationFlow fdKeyQueryFlow() {
-        return IntegrationFlows
-            .from("doKeyQuery")
-            .transform(Transformers.toJson(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .handle(Http.outboundGateway(engineConfig.getFdSearch() + "/v1/query/keys")
-                .charset(StandardCharsets.UTF_8.name())
-                .httpMethod(HttpMethod.POST)
-                .mappedRequestHeaders("*")
-                .extractPayload(true)
-                .expectedResponseType(EntityKeyResults.class))
-            .get();
-    }
+  @Bean
+  IntegrationFlow fdKeyQueryFlow() {
+    return IntegrationFlows
+        .from("doKeyQuery")
+        .transform(Transformers.toJson(MediaType.APPLICATION_JSON_UTF8_VALUE))
+        .handle(Http.outboundGateway(engineConfig.getFdSearch() + "/v1/query/keys")
+            .charset(StandardCharsets.UTF_8.name())
+            .httpMethod(HttpMethod.POST)
+            .mappedRequestHeaders("*")
+            .extractPayload(true)
+            .expectedResponseType(EntityKeyResults.class))
+        .get();
+  }
 
-    @MessagingGateway
-    public interface EntityKeyGateway {
-        @Gateway(requestChannel = "doKeyQuery")
-        EntityKeyResults keys(QueryParams queryParams);
-    }
+  @MessagingGateway
+  public interface EntityKeyGateway {
+    @Gateway(requestChannel = "doKeyQuery")
+    EntityKeyResults keys(QueryParams queryParams);
+  }
 }

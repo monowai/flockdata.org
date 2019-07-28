@@ -40,68 +40,68 @@ import org.slf4j.LoggerFactory;
  */
 public class TestJsonEntity extends AbstractImport {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(TestCsvEntity.class);
+  private static org.slf4j.Logger logger = LoggerFactory.getLogger(TestCsvEntity.class);
 
-    @Test
-    public void entity_JsonStructure() throws Exception {
-        ContentModel params = ContentModelDeserializer.getContentModel("/model/gov.json");
-        JsonEntityTransformer entity = new JsonEntityTransformer();
+  @Test
+  public void entity_JsonStructure() throws Exception {
+    ContentModel params = ContentModelDeserializer.getContentModel("/model/gov.json");
+    JsonEntityTransformer entity = new JsonEntityTransformer();
 
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            InputStream file = TestCsvEntity.class.getResourceAsStream("/model/object-example.json");
-            JsonNode theMap = mapper.readTree(file);
-            entity.setData(theMap, params);
-            assertEquals(11, entity.getTags().size());
-            assertEquals("hr4015-113", entity.getCode());
-            assertEquals("hr", entity.getDocumentType().getName());
-            assertNotNull(entity.getName());
-            for (TagInputBean tagInputBean : entity.getTags()) {
-                if (tagInputBean.getEntityTagLinks().get("sponsors") != null) {
-                    assertNotNull(tagInputBean.getTargets().get("located"));
-                    Collection<TagInputBean> states = tagInputBean.getTargets().get("located");
-                    for (TagInputBean state : states) {
-                        assertEquals("TX", state.getCode());
-                        assertNotNull(state.getTargets().get("represents"));
-                    }
-                } else if (tagInputBean.getEntityTagLinks().get("cosponsors") != null)
-                //assertEquals(5,  );
-                {
-                    logger.info("Validate CoSponsor {}", tagInputBean.toString());
-                }
-
-            }
-        } catch (IOException e) {
-
-            logger.error("Error writing exceptions", e);
-            throw new RuntimeException("IO Exception ", e);
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      InputStream file = TestCsvEntity.class.getResourceAsStream("/model/object-example.json");
+      JsonNode theMap = mapper.readTree(file);
+      entity.setData(theMap, params);
+      assertEquals(11, entity.getTags().size());
+      assertEquals("hr4015-113", entity.getCode());
+      assertEquals("hr", entity.getDocumentType().getName());
+      assertNotNull(entity.getName());
+      for (TagInputBean tagInputBean : entity.getTags()) {
+        if (tagInputBean.getEntityTagLinks().get("sponsors") != null) {
+          assertNotNull(tagInputBean.getTargets().get("located"));
+          Collection<TagInputBean> states = tagInputBean.getTargets().get("located");
+          for (TagInputBean state : states) {
+            assertEquals("TX", state.getCode());
+            assertNotNull(state.getTargets().get("represents"));
+          }
+        } else if (tagInputBean.getEntityTagLinks().get("cosponsors") != null)
+        //assertEquals(5,  );
+        {
+          logger.info("Validate CoSponsor {}", tagInputBean.toString());
         }
 
+      }
+    } catch (IOException e) {
 
+      logger.error("Error writing exceptions", e);
+      throw new RuntimeException("IO Exception ", e);
     }
 
-    @Test
-    public void object_ImportJsonEntity() throws Exception {
-        ContentModel model = ContentModelDeserializer.getContentModel("/model/gov.json");
-        ExtractProfile extractProfile = new ExtractProfileHandler(model);
-        extractProfile.setContentType(ExtractProfile.ContentType.JSON);
 
-        model.setFortress(new FortressInputBean("testing"));
+  }
 
-        long rows = fileProcessor.processFile(extractProfile, "/model/object-example.json");
-        assertEquals("Should have processed the file as a single JSON object", 1, rows);
-    }
+  @Test
+  public void object_ImportJsonEntity() throws Exception {
+    ContentModel model = ContentModelDeserializer.getContentModel("/model/gov.json");
+    ExtractProfile extractProfile = new ExtractProfileHandler(model);
+    extractProfile.setContentType(ExtractProfile.ContentType.JSON);
 
-    @Test
-    public void array_ImportJsonEntities() throws Exception {
-        ContentModel model = ContentModelDeserializer.getContentModel("/model/gov.json");
-        ExtractProfile extractProfile = new ExtractProfileHandler(model);
-        extractProfile.setContentType(ExtractProfile.ContentType.JSON);
-        model.setFortress(new FortressInputBean("testing"));
+    model.setFortress(new FortressInputBean("testing"));
 
-        long rows = fileProcessor.processFile(extractProfile, "/model/gov-array-example.json");
-        assertEquals("Should have processed the file as an array of JSON objects", 1, rows);
-    }
+    long rows = fileProcessor.processFile(extractProfile, "/model/object-example.json");
+    assertEquals("Should have processed the file as a single JSON object", 1, rows);
+  }
+
+  @Test
+  public void array_ImportJsonEntities() throws Exception {
+    ContentModel model = ContentModelDeserializer.getContentModel("/model/gov.json");
+    ExtractProfile extractProfile = new ExtractProfileHandler(model);
+    extractProfile.setContentType(ExtractProfile.ContentType.JSON);
+    model.setFortress(new FortressInputBean("testing"));
+
+    long rows = fileProcessor.processFile(extractProfile, "/model/gov-array-example.json");
+    assertEquals("Should have processed the file as an array of JSON objects", 1, rows);
+  }
 
 
 }

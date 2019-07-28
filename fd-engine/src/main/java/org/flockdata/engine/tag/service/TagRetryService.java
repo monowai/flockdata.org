@@ -55,57 +55,57 @@ import org.springframework.stereotype.Service;
 @Service
 public class TagRetryService {
 
-    private final TagService tagService;
+  private final TagService tagService;
 
-    private final IndexRetryService indexRetryService;
+  private final IndexRetryService indexRetryService;
 
-    private SearchServiceFacade searchService;
-    private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
+  private SearchServiceFacade searchService;
+  private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
 
-    @Autowired
-    public TagRetryService(TagService tagService, IndexRetryService indexRetryService) {
-        this.tagService = tagService;
-        this.indexRetryService = indexRetryService;
+  @Autowired
+  public TagRetryService(TagService tagService, IndexRetryService indexRetryService) {
+    this.tagService = tagService;
+    this.indexRetryService = indexRetryService;
+  }
+
+  @Autowired(required = false)
+  void setSearchServiceFacade(SearchServiceFacade searchService) {
+    this.searchService = searchService;
+  }
+
+  @Retryable(include = {FlockException.class,
+      HeuristicRollbackException.class,
+      DataIntegrityViolationException.class,
+      EntityNotFoundException.class,
+      IllegalStateException.class,
+      ConcurrencyFailureException.class,
+      DeadlockDetectedException.class,
+      ConstraintViolationException.class,
+      TransactionFailureException.class},
+      maxAttempts = 15,
+      backoff = @Backoff(delay = 300, multiplier = 3, random = true))
+
+  @Async("fd-tag")
+  public Future<Collection<FdTagResultBean>> createTags(Company company, Collection<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
+    logger.trace("!!! Create Tags");
+    if (tagInputBeans == null || tagInputBeans.isEmpty()) {
+      return new AsyncResult<>(new ArrayList<>());
     }
 
-    @Autowired(required = false)
-    void setSearchServiceFacade(SearchServiceFacade searchService) {
-        this.searchService = searchService;
+    boolean schemaReady;
+    do {
+      schemaReady = indexRetryService.ensureUniqueIndexes(tagInputBeans);
+    } while (!schemaReady);
+
+
+    if (tagInputBeans.isEmpty()) {
+      return new AsyncResult<>(new ArrayList<>());
     }
-
-    @Retryable(include = {FlockException.class,
-        HeuristicRollbackException.class,
-        DataIntegrityViolationException.class,
-        EntityNotFoundException.class,
-        IllegalStateException.class,
-        ConcurrencyFailureException.class,
-        DeadlockDetectedException.class,
-        ConstraintViolationException.class,
-        TransactionFailureException.class},
-        maxAttempts = 15,
-        backoff = @Backoff(delay = 300, multiplier = 3, random = true))
-
-    @Async("fd-tag")
-    public Future<Collection<FdTagResultBean>> createTags(Company company, Collection<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
-        logger.trace("!!! Create Tags");
-        if (tagInputBeans == null || tagInputBeans.isEmpty()) {
-            return new AsyncResult<>(new ArrayList<>());
-        }
-
-        boolean schemaReady;
-        do {
-            schemaReady = indexRetryService.ensureUniqueIndexes(tagInputBeans);
-        } while (!schemaReady);
-
-
-        if (tagInputBeans.isEmpty()) {
-            return new AsyncResult<>(new ArrayList<>());
-        }
-        Collection<FdTagResultBean> tagResults = tagService.createTags(company, tagInputBeans);
-        if (searchService != null) {
-            searchService.makeTagsSearchable(company, tagResults);
-        }
-        return new AsyncResult<>(tagResults);
+    Collection<FdTagResultBean> tagResults = tagService.createTags(company, tagInputBeans);
+    if (searchService != null) {
+      searchService.makeTagsSearchable(company, tagResults);
     }
+    return new AsyncResult<>(tagResults);
+  }
 
 }

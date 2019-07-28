@@ -12,13 +12,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication(scanBasePackages = {"org.flockdata", "org.flockdata.registration"})
 @EnableAutoConfiguration
 public class FdGraph {
-    public static void main(String[] args) {
-        try {
-            SpringApplication.run(FdGraph.class, args);
-        } catch (Exception e) {
-            System.out.println(e.getLocalizedMessage());
-        }
-
+  public static void main(String[] args) {
+    try {
+      SpringApplication.run(FdGraph.class, args);
+    } catch (Exception e) {
+      System.out.println(e.getLocalizedMessage());
     }
+
+  }
 
 }

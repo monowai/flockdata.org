@@ -36,27 +36,27 @@ import org.junit.Test;
  * @since 27/01/2015
  */
 public class TestTabTags {
-    @Test
-    public void string_NestedTags() throws Exception {
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/sectors.json");
-        TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(contentModel);
-        String[] headers = new String[] {"Catcode", "Catname", "Catorder", "Industry", "Sector", "Sector Long"};
-        String[] data = new String[] {"F2600", "Private Equity & Investment Firms", "F07", "Securities & Investment", "Finance/Insur/RealEst", "Finance", "Insurance & Real Estate"};
+  @Test
+  public void string_NestedTags() throws Exception {
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/sectors.json");
+    TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(contentModel);
+    String[] headers = new String[] {"Catcode", "Catname", "Catorder", "Industry", "Sector", "Sector Long"};
+    String[] data = new String[] {"F2600", "Private Equity & Investment Firms", "F07", "Securities & Investment", "Finance/Insur/RealEst", "Finance", "Insurance & Real Estate"};
 
-        Map<String, Object> json = tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)));
-        assertEquals(1, tagTransformer.getTags().size());
-        TagInputBean tag = tagTransformer.getTags().iterator().next();
+    Map<String, Object> json = tagTransformer.transform(Transformer.convertToMap(headers, data, new ExtractProfileHandler(contentModel)));
+    assertEquals(1, tagTransformer.getTags().size());
+    TagInputBean tag = tagTransformer.getTags().iterator().next();
 
-        assertNotNull(json);
-        assertNotNull(tagTransformer);
-        assertEquals("Code does not match", "F2600", tag.getCode());
-        assertEquals("Name does not match", "Private Equity & Investment Firms", tag.getName());
-        assertNotNull(tag.getProperties().get("order"));
-        assertEquals(1, tag.getTargets().size());
-        Collection<TagInputBean> targets = tag.getTargets().get("comprises");
-        assertEquals(1, targets.size());
-        tag = targets.iterator().next();
-        assertNotNull(tag.getDescription());
-    }
+    assertNotNull(json);
+    assertNotNull(tagTransformer);
+    assertEquals("Code does not match", "F2600", tag.getCode());
+    assertEquals("Name does not match", "Private Equity & Investment Firms", tag.getName());
+    assertNotNull(tag.getProperties().get("order"));
+    assertEquals(1, tag.getTargets().size());
+    Collection<TagInputBean> targets = tag.getTargets().get("comprises");
+    assertEquals(1, targets.size());
+    tag = targets.iterator().next();
+    assertNotNull(tag.getDescription());
+  }
 
 }

@@ -32,58 +32,58 @@ import java.util.Collection;
  * @since 20/05/2015
  */
 public class ConceptResultBean {
-    public static final String TAG = "T";
-    private String name;
-    private Collection<RelationshipResultBean> relationships = new ArrayList<>();
+  public static final String TAG = "T";
+  private String name;
+  private Collection<RelationshipResultBean> relationships = new ArrayList<>();
 
-    ConceptResultBean() {
+  ConceptResultBean() {
+  }
+
+  public ConceptResultBean(String name) {
+    this();
+    this.name = name;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public Collection<RelationshipResultBean> getRelationships() {
+    return relationships;
+  }
+
+  public ConceptResultBean addRelationship(RelationshipResultBean relationship) {
+    if (!relationships.contains(relationship)) {
+      relationships.add(relationship);
+    }
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return "ConceptResultBean{" +
+        "name='" + name + '\'' +
+        '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof ConceptResultBean)) {
+      return false;
     }
 
-    public ConceptResultBean(String name) {
-        this();
-        this.name = name;
-    }
+    ConceptResultBean that = (ConceptResultBean) o;
 
-    public String getName() {
-        return name;
-    }
+    return !(name != null ? !name.equals(that.name) : that.name != null);
 
-    public Collection<RelationshipResultBean> getRelationships() {
-        return relationships;
-    }
+  }
 
-    public ConceptResultBean addRelationship(RelationshipResultBean relationship) {
-        if (!relationships.contains(relationship)) {
-            relationships.add(relationship);
-        }
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return "ConceptResultBean{" +
-            "name='" + name + '\'' +
-            '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ConceptResultBean)) {
-            return false;
-        }
-
-        ConceptResultBean that = (ConceptResultBean) o;
-
-        return !(name != null ? !name.equals(that.name) : that.name != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        return name != null ? name.hashCode() : 0;
-    }
+  @Override
+  public int hashCode() {
+    return name != null ? name.hashCode() : 0;
+  }
 
 }

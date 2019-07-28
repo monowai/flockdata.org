@@ -55,47 +55,47 @@ import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 @Profile( {"fd-server"})
 public class StoreWriter {
 
-    @Autowired(required = false)
-    private Exchanges exchanges;
-    @Autowired
-    private StoreService fdStoreManager;
+  @Autowired(required = false)
+  private Exchanges exchanges;
+  @Autowired
+  private StoreService fdStoreManager;
 
-    @Bean
-    MessageChannel startStoreWrite() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel startStoreWrite() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory, RetryOperationsInterceptor storeInterceptor)
-        throws Exception {
+  @Bean
+  public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory, RetryOperationsInterceptor storeInterceptor)
+      throws Exception {
 
-        return IntegrationFlows.from(
-            Amqp.inboundAdapter(connectionFactory, exchanges.fdStoreQueue())
-                .outputChannel(startStoreWrite())
+    return IntegrationFlows.from(
+        Amqp.inboundAdapter(connectionFactory, exchanges.fdStoreQueue())
+            .outputChannel(startStoreWrite())
 //                        .adviceChain(storeInterceptor)
 //                        .maxConcurrentConsumers(exchanges.storeConcurrentConsumers())
 //                        .prefetchCount(exchanges.storePreFetchCount())
-        )
-            .handle(handler())
-            .get();
-    }
+    )
+        .handle(handler())
+        .get();
+  }
 
-    @Bean
-    @ServiceActivator(inputChannel = "startStoreWrite")
-    public MessageHandler handler() throws Exception {
-        return message -> {
-            try {
-                fdStoreManager.doWrite(
-                    getObjectMapper().readValue((byte[]) message.getPayload(), StorageBean.class));
-            } catch (IOException e) {
-                //logger.error("Unable to de-serialize the payload");
-                throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
-            } catch (FlockException e) {
-                throw new AmqpRejectAndDontRequeueException("Error writing the payload", e);
-            }
+  @Bean
+  @ServiceActivator(inputChannel = "startStoreWrite")
+  public MessageHandler handler() throws Exception {
+    return message -> {
+      try {
+        fdStoreManager.doWrite(
+            getObjectMapper().readValue((byte[]) message.getPayload(), StorageBean.class));
+      } catch (IOException e) {
+        //logger.error("Unable to de-serialize the payload");
+        throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
+      } catch (FlockException e) {
+        throw new AmqpRejectAndDontRequeueException("Error writing the payload", e);
+      }
 
-        };
-    }
+    };
+  }
 
 
 }

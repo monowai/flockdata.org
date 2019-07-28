@@ -26,21 +26,21 @@ package org.flockdata.data;
  * @since 2/01/17
  */
 public interface Model {
-    Company getCompany();
+  Company getCompany();
 
-    String getKey();
+  String getKey();
 
-    Long getId();
+  Long getId();
 
-    String getName();
+  String getName();
 
-    String getCode();
+  String getCode();
 
-    Fortress getFortress();
+  Fortress getFortress();
 
-    String getFortressName();
+  String getFortressName();
 
-    Document getDocument();
+  Document getDocument();
 
-    String getDocumentName();
+  String getDocumentName();
 }

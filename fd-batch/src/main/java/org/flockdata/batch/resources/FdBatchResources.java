@@ -48,68 +48,68 @@ import org.springframework.stereotype.Component;
 @Profile( {"fd-batch", "fd-batch-dev"})
 public class FdBatchResources {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
-    private final BatchConfig batchConfig;
+  private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
+  private final BatchConfig batchConfig;
 
-    @Autowired
-    public FdBatchResources(BatchConfig batchConfig) {
-        this.batchConfig = batchConfig;
+  @Autowired
+  public FdBatchResources(BatchConfig batchConfig) {
+    this.batchConfig = batchConfig;
+  }
+
+  @Bean
+  public JdbcTemplate jdbcTemplate() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
+    return new JdbcTemplate(dataSource());
+  }
+
+  /**
+   * {@literal
+   * <beans:bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+   * <beans:property name="driverClassName" value="${datasource.driver}"/>
+   * <beans:property name="url" value="${datasource.url}"/>
+   * <beans:property name="username" value="${datasource.username}"/>
+   * <beans:property name="password" value="${datasource.password}"/>
+   * </beans:bean>
+   * }
+   *
+   * @return datasource to read from
+   * @throws SQLException           connection errors
+   * @throws ClassNotFoundException driver couldn't be found
+   * @throws IllegalAccessException driver issue
+   * @throws InstantiationException driver issue
+   */
+  @Bean
+  @Profile( {"fd-batch", "fd-batch-dev"})
+  @Qualifier("dataSource")
+  @Primary
+  public DataSource dataSource() throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    if (!batchConfig.getDriver().equals("")) {
+      logger.info("Looking for driver class [{}] then will connect on url [{}]", batchConfig.getDriver(), batchConfig.getUrl());
+      Class<?> clazz = Class.forName(batchConfig.getDriver());
+      Driver driver = (Driver) clazz.newInstance();
+
+      final SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driver, batchConfig.getUrl());
+
+      dataSource.setUsername(batchConfig.getUserName());
+      dataSource.setPassword(batchConfig.getPassword());
+      return dataSource;
     }
+    return null;
+  }
 
-    @Bean
-    public JdbcTemplate jdbcTemplate() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
-        return new JdbcTemplate(dataSource());
-    }
+  @Bean
+  public JobExecutionListener fdJobListener() {
+    return new FdJobListener();
+  }
 
-    /**
-     * {@literal
-     * <beans:bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-     * <beans:property name="driverClassName" value="${datasource.driver}"/>
-     * <beans:property name="url" value="${datasource.url}"/>
-     * <beans:property name="username" value="${datasource.username}"/>
-     * <beans:property name="password" value="${datasource.password}"/>
-     * </beans:bean>
-     * }
-     *
-     * @return datasource to read from
-     * @throws SQLException           connection errors
-     * @throws ClassNotFoundException driver couldn't be found
-     * @throws IllegalAccessException driver issue
-     * @throws InstantiationException driver issue
-     */
-    @Bean
-    @Profile( {"fd-batch", "fd-batch-dev"})
-    @Qualifier("dataSource")
-    @Primary
-    public DataSource dataSource() throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        if (!batchConfig.getDriver().equals("")) {
-            logger.info("Looking for driver class [{}] then will connect on url [{}]", batchConfig.getDriver(), batchConfig.getUrl());
-            Class<?> clazz = Class.forName(batchConfig.getDriver());
-            Driver driver = (Driver) clazz.newInstance();
+  @Bean
+  public StepExecutionListener fdStepListener() {
+    return new FdStepListener();
+  }
 
-            final SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driver, batchConfig.getUrl());
-
-            dataSource.setUsername(batchConfig.getUserName());
-            dataSource.setPassword(batchConfig.getPassword());
-            return dataSource;
-        }
-        return null;
-    }
-
-    @Bean
-    public JobExecutionListener fdJobListener() {
-        return new FdJobListener();
-    }
-
-    @Bean
-    public StepExecutionListener fdStepListener() {
-        return new FdStepListener();
-    }
-
-    @Bean
-    public SkipListener fdSkipListener() {
-        return new FdSkipListener();
-    }
+  @Bean
+  public SkipListener fdSkipListener() {
+    return new FdSkipListener();
+  }
 
 
 }

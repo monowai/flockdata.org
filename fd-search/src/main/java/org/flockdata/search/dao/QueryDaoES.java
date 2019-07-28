@@ -79,54 +79,54 @@ import org.springframework.util.StopWatch;
 @Repository
 public class QueryDaoES {
 
-    private static final String ES_FIELD_SEP = ".";
-    private static final String CODE_KEYWORD = ES_FIELD_SEP + "code";
-    private static final String NAME_KEYWORD = ES_FIELD_SEP + "name";
-    private static Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
-    private final Client elasticSearchClient;
-    private final IndexManager indexManager;
-    private final EsUtils esUtils;
-    @Value("${highlight.enabled:true}")
-    Boolean highlightEnabled;
+  private static final String ES_FIELD_SEP = ".";
+  private static final String CODE_KEYWORD = ES_FIELD_SEP + "code";
+  private static final String NAME_KEYWORD = ES_FIELD_SEP + "name";
+  private static Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
+  private final Client elasticSearchClient;
+  private final IndexManager indexManager;
+  private final EsUtils esUtils;
+  @Value("${highlight.enabled:true}")
+  Boolean highlightEnabled;
 
-    @Autowired
-    public QueryDaoES(SearchConfig searchConfig, EsUtils esUtils) {
-        this.indexManager = searchConfig.getIndexManager();
-        this.elasticSearchClient = searchConfig.getClient();
-        this.esUtils = esUtils;
-    }
+  @Autowired
+  public QueryDaoES(SearchConfig searchConfig, EsUtils esUtils) {
+    this.indexManager = searchConfig.getIndexManager();
+    this.elasticSearchClient = searchConfig.getClient();
+    this.esUtils = esUtils;
+  }
 
-    private Collection<String> getTagArray(TagCloudParams params) {
-        Collection<String> result = new ArrayList<>();
+  private Collection<String> getTagArray(TagCloudParams params) {
+    Collection<String> result = new ArrayList<>();
 
-        if (params.getRelationships() == null || params.getRelationships().isEmpty()) {
-            if (params.getTags() == null || params.getTags().isEmpty()) {
-                return result;
-            } else {
-                for (String tag : params.getTags()) {
-                    result.add(parseTagCode("*", tag));
-                }
-                return result;
-            }
-        }
-
-
-        for (String relationship : params.getRelationships()) {
-            if (params.getTags() == null || params.getTags().isEmpty()) {
-                result.add(parseTagCode(relationship, "*"));
-            } else {
-                for (String tag : params.getTags()) {
-                    result.add(parseTagCode(relationship, tag));
-                    result.add(parseTagName(relationship, tag));
-                }
-            }
-        }
-
+    if (params.getRelationships() == null || params.getRelationships().isEmpty()) {
+      if (params.getTags() == null || params.getTags().isEmpty()) {
         return result;
-
+      } else {
+        for (String tag : params.getTags()) {
+          result.add(parseTagCode("*", tag));
+        }
+        return result;
+      }
     }
 
-    public void getTags(String indexName) {
+
+    for (String relationship : params.getRelationships()) {
+      if (params.getTags() == null || params.getTags().isEmpty()) {
+        result.add(parseTagCode(relationship, "*"));
+      } else {
+        for (String tag : params.getTags()) {
+          result.add(parseTagCode(relationship, tag));
+          result.add(parseTagName(relationship, tag));
+        }
+      }
+    }
+
+    return result;
+
+  }
+
+  public void getTags(String indexName) {
 //        GetMappingsResponse fieldMappings = getClient
 //                .admin()
 //                .indices()
@@ -135,380 +135,396 @@ public class QueryDaoES {
 
 //        ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = fieldMappings.getMappings();
 
+  }
+
+  private String parseTagCode(String relationship, String tag) {
+    return SearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + CODE_KEYWORD;
+  }
+
+  private String parseTagName(String relationship, String tag) {
+    return SearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + "-name-keyword";
+  }
+
+  private String[] getIndexes(TagCloudParams tagCloudParams) {
+    return indexManager.getIndices(tagCloudParams.getCompany(), tagCloudParams.getFortress(), tagCloudParams.getTypes(), null);
+
+  }
+
+  public TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException {
+    // Getting all tag and What fields
+
+
+    Collection<String> whatAndTagFields = getTagArray(tagCloudParams);
+
+    SearchRequestBuilder query = elasticSearchClient.prepareSearch(
+        getIndexes(tagCloudParams));
+
+    if (tagCloudParams.getRelationships() != null) {
+      tagCloudParams.getRelationships().clear();
+    }
+    if (tagCloudParams.getTags() != null) {
+      tagCloudParams.getTags().clear();
     }
 
-    private String parseTagCode(String relationship, String tag) {
-        return SearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + CODE_KEYWORD;
-    }
-
-    private String parseTagName(String relationship, String tag) {
-        return SearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + "-name-keyword";
-    }
-
-    private String[] getIndexes(TagCloudParams tagCloudParams) {
-        return indexManager.getIndices(tagCloudParams.getCompany(), tagCloudParams.getFortress(), tagCloudParams.getTypes(), null);
-
-    }
-
-    public TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException {
-        // Getting all tag and What fields
-
-
-        Collection<String> whatAndTagFields = getTagArray(tagCloudParams);
-
-        SearchRequestBuilder query = elasticSearchClient.prepareSearch(
-            getIndexes(tagCloudParams));
-
-        if (tagCloudParams.getRelationships() != null) {
-            tagCloudParams.getRelationships().clear();
-        }
-        if (tagCloudParams.getTags() != null) {
-            tagCloudParams.getTags().clear();
-        }
-
-        query.setTypes(tagCloudParams.getTypes());
+    query.setTypes(tagCloudParams.getTypes());
 
 //        query.setExtraSource(QueryGenerator.getFilteredQuery(tagCloudParams, false));
-        for (String whatAndTagField : whatAndTagFields) {
-            query.addAggregation(AggregationBuilders.terms(whatAndTagField).field(whatAndTagField).size(50));
-        }
+    for (String whatAndTagField : whatAndTagFields) {
+      query.addAggregation(AggregationBuilders.terms(whatAndTagField).field(whatAndTagField).size(50));
+    }
 
-        // No hits, just the aggs
-        SearchResponse response = query.execute().actionGet();
+    // No hits, just the aggs
+    SearchResponse response = query.execute().actionGet();
 
-        TagCloud tagcloud = new TagCloud();
-        Aggregations tagCloudFacet = response.getAggregations();
-        if (tagCloudFacet == null) {
-            // ToDo: support "ALL" tag fields
-            return tagcloud;
-        }
-        Map<String, Aggregation> aggregates = resolveKeys(tagCloudFacet.getAsMap());
-        for (String key : aggregates.keySet()) {
-            InternalTerms terms = (InternalTerms) aggregates.get(key);
-            for (Object object : terms.getBuckets()) {
+    TagCloud tagcloud = new TagCloud();
+    Aggregations tagCloudFacet = response.getAggregations();
+    if (tagCloudFacet == null) {
+      // ToDo: support "ALL" tag fields
+      return tagcloud;
+    }
+    Map<String, Aggregation> aggregates = resolveKeys(tagCloudFacet.getAsMap());
+    for (String key : aggregates.keySet()) {
+      InternalTerms terms = (InternalTerms) aggregates.get(key);
+      for (Object object : terms.getBuckets()) {
 
-                org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket bucket = (Terms.Bucket) object;
-                tagcloud.addTerm(bucket.getKey(), bucket.getDocCount());
-            }
+        org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket bucket = (Terms.Bucket) object;
+        tagcloud.addTerm(bucket.getKey(), bucket.getDocCount());
+      }
 //            for (Terms.Bucket bucket : terms.getBuckets()) {
 
-            //          }
+      //          }
+    }
+    tagcloud.scale(); // Scale the results suitable for presentation
+    return tagcloud;
+  }
+
+  /**
+   * Indexed document tags always have a code but not always a name. Typically a code will
+   * be a codified value so we favour human readable names.
+   * <p>
+   * If the code and the name are equal during indexing, then the value is stored
+   * only as a code. Entity document tags always have a code value.
+   * <p>
+   * We want to return either the name or the code associated with the document. We don't want to
+   * resort to a scripted field to achieve this so the action is being performed here.
+   *
+   * @param asMap ES results
+   * @return Results to return to the caller
+   */
+  private Map<String, Aggregation> resolveKeys(Map<String, Aggregation> asMap) {
+    Map<String, Aggregation> results = new HashMap<>();
+    ArrayList<String> relationships = new ArrayList<>();
+
+    for (String s : asMap.keySet()) {
+      int pos = s.indexOf(NAME_KEYWORD); // Names by preference
+      if (pos > 0) {
+
+        InternalTerms terms = (InternalTerms) asMap.get(s);
+        if (terms.getBuckets().size() != 0) {
+          String relationship = s.substring(0, pos);
+          relationships.add(relationship);
+          results.put(s, asMap.get(s));
         }
-        tagcloud.scale(); // Scale the results suitable for presentation
-        return tagcloud;
+      }
+    }
+    // Pickup any Codes that don't have Name entries
+    for (String s : asMap.keySet()) {
+      int pos = s.indexOf(CODE_KEYWORD); // Names by preference
+      if (pos > 0) {
+        String relationship = s.substring(0, pos);
+        if (!relationships.contains(relationship)) {
+          relationships.add(relationship);
+          results.put(s, asMap.get(s));
+        }
+      }
     }
 
-    /**
-     * Indexed document tags always have a code but not always a name. Typically a code will
-     * be a codified value so we favour human readable names.
-     * <p>
-     * If the code and the name are equal during indexing, then the value is stored
-     * only as a code. Entity document tags always have a code value.
-     * <p>
-     * We want to return either the name or the code associated with the document. We don't want to
-     * resort to a scripted field to achieve this so the action is being performed here.
-     *
-     * @param asMap ES results
-     * @return Results to return to the caller
-     */
-    private Map<String, Aggregation> resolveKeys(Map<String, Aggregation> asMap) {
-        Map<String, Aggregation> results = new HashMap<>();
-        ArrayList<String> relationships = new ArrayList<>();
+    return results;
+  }
 
-        for (String s : asMap.keySet()) {
-            int pos = s.indexOf(NAME_KEYWORD); // Names by preference
-            if (pos > 0) {
+  public long doHitCountQuery(String index) {
+    SearchResponse response = elasticSearchClient.prepareSearch(index)
+        .execute()
+        .actionGet();
 
-                InternalTerms terms = (InternalTerms) asMap.get(s);
-                if (terms.getBuckets().size() != 0) {
-                    String relationship = s.substring(0, pos);
-                    relationships.add(relationship);
-                    results.put(s, asMap.get(s));
-                }
-            }
-        }
-        // Pickup any Codes that don't have Name entries
-        for (String s : asMap.keySet()) {
-            int pos = s.indexOf(CODE_KEYWORD); // Names by preference
-            if (pos > 0) {
-                String relationship = s.substring(0, pos);
-                if (!relationships.contains(relationship)) {
-                    relationships.add(relationship);
-                    results.put(s, asMap.get(s));
-                }
-            }
-        }
+    logger.debug("Searching index [{}] for hit counts", index);
 
-        return results;
+    return response.getHits().getTotalHits();
+  }
+
+  /**
+   * Depending on queryParams.key being set, it will return a single entity Key
+   * or a range of matching keys (searching by queryParams.searchText
+   *
+   * @param queryParams arguments
+   * @return results
+   * @throws FlockException general exception
+   */
+  public EntityKeyResults doEntityKeySearch(QueryParams queryParams) throws FlockException {
+    if (queryParams.getKey() != null) {
+      // Searching for a specific Entity Key
+      return getEntityKeyResults(queryParams);
+    } else {
+      // Searching by wild card for a sample collection of keys
+      return doWildCardEntityKeySearch(queryParams);
+    }
+  }
+
+  private EntityKeyResults getEntityKeyResults(QueryParams queryParams) throws FlockException {
+    String[] types = Strings.EMPTY_ARRAY;
+    if (queryParams.getTypes() != null) {
+      types = queryParams.getTypes();
     }
 
-    public long doHitCountQuery(String index) {
-        SearchResponse response = elasticSearchClient.prepareSearch(index)
-            .execute()
-            .actionGet();
-
-        logger.debug("Searching index [{}] for hit counts", index);
-
-        return response.getHits().getTotalHits();
+    SearchRequestBuilder query = elasticSearchClient.prepareSearch(indexManager.getIndices(queryParams))
+        .setTypes(types)
+        .addDocValueField(SearchSchema.KEY)
+        .setQuery(QueryBuilders.matchQuery(SearchSchema.KEY, (queryParams.getKey())));
+    if (queryParams.getSize() != null) {
+      query.setSize(queryParams.getSize());
     }
 
-    /**
-     * Depending on queryParams.key being set, it will return a single entity Key
-     * or a range of matching keys (searching by queryParams.searchText
-     *
-     * @param queryParams arguments
-     * @return results
-     * @throws FlockException general exception
-     */
-    public EntityKeyResults doEntityKeySearch(QueryParams queryParams) throws FlockException {
-        if (queryParams.getKey() != null) {
-            // Searching for a specific Entity Key
-            return getEntityKeyResults(queryParams);
-        } else {
-            // Searching by wild card for a sample collection of keys
-            return doWildCardEntityKeySearch(queryParams);
-        }
+    SearchResponse response;
+    try {
+      response = query.execute().get(10000L, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      logger.error("KeySearch query error ", e);
+      throw new FlockException("KeySearch query error ", e);
     }
+    return esUtils.toResults(response);
+  }
 
-    private EntityKeyResults getEntityKeyResults(QueryParams queryParams) throws FlockException {
-        String[] types = Strings.EMPTY_ARRAY;
-        if (queryParams.getTypes() != null) {
-            types = queryParams.getTypes();
-        }
-
-        SearchRequestBuilder query = elasticSearchClient.prepareSearch(indexManager.getIndices(queryParams))
-            .setTypes(types)
-            .addDocValueField(SearchSchema.KEY)
-            .setQuery(QueryBuilders.matchQuery(SearchSchema.KEY, (queryParams.getKey())));
-        if (queryParams.getSize() != null) {
-            query.setSize(queryParams.getSize());
-        }
-
-        SearchResponse response;
-        try {
-            response = query.execute().get(10000L, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            logger.error("KeySearch query error ", e);
-            throw new FlockException("KeySearch query error ", e);
-        }
-        return esUtils.toResults(response);
+  private EntityKeyResults doWildCardEntityKeySearch(QueryParams queryParams) throws FlockException {
+    String[] indices;
+    if (queryParams.getIndex() == null) {
+      indices = indexManager.getIndices(queryParams);
+    } else {
+      indices = new String[] {queryParams.getIndex()};
     }
-
-    private EntityKeyResults doWildCardEntityKeySearch(QueryParams queryParams) throws FlockException {
-        String[] indices;
-        if (queryParams.getIndex() == null) {
-            indices = indexManager.getIndices(queryParams);
-        } else {
-            indices = new String[] {queryParams.getIndex()};
-        }
 
 //        String[] types = (queryParams.getTypes()==null ?esUtils.getAllTypes(): queryParams.getTypes());
-        SearchRequestBuilder query = elasticSearchClient.prepareSearch(indices)
-            .addDocValueField(SearchSchema.KEY)
-            .setQuery(boolQuery().should(queryStringQuery(queryParams.getSearchText())));
-        if (queryParams.getSize() != null) {
-            query.setSize(queryParams.getSize());
-        }
-
-        return esUtils.toResults(query.execute().actionGet());
-
+    SearchRequestBuilder query = elasticSearchClient.prepareSearch(indices)
+        .addDocValueField(SearchSchema.KEY)
+        .setQuery(boolQuery().should(queryStringQuery(queryParams.getSearchText())));
+    if (queryParams.getSize() != null) {
+      query.setSize(queryParams.getSize());
     }
 
+    return esUtils.toResults(query.execute().actionGet());
 
-    public String doSearch(QueryParams queryParams) throws FlockException {
-        SearchResponse result = elasticSearchClient.prepareSearch(indexManager.getIndices(queryParams))
-            .setQuery(QueryBuilders
-                .wrapperQuery(
-                    QueryGenerator.getSimpleQuery(queryParams, false)
-                )
+  }
+
+
+  public String doSearch(QueryParams queryParams) throws FlockException {
+    SearchResponse result = elasticSearchClient.prepareSearch(indexManager.getIndices(queryParams))
+        .setQuery(QueryBuilders
+            .wrapperQuery(
+                QueryGenerator.getSimpleQuery(queryParams, false)
             )
-            .execute()
-            .actionGet();
+        )
+        .execute()
+        .actionGet();
 
-        return result.toString();
-    }
+    return result.toString();
+  }
 
-    public EsSearchRequestResult doFdViewSearch(QueryParams queryParams) {
-        StopWatch watch = new StopWatch();
+  public EsSearchRequestResult doFdViewSearch(QueryParams queryParams) {
+    StopWatch watch = new StopWatch();
 
-        watch.start(queryParams.toString());
-        String[] indexes = indexManager.getIndices(queryParams);
-        String queryString = (queryParams.getSearchText() == null ? queryParams.getCode() : queryParams.getSearchText());
-        SearchRequestBuilder query = elasticSearchClient.prepareSearch(indexes)
-            .addDocValueField(SearchSchema.KEY)
-            .addDocValueField(SearchSchema.FORTRESS)
-            .addDocValueField(SearchSchema.LAST_EVENT)
-            .addDocValueField(SearchSchema.NAME)
-            .addStoredField(SearchSchema.DESCRIPTION)
-            .addDocValueField(SearchSchema.CODE)
-            .addDocValueField(SearchSchema.WHO)
-            .addDocValueField(SearchSchema.UPDATED)
-            .addDocValueField(SearchSchema.CREATED)
-            .addDocValueField(SearchSchema.TIMESTAMP)
-            .setQuery(boolQuery().should(queryStringQuery(queryString)));
+    watch.start(queryParams.toString());
+    String[] indexes = indexManager.getIndices(queryParams);
+    String queryString = (queryParams.getSearchText() == null ? queryParams.getCode() : queryParams.getSearchText());
+    SearchRequestBuilder searchRequestBuilder = elasticSearchClient.prepareSearch(indexes)
+        .addDocValueField(SearchSchema.KEY)
+        .addDocValueField(SearchSchema.FORTRESS)
+        .addDocValueField(SearchSchema.LAST_EVENT)
+        .addDocValueField(SearchSchema.NAME)
+        .addStoredField(SearchSchema.DESCRIPTION)
+        .addDocValueField(SearchSchema.CODE)
+        .addDocValueField(SearchSchema.WHO)
+        .addDocValueField(SearchSchema.UPDATED)
+        .addDocValueField(SearchSchema.CREATED)
+        .addDocValueField(SearchSchema.TIMESTAMP)
+        .setQuery(boolQuery().should(queryStringQuery(queryString)));
 //                .setQuery(QueryBuilders.simpleQueryStringQuery(QueryGenerator.getSimpleQuery(queryParams, highlightEnabled))) ;
 
-        if (queryParams.getSize() != null) {
-            query.setSize(queryParams.getSize());
-        }
-
-        if (queryParams.getFrom() != null) {
-            query.setFrom(queryParams.getFrom());
-        }
-
-        // Add user requested fields
-        if (queryParams.getData() != null) {
-            for (String field : queryParams.getData()) {
-                query.addDocValueField(field);
-            }
-        }
-        ListenableActionFuture<SearchResponse> future = query.execute();
-
-        SearchResponse response;
-        try {
-            response = future.get();
-        } catch (ExecutionException e) {
-            logger.debug(e.getCause().getMessage() + "\n" + queryParams.toString() + " computed indexes" + Arrays.toString(indexes));
-            return new EsSearchRequestResult("Error looking for entities " + esUtils.parseException(e));
-
-        } catch (InterruptedException e) {
-            logger.error("Search Exception processing query", e);
-            // ToDo: No sensible error being returned to the caller
-            return new EsSearchRequestResult(e.getMessage());
-        }
-
-        Collection<SearchResult> results = convert(response, queryParams);
-        EsSearchRequestResult searchResult = new EsSearchRequestResult(results);
-        searchResult.setTotalHits(response.getHits().getTotalHits());
-        searchResult.setStartedFrom(queryParams.getFrom() == null ? 0 : queryParams.getFrom());
-        watch.stop();
-        logger.debug("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
-        return searchResult;
+    if (queryParams.getSize() != null) {
+      searchRequestBuilder.setSize(queryParams.getSize());
     }
 
-    public EsSearchRequestResult doParametrizedQuery(QueryParams queryParams) throws FlockException {
-        EsSearchRequestResult result;
-        SearchRequestBuilder esQuery = elasticSearchClient
-            .prepareSearch(indexManager.getIndices(queryParams));
+    if (queryParams.getFrom() != null) {
+      searchRequestBuilder.setFrom(queryParams.getFrom());
+    }
 
-        BoolQueryBuilder boolQuery = null;
-        MatchAllQueryBuilder matchAll = null;
+    // Add user requested fields
+    if (queryParams.getData() != null) {
+      for (String field : queryParams.getData()) {
+        searchRequestBuilder.addDocValueField(field);
+      }
+    }
+    ListenableActionFuture<SearchResponse> future = searchRequestBuilder.execute();
 
-        if (queryParams.isMatchAll()) {
-            matchAll = QueryBuilders.matchAllQuery();
-        }
+    SearchResponse response;
+    try {
+      response = future.get();
+    } catch (ExecutionException e) {
+      logger.debug(e.getCause().getMessage() + "\n" + queryParams.toString() + " computed indexes" + Arrays.toString(indexes));
+      return new EsSearchRequestResult("Error looking for entities " + esUtils.parseException(e));
 
-        if (queryParams.getCode() != null) {
-            boolQuery = QueryBuilders.boolQuery();
-            boolQuery.must(termQuery(SearchSchema.CODE, queryParams.getCode()));
-        }
+    } catch (InterruptedException e) {
+      logger.error("Search Exception processing query", e);
+      // ToDo: No sensible error being returned to the caller
+      return new EsSearchRequestResult(e.getMessage());
+    }
 
-        if (queryParams.getSearchText() != null) {
-            if (boolQuery == null) {
-                boolQuery = QueryBuilders.boolQuery();
-            }
-            boolQuery.should(queryStringQuery(queryParams.getSearchText()));
-        }
+    Collection<SearchResult> results = convert(response, queryParams);
+    EsSearchRequestResult searchResult = new EsSearchRequestResult(results);
+    searchResult.setTotalHits(response.getHits().getTotalHits());
+    searchResult.setStartedFrom(queryParams.getFrom() == null ? 0 : queryParams.getFrom());
+    watch.stop();
+    logger.debug("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
+    return searchResult;
+  }
+
+  public EsSearchRequestResult doParametrizedQuery(QueryParams queryParams) throws FlockException {
+    EsSearchRequestResult result;
+    SearchRequestBuilder esQuery = elasticSearchClient
+        .prepareSearch(indexManager.getIndices(queryParams));
+
+    BoolQueryBuilder boolQuery = null;
+    MatchAllQueryBuilder matchAll = null;
+
+    if (queryParams.isMatchAll()) {
+      matchAll = QueryBuilders.matchAllQuery();
+    }
+
+    if (queryParams.getCode() != null) {
+      boolQuery = QueryBuilders.boolQuery();
+      boolQuery.must(termQuery(SearchSchema.CODE, queryParams.getCode()));
+    }
+
+    if (queryParams.getSearchText() != null) {
+      if (boolQuery == null) {
+        boolQuery = QueryBuilders.boolQuery();
+      }
+      boolQuery.should(queryStringQuery(queryParams.getSearchText()));
+    }
 
 
-        if (!queryParams.getTerms().isEmpty()) {
-            if (boolQuery == null) {
-                boolQuery = QueryBuilders.boolQuery();
-            }
-            for (String key : queryParams.getTerms().keySet()) {
-                boolQuery.must(termQuery(key, queryParams.getTerms().get(key)));
-            }
-        }
+    if (!queryParams.getTerms().isEmpty()) {
+      if (boolQuery == null) {
+        boolQuery = QueryBuilders.boolQuery();
+      }
+      for (String key : queryParams.getTerms().keySet()) {
+        boolQuery.must(termQuery(key, queryParams.getTerms().get(key)));
+      }
+    }
 
-        if (queryParams.getFields() != null) {
-            for (String field : queryParams.getFields()) {
-                esQuery.addDocValueField(field);
-            }
-        }
+    if (queryParams.getFields() != null) {
+      for (String field : queryParams.getFields()) {
+        esQuery.addDocValueField(field);
+      }
+    }
 
-        if (queryParams.getAggs() != null) {
-            // ToDo: Fix Aggs
+    if (queryParams.getAggs() != null) {
+      // ToDo: Fix Aggs
 //                query = query + ",\"aggs\": " + JsonUtils.toJson(queryParams.getAggs()) + "}";
-        }
-
-        if (queryParams.getTypes() != null) {
-            esQuery.setTypes(queryParams.getTypes());
-        }
-
-        if (queryParams.getSize() != null) {
-            esQuery.setSize(queryParams.getSize());
-        }
-        if (queryParams.getFrom() != null) {
-            esQuery.setFrom(queryParams.getFrom());
-        }
-
-        if (boolQuery != null) {
-            esQuery.setQuery(boolQuery);
-        } else {
-            esQuery.setQuery(matchAll);
-        }
-
-        try {
-            SearchResponse response = esQuery
-                .execute()
-                .actionGet();
-
-            return esUtils.wrapResponseResult(response);
-        } catch (ElasticsearchException e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("__errors__", esUtils.parseException(e.getRootCause().getMessage()));
-
-            try {
-                result = new EsSearchRequestResult(JsonUtils.toJsonBytes(error));
-            } catch (IOException e1) {
-                throw new FlockException("Json error", e1);
-            }
-        }
-        return result;
     }
 
-    private Collection<SearchResult> convert(SearchResponse response, QueryParams queryParams) {
+    if (queryParams.getTypes() != null) {
+      esQuery.setTypes(queryParams.getTypes());
+    }
 
-        Collection<SearchResult> results = new ArrayList<>();
-        for (SearchHit searchHitFields : response.getHits().getHits()) {
-            if (!searchHitFields.getFields().isEmpty()) { // DAT-83
-                // This function returns only information tracked by FD which will always have  a key
-                SearchHitField keyCol = searchHitFields.getFields().get(SearchSchema.KEY);
-                if (keyCol != null) {
-                    Object key = keyCol.getValue();
-                    if (key != null) {
+    if (queryParams.getSize() != null) {
+      esQuery.setSize(queryParams.getSize());
+    }
+    if (queryParams.getFrom() != null) {
+      esQuery.setFrom(queryParams.getFrom());
+    }
+
+    if (boolQuery != null) {
+      esQuery.setQuery(boolQuery);
+    } else {
+      esQuery.setQuery(matchAll);
+    }
+
+    try {
+      SearchResponse response = esQuery
+          .execute()
+          .actionGet();
+
+      return esUtils.wrapResponseResult(response);
+    } catch (ElasticsearchException e) {
+      Map<String, Object> error = new HashMap<>();
+      error.put("__errors__", esUtils.parseException(e.getRootCause().getMessage()));
+
+      try {
+        result = new EsSearchRequestResult(JsonUtils.toJsonBytes(error));
+      } catch (IOException e1) {
+        throw new FlockException("Json error", e1);
+      }
+    }
+    return result;
+  }
+
+  private Collection<SearchResult> convert(SearchResponse response, QueryParams queryParams) {
+
+    Collection<SearchResult> results = new ArrayList<>();
+    for (SearchHit searchHitFields : response.getHits().getHits()) {
+      if (!searchHitFields.getFields().isEmpty()) { // DAT-83
+        // This function returns only information tracked by FD which will always have  a key
+        SearchHitField keyCol = searchHitFields.getFields().get(SearchSchema.KEY);
+        if (keyCol != null) {
+          Object key = keyCol.getValue();
+          if (key != null) {
 //                        Map<String, HighlightField> fragments = convertHighlightToMap(searchHitFields.getHighlightFields());
 
-                        EsSearchResult sr = new EsSearchResult(
-                            searchHitFields.getId(),
-                            key.toString(),
-                            esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.FORTRESS)),
-                            esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.LAST_EVENT)),
-                            searchHitFields.getType(),
-                            esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.WHO)),
-                            esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.UPDATED)),
-                            esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.CREATED)),
-                            esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.TIMESTAMP))
-                        );
-
-                        sr.setDescription(esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.DESCRIPTION)));
-                        sr.setName(esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.NAME)));
-                        sr.setCode(esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.CODE)));
-                        if (queryParams.getData() != null) {
-                            for (String field : queryParams.getData()) {
-                                sr.addFieldValue(field, esUtils.getHitValue(searchHitFields.getFields().get(field)));
-                            }
-                        }
-                        results.add(sr);
-
-                    }
-                }
-            } else {
-                logger.debug("Skipping row due to no column");
+            String lastUpdate = esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.UPDATED));
+            String whenCreated = esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.CREATED));
+            String fdTimestamp = esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.TIMESTAMP));
+            Long fdTimestampValue = null;
+            Long lastUpdateValue = null;
+            Long createValue = null;
+            if (lastUpdate != null && !lastUpdate.equals(whenCreated)) {
+              lastUpdateValue = Long.decode(lastUpdate);
             }
+            createValue = Long.decode(whenCreated);
+            if (fdTimestamp != null) {
+              fdTimestampValue = Long.decode(fdTimestamp);
+            }
+
+            EsSearchResult searchResult = EsSearchResult.builder()
+                .searchKey(searchHitFields.getId())
+                .key(key.toString())
+                .indexName(searchHitFields.getIndex())
+                .fortress(esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.FORTRESS)))
+                .event(esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.LAST_EVENT)))
+                .documentType(searchHitFields.getType())
+                .lastUser(esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.WHO)))
+                .lastUpdate(lastUpdateValue)
+                .dateCreated(createValue)
+                .fdTimestamp(fdTimestampValue)
+                .code(esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.CODE)))
+                .name(esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.NAME)))
+                .description(esUtils.getHitValue(searchHitFields.getFields().get(SearchSchema.DESCRIPTION)))
+                .build();
+
+
+            if (queryParams.getData() != null) {
+              for (String field : queryParams.getData()) {
+                searchResult.addFieldValue(field, esUtils.getHitValue(searchHitFields.getFields().get(field)));
+              }
+            }
+            results.add(searchResult);
+
+          }
         }
-        return results;
+      } else {
+        logger.debug("Skipping row due to no column");
+      }
     }
+    return results;
+  }
 
 
 }

@@ -32,8 +32,8 @@ import org.flockdata.track.bean.TrackResultBean;
  */
 public interface EntityTagFinder {
 
-    Iterable<EntityTag> getEntityTags(TrackResultBean trackResultBean);
+  Iterable<EntityTag> getEntityTags(TrackResultBean trackResultBean);
 
-    EntityTag.TAG_STRUCTURE getTagStructure();
+  EntityTag.TAG_STRUCTURE getTagStructure();
 
 }

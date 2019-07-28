@@ -37,147 +37,147 @@ import org.flockdata.helper.TagHelper;
  * @since 7/02/2015
  */
 public class SearchTag {
-    String code;
-    String name;
-    Map<String, Object> properties;
-    Map<String, Object> rlx;
-    Map<String, Object> geo = null;
-    Map<String, String> points = new HashMap<>();
+  String code;
+  String name;
+  Map<String, Object> properties;
+  Map<String, Object> rlx;
+  Map<String, Object> geo = null;
+  Map<String, String> points = new HashMap<>();
 
-    //@JsonDeserialize(using = SearchSubTagsDeserializer.class)
-    Map<String, Collection<SearchTag>> parent = new HashMap<>();
+  //@JsonDeserialize(using = SearchSubTagsDeserializer.class)
+  Map<String, Collection<SearchTag>> parent = new HashMap<>();
 
-    String geoDesc;
+  String geoDesc;
 
-    SearchTag() {
+  SearchTag() {
+  }
+
+  public SearchTag(EntityTag entityTag) {
+    this();
+    this.code = entityTag.getTag().getCode();
+    this.name = entityTag.getTag().getName();
+
+    if (this.name != null && this.name.equalsIgnoreCase(code)) {
+      this.name = null; // Prefer code over name if they are the same
     }
 
-    public SearchTag(EntityTag entityTag) {
-        this();
-        this.code = entityTag.getTag().getCode();
-        this.name = entityTag.getTag().getName();
+    // DAT-446 - ignore the code if it it is numeric, short and we have a textual name
+    if (NumberUtils.isNumber(this.code) && this.code.length() < 3 && this.name != null) {
+      this.code = null;
+    }
 
-        if (this.name != null && this.name.equalsIgnoreCase(code)) {
-            this.name = null; // Prefer code over name if they are the same
+    for (String key : entityTag.getTag().getProperties().keySet()) {
+      if (!TagHelper.isSystemKey(key)) {
+        if (properties == null) {
+          properties = new HashMap<>();
         }
+        this.properties.put(key, entityTag.getTag().getProperties().get(key));
+      }
+    }
+    handleSubTags(entityTag);
 
-        // DAT-446 - ignore the code if it it is numeric, short and we have a textual name
-        if (NumberUtils.isNumber(this.code) && this.code.length() < 3 && this.name != null) {
-            this.code = null;
+
+    if (entityTag.getGeoData() != null) {
+      if (geo == null) {
+        geo = new HashMap<>();
+      }
+      for (String s : entityTag.getGeoData().getGeoBeans().keySet()) {
+        Object geoCode = entityTag.getGeoData().getGeoBeans().get(s).getCode();
+        if (geoCode != null) {
+          geo.put(s + "Code", geoCode);
         }
-
-        for (String key : entityTag.getTag().getProperties().keySet()) {
-            if (!TagHelper.isSystemKey(key)) {
-                if (properties == null) {
-                    properties = new HashMap<>();
-                }
-                this.properties.put(key, entityTag.getTag().getProperties().get(key));
-            }
+        if (entityTag.getGeoData().getGeoBeans().get(s).getName() != null) {
+          geo.put(s + "Name", entityTag.getGeoData().getGeoBeans().get(s).getName());
         }
-        handleSubTags(entityTag);
-
-
-        if (entityTag.getGeoData() != null) {
-            if (geo == null) {
-                geo = new HashMap<>();
-            }
-            for (String s : entityTag.getGeoData().getGeoBeans().keySet()) {
-                Object geoCode = entityTag.getGeoData().getGeoBeans().get(s).getCode();
-                if (geoCode != null) {
-                    geo.put(s + "Code", geoCode);
-                }
-                if (entityTag.getGeoData().getGeoBeans().get(s).getName() != null) {
-                    geo.put(s + "Name", entityTag.getGeoData().getGeoBeans().get(s).getName());
-                }
-                if (entityTag.getGeoData().getPoints() != null) {
-                    geo.put("points", entityTag.getGeoData().getPoints());
-                }
-                this.geoDesc = entityTag.getGeoData().getDescription();
-            }
-
-            //this.geoDesc =entityTag.getGeoData().getDescription();
+        if (entityTag.getGeoData().getPoints() != null) {
+          geo.put("points", entityTag.getGeoData().getPoints());
         }
-        if (entityTag.getProperties() != null && !entityTag.getProperties().isEmpty()) {
-            this.rlx = new HashMap<>();
-            // Know one will want to see these column values. Applicable for a graph viz.
-            entityTag.getProperties().keySet().stream().filter
-                (key -> !isSystemKey(key)).
-                forEach(key -> {
-                    rlx.put(key, entityTag.getProperties().get(key));
-                });
-        }
+        this.geoDesc = entityTag.getGeoData().getDescription();
+      }
 
+      //this.geoDesc =entityTag.getGeoData().getDescription();
+    }
+    if (entityTag.getProperties() != null && !entityTag.getProperties().isEmpty()) {
+      this.rlx = new HashMap<>();
+      // Know one will want to see these column values. Applicable for a graph viz.
+      entityTag.getProperties().keySet().stream().filter
+          (key -> !isSystemKey(key)).
+          forEach(key -> {
+            rlx.put(key, entityTag.getProperties().get(key));
+          });
     }
 
-    private void handleSubTags(EntityTag entityTag) {
-        for (String key : entityTag.getTag().getSubTags().keySet()) {
-            //if ( !TagHelper.isSystemKey(key))
-            Collection<Tag> subTags = entityTag.getTag().getSubTags(key);
-            for (Tag subTag : subTags) {
-                SearchTag searchSubTag = new SearchTag(new SubTag(subTag, subTag.getLabel()));
-                Collection<SearchTag> searchTags = this.parent.computeIfAbsent(key, k -> new ArrayList<>());
-                searchTags.add(searchSubTag);
-            }
+  }
 
-        }
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getCode() {
-        return code;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @return Tags user defined properties
-     */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public Map<String, Object> getRlx() {
-        return rlx;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, Object> getGeo() {
-        return geo;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public Map<String, String> getPoints() {
-        return points;
-    }
-
-    @Override
-    public String toString() {
-        return "SearchTag{" +
-            "code='" + code + '\'' +
-            ", name='" + name + '\'' +
-            '}';
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getGeoDesc() {
-        return geoDesc;
-    }
-
-    @JsonIgnore
-    public boolean hasSingleProperty() {
-        return ((properties == null || properties.isEmpty()) && (rlx == null || rlx.isEmpty()) && name == null);
+  private void handleSubTags(EntityTag entityTag) {
+    for (String key : entityTag.getTag().getSubTags().keySet()) {
+      //if ( !TagHelper.isSystemKey(key))
+      Collection<Tag> subTags = entityTag.getTag().getSubTags(key);
+      for (Tag subTag : subTags) {
+        SearchTag searchSubTag = new SearchTag(new SubTag(subTag, subTag.getLabel()));
+        Collection<SearchTag> searchTags = this.parent.computeIfAbsent(key, k -> new ArrayList<>());
+        searchTags.add(searchSubTag);
+      }
 
     }
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public Map<String, Collection<SearchTag>> getParent() {
-        return parent;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getCode() {
+    return code;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * @return Tags user defined properties
+   */
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Map<String, Object> getProperties() {
+    return properties;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public Map<String, Object> getRlx() {
+    return rlx;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Map<String, Object> getGeo() {
+    return geo;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public Map<String, String> getPoints() {
+    return points;
+  }
+
+  @Override
+  public String toString() {
+    return "SearchTag{" +
+        "code='" + code + '\'' +
+        ", name='" + name + '\'' +
+        '}';
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getGeoDesc() {
+    return geoDesc;
+  }
+
+  @JsonIgnore
+  public boolean hasSingleProperty() {
+    return ((properties == null || properties.isEmpty()) && (rlx == null || rlx.isEmpty()) && name == null);
+
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public Map<String, Collection<SearchTag>> getParent() {
+    return parent;
+  }
 
 
 }

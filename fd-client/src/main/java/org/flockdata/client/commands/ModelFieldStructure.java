@@ -37,32 +37,32 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class ModelFieldStructure {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public ModelFieldStructure(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public ModelFieldStructure(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+
+  public CommandResponse<ContentStructure> exec(String fortress, String documentType) {
+    HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+    ContentStructure result = null;
+    String error = null;
+    try {
+
+      ResponseEntity<ContentStructure> response;
+      response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/model/{fortress}/{docType}/fields", HttpMethod.GET, requestEntity, ContentStructure.class,
+          fortress,
+          documentType);
+
+      result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+
+    } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
+      error = e.getMessage();
     }
-
-
-    public CommandResponse<ContentStructure> exec(String fortress, String documentType) {
-        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
-        ContentStructure result = null;
-        String error = null;
-        try {
-
-            ResponseEntity<ContentStructure> response;
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/model/{fortress}/{docType}/fields", HttpMethod.GET, requestEntity, ContentStructure.class,
-                fortress,
-                documentType);
-
-            result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
-
-        } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, result);// Everything worked
-    }
+    return new CommandResponse<>(error, result);// Everything worked
+  }
 
 
 }

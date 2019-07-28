@@ -49,74 +49,74 @@ import org.flockdata.track.bean.TrackResultBean;
  */
 public interface MediationFacade {
 
-    Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, InterruptedException, ExecutionException;
+  Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, InterruptedException, ExecutionException;
 
-    Collection<TrackRequestResult> trackEntities(Company company, Collection<EntityInputBean> inputBeans) throws FlockException, InterruptedException, ExecutionException;
+  Collection<TrackRequestResult> trackEntities(Company company, Collection<EntityInputBean> inputBeans) throws FlockException, InterruptedException, ExecutionException;
 
-    FdTagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException;
+  FdTagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException;
 
-    Collection<FdTagResultBean> createTags(String apiKey, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;
+  Collection<FdTagResultBean> createTags(String apiKey, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;
 
-    Collection<FdTagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;
+  Collection<FdTagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;
 
-    Collection<TrackResultBean> trackEntities(Segment segment, List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException;
+  Collection<TrackResultBean> trackEntities(Segment segment, List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    Collection<TrackResultBean> trackEntities(FortressNode fortress, List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException;
+  Collection<TrackResultBean> trackEntities(FortressNode fortress, List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, ExecutionException, InterruptedException;
+  TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, ExecutionException, InterruptedException;
 
-    TrackResultBean trackEntity(Segment segment, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
+  TrackResultBean trackEntity(Segment segment, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
+  TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    /**
-     * Rebuilds all search documents for the supplied fortress
-     *
-     * @param company      resolved company the caller is authorised to reindex for
-     * @param fortressCode name of the fortress to rebuild
-     * @return System processing message
-     * @throws org.flockdata.helper.FlockException Business exceptions
-     * @tag Security, Admin
-     */
-    String reindex(CompanyNode company, String fortressCode) throws FlockException;
+  /**
+   * Rebuilds all search documents for the supplied fortress
+   *
+   * @param company      resolved company the caller is authorised to reindex for
+   * @param fortressCode name of the fortress to rebuild
+   * @return System processing message
+   * @throws org.flockdata.helper.FlockException Business exceptions
+   * @tag Security, Admin
+   */
+  String reindex(CompanyNode company, String fortressCode) throws FlockException;
 
-    String reindex(CompanyNode company, EntityNode entity) throws FlockException;
+  String reindex(CompanyNode company, EntityNode entity) throws FlockException;
 
-    String reindexByDocType(CompanyNode company, String fortressName, String docType) throws FlockException;
+  String reindexByDocType(CompanyNode company, String fortressName, String docType) throws FlockException;
 
-    EntitySummaryBean getEntitySummary(CompanyNode company, String key) throws FlockException;
+  EntitySummaryBean getEntitySummary(CompanyNode company, String key) throws FlockException;
 
-    //TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException;
+  //TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException;
 
-    void purge(Fortress fo) throws FlockException;
+  void purge(Fortress fo) throws FlockException;
 
-    void purge(Company company, String fortressCode) throws FlockException;
+  void purge(Company company, String fortressCode) throws FlockException;
 
-    void cancelLastLog(Company company, Entity entity) throws IOException, FlockException;
+  void cancelLastLog(Company company, Entity entity) throws IOException, FlockException;
 
 
-    void mergeTags(Company company, Long source, Long target);
+  void mergeTags(Company company, Long source, Long target);
 
-    Map<String, Object> getLogContent(EntityNode entity, Long logId);
+  Map<String, Object> getLogContent(EntityNode entity, Long logId);
 
-    /**
-     * Iterates through all search documents and validates that an existing
-     * Entity can be found for it by the key returned.
-     * <p>
-     * Experimental
-     *
-     * @param company      resolved company
-     * @param fortressCode code
-     * @param docType      and doc-type
-     * @return null - should be a message
-     * @throws FlockException business or system exception
-     */
+  /**
+   * Iterates through all search documents and validates that an existing
+   * Entity can be found for it by the key returned.
+   * <p>
+   * Experimental
+   *
+   * @param company      resolved company
+   * @param fortressCode code
+   * @param docType      and doc-type
+   * @return null - should be a message
+   * @throws FlockException business or system exception
+   */
 
-    String validateFromSearch(CompanyNode company, String fortressCode, String docType) throws FlockException;
+  String validateFromSearch(CompanyNode company, String fortressCode, String docType) throws FlockException;
 
-    TrackResultBean trackEntity(FortressNode fortress, EntityInputBean inputBean) throws InterruptedException, FlockException, ExecutionException, IOException;
+  TrackResultBean trackEntity(FortressNode fortress, EntityInputBean inputBean) throws InterruptedException, FlockException, ExecutionException, IOException;
 
-    void purge(Company company, String fortressCode, String docType);
+  void purge(Company company, String fortressCode, String docType);
 
-    void purge(Company company, String code, String code1, String segment);
+  void purge(Company company, String code, String code1, String segment);
 }

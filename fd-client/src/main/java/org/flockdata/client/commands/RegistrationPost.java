@@ -38,25 +38,25 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class RegistrationPost {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public RegistrationPost(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public RegistrationPost(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+
+  public CommandResponse<SystemUserResultBean> exec(RegistrationBean registrationBean) {
+    String error = null;
+    HttpEntity requestEntity = new HttpEntity<>(registrationBean, fdIoInterface.getHeaders());
+    SystemUserResultBean result = null;
+    try {
+      ResponseEntity<SystemUserResultBean> response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
+      result = response.getBody();
+    } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+      error = e.getMessage();
     }
 
-
-    public CommandResponse<SystemUserResultBean> exec(RegistrationBean registrationBean) {
-        String error = null;
-        HttpEntity requestEntity = new HttpEntity<>(registrationBean, fdIoInterface.getHeaders());
-        SystemUserResultBean result = null;
-        try {
-            ResponseEntity<SystemUserResultBean> response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
-            result = response.getBody();
-        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error = e.getMessage();
-        }
-
-        return new CommandResponse<>(error, result);// Everything worked
-    }
+    return new CommandResponse<>(error, result);// Everything worked
+  }
 }

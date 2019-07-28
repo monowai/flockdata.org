@@ -39,49 +39,49 @@ import org.springframework.web.client.RestTemplate;
  * @since 7/10/2014
  */
 public interface FdIoInterface {
-    /**
-     * @return currently logged in user
-     */
-    SystemUserResultBean me();
+  /**
+   * @return currently logged in user
+   */
+  SystemUserResultBean me();
 
-    /**
-     * @param tagInputBeans tags to send to the service
-     * @return error messages. "OK" if all is good
-     * @throws FlockException communication exception resulting in a permanent failure
-     */
-    String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException;
+  /**
+   * @param tagInputBeans tags to send to the service
+   * @return error messages. "OK" if all is good
+   * @throws FlockException communication exception resulting in a permanent failure
+   */
+  String writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException;
 
-    /**
-     * @param entityBatch Entities to send to the service
-     * @return error messages. "OK" if all is good
-     * @throws FlockException communication exception resulting in a permanent failure
-     */
-    String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException;
+  /**
+   * @param entityBatch Entities to send to the service
+   * @return error messages. "OK" if all is good
+   * @throws FlockException communication exception resulting in a permanent failure
+   */
+  String writeEntities(Collection<EntityInputBean> entityBatch) throws FlockException;
 
-    ContentModel getContentModel(Fortress fortress, Document documentType);
+  ContentModel getContentModel(Fortress fortress, Document documentType);
 
-    ContentModel getContentModel(String modelKey) throws IOException;
+  ContentModel getContentModel(String modelKey) throws IOException;
 
-    /**
-     * used to validate connectivity to the service
-     *
-     * @return Currently logged in user
-     * @throws FlockException connectivity exception occurs
-     */
-    SystemUserResultBean validateConnectivity() throws FlockException;
+  /**
+   * used to validate connectivity to the service
+   *
+   * @return Currently logged in user
+   * @throws FlockException connectivity exception occurs
+   */
+  SystemUserResultBean validateConnectivity() throws FlockException;
 
-    SystemUserResultBean login(String userName, String password);
+  SystemUserResultBean login(String userName, String password);
 
-    /**
-     * @return URL for service
-     */
-    String getUrl();
+  /**
+   * @return URL for service
+   */
+  String getUrl();
 
-    RestTemplate getRestTemplate();
+  RestTemplate getRestTemplate();
 
-    HttpHeaders getHeaders();
+  HttpHeaders getHeaders();
 
-    ExtractProfile getExtractProfile(String fileModel, ContentModel contentModel);
+  ExtractProfile getExtractProfile(String fileModel, ContentModel contentModel);
 
 
 }

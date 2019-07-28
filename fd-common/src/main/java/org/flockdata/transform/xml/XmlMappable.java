@@ -32,23 +32,23 @@ import org.flockdata.transform.model.PayloadTransformer;
  * @since 20/11/2013
  */
 public interface XmlMappable extends PayloadTransformer {
-    /**
-     * @return XML Data document type
-     */
-    @JsonIgnore
-    String getDataType();
+  /**
+   * @return XML Data document type
+   */
+  @JsonIgnore
+  String getDataType();
 
-    ContentInputBean setXMLData(XMLStreamReader xsr, ContentModel importProfile) throws JAXBException, JsonProcessingException, FlockException;
+  ContentInputBean setXMLData(XMLStreamReader xsr, ContentModel importProfile) throws JAXBException, JsonProcessingException, FlockException;
 
-    /**
-     * XML files require skipping.
-     * Use this to position the reader to the collection of elements
-     *
-     * @param xsr input stream
-     * @throws XMLStreamException parsing error
-     */
-    void positionReader(XMLStreamReader xsr) throws XMLStreamException;
+  /**
+   * XML files require skipping.
+   * Use this to position the reader to the collection of elements
+   *
+   * @param xsr input stream
+   * @throws XMLStreamException parsing error
+   */
+  void positionReader(XMLStreamReader xsr) throws XMLStreamException;
 
-    XmlMappable newInstance(ContentModel contentModel);
+  XmlMappable newInstance(ContentModel contentModel);
 }
 

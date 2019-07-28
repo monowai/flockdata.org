@@ -35,65 +35,65 @@ import org.flockdata.transform.json.ContentModelDeserializer;
 @JsonDeserialize(using = ContentModelDeserializer.class)
 public interface ContentModel {
 
-    DocumentTypeInputBean getDocumentType();
+  DocumentTypeInputBean getDocumentType();
 
-    ContentModel setDocumentType(DocumentTypeInputBean documentType);
+  ContentModel setDocumentType(DocumentTypeInputBean documentType);
 
-    String getName();
+  String getName();
 
-    ContentModel setName(String name);
+  ContentModel setName(String name);
 
-    Map<String, ColumnDefinition> getContent();
+  Map<String, ColumnDefinition> getContent();
 
-    void setContent(Map<String, ColumnDefinition> columns);
+  void setContent(Map<String, ColumnDefinition> columns);
 
-    FortressInputBean getFortress();
+  FortressInputBean getFortress();
 
-    ContentModel setFortress(FortressInputBean fortress);
+  ContentModel setFortress(FortressInputBean fortress);
 
-    String getFortressUser();
+  String getFortressUser();
 
-    Boolean isEntityOnly();
+  Boolean isEntityOnly();
 
-    Boolean isArchiveTags();
+  Boolean isArchiveTags();
 
-    String getEvent();
+  String getEvent();
 
-    void setEvent(String event);
+  void setEvent(String event);
 
-    ColumnDefinition getColumnDef(String column);
+  ColumnDefinition getColumnDef(String column);
 
-    void setFortressName(String fortressName);
+  void setFortressName(String fortressName);
 
-    void setDocumentName(String name);
+  void setDocumentName(String name);
 
-    String getSegmentExpression();
+  String getSegmentExpression();
 
-    void setSegmentExpression(String segmentExpression);
+  void setSegmentExpression(String segmentExpression);
 
-    Map<String, Object> getProperties();
+  Map<String, Object> getProperties();
 
-    void setEntityOnly(boolean b);
+  void setEntityOnly(boolean b);
 
-    void setArchiveTags(boolean archiveTags);
+  void setArchiveTags(boolean archiveTags);
 
-    String getHandler();
+  String getHandler();
 
-    String getCondition();
+  String getCondition();
 
-    Boolean isEmptyIgnored();
+  Boolean isEmptyIgnored();
 
-    boolean isTagModel();
+  boolean isTagModel();
 
-    ContentModel setTagModel(boolean tagModel);
+  ContentModel setTagModel(boolean tagModel);
 
-    String getCode(); // Unique user friendly code for a tag model
+  String getCode(); // Unique user friendly code for a tag model
 
-    Boolean isTrackSuppressed();
+  Boolean isTrackSuppressed();
 
-    Boolean isSearchSuppressed();
+  Boolean isSearchSuppressed();
 
-    ContentModel setTrackSuppressed(Boolean suppressed);
+  ContentModel setTrackSuppressed(Boolean suppressed);
 
-    ContentModel setSearchSuppressed(Boolean suppressed);
+  ContentModel setSearchSuppressed(Boolean suppressed);
 }

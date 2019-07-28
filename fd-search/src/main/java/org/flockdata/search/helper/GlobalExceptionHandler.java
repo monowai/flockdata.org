@@ -37,31 +37,31 @@ import org.springframework.web.servlet.ModelAndView;
  * @since 12/04/2014
  */
 public class GlobalExceptionHandler {
-    private Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+  private Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(FlockException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleAuditException(FlockException ex) {
-        logger.error("Datagio Exception", ex);
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
-    }
+  @ExceptionHandler(FlockException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ModelAndView handleAuditException(FlockException ex) {
+    logger.error("Datagio Exception", ex);
+    return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleIAException(IllegalArgumentException ex) {
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
-    }
+  @ExceptionHandler(IllegalArgumentException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ModelAndView handleIAException(IllegalArgumentException ex) {
+    return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  }
 
-    @ExceptionHandler(JsonParseException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleJsonError(final JsonParseException ex) {
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
-    }
+  @ExceptionHandler(JsonParseException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ModelAndView handleJsonError(final JsonParseException ex) {
+    return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ModelAndView handleInternal(Exception ex) {
-        logger.error("Error 500", ex);
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
-    }
+  @ExceptionHandler(Exception.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public ModelAndView handleInternal(Exception ex) {
+    logger.error("Error 500", ex);
+    return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  }
 }

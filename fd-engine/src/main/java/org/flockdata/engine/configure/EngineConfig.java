@@ -51,231 +51,231 @@ import org.springframework.transaction.annotation.Transactional;
 @Configuration
 public class EngineConfig implements PlatformConfig {
 
-    @Value("${spring.cloud.config.discovery.enabled:false}")
-    Boolean discoveryEnabled;
-    // By default, storage engine services are not disabled
-    // and current state content is retrieved from ElasticSearch
-    // By default, we only require a reply if this is being indexed for the first time
-    @Value("${org.fd.engine.search.update:true}")
-    Boolean requireSearchToConfirm = false;
-    @Value("${org.fd.engine.system.storage:RIAK}")
-    private String storeEngine; // The default store to write to IF a fortress allows it
-    @Value("${org.fd.engine.fortress.store:false}")
-    private Boolean storeEnabled;
-    @Value("${org.fd.engine.system.api:api}")
-    private String apiBase;
-    private AdminGateway pingSearchGateway;
-    @Autowired(required = false)
-    private SearchAdminRequests searchAdminRequests;
-    @Autowired
-    private StoreAdminRequests.StorePingGateway storePingGateway;
-    @Autowired(required = false)
-    private AmqpRabbitConfig rabbitConfig;
-    @Value("${org.fd.engine.system.multiTenanted:false}")
-    private Boolean multiTenanted = false;
-    private boolean conceptsEnabled = true;
-    @Value("${org.fd.engine.system.constraints:true}")
-    private boolean systemConstraints = true;
-    private boolean testMode;
-    @Value("${org.fd.engine.fortress.search:true}")
-    private boolean searchEnabled = true;
-    @Value("${org.fd.search.api:http://localhost:8081}")
-    private String fdSearch;
-    @Value("${org.fd.store.api:http://localhost:8082}")
-    private String fdStoreUrl;
-    @Value("${eureka.client.serviceUrl.defaultZone}")
-    private String eurekaUrl;
-    @Value("${org.fd.engine.system.timings:false}")
-    private boolean timing = false;
-    private VersionHelper versionHelper;
+  @Value("${spring.cloud.config.discovery.enabled:false}")
+  Boolean discoveryEnabled;
+  // By default, storage engine services are not disabled
+  // and current state content is retrieved from ElasticSearch
+  // By default, we only require a reply if this is being indexed for the first time
+  @Value("${org.fd.engine.search.update:true}")
+  Boolean requireSearchToConfirm = false;
+  @Value("${org.fd.engine.system.storage:RIAK}")
+  private String storeEngine; // The default store to write to IF a fortress allows it
+  @Value("${org.fd.engine.fortress.store:false}")
+  private Boolean storeEnabled;
+  @Value("${org.fd.engine.system.api:api}")
+  private String apiBase;
+  private AdminGateway pingSearchGateway;
+  @Autowired(required = false)
+  private SearchAdminRequests searchAdminRequests;
+  @Autowired
+  private StoreAdminRequests.StorePingGateway storePingGateway;
+  @Autowired(required = false)
+  private AmqpRabbitConfig rabbitConfig;
+  @Value("${org.fd.engine.system.multiTenanted:false}")
+  private Boolean multiTenanted = false;
+  private boolean conceptsEnabled = true;
+  @Value("${org.fd.engine.system.constraints:true}")
+  private boolean systemConstraints = true;
+  private boolean testMode;
+  @Value("${org.fd.engine.fortress.search:true}")
+  private boolean searchEnabled = true;
+  @Value("${org.fd.search.api:http://localhost:8081}")
+  private String fdSearch;
+  @Value("${org.fd.store.api:http://localhost:8082}")
+  private String fdStoreUrl;
+  @Value("${eureka.client.serviceUrl.defaultZone}")
+  private String eurekaUrl;
+  @Value("${org.fd.engine.system.timings:false}")
+  private boolean timing = false;
+  private VersionHelper versionHelper;
 
-    @Autowired(required = false)
-    public void setAdminGateway(AdminGateway pingSearchGateway) {
-        this.pingSearchGateway = pingSearchGateway;
-    }
+  @Autowired(required = false)
+  public void setAdminGateway(AdminGateway pingSearchGateway) {
+    this.pingSearchGateway = pingSearchGateway;
+  }
 
-    @Autowired(required = false)
-    public void sertVersionHelper(VersionHelper versionHelper) {
-        this.versionHelper = versionHelper;
-    }
+  @Autowired(required = false)
+  public void sertVersionHelper(VersionHelper versionHelper) {
+    this.versionHelper = versionHelper;
+  }
 
-    @Override
-    public String getFdStore() {
+  @Override
+  public String getFdStore() {
 
-        return fdStoreUrl + "/api";
-    }
+    return fdStoreUrl + "/api";
+  }
 
-    @Override
-    public PlatformConfig setSearchRequiredToConfirm(boolean b) {
-        this.requireSearchToConfirm = b;
-        return this;
-    }
+  @Override
+  public PlatformConfig setSearchRequiredToConfirm(boolean b) {
+    this.requireSearchToConfirm = b;
+    return this;
+  }
 
-    public void setStoreEnabled(boolean storeEnabled) {
-        this.storeEnabled = storeEnabled;
-    }
+  public void setStoreEnabled(boolean storeEnabled) {
+    this.storeEnabled = storeEnabled;
+  }
 
-    public void setSearchEnabled(String searchEnabled) {
-        this.searchEnabled = Boolean.parseBoolean(searchEnabled);
-    }
+  public void setSearchEnabled(String searchEnabled) {
+    this.searchEnabled = Boolean.parseBoolean(searchEnabled);
+  }
 
-    public Boolean isSearchRequiredToConfirm() {
-        return requireSearchToConfirm;
-    }
+  public Boolean isSearchRequiredToConfirm() {
+    return requireSearchToConfirm;
+  }
 
-    /**
-     * @return is fd-storeEngine part of the data processing pipeline?
-     */
-    public Boolean storeEnabled() {
-        return this.storeEnabled;
-    }
+  /**
+   * @return is fd-storeEngine part of the data processing pipeline?
+   */
+  public Boolean storeEnabled() {
+    return this.storeEnabled;
+  }
 
-    public Boolean isSearchEnabled() {
-        return searchEnabled;
-    }
+  public Boolean isSearchEnabled() {
+    return searchEnabled;
+  }
 
-    /**
-     * Should be disabled for testing purposes
-     *
-     * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
-     */
-    @Override
-    @Value("${org.fd.engine.system.concepts:true}")
-    public Boolean setConceptsEnabled(boolean conceptsEnabled) {
-        Boolean previous = conceptsEnabled;
-        this.conceptsEnabled = conceptsEnabled;
-        return previous;
-    }
+  /**
+   * Should be disabled for testing purposes
+   *
+   * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
+   */
+  @Override
+  @Value("${org.fd.engine.system.concepts:true}")
+  public Boolean setConceptsEnabled(boolean conceptsEnabled) {
+    Boolean previous = conceptsEnabled;
+    this.conceptsEnabled = conceptsEnabled;
+    return previous;
+  }
 
-    public Store setStore(Store store) {
-        Store previous = Store.valueOf(storeEngine);
-        this.storeEngine = store.name();
-        return previous;
-    }
+  public Store setStore(Store store) {
+    Store previous = Store.valueOf(storeEngine);
+    this.storeEngine = store.name();
+    return previous;
+  }
 
-    @Override
-    public Store store() {
+  @Override
+  public Store store() {
 //        if ( storeEnabled)
-        return Store.valueOf(storeEngine.toUpperCase());
+    return Store.valueOf(storeEngine.toUpperCase());
 //        else
 //            return Store.NONE;
+  }
+
+  @Override
+  public String getTagSuffix(Company company) {
+    if (company == null) {
+      return "";
+    }
+    return (isMultiTenanted() ? company.getCode() : "");
+  }
+
+  @Secured( {FD_ROLE_ADMIN, FD_ROLE_USER})
+  public Map<String, Object> getHealthAuth() {
+    return getHealth();
+  }
+
+  /**
+   * Only users with a pre-validated api-key should be calling this
+   *
+   * @return system configuration details
+   */
+  @Override
+  public Map<String, Object> getHealth() {
+    String version = "";
+    if (versionHelper != null) {
+      version = versionHelper.getFdVersion();
+    }
+    Map<String, Object> healthResults = new TreeMap<>();
+
+    healthResults.put("fd.version", version);
+
+    String esPingResult = "ok";
+    Map<String, Object> esHealth = null;
+    try {
+      if (searchAdminRequests != null) {
+        esHealth = pingSearchGateway.health();
+      }
+      //esPingResult = (esHealth == null || !esHealth.equals("pong") ? esHealth : "Ok");
+    } catch (Exception ce) {
+      esPingResult = "!Unreachable ";
+      if (ce.getCause() != null) {
+        esPingResult = esPingResult + ce.getCause().getMessage();
+      }
+    }
+    Map<String, Object> searchHealth = new HashMap<>();
+    searchHealth.put("org.fd.search.api", fdSearch);
+    if (searchAdminRequests == null) {
+      searchHealth.put("status", "Disabled");
+    } else {
+      searchHealth.put("status", esPingResult);
     }
 
-    @Override
-    public String getTagSuffix(Company company) {
-        if (company == null) {
-            return "";
-        }
-        return (isMultiTenanted() ? company.getCode() : "");
+    if (esHealth != null) {
+      searchHealth.put("health", esHealth);
     }
 
-    @Secured( {FD_ROLE_ADMIN, FD_ROLE_USER})
-    public Map<String, Object> getHealthAuth() {
-        return getHealth();
+    healthResults.put("fd-search", searchHealth);
+    String kvPingResult;
+    try {
+      String esPing = storePingGateway.ping(storeEngine);
+
+      kvPingResult = (esPing == null ? "Problem" : esPing);
+    } catch (Exception ce) {
+      kvPingResult = "!Unreachable ";
+      if (ce.getCause() != null) {
+        kvPingResult = kvPingResult + ce.getCause().getMessage();
+      }
     }
-
-    /**
-     * Only users with a pre-validated api-key should be calling this
-     *
-     * @return system configuration details
-     */
-    @Override
-    public Map<String, Object> getHealth() {
-        String version = "";
-        if (versionHelper != null) {
-            version = versionHelper.getFdVersion();
-        }
-        Map<String, Object> healthResults = new TreeMap<>();
-
-        healthResults.put("fd.version", version);
-
-        String esPingResult = "ok";
-        Map<String, Object> esHealth = null;
-        try {
-            if (searchAdminRequests != null) {
-                esHealth = pingSearchGateway.health();
-            }
-            //esPingResult = (esHealth == null || !esHealth.equals("pong") ? esHealth : "Ok");
-        } catch (Exception ce) {
-            esPingResult = "!Unreachable ";
-            if (ce.getCause() != null) {
-                esPingResult = esPingResult + ce.getCause().getMessage();
-            }
-        }
-        Map<String, Object> searchHealth = new HashMap<>();
-        searchHealth.put("org.fd.search.api", fdSearch);
-        if (searchAdminRequests == null) {
-            searchHealth.put("status", "Disabled");
-        } else {
-            searchHealth.put("status", esPingResult);
-        }
-
-        if (esHealth != null) {
-            searchHealth.put("health", esHealth);
-        }
-
-        healthResults.put("fd-search", searchHealth);
-        String kvPingResult;
-        try {
-            String esPing = storePingGateway.ping(storeEngine);
-
-            kvPingResult = (esPing == null ? "Problem" : esPing);
-        } catch (Exception ce) {
-            kvPingResult = "!Unreachable ";
-            if (ce.getCause() != null) {
-                kvPingResult = kvPingResult + ce.getCause().getMessage();
-            }
-        }
-        Map<String, Object> storeHealth = new HashMap<>();
-        healthResults.put("fd-store", storeHealth);
-        storeHealth.put("org.fd.store.api", fdStoreUrl);
-        storeHealth.put("status", kvPingResult);
-        storeHealth.put("fd.store.engine", storeEngine);
-        storeHealth.put("fd.store.enabled", storeEnabled().toString());
-        if (rabbitConfig != null) {
-            healthResults.put("rabbit.host", rabbitConfig.getHost());
-            healthResults.put("rabbit.port", rabbitConfig.getPort().toString());
-            healthResults.put("rabbit.user", rabbitConfig.getUser());
-        }
-        healthResults.put("eureka.client.serviceUrl.defaultZone", eurekaUrl);
-        healthResults.put("spring.cloud.config.discovery.enabled", discoveryEnabled.toString());
-
-        return healthResults;
-
+    Map<String, Object> storeHealth = new HashMap<>();
+    healthResults.put("fd-store", storeHealth);
+    storeHealth.put("org.fd.store.api", fdStoreUrl);
+    storeHealth.put("status", kvPingResult);
+    storeHealth.put("fd.store.engine", storeEngine);
+    storeHealth.put("fd.store.enabled", storeEnabled().toString());
+    if (rabbitConfig != null) {
+      healthResults.put("rabbit.host", rabbitConfig.getHost());
+      healthResults.put("rabbit.port", rabbitConfig.getPort().toString());
+      healthResults.put("rabbit.user", rabbitConfig.getUser());
     }
+    healthResults.put("eureka.client.serviceUrl.defaultZone", eurekaUrl);
+    healthResults.put("spring.cloud.config.discovery.enabled", discoveryEnabled.toString());
 
-    @Override
-    public boolean isMultiTenanted() {
-        return multiTenanted;
-    }
+    return healthResults;
 
-    @Override
-    public void setMultiTenanted(boolean multiTenanted) {
-        this.multiTenanted = multiTenanted;
-    }
+  }
 
-    @Override
-    public boolean isConceptsEnabled() {
-        return conceptsEnabled;
-    }
+  @Override
+  public boolean isMultiTenanted() {
+    return multiTenanted;
+  }
 
-    public boolean isTestMode() {
-        return testMode;
-    }
+  @Override
+  public void setMultiTenanted(boolean multiTenanted) {
+    this.multiTenanted = multiTenanted;
+  }
 
-    @Override
-    public void setTestMode(boolean testMode) {
-        this.testMode = testMode;
-    }
+  @Override
+  public boolean isConceptsEnabled() {
+    return conceptsEnabled;
+  }
 
-    @Override
-    @PreAuthorize(FdRoles.EXP_EITHER)
-    public String authPing() {
-        return "pong";
-    }
+  public boolean isTestMode() {
+    return testMode;
+  }
 
-    public String getFdSearch() {
-        return fdSearch + "/api";
-    }
+  @Override
+  public void setTestMode(boolean testMode) {
+    this.testMode = testMode;
+  }
+
+  @Override
+  @PreAuthorize(FdRoles.EXP_EITHER)
+  public String authPing() {
+    return "pong";
+  }
+
+  public String getFdSearch() {
+    return fdSearch + "/api";
+  }
 
 }

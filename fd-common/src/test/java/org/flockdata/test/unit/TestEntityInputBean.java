@@ -41,59 +41,59 @@ import org.junit.Test;
  */
 public class TestEntityInputBean {
 
-    @Test
-    public void testMerge() throws Exception {
-        DocumentTypeInputBean movieDoc = new DocumentTypeInputBean("Movie");
-        EntityInputBean movie = new EntityInputBean()
-            .setCode("tt0356910")
-            .setDocumentType(movieDoc)
-            .addTag(new TagInputBean("Doug Liman", "Person", new EntityTagRelationshipInput("DIRECTED")));
+  @Test
+  public void testMerge() throws Exception {
+    DocumentTypeInputBean movieDoc = new DocumentTypeInputBean("Movie");
+    EntityInputBean movie = new EntityInputBean()
+        .setCode("tt0356910")
+        .setDocumentType(movieDoc)
+        .addTag(new TagInputBean("Doug Liman", "Person", new EntityTagRelationshipInput("DIRECTED")));
 
 
-        EntityInputBean brad = new EntityInputBean()
-            .setCode("tt0356910")
-            .setDocumentType(movieDoc)
-            .addTag(new TagInputBean("Brad Pitt", "Person", new EntityTagRelationshipInput("ACTED")));
+    EntityInputBean brad = new EntityInputBean()
+        .setCode("tt0356910")
+        .setDocumentType(movieDoc)
+        .addTag(new TagInputBean("Brad Pitt", "Person", new EntityTagRelationshipInput("ACTED")));
 
-        EntityInputBean angie = new EntityInputBean()
-            .setCode("tt0356910")
-            .setDocumentType(movieDoc)
-            .addTag(new TagInputBean("Angelina Jolie", "Person", new EntityTagRelationshipInput("ACTED")));
+    EntityInputBean angie = new EntityInputBean()
+        .setCode("tt0356910")
+        .setDocumentType(movieDoc)
+        .addTag(new TagInputBean("Angelina Jolie", "Person", new EntityTagRelationshipInput("ACTED")));
 
-        movie.merge(brad, angie);
-        assertEquals("Tag Inputs did not merge", 3, movie.getTags().size());
+    movie.merge(brad, angie);
+    assertEquals("Tag Inputs did not merge", 3, movie.getTags().size());
 
-        EntityInputBean producer = new EntityInputBean()
-            .setCode("tt0356910")
-            .setDocumentType(movieDoc)
-            .addTag(new TagInputBean("Angelina Jolie", "Person", new EntityTagRelationshipInput("PRODUCED")));
+    EntityInputBean producer = new EntityInputBean()
+        .setCode("tt0356910")
+        .setDocumentType(movieDoc)
+        .addTag(new TagInputBean("Angelina Jolie", "Person", new EntityTagRelationshipInput("PRODUCED")));
 
-        movie.merge(producer);
-        assertEquals("Existing tag with different relationship not recorded", 3, movie.getTags().size());
-        TagInputBean angieTag = movie.getTags().get(movie.getTags().indexOf(producer.getTags().iterator().next()));
-        assertEquals("An acting and production relationship should exist", 2, angieTag.getEntityTagLinks().size());
+    movie.merge(producer);
+    assertEquals("Existing tag with different relationship not recorded", 3, movie.getTags().size());
+    TagInputBean angieTag = movie.getTags().get(movie.getTags().indexOf(producer.getTags().iterator().next()));
+    assertEquals("An acting and production relationship should exist", 2, angieTag.getEntityTagLinks().size());
 
-    }
+  }
 
-    @Test
-    public void docTypeInArray() {
-        Map<Document, String> docTypes = new HashMap<>();
-        Fortress fortress = MockDataFactory.getFortress("Testing", MockDataFactory.getCompany("Testing"));
-        Document documentType = MockDataFactory.getDocument(fortress, "Blah");
-        docTypes.put(documentType, "OK");
-        assertNotNull(docTypes.get(documentType));
-    }
+  @Test
+  public void docTypeInArray() {
+    Map<Document, String> docTypes = new HashMap<>();
+    Fortress fortress = MockDataFactory.getFortress("Testing", MockDataFactory.getCompany("Testing"));
+    Document documentType = MockDataFactory.getDocument(fortress, "Blah");
+    docTypes.put(documentType, "OK");
+    assertNotNull(docTypes.get(documentType));
+  }
 
-    @Test
-    public void serialization() throws Exception {
-        Fortress fortress = new FortressInputBean("blah", true);
-        EntityInputBean bean = new EntityInputBean(fortress, new DocumentTypeInputBean("Testing"));
-        bean.setReplaceExistingTags(true);
-        ObjectMapper objectMapper = new ObjectMapper();
-        byte[] bytes = objectMapper.writeValueAsBytes(bean);
+  @Test
+  public void serialization() throws Exception {
+    Fortress fortress = new FortressInputBean("blah", true);
+    EntityInputBean bean = new EntityInputBean(fortress, new DocumentTypeInputBean("Testing"));
+    bean.setReplaceExistingTags(true);
+    ObjectMapper objectMapper = new ObjectMapper();
+    byte[] bytes = objectMapper.writeValueAsBytes(bean);
 
-        EntityInputBean other = objectMapper.readValue(bytes, EntityInputBean.class);
-        assertNotNull(other);
-        assertTrue(other.isReplaceExistingTags());
-    }
+    EntityInputBean other = objectMapper.readValue(bytes, EntityInputBean.class);
+    assertNotNull(other);
+    assertTrue(other.isReplaceExistingTags());
+  }
 }

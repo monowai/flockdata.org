@@ -24,49 +24,49 @@ import org.springframework.stereotype.Service;
 @Service
 public class CompanyRepo {
 
-    private DriverManager driverManager;
-    private KeyGenService keyGenService;
+  private DriverManager driverManager;
+  private KeyGenService keyGenService;
 
-    private static Company createCompanyNode(Transaction tx, Company company) {
+  private static Company createCompanyNode(Transaction tx, Company company) {
 
-        StatementResult statementResult = tx.run(
-            "CREATE (company:FDCompany {name: $name, code: $code, apiKey: $apiKey}) return company",
-            parameters(
-                "code", company.getCode().toLowerCase(),
-                "name", company.getName(),
-                "apiKey", company.getApiKey())
-        );
+    StatementResult statementResult = tx.run(
+        "CREATE (company:FDCompany {name: $name, code: $code, apiKey: $apiKey}) return company",
+        parameters(
+            "code", company.getCode().toLowerCase(),
+            "name", company.getName(),
+            "apiKey", company.getApiKey())
+    );
 
-        Node eNode = statementResult.single().get("company").asNode();
-        return CompanyNode.build(eNode);
+    Node eNode = statementResult.single().get("company").asNode();
+    return CompanyNode.build(eNode);
+  }
+
+  private static Company findByCode(Transaction tx, String code) {
+    String cmd = "match (company:FDCompany {code: $code}) return company";
+    StatementResult statementResult = tx.run(cmd, parameters("code", code.toLowerCase()));
+    if (!statementResult.hasNext()) {
+      return null;
     }
+    Node eNode = statementResult.single().get("company").asNode();
+    return CompanyNode.build(eNode);
 
-    private static Company findByCode(Transaction tx, String code) {
-        String cmd = "match (company:FDCompany {code: $code}) return company";
-        StatementResult statementResult = tx.run(cmd, parameters("code", code.toLowerCase()));
-        if (!statementResult.hasNext()) {
-            return null;
-        }
-        Node eNode = statementResult.single().get("company").asNode();
-        return CompanyNode.build(eNode);
+  }
 
+  @Autowired
+  void setDriverManager(DriverManager driverManager) {
+    this.driverManager = driverManager;
+  }
+
+  @Autowired
+  void setKeyGenService(KeyGenService keyGenService) {
+    this.keyGenService = keyGenService;
+  }
+
+  public Company create(Company company) {
+    try (Session session = driverManager.session()) {
+      return session.writeTransaction(tx -> createCompanyNode(tx, company));
     }
-
-    @Autowired
-    void setDriverManager(DriverManager driverManager) {
-        this.driverManager = driverManager;
-    }
-
-    @Autowired
-    void setKeyGenService(KeyGenService keyGenService) {
-        this.keyGenService = keyGenService;
-    }
-
-    public Company create(Company company) {
-        try (Session session = driverManager.session()) {
-            return session.writeTransaction(tx -> createCompanyNode(tx, company));
-        }
-    }
+  }
 
 //    private static Company findByKey(Transaction tx, String key) {
 //        String cmd = "match (company:FDCompany {key: $key}) return company";
@@ -76,86 +76,87 @@ public class CompanyRepo {
 //
 //    }
 
-    public Company findByCode(Company company) {
-        try (Session session = driverManager.session()) {
-            return session.readTransaction(tx -> findByCode(tx, company.getCode()));
-        }
+  public Company findByCode(Company company) {
+    try (Session session = driverManager.session()) {
+      return session.readTransaction(tx -> findByCode(tx, company.getCode()));
+    }
+  }
+
+  public SystemUser findSysUserByLogin(String login) {
+    try (Session session = driverManager.session()) {
+      return session.readTransaction(tx -> findSysUserByLogin(tx, login));
     }
 
-    public SystemUser findSysUserByLogin(String login) {
-        try (Session session = driverManager.session()) {
-            return session.readTransaction(tx -> findSysUserByLogin(tx, login));
-        }
+  }
 
+  private SystemUser findSysUserByLogin(Transaction tx, String login) {
+    // @RelatedTo( type = "ACCESSES", direction = Direction.OUTGOING)
+    String cmd = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) where su.login=$login return su, company";
+    StatementResult statementResult = tx.run(cmd, parameters("login", login));
+    if (!statementResult.hasNext()) {
+      return null;
     }
 
-    private SystemUser findSysUserByLogin(Transaction tx, String login) {
-        // @RelatedTo( type = "ACCESSES", direction = Direction.OUTGOING)
-        String cmd = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) where su.login=$login return su, company";
-        StatementResult statementResult = tx.run(cmd, parameters("login", login));
-        if (!statementResult.hasNext()) {
-            return null;
-        }
+    Record singleResult = statementResult.single();
+    Node suNode = singleResult.get("su").asNode();
+    Node cNode = singleResult.get("company").asNode();
 
-        Record singleResult = statementResult.single();
-        Node suNode = singleResult.get("su").asNode();
-        Node cNode = singleResult.get("company").asNode();
+    return SystemUserNode.build(CompanyNode.build(cNode), suNode);
+  }
 
-        return SystemUserNode.build(CompanyNode.build(cNode), suNode);
+
+  public SystemUser register(Company company, RegistrationBean regBean) {
+    SystemUser su = SystemUserNode.build(company, regBean, keyGenService.getUniqueKey());
+    return create(su);
+
+  }
+
+  public SystemUser create(SystemUser systemUser) {
+    assert (systemUser.getCompany() != null && systemUser.getCompany().getId() != null);
+    try (Session session = driverManager.session()) {
+      return session.writeTransaction(tx -> create(tx, systemUser));
     }
 
+  }
 
-    public SystemUser register(RegistrationBean regBean) {
-        SystemUser su = SystemUserNode.build(regBean, keyGenService.getUniqueKey());
-        return create(su);
+  private SystemUser create(Transaction tx, SystemUser systemUser) {
+    StatementResult statementResult = tx.run(
+        "match (company) where id(company)= $companyId " +
+            " CREATE (systemUser:SystemUser {name: $name, email: $email, login: $login, apiKey: $apiKey, active: $active}) " +
+            " -[:ACCESSES]->(company) return systemUser",
+        parameters(
+            "name", systemUser.getName(),
+            "login", systemUser.getLogin(),
+            "email", systemUser.getEmail(),
+            "apiKey", systemUser.getApiKey(),
+            "active", systemUser.isActive(),
+            "companyId", systemUser.getCompany().getId()
 
+        ));
+
+    Node eNode = statementResult.single().get("systemUser").asNode();
+
+    return SystemUserNode.build(systemUser.getCompany(), eNode);
+  }
+
+  public SystemUser findByApiKey(String apiKey) {
+    try (Session session = driverManager.session()) {
+      return session.readTransaction(tx -> findByApiKey(tx, apiKey));
+    }
+  }
+
+  private SystemUser findByApiKey(Transaction tx, String apiKey) {
+    String cmd = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) where su.apiKey= $apiKey return su, company";
+    StatementResult statementResult = tx.run(cmd, parameters("apiKey", apiKey));
+    if (!statementResult.hasNext()) {
+      return null;
     }
 
-    public SystemUser create(SystemUser systemUser) {
-        try (Session session = driverManager.session()) {
-            return session.writeTransaction(tx -> create(tx, systemUser));
-        }
+    Record singleResult = statementResult.single();
+    Node suNode = singleResult.get("su").asNode();
+    Node cNode = singleResult.get("company").asNode();
 
-    }
+    return SystemUserNode.build(CompanyNode.build(cNode), suNode);
 
-    private SystemUser create(Transaction tx, SystemUser systemUser) {
-        StatementResult statementResult = tx.run(
-            "match (company) where id(company)= $companyId " +
-                " CREATE (systemUser:SystemUser {name: $name, email: $email, login: $login, apiKey: $apiKey, active: $active}) " +
-                " -[:ACCESSES]->(company) return systemUser",
-            parameters(
-                "name", systemUser.getName(),
-                "login", systemUser.getLogin(),
-                "email", systemUser.getEmail(),
-                "apiKey", systemUser.getApiKey(),
-                "active", systemUser.isActive(),
-                "companyId", systemUser.getCompany().getId()
-
-            ));
-
-        Node eNode = statementResult.single().get("systemUser").asNode();
-
-        return SystemUserNode.build(systemUser.getCompany(), eNode);
-    }
-
-    public SystemUser findByApiKey(String apiKey) {
-        try (Session session = driverManager.session()) {
-            return session.readTransaction(tx -> findByApiKey(tx, apiKey));
-        }
-    }
-
-    private SystemUser findByApiKey(Transaction tx, String apiKey) {
-        String cmd = "match (su:SystemUser)-[:ACCESSES]->(company:FDCompany) where su.apiKey= $apiKey return su, company";
-        StatementResult statementResult = tx.run(cmd, parameters("apiKey", apiKey));
-        if (!statementResult.hasNext()) {
-            return null;
-        }
-
-        Record singleResult = statementResult.single();
-        Node suNode = singleResult.get("su").asNode();
-        Node cNode = singleResult.get("company").asNode();
-
-        return SystemUserNode.build(CompanyNode.build(cNode), suNode);
-
-    }
+  }
 }

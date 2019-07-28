@@ -23,7 +23,6 @@ package org.flockdata.authentication;
 import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -36,83 +35,79 @@ import org.springframework.stereotype.Service;
 @Service
 public class SecurityHelper {
 
-    private final SystemUserService sysUserService;
+  private final SystemUserService sysUserService;
 
-    @Autowired
-    public SecurityHelper(SystemUserService sysUserService) {
-        this.sysUserService = sysUserService;
+  @Autowired
+  public SecurityHelper(SystemUserService sysUserService) {
+    this.sysUserService = sysUserService;
+  }
+
+  public String getLoggedInUser() {
+    Authentication a = SecurityContextHolder.getContext().getAuthentication();
+    if (a == null) {
+      throw new SecurityException("User is not authenticated");
+    }
+    return a.getName();
+  }
+
+  public String getUserName(boolean exceptionOnNull, boolean isSysUser) {
+    Authentication a = SecurityContextHolder.getContext().getAuthentication();
+    if (a == null) {
+      if (exceptionOnNull) {
+        throw new SecurityException("User is not authenticated");
+      } else {
+        return null;
+      }
     }
 
-    public String isValidUser() {
-        return getUserName(true, true);
+    if (isSysUser) {
+      SystemUser su = getSysUser(a.getName());
+      if (su == null) {
+        throw new IllegalArgumentException("Not authorised");
+      }
+    }
+    return a.getName();
+  }
+
+  public SystemUser getSysUser(boolean exceptionOnNull) {
+    Authentication a = SecurityContextHolder.getContext().getAuthentication();
+
+    if (a == null) {
+      if (exceptionOnNull) {
+        throw new SecurityException("User is not authenticated");
+      } else {
+        return null;
+      }
     }
 
-    public String getLoggedInUser() {
-        Authentication a = SecurityContextHolder.getContext().getAuthentication();
-        if (a == null) {
-            throw new SecurityException("User is not authenticated");
-        }
-        return a.getName();
+    return sysUserService.findByLogin(a.getName());
+  }
+
+  SystemUser getSysUser(String loginName) {
+    return sysUserService.findByLogin(loginName);
+  }
+
+  public Company getCompany() {
+    String userName = getLoggedInUser();
+    SystemUser su = sysUserService.findByLogin(userName);
+
+    if (su == null) {
+      throw new SecurityException("Not authorised");
     }
 
-    public String getUserName(boolean exceptionOnNull, boolean isSysUser) {
-        Authentication a = SecurityContextHolder.getContext().getAuthentication();
-        if (a == null) {
-            if (exceptionOnNull) {
-                throw new SecurityException("User is not authenticated");
-            } else {
-                return null;
-            }
-        }
+    return su.getCompany();
+  }
 
-        if (isSysUser) {
-            SystemUser su = getSysUser(a.getName());
-            if (su == null) {
-                throw new IllegalArgumentException("Not authorised");
-            }
-        }
-        return a.getName();
+  //    @Cacheable(value = "company", unless = "#result == null")
+  public Company getCompany(String usersApiKey) {
+    if (usersApiKey == null) {
+      return getCompany();
     }
 
-    public SystemUser getSysUser(boolean exceptionOnNull) {
-        Authentication a = SecurityContextHolder.getContext().getAuthentication();
-
-        if (a == null) {
-            if (exceptionOnNull) {
-                throw new SecurityException("User is not authenticated");
-            } else {
-                return null;
-            }
-        }
-
-        return sysUserService.findByLogin(a.getName());
+    SystemUser su = sysUserService.findByApiKey(usersApiKey);
+    if (su == null) {
+      return null;
     }
-
-    SystemUser getSysUser(String loginName) {
-        return sysUserService.findByLogin(loginName);
-    }
-
-    public Company getCompany() {
-        String userName = getLoggedInUser();
-        SystemUser su = sysUserService.findByLogin(userName);
-
-        if (su == null) {
-            throw new SecurityException("Not authorised");
-        }
-
-        return su.getCompany();
-    }
-
-    @Cacheable(value = "company", unless = "#result == null")
-    public Company getCompany(String usersApiKey) {
-        if (usersApiKey == null) {
-            return getCompany();
-        }
-
-        SystemUser su = sysUserService.findByApiKey(usersApiKey);
-        if (su == null) {
-            return null;
-        }
-        return su.getCompany();
-    }
+    return su.getCompany();
+  }
 }

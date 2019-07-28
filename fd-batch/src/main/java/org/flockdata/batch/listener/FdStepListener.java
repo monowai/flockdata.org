@@ -23,32 +23,32 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 
 public class FdStepListener implements StepExecutionListener {
-    private static final Logger logger = LoggerFactory.getLogger(FdStepListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(FdStepListener.class);
 
-    @Override
-    public void beforeStep(StepExecution stepExecution) {
-        logger.info("====== Step {} ======", stepExecution.getStepName());
-    }
+  @Override
+  public void beforeStep(StepExecution stepExecution) {
+    logger.info("====== Step {} ======", stepExecution.getStepName());
+  }
 
-    @Override
-    public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.info("");
-        logger.info("READING");
-        logger.info("- Read: " + stepExecution.getReadCount());
-        logger.info("- ReadSkip: " + stepExecution.getReadSkipCount());
-        logger.info("VALIDATION");
-        logger.info("- ProcessSkip: " + stepExecution.getProcessSkipCount());
-        logger.info("WRITING");
-        logger.info("- Write: " + stepExecution.getWriteCount());
-        logger.info("- WriteSkip: " + stepExecution.getWriteSkipCount());
-        logger.info("TOTAL (read+validation+write)");
-        logger.info("- Total Number of Skip: " + stepExecution.getSkipCount());
-        logger.info("- Number of Commit (including technical steps): " + stepExecution.getCommitCount());
-        logger.info("- Number of Rollback (including technical steps): " + stepExecution.getRollbackCount());
-        logger.info("");
+  @Override
+  public ExitStatus afterStep(StepExecution stepExecution) {
+    logger.info("");
+    logger.info("READING");
+    logger.info("- Read: " + stepExecution.getReadCount());
+    logger.info("- ReadSkip: " + stepExecution.getReadSkipCount());
+    logger.info("VALIDATION");
+    logger.info("- ProcessSkip: " + stepExecution.getProcessSkipCount());
+    logger.info("WRITING");
+    logger.info("- Write: " + stepExecution.getWriteCount());
+    logger.info("- WriteSkip: " + stepExecution.getWriteSkipCount());
+    logger.info("TOTAL (read+validation+write)");
+    logger.info("- Total Number of Skip: " + stepExecution.getSkipCount());
+    logger.info("- Number of Commit (including technical steps): " + stepExecution.getCommitCount());
+    logger.info("- Number of Rollback (including technical steps): " + stepExecution.getRollbackCount());
+    logger.info("");
 //        batchLoader.flush();
-        return stepExecution.getExitStatus();
-    }
+    return stepExecution.getExitStatus();
+  }
 
 
 }

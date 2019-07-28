@@ -41,47 +41,47 @@ import org.junit.Test;
  */
 public class TestDocTypes extends AbstractImport {
 
-    @Test
-    public void testDocType() throws Exception {
+  @Test
+  public void testDocType() throws Exception {
 
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-document-type.json");
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/test-document-type.json");
 
-        fileProcessor.processFile(new ExtractProfileHandler(contentModel, false), "/data/pac.txt");
+    fileProcessor.processFile(new ExtractProfileHandler(contentModel, false), "/data/pac.txt");
 
-        for (EntityInputBean entityInputBean : fdTemplate.getEntities()) {
-            Document docType = entityInputBean.getDocumentType();
-            assertNotNull(entityInputBean.getDocumentType());
-            TestCase.assertEquals("TestDocType", docType.getName());
-            TestCase.assertEquals("Version Strategy not being handled", Document.VERSION.ENABLE, docType.getVersionStrategy());
-            EntityTag.TAG_STRUCTURE tagStructure = docType.getTagStructure();
-            TestCase.assertEquals("Unable to read the custom taxonomy structure", EntityTag.TAG_STRUCTURE.TAXONOMY, tagStructure);
-        }
+    for (EntityInputBean entityInputBean : fdTemplate.getEntities()) {
+      Document docType = entityInputBean.getDocumentType();
+      assertNotNull(entityInputBean.getDocumentType());
+      TestCase.assertEquals("TestDocType", docType.getName());
+      TestCase.assertEquals("Version Strategy not being handled", Document.VERSION.ENABLE, docType.getVersionStrategy());
+      EntityTag.TAG_STRUCTURE tagStructure = docType.getTagStructure();
+      TestCase.assertEquals("Unable to read the custom taxonomy structure", EntityTag.TAG_STRUCTURE.TAXONOMY, tagStructure);
     }
+  }
 
-    @Test
-    public void entityKeyBeanWithDocType() throws Exception {
-        FortressInputBean fortress = new FortressInputBean("wrapport");
-        DocumentTypeInputBean pmv = new DocumentTypeInputBean("PMV");
-        DocumentTypeInputBean portfolio = new DocumentTypeInputBean("Portfolio");
+  @Test
+  public void entityKeyBeanWithDocType() throws Exception {
+    FortressInputBean fortress = new FortressInputBean("wrapport");
+    DocumentTypeInputBean pmv = new DocumentTypeInputBean("PMV");
+    DocumentTypeInputBean portfolio = new DocumentTypeInputBean("Portfolio");
 
-        EntityInputBean inputBean = new EntityInputBean(fortress, pmv);
+    EntityInputBean inputBean = new EntityInputBean(fortress, pmv);
 
-        EntityKeyBean key = new EntityKeyBean(portfolio.getName(), fortress, "Test", "parent");
-        inputBean.addEntityLink("parent", key);
-        assertNull(key.getResolvedDocument());
+    EntityKeyBean key = new EntityKeyBean(portfolio.getName(), fortress, "Test", "parent");
+    inputBean.addEntityLink("parent", key);
+    assertNull(key.getResolvedDocument());
 
-        String json = JsonUtils.toJson(inputBean);
+    String json = JsonUtils.toJson(inputBean);
 
-        assertNotNull(json);
+    assertNotNull(json);
 
-        Collection<EntityInputBean> inputBeans = new ArrayList<>();
-        inputBeans.add(inputBean);
-
-
-        String jsonArray = JsonUtils.toJson(inputBeans);
-        Collection<EntityInputBean> results = JsonUtils.toCollection(jsonArray, EntityInputBean.class);
-        assertEquals(inputBeans.size(), results.size());
+    Collection<EntityInputBean> inputBeans = new ArrayList<>();
+    inputBeans.add(inputBean);
 
 
-    }
+    String jsonArray = JsonUtils.toJson(inputBeans);
+    Collection<EntityInputBean> results = JsonUtils.toCollection(jsonArray, EntityInputBean.class);
+    assertEquals(inputBeans.size(), results.size());
+
+
+  }
 }

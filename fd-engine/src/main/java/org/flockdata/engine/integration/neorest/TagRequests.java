@@ -49,64 +49,64 @@ import org.springframework.messaging.MessageHandler;
 @Profile("neorest")
 public class TagRequests extends NeoRequestBase {
 
-    @Bean
-    public IntegrationFlow makeTags() {
+  @Bean
+  public IntegrationFlow makeTags() {
 
-        return IntegrationFlows.from(channels.neoFdMakeTags())
-            .transform(getTransformer())
-            .handle(fdMakeTagsRequest())
-            .get();
-    }
+    return IntegrationFlows.from(channels.neoFdMakeTags())
+        .transform(getTransformer())
+        .handle(fdMakeTagsRequest())
+        .get();
+  }
 
-    private MessageHandler fdMakeTagsRequest() {
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getTagUrl());
+  private MessageHandler fdMakeTagsRequest() {
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getTagUrl());
 
-        handler.setExpectedResponseType(TagResults.class);
-        return handler;
-    }
+    handler.setExpectedResponseType(TagResults.class);
+    return handler;
+  }
 
-    @Bean
-    public IntegrationFlow findTag() {
+  @Bean
+  public IntegrationFlow findTag() {
 
-        return IntegrationFlows.from(channels.neoFdFindTag())
-            .handle(fdFindTagsRequest())
-            .get();
-    }
+    return IntegrationFlows.from(channels.neoFdFindTag())
+        .handle(fdFindTagsRequest())
+        .get();
+  }
 
-    private MessageHandler fdFindTagsRequest() {
+  private MessageHandler fdFindTagsRequest() {
 
-        SpelExpressionParser expressionParser = new SpelExpressionParser();
+    SpelExpressionParser expressionParser = new SpelExpressionParser();
 
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getFindTagUrl());
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getFindTagUrl());
 
-        handler.setExpectedResponseType(TagResultBean.class);
-        Map<String, Expression> vars = new HashMap<>();
-        vars.put("label", expressionParser.parseExpression("payload[0]"));
-        vars.put("code", expressionParser.parseExpression("payload[1]"));
-        handler.setUriVariableExpressions(vars);
-        handler.setHttpMethod(HttpMethod.GET);
+    handler.setExpectedResponseType(TagResultBean.class);
+    Map<String, Expression> vars = new HashMap<>();
+    vars.put("label", expressionParser.parseExpression("payload[0]"));
+    vars.put("code", expressionParser.parseExpression("payload[1]"));
+    handler.setUriVariableExpressions(vars);
+    handler.setHttpMethod(HttpMethod.GET);
 
-        return handler;
-    }
+    return handler;
+  }
 
-    @Bean
-    public IntegrationFlow makeAlias() {
+  @Bean
+  public IntegrationFlow makeAlias() {
 
-        return IntegrationFlows.from(channels.neoFdMakeAlias())
-            .transform(getTransformer())
-            .handle(fdMakeAliasRequest())
-            .get();
-    }
+    return IntegrationFlows.from(channels.neoFdMakeAlias())
+        .transform(getTransformer())
+        .handle(fdMakeAliasRequest())
+        .get();
+  }
 
-    private MessageHandler fdMakeAliasRequest() {
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getAliasUrl());
+  private MessageHandler fdMakeAliasRequest() {
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getAliasUrl());
 
-        handler.setExpectedResponseType(AliasPayload.class);
-        return handler;
-    }
+    handler.setExpectedResponseType(AliasPayload.class);
+    return handler;
+  }
 
 
 }

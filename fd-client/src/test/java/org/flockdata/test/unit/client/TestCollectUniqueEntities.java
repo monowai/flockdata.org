@@ -34,34 +34,34 @@ import org.junit.Test;
  */
 public class TestCollectUniqueEntities extends AbstractImport {
 
-    /**
-     * Given a source with the same entity and different tags, we should be able to batch one entity + many tags
-     * rather than wire over one entity+ one tag.
-     *
-     * @throws Exception
-     */
-    @Test
-    public void duplicateKeysInSource_UniqueEntity() throws Exception {
+  /**
+   * Given a source with the same entity and different tags, we should be able to batch one entity + many tags
+   * rather than wire over one entity+ one tag.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void duplicateKeysInSource_UniqueEntity() throws Exception {
 
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/duplicate-entities.json");
-        ExtractProfile extractProfile = new ExtractProfileHandler(contentModel, true);
-        contentModel.setDocumentName("Movie"); // ToDo: Deserialize DocumentInputBean
-        extractProfile.setContentType(ExtractProfile.ContentType.CSV);
-        contentModel.setEntityOnly(true);
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/duplicate-entities.json");
+    ExtractProfile extractProfile = new ExtractProfileHandler(contentModel, true);
+    contentModel.setDocumentName("Movie"); // ToDo: Deserialize DocumentInputBean
+    extractProfile.setContentType(ExtractProfile.ContentType.CSV);
+    contentModel.setEntityOnly(true);
 
-        fileProcessor.processFile(extractProfile, "/data/duplicate-entities.csv");
-        List<EntityInputBean> entities = fdTemplate.getEntities();
-        TestCase.assertEquals(1, entities.size());
+    fileProcessor.processFile(extractProfile, "/data/duplicate-entities.csv");
+    List<EntityInputBean> entities = fdTemplate.getEntities();
+    TestCase.assertEquals(1, entities.size());
 
-        EntityInputBean movie = entities.iterator().next();
-        int personCount = 0;
-        for (TagInputBean tag : movie.getTags()) {
-            if (tag.getLabel().equals("Person")) {
-                personCount++;
-            }
-        }
-
-        assertEquals("Should be 2 directors + 3 actors", 5, personCount);
-
+    EntityInputBean movie = entities.iterator().next();
+    int personCount = 0;
+    for (TagInputBean tag : movie.getTags()) {
+      if (tag.getLabel().equals("Person")) {
+        personCount++;
+      }
     }
+
+    assertEquals("Should be 2 directors + 3 actors", 5, personCount);
+
+  }
 }

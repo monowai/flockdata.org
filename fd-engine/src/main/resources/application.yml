@@ -182,6 +182,5 @@ cors:
   allowOrigin:  http://127.0.0.1:9000,http://localhost:9000,chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop
   allowSubdomains:  true
   #supportedMethods:  GET,POST,HEAD,PUT,DELETE
-  exposedHeaders:
-  tagRequests:
+  exposedHeaders: '*'
 

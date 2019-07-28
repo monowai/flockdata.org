@@ -41,53 +41,53 @@ import org.junit.Test;
  */
 public class TestCSVEntitiesWithDelimiter extends AbstractImport {
 
-    @Test
-    public void string_NoHeaderWithDelimiter() throws Exception {
+  @Test
+  public void string_NoHeaderWithDelimiter() throws Exception {
 
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/no-header-entities.json");
-        ExtractProfile params = new ExtractProfileHandler(contentModel, false);
-        params.setQuoteCharacter("|");
-        assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/data/no-header.txt");
-        int expectedRows = 6;
-        assertEquals(expectedRows, rows);
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/no-header-entities.json");
+    ExtractProfile params = new ExtractProfileHandler(contentModel, false);
+    params.setQuoteCharacter("|");
+    assertEquals(false, params.hasHeader());
+    long rows = fileProcessor.processFile(params, "/data/no-header.txt");
+    int expectedRows = 6;
+    assertEquals(expectedRows, rows);
 
-        List<EntityInputBean> entities = fdTemplate.getEntities();
-        for (EntityInputBean entity : entities) {
-            assertNotNull("Remapping column name to target", entity.getContent().getData().get("institution"));
-            // DAT-528
-            assertNull("Column 11 is flagged as false for persistence", entity.getContent().getData().get("11"));
+    List<EntityInputBean> entities = fdTemplate.getEntities();
+    for (EntityInputBean entity : entities) {
+      assertNotNull("Remapping column name to target", entity.getContent().getData().get("institution"));
+      // DAT-528
+      assertNull("Column 11 is flagged as false for persistence", entity.getContent().getData().get("11"));
 
-            assertEquals(3, entity.getTags().size());
-            List<TagInputBean> tagInputBeans = entity.getTags();
-            for (TagInputBean tagInputBean : tagInputBeans) {
-                if (tagInputBean.getLabel().equals("Year")) {
-                    assertEquals("2012", tagInputBean.getCode());
-                } else if (tagInputBean.getLabel().equals("Institution")) {
-                    assertFalse(tagInputBean.getCode().contains("|"));
-                    assertFalse(tagInputBean.getName().contains("|"));
-                    assertEquals("Institution", tagInputBean.getLabel());
-                    TestCase.assertEquals(1, tagInputBean.getTargets().size());
-                    Collection<TagInputBean> targets = tagInputBean.getTargets().get("represents");
-                    for (TagInputBean represents : targets) {
-                        assertFalse(represents.getCode().contains("|"));
-                        assertTrue(represents.isMustExist());
-                    }
-                } else if (tagInputBean.getLabel().equals("ZipCode")) {
-                    assertEquals("Data type was not preserved as a string", "01", tagInputBean.getCode());
-                }
-            }
-
+      assertEquals(3, entity.getTags().size());
+      List<TagInputBean> tagInputBeans = entity.getTags();
+      for (TagInputBean tagInputBean : tagInputBeans) {
+        if (tagInputBean.getLabel().equals("Year")) {
+          assertEquals("2012", tagInputBean.getCode());
+        } else if (tagInputBean.getLabel().equals("Institution")) {
+          assertFalse(tagInputBean.getCode().contains("|"));
+          assertFalse(tagInputBean.getName().contains("|"));
+          assertEquals("Institution", tagInputBean.getLabel());
+          TestCase.assertEquals(1, tagInputBean.getTargets().size());
+          Collection<TagInputBean> targets = tagInputBean.getTargets().get("represents");
+          for (TagInputBean represents : targets) {
+            assertFalse(represents.getCode().contains("|"));
+            assertTrue(represents.isMustExist());
+          }
+        } else if (tagInputBean.getLabel().equals("ZipCode")) {
+          assertEquals("Data type was not preserved as a string", "01", tagInputBean.getCode());
         }
-        // Check that the payload will serialize
-        ObjectMapper om = new ObjectMapper();
-        try {
-            om.writeValueAsString(entities);
-        } catch (Exception e) {
-            throw new FlockException("Failed to serialize");
-        }
+      }
 
     }
+    // Check that the payload will serialize
+    ObjectMapper om = new ObjectMapper();
+    try {
+      om.writeValueAsString(entities);
+    } catch (Exception e) {
+      throw new FlockException("Failed to serialize");
+    }
+
+  }
 
 
 }

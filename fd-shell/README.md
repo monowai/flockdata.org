@@ -38,5 +38,5 @@ See the world! This customized version of `fdimport` loads [countries](http://op
 
 From the shell you can ingest delimited data by supplying its content model profile `profile.json` 
  
-`import --data "data/fd-cow.txt, model/countries.json;data/states.csv, model/states.json"`
+`ingest --data "data/fd-cow.txt, model/countries.json;data/states.csv, model/states.json"`
 

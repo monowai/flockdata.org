@@ -37,28 +37,28 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class EntityLogsGet {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public EntityLogsGet(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public EntityLogsGet(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+  public CommandResponse<EntityLogResult[]> exec(String key) {
+    String error = null;
+    HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+    EntityLogResult[] results = null;
+
+    try {
+
+      ResponseEntity<EntityLogResult[]> response;
+      response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/entity/{key}/log?withData=true", HttpMethod.GET, requestEntity, EntityLogResult[].class, key);
+
+
+      results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+    } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+      error = e.getMessage();
     }
-
-    public CommandResponse<EntityLogResult[]> exec(String key) {
-        String error = null;
-        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
-        EntityLogResult[] results = null;
-
-        try {
-
-            ResponseEntity<EntityLogResult[]> response;
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/entity/{key}/log?withData=true", HttpMethod.GET, requestEntity, EntityLogResult[].class, key);
-
-
-            results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
-        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, results);// Everything worked
-    }
+    return new CommandResponse<>(error, results);// Everything worked
+  }
 }

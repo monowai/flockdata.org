@@ -30,36 +30,36 @@ import java.util.Collection;
 //@JsonDeserialize(using = AdminRequestDeserializer.class)
 public class AdminRequest {
 
-    private Collection<String> indexesToDelete;
+  private Collection<String> indexesToDelete;
 
-    @SuppressWarnings("WeakerAccess")
-    public AdminRequest() {
+  @SuppressWarnings("WeakerAccess")
+  public AdminRequest() {
+  }
+
+  public AdminRequest(String indexToDelete) {
+    this();
+    setIndexToDelete(indexToDelete);
+  }
+
+  public Collection<String> getIndexesToDelete() {
+    return indexesToDelete;
+  }
+
+  public void setIndexesToDelete(Collection<String> delete) {
+    this.indexesToDelete = delete;
+  }
+
+  @JsonIgnore
+  private void setIndexToDelete(String indexToDelete) {
+    indexesToDelete = new ArrayList<>();
+    indexesToDelete.add(indexToDelete);
+
+  }
+
+  public void addIndexToDelete(String searchIndexToDelete) {
+    if (this.indexesToDelete == null) {
+      indexesToDelete = new ArrayList<>();
     }
-
-    public AdminRequest(String indexToDelete) {
-        this();
-        setIndexToDelete(indexToDelete);
-    }
-
-    public Collection<String> getIndexesToDelete() {
-        return indexesToDelete;
-    }
-
-    public void setIndexesToDelete(Collection<String> delete) {
-        this.indexesToDelete = delete;
-    }
-
-    @JsonIgnore
-    private void setIndexToDelete(String indexToDelete) {
-        indexesToDelete = new ArrayList<>();
-        indexesToDelete.add(indexToDelete);
-
-    }
-
-    public void addIndexToDelete(String searchIndexToDelete) {
-        if (this.indexesToDelete == null) {
-            indexesToDelete = new ArrayList<>();
-        }
-        indexesToDelete.add(searchIndexToDelete);
-    }
+    indexesToDelete.add(searchIndexToDelete);
+  }
 }

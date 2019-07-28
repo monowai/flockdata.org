@@ -34,90 +34,90 @@ import java.util.Map;
  * @since 28/08/2014
  */
 public class JsonUtils {
-    private static final ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
+  private static final ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
 
-    public static ObjectMapper getMapper() {
-        return mapper;
+  public static ObjectMapper getMapper() {
+    return mapper;
+  }
+
+  public static byte[] toJsonBytes(Object object) throws IOException {
+
+    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    return mapper.writeValueAsBytes(object);
+  }
+
+  public static <T> T toObject(byte[] bytes, Class<T> clazz) throws IOException {
+    return mapper.readValue(bytes, clazz);
+  }
+
+  public static <T> T toObject(String json, Class<T> clazz) throws IOException {
+    return toObject(json.getBytes(), clazz);
+  }
+
+  public static <T> Collection<T> toCollection(String json, Class<T> clazz) throws IOException {
+    if (json == null || json.equals("")) {
+      return new ArrayList<>();
     }
 
-    public static byte[] toJsonBytes(Object object) throws IOException {
+    CollectionType javaType =
+        mapper.getTypeFactory().constructCollectionType(List.class, clazz);
+    return mapper.readValue(json, javaType);
 
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return mapper.writeValueAsBytes(object);
+  }
+
+  /**
+   * deserialize the JSON string as an Array of clazz
+   * <p>
+   * e.g. {@literal Collection<EntityInputBean>} results = JsonUtils.getAsCollection(message.getBody(), EntityInputBean.class);
+   *
+   * @param bytes JSON Bytes - usually String.getBytes()
+   * @param clazz Concrete type
+   * @param <T>   Type
+   * @return Collection of clazz objects
+   * @throws IOException JSON error
+   */
+  public static <T> Collection<T> toCollection(byte[] bytes, Class<T> clazz) throws IOException {
+    if (bytes == null) {
+      return new ArrayList<>();
     }
 
-    public static <T> T toObject(byte[] bytes, Class<T> clazz) throws IOException {
-        return mapper.readValue(bytes, clazz);
+    CollectionType javaType =
+        mapper.getTypeFactory().constructCollectionType(List.class, clazz);
+    return mapper.readValue(bytes, javaType);
+
+  }
+
+  public static Map<String, Object> toMap(String json) throws IOException {
+    return mapper.readValue(json, Map.class);
+  }
+
+  public static Map<String, Object> toMap(byte[] json) throws IOException {
+    return mapper.readValue(json, Map.class);
+  }
+
+  public static Map convertToMap(Object o) {
+    return mapper.convertValue(o, Map.class);
+  }
+
+  public static String pretty(Object json) {
+    if (json == null) {
+      return null;
     }
-
-    public static <T> T toObject(String json, Class<T> clazz) throws IOException {
-        return toObject(json.getBytes(), clazz);
+    try {
+      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
     }
+    return null;
+  }
 
-    public static <T> Collection<T> toCollection(String json, Class<T> clazz) throws IOException {
-        if (json == null || json.equals("")) {
-            return new ArrayList<>();
-        }
+  public static String toJson(Object obj) {
 
-        CollectionType javaType =
-            mapper.getTypeFactory().constructCollectionType(List.class, clazz);
-        return mapper.readValue(json, javaType);
-
+    try {
+      return new String(toJsonBytes(obj));
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-
-    /**
-     * deserialize the JSON string as an Array of clazz
-     * <p>
-     * e.g. {@literal Collection<EntityInputBean>} results = JsonUtils.getAsCollection(message.getBody(), EntityInputBean.class);
-     *
-     * @param bytes JSON Bytes - usually String.getBytes()
-     * @param clazz Concrete type
-     * @param <T>   Type
-     * @return Collection of clazz objects
-     * @throws IOException JSON error
-     */
-    public static <T> Collection<T> toCollection(byte[] bytes, Class<T> clazz) throws IOException {
-        if (bytes == null) {
-            return new ArrayList<>();
-        }
-
-        CollectionType javaType =
-            mapper.getTypeFactory().constructCollectionType(List.class, clazz);
-        return mapper.readValue(bytes, javaType);
-
-    }
-
-    public static Map<String, Object> toMap(String json) throws IOException {
-        return mapper.readValue(json, Map.class);
-    }
-
-    public static Map<String, Object> toMap(byte[] json) throws IOException {
-        return mapper.readValue(json, Map.class);
-    }
-
-    public static Map convertToMap(Object o) {
-        return mapper.convertValue(o, Map.class);
-    }
-
-    public static String pretty(Object json) {
-        if (json == null) {
-            return null;
-        }
-        try {
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static String toJson(Object obj) {
-
-        try {
-            return new String(toJsonBytes(obj));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    return null;
+  }
 }

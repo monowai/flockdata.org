@@ -53,39 +53,39 @@ import org.springframework.messaging.MessageHandler;
 @Profile( {"fd-server"})
 public class ContentStructureRequest {
 
-    @Autowired
-    @Qualifier("engineConfig")
-    PlatformConfig engineConfig;
+  @Autowired
+  @Qualifier("engineConfig")
+  PlatformConfig engineConfig;
 
-    @Bean
-    public IntegrationFlow fxValuationFlow() {
-        return IntegrationFlows.from("getStructure")
-            .transform(Transformers.toJson())
-            .handle(contentStructureHandler())
-            .get();
-    }
+  @Bean
+  public IntegrationFlow fxValuationFlow() {
+    return IntegrationFlows.from("getStructure")
+        .transform(Transformers.toJson())
+        .handle(contentStructureHandler())
+        .get();
+  }
 
-    @Bean
-    public MessageChannel getStructure() {
-        return new DirectChannel();
-    }
+  @Bean
+  public MessageChannel getStructure() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    public MessageHandler contentStructureHandler() {
+  @Bean
+  public MessageHandler contentStructureHandler() {
 
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/content/");
-        handler.setExpectedResponseType(ContentStructure.class);
-        handler.setHttpMethod(HttpMethod.POST);
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/content/");
+    handler.setExpectedResponseType(ContentStructure.class);
+    handler.setHttpMethod(HttpMethod.POST);
 
 //        handler.setErrorHandler(analyticsErrorResponseHandler());
-        return handler;
-    }
+    return handler;
+  }
 
-    @MessagingGateway
-    public interface ContentStructureGateway {
-        @Gateway(requestChannel = "getStructure")
-        ContentStructure getStructure(QueryParams queryParams);
-    }
+  @MessagingGateway
+  public interface ContentStructureGateway {
+    @Gateway(requestChannel = "getStructure")
+    ContentStructure getStructure(QueryParams queryParams);
+  }
 
 }

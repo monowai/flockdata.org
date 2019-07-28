@@ -38,35 +38,35 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class EntityGet {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public EntityGet(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public EntityGet(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+
+  public CommandResponse<EntityResultBean> exec(EntityInputBean entityInputBean, String key) {
+
+    HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+    EntityResultBean result = null;
+    String error = null;
+    try {
+      ResponseEntity<EntityResultBean> response;
+      if (key == null) {
+        response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityResultBean.class,
+            entityInputBean.getFortress().getName(),
+            entityInputBean.getDocumentType().getName(),
+            entityInputBean.getCode());
+      } else {
+        response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityResultBean.class, key);
+      }
+
+      result = response.getBody();
+
+    } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
+      error = e.getMessage();
     }
-
-
-    public CommandResponse<EntityResultBean> exec(EntityInputBean entityInputBean, String key) {
-
-        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
-        EntityResultBean result = null;
-        String error = null;
-        try {
-            ResponseEntity<EntityResultBean> response;
-            if (key == null) {
-                response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityResultBean.class,
-                    entityInputBean.getFortress().getName(),
-                    entityInputBean.getDocumentType().getName(),
-                    entityInputBean.getCode());
-            } else {
-                response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityResultBean.class, key);
-            }
-
-            result = response.getBody();
-
-        } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, result);
-    }
+    return new CommandResponse<>(error, result);
+  }
 }

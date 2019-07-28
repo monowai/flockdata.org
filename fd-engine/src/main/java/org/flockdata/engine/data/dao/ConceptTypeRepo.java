@@ -31,8 +31,8 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  */
 public interface ConceptTypeRepo extends GraphRepository<ConceptNode> {
 
-    @Query(value = "match ( c:Concept) where c.key ={0} return c")
-    ConceptNode findByLabel(String key);
+  @Query(value = "match ( c:Concept) where c.key ={0} return c")
+  ConceptNode findByLabel(String key);
 
 //    @Query( value =
 //                    "MATCH (company:FDCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +

@@ -44,35 +44,35 @@ import org.junit.Test;
  */
 public class TestKvPojos {
 
-    @Test
-    public void jsonSerialization() throws Exception {
-        String fortress = "Entity Test";
-        String docType = "TestAuditX";
-        String entityCode = "ABC123R";
-        String company = "company";
+  @Test
+  public void jsonSerialization() throws Exception {
+    String fortress = "Entity Test";
+    String docType = "TestAuditX";
+    String entityCode = "ABC123R";
+    String company = "company";
 
-        Map<String, Object> what = ContentDataHelper.getRandomMap();
-        Fortress fort = MockDataFactory.getFortress("test", MockDataFactory.getCompany("MyName"));
-        when(fort.isSearchEnabled()).thenReturn(false);
+    Map<String, Object> what = ContentDataHelper.getRandomMap();
+    Fortress fort = MockDataFactory.getFortress("test", MockDataFactory.getCompany("MyName"));
+    when(fort.isSearchEnabled()).thenReturn(false);
 
-        // Represents identifiable entity information
-        EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), entityCode)
-            .setContent(new ContentInputBean(what));
+    // Represents identifiable entity information
+    EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), entityCode)
+        .setContent(new ContentInputBean(what));
 
-        Document documentType = MockDataFactory.getDocument(fort, docType);
-        // The "What" content
+    Document documentType = MockDataFactory.getDocument(fort, docType);
+    // The "What" content
 
-        // Emulate the creation of the entity
-        Entity entity = MockDataFactory.getEntity(company, fortress, "wally", documentType.getName(), null);
+    // Emulate the creation of the entity
+    Entity entity = MockDataFactory.getEntity(company, fortress, "wally", documentType.getName(), null);
 
-        // Wrap the entity in a Track Result
-        // TrackResultBean represents the general accumulated payload
-        TrackResultBean trackResultBean = new TrackResultBean(fort, entity, documentType, entityInputBean);
-        StorageBean storeBean = new StorageBean(trackResultBean);
+    // Wrap the entity in a Track Result
+    // TrackResultBean represents the general accumulated payload
+    TrackResultBean trackResultBean = new TrackResultBean(fort, entity, documentType, entityInputBean);
+    StorageBean storeBean = new StorageBean(trackResultBean);
 
-        byte[] bytes = JsonUtils.toJsonBytes(storeBean);
-        StorageBean deserializedBean = JsonUtils.toObject(bytes, StorageBean.class);
-        TestCase.assertNotNull(deserializedBean);
-        assertNull("Not handling a null fortress name ", Fortress.code(null));
-    }
+    byte[] bytes = JsonUtils.toJsonBytes(storeBean);
+    StorageBean deserializedBean = JsonUtils.toObject(bytes, StorageBean.class);
+    TestCase.assertNotNull(deserializedBean);
+    assertNull("Not handling a null fortress name ", Fortress.code(null));
+  }
 }

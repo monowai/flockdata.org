@@ -30,27 +30,27 @@ import org.flockdata.transform.FdIoInterface;
  */
 public class EntitySearchReady implements ReadyMatcher {
 
-    CommandResponse<EntityResultBean> response;
-    private EntityGet entityGet;
-    private EntityInputBean entityInputBean;
-    private String key;
-    private int waitFor;
+  CommandResponse<EntityResultBean> response;
+  private EntityGet entityGet;
+  private EntityInputBean entityInputBean;
+  private String key;
+  private int waitFor;
 
-    public EntitySearchReady(EntityGet entityGet, int searchCount, EntityInputBean entityInputBean, String key) {
-        this.entityGet = entityGet;
-        this.waitFor = searchCount;
-        this.entityInputBean = entityInputBean;
-        this.key = key;
-    }
+  public EntitySearchReady(EntityGet entityGet, int searchCount, EntityInputBean entityInputBean, String key) {
+    this.entityGet = entityGet;
+    this.waitFor = searchCount;
+    this.entityInputBean = entityInputBean;
+    this.key = key;
+  }
 
-    @Override
-    public boolean isReady(FdIoInterface fdIoInterface) {
-        response = entityGet.exec(entityInputBean, key);
-        return response.getResult() != null && response.getResult().getSearch() == waitFor;
-    }
+  @Override
+  public boolean isReady(FdIoInterface fdIoInterface) {
+    response = entityGet.exec(entityInputBean, key);
+    return response.getResult() != null && response.getResult().getSearch() == waitFor;
+  }
 
-    @Override
-    public CommandResponse<EntityResultBean> getResponse() {
-        return response;
-    }
+  @Override
+  public CommandResponse<EntityResultBean> getResponse() {
+    return response;
+  }
 }

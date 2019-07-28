@@ -44,107 +44,107 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegistrationServiceNeo4j implements RegistrationService {
 
-    public static SystemUserNode GUEST = SystemUserNode.builder().login("Guest").build();
-    private final CompanyRepo companyRepo;
-    private final SystemUserService systemUserService;
-    private final KeyGenService keyGenService;
-    private final SecurityHelper securityHelper;
-    private Logger logger = LoggerFactory.getLogger(RegistrationServiceNeo4j.class);
+  public static SystemUserNode GUEST = SystemUserNode.builder().login("Guest").build();
+  private final CompanyRepo companyRepo;
+  private final SystemUserService systemUserService;
+  private final KeyGenService keyGenService;
+  private final SecurityHelper securityHelper;
+  private Logger logger = LoggerFactory.getLogger(RegistrationServiceNeo4j.class);
 
-    @Autowired
-    public RegistrationServiceNeo4j(CompanyRepo companyRepo, SystemUserService systemUserService, KeyGenService keyGenService, SecurityHelper securityHelper) {
-        this.companyRepo = companyRepo;
-        this.systemUserService = systemUserService;
-        this.keyGenService = keyGenService;
-        this.securityHelper = securityHelper;
-    }
+  @Autowired
+  public RegistrationServiceNeo4j(CompanyRepo companyRepo, SystemUserService systemUserService, KeyGenService keyGenService, SecurityHelper securityHelper) {
+    this.companyRepo = companyRepo;
+    this.systemUserService = systemUserService;
+    this.keyGenService = keyGenService;
+    this.securityHelper = securityHelper;
+  }
 
-    @Override
+  @Override
 //    @Transactional
-    @PreAuthorize(FdRoles.EXP_ADMIN)
-    public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException {
+  @PreAuthorize(FdRoles.EXP_ADMIN)
+  public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException {
 
-        SystemUserNode systemUser = (SystemUserNode) systemUserService.findByLogin(regBean.getLogin());
+    SystemUserNode systemUser = (SystemUserNode) systemUserService.findByLogin(regBean.getLogin());
 
-        if (systemUser != null) {
-            if (systemUser.getApiKey() == null) {
-                systemUser.setApiKey(keyGenService.getUniqueKey());
-                systemUserService.save(systemUser);
-            }
-            logger.debug("Returning existing SU {}", systemUser);
-            return systemUser;
-        }
-
-        regBean.setCompany(company);
-        return makeSystemUser(regBean);
+    if (systemUser != null) {
+      if (systemUser.getApiKey() == null) {
+        systemUser.setApiKey(keyGenService.getUniqueKey());
+        systemUserService.save(systemUser);
+      }
+      logger.debug("Returning existing SU {}", systemUser);
+      return systemUser;
     }
 
-    @Override
-    @PreAuthorize(FdRoles.EXP_ADMIN)
-    public SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException {
-        Company company = regBean.getCompany();
-        if (company == null && regBean.getCompanyName() != null) {
-            // Might be a new Company
-            company = CompanyNode.builder()
-                .name(regBean.getCompanyName())
-                .code(regBean.getCompanyName().toLowerCase())
-                .apiKey(keyGenService.getUniqueKey())
-                .build();
-            regBean.setCompany(company);
-        }
+    regBean.setCompany(company);
+    return makeSystemUser(company, regBean);
+  }
 
-        if (company != null && company.getId() == null) {
-            company = companyRepo.findByCode(company);
-        }
-
-        if (company == null) {
-            company = companyRepo.create(regBean.getCompany());
-        }
-
-
-        return registerSystemUser(company, regBean);
+  @Override
+  @PreAuthorize(FdRoles.EXP_ADMIN)
+  public SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException {
+    Company company = regBean.getCompany();
+    if (company == null && regBean.getCompanyName() != null) {
+      // Might be a new Company
+      company = CompanyNode.builder()
+          .name(regBean.getCompanyName())
+          .code(regBean.getCompanyName().toLowerCase())
+          .apiKey(keyGenService.getUniqueKey())
+          .build();
+      regBean.setCompany(company);
     }
 
-    //    @Transactional
-    public SystemUser makeSystemUser(RegistrationBean regBean) {
-        logger.debug("Creating new system user {}", regBean);
-        return systemUserService.save(regBean);
-
-
+    if (company != null && company.getId() == null) {
+      company = companyRepo.findByCode(company);
     }
 
-    /**
-     * @return currently logged-in SystemUser or Guest if anonymous
-     */
+    if (company == null) {
+      company = companyRepo.create(regBean.getCompany());
+    }
+
+
+    return registerSystemUser(company, regBean);
+  }
+
+  //    @Transactional
+  public SystemUser makeSystemUser(Company company, RegistrationBean regBean) {
+    logger.debug("Creating new system user {}", regBean);
+    return systemUserService.save(company, regBean);
+
+
+  }
+
+  /**
+   * @return currently logged-in SystemUser or Guest if anonymous
+   */
 //    @Transactional
-    public SystemUser getSystemUser() {
-        String systemUser = securityHelper.getUserName(false, false);
-        if (systemUser == null) {
-            return GUEST;
-        }
-        SystemUser iSystemUser = systemUserService.findByLogin(systemUser);
-        if (iSystemUser == null) {
-            // Authenticated in the security system, but not in the graph
-            return SystemUserNode.builder().login(systemUser).build();
-        } else {
-            return iSystemUser;
-        }
+  public SystemUser getSystemUser() {
+    String systemUser = securityHelper.getUserName(false, false);
+    if (systemUser == null) {
+      return GUEST;
     }
+    SystemUser iSystemUser = systemUserService.findByLogin(systemUser);
+    if (iSystemUser == null) {
+      // Authenticated in the security system, but not in the graph
+      return SystemUserNode.builder().login(systemUser).build();
+    } else {
+      return iSystemUser;
+    }
+  }
 
-    //    @Transactional
-    public SystemUser getSystemUser(String apiKey) {
-        SystemUser su = systemUserService.findByApiKey(apiKey);
-        if (su == null) {
-            return getSystemUser();
-        }
-        return su;
+  //    @Transactional
+  public SystemUser getSystemUser(String apiKey) {
+    SystemUser su = systemUserService.findByApiKey(apiKey);
+    if (su == null) {
+      return getSystemUser();
     }
+    return su;
+  }
 
-    public Company resolveCompany(String apiKey) throws FlockException {
-        Company c = securityHelper.getCompany(apiKey);
-        if (c == null) {
-            throw new FlockException("Invalid API Key");
-        }
-        return c;
+  public Company resolveCompany(String apiKey) throws FlockException {
+    Company c = securityHelper.getCompany(apiKey);
+    if (c == null) {
+      throw new FlockException("Invalid API Key");
     }
+    return c;
+  }
 }

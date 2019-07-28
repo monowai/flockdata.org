@@ -46,33 +46,33 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/doc")
 public class DocEP {
 
-    private final ConceptService conceptService;
-    private final FortressService fortressService;
+  private final ConceptService conceptService;
+  private final FortressService fortressService;
 
-    @Autowired
-    public DocEP(ConceptService conceptService, FortressService fortressService) {
-        this.conceptService = conceptService;
-        this.fortressService = fortressService;
-    }
+  @Autowired
+  public DocEP(ConceptService conceptService, FortressService fortressService) {
+    this.conceptService = conceptService;
+    this.fortressService = fortressService;
+  }
 
-    @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public Collection<DocumentResultBean> getDocumentsInUse(@RequestBody(required = false) Collection<String> fortresses, HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return conceptService.getDocumentsInUse(company, fortresses);
-    }
+  @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+  public Collection<DocumentResultBean> getDocumentsInUse(@RequestBody(required = false) Collection<String> fortresses, HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return conceptService.getDocumentsInUse(company, fortresses);
+  }
 
-    @RequestMapping(value = "/{fortress}", method = RequestMethod.GET)
-    public Collection<DocumentResultBean> getFortressDocs(HttpServletRequest request, @PathVariable("fortress") String fortress) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return conceptService.getDocumentsInUse(company, fortress);
-    }
+  @RequestMapping(value = "/{fortress}", method = RequestMethod.GET)
+  public Collection<DocumentResultBean> getFortressDocs(HttpServletRequest request, @PathVariable("fortress") String fortress) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return conceptService.getDocumentsInUse(company, fortress);
+  }
 
-    @RequestMapping(value = "/{fortress}/{docType}", method = RequestMethod.GET)
-    public DocumentResultBean getDocument(HttpServletRequest request, @PathVariable("fortress") String fortress, @PathVariable("docType") String docType) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        Fortress f = fortressService.findByName(company, fortress);
-        return new DocumentResultBean(conceptService.findDocumentType(f, docType), f);
-    }
+  @RequestMapping(value = "/{fortress}/{docType}", method = RequestMethod.GET)
+  public DocumentResultBean getDocument(HttpServletRequest request, @PathVariable("fortress") String fortress, @PathVariable("docType") String docType) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    Fortress f = fortressService.findByName(company, fortress);
+    return new DocumentResultBean(conceptService.findDocumentType(f, docType), f);
+  }
 
 
 }

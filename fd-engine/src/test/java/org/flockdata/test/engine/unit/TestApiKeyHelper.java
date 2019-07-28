@@ -31,18 +31,18 @@ import org.junit.Assert;
  * @since 28/07/2014
  */
 public class TestApiKeyHelper {
-    @org.junit.Test
-    @Deprecated
-    public void testApiKeyOrder() {
-        String key = "httpHeader";
-        String requestKey = "httpRequest";
-        String nullReturned = "{{hello}}";
-        String headerReturned = "{{hello";
+  @org.junit.Test
+  @Deprecated
+  public void testApiKeyOrder() {
+    String key = "httpHeader";
+    String requestKey = "httpRequest";
+    String nullReturned = "{{hello}}";
+    String headerReturned = "{{hello";
 
-        Assert.assertEquals("HttpHeader key take precedence over request key", key, ApiKeyInterceptor.ApiKeyHelper.resolveKey(key, requestKey));
-        assertEquals(requestKey, ApiKeyInterceptor.ApiKeyHelper.resolveKey(null, requestKey));
-        assertEquals("HttpHeader key starting in {{ and ending in }} are ignored - POSTMan testing", null, ApiKeyInterceptor.ApiKeyHelper.resolveKey(nullReturned, null));
-        assertEquals(requestKey, ApiKeyInterceptor.ApiKeyHelper.resolveKey(nullReturned, requestKey));
-        assertEquals("HttpHeader key is valid as it doesn't end in }}", headerReturned, ApiKeyInterceptor.ApiKeyHelper.resolveKey(headerReturned, null));
-    }
+    Assert.assertEquals("HttpHeader key take precedence over request key", key, ApiKeyInterceptor.ApiKeyHelper.resolveKey(key, requestKey));
+    assertEquals(requestKey, ApiKeyInterceptor.ApiKeyHelper.resolveKey(null, requestKey));
+    assertEquals("HttpHeader key starting in {{ and ending in }} are ignored - POSTMan testing", null, ApiKeyInterceptor.ApiKeyHelper.resolveKey(nullReturned, null));
+    assertEquals(requestKey, ApiKeyInterceptor.ApiKeyHelper.resolveKey(nullReturned, requestKey));
+    assertEquals("HttpHeader key is valid as it doesn't end in }}", headerReturned, ApiKeyInterceptor.ApiKeyHelper.resolveKey(headerReturned, null));
+  }
 }

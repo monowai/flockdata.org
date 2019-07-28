@@ -43,34 +43,34 @@ import org.springframework.stereotype.Service;
 @Service
 public class FdTagProcessor implements ItemProcessor<Map<String, Object>, TagInputBean> {
 
-    private final BatchConfig batchConfig;
+  private final BatchConfig batchConfig;
 
-    private String stepName;
+  private String stepName;
 
-    @Autowired
-    public FdTagProcessor(BatchConfig batchConfig) {
-        this.batchConfig = batchConfig;
+  @Autowired
+  public FdTagProcessor(BatchConfig batchConfig) {
+    this.batchConfig = batchConfig;
+  }
+
+  @Override
+  public TagInputBean process(Map<String, Object> item) throws Exception {
+    // This should be initialised just the once
+    ContentModel contentModel = getContentModel(stepName);
+    return Transformer.toTags(item, contentModel).iterator().next();
+
+  }
+
+  private ContentModel getContentModel(String name) throws IOException, ClassNotFoundException {
+    ContentModel result = batchConfig.getStepConfig(name).getContentModel();
+    if (result == null) {
+      throw new ClassNotFoundException(String.format("Unable to resolve the content model [%s] for step [%s]", name, batchConfig.getStepConfig(name).getModel()));
     }
-
-    @Override
-    public TagInputBean process(Map<String, Object> item) throws Exception {
-        // This should be initialised just the once
-        ContentModel contentModel = getContentModel(stepName);
-        return Transformer.toTags(item, contentModel).iterator().next();
-
-    }
-
-    private ContentModel getContentModel(String name) throws IOException, ClassNotFoundException {
-        ContentModel result = batchConfig.getStepConfig(name).getContentModel();
-        if (result == null) {
-            throw new ClassNotFoundException(String.format("Unable to resolve the content model [%s] for step [%s]", name, batchConfig.getStepConfig(name).getModel()));
-        }
-        return result;
-    }
+    return result;
+  }
 
 
-    @BeforeStep
-    public void beforeStep(StepExecution stepExecution) {
-        this.stepName = stepExecution.getStepName();
-    }
+  @BeforeStep
+  public void beforeStep(StepExecution stepExecution) {
+    this.stepName = stepExecution.getStepName();
+  }
 }

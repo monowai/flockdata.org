@@ -28,11 +28,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @since 3/01/17
  */
 public interface ChangeEvent {
-    @JsonIgnore
-    Long getId();
+  @JsonIgnore
+  Long getId();
 
-    @JsonIgnore
-    String getCode();
+  @JsonIgnore
+  String getCode();
 
-    String getName();
+  String getName();
 }

@@ -40,60 +40,60 @@ import org.springframework.messaging.MessageChannel;
 @Profile("fd-server")
 public class FdSearchChannels {
 
-    @Bean
-    MessageChannel doContentQuery() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel doContentQuery() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel receiveTagCloudReply() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel receiveTagCloudReply() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel sendEntityIndexRequest() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel sendEntityIndexRequest() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel startIndexDelete() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel startIndexDelete() {
+    return new DirectChannel();
+  }
 
 
-    @Bean
-    MessageChannel syncSearchDocs() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel syncSearchDocs() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel writeKvContent() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel writeKvContent() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel writeEntityContent() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel writeEntityContent() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel sendSearchRequest() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel sendSearchRequest() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel sendKeyQuery() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel sendKeyQuery() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel sendTagCloudRequest() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel sendTagCloudRequest() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel adminHeadersChannel() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel adminHeadersChannel() {
+    return new DirectChannel();
+  }
 
 }

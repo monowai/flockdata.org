@@ -38,6 +38,6 @@ import org.junit.runners.Suite;
     TestQueryParameters.class
 })
 public class Query {
-    Query() {
-    }
+  Query() {
+  }
 }

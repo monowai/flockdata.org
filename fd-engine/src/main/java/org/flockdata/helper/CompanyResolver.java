@@ -30,22 +30,22 @@ import org.flockdata.engine.data.graph.CompanyNode;
  * @since 28/08/2014
  */
 public class CompanyResolver {
-    public static CompanyNode resolveCompany(HttpServletRequest request) {
-        CompanyNode company = (CompanyNode) request.getAttribute(ApiKeyInterceptor.COMPANY);
-        if (company == null)
-        // If you're seeing this, then check that ApiKeyInterceptor is configured to handle
-        // the endpoint you are requesting
-        {
-            throw new NotFoundException("Unable to identify any Company that you are authorised to work with");
-        }
-        return company;
+  public static CompanyNode resolveCompany(HttpServletRequest request) {
+    CompanyNode company = (CompanyNode) request.getAttribute(ApiKeyInterceptor.COMPANY);
+    if (company == null)
+    // If you're seeing this, then check that ApiKeyInterceptor is configured to handle
+    // the endpoint you are requesting
+    {
+      throw new NotFoundException("Unable to identify any Company that you are authorised to work with");
     }
+    return company;
+  }
 
-    public static String resolveCallerApiKey(HttpServletRequest request) throws FlockException {
-        String apiKey = (String) request.getAttribute(ApiKeyInterceptor.API_KEY);
-        if (apiKey == null) {
-            throw new NotFoundException("Unable to identify the ApiKey that you are calling with");
-        }
-        return apiKey;
+  public static String resolveCallerApiKey(HttpServletRequest request) throws FlockException {
+    String apiKey = (String) request.getAttribute(ApiKeyInterceptor.API_KEY);
+    if (apiKey == null) {
+      throw new NotFoundException("Unable to identify the ApiKey that you are calling with");
     }
+    return apiKey;
+  }
 }

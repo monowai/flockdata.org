@@ -33,31 +33,31 @@ import org.flockdata.data.ChangeEvent;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChangeEventResultBean implements ChangeEvent {
-    private String name;
-    private String code;
+  private String name;
+  private String code;
 
-    ChangeEventResultBean() {
-    }
+  ChangeEventResultBean() {
+  }
 
-    ChangeEventResultBean(ChangeEvent changeEventInterface) {
-        this();
-        this.name = changeEventInterface.getName();
-        this.code = changeEventInterface.getCode();
-    }
+  ChangeEventResultBean(ChangeEvent changeEventInterface) {
+    this();
+    this.name = changeEventInterface.getName();
+    this.code = changeEventInterface.getCode();
+  }
 
-    @Override
-    @JsonIgnore
-    public Long getId() {
-        return null;
-    }
+  @Override
+  @JsonIgnore
+  public Long getId() {
+    return null;
+  }
 
-    @Override
-    public String getCode() {
-        return code;
-    }
+  @Override
+  public String getCode() {
+    return code;
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 }

@@ -29,60 +29,60 @@ import org.joda.time.DateTimeFieldType;
  */
 public class Dates {
 
-    /**
-     * Extract portions of a date. in this example, the year is extracted from the data as the column asAtDate.
-     * properties required to do the date transformation are stored in the #model[dateColumn]
-     * <p>
-     * given 2015-04-28
-     * year  2015
-     * month 02 {@literal <-} always 2 digits
-     * dom   28 {@literal <-} always 2 digits
-     * dow
-     * "segment": "T(org.flockdata.transform.Dates).get('asAtDate', 'year', #model, #data)"
-     * <p>
-     * Default delimiter is '-' as it's web-safe.
-     *
-     * @param dateColumn   the name of the source column
-     * @param portion      year-month-dow-dom-hour dash delimited format. each element is extracted and returned
-     * @param contentModel Contains all column definitions
-     * @param data         The datarow. Makes the syntax look neater
-     * @return {portion}-{portion}.....
-     */
-    public static Object get(String dateColumn, String portion, ContentModel contentModel, Map<String, Object> data) {
-        return get(dateColumn, "-", portion, contentModel, data);
+  /**
+   * Extract portions of a date. in this example, the year is extracted from the data as the column asAtDate.
+   * properties required to do the date transformation are stored in the #model[dateColumn]
+   * <p>
+   * given 2015-04-28
+   * year  2015
+   * month 02 {@literal <-} always 2 digits
+   * dom   28 {@literal <-} always 2 digits
+   * dow
+   * "segment": "T(org.flockdata.transform.Dates).get('asAtDate', 'year', #model, #data)"
+   * <p>
+   * Default delimiter is '-' as it's web-safe.
+   *
+   * @param dateColumn   the name of the source column
+   * @param portion      year-month-dow-dom-hour dash delimited format. each element is extracted and returned
+   * @param contentModel Contains all column definitions
+   * @param data         The datarow. Makes the syntax look neater
+   * @return {portion}-{portion}.....
+   */
+  public static Object get(String dateColumn, String portion, ContentModel contentModel, Map<String, Object> data) {
+    return get(dateColumn, "-", portion, contentModel, data);
+  }
+
+  public static Object get(String dateColumn, String delimiter, String portion, ContentModel contentModel, Map<String, Object> data) {
+
+    Long dateResult = ExpressionHelper.parseDate(contentModel.getColumnDef(dateColumn), data.get(dateColumn).toString());
+    DateTime dateTime = new DateTime(dateResult);
+
+    String[] fields = portion.split(delimiter);
+    String result = null;
+
+    for (String field : fields) {
+      if (field.equalsIgnoreCase("year")) {
+        result = addToResult(result, delimiter, Integer.toString(dateTime.get(DateTimeFieldType.year())));
+      } else if (field.equalsIgnoreCase("month")) {
+        result = addToResult(result, delimiter, String.format("%02d", dateTime.get(DateTimeFieldType.monthOfYear())));
+      } else if (field.equalsIgnoreCase("dom")) {
+        result = addToResult(result, delimiter, String.format("%02d", dateTime.get(DateTimeFieldType.dayOfMonth())));
+      } else if (field.equalsIgnoreCase("dow")) {
+        result = addToResult(result, delimiter, String.format("%02d", dateTime.get(DateTimeFieldType.dayOfWeek())));
+      } else if (field.equalsIgnoreCase("hour")) {
+        result = addToResult(result, delimiter, String.format("%02d", dateTime.get(DateTimeFieldType.hourOfDay())));
+      }
     }
 
-    public static Object get(String dateColumn, String delimiter, String portion, ContentModel contentModel, Map<String, Object> data) {
+    return result;
+  }
 
-        Long dateResult = ExpressionHelper.parseDate(contentModel.getColumnDef(dateColumn), data.get(dateColumn).toString());
-        DateTime dateTime = new DateTime(dateResult);
-
-        String[] fields = portion.split(delimiter);
-        String result = null;
-
-        for (String field : fields) {
-            if (field.equalsIgnoreCase("year")) {
-                result = addToResult(result, delimiter, Integer.toString(dateTime.get(DateTimeFieldType.year())));
-            } else if (field.equalsIgnoreCase("month")) {
-                result = addToResult(result, delimiter, String.format("%02d", dateTime.get(DateTimeFieldType.monthOfYear())));
-            } else if (field.equalsIgnoreCase("dom")) {
-                result = addToResult(result, delimiter, String.format("%02d", dateTime.get(DateTimeFieldType.dayOfMonth())));
-            } else if (field.equalsIgnoreCase("dow")) {
-                result = addToResult(result, delimiter, String.format("%02d", dateTime.get(DateTimeFieldType.dayOfWeek())));
-            } else if (field.equalsIgnoreCase("hour")) {
-                result = addToResult(result, delimiter, String.format("%02d", dateTime.get(DateTimeFieldType.hourOfDay())));
-            }
-        }
-
-        return result;
+  private static String addToResult(String result, String delimiter, String value) {
+    if (result != null && value != null) {
+      result = result + delimiter + value;
+    } else {
+      result = value;
     }
-
-    private static String addToResult(String result, String delimiter, String value) {
-        if (result != null && value != null) {
-            result = result + delimiter + value;
-        } else {
-            result = value;
-        }
-        return result;
-    }
+    return result;
+  }
 }

@@ -26,40 +26,40 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 public class TestAPISecurity extends MvcBase {
 
-    @Test
-    public void invokeSecureAPIWithoutAPIKey_shouldThrowError()
-        throws Exception {
-        mvc().perform(MockMvcRequestBuilders
+  @Test
+  public void invokeSecureAPIWithoutAPIKey_shouldThrowError()
+      throws Exception {
+    mvc().perform(MockMvcRequestBuilders
+        .get(MvcBase.apiPath + "/fortress/")
+        .with(noUser()))
+
+        .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+        .andReturn();
+  }
+
+  @Test
+  public void invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk()
+      throws Exception {
+    makeDataAccessProfile("invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk", sally_admin);
+
+    mvc()
+        .perform(MockMvcRequestBuilders
             .get(MvcBase.apiPath + "/fortress/")
+            .with(sally())
+        )
+
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+  }
+
+  @Test
+  public void invokeSecureAPIWithAPIKeyWithoutLogin_shouldReturnOk() throws Exception {
+    String apikey = suMike.getApiKey();
+    setSecurityEmpty();
+
+    mvc().perform(
+        MockMvcRequestBuilders.get(MvcBase.apiPath + "/fortress/").header("api-key",
+            apikey)
             .with(noUser()))
-
-            .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-            .andReturn();
-    }
-
-    @Test
-    public void invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk()
-        throws Exception {
-        makeDataAccessProfile("invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk", sally_admin);
-
-        mvc()
-            .perform(MockMvcRequestBuilders
-                .get(MvcBase.apiPath + "/fortress/")
-                .with(sally())
-            )
-
-            .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-    }
-
-    @Test
-    public void invokeSecureAPIWithAPIKeyWithoutLogin_shouldReturnOk() throws Exception {
-        String apikey = suMike.getApiKey();
-        setSecurityEmpty();
-
-        mvc().perform(
-            MockMvcRequestBuilders.get(MvcBase.apiPath + "/fortress/").header("api-key",
-                apikey)
-                .with(noUser()))
-            .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-    }
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+  }
 }

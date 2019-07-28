@@ -60,74 +60,74 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class InboundSearchHandler {
 
-    // We only support ElasticSearch
-    private final SearchWriter searchWriter;
-    private final SearchAdmin searchAdmin;
-    private Exchanges exchanges;
+  // We only support ElasticSearch
+  private final SearchWriter searchWriter;
+  private final SearchAdmin searchAdmin;
+  private Exchanges exchanges;
 
-    @Autowired
-    public InboundSearchHandler(SearchAdmin searchAdmin, @Qualifier("esSearchWriter") SearchWriter searchWriter) {
-        this.searchAdmin = searchAdmin;
-        this.searchWriter = searchWriter;
-    }
+  @Autowired
+  public InboundSearchHandler(SearchAdmin searchAdmin, @Qualifier("esSearchWriter") SearchWriter searchWriter) {
+    this.searchAdmin = searchAdmin;
+    this.searchWriter = searchWriter;
+  }
 
-    @Autowired(required = false)
-    void setExchanges(Exchanges exchanges) {
-        this.exchanges = exchanges;
-    }
+  @Autowired(required = false)
+  void setExchanges(Exchanges exchanges) {
+    this.exchanges = exchanges;
+  }
 
-    @PostConstruct
-    void logStatus() {
-        log.info("**** Deployed WriteSearchChanges");
-    }
+  @PostConstruct
+  void logStatus() {
+    log.info("**** Deployed WriteSearchChanges");
+  }
 
-    @Bean
-    MessageChannel writeSearchDoc() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel writeSearchDoc() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel sendSearchResult() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel sendSearchResult() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel searchDocSyncResult() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel searchDocSyncResult() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    @Profile("fd-server")
-    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory) {
-        return IntegrationFlows.from(
-            Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
-                .outputChannel(writeSearchDoc())
-                .mappedRequestHeaders(ClientConfiguration.KEY_MSG_KEY, ClientConfiguration.KEY_MSG_TYPE)
-        )
-            .handle(handler())
-            .get();
-    }
+  @Bean
+  @Profile("fd-server")
+  public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory) {
+    return IntegrationFlows.from(
+        Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
+            .outputChannel(writeSearchDoc())
+            .mappedRequestHeaders(ClientConfiguration.KEY_MSG_KEY, ClientConfiguration.KEY_MSG_TYPE)
+    )
+        .handle(handler())
+        .get();
+  }
 
-    @Bean
-    @ServiceActivator(inputChannel = "writeSearchDoc")
-    public MessageHandler handler() {
-        return message -> {
-            try {
-                Object oType = message.getHeaders().get(ClientConfiguration.KEY_MSG_TYPE);
-                if (oType == null || oType.toString().equalsIgnoreCase("W")) {
-                    searchWriter.createSearchableChange(JsonUtils.toObject((byte[]) message.getPayload(), SearchChanges.class));
-                } else if (oType.toString().equalsIgnoreCase("ADMIN")) {
-                    AdminRequest adminRequest = JsonUtils.toObject(((String) message.getPayload()).getBytes(), AdminRequest.class);
-                    searchAdmin.deleteIndexes(adminRequest.getIndexesToDelete());
-                    log.debug("Got an admin request");
-                }
-            } catch (IOException e) {
-                log.error("Unable to de-serialize the payload. Rejecting due to [{}]", e.getMessage());
-                throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
-            }
+  @Bean
+  @ServiceActivator(inputChannel = "writeSearchDoc")
+  public MessageHandler handler() {
+    return message -> {
+      try {
+        Object oType = message.getHeaders().get(ClientConfiguration.KEY_MSG_TYPE);
+        if (oType == null || oType.toString().equalsIgnoreCase("W")) {
+          searchWriter.createSearchableChange(JsonUtils.toObject((byte[]) message.getPayload(), SearchChanges.class));
+        } else if (oType.toString().equalsIgnoreCase("ADMIN")) {
+          AdminRequest adminRequest = JsonUtils.toObject(((String) message.getPayload()).getBytes(), AdminRequest.class);
+          searchAdmin.deleteIndexes(adminRequest.getIndexesToDelete());
+          log.debug("Got an admin request");
+        }
+      } catch (IOException e) {
+        log.error("Unable to de-serialize the payload. Rejecting due to [{}]", e.getMessage());
+        throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
+      }
 
-        };
-    }
+    };
+  }
 
 
 }

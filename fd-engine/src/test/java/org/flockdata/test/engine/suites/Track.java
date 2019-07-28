@@ -49,6 +49,6 @@ import org.junit.runners.Suite;
     TestTrackEvents.class
 })
 public class Track {
-    Track() {
-    }
+  Track() {
+  }
 }

@@ -54,149 +54,149 @@ import org.springframework.stereotype.Service;
 @Service
 public class SearchConfig {
 
-    @Value("${es.clustername:es_flockdata}")
-    private String clusterName;
+  @Value("${es.clustername:es_flockdata}")
+  private String clusterName;
 
-    @Value("${es.http.port:9200}")
-    private Integer httpPort;
+  @Value("${es.http.port:9200}")
+  private Integer httpPort;
 
-    @Value("${es.http.host:127.0.0.1}")
-    private String httpHost;
+  @Value("${es.http.host:127.0.0.1}")
+  private String httpHost;
 
-    @Value("${es.tcp.port:9300}")
-    private Integer tcpPort;
+  @Value("${es.tcp.port:9300}")
+  private Integer tcpPort;
 
-    @Value("${org.fd.search.es.transportOnly:true}")
-    private Boolean transportOnly = true;
+  @Value("${org.fd.search.es.transportOnly:true}")
+  private Boolean transportOnly = true;
 
-    @Value("${org.fd.search.es.settings:fd-default-settings.json}")
-    private String esSettings;
-    @Value("${org.fd.search.es.mappings:'.'}")
-    private String esMappingPath;
-    private InetSocketTransportAddress[] addresses;
+  @Value("${org.fd.search.es.settings:fd-default-settings.json}")
+  private String esSettings;
+  @Value("${org.fd.search.es.mappings:'.'}")
+  private String esMappingPath;
+  private InetSocketTransportAddress[] addresses;
 
-    private Client client;
-    private RestClient restClient;
-    private RestHighLevelClient restHighLevelClient;
-    private IndexManager indexManager;
+  private Client client;
+  private RestClient restClient;
+  private RestHighLevelClient restHighLevelClient;
+  private IndexManager indexManager;
 
-    private Logger logger = LoggerFactory.getLogger("configuration");
+  private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Autowired
-    public void initSearchConfig() {
-        restClient = RestClient.builder(
-            new HttpHost(httpHost, httpPort, "http")).build();
-        restHighLevelClient =
-            new RestHighLevelClient(restClient);
+  @Autowired
+  public void initSearchConfig() {
+    restClient = RestClient.builder(
+        new HttpHost(httpHost, httpPort, "http")).build();
+    restHighLevelClient =
+        new RestHighLevelClient(restClient);
 
+  }
+
+  public RestHighLevelClient getRestHighLevelClient() {
+    return restHighLevelClient;
+  }
+
+  @Deprecated
+  public Client getClient() {
+    return client;
+  }
+
+  public IndexManager getIndexManager() {
+    return indexManager;
+  }
+
+  @Autowired
+  void setIndexManager(IndexManager indexManager) {
+    this.indexManager = indexManager;
+  }
+
+  public String getTransportAddresses() {
+    StringBuilder result = null;
+    for (InetSocketTransportAddress address : addresses) {
+      if (result != null) {
+        result.append(",").append(address.toString());
+      } else {
+        result = new StringBuilder(address.toString());
+      }
     }
+    return result != null ? result.toString() : null;
+  }
 
-    public RestHighLevelClient getRestHighLevelClient() {
-        return restHighLevelClient;
+  /**
+   * Transport hosts
+   * <p>
+   * HostA:9300,HostB:9300,HostC:9300.....
+   *
+   * @param urls , separated list of hosts to connect to
+   */
+  @Autowired
+  @Deprecated
+  void setTransportClient(@Value("${es.nodes:localhost:9303}") String[] urls) throws UnknownHostException {
+    if (urls == null || urls.length == 0) {
+      return;
     }
-
-    @Deprecated
-    public Client getClient() {
-        return client;
+    addresses = new InetSocketTransportAddress[urls.length];
+    int i = 0;
+    for (String value : urls) {
+      String[] serverPort = value.split(":");
+      InetSocketTransportAddress address = new InetSocketTransportAddress(InetAddress.getByName(serverPort[0]), Integer.parseInt(serverPort[1]));
+      addresses[i++] = address;
+      logger.info("**** Transport client looking for host {}", address.toString());
     }
+    Settings transportSettings;
+    transportSettings = Settings.builder()
+        .put("cluster.name", clusterName)
+        .build();
 
-    public IndexManager getIndexManager() {
-        return indexManager;
+    logger.info("ElasticSearch config settings " + JsonUtils.toJson(transportSettings.getAsMap()));
+
+    this.client = new PreBuiltTransportClient(transportSettings)
+        .addTransportAddresses((TransportAddress[]) addresses);
+
+  }
+
+  public String getEsMappingPath() {
+
+    if (esMappingPath.equals("${es.mappings}")) {
+      esMappingPath = "."; // Internal
     }
+    return esMappingPath;
+  }
 
-    @Autowired
-    void setIndexManager(IndexManager indexManager) {
-        this.indexManager = indexManager;
+  public String getEsDefaultSettings() {
+    if (esSettings.equals("${es.settings}")) {
+      esSettings = "fd-default-settings.json";
     }
+    return esSettings;
+  }
 
-    public String getTransportAddresses() {
-        StringBuilder result = null;
-        for (InetSocketTransportAddress address : addresses) {
-            if (result != null) {
-                result.append(",").append(address.toString());
-            } else {
-                result = new StringBuilder(address.toString());
-            }
-        }
-        return result != null ? result.toString() : null;
+  public String getEsMapping(SearchChange searchChange) {
+    if (searchChange.isType(SearchChange.Type.ENTITY)) {
+      String esDefaultMapping = "fd-default-mapping.json";
+      String esTaxonomyMapping = "fd-taxonomy-mapping.json";
+      if (searchChange.getTagStructure() != null && searchChange.getTagStructure() == EntityTag.TAG_STRUCTURE.TAXONOMY) {
+        return esTaxonomyMapping;
+      } else {
+        return esDefaultMapping;
+      }
+    } else {
+      return "fd-tag-mapping.json";
     }
+  }
 
-    /**
-     * Transport hosts
-     * <p>
-     * HostA:9300,HostB:9300,HostC:9300.....
-     *
-     * @param urls , separated list of hosts to connect to
-     */
-    @Autowired
-    @Deprecated
-    void setTransportClient(@Value("${es.nodes:localhost:9303}") String[] urls) throws UnknownHostException {
-        if (urls == null || urls.length == 0) {
-            return;
-        }
-        addresses = new InetSocketTransportAddress[urls.length];
-        int i = 0;
-        for (String value : urls) {
-            String[] serverPort = value.split(":");
-            InetSocketTransportAddress address = new InetSocketTransportAddress(InetAddress.getByName(serverPort[0]), Integer.parseInt(serverPort[1]));
-            addresses[i++] = address;
-            logger.info("**** Transport client looking for host {}", address.toString());
-        }
-        Settings transportSettings;
-        transportSettings = Settings.builder()
-            .put("cluster.name", clusterName)
-            .build();
+  public String getEsPathedMapping(SearchChange tagStructure) {
+    return getEsMappingPath() + getEsMapping(tagStructure);
+  }
 
-        logger.info("ElasticSearch config settings " + JsonUtils.toJson(transportSettings.getAsMap()));
-
-        this.client = new PreBuiltTransportClient(transportSettings)
-            .addTransportAddresses((TransportAddress[]) addresses);
-
+  @PreDestroy
+  void closeClients() throws IOException {
+    if (restClient != null) {
+      restClient.close();
+      restHighLevelClient = null;
     }
-
-    public String getEsMappingPath() {
-
-        if (esMappingPath.equals("${es.mappings}")) {
-            esMappingPath = "."; // Internal
-        }
-        return esMappingPath;
+    if (client != null) {
+      client.close();
     }
-
-    public String getEsDefaultSettings() {
-        if (esSettings.equals("${es.settings}")) {
-            esSettings = "fd-default-settings.json";
-        }
-        return esSettings;
-    }
-
-    public String getEsMapping(SearchChange searchChange) {
-        if (searchChange.isType(SearchChange.Type.ENTITY)) {
-            String esDefaultMapping = "fd-default-mapping.json";
-            String esTaxonomyMapping = "fd-taxonomy-mapping.json";
-            if (searchChange.getTagStructure() != null && searchChange.getTagStructure() == EntityTag.TAG_STRUCTURE.TAXONOMY) {
-                return esTaxonomyMapping;
-            } else {
-                return esDefaultMapping;
-            }
-        } else {
-            return "fd-tag-mapping.json";
-        }
-    }
-
-    public String getEsPathedMapping(SearchChange tagStructure) {
-        return getEsMappingPath() + getEsMapping(tagStructure);
-    }
-
-    @PreDestroy
-    void closeClients() throws IOException {
-        if (restClient != null) {
-            restClient.close();
-            restHighLevelClient = null;
-        }
-        if (client != null) {
-            client.close();
-        }
-    }
+  }
 
 
 }

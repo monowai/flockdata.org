@@ -30,23 +30,23 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 public class TestCompany extends BaseNeo {
 
-    @Autowired
-    CompanyRepo companyRepo;
+  @Autowired
+  CompanyRepo companyRepo;
 
-    @Autowired
-    KeyGenService keyGenService;
+  @Autowired
+  KeyGenService keyGenService;
 
 
-    @Test
-    public void testCreateAndFind() {
-        Company myCompany = CompanyNode.builder()
-            .name("myName")
-            .code("myCode")
-            .apiKey(keyGenService.getUniqueKey())
-            .build();
-        Company created = companyRepo.create(myCompany);
-        assertThat(created).isNotNull().hasFieldOrProperty("id");
-        Company found = companyRepo.findByCode(myCompany);
-        assertThat(found).isNotNull().hasFieldOrProperty("id");
-    }
+  @Test
+  public void testCreateAndFind() {
+    Company myCompany = CompanyNode.builder()
+        .name("myName")
+        .code("myCode")
+        .apiKey(keyGenService.getUniqueKey())
+        .build();
+    Company created = companyRepo.create(myCompany);
+    assertThat(created).isNotNull().hasFieldOrProperty("id");
+    Company found = companyRepo.findByCode(myCompany);
+    assertThat(found).isNotNull().hasFieldOrProperty("id");
+  }
 }

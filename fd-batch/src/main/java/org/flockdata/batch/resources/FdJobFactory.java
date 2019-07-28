@@ -54,88 +54,88 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 @Profile( {"fd-batch", "fd-batch-dev"})
 public class FdJobFactory {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
-    @Autowired
-    BatchConfig batchConfig;
-    @Value("classpath:org/springframework/batch/core/schema-hsqldb.sql")
-    private Resource schemaScript;
+  private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
+  @Autowired
+  BatchConfig batchConfig;
+  @Value("classpath:org/springframework/batch/core/schema-hsqldb.sql")
+  private Resource schemaScript;
 
-    @Bean
-    @Profile( {"fd-batch", "fd-batch-dev"})
-    public JobRepository jobRepository() throws Exception {
-        JobRepositoryFactoryBean jr = new JobRepositoryFactoryBean();
-        jr.setDataSource(repoDataSource());
-        jr.setTransactionManager(new ResourcelessTransactionManager());
-        jr.setJdbcOperations(batchJdbcTemplate());
-        return jr.getObject();
+  @Bean
+  @Profile( {"fd-batch", "fd-batch-dev"})
+  public JobRepository jobRepository() throws Exception {
+    JobRepositoryFactoryBean jr = new JobRepositoryFactoryBean();
+    jr.setDataSource(repoDataSource());
+    jr.setTransactionManager(new ResourcelessTransactionManager());
+    jr.setJdbcOperations(batchJdbcTemplate());
+    return jr.getObject();
 //        JobRepositoryFactoryBean()
 
-    }
+  }
 
-    @Bean
-    @Profile( {"fd-batch", "fd-batch-dev"})
-    public JdbcTemplate batchJdbcTemplate() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
-        return new JdbcTemplate(repoDataSource());
-    }
+  @Bean
+  @Profile( {"fd-batch", "fd-batch-dev"})
+  public JdbcTemplate batchJdbcTemplate() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
+    return new JdbcTemplate(repoDataSource());
+  }
 
-    @Bean
-    JobExplorer jobExplorer() throws Exception {
-        JobExplorerFactoryBean result = new JobExplorerFactoryBean();
-        result.setJdbcOperations(batchJdbcTemplate());
-        return result.getObject();
-    }
+  @Bean
+  JobExplorer jobExplorer() throws Exception {
+    JobExplorerFactoryBean result = new JobExplorerFactoryBean();
+    result.setJdbcOperations(batchJdbcTemplate());
+    return result.getObject();
+  }
 
-    @Bean
-    @Profile( {"fd-batch", "fd-batch-dev"})
-    BatchConfigurer configurer(@Qualifier("repoDataSource") DataSource dataSource) {
-        return new DefaultBatchConfigurer(dataSource);
-    }
+  @Bean
+  @Profile( {"fd-batch", "fd-batch-dev"})
+  BatchConfigurer configurer(@Qualifier("repoDataSource") DataSource dataSource) {
+    return new DefaultBatchConfigurer(dataSource);
+  }
 
-    /**
-     * A default job launcher will not use our configured jobRepository, so we're initialising it here
-     *
-     * @param jobRepository where job metadata is stored
-     * @return
-     */
-    @Bean
-    @Profile( {"fd-batch", "fd-batch-dev"})
-    JobLauncher jobLauncher(JobRepository jobRepository) {
-        SimpleJobLauncher jl = new SimpleJobLauncher();
-        jl.setJobRepository(jobRepository);
-        return jl;
-    }
+  /**
+   * A default job launcher will not use our configured jobRepository, so we're initialising it here
+   *
+   * @param jobRepository where job metadata is stored
+   * @return
+   */
+  @Bean
+  @Profile( {"fd-batch", "fd-batch-dev"})
+  JobLauncher jobLauncher(JobRepository jobRepository) {
+    SimpleJobLauncher jl = new SimpleJobLauncher();
+    jl.setJobRepository(jobRepository);
+    return jl;
+  }
 
-    @Bean
-    @Profile( {"fd-batch", "fd-batch-dev"})
-    @Qualifier("repoDataSource")
-    public DataSource repoDataSource() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        logger.info("Looking for driver class [{}] then will connect on url [{}]", batchConfig.getBatchDriver(), batchConfig.getUrl());
+  @Bean
+  @Profile( {"fd-batch", "fd-batch-dev"})
+  @Qualifier("repoDataSource")
+  public DataSource repoDataSource() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    logger.info("Looking for driver class [{}] then will connect on url [{}]", batchConfig.getBatchDriver(), batchConfig.getUrl());
 
-        Class<?> clazz = Class.forName(batchConfig.getBatchDriver());
-        Driver driver = (Driver) clazz.newInstance();
+    Class<?> clazz = Class.forName(batchConfig.getBatchDriver());
+    Driver driver = (Driver) clazz.newInstance();
 
-        final SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driver, batchConfig.getBatchUrl());
+    final SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driver, batchConfig.getBatchUrl());
 
-        dataSource.setUsername(batchConfig.getBatchUserName());
-        dataSource.setPassword(batchConfig.getBatchPassword());
-        DatabasePopulatorUtils.execute(databasePopulator(), dataSource);
-        return dataSource;
-    }
+    dataSource.setUsername(batchConfig.getBatchUserName());
+    dataSource.setPassword(batchConfig.getBatchPassword());
+    DatabasePopulatorUtils.execute(databasePopulator(), dataSource);
+    return dataSource;
+  }
 
-    @Bean
-    @Profile( {"fd-batch", "fd-batch-dev"})
-    public DataSourceInitializer dataSourceInitializer(final DataSource dataSource) {
-        final DataSourceInitializer initializer = new DataSourceInitializer();
-        initializer.setDataSource(dataSource);
-        initializer.setDatabasePopulator(databasePopulator());
-        return initializer;
-    }
+  @Bean
+  @Profile( {"fd-batch", "fd-batch-dev"})
+  public DataSourceInitializer dataSourceInitializer(final DataSource dataSource) {
+    final DataSourceInitializer initializer = new DataSourceInitializer();
+    initializer.setDataSource(dataSource);
+    initializer.setDatabasePopulator(databasePopulator());
+    return initializer;
+  }
 
 
-    private DatabasePopulator databasePopulator() {
-        final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        //populator.addScript(dropScript);
-        populator.addScript(schemaScript);
-        return populator;
-    }
+  private DatabasePopulator databasePopulator() {
+    final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+    //populator.addScript(dropScript);
+    populator.addScript(schemaScript);
+    return populator;
+  }
 }

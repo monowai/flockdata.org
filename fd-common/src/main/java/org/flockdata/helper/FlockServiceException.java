@@ -25,11 +25,11 @@ package org.flockdata.helper;
  * @since 27/09/2013
  */
 public class FlockServiceException extends RuntimeException {
-    public FlockServiceException(String message) {
-        super(message);
-    }
+  public FlockServiceException(String message) {
+    super(message);
+  }
 
-    public FlockServiceException(String message, Throwable t) {
-        super(message, t);
-    }
+  public FlockServiceException(String message, Throwable t) {
+    super(message, t);
+  }
 }

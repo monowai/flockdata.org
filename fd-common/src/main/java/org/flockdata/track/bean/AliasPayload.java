@@ -30,31 +30,31 @@ import org.flockdata.registration.AliasInputBean;
  * @since 3/07/2015
  */
 public class AliasPayload {
-    String label;
-    AliasInputBean aliasInput;
-    Long tagId;
+  String label;
+  AliasInputBean aliasInput;
+  Long tagId;
 
-    AliasPayload() {
-    }
+  AliasPayload() {
+  }
 
 
-    public AliasPayload(String label, Long tagId, AliasInputBean aliasInput) {
-        this();
-        this.label = label;
-        this.aliasInput = aliasInput;
-        this.tagId = tagId;
+  public AliasPayload(String label, Long tagId, AliasInputBean aliasInput) {
+    this();
+    this.label = label;
+    this.aliasInput = aliasInput;
+    this.tagId = tagId;
 
-    }
+  }
 
-    public String getLabel() {
-        return label;
-    }
+  public String getLabel() {
+    return label;
+  }
 
-    public AliasInputBean getAliasInput() {
-        return aliasInput;
-    }
+  public AliasInputBean getAliasInput() {
+    return aliasInput;
+  }
 
-    public Long getTagId() {
-        return tagId;
-    }
+  public Long getTagId() {
+    return tagId;
+  }
 }

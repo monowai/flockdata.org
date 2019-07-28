@@ -20,6 +20,7 @@
 
 package org.flockdata.company.dao;
 
+import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
 import org.flockdata.engine.data.graph.SystemUserNode;
 import org.flockdata.integration.KeyGenService;
@@ -35,37 +36,38 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class RegistrationNeo {
-    private final SystemUserRepository suRepo;
+  private final SystemUserRepository suRepo;
 
-    private final KeyGenService keyGenService;
+  private final KeyGenService keyGenService;
 
-    @Autowired
-    public RegistrationNeo(SystemUserRepository suRepo, KeyGenService keyGenService) {
-        this.suRepo = suRepo;
-        this.keyGenService = keyGenService;
+  @Autowired
+  public RegistrationNeo(SystemUserRepository suRepo, KeyGenService keyGenService) {
+    this.suRepo = suRepo;
+    this.keyGenService = keyGenService;
+  }
+
+  public SystemUserNode save(SystemUser systemUser) {
+    return suRepo.save((SystemUserNode) systemUser);
+  }
+
+  @Cacheable(value = "sysUserApiKey", unless = "#result==null")
+  public SystemUser findByApiKey(String apiKey) {
+    if (apiKey == null) {
+      return null;
     }
+    return suRepo.findBySchemaPropertyValue("apiKey", apiKey);
+  }
 
-    public SystemUserNode save(SystemUser systemUser) {
-        return suRepo.save((SystemUserNode) systemUser);
-    }
+  public SystemUserNode save(Company company, RegistrationBean regBean) {
+    SystemUserNode su = new SystemUserNode(regBean, company);
+    su.setCompanyAccess(company);
+    su.setApiKey(keyGenService.getUniqueKey());
+    return save(su);
+  }
 
-    @Cacheable(value = "sysUserApiKey", unless = "#result==null")
-    public SystemUser findByApiKey(String apiKey) {
-        if (apiKey == null) {
-            return null;
-        }
-        return suRepo.findBySchemaPropertyValue("apiKey", apiKey);
-    }
-
-    public SystemUserNode save(RegistrationBean regBean) {
-        SystemUserNode su = new SystemUserNode(regBean);
-        su.setApiKey(keyGenService.getUniqueKey());
-        return save(su);
-    }
-
-    public SystemUser findSysUserByName(String name) {
-        return suRepo.getSystemUser(name);
-    }
+  public SystemUser findSysUserByName(String name) {
+    return suRepo.getSystemUser(name);
+  }
 
 
 }

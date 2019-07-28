@@ -27,6 +27,6 @@ package org.flockdata.store;
  * @since 17/02/2016
  */
 public enum Store {
-    REDIS, RIAK, MEMORY, NONE;
+  REDIS, RIAK, MEMORY, NONE;
 
 }

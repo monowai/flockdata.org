@@ -25,5 +25,5 @@ package org.flockdata.transform;
  * @since 30/07/2015
  */
 public interface GeoDefinition {
-    GeoPayload getGeoData();
+  GeoPayload getGeoData();
 }

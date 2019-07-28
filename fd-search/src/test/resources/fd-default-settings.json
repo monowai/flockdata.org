@@ -4,7 +4,12 @@
       "auto-complete": {
         "type": "custom",
         "tokenizer": "standard",
-        "filter": [ "standard",  "stop", "lowercase", "kstem"]
+        "filter": [
+          "standard",
+          "stop",
+          "lowercase",
+          "kstem"
+        ]
       }
     },
     "filter": {
@@ -14,13 +19,16 @@
         "max_gram": 5
       }
     },
-    "tokenizer" : {
-      "edge_ngram_tokenizer" : {
-        "type" : "edgeNGram",
-        "min_gram" : "1",
-        "max_gram" : "5",
-        "max_token_length" : 2000 ,
-        "token_chars": [ "letter", "digit" ]
+    "tokenizer": {
+      "edge_ngram_tokenizer": {
+        "type": "edgeNGram",
+        "min_gram": "1",
+        "max_gram": "5",
+        "max_token_length": 2000,
+        "token_chars": [
+          "letter",
+          "digit"
+        ]
       }
     }
   }

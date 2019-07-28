@@ -36,14 +36,14 @@ import org.springframework.stereotype.Component;
 @Component("jsonToKvContentConverter")
 public class JsonKvContentConverter extends SimpleMessageConverter {
 
-    @Override
-    public Object fromMessage(final Message message) throws MessageConversionException {
+  @Override
+  public Object fromMessage(final Message message) throws MessageConversionException {
 
-        try {
-            return JsonUtils.toObject(message.getBody(), StorageBean.class);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            throw new MessageConversionException("failed to convert text-based Message content", e1);
-        }
+    try {
+      return JsonUtils.toObject(message.getBody(), StorageBean.class);
+    } catch (IOException e1) {
+      e1.printStackTrace();
+      throw new MessageConversionException("failed to convert text-based Message content", e1);
     }
+  }
 }

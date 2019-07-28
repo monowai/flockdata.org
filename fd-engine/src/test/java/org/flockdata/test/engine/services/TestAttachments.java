@@ -39,21 +39,21 @@ import org.junit.Test;
  */
 
 public class TestAttachments extends EngineBase {
-    @Test
-    public void duplicate_sameContentIgnored() throws Exception {
-        SystemUser su = registerSystemUser("duplicate_sameContentIgnored", mike_admin);
-        FortressInputBean f = new FortressInputBean("attachmentFun", true);
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(), f);
+  @Test
+  public void duplicate_sameContentIgnored() throws Exception {
+    SystemUser su = registerSystemUser("duplicate_sameContentIgnored", mike_admin);
+    FortressInputBean f = new FortressInputBean("attachmentFun", true);
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(), f);
 
-        EntityInputBean entity = new EntityInputBean(fortress, "zippy", "blag", new DateTime(), "ABC");
-        ContentInputBean content = new ContentInputBean("zippy", new DateTime());
-        content.setAttachment(ContentDataHelper.getPdfDoc(), "PdF", "testing.pdf");
-        entity.setContent(content);
-        TrackResultBean trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), entity);
-        assertFalse("This should have been the first entity logged", trackResult.entityExists());
+    EntityInputBean entity = new EntityInputBean(fortress, "zippy", "blag", new DateTime(), "ABC");
+    ContentInputBean content = new ContentInputBean("zippy", new DateTime());
+    content.setAttachment(ContentDataHelper.getPdfDoc(), "PdF", "testing.pdf");
+    entity.setContent(content);
+    TrackResultBean trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), entity);
+    assertFalse("This should have been the first entity logged", trackResult.entityExists());
 
-        // Update without changing the content
-        trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), entity);
-        assertTrue("Tracked the same file, so should have been ignored", trackResult.entityExists());
-    }
+    // Update without changing the content
+    trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), entity);
+    assertTrue("Tracked the same file, so should have been ignored", trackResult.entityExists());
+  }
 }

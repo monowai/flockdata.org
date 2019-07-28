@@ -27,81 +27,81 @@ import org.flockdata.data.ContentModel;
  * @since 25/02/2016
  */
 public class StepConfig {
-    private String query;
-    private String step;
-    private String model;
-    private String modelKey;
+  private String query;
+  private String step;
+  private String model;
+  private String modelKey;
 
-    private ContentModel contentModel;
+  private ContentModel contentModel;
 
-    StepConfig() {
+  StepConfig() {
+  }
+
+  StepConfig(String step, String modelKey, String query) {
+    this();
+    this.query = query;
+    this.step = step;
+    this.model = modelKey;
+  }
+
+  public String getQuery() {
+    return query;
+  }
+
+  public String getStep() {
+    return step;
+  }
+
+  public String getModel() {
+    return model;
+  }
+
+  /**
+   * @return endpoint to look for serverside content model
+   */
+  String getModelKey() {
+    return modelKey;
+  }
+
+  public ContentModel getContentModel() {
+    return contentModel;
+  }
+
+  public StepConfig setContentModel(ContentModel contentModel) {
+    this.contentModel = contentModel;
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return "StepConfig{" +
+        "step='" + step + '\'' +
+        ", model='" + model + '\'' +
+        '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof StepConfig)) {
+      return false;
     }
 
-    StepConfig(String step, String modelKey, String query) {
-        this();
-        this.query = query;
-        this.step = step;
-        this.model = modelKey;
+    StepConfig that = (StepConfig) o;
+
+    if (step != null ? !step.equals(that.step) : that.step != null) {
+      return false;
     }
+    return model != null ? model.equals(that.model) : that.model == null;
 
-    public String getQuery() {
-        return query;
-    }
+  }
 
-    public String getStep() {
-        return step;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    /**
-     * @return endpoint to look for serverside content model
-     */
-    String getModelKey() {
-        return modelKey;
-    }
-
-    public ContentModel getContentModel() {
-        return contentModel;
-    }
-
-    public StepConfig setContentModel(ContentModel contentModel) {
-        this.contentModel = contentModel;
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return "StepConfig{" +
-            "step='" + step + '\'' +
-            ", model='" + model + '\'' +
-            '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof StepConfig)) {
-            return false;
-        }
-
-        StepConfig that = (StepConfig) o;
-
-        if (step != null ? !step.equals(that.step) : that.step != null) {
-            return false;
-        }
-        return model != null ? model.equals(that.model) : that.model == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = step != null ? step.hashCode() : 0;
-        result = 31 * result + (model != null ? model.hashCode() : 0);
-        return result;
-    }
+  @Override
+  public int hashCode() {
+    int result = step != null ? step.hashCode() : 0;
+    result = 31 * result + (model != null ? model.hashCode() : 0);
+    return result;
+  }
 }

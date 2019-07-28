@@ -35,103 +35,103 @@ import org.flockdata.registration.FortressInputBean;
  * @since 2/04/2014
  */
 public class EntityToEntityLinkInput {
-    Map<String, List<EntityKeyBean>> references;
-    private String fortress;
-    private String documentType;
-    private String code; // Callers key
-    private String serviceMessage;
-    private Map<String, Collection<EntityKeyBean>> ignored;
+  Map<String, List<EntityKeyBean>> references;
+  private String fortress;
+  private String documentType;
+  private String code; // Callers key
+  private String serviceMessage;
+  private Map<String, Collection<EntityKeyBean>> ignored;
 
-    protected EntityToEntityLinkInput() {
+  protected EntityToEntityLinkInput() {
+  }
+
+  public EntityToEntityLinkInput(EntityInputBean entityInputBean) {
+    this(entityInputBean.getFortress(), entityInputBean.getDocumentType(), entityInputBean.getCode());
+    this.references = entityInputBean.getEntityLinks();
+  }
+
+  /**
+   * @param fortress     Parent fortress
+   * @param documentName Parent docType
+   * @param code         Parent code reference
+   */
+  public EntityToEntityLinkInput(FortressInputBean fortress, Document documentName, String code) {
+    this.code = code;
+    this.fortress = fortress.getName();
+    this.documentType = documentName.getName();
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public String getFortress() {
+    return fortress;
+  }
+
+  public Map<String, List<EntityKeyBean>> getReferences() {
+    return references;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof EntityToEntityLinkInput)) {
+      return false;
     }
 
-    public EntityToEntityLinkInput(EntityInputBean entityInputBean) {
-        this(entityInputBean.getFortress(), entityInputBean.getDocumentType(), entityInputBean.getCode());
-        this.references = entityInputBean.getEntityLinks();
+    EntityToEntityLinkInput that = (EntityToEntityLinkInput) o;
+
+    if (code != null ? !code.equals(that.code) : that.code != null) {
+      return false;
     }
-
-    /**
-     * @param fortress     Parent fortress
-     * @param documentName Parent docType
-     * @param code         Parent code reference
-     */
-    public EntityToEntityLinkInput(FortressInputBean fortress, Document documentName, String code) {
-        this.code = code;
-        this.fortress = fortress.getName();
-        this.documentType = documentName.getName();
+    if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) {
+      return false;
     }
+    return !(fortress != null ? !fortress.equals(that.fortress) : that.fortress != null);
 
-    public String getCode() {
-        return code;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = fortress != null ? fortress.hashCode() : 0;
+    result = 31 * result + (code != null ? code.hashCode() : 0);
+    result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return "CrossReferenceInputBean{" +
+        "code='" + code + '\'' +
+        ", references=" + references.size() +
+        ", fortress='" + fortress + '\'' +
+        ", docType ='" + documentType + '\'' +
+        '}';
+  }
+
+  public String getServiceMessage() {
+    return serviceMessage;
+  }
+
+  public void setServiceMessage(String serviceMessage) {
+    this.serviceMessage = serviceMessage;
+  }
+
+  public String getDocumentType() {
+    return documentType;
+  }
+
+  public void setIgnored(String xRefName, Collection<EntityKeyBean> ignored) {
+    if (this.ignored == null) {
+      this.ignored = new HashMap<>();
     }
+    this.ignored.put(xRefName, ignored);
+  }
 
-    public String getFortress() {
-        return fortress;
-    }
-
-    public Map<String, List<EntityKeyBean>> getReferences() {
-        return references;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof EntityToEntityLinkInput)) {
-            return false;
-        }
-
-        EntityToEntityLinkInput that = (EntityToEntityLinkInput) o;
-
-        if (code != null ? !code.equals(that.code) : that.code != null) {
-            return false;
-        }
-        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) {
-            return false;
-        }
-        return !(fortress != null ? !fortress.equals(that.fortress) : that.fortress != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = fortress != null ? fortress.hashCode() : 0;
-        result = 31 * result + (code != null ? code.hashCode() : 0);
-        result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "CrossReferenceInputBean{" +
-            "code='" + code + '\'' +
-            ", references=" + references.size() +
-            ", fortress='" + fortress + '\'' +
-            ", docType ='" + documentType + '\'' +
-            '}';
-    }
-
-    public String getServiceMessage() {
-        return serviceMessage;
-    }
-
-    public void setServiceMessage(String serviceMessage) {
-        this.serviceMessage = serviceMessage;
-    }
-
-    public String getDocumentType() {
-        return documentType;
-    }
-
-    public void setIgnored(String xRefName, Collection<EntityKeyBean> ignored) {
-        if (this.ignored == null) {
-            this.ignored = new HashMap<>();
-        }
-        this.ignored.put(xRefName, ignored);
-    }
-
-    public Map<String, Collection<EntityKeyBean>> getIgnored() {
-        return ignored;
-    }
+  public Map<String, Collection<EntityKeyBean>> getIgnored() {
+    return ignored;
+  }
 }

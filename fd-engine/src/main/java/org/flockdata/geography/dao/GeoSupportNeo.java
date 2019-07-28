@@ -41,110 +41,110 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class GeoSupportNeo {
-    private final
-    Neo4jTemplate template;
+  private final
+  Neo4jTemplate template;
 
-    private Logger logger = LoggerFactory.getLogger(GeoSupportNeo.class);
+  private Logger logger = LoggerFactory.getLogger(GeoSupportNeo.class);
 
-    @Autowired
-    public GeoSupportNeo(Neo4jTemplate template) {
-        this.template = template;
-    }
+  @Autowired
+  public GeoSupportNeo(Neo4jTemplate template) {
+    this.template = template;
+  }
 
-    @Cacheable(value = "geoData", key = "#loc.id")
-    public GeoDataBeans getGeoData(String query, Tag loc) {
-        //logger.info("Cache miss f {}, Tag {}", e.getId(), loc.getId());
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("locNode", loc.getId());
+  @Cacheable(value = "geoData", key = "#loc.id")
+  public GeoDataBeans getGeoData(String query, Tag loc) {
+    //logger.info("Cache miss f {}, Tag {}", e.getId(), loc.getId());
+    HashMap<String, Object> params = new HashMap<>();
+    params.put("locNode", loc.getId());
 
 //        String query = getQuery(e);
-        Map<String, Object> rows = template.query(query, params).singleOrNull();
+    Map<String, Object> rows = template.query(query, params).singleOrNull();
 
-        if (rows == null || rows.isEmpty()) {
-            return null;
-        }
-
-        return getGeoData(rows, loc);
+    if (rows == null || rows.isEmpty()) {
+      return null;
     }
 
-    GeoDataBeans getGeoData(Map<String, Object> row, Tag sourceTag) {
-        if (row.isEmpty()) {
-            return null;
-        }
+    return getGeoData(rows, loc);
+  }
 
-        GeoDataBeans geoBeans = new GeoDataBeans();
-
-        if (row.containsKey("nodes")) {
-            Iterable<Node> nodes = (Iterable<Node>) row.get("nodes");
-            for (Node node : nodes) {
-                setFromNode(sourceTag, geoBeans, node);
-
-            }
-        } else {
-            for (String key : row.keySet()) {
-                Node node = (Node) row.get(key);
-                setFromNode(sourceTag, geoBeans, node);
-            }
-        }
-
-        return geoBeans;
+  GeoDataBeans getGeoData(Map<String, Object> row, Tag sourceTag) {
+    if (row.isEmpty()) {
+      return null;
     }
 
-    private GeoDataBean setFromNode(Tag sourceTag, GeoDataBeans geoBeans, Node node) {
-        GeoDataBean geoData = new GeoDataBean();
-        String label = getUserDefinedLabel(node);
-        // Check we don't add the same tag twice
-        if (label != null) {
+    GeoDataBeans geoBeans = new GeoDataBeans();
 
-            String code;
-            String name = null;
-            Double lat = null;
-            Double lon = null;
-            code = (String) node.getProperty("code");
-            if (node.hasProperty("name")) {
-                name = (String) node.getProperty("name");
-                if (name.equals(code)) {
-                    name = null;
-                }
-            }
-            if (node.hasProperty(TagNode.NODE_LAT)) {
-                String val = node.getProperty(TagNode.NODE_LAT).toString();
-                if (NumberUtils.isNumber(val)) {
-                    lat = Double.parseDouble(val);
-                }
-            }
+    if (row.containsKey("nodes")) {
+      Iterable<Node> nodes = (Iterable<Node>) row.get("nodes");
+      for (Node node : nodes) {
+        setFromNode(sourceTag, geoBeans, node);
 
-            if (node.hasProperty(TagNode.NODE_LON)) {
-                String val = node.getProperty(TagNode.NODE_LON).toString();
-                if (NumberUtils.isNumber(val)) {
-                    lon = Double.parseDouble(val);
-                }
-            }
-
-            geoData.add(label.toLowerCase(), code, name, lat, lon);
-            geoBeans.add(label.toLowerCase(), geoData);
-
-            if (label.equals(sourceTag.getLabel())) {
-                geoData.setCode(null);
-                geoData.setName(null);
-            }
-
-        }
-
-        return geoData;
+      }
+    } else {
+      for (String key : row.keySet()) {
+        Node node = (Node) row.get(key);
+        setFromNode(sourceTag, geoBeans, node);
+      }
     }
 
-    private String getUserDefinedLabel(Node node) {
-        Iterable<Label> labels = node.getLabels();
-        for (Label label : labels) {
-            String labelName = label.name();
-            if (!labelName.equals("Tag") && !labelName.equals("_Tag")) {
-                return labelName;
-            }
+    return geoBeans;
+  }
+
+  private GeoDataBean setFromNode(Tag sourceTag, GeoDataBeans geoBeans, Node node) {
+    GeoDataBean geoData = new GeoDataBean();
+    String label = getUserDefinedLabel(node);
+    // Check we don't add the same tag twice
+    if (label != null) {
+
+      String code;
+      String name = null;
+      Double lat = null;
+      Double lon = null;
+      code = (String) node.getProperty("code");
+      if (node.hasProperty("name")) {
+        name = (String) node.getProperty("name");
+        if (name.equals(code)) {
+          name = null;
         }
-        return null;
+      }
+      if (node.hasProperty(TagNode.NODE_LAT)) {
+        String val = node.getProperty(TagNode.NODE_LAT).toString();
+        if (NumberUtils.isNumber(val)) {
+          lat = Double.parseDouble(val);
+        }
+      }
+
+      if (node.hasProperty(TagNode.NODE_LON)) {
+        String val = node.getProperty(TagNode.NODE_LON).toString();
+        if (NumberUtils.isNumber(val)) {
+          lon = Double.parseDouble(val);
+        }
+      }
+
+      geoData.add(label.toLowerCase(), code, name, lat, lon);
+      geoBeans.add(label.toLowerCase(), geoData);
+
+      if (label.equals(sourceTag.getLabel())) {
+        geoData.setCode(null);
+        geoData.setName(null);
+      }
 
     }
+
+    return geoData;
+  }
+
+  private String getUserDefinedLabel(Node node) {
+    Iterable<Label> labels = node.getLabels();
+    for (Label label : labels) {
+      String labelName = label.name();
+      if (!labelName.equals("Tag") && !labelName.equals("_Tag")) {
+        return labelName;
+      }
+    }
+    return null;
+
+  }
 
 
 }

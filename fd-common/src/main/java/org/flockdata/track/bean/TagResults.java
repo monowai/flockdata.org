@@ -31,17 +31,17 @@ import org.flockdata.registration.TagResultBean;
  */
 public class TagResults {
 
-    Collection<TagResultBean> tagResults = new ArrayList<>();
+  Collection<TagResultBean> tagResults = new ArrayList<>();
 
-    public void addTag(TagResultBean tagResult) {
-        if (!tagResults.contains(tagResult)) {
-            tagResults.add(tagResult);
-        }
+  public void addTag(TagResultBean tagResult) {
+    if (!tagResults.contains(tagResult)) {
+      tagResults.add(tagResult);
     }
+  }
 
-    public Collection<TagResultBean> getTagResults() {
-        return tagResults;
-    }
+  public Collection<TagResultBean> getTagResults() {
+    return tagResults;
+  }
 
 
 }

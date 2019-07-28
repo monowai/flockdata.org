@@ -14,53 +14,83 @@
   "tagModel": false,
   "content": {
     "c09": {
-      "callerRef": true // The primary key of the docuemntType being tracked
+      "callerRef": true
+      // The primary key of the docuemntType being tracked
     },
     "c00": {
-      "title": true // writes the source property 'title' in to the name field of a node and the search doc
+      "title": true
+      // writes the source property 'title' in to the name field of a node and the search doc
     },
     "c02": {
-      "description": true // writes the value in to a description field in a search document.
+      "description": true
+      // writes the value in to a description field in a search document.
     },
     "c14": {
       "tag": true,
-      "delimiter": " / ",  // Source data has "First Genre / Second Genre. This will create seperate Genre tag for each Delimiter
+      "delimiter": " / ",
+      // Source data has "First Genre / Second Genre. This will create seperate Genre tag for each Delimiter
       "label": "Genre",
-      "entityTagLinks": [{"relationshipName": "of-type"}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "of-type"
+        }
+      ]
     },
     "c06": {
       "tag": true,
       "delimiter": " / ",
       "label": "Person",
-      "entityTagLinks": [{"relationshipName": "wrote"}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "wrote"
+        }
+      ]
     },
     "c15": {
       "tag": true,
       "delimiter": " / ",
       "label": "Person",
-      "entityTagLinks": [{"relationshipName": "directed"}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "directed"
+        }
+      ]
     },
-
     "name": {
       "tag": true,
       "label": "Person",
-      "entityTagLinks": [{"relationshipName": "acted", "properties":[{"source":"role"}]}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "acted",
+          "properties": [
+            {
+              "source": "role"
+            }
+          ]
+        }
+      ]
     },
     "c05": {
-      "dataType": "number", // Force the datatype so that ElasticSearch indexes it correctly
-      "value": "['c05']==null?0:['c05']", // If playcount is null, store it as 0
-      "properties": [  // Store as an entity property
+      "dataType": "number",
+      // Force the datatype so that ElasticSearch indexes it correctly
+      "value": "['c05']==null?0:['c05']",
+      // If playcount is null, store it as 0
+      "properties": [
+        // Store as an entity property
         {
-          "target":"rating"
+          "target": "rating"
         }
       ]
     },
     "playCount": {
-      "value": "['playCount']==null?0:['playCount']", // If playcount is null, store it as 0
+      "value": "['playCount']==null?0:['playCount']",
+      // If playcount is null, store it as 0
       "dataType": "number",
-      "properties": [  // Make this an entity property called playCount
+      "properties": [
+        // Make this an entity property called playCount
         {
-          "target": "value"  // Changing the name of the column name
+          "target": "value"
+          // Changing the name of the column name
         }
       ]
     }

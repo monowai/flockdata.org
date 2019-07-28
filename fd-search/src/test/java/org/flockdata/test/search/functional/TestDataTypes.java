@@ -49,80 +49,80 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class TestDataTypes extends ESBase {
 
-    @Autowired
-    private EntityChangeWriter searchRepo;
+  @Autowired
+  private EntityChangeWriter searchRepo;
 
-    @Test(expected = AmqpRejectAndDontRequeueException.class)
-    public void validate_MismatchSubsequentValue() throws Exception {
-        String fortress = "mismatch";
-        String doc = "doc";
-        String user = "mike";
+  @Test(expected = AmqpRejectAndDontRequeueException.class)
+  public void validate_MismatchSubsequentValue() throws Exception {
+    String fortress = "mismatch";
+    String doc = "doc";
+    String user = "mike";
 
-        Entity entity = getEntity(fortress, fortress, user, doc);
-        deleteEsIndex(entity);
+    Entity entity = getEntity(fortress, fortress, user, doc);
+    deleteEsIndex(entity);
 
-        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity))
-            .setDescription("Test Description");
+    EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity))
+        .setDescription("Test Description");
 
-        Map<String, Object> numMap = ContentDataHelper.getSimpleMap("num", 100);
-        change.setData(numMap);
+    Map<String, Object> numMap = ContentDataHelper.getSimpleMap("num", 100);
+    change.setData(numMap);
 
-        indexMappingService.ensureIndexMapping(change);
-        searchRepo.handle(change);
-        Thread.sleep(1000);
+    indexMappingService.ensureIndexMapping(change);
+    searchRepo.handle(change);
+    Thread.sleep(1000);
 
-        doQuery(entity, "*");
+    doQuery(entity, "*");
 
-        Entity entityB = getEntity(fortress, fortress, user, doc);
-        Map<String, Object> strMap = ContentDataHelper.getSimpleMap("num", "NA");
-        change = new EntitySearchChange(entityB, searchConfig.getIndexManager().toIndex(entityB));
-        change.setDescription("Test Description");
-        change.setData(strMap);
+    Entity entityB = getEntity(fortress, fortress, user, doc);
+    Map<String, Object> strMap = ContentDataHelper.getSimpleMap("num", "NA");
+    change = new EntitySearchChange(entityB, searchConfig.getIndexManager().toIndex(entityB));
+    change.setDescription("Test Description");
+    change.setData(strMap);
 
-        searchRepo.handle(change);
-        fail("A mapping exception was not thrown");
+    searchRepo.handle(change);
+    fail("A mapping exception was not thrown");
 
-    }
+  }
 
-    @Test
-    public void dateStrings() throws Exception {
-        String fortress = "dateStrings";
-        String doc = "dates";
-        String user = "mike";
+  @Test
+  public void dateStrings() throws Exception {
+    String fortress = "dateStrings";
+    String doc = "dates";
+    String user = "mike";
 
-        Entity entity = getEntity(fortress, fortress, user, doc);
-        deleteEsIndex(entity);
+    Entity entity = getEntity(fortress, fortress, user, doc);
+    deleteEsIndex(entity);
 
-        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity))
-            .setDescription("Test Description");
+    EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity))
+        .setDescription("Test Description");
 
-        Date date = new Date();
-        DateFormat outputFormatter = new SimpleDateFormat("yyyy/MM/dd");
-        String output = outputFormatter.format(date);
+    Date date = new Date();
+    DateFormat outputFormatter = new SimpleDateFormat("yyyy/MM/dd");
+    String output = outputFormatter.format(date);
 
-        Map<String, Object> dateMap = new HashMap<>();
-        dateMap.put("someDate", "2017-12-31");
-        dateMap.put("rawDate", outputFormatter.parse(output));
+    Map<String, Object> dateMap = new HashMap<>();
+    dateMap.put("someDate", "2017-12-31");
+    dateMap.put("rawDate", outputFormatter.parse(output));
 
-        change.setData(dateMap);
+    change.setData(dateMap);
 
-        indexMappingService.ensureIndexMapping(change);
-        searchRepo.handle(change);
-        Thread.sleep(1000);
+    indexMappingService.ensureIndexMapping(change);
+    searchRepo.handle(change);
+    Thread.sleep(1000);
 
-        String result = doQuery(entity, "*");
-        assertNotNull(result);
-        Collection<Map<String, Object>> hits = getHits(result);
-        assertEquals(1, hits.size());
-        Map<String, Object> source = (Map<String, Object>) hits.iterator().next().get("_source");
-        assertNotNull(source);
-        assertEquals(entity.getKey(), source.get("code"));
-        Map<String, Object> theData = (Map<String, Object>) source.get("data");
-        assertNotNull(theData.get("someDate"));
-        assertEquals(dateMap.get("someDate"), theData.get("someDate"));
-        Date foundDate = (Date) dateMap.get("rawDate");
-        assertEquals("Dates did not match", dateMap.get("rawDate"), foundDate);
+    String result = doQuery(entity, "*");
+    assertNotNull(result);
+    Collection<Map<String, Object>> hits = getHits(result);
+    assertEquals(1, hits.size());
+    Map<String, Object> source = (Map<String, Object>) hits.iterator().next().get("_source");
+    assertNotNull(source);
+    assertEquals(entity.getKey(), source.get("code"));
+    Map<String, Object> theData = (Map<String, Object>) source.get("data");
+    assertNotNull(theData.get("someDate"));
+    assertEquals(dateMap.get("someDate"), theData.get("someDate"));
+    Date foundDate = (Date) dateMap.get("rawDate");
+    assertEquals("Dates did not match", dateMap.get("rawDate"), foundDate);
 
-    }
+  }
 
 }

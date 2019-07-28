@@ -3,11 +3,10 @@
   "entityOnly": false,
   "fortressName": "Olympic",
   "content": {
-    "ID":{
+    "ID": {
       "callerRef": true,
       "dataType": "string"
-
-    } ,
+    },
     "FIRSTNAME": {
       "dataType": "string"
     },
@@ -17,6 +16,5 @@
     "SURNAME": {
       "dataType": "string"
     }
-
   }
 }

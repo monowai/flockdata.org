@@ -34,37 +34,37 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  */
 public interface TrackLogRepo extends GraphRepository<LogNode> {
 
-    @Query(value = "match (entity:Entity)-[cw:LOGGED]->(log:Log) where id(entity)={0} return count(cw)")
-    int getLogCount(Long entityId);
+  @Query(value = "match (entity:Entity)-[cw:LOGGED]->(log:Log) where id(entity)={0} return count(cw)")
+  int getLogCount(Long entityId);
 
-    @Query(value = "match (change:Log)<-[log:LOGGED]-() where id(change)={0} " +
-        "   return log")
-    EntityLog getLog(Long logId);
+  @Query(value = "match (change:Log)<-[log:LOGGED]-() where id(change)={0} " +
+      "   return log")
+  EntityLog getLog(Long logId);
 
-    @Query(value = "match (change:Log)<-[log:LAST_CHANGE]-(entity:Entity) where id(entity)={0} " +
-        "   return log")
-    EntityLog getLastChange(Long entityId);
+  @Query(value = "match (change:Log)<-[log:LAST_CHANGE]-(entity:Entity) where id(entity)={0} " +
+      "   return log")
+  EntityLog getLastChange(Long entityId);
 
 
-    @Query(elementClass = EntityLog.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2}  return log ")
-    Set<EntityLog> getLogs(Long entityId, Long from, Long to);
+  @Query(elementClass = EntityLog.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2}  return log ")
+  Set<EntityLog> getLogs(Long entityId, Long from, Long to);
 
-    @Query(elementClass = EntityLog.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen <= {1} return log limit 5")
-    Set<EntityLog> getLogs(Long entityId, Long from);
+  @Query(elementClass = EntityLog.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen <= {1} return log limit 5")
+  Set<EntityLog> getLogs(Long entityId, Long from);
 
-    @Query(elementClass = EntityLog.class, value = "  MATCH (entity:Entity)-[log:LOGGED]->(change) where id(entity) = {0} " +
-        " return log order by log.fortressWhen desc")
-    Set<EntityLog> findLogs(Long entityId);
+  @Query(elementClass = EntityLog.class, value = "  MATCH (entity:Entity)-[log:LOGGED]->(change) where id(entity) = {0} " +
+      " return log order by log.fortressWhen desc")
+  Set<EntityLog> findLogs(Long entityId);
 
-    @Query(value = "match (m:Entity)-[l:LOGGED]-(log:Log) where m.key in {0} delete l,log;")
-    void purgeFortressLogs(Collection<String> entities);
+  @Query(value = "match (m:Entity)-[l:LOGGED]-(log:Log) where m.key in {0} delete l,log;")
+  void purgeFortressLogs(Collection<String> entities);
 
-    @Query(value = "match (m:Entity)-[l:LOGGED]-(log:Log)-[people]-() where m.key in {0} delete l, people, log")
-    void purgeLogsWithUsers(Collection<String> entities);
+  @Query(value = "match (m:Entity)-[l:LOGGED]-(log:Log)-[people]-() where m.key in {0} delete l, people, log")
+  void purgeLogsWithUsers(Collection<String> entities);
 
-    //match (f:Fortress)-[track:TRACKS]->(entity:Entity)-[r]-(o:Tag) where id(f)=514705 delete r;
-    @Query(value = "match (m:Entity)-[tagRlx]-(:Tag) where m.key  in {0} delete tagRlx")
-    void purgeTagRelationships(Collection<String> entities);
+  //match (f:Fortress)-[track:TRACKS]->(entity:Entity)-[r]-(o:Tag) where id(f)=514705 delete r;
+  @Query(value = "match (m:Entity)-[tagRlx]-(:Tag) where m.key  in {0} delete tagRlx")
+  void purgeTagRelationships(Collection<String> entities);
 
 
 }

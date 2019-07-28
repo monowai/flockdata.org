@@ -39,18 +39,18 @@ import org.springframework.stereotype.Service;
 @Service
 @Profile( {"dev"})
 public class MapBasedStorageProxy extends FdStorageProxy {
-    @Autowired
-    private InMemoryRepo inMemoryRepo;
+  @Autowired
+  private InMemoryRepo inMemoryRepo;
 
-    @Override
-    public void write(TrackResultBean trackResult) {
-        StoredContent content = new StorageBean(trackResult);
-        inMemoryRepo.add(content);
-    }
+  @Override
+  public void write(TrackResultBean trackResult) {
+    StoredContent content = new StorageBean(trackResult);
+    inMemoryRepo.add(content);
+  }
 
-    @Override
-    public StoredContent read(LogRequest logRequest) {
-        return inMemoryRepo.read(logRequest);
-    }
+  @Override
+  public StoredContent read(LogRequest logRequest) {
+    return inMemoryRepo.read(logRequest);
+  }
 
 }

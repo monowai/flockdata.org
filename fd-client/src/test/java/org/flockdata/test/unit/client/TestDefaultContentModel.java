@@ -38,37 +38,37 @@ import org.junit.Test;
  */
 public class TestDefaultContentModel {
 
-    @Test
-    public void defaultModel() throws Exception {
+  @Test
+  public void defaultModel() throws Exception {
 
-        Map<String, Object> row = new HashMap<>();
-        Collection<Map<String, Object>> rows = new ArrayList<>();
+    Map<String, Object> row = new HashMap<>();
+    Collection<Map<String, Object>> rows = new ArrayList<>();
 
-        row.put("byteArray", "0x0000000001EC3C0F");
-        row.put("nullValue", null);
-        rows.add(row);
+    row.put("byteArray", "0x0000000001EC3C0F");
+    row.put("nullValue", null);
+    rows.add(row);
 
-        ContentValidationRequest contentRequest = new ContentValidationRequest(rows);
-        ContentModel result = contentRequest.getContentModel();
+    ContentValidationRequest contentRequest = new ContentValidationRequest(rows);
+    ContentModel result = contentRequest.getContentModel();
 
-        if (result == null) {
-            result = new ContentModelHandler();
-        }
-
-        result.setContent(Transformer.fromMapToModel(contentRequest.getRows()));
-
-        assertEquals("nullValue should not get a Column Definition", row.size() - 1, result.getContent().size());
-
-        for (String key : result.getContent().keySet()) {
-            ColumnDefinition columnDefinition = result.getContent().get(key);
-            if (key.equalsIgnoreCase("byteArray")) {
-                assertEquals("string", columnDefinition.getDataType());
-                assertEquals(row.get(key), TransformationHelper.getObject(row, row.get("byteArray"), columnDefinition, key));
-            } else {
-                throw new Exception("Unexpected ColDef " + columnDefinition);
-            }
-        }
-
-
+    if (result == null) {
+      result = new ContentModelHandler();
     }
+
+    result.setContent(Transformer.fromMapToModel(contentRequest.getRows()));
+
+    assertEquals("nullValue should not get a Column Definition", row.size() - 1, result.getContent().size());
+
+    for (String key : result.getContent().keySet()) {
+      ColumnDefinition columnDefinition = result.getContent().get(key);
+      if (key.equalsIgnoreCase("byteArray")) {
+        assertEquals("string", columnDefinition.getDataType());
+        assertEquals(row.get(key), TransformationHelper.getObject(row, row.get("byteArray"), columnDefinition, key));
+      } else {
+        throw new Exception("Unexpected ColDef " + columnDefinition);
+      }
+    }
+
+
+  }
 }

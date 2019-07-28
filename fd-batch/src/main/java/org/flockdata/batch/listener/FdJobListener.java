@@ -28,21 +28,21 @@ import org.springframework.stereotype.Service;
 @Service
 @Profile( {"fd-batch", "fd-batch-dev"})
 public class FdJobListener implements JobExecutionListener {
-    private static final Logger logger = LoggerFactory.getLogger(FdJobListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(FdJobListener.class);
 
-    @Autowired
-    Template batchLoader;
+  @Autowired
+  Template batchLoader;
 
-    @Override
-    public void beforeJob(JobExecution jobExecution) {
-        logger.info("Startup of batch {}", jobExecution.getJobInstance().getJobName());
-    }
+  @Override
+  public void beforeJob(JobExecution jobExecution) {
+    logger.info("Startup of batch {}", jobExecution.getJobInstance().getJobName());
+  }
 
-    @Override
-    public void afterJob(JobExecution jobExecution) {
-        logger.info("Exit code: {}", jobExecution.getExitStatus().getExitCode());
-        logger.info("End of batch {}", jobExecution.getJobInstance().getJobName());
-        batchLoader.flush();
-    }
+  @Override
+  public void afterJob(JobExecution jobExecution) {
+    logger.info("Exit code: {}", jobExecution.getExitStatus().getExitCode());
+    logger.info("End of batch {}", jobExecution.getJobInstance().getJobName());
+    batchLoader.flush();
+  }
 
 }

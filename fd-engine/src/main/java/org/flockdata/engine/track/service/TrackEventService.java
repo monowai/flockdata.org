@@ -36,22 +36,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class TrackEventService {
 
 
-    /**
-     * associates the change with the event name for the company. Creates if it does not exist
-     *
-     * @param eventCode - descriptive name of the event - duplicates for a company will not be created
-     * @return created ChangeEvent
-     */
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public ChangeEvent processEvent(String eventCode) {
-        //Company company = securityHelper.getCompany();
-        return processEvent(null, eventCode);
-    }
+  /**
+   * associates the change with the event name for the company. Creates if it does not exist
+   *
+   * @param eventCode - descriptive name of the event - duplicates for a company will not be created
+   * @return created ChangeEvent
+   */
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public ChangeEvent processEvent(String eventCode) {
+    //Company company = securityHelper.getCompany();
+    return processEvent(null, eventCode);
+  }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public ChangeEvent processEvent(Company company, String eventCode) {
-        //return trackEventDao.createEvent(company, eventCode);
-        return new ChangeEventNode(eventCode);
-    }
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public ChangeEvent processEvent(Company company, String eventCode) {
+    //return trackEventDao.createEvent(company, eventCode);
+    return new ChangeEventNode(eventCode);
+  }
 
 }

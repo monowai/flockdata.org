@@ -40,7 +40,7 @@
               "dataType": "number"
             },
             {
-              "target":"calculatedColumn",
+              "target": "calculatedColumn",
               "value": "'ABC'+'123'"
             }
           ]
@@ -51,7 +51,11 @@
       "tag": true,
       "label": "OSCategory",
       "mustExist": true,
-      "entityTagLinks": [{"relationshipName": "category"}]
+      "entityTagLinks": [
+        {
+          "relationshipName": "category"
+        }
+      ]
     }
   }
 }

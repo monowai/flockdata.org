@@ -29,103 +29,103 @@ import org.flockdata.registration.TagResultBean;
  * @since 19/06/2014
  */
 public class ConceptInputBean {
-    Collection<String> relationships = new HashSet<>();
-    private String name;
-    private boolean tag = true;
-    private String description;
+  Collection<String> relationships = new HashSet<>();
+  private String name;
+  private boolean tag = true;
+  private String description;
 
-    private ConceptInputBean() {
+  private ConceptInputBean() {
+  }
+
+  public ConceptInputBean(String name) {
+    this();
+    this.name = name;
+  }
+
+  public ConceptInputBean(TagResultBean tagResultBean) {
+    this(tagResultBean.getLabel());
+    this.description = tagResultBean.getDescription();
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public ConceptInputBean setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public Collection<String> getRelationships() {
+    return relationships;
+  }
+
+  public ConceptInputBean setRelationships(Set<String> relationships) {
+    for (String relationship : relationships) {
+      if (!this.relationships.contains(relationship)) {
+        this.relationships.add(relationship);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * If not a Tag then it is an Entity
+   *
+   * @return true if it's a tag
+   */
+  public boolean isTag() {
+    return tag;
+  }
+
+  /**
+   * Does this concept represent a tag or an entity?
+   *
+   * @param tag true==tag, false==entity
+   * @return this
+   */
+  public ConceptInputBean setTag(boolean tag) {
+    this.tag = tag;
+    return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof ConceptInputBean)) {
+      return false;
     }
 
-    public ConceptInputBean(String name) {
-        this();
-        this.name = name;
+    ConceptInputBean that = (ConceptInputBean) o;
+
+    if (tag != that.tag) {
+      return false;
     }
+    return !(name != null ? !name.equals(that.name) : that.name != null);
 
-    public ConceptInputBean(TagResultBean tagResultBean) {
-        this(tagResultBean.getLabel());
-        this.description = tagResultBean.getDescription();
-    }
+  }
 
-    public String getName() {
-        return name;
-    }
+  @Override
+  public int hashCode() {
+    int result = name != null ? name.hashCode() : 0;
+    result = 31 * result + (tag ? 1 : 0);
+    return result;
+  }
 
-    public ConceptInputBean setName(String name) {
-        this.name = name;
-        return this;
-    }
+  @Override
+  public String toString() {
+    return "ConceptInputBean{" +
+        "name='" + name + '\'' +
+        '}';
+  }
 
-    public Collection<String> getRelationships() {
-        return relationships;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public ConceptInputBean setRelationships(Set<String> relationships) {
-        for (String relationship : relationships) {
-            if (!this.relationships.contains(relationship)) {
-                this.relationships.add(relationship);
-            }
-        }
-        return this;
-    }
-
-    /**
-     * If not a Tag then it is an Entity
-     *
-     * @return true if it's a tag
-     */
-    public boolean isTag() {
-        return tag;
-    }
-
-    /**
-     * Does this concept represent a tag or an entity?
-     *
-     * @param tag true==tag, false==entity
-     * @return this
-     */
-    public ConceptInputBean setTag(boolean tag) {
-        this.tag = tag;
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ConceptInputBean)) {
-            return false;
-        }
-
-        ConceptInputBean that = (ConceptInputBean) o;
-
-        if (tag != that.tag) {
-            return false;
-        }
-        return !(name != null ? !name.equals(that.name) : that.name != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (tag ? 1 : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "ConceptInputBean{" +
-            "name='" + name + '\'' +
-            '}';
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 }

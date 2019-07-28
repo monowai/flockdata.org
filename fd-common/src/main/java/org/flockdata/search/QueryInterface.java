@@ -25,21 +25,21 @@ import java.util.Map;
  */
 public interface QueryInterface {
 
-    String getCompany();
+  String getCompany();
 
-    // Saves parsing for ElasticSearch
-    String[] getTypes();
+  // Saves parsing for ElasticSearch
+  String[] getTypes();
 
-    ArrayList<String> getRelationships();
+  ArrayList<String> getRelationships();
 
-    ArrayList<String> getTags();
+  ArrayList<String> getTags();
 
-    String getSearchText();
+  String getSearchText();
 
-    // This request is only to be made on tags
-    boolean isSearchTagsOnly();
+  // This request is only to be made on tags
+  boolean isSearchTagsOnly();
 
-    Map<String, Object> getFilter();
+  Map<String, Object> getFilter();
 
-    QueryParams addTerm(String field, Object searchText);
+  QueryParams addTerm(String field, Object searchText);
 }

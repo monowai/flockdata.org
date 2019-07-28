@@ -28,11 +28,11 @@ package org.flockdata.data;
  * @since 31/12/16
  */
 public interface Company {
-    String getName();
+  String getName();
 
-    String getCode();
+  String getCode();
 
-    Long getId();
+  Long getId();
 
-    String getApiKey();
+  String getApiKey();
 }

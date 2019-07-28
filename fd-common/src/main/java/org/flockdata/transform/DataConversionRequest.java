@@ -30,19 +30,19 @@ import org.flockdata.data.ContentModel;
  * @since 19/09/2016
  */
 public class DataConversionRequest {
-    private ContentModel contentModel;
-    private String[] header;
-    private Collection<String[]> data;
+  private ContentModel contentModel;
+  private String[] header;
+  private Collection<String[]> data;
 
-    public ContentModel getContentModel() {
-        return contentModel;
-    }
+  public ContentModel getContentModel() {
+    return contentModel;
+  }
 
-    public Collection<String[]> getData() {
-        return data;
-    }
+  public Collection<String[]> getData() {
+    return data;
+  }
 
-    public String[] getHeader() {
-        return header;
-    }
+  public String[] getHeader() {
+    return header;
+  }
 }

@@ -29,11 +29,11 @@ import org.springframework.stereotype.Component;
 @Qualifier("StorePing")
 public class StorePing extends Ping {
 
-    public StorePing(FdIoInterface fdIoInterface) {
-        super(fdIoInterface);
-    }
+  public StorePing(FdIoInterface fdIoInterface) {
+    super(fdIoInterface);
+  }
 
-    public void setApi(String api) {
-        this.api = api;
-    }
+  public void setApi(String api) {
+    this.api = api;
+  }
 }

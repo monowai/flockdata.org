@@ -40,30 +40,30 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class ModelPost {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public ModelPost(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public ModelPost(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+
+  public CommandResponse<Collection<ContentModelResult>> exec(Collection<ContentModel> models) {
+    Collection<ContentModelResult> results = null;
+    String error = null;
+    try {
+
+      HttpEntity requestEntity = new HttpEntity<>(models, fdIoInterface.getHeaders());
+      ParameterizedTypeReference<Collection<ContentModelResult>> responseType = new ParameterizedTypeReference<Collection<ContentModelResult>>() {
+      };
+      ResponseEntity<Collection<ContentModelResult>> response;
+      response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/model/", HttpMethod.POST, requestEntity, responseType);
+
+
+      results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+    } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+      error = e.getMessage();
     }
-
-
-    public CommandResponse<Collection<ContentModelResult>> exec(Collection<ContentModel> models) {
-        Collection<ContentModelResult> results = null;
-        String error = null;
-        try {
-
-            HttpEntity requestEntity = new HttpEntity<>(models, fdIoInterface.getHeaders());
-            ParameterizedTypeReference<Collection<ContentModelResult>> responseType = new ParameterizedTypeReference<Collection<ContentModelResult>>() {
-            };
-            ResponseEntity<Collection<ContentModelResult>> response;
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/model/", HttpMethod.POST, requestEntity, responseType);
-
-
-            results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
-        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, results);// Everything worked
-    }
+    return new CommandResponse<>(error, results);// Everything worked
+  }
 }

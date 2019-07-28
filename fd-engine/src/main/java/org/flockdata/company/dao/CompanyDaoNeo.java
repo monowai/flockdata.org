@@ -35,40 +35,43 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CompanyDaoNeo {
 
-    private final CompanyRepository companyRepo;
+  private final CompanyRepository companyRepo;
 
-    @Autowired
-    public CompanyDaoNeo(CompanyRepository companyRepo) {
-        this.companyRepo = companyRepo;
+  @Autowired
+  public CompanyDaoNeo(CompanyRepository companyRepo) {
+    this.companyRepo = companyRepo;
+  }
+
+  public Company update(Company company) {
+    return companyRepo.save((CompanyNode) company);
+  }
+
+  public Company findByPropertyValue(String property, Object value) {
+    return companyRepo.findBySchemaPropertyValue(property, value);
+  }
+
+  public Collection<Company> findCompanies(Long sysUserId) {
+    return companyRepo.getCompaniesForUser(sysUserId);
+  }
+
+  public Collection<Company> findCompanies(String userApiKey) {
+    return companyRepo.findCompanies(userApiKey);
+  }
+
+  public Company create(Company company) {
+    CompanyNode companyNode = (CompanyNode) company;
+    if (companyNode.getCode() == null) {
+      companyNode.setCode(company.getName().toLowerCase().replaceAll("\\s", ""));
     }
+    return companyRepo.save(companyNode);
+  }
 
-    public Company update(Company company) {
-        return companyRepo.save((CompanyNode) company);
-    }
+  public SystemUser getAdminUser(Long companyId, String name) {
+    return companyRepo.getAdminUser(companyId, name);
+  }
 
-    public Company findByPropertyValue(String property, Object value) {
-        return companyRepo.findBySchemaPropertyValue(property, value);
-    }
-
-    public Collection<Company> findCompanies(Long sysUserId) {
-        return companyRepo.getCompaniesForUser(sysUserId);
-    }
-
-    public Collection<Company> findCompanies(String userApiKey) {
-        return companyRepo.findCompanies(userApiKey);
-    }
-
-    public Company create(Company company) {
-
-        return companyRepo.save((CompanyNode) company);
-    }
-
-    public SystemUser getAdminUser(Long companyId, String name) {
-        return companyRepo.getAdminUser(companyId, name);
-    }
-
-    public Company create(String companyName, String uniqueKey) {
-        return create(new CompanyNode(companyName, uniqueKey));
-    }
+  public Company create(String companyName, String uniqueKey) {
+    return create(CompanyNode.builder().name(companyName).apiKey(uniqueKey).build());
+  }
 
 }

@@ -43,6 +43,6 @@ import org.junit.runners.Suite;
     TestEntityTagRelationships.class
 })
 public class Tags {
-    Tags() {
-    }
+  Tags() {
+  }
 }

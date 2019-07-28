@@ -20,59 +20,59 @@ import org.flockdata.helper.TagHelper;
 @Data
 @Builder
 public class TagNode implements Tag {
-    Map<String, Collection<Tag>> subTags = new HashMap<>();
-    private Long id;
-    private String code;
-    private String name;
-    private Map<String, Object> properties;
-    private String index;
-    private String key;
-    private ArrayList<String> labels = new ArrayList<>();
-    //    @RelatedTo(elementClass = AliasNode.class, type = "HAS_ALIAS")
-    private Set<Alias> aliases = new HashSet<>();
-    private Boolean isNew = true;
+  Map<String, Collection<Tag>> subTags = new HashMap<>();
+  private Long id;
+  private String code;
+  private String name;
+  private Map<String, Object> properties;
+  private String index;
+  private String key;
+  private ArrayList<String> labels = new ArrayList<>();
+  //    @RelatedTo(elementClass = AliasNode.class, type = "HAS_ALIAS")
+  private Set<Alias> aliases = new HashSet<>();
+  private Boolean isNew = true;
 
-    @Override
-    @JsonIgnore
-    public Boolean isNew() {
-        return isNew;
-    }
+  @Override
+  @JsonIgnore
+  public Boolean isNew() {
+    return isNew;
+  }
 
-    @Override
-    public void addProperty(String key, Object property) {
-        properties.put(key, property);
-    }
+  @Override
+  public void addProperty(String key, Object property) {
+    properties.put(key, property);
+  }
 
-    public void addAlias(Alias newAlias) {
-        aliases.add(newAlias);
-    }
+  public void addAlias(Alias newAlias) {
+    aliases.add(newAlias);
+  }
 
-    @Override
-    @JsonIgnore
-    public Map<String, Collection<Tag>> getSubTags() {
-        return subTags;
-    }
+  @Override
+  @JsonIgnore
+  public Map<String, Collection<Tag>> getSubTags() {
+    return subTags;
+  }
 
-    @Override
-    @JsonIgnore
-    public Collection<Tag> getSubTags(String key) {
-        return subTags.get(key);
-    }
+  @Override
+  @JsonIgnore
+  public Collection<Tag> getSubTags(String key) {
+    return subTags.get(key);
+  }
 
-    @Override
-    public boolean hasSubTags() {
-        return (subTags != null && !subTags.isEmpty());
-    }
+  @Override
+  public boolean hasSubTags() {
+    return (subTags != null && !subTags.isEmpty());
+  }
 
-    @Override
-    public boolean hasProperties() {
-        return (getProperties() != null && !getProperties().isEmpty());
-    }
+  @Override
+  public boolean hasProperties() {
+    return (getProperties() != null && !getProperties().isEmpty());
+  }
 
-    @Override
-    public String getLabel() {
-        return TagHelper.getLabel(labels);
-    }
+  @Override
+  public String getLabel() {
+    return TagHelper.getLabel(labels);
+  }
 
 
 }

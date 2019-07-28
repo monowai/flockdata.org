@@ -47,60 +47,60 @@ import org.springframework.stereotype.Service;
 @Configuration
 public class SearchAdmin {
 
-    private Logger logger = LoggerFactory.getLogger("configuration");
+  private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Autowired
-    private EntityChangeWriter engineDao;
+  @Autowired
+  private EntityChangeWriter engineDao;
 
-    @Autowired
-    private IndexMappingService indexMappingService;
+  @Autowired
+  private IndexMappingService indexMappingService;
 
-    @Autowired
-    private SearchConfig searchConfig;
+  @Autowired
+  private SearchConfig searchConfig;
 
-    @Autowired(required = false)
-    private VersionHelper versionHelper;
+  @Autowired(required = false)
+  private VersionHelper versionHelper;
 
-    public Map<String, Object> getHealth() {
+  public Map<String, Object> getHealth() {
 
-        String version = "";
-        if (versionHelper != null) {
-            version = versionHelper.getFdVersion();
-        }
-
-        Map<String, Object> healthResults = new HashMap<>();
-        healthResults.put("elasticsearch", engineDao.ping());
-        healthResults.put("fd.search.version", version);
-
-        String nodes = searchConfig.getTransportAddresses();
-        if (nodes != null) {
-            healthResults.put("es.nodes", nodes);
-        } else {
-            healthResults.put("org.fd.search.es.transportOnly", false);
-        }
-
-        healthResults.put("org.fd.search.es.settings", searchConfig.getEsDefaultSettings());
-        healthResults.put("org.fd.search.es.mapping", searchConfig.getEsMappingPath());
-
-        return healthResults;
-
+    String version = "";
+    if (versionHelper != null) {
+      version = versionHelper.getFdVersion();
     }
 
-    public void deleteIndexes(Collection<String> indexesToDelete) {
-        indexMappingService.deleteIndexes(indexesToDelete);
+    Map<String, Object> healthResults = new HashMap<>();
+    healthResults.put("elasticsearch", engineDao.ping());
+    healthResults.put("fd.search.version", version);
+
+    String nodes = searchConfig.getTransportAddresses();
+    if (nodes != null) {
+      healthResults.put("es.nodes", nodes);
+    } else {
+      healthResults.put("org.fd.search.es.transportOnly", false);
     }
 
-    @PostConstruct
-    void logStatus() {
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-        try {
-            ObjectWriter or = om.writerWithDefaultPrettyPrinter();
-            logger.info("fd-search.status\r\n" + or.writeValueAsString(getHealth()));
-        } catch (JsonProcessingException e) {
+    healthResults.put("org.fd.search.es.settings", searchConfig.getEsDefaultSettings());
+    healthResults.put("org.fd.search.es.mapping", searchConfig.getEsMappingPath());
 
-            logger.error("doHealth", e.getMessage());
-        }
+    return healthResults;
+
+  }
+
+  public void deleteIndexes(Collection<String> indexesToDelete) {
+    indexMappingService.deleteIndexes(indexesToDelete);
+  }
+
+  @PostConstruct
+  void logStatus() {
+    ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
+    try {
+      ObjectWriter or = om.writerWithDefaultPrettyPrinter();
+      logger.info("fd-search.status\r\n" + or.writeValueAsString(getHealth()));
+    } catch (JsonProcessingException e) {
+
+      logger.error("doHealth", e.getMessage());
     }
+  }
 
 
 }

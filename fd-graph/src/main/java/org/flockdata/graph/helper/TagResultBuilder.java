@@ -30,15 +30,15 @@ import org.neo4j.graphdb.Node;
  */
 public class TagResultBuilder {
 
-    public static TagResultBean make(Node pc) {
+  public static TagResultBean make(Node pc) {
 
-        String code = pc.getProperty("code").toString();
-        String name = null;
-        if (pc.hasProperty("name")) {
-            name = pc.getProperty("name").toString();
-        }
-        String label = CypherHelper.getLabel(pc.getLabels());
-        return new TagResultBean(code, name, label);
-
+    String code = pc.getProperty("code").toString();
+    String name = null;
+    if (pc.hasProperty("name")) {
+      name = pc.getProperty("name").toString();
     }
+    String label = CypherHelper.getLabel(pc.getLabels());
+    return new TagResultBean(code, name, label);
+
+  }
 }

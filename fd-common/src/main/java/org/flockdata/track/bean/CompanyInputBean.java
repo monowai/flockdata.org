@@ -30,65 +30,65 @@ import org.flockdata.data.Company;
  * @since 31/12/16
  */
 public class CompanyInputBean implements Company {
-    private String name;
-    private String code;
+  private String name;
+  private String code;
 
-    public CompanyInputBean() {
-        super();
+  public CompanyInputBean() {
+    super();
+  }
+
+  public CompanyInputBean(String name) {
+    this();
+    setName(name);
+    setCode(name);
+
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public String getCode() {
+    return code;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
+  }
+
+  @Override
+  @JsonIgnore
+  public Long getId() {
+    return null;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getApiKey() {
+    return null;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    public CompanyInputBean(String name) {
-        this();
-        setName(name);
-        setCode(name);
-
+    if (!(o instanceof CompanyInputBean)) {
+      return false;
     }
+    CompanyInputBean that = (CompanyInputBean) o;
+    return Objects.equals(name, that.name) &&
+        Objects.equals(code, that.code);
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    @Override
-    @JsonIgnore
-    public Long getId() {
-        return null;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getApiKey() {
-        return null;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof CompanyInputBean)) {
-            return false;
-        }
-        CompanyInputBean that = (CompanyInputBean) o;
-        return Objects.equals(name, that.name) &&
-            Objects.equals(code, that.code);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, code);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, code);
+  }
 }

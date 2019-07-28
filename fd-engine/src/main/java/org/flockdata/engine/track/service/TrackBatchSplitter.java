@@ -48,65 +48,65 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class TrackBatchSplitter {
-    @Autowired
-    FortressService fortressService;
+  @Autowired
+  FortressService fortressService;
 
-    /**
-     * inputs is modified such that it will only contain existing TrackResult entities
-     *
-     * @param inputs all entities to consider - this collection is modified
-     * @return Entities from inputs that are new
-     */
-    public static Collection<TrackResultBean> getNewEntities(Collection<TrackResultBean> inputs) {
-        Collection<TrackResultBean> newEntities = new ArrayList<>();
-        for (TrackResultBean track : inputs) {
-            if (track.getEntity().isNewEntity()) {
-                newEntities.add(track);
-            }
-        }
-        return newEntities;
+  /**
+   * inputs is modified such that it will only contain existing TrackResult entities
+   *
+   * @param inputs all entities to consider - this collection is modified
+   * @return Entities from inputs that are new
+   */
+  public static Collection<TrackResultBean> getNewEntities(Collection<TrackResultBean> inputs) {
+    Collection<TrackResultBean> newEntities = new ArrayList<>();
+    for (TrackResultBean track : inputs) {
+      if (track.getEntity().isNewEntity()) {
+        newEntities.add(track);
+      }
     }
+    return newEntities;
+  }
 
-    public static Collection<TrackResultBean> getExistingEntities(Collection<TrackResultBean> inputs) {
-        Collection<TrackResultBean> newEntities = new ArrayList<>();
-        for (TrackResultBean track : inputs) {
-            if (!track.getEntity().isNewEntity()) {
-                newEntities.add(track);
-            }
-        }
-        return newEntities;
-
+  public static Collection<TrackResultBean> getExistingEntities(Collection<TrackResultBean> inputs) {
+    Collection<TrackResultBean> newEntities = new ArrayList<>();
+    for (TrackResultBean track : inputs) {
+      if (!track.getEntity().isNewEntity()) {
+        newEntities.add(track);
+      }
     }
+    return newEntities;
 
-    @Transactional
-    @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class},
-        maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public Map<Segment, List<EntityInputBean>> getEntitiesBySegment(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
-        Map<Segment, List<EntityInputBean>> results = new HashMap<>();
+  }
 
-        // Local cache of segments by name - never very big, usually only 1
-        Map<String, Segment> resolvedSegments = new HashMap<>();
+  @Transactional
+  @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class},
+      maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
+  public Map<Segment, List<EntityInputBean>> getEntitiesBySegment(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
+    Map<Segment, List<EntityInputBean>> results = new HashMap<>();
 
-        for (EntityInputBean entityInputBean : entityInputBeans) {
+    // Local cache of segments by name - never very big, usually only 1
+    Map<String, Segment> resolvedSegments = new HashMap<>();
 
-            String segmentKey = Fortress.key(Fortress.code(entityInputBean.getFortress().getName()), entityInputBean.getSegment());
-            Segment segment = resolvedSegments.get(segmentKey);
-            if (segment == null) {
-                segment = fortressService.resolveSegment(company, entityInputBean.getFortress(), entityInputBean.getSegment(), entityInputBean.getTimezone());
-                resolvedSegments.put(segmentKey, segment);
-            }
+    for (EntityInputBean entityInputBean : entityInputBeans) {
+
+      String segmentKey = Fortress.key(Fortress.code(entityInputBean.getFortress().getName()), entityInputBean.getSegment());
+      Segment segment = resolvedSegments.get(segmentKey);
+      if (segment == null) {
+        segment = fortressService.resolveSegment(company, entityInputBean.getFortress(), entityInputBean.getSegment(), entityInputBean.getTimezone());
+        resolvedSegments.put(segmentKey, segment);
+      }
 
 
-            List<EntityInputBean> entities = results.get(segment);// are we caching this already?
+      List<EntityInputBean> entities = results.get(segment);// are we caching this already?
 
-            if (entities == null) {
-                entities = new ArrayList<>();
-                results.put(segment, entities);
-            }
+      if (entities == null) {
+        entities = new ArrayList<>();
+        results.put(segment, entities);
+      }
 
-            entities.add(entityInputBean);
-        }
-        return results;
+      entities.add(entityInputBean);
     }
+    return results;
+  }
 
 }

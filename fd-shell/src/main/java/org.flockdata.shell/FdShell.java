@@ -27,14 +27,14 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
  */
 
 @SpringBootApplication(scanBasePackages = {
+    "org.flockdata.shell.run",
     "org.flockdata.integration",
-    "org.flockdata.client",
-    "org.flockdata.shell"},
+    "org.flockdata.client"},
     exclude = DataSourceAutoConfiguration.class)
 public class FdShell {
 
-    public static void main(String[] args) {
-        SpringApplication.run(FdShell.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(FdShell.class, args);
+  }
 
 }

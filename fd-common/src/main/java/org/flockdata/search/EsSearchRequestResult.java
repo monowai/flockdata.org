@@ -25,111 +25,111 @@ import org.flockdata.helper.JsonUtils;
 
 public class EsSearchRequestResult {
 
-    @JsonDeserialize(contentAs = EsSearchResult.class)
-    private Collection<SearchResult> results;
-    private long totalHits;
-    private int startedFrom;
-    private Map<String, Object> what;
-    private String index;
-    private String entityType;
-    private String fdSearchError;
-    private byte[] json;
+  @JsonDeserialize(contentAs = EsSearchResult.class)
+  private Collection<SearchResult> results;
+  private long totalHits;
+  private int startedFrom;
+  private Map<String, Object> what;
+  private String index;
+  private String entityType;
+  private String fdSearchError;
+  private byte[] json;
 
-    public EsSearchRequestResult() {
+  public EsSearchRequestResult() {
+  }
+
+  public EsSearchRequestResult(EsSearchRequestResult results) {
+    this();
+    totalHits = results.getStartedFrom();
+    totalHits = results.getTotalHits();
+    this.results = results.getResults();
+
+  }
+
+  public EsSearchRequestResult(Collection<SearchResult> results) {
+    this.results = results;
+  }
+
+  public EsSearchRequestResult(String fdSearchError) {
+    this.fdSearchError = fdSearchError;
+  }
+
+  public EsSearchRequestResult(byte[] json) {
+    this.json = json;
+  }
+
+  public EsSearchRequestResult(Map<String, Object> source) {
+    this.what = source;
+  }
+
+  public byte[] getJson() {
+    return json;
+  }
+
+  public void setJson(byte[] json) {
+    this.json = json;
+  }
+
+  public Collection<SearchResult> getResults() {
+    return results;
+  }
+
+  public void setResults(Collection<SearchResult> results) {
+    this.results = results;
+  }
+
+  public Map<String, Object> getRawResults() {
+    if (json != null) {
+      try {
+        return JsonUtils.toMap(json);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
+    return new HashMap<>();
+  }
 
-    public EsSearchRequestResult(EsSearchRequestResult results) {
-        this();
-        totalHits = results.getStartedFrom();
-        totalHits = results.getTotalHits();
-        this.results = results.getResults();
+  public long getTotalHits() {
+    return totalHits;
+  }
 
-    }
+  public void setTotalHits(long totalHits) {
+    this.totalHits = totalHits;
+  }
 
-    public EsSearchRequestResult(Collection<SearchResult> results) {
-        this.results = results;
-    }
+  public int getStartedFrom() {
+    return startedFrom;
+  }
 
-    public EsSearchRequestResult(String fdSearchError) {
-        this.fdSearchError = fdSearchError;
-    }
+  public void setStartedFrom(int startedFrom) {
+    this.startedFrom = startedFrom;
+  }
 
-    public EsSearchRequestResult(byte[] json) {
-        this.json = json;
-    }
+  public Map<String, Object> getWhat() {
+    return what;
+  }
 
-    public EsSearchRequestResult(Map<String, Object> source) {
-        this.what = source;
-    }
+  public void setWhat(Map<String, Object> what) {
+    this.what = what;
+  }
 
-    public byte[] getJson() {
-        return json;
-    }
+  public String getIndex() {
+    return index;
+  }
 
-    public void setJson(byte[] json) {
-        this.json = json;
-    }
+  public void setIndex(String index) {
+    this.index = index;
+  }
 
-    public Collection<SearchResult> getResults() {
-        return results;
-    }
+  public String getEntityType() {
+    return entityType;
+  }
 
-    public void setResults(Collection<SearchResult> results) {
-        this.results = results;
-    }
+  public void setEntityType(String entityType) {
+    this.entityType = entityType;
+  }
 
-    public Map<String, Object> getRawResults() {
-        if (json != null) {
-            try {
-                return JsonUtils.toMap(json);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return new HashMap<>();
-    }
-
-    public long getTotalHits() {
-        return totalHits;
-    }
-
-    public void setTotalHits(long totalHits) {
-        this.totalHits = totalHits;
-    }
-
-    public int getStartedFrom() {
-        return startedFrom;
-    }
-
-    public void setStartedFrom(int startedFrom) {
-        this.startedFrom = startedFrom;
-    }
-
-    public Map<String, Object> getWhat() {
-        return what;
-    }
-
-    public void setWhat(Map<String, Object> what) {
-        this.what = what;
-    }
-
-    public String getIndex() {
-        return index;
-    }
-
-    public void setIndex(String index) {
-        this.index = index;
-    }
-
-    public String getEntityType() {
-        return entityType;
-    }
-
-    public void setEntityType(String entityType) {
-        this.entityType = entityType;
-    }
-
-    public String getFdSearchError() {
-        return fdSearchError;
-    }
+  public String getFdSearchError() {
+    return fdSearchError;
+  }
 }

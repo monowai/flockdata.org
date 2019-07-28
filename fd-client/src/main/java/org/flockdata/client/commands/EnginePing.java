@@ -29,16 +29,16 @@ import org.springframework.stereotype.Component;
 @Qualifier("enginePing")
 public class EnginePing extends Ping {
 
-    public EnginePing(FdIoInterface fdIoInterface) {
-        super(fdIoInterface);
-    }
+  public EnginePing(FdIoInterface fdIoInterface) {
+    super(fdIoInterface);
+  }
 
-    @Override
-    public String getPath() {
-        return "/api/ping/";
-    }
+  @Override
+  public String getPath() {
+    return "/api/ping/";
+  }
 
-    public void setApi(String api) {
-        this.api = api;
-    }
+  public void setApi(String api) {
+    this.api = api;
+  }
 }

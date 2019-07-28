@@ -41,45 +41,45 @@ import org.springframework.stereotype.Service;
 @Service("queryServiceEs")
 public class QueryServiceEs implements QueryService {
 
-    private final QueryDaoES queryDao;
+  private final QueryDaoES queryDao;
 
-    @Autowired
-    public QueryServiceEs(QueryDaoES queryDao) {
-        this.queryDao = queryDao;
-    }
+  @Autowired
+  public QueryServiceEs(QueryDaoES queryDao) {
+    this.queryDao = queryDao;
+  }
 
-    @Override
-    public TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException, FlockException {
-        return queryDao.getCloudTag(tagCloudParams);
-    }
+  @Override
+  public TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException, FlockException {
+    return queryDao.getCloudTag(tagCloudParams);
+  }
 
-    @Override
-    public Long getHitCount(String index) throws IOException {
-        return queryDao.doHitCountQuery(index);
-    }
+  @Override
+  public Long getHitCount(String index) throws IOException {
+    return queryDao.doHitCountQuery(index);
+  }
 
-    @Override
-    public EsSearchRequestResult doFdViewSearch(QueryParams queryParams) throws FlockException {
-        return queryDao.doFdViewSearch(queryParams);
-    }
+  @Override
+  public EsSearchRequestResult doFdViewSearch(QueryParams queryParams) throws FlockException {
+    return queryDao.doFdViewSearch(queryParams);
+  }
 
-    public EntityKeyResults doKeyQuery(QueryParams queryParams) throws FlockException {
-        return queryDao.doEntityKeySearch(queryParams);
-    }
+  public EntityKeyResults doKeyQuery(QueryParams queryParams) throws FlockException {
+    return queryDao.doEntityKeySearch(queryParams);
+  }
 
-    @Override
-    public EsSearchRequestResult doParametrizedQuery(QueryParams queryParams) throws FlockException {
-        return queryDao.doParametrizedQuery(queryParams);
-    }
+  @Override
+  public EsSearchRequestResult doParametrizedQuery(QueryParams queryParams) throws FlockException {
+    return queryDao.doParametrizedQuery(queryParams);
+  }
 
-    @Override
-    public String doSearch(QueryParams queryParams) throws FlockException {
-        return queryDao.doSearch(queryParams);
-    }
+  @Override
+  public String doSearch(QueryParams queryParams) throws FlockException {
+    return queryDao.doSearch(queryParams);
+  }
 
-    @Override
-    public void getTags(String indexName) {
-        queryDao.getTags(indexName);
-    }
+  @Override
+  public void getTags(String indexName) {
+    queryDao.getTags(indexName);
+  }
 
 }

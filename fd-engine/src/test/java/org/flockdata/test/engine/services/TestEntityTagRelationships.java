@@ -58,59 +58,59 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles( {"dev", "fd-auth-test"})
 public class TestEntityTagRelationships extends EngineBase {
 
-    @Autowired
-    private FileProcessor fileProcessor;
+  @Autowired
+  private FileProcessor fileProcessor;
 
-    @Test
-    public void entityTagLinksCreatedWithCorrectDirection() throws Exception {
-        final SystemUser su = registerSystemUser("TestEntityTagRelationships", mike_admin);
-        setSecurity();
-        engineConfig.setTestMode(true);
+  @Test
+  public void entityTagLinksCreatedWithCorrectDirection() throws Exception {
+    final SystemUser su = registerSystemUser("TestEntityTagRelationships", mike_admin);
+    setSecurity();
+    engineConfig.setTestMode(true);
 
-        String file = "/models/test-entity-tag-links.json";
-        ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
-        assertNotNull(contentModel);
-        ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
+    String file = "/models/test-entity-tag-links.json";
+    ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
+    assertNotNull(contentModel);
+    ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
 
-        TagInputBean hongKong = new TagInputBean("HK", "Country");
-        hongKong.addAlias(new AliasInputBean("HKG", "Long Code"));
-        tagService.createTag(su.getCompany(), hongKong);
+    TagInputBean hongKong = new TagInputBean("HK", "Country");
+    hongKong.addAlias(new AliasInputBean("HKG", "Long Code"));
+    tagService.createTag(su.getCompany(), hongKong);
 
-        // Tag code of HK is used, but data is tracking in against the Alias of HKG
-        fileProcessor.processFile(extractProfile, "/data/test-entity-tag-links.csv");
-        String key = "10000002";
-        Entity entity = entityService.findByCode(su.getCompany(), contentModel.getFortress().getName(), contentModel.getDocumentType().getName(), key);
-        assertNotNull(entity);
-        validateEntities(su, entity);
+    // Tag code of HK is used, but data is tracking in against the Alias of HKG
+    fileProcessor.processFile(extractProfile, "/data/test-entity-tag-links.csv");
+    String key = "10000002";
+    Entity entity = entityService.findByCode(su.getCompany(), contentModel.getFortress().getName(), contentModel.getDocumentType().getName(), key);
+    assertNotNull(entity);
+    validateEntities(su, entity);
 
-        // If not found by the alias then an extra relationship will be created
-        fileProcessor.processFile(extractProfile, "/data/test-entity-tag-links.csv");
-        entity = entityService.findByCode(su.getCompany(), contentModel.getFortress().getName(), contentModel.getDocumentType().getName(), key);
-        validateEntities(su, entity);
+    // If not found by the alias then an extra relationship will be created
+    fileProcessor.processFile(extractProfile, "/data/test-entity-tag-links.csv");
+    entity = entityService.findByCode(su.getCompany(), contentModel.getFortress().getName(), contentModel.getDocumentType().getName(), key);
+    validateEntities(su, entity);
 
+
+  }
+
+  public void validateEntities(SystemUser su, Entity entity) {
+    Iterable<EntityTag> entityTags = entityTagService.findEntityTagsWithGeo(entity);
+    int count = 0;
+    for (EntityTag entityTag : entityTags) {
+      if (entityTag.getRelationship().equals("located")) {
+        count++;
+        assertTrue(entityTag.isGeoRelationship());
+        assertEquals("located", entityTag.getRelationship());
+      } else if (entityTag.getRelationship().equals("jurisdiction")) {
+        count++;
+        assertTrue(entityTag.isGeoRelationship());
+      } else if (entityTag.getRelationship().equals("manages")) {
+        count++;
+      } else if (entityTag.getRelationship().equals("ibc")) {
+        count++;
+      }
 
     }
-
-    public void validateEntities(SystemUser su, Entity entity) {
-        Iterable<EntityTag> entityTags = entityTagService.findEntityTagsWithGeo(entity);
-        int count = 0;
-        for (EntityTag entityTag : entityTags) {
-            if (entityTag.getRelationship().equals("located")) {
-                count++;
-                assertTrue(entityTag.isGeoRelationship());
-                assertEquals("located", entityTag.getRelationship());
-            } else if (entityTag.getRelationship().equals("jurisdiction")) {
-                count++;
-                assertTrue(entityTag.isGeoRelationship());
-            } else if (entityTag.getRelationship().equals("manages")) {
-                count++;
-            } else if (entityTag.getRelationship().equals("ibc")) {
-                count++;
-            }
-
-        }
-        assertEquals("Found more relationships than expected", 4, count);
-        assertEquals(1, entityTagService.findInboundTagResults(su.getCompany(), entity).size());
-        assertEquals(3, entityTagService.findOutboundTagResults(su.getCompany(), entity).size());
-    }
+    assertEquals("Found more relationships than expected", 4, count);
+    assertEquals(1, entityTagService.findInboundTagResults(su.getCompany(), entity).size());
+    assertEquals(3, entityTagService.findOutboundTagResults(su.getCompany(), entity).size());
+  }
 }

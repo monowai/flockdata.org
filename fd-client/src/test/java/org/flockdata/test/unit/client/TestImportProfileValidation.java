@@ -39,67 +39,67 @@ import org.junit.rules.ExpectedException;
  * @since 28/01/2015
  */
 public class TestImportProfileValidation extends AbstractImport {
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
+  @Rule
+  public final ExpectedException exception = ExpectedException.none();
 
-    @Test
-    public void valid_Properties() throws Exception {
+  @Test
+  public void valid_Properties() throws Exception {
 
-        ContentModel profile = ContentModelDeserializer.getContentModel("/model/properties-rlx.json");
-        ExtractProfile extractProfile = new ExtractProfileHandler(profile, false);
-        extractProfile.setQuoteCharacter("|");
-        assertEquals(',', extractProfile.getDelimiter());
-        assertEquals(false, extractProfile.hasHeader());
-        profile.setFortress(null);
-        exception.expect(FlockException.class);
-        fileProcessor.processFile(extractProfile, "/data/properties-rlx.txt");
+    ContentModel profile = ContentModelDeserializer.getContentModel("/model/properties-rlx.json");
+    ExtractProfile extractProfile = new ExtractProfileHandler(profile, false);
+    extractProfile.setQuoteCharacter("|");
+    assertEquals(',', extractProfile.getDelimiter());
+    assertEquals(false, extractProfile.hasHeader());
+    profile.setFortress(null);
+    exception.expect(FlockException.class);
+    fileProcessor.processFile(extractProfile, "/data/properties-rlx.txt");
 
-        // Should also fail with blank
-        profile.setFortress(new FortressInputBean(""));
-        exception.expect(IllegalArgumentException.class);
-        fileProcessor.processFile(extractProfile, "/data/properties-rlx.txt");
+    // Should also fail with blank
+    profile.setFortress(new FortressInputBean(""));
+    exception.expect(IllegalArgumentException.class);
+    fileProcessor.processFile(extractProfile, "/data/properties-rlx.txt");
 
-        profile.setFortress(new FortressInputBean("Override The Name"));
-        assertTrue("Blank fortressName was not overridden", profile.getFortress().getName().equals("Override The Name"));
+    profile.setFortress(new FortressInputBean("Override The Name"));
+    assertTrue("Blank fortressName was not overridden", profile.getFortress().getName().equals("Override The Name"));
 
-        profile.setFortress(new FortressInputBean("abc"));
-        assertFalse("Setting fortressName should not override a fortressObject", profile.getFortress().getName().equals("abc"));
-        profile.setFortress(new FortressInputBean("Override The Name"));
-        assertTrue(profile.getFortress().getName().equals("Override The Name"));
+    profile.setFortress(new FortressInputBean("abc"));
+    assertFalse("Setting fortressName should not override a fortressObject", profile.getFortress().getName().equals("abc"));
+    profile.setFortress(new FortressInputBean("Override The Name"));
+    assertTrue(profile.getFortress().getName().equals("Override The Name"));
 
-        exception.expect(IllegalArgumentException.class);
-        profile.setDocumentName(null);
-        try {
-            fileProcessor.processFile(extractProfile, "/data/properties-rlx.txt");
-            fail("No document name found. We should not have gotten here");
-        } catch (FlockException e) {
-            assertTrue(e.getMessage().contains("documentName attribute."));
-        }
-
-        profile.setDocumentName("");
-        try {
-            fileProcessor.processFile(extractProfile, "/properties-rlx.txt");
-            fail("No document name found. We should not have gotten here");
-        } catch (FlockException e) {
-            assertTrue(e.getMessage().contains("documentName attribute."));
-        }
-
+    exception.expect(IllegalArgumentException.class);
+    profile.setDocumentName(null);
+    try {
+      fileProcessor.processFile(extractProfile, "/data/properties-rlx.txt");
+      fail("No document name found. We should not have gotten here");
+    } catch (FlockException e) {
+      assertTrue(e.getMessage().contains("documentName attribute."));
     }
 
-    @Test
-    public void argumentsAreTrimmed() throws Exception {
-
-        ContentModel profile = ContentModelDeserializer.getContentModel(" /model/properties-rlx.json ");
-        assertNotNull("Locating profile did not trim leading and trailing white space", profile);
-        ExtractProfile extractProfile = new ExtractProfileHandler(profile, false);
-        extractProfile.setQuoteCharacter("|");
-        assertEquals(',', extractProfile.getDelimiter());
-        assertEquals(false, extractProfile.hasHeader());
-        profile.setFortress(null);
-        exception.expect(FlockException.class);
-        fileProcessor.processFile(extractProfile, " /data/properties-rlx.txt ");
-
+    profile.setDocumentName("");
+    try {
+      fileProcessor.processFile(extractProfile, "/properties-rlx.txt");
+      fail("No document name found. We should not have gotten here");
+    } catch (FlockException e) {
+      assertTrue(e.getMessage().contains("documentName attribute."));
     }
+
+  }
+
+  @Test
+  public void argumentsAreTrimmed() throws Exception {
+
+    ContentModel profile = ContentModelDeserializer.getContentModel(" /model/properties-rlx.json ");
+    assertNotNull("Locating profile did not trim leading and trailing white space", profile);
+    ExtractProfile extractProfile = new ExtractProfileHandler(profile, false);
+    extractProfile.setQuoteCharacter("|");
+    assertEquals(',', extractProfile.getDelimiter());
+    assertEquals(false, extractProfile.hasHeader());
+    profile.setFortress(null);
+    exception.expect(FlockException.class);
+    fileProcessor.processFile(extractProfile, " /data/properties-rlx.txt ");
+
+  }
 
 
 }

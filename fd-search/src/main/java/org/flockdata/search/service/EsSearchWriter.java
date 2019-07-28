@@ -57,100 +57,127 @@ import org.springframework.stereotype.Service;
 @Primary
 public class EsSearchWriter implements SearchWriter {
 
-    private final IndexMappingService indexMappingService;
+  private final IndexMappingService indexMappingService;
 
-    private final EntityChangeWriter entityWriter;
+  private final EntityChangeWriter entityWriter;
 
-    private final TagChangeWriter tagWriter;
+  private final TagChangeWriter tagWriter;
 
-    private boolean fdServer = false;
+  private boolean fdServer = false;
 
-    private GraphResultGateway graphGateway;
+  private GraphResultGateway graphGateway;
 
-    private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
+  private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
 
-    @Autowired
-    public EsSearchWriter(TagChangeWriter tagWriter, EntityChangeWriter entityWriter, IndexMappingService indexMappingService, Environment environment) {
-        this.tagWriter = tagWriter;
-        this.entityWriter = entityWriter;
-        this.indexMappingService = indexMappingService;
-        this.fdServer = environment.acceptsProfiles("fd-server");
-    }
+  @Autowired
+  public EsSearchWriter(TagChangeWriter tagWriter, EntityChangeWriter entityWriter, IndexMappingService indexMappingService, Environment environment) {
+    this.tagWriter = tagWriter;
+    this.entityWriter = entityWriter;
+    this.indexMappingService = indexMappingService;
+    this.fdServer = environment.acceptsProfiles("fd-server");
+  }
 
-    @Autowired(required = false)
-    void setGraphGateway(GraphResultGateway graphResultGateway) {
-        this.graphGateway = graphResultGateway;
-    }
+  @Autowired(required = false)
+  void setGraphGateway(GraphResultGateway graphResultGateway) {
+    this.graphGateway = graphResultGateway;
+  }
 
-    /**
-     * Triggered by the Coordinator, this is the payload that is required to be indexed
-     * <p>
-     * Handles scenarios where the content exists or doesn't
-     *
-     * @param changes to process
-     */
-    public SearchResults createSearchableChange(SearchChanges changes) {
-        Iterable<SearchChange> thisChange = changes.getChanges();
-        logger.debug("Received request to index Batch {}", changes.getChanges().size());
+  /**
+   * Triggered by the Coordinator, this is the payload that is required to be indexed
+   * <p>
+   * Handles scenarios where the content exists or doesn't
+   *
+   * @param changes to process
+   */
+  public SearchResults createSearchableChange(SearchChanges changes) {
+    Iterable<SearchChange> thisChange = changes.getChanges();
+    logger.debug("Received request to index Batch {}", changes.getChanges().size());
 
-        SearchResults results = new SearchResults();
-        Collection<SearchResult> searchResults = new ArrayList<>(changes.getChanges().size());
+    SearchResults results = new SearchResults();
+    Collection<SearchResult> searchResults = new ArrayList<>(changes.getChanges().size());
 
-        for (SearchChange searchChange : thisChange) {
-            if (searchChange == null) {
-                logger.error("Null search change received. Retry your operation with data!");
-                return results;
-            }
-            logger.debug("searchRequest received for {}", searchChange);
+    for (SearchChange searchChange : thisChange) {
+      if (searchChange == null) {
+        logger.error("Null search change received. Retry your operation with data!");
+        return results;
+      }
+      logger.debug("searchRequest received for {}", searchChange);
 
-            if (searchChange.isDelete()) {
-                if (searchChange.isType(SearchChange.Type.ENTITY)) {
-                    logger.debug("Delete Entity request");
-                    entityWriter.delete((EntitySearchChange) searchChange);
-                }
-                return results;
-            }
-
-            indexMappingService.ensureIndexMapping(searchChange);
-
-            EsSearchResult result;
-            if (searchChange.isType(SearchChange.Type.ENTITY)) {
-                result = new EsSearchResult(
-                    entityWriter.handle((EntitySearchChange) searchChange));
-            } else {
-                result = new EsSearchResult(
-                    tagWriter.handle((TagSearchChange) searchChange));
-            }
-
-
-            // Used to tie the fact that the doc was updated back to the engine
-            if (searchChange.isReplyRequired()) {
-                searchResults.add(result);
-                logger.trace("Dispatching searchResult to fd-engine {}", result);
-            } else {
-                logger.trace("No reply required");
-            }
-        }
-        results = new SearchResults();
-        results.setSearchResults(searchResults);
-
-        if (results.isEmpty()) {
-            logger.debug("No results to return");
-        } else if (!fdServer) {
-            // Manually checking as @Profile does not seem to work with an @MessageGateway
-            logger.debug("Engine Result Gateway is not enabled. ");
-        } else {
-            graphGateway.writeSearchResult(results);
-            logger.debug("Processed {} requests. Returning [{}] SearchResults", results.getSearchResults().size(), results.getSearchResults().size());
-
+      if (searchChange.isDelete()) {
+        if (searchChange.isType(SearchChange.Type.ENTITY)) {
+          logger.debug("Delete Entity request");
+          entityWriter.delete((EntitySearchChange) searchChange);
         }
         return results;
+      }
+
+      indexMappingService.ensureIndexMapping(searchChange);
+//    public EsSearchResult(SearchChange thisChange) {
+//        this();
+//        this.entityId = thisChange.getId();
+//        this.fortress = thisChange.getFortressName();
+//        this.searchKey = thisChange.getSearchKey();
+//        this.documentType = thisChange.getDocumentType();
+//        this.key = thisChange.getKey();
+//        this.indexName = thisChange.getIndexName();
+//
+//        setLogId(thisChange.getLogId());
+//        setEntityId(thisChange.getId());
+//    }
+      EsSearchResult result;
+      if (searchChange.isType(SearchChange.Type.ENTITY)) {
+        EntitySearchChange esc = entityWriter.handle((EntitySearchChange) searchChange);
+        result = EsSearchResult.builder()
+            .entityId(esc.getId())
+            .fortress(esc.getFortressName())
+            .searchKey(esc.getSearchKey())
+            .documentType(esc.getDocumentType())
+            .key(esc.getKey())
+            .indexName(esc.getIndexName())
+            .logId(esc.getLogId())
+            .build();
+      } else {
+        TagSearchChange esc = tagWriter.handle((TagSearchChange) searchChange);
+        result = EsSearchResult.builder()
+            .entityId(esc.getId())
+            .fortress(esc.getFortressName())
+            .searchKey(esc.getSearchKey())
+            .documentType(esc.getDocumentType())
+            .key(esc.getKey())
+            .indexName(esc.getIndexName())
+            .logId(esc.getLogId())
+            .build();
+      }
+
+
+      // Used to tie the fact that the doc was updated back to the engine
+      if (searchChange.isReplyRequired()) {
+        searchResults.add(result);
+        logger.trace("Dispatching searchResult to fd-engine {}", result);
+      } else {
+        logger.trace("No reply required");
+      }
+    }
+    results = new SearchResults();
+    results.setSearchResults(searchResults);
+
+    if (results.isEmpty()) {
+      logger.debug("No results to return");
+    } else if (!fdServer) {
+      // Manually checking as @Profile does not seem to work with an @MessageGateway
+      logger.debug("Engine Result Gateway is not enabled. ");
+    } else {
+      graphGateway.writeSearchResult(results);
+      logger.debug("Processed {} requests. Returning [{}] SearchResults", results.getSearchResults().size(), results.getSearchResults().size());
 
     }
+    return results;
 
-    @PostConstruct
-    void logStatus() {
-        logger.debug("**** Deployed EsSearchWriter.  EngineResultGateway {}", graphGateway != null);
-    }
+  }
+
+  @PostConstruct
+  void logStatus() {
+    logger.debug("**** Deployed EsSearchWriter.  EngineResultGateway {}", graphGateway != null);
+  }
 
 }

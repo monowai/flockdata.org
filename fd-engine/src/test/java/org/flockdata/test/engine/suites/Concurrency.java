@@ -54,7 +54,7 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableRetry
 public class Concurrency {
 
-    public Concurrency() {
-    }
+  public Concurrency() {
+  }
 
 }

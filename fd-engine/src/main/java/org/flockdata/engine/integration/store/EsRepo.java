@@ -53,89 +53,89 @@ import org.springframework.web.client.HttpServerErrorException;
 @Profile( {"fd-server"})
 public class EsRepo extends AbstractStore {
 
-    @Autowired
-    private EsStoreRequest.ContentStoreEs gateway;
+  @Autowired
+  private EsStoreRequest.ContentStoreEs gateway;
 
-    @Autowired
-    private IndexManager indexManager;
+  @Autowired
+  private IndexManager indexManager;
 
-    @Autowired
-    private EsHelper esHelper;
+  @Autowired
+  private EsHelper esHelper;
 
-    private Logger logger = LoggerFactory.getLogger(EsRepo.class);
+  private Logger logger = LoggerFactory.getLogger(EsRepo.class);
 
-    public void add(StoredContent contentBean) {
+  public void add(StoredContent contentBean) {
 
+  }
+
+  public StoredContent read(LogRequest logRequest) {
+    String index = indexManager.toIndex(logRequest.getEntity());
+    String type = indexManager.parseType(logRequest.getEntity());
+    String id = logRequest.getEntity().getSearchKey();
+    return read(index, type, id);
+  }
+
+  @Override
+  public StoredContent read(String index, String type, String id) {
+    QueryParams queryParams = new QueryParams(index, type, id);
+
+    ContentInputBean contentInput = new ContentInputBean();
+    EsSearchRequestResult result = null;
+    try {
+      result = gateway.getData(queryParams);
+    } catch (HttpServerErrorException e) {
+      logger.error(e.getMessage());
     }
 
-    public StoredContent read(LogRequest logRequest) {
-        String index = indexManager.toIndex(logRequest.getEntity());
-        String type = indexManager.parseType(logRequest.getEntity());
-        String id = logRequest.getEntity().getSearchKey();
-        return read(index, type, id);
-    }
+    if (result != null) {
+      try {
 
-    @Override
-    public StoredContent read(String index, String type, String id) {
-        QueryParams queryParams = new QueryParams(index, type, id);
-
-        ContentInputBean contentInput = new ContentInputBean();
-        EsSearchRequestResult result = null;
-        try {
-            result = gateway.getData(queryParams);
-        } catch (HttpServerErrorException e) {
-            logger.error(e.getMessage());
+        result.setIndex(index);
+        result.setEntityType(type);
+        if (result.getJson() != null) {
+          Map<String, Object> map = JsonUtils.toMap(result.getJson());
+          failIfError(map);
+          map = esHelper.extractData(map);
+          contentInput.setData((Map<String, Object>) map.get(SearchSchema.DATA));
         }
-
-        if (result != null) {
-            try {
-
-                result.setIndex(index);
-                result.setEntityType(type);
-                if (result.getJson() != null) {
-                    Map<String, Object> map = JsonUtils.toMap(result.getJson());
-                    failIfError(map);
-                    map = esHelper.extractData(map);
-                    contentInput.setData((Map<String, Object>) map.get(SearchSchema.DATA));
-                }
-            } catch (FlockException | IOException e) {
-                logger.error("Json issue", e);
-            }
-        }
-        return new StorageBean(id, contentInput);
-
+      } catch (FlockException | IOException e) {
+        logger.error("Json issue", e);
+      }
     }
+    return new StorageBean(id, contentInput);
 
-    private void failIfError(Map<String, Object> map) throws FlockException {
-        if (map == null) {
-            return;
-        }
-        Object error = map.get("__errors__");
-        if (error != null) {
-            throw new FlockException(error.toString());
-        }
+  }
+
+  private void failIfError(Map<String, Object> map) throws FlockException {
+    if (map == null) {
+      return;
     }
-
-    private Map<String, Object> unwrapData(HashMap<String, Object> map) {
-        if (!map.containsKey("hits")) {
-            return null;
-        }
-        Map<String, Object> hits = (Map<String, Object>) map.get("hits");
-        return null;
+    Object error = map.get("__errors__");
+    if (error != null) {
+      throw new FlockException(error.toString());
     }
+  }
 
-    public void delete(LogRequest logRequest) {
-        // ToDo: delete from ES
+  private Map<String, Object> unwrapData(HashMap<String, Object> map) {
+    if (!map.containsKey("hits")) {
+      return null;
     }
+    Map<String, Object> hits = (Map<String, Object>) map.get("hits");
+    return null;
+  }
 
-    @Override
-    public void purge(String index) {
-        // not supported.
-    }
+  public void delete(LogRequest logRequest) {
+    // ToDo: delete from ES
+  }
 
-    @Override
-    public String ping() {
+  @Override
+  public void purge(String index) {
+    // not supported.
+  }
 
-        return "EsStorage is OK";
-    }
+  @Override
+  public String ping() {
+
+    return "EsStorage is OK";
+  }
 }

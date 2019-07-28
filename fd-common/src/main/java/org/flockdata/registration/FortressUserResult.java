@@ -29,31 +29,31 @@ import org.flockdata.data.FortressUser;
  * @since 1/01/17
  */
 public class FortressUserResult implements FortressUser {
-    private String code;
-    private String name;
+  private String code;
+  private String name;
 
-    FortressUserResult() {
+  FortressUserResult() {
 
-    }
+  }
 
-    public FortressUserResult(FortressUser fortressUserInterface) {
-        this();
-        this.code = fortressUserInterface.getCode();
-        this.name = fortressUserInterface.getName();
-    }
+  public FortressUserResult(FortressUser fortressUserInterface) {
+    this();
+    this.code = fortressUserInterface.getCode();
+    this.name = fortressUserInterface.getName();
+  }
 
-    @Override
-    @JsonIgnore
-    public Long getId() {
-        return null;
-    }
+  @Override
+  @JsonIgnore
+  public Long getId() {
+    return null;
+  }
 
-    public String getCode() {
-        return code;
-    }
+  public String getCode() {
+    return code;
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 }

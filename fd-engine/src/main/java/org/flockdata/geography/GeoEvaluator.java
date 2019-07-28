@@ -35,38 +35,38 @@ import org.neo4j.graphdb.traversal.Evaluator;
  * @since 19/03/2015
  */
 public class GeoEvaluator implements Evaluator {
-    static final Label countryLabel = DynamicLabel.label("Country");
-    static final Label entityLabel = DynamicLabel.label("_Entity");
+  static final Label countryLabel = DynamicLabel.label("Country");
+  static final Label entityLabel = DynamicLabel.label("_Entity");
 
-    Collection<String> seenLabels = new ArrayList<>();
+  Collection<String> seenLabels = new ArrayList<>();
 
-    @Override
-    public Evaluation evaluate(Path path) {
-        if (path.endNode().hasLabel(countryLabel) || path.endNode().hasLabel(entityLabel)) {
-            return Evaluation.INCLUDE_AND_PRUNE;
-        }
-        String thisLabel = getLabel(path.endNode());
-        if (seenLabels.contains(thisLabel)) {
-            return Evaluation.EXCLUDE_AND_CONTINUE;
-        }
-
-        if (thisLabel.contains("Alias")) {
-            return Evaluation.EXCLUDE_AND_CONTINUE;
-        }
-
-        seenLabels.add(thisLabel);
-        return Evaluation.INCLUDE_AND_CONTINUE;
+  @Override
+  public Evaluation evaluate(Path path) {
+    if (path.endNode().hasLabel(countryLabel) || path.endNode().hasLabel(entityLabel)) {
+      return Evaluation.INCLUDE_AND_PRUNE;
+    }
+    String thisLabel = getLabel(path.endNode());
+    if (seenLabels.contains(thisLabel)) {
+      return Evaluation.EXCLUDE_AND_CONTINUE;
     }
 
-    private String getLabel(Node node) {
-        for (Label label : node.getLabels()) {
-            if (!(label.name().equals(TagNode.DEFAULT_TAG) || label.name().equals("Tag"))) {
-                return label.name();
-
-            }
-
-        }
-
-        return TagNode.DEFAULT_TAG;
+    if (thisLabel.contains("Alias")) {
+      return Evaluation.EXCLUDE_AND_CONTINUE;
     }
+
+    seenLabels.add(thisLabel);
+    return Evaluation.INCLUDE_AND_CONTINUE;
+  }
+
+  private String getLabel(Node node) {
+    for (Label label : node.getLabels()) {
+      if (!(label.name().equals(TagNode.DEFAULT_TAG) || label.name().equals("Tag"))) {
+        return label.name();
+
+      }
+
+    }
+
+    return TagNode.DEFAULT_TAG;
+  }
 }

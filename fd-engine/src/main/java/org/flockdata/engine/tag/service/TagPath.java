@@ -40,23 +40,23 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class TagPath {
 
-    private final TagPathDao tagPathDao;
+  private final TagPathDao tagPathDao;
 
-    private final TagService tagService;
+  private final TagService tagService;
 
-    private Logger logger = LoggerFactory.getLogger(TagPath.class);
+  private Logger logger = LoggerFactory.getLogger(TagPath.class);
 
-    @Autowired
-    public TagPath(TagPathDao tagPathDao, TagService tagService) {
-        this.tagPathDao = tagPathDao;
-        this.tagService = tagService;
+  @Autowired
+  public TagPath(TagPathDao tagPathDao, TagService tagService) {
+    this.tagPathDao = tagPathDao;
+    this.tagService = tagService;
+  }
+
+  public Collection<Map<String, Object>> getPaths(CompanyNode company, String label, String code, int length, String targetLabel) throws NotFoundException {
+    Tag tag = tagService.findTag(company, label, null, code, false);
+    if (length < 1) {
+      length = 4;
     }
-
-    public Collection<Map<String, Object>> getPaths(CompanyNode company, String label, String code, int length, String targetLabel) throws NotFoundException {
-        Tag tag = tagService.findTag(company, label, null, code, false);
-        if (length < 1) {
-            length = 4;
-        }
-        return tagPathDao.getPaths(tag, length, targetLabel);
-    }
+    return tagPathDao.getPaths(tag, length, targetLabel);
+  }
 }

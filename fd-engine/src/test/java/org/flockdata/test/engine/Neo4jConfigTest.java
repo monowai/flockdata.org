@@ -56,41 +56,41 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Profile( {"dev"})
 public class Neo4jConfigTest extends Neo4jConfiguration {
 
-    GraphDatabaseService graphdb = null;
-    private Logger logger = LoggerFactory.getLogger("configuration");
+  GraphDatabaseService graphdb = null;
+  private Logger logger = LoggerFactory.getLogger("configuration");
 
-    String getNeoStoreDir() {
-        return "./target/data/" + System.currentTimeMillis();
+  String getNeoStoreDir() {
+    return "./target/data/" + System.currentTimeMillis();
+  }
+
+  @PostConstruct
+  public void logFdNeoConfig() {
+    logger.info("**** Neo4j Test configuration deployed");
+  }
+
+  @Bean
+  public GraphDatabaseService graphDatabaseService(
+      @Value("${org.neo4j.server.webserver.port:0}") Integer port) {
+    setBasePackage("org.flockdata.engine.data.graph");
+    graphdb = graphDatabaseFactory().newEmbeddedDatabase(getNeoStoreDir());
+    ServerConfigurator config = new ServerConfigurator((GraphDatabaseAPI) graphdb);
+    if (port > 0) {
+      config.configuration().setProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, port);
+      new WrappingCommunityNeoServer((GraphDatabaseAPI) graphdb, config).start();
     }
+    return graphdb;
+  }
 
-    @PostConstruct
-    public void logFdNeoConfig() {
-        logger.info("**** Neo4j Test configuration deployed");
-    }
-
-    @Bean
-    public GraphDatabaseService graphDatabaseService(
-        @Value("${org.neo4j.server.webserver.port:0}") Integer port) {
-        setBasePackage("org.flockdata.engine.data.graph");
-        graphdb = graphDatabaseFactory().newEmbeddedDatabase(getNeoStoreDir());
-        ServerConfigurator config = new ServerConfigurator((GraphDatabaseAPI) graphdb);
-        if (port > 0) {
-            config.configuration().setProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, port);
-            new WrappingCommunityNeoServer((GraphDatabaseAPI) graphdb, config).start();
-        }
-        return graphdb;
-    }
-
-    @Bean
-    GraphDatabaseFactory graphDatabaseFactory() {
-        return new TestGraphDatabaseFactory();
-    }
+  @Bean
+  GraphDatabaseFactory graphDatabaseFactory() {
+    return new TestGraphDatabaseFactory();
+  }
 
 
-    Map<String, String> dbProperties() {
-        Map<String, String> props = new HashMap<>();
-        return props;
-    }
+  Map<String, String> dbProperties() {
+    Map<String, String> props = new HashMap<>();
+    return props;
+  }
 
 
 }

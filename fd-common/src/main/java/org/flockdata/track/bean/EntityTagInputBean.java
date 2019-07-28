@@ -27,86 +27,86 @@ import org.flockdata.data.Tag;
  * @since 28/06/2013
  */
 public class EntityTagInputBean {
-    private String tagCode;
-    private String key;
-    private String type;
-    private String index;
-    private boolean since;
-    private boolean geoRlx;
-    private String tagKeyPrefix;
+  private String tagCode;
+  private String key;
+  private String type;
+  private String index;
+  private boolean since;
+  private boolean geoRlx;
+  private String tagKeyPrefix;
 
-    private EntityTagInputBean() {
-    }
+  private EntityTagInputBean() {
+  }
 
-    /**
-     * @param key              key for an existing entity
-     * @param tagCode          name of an existing tag
-     * @param relationshipName relationship name to create
-     */
-    public EntityTagInputBean(String key, String tagCode, String relationshipName) {
-        this();
-        this.key = key;
-        this.tagCode = tagCode;
-        if (relationshipName == null) {
-            this.type = "general";
-        } else {
-            this.type = relationshipName;
-        }
+  /**
+   * @param key              key for an existing entity
+   * @param tagCode          name of an existing tag
+   * @param relationshipName relationship name to create
+   */
+  public EntityTagInputBean(String key, String tagCode, String relationshipName) {
+    this();
+    this.key = key;
+    this.tagCode = tagCode;
+    if (relationshipName == null) {
+      this.type = "general";
+    } else {
+      this.type = relationshipName;
     }
+  }
 
-    public String getKey() {
-        return key;
-    }
+  public String getKey() {
+    return key;
+  }
 
-    public String getTagCode() {
-        return tagCode;
-    }
+  public String getTagCode() {
+    return tagCode;
+  }
 
-    /**
-     * Type of relationship
-     *
-     * @return relationship name
-     */
-    public String getType() {
-        return type;
-    }
+  /**
+   * Type of relationship
+   *
+   * @return relationship name
+   */
+  public String getType() {
+    return type;
+  }
 
-    public String getIndex() {
-        if (index == null || "".equals(index)) {
-            return Tag.DEFAULT;
-        } else {
-            return index;
-        }
+  public String getIndex() {
+    if (index == null || "".equals(index)) {
+      return Tag.DEFAULT;
+    } else {
+      return index;
     }
+  }
 
-    public void setIndex(String index) {
-        this.index = index;
-    }
+  public void setIndex(String index) {
+    this.index = index;
+  }
 
-    public boolean isSince() {
-        return since;
-    }
+  public boolean isSince() {
+    return since;
+  }
 
-    /**
-     * When connecting the tag to the entity, tell FD to record a timestamp as a user defined property
-     *
-     * @param since yes/no
-     * @return this
-     */
-    public EntityTagInputBean setSince(boolean since) {
-        this.since = since;
-        return this;
-    }
+  /**
+   * When connecting the tag to the entity, tell FD to record a timestamp as a user defined property
+   *
+   * @param since yes/no
+   * @return this
+   */
+  public EntityTagInputBean setSince(boolean since) {
+    this.since = since;
+    return this;
+  }
 
-    public String getTagKeyPrefix() {
-        return tagKeyPrefix;
-    }
+  public String getTagKeyPrefix() {
+    return tagKeyPrefix;
+  }
 
-    public void setTagKeyPrefix(String tagKeyPrefix) {
-        this.tagKeyPrefix = tagKeyPrefix;
-    }
+  public void setTagKeyPrefix(String tagKeyPrefix) {
+    this.tagKeyPrefix = tagKeyPrefix;
+  }
 
-    public boolean isGeoRlx() {
-        return geoRlx;
-    }
+  public boolean isGeoRlx() {
+    return geoRlx;
+  }
 }

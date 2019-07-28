@@ -34,18 +34,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 //@Profile("discovery")
 //public class DiscoveryConfiguration implements InfoContributor {
 public class DiscoveryConfiguration {
-    private final StoreConfig storeConfig;
-    private Logger logger = LoggerFactory.getLogger("configuration");
+  private final StoreConfig storeConfig;
+  private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Autowired
-    public DiscoveryConfiguration(StoreConfig storeConfig) {
-        this.storeConfig = storeConfig;
-    }
+  @Autowired
+  public DiscoveryConfiguration(StoreConfig storeConfig) {
+    this.storeConfig = storeConfig;
+  }
 
-    @PostConstruct
-    public void logStatus() {
-        logger.info("**** Discovery Configuration Client configuration deployed");
-    }
+  @PostConstruct
+  public void logStatus() {
+    logger.info("**** Discovery Configuration Client configuration deployed");
+  }
 
 //    @Override
 //    public void contribute(Info.Builder builder) {

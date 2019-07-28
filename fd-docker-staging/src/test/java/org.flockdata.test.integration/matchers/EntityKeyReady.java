@@ -30,27 +30,27 @@ import org.springframework.stereotype.Component;
 @Component
 public class EntityKeyReady implements ReadyMatcher {
 
-    private EntityGet entityGet;
-    private EntityInputBean entityInputBean;
-    private CommandResponse<EntityResultBean> response;
-    private String key;
+  private EntityGet entityGet;
+  private EntityInputBean entityInputBean;
+  private CommandResponse<EntityResultBean> response;
+  private String key;
 
-    public EntityKeyReady(EntityGet entityGet, EntityInputBean entityInputBean, String key) {
-        this.entityGet = entityGet;
-        this.entityInputBean = entityInputBean;
-        this.key = key;
-    }
+  public EntityKeyReady(EntityGet entityGet, EntityInputBean entityInputBean, String key) {
+    this.entityGet = entityGet;
+    this.entityInputBean = entityInputBean;
+    this.key = key;
+  }
 
-    @Override
-    public CommandResponse<EntityResultBean> getResponse() {
-        return response;
-    }
+  @Override
+  public CommandResponse<EntityResultBean> getResponse() {
+    return response;
+  }
 
-    @Override
-    public boolean isReady(FdIoInterface fdIoInterface) {
-        response = entityGet.exec(entityInputBean, key);
-        return response.getResult() != null && response.getResult().getKey() != null;
+  @Override
+  public boolean isReady(FdIoInterface fdIoInterface) {
+    response = entityGet.exec(entityInputBean, key);
+    return response.getResult() != null && response.getResult().getKey() != null;
 
-    }
+  }
 
 }

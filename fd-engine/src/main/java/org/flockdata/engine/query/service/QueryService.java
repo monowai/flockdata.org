@@ -55,84 +55,84 @@ import org.springframework.web.client.ResourceAccessException;
 @PreAuthorize(FdRoles.EXP_EITHER)
 public class QueryService {
 
-    private final FortressService fortressService;
-    private final IndexManager indexManager;
-    private Logger logger = LoggerFactory.getLogger(QueryService.class);
-    private TagCloudGateway tagCloudGateway;
-    private EntityKeyGateway entityKeyGateway;
+  private final FortressService fortressService;
+  private final IndexManager indexManager;
+  private Logger logger = LoggerFactory.getLogger(QueryService.class);
+  private TagCloudGateway tagCloudGateway;
+  private EntityKeyGateway entityKeyGateway;
 
-    private ContentStoreEs esStore;
+  private ContentStoreEs esStore;
 
-    private FdViewQueryGateway fdViewQueryGateway;
+  private FdViewQueryGateway fdViewQueryGateway;
 
-    @Autowired
-    public QueryService(IndexManager indexManager, FortressService fortressService) {
-        this.indexManager = indexManager;
-        this.fortressService = fortressService;
-    }
+  @Autowired
+  public QueryService(IndexManager indexManager, FortressService fortressService) {
+    this.indexManager = indexManager;
+    this.fortressService = fortressService;
+  }
 
-    @Autowired(required = false)
+  @Autowired(required = false)
 // Functional tests don't require gateways
-    void setTagCloudGateway(TagCloudGateway tagCloudGateway) {
-        this.tagCloudGateway = tagCloudGateway;
+  void setTagCloudGateway(TagCloudGateway tagCloudGateway) {
+    this.tagCloudGateway = tagCloudGateway;
+  }
+
+  @Autowired(required = false)
+    // Functional tests don't require gateways
+  void setEntityKeyGateway(EntityKeyGateway entityKeyGateway) {
+    this.entityKeyGateway = entityKeyGateway;
+  }
+
+  @Autowired(required = false)
+  void setFdViewQueryGateway(FdViewQueryGateway fdViewQueryGateway) {
+    this.fdViewQueryGateway = fdViewQueryGateway;
+  }
+
+  @Autowired(required = false)
+  void setContentStoreEs(ContentStoreEs contentStoreEs) {
+    this.esStore = contentStoreEs;
+  }
+
+  public EsSearchRequestResult search(Company company, QueryParams queryParams) {
+
+    queryParams.setCompany(company.getName());
+    EsSearchRequestResult esSearchRequestResult;
+    if (queryParams.isSearchTagsOnly()) {
+      // Set the index
+      queryParams.setIndex(indexManager.toIndex(queryParams));
     }
 
-    @Autowired(required = false)
-        // Functional tests don't require gateways
-    void setEntityKeyGateway(EntityKeyGateway entityKeyGateway) {
-        this.entityKeyGateway = entityKeyGateway;
-    }
-
-    @Autowired(required = false)
-    void setFdViewQueryGateway(FdViewQueryGateway fdViewQueryGateway) {
-        this.fdViewQueryGateway = fdViewQueryGateway;
-    }
-
-    @Autowired(required = false)
-    void setContentStoreEs(ContentStoreEs contentStoreEs) {
-        this.esStore = contentStoreEs;
-    }
-
-    public EsSearchRequestResult search(Company company, QueryParams queryParams) {
-
-        queryParams.setCompany(company.getName());
-        EsSearchRequestResult esSearchRequestResult;
-        if (queryParams.isSearchTagsOnly()) {
-            // Set the index
-            queryParams.setIndex(indexManager.toIndex(queryParams));
+    if (queryParams.isMatchAll() || queryParams.isSearchTagsOnly() || queryParams.getQuery() != null || queryParams.getAggs() != null) {
+      esSearchRequestResult = esStore.getData(queryParams);
+    } else {
+      if (fdViewQueryGateway == null) {
+        logger.info("fdViewQueryGateway is not available");
+        return null;
+      } else {
+        try {
+          esSearchRequestResult = fdViewQueryGateway.fdSearch(queryParams);
+        } catch (ResourceAccessException e) {
+          throw new FlockServiceException("The search service is not currently available");
         }
-
-        if (queryParams.isMatchAll() || queryParams.isSearchTagsOnly() || queryParams.getQuery() != null || queryParams.getAggs() != null) {
-            esSearchRequestResult = esStore.getData(queryParams);
-        } else {
-            if (fdViewQueryGateway == null) {
-                logger.info("fdViewQueryGateway is not available");
-                return null;
-            } else {
-                try {
-                    esSearchRequestResult = fdViewQueryGateway.fdSearch(queryParams);
-                } catch (ResourceAccessException e) {
-                    throw new FlockServiceException("The search service is not currently available");
-                }
-            }
-        }
-
-        return esSearchRequestResult;
-
+      }
     }
 
-    public TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException {
-        FortressNode fortress = fortressService.findByCode(company, tagCloudParams.getFortress());
-        if (fortress == null) {
-            throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
-        }
-        tagCloudParams.setFortress(fortress.getCode());
-        tagCloudParams.setCompany(company.getCode());
-        return tagCloudGateway.getTagCloud(tagCloudParams);
-    }
+    return esSearchRequestResult;
 
-    public EntityKeyResults getKeys(Company company, QueryParams queryParams) {
-        queryParams.setCompany(company.getName());
-        return entityKeyGateway.keys(queryParams);
+  }
+
+  public TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException {
+    FortressNode fortress = fortressService.findByCode(company, tagCloudParams.getFortress());
+    if (fortress == null) {
+      throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
     }
+    tagCloudParams.setFortress(fortress.getCode());
+    tagCloudParams.setCompany(company.getCode());
+    return tagCloudGateway.getTagCloud(tagCloudParams);
+  }
+
+  public EntityKeyResults getKeys(Company company, QueryParams queryParams) {
+    queryParams.setCompany(company.getName());
+    return entityKeyGateway.keys(queryParams);
+  }
 }

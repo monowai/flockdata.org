@@ -46,105 +46,105 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
  */
 public class TestTrackEP extends MvcBase {
 
-    @Test
-    public void track_MinimalArguments() throws Exception {
-        FortressResultBean f = makeFortress(mike(), new FortressInputBean("track_MinimalArguments", true));
-        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
-        eib.setFortressUser("usera");
-        eib.setCode(new DateTime().toString());
-        ContentInputBean cib = new ContentInputBean("userA", ContentDataHelper.getRandomMap());
-        eib.setContent(cib);
-        TrackRequestResult trackResult = track(mike(), eib);
-        assertNotNull(trackResult);
-        assertEquals("A new entity should have been created", true, trackResult.isNewEntity());
-        assertEquals("No service message was returned", 1, trackResult.getServiceMessages().size());
-        EntityResultBean e = getEntity(mike(), trackResult.getKey());
-        //Entity e = entityService.getEntity(su.getCompany(), trackResult.getKey());
+  @Test
+  public void track_MinimalArguments() throws Exception {
+    FortressResultBean f = makeFortress(mike(), new FortressInputBean("track_MinimalArguments", true));
+    EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
+    eib.setFortressUser("usera");
+    eib.setCode(new DateTime().toString());
+    ContentInputBean cib = new ContentInputBean("userA", ContentDataHelper.getRandomMap());
+    eib.setContent(cib);
+    TrackRequestResult trackResult = track(mike(), eib);
+    assertNotNull(trackResult);
+    assertEquals("A new entity should have been created", true, trackResult.isNewEntity());
+    assertEquals("No service message was returned", 1, trackResult.getServiceMessages().size());
+    EntityResultBean e = getEntity(mike(), trackResult.getKey());
+    //Entity e = entityService.getEntity(su.getCompany(), trackResult.getKey());
 
-        assertEquals("usera", e.getLastUser().getCode());
-        assertEquals("usera", e.getCreatedBy().getCode());
-        assertNotNull(e.getSearchKey());
+    assertEquals("usera", e.getLastUser().getCode());
+    assertEquals("usera", e.getCreatedBy().getCode());
+    assertNotNull(e.getSearchKey());
 
-        trackResult = track(mike(), eib);
-        assertEquals("Existing entity should have been found", true, !trackResult.isNewEntity());
+    trackResult = track(mike(), eib);
+    assertEquals("Existing entity should have been found", true, !trackResult.isNewEntity());
 
-    }
+  }
 
-    @Test
-    public void track_FortressUserInEntity() throws Exception {
-        FortressResultBean f = makeFortress(mike(), new FortressInputBean("track_MinimalArguments", true));
-        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
-        eib.setFortressUser("userA");
-        ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
-        eib.setContent(cib);
-        TrackRequestResult trackResult = track(mike(), eib);
-        assertNotNull("FortressUser in the Header, but not in Content, should work", trackResult);
-        EntityResultBean e = getEntity(mike(), trackResult.getKey());
+  @Test
+  public void track_FortressUserInEntity() throws Exception {
+    FortressResultBean f = makeFortress(mike(), new FortressInputBean("track_MinimalArguments", true));
+    EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
+    eib.setFortressUser("userA");
+    ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
+    eib.setContent(cib);
+    TrackRequestResult trackResult = track(mike(), eib);
+    assertNotNull("FortressUser in the Header, but not in Content, should work", trackResult);
+    EntityResultBean e = getEntity(mike(), trackResult.getKey());
 
-        assertEquals("usera", e.getLastUser().getCode());
-        assertEquals("usera", e.getCreatedBy().getCode());
-    }
+    assertEquals("usera", e.getLastUser().getCode());
+    assertEquals("usera", e.getCreatedBy().getCode());
+  }
 
-    @Test
-    public void entity_findLogs() throws Exception {
-        FortressResultBean f = makeFortress(mike(), new FortressInputBean("entity_findLogs", true));
-        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
-        eib.setFortressUser("userA");
-        ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
-        eib.setContent(cib);
-        TrackRequestResult trackResult = track(mike(), eib);
-        assertNotNull(trackResult);
-        Collection<EntityLogResult> entityLogs = getEntityLogs(mike(), trackResult.getKey());
-        assertEquals(1, entityLogs.size());
-    }
+  @Test
+  public void entity_findLogs() throws Exception {
+    FortressResultBean f = makeFortress(mike(), new FortressInputBean("entity_findLogs", true));
+    EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
+    eib.setFortressUser("userA");
+    ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
+    eib.setContent(cib);
+    TrackRequestResult trackResult = track(mike(), eib);
+    assertNotNull(trackResult);
+    Collection<EntityLogResult> entityLogs = getEntityLogs(mike(), trackResult.getKey());
+    assertEquals(1, entityLogs.size());
+  }
 
-    @Test
-    public void entity_findLogsWithIllegalEntity() throws Exception {
-        FortressResultBean f = makeFortress(mike(), new FortressInputBean("entity_findLogsWithIllegalEntity", true));
-        EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
-        eib.setFortressUser("userA");
-        ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
-        eib.setContent(cib);
-        // Test Serialization
-        byte[] bytes = JsonUtils.toJsonBytes(eib);
-        eib = JsonUtils.toObject(bytes, EntityInputBean.class);
+  @Test
+  public void entity_findLogsWithIllegalEntity() throws Exception {
+    FortressResultBean f = makeFortress(mike(), new FortressInputBean("entity_findLogsWithIllegalEntity", true));
+    EntityInputBean eib = new EntityInputBean(f, new DocumentTypeInputBean("DocType"));
+    eib.setFortressUser("userA");
+    ContentInputBean cib = new ContentInputBean(ContentDataHelper.getRandomMap());
+    eib.setContent(cib);
+    // Test Serialization
+    byte[] bytes = JsonUtils.toJsonBytes(eib);
+    eib = JsonUtils.toObject(bytes, EntityInputBean.class);
 
-        TrackRequestResult trackResult = track(mike(), eib);
-        assertNotNull(trackResult);
-        login("mike", "123");
-        getEntityLogsIllegalEntity(mike(), trackResult.getKey() + "123");
+    TrackRequestResult trackResult = track(mike(), eib);
+    assertNotNull(trackResult);
+    login("mike", "123");
+    getEntityLogsIllegalEntity(mike(), trackResult.getKey() + "123");
 
-    }
+  }
 
-    @Test
-    public void entity_notFoundException() throws Exception {
-        login("mike", "123");
-        exception.expect(NotFoundException.class);
-        getEntity(mike(), "invalidKey)", MockMvcResultMatchers.status().isNotFound());
+  @Test
+  public void entity_notFoundException() throws Exception {
+    login("mike", "123");
+    exception.expect(NotFoundException.class);
+    getEntity(mike(), "invalidKey)", MockMvcResultMatchers.status().isNotFound());
 
-    }
+  }
 
-    @Test
-    public void fortress_DuplicateNameWithProperties() throws Exception {
-        String fName = "fortress_DuplicateNameWithProperties";
+  @Test
+  public void fortress_DuplicateNameWithProperties() throws Exception {
+    String fName = "fortress_DuplicateNameWithProperties";
 //        cleanUpGraph();
-        FortressInputBean fortressInputBean = new FortressInputBean(fName);
-        FortressResultBean result = makeFortress(sally(), fortressInputBean);
-        assertEquals(fName, result.getName());
-        assertEquals(fName.toLowerCase(), result.getCode());
+    FortressInputBean fortressInputBean = new FortressInputBean(fName);
+    FortressResultBean result = makeFortress(sally(), fortressInputBean);
+    assertEquals(fName, result.getName());
+    assertEquals(fName.toLowerCase(), result.getCode());
 
-        // Create the same fortress with a lowercase name.
-        fortressInputBean = new FortressInputBean(fName.toLowerCase());
-        result = makeFortress(sally(), fortressInputBean);
-        assertEquals(fName, result.getName());
-        assertEquals(fName.toLowerCase(), result.getCode());
-        assertNotNull("Index Name not found", result.getRootIndex());
+    // Create the same fortress with a lowercase name.
+    fortressInputBean = new FortressInputBean(fName.toLowerCase());
+    result = makeFortress(sally(), fortressInputBean);
+    assertEquals(fName, result.getName());
+    assertEquals(fName.toLowerCase(), result.getCode());
+    assertNotNull("Index Name not found", result.getRootIndex());
 
-        FortressResultBean fortress = getFortress(sally(), result.getCode());
-        assertEquals(fortress.getRootIndex(), result.getRootIndex());
-        assertEquals("Creation of a fortress should be case insensitive", 1, getFortresses(sally()).size());
+    FortressResultBean fortress = getFortress(sally(), result.getCode());
+    assertEquals(fortress.getRootIndex(), result.getRootIndex());
+    assertEquals("Creation of a fortress should be case insensitive", 1, getFortresses(sally()).size());
 
-    }
+  }
 
 
 }

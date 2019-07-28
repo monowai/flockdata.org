@@ -27,93 +27,93 @@ import org.joda.time.DateTime;
  * @since 1/01/17
  */
 public interface Entity {
-    /**
-     * @return FD internally unique ID
-     */
-    Long getId();
+  /**
+   * @return FD internally unique ID
+   */
+  Long getId();
 
-    /**
-     * @return GUID
-     */
-    String getKey();
+  /**
+   * @return GUID
+   */
+  String getKey();
 
-    String getName();
+  String getName();
 
-    /**
-     * @return lower case type of the entity
-     */
-    String getType();
+  /**
+   * @return lower case type of the entity
+   */
+  String getType();
 
-    FortressUser getLastUser();
+  FortressUser getLastUser();
 
-    Long getLastUpdate();
+  Long getLastUpdate();
 
-    FortressUser getCreatedBy();
+  FortressUser getCreatedBy();
 
-    /**
-     * @return user defined properties to be recorded against the entity
-     */
-    Map<String, Object> getProperties();
+  /**
+   * @return user defined properties to be recorded against the entity
+   */
+  Map<String, Object> getProperties();
 
-    /**
-     * @return is indexing this entity in the search system suppressed
-     */
-    boolean isSearchSuppressed();
+  /**
+   * @return is indexing this entity in the search system suppressed
+   */
+  boolean isSearchSuppressed();
 
-    /**
-     * @return unique identifier within the search service
-     */
-    String getSearchKey();
+  /**
+   * @return unique identifier within the search service
+   */
+  String getSearchKey();
 
-    /**
-     * @return callers unique identifier for this type of entity
-     */
-    String getCode();
+  /**
+   * @return callers unique identifier for this type of entity
+   */
+  String getCode();
 
-    long getDateCreated();
+  long getDateCreated();
 
-    /**
-     * @return nicely formatted date and time based on when this was created in the owning fortress (fortressCreate)
-     */
-    DateTime getFortressCreatedTz();
+  /**
+   * @return nicely formatted date and time based on when this was created in the owning fortress (fortressCreate)
+   */
+  DateTime getFortressCreatedTz();
 
-    /**
-     * @return is this entity new to FlockData?
-     */
-    boolean isNewEntity();
+  /**
+   * @return is this entity new to FlockData?
+   */
+  boolean isNewEntity();
 
-    /**
-     * @return true if there are no logs for this entity
-     */
-    boolean isNoLogs();
+  /**
+   * @return true if there are no logs for this entity
+   */
+  boolean isNoLogs();
 
-    /**
-     * @return computer system that owns this entity
-     */
-    Fortress getFortress();
+  /**
+   * @return computer system that owns this entity
+   */
+  Fortress getFortress();
 
-    /**
-     * @return the segment that this entity exist in
-     */
-    Segment getSegment();
+  /**
+   * @return the segment that this entity exist in
+   */
+  Segment getSegment();
 
-    /**
-     * @return last known event to occur against this entity
-     */
-    String getEvent();
+  /**
+   * @return last known event to occur against this entity
+   */
+  String getEvent();
 
-    /**
-     * Flags the entity as having been affected by search. Can be used for testing when waiting
-     * for a count to be increased
-     *
-     * @return current search count
-     */
-    Integer getSearch();
+  /**
+   * Flags the entity as having been affected by search. Can be used for testing when waiting
+   * for a count to be increased
+   *
+   * @return current search count
+   */
+  Integer getSearch();
 
-    /**
-     * Convenience method
-     *
-     * @return return Updated date in the Timezone of the Fortress
-     */
-    DateTime getFortressUpdatedTz();
+  /**
+   * Convenience method
+   *
+   * @return return Updated date in the Timezone of the Fortress
+   */
+  DateTime getFortressUpdatedTz();
 }

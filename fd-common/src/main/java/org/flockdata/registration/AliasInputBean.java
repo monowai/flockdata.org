@@ -28,66 +28,66 @@ package org.flockdata.registration;
  * @since 12/02/2015
  */
 public class AliasInputBean {
-    private String code;
-    private String description;
+  private String code;
+  private String description;
 
-    public AliasInputBean() {
+  public AliasInputBean() {
+  }
+
+  public AliasInputBean(String code) {
+    this();
+    this.code = code;
+  }
+
+  public AliasInputBean(String code, String description) {
+    this.code = code;
+    this.description = description;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public AliasInputBean setCode(String code) {
+    this.code = code;
+    return this;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public AliasInputBean setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof AliasInputBean)) {
+      return false;
     }
 
-    public AliasInputBean(String code) {
-        this();
-        this.code = code;
-    }
+    AliasInputBean that = (AliasInputBean) o;
 
-    public AliasInputBean(String code, String description) {
-        this.code = code;
-        this.description = description;
-    }
+    return code.equals(that.code);
 
-    public String getCode() {
-        return code;
-    }
+  }
 
-    public AliasInputBean setCode(String code) {
-        this.code = code;
-        return this;
-    }
+  @Override
+  public int hashCode() {
+    int result = code.hashCode();
+    return result;
+  }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public AliasInputBean setDescription(String description) {
-        this.description = description;
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof AliasInputBean)) {
-            return false;
-        }
-
-        AliasInputBean that = (AliasInputBean) o;
-
-        return code.equals(that.code);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = code.hashCode();
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "AliasInputBean{" +
-            "code='" + code + '\'' +
-            ", description='" + description + '\'' +
-            '}';
-    }
+  @Override
+  public String toString() {
+    return "AliasInputBean{" +
+        "code='" + code + '\'' +
+        ", description='" + description + '\'' +
+        '}';
+  }
 }

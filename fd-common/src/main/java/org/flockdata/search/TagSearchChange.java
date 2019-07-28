@@ -36,159 +36,159 @@ import org.flockdata.track.bean.SearchChange;
  */
 public class TagSearchChange implements SearchChange {
 
-    private Map<String, Object> props = new HashMap<>(); // User defined properties
-    private String code;
-    private String name = null;
-    private String type = Type.TAG.name();
-    private String documentType;
-    private String key = null;
-    private String description;
-    private Long id;
-    private Long logId = null;
-    private boolean delete = false;
-    private String indexName;
-    private boolean forceReindex = false;
-    private boolean replyRequired = false;
-    private String searchKey = null; // how to find this object in an es index
+  private Map<String, Object> props = new HashMap<>(); // User defined properties
+  private String code;
+  private String name = null;
+  private String type = Type.TAG.name();
+  private String documentType;
+  private String key = null;
+  private String description;
+  private Long id;
+  private Long logId = null;
+  private boolean delete = false;
+  private String indexName;
+  private boolean forceReindex = false;
+  private boolean replyRequired = false;
+  private String searchKey = null; // how to find this object in an es index
 
-    private Collection<AliasResultBean> aliases = new ArrayList<>();
-    private EntityKeyBean parent = null;
-    private EntityTag.TAG_STRUCTURE tagStructure = null;
+  private Collection<AliasResultBean> aliases = new ArrayList<>();
+  private EntityKeyBean parent = null;
+  private EntityTag.TAG_STRUCTURE tagStructure = null;
 
-    TagSearchChange() {
+  TagSearchChange() {
 
+  }
+
+  public TagSearchChange(String indexName, Tag tag) {
+    this();
+    this.id = tag.getId();
+    this.code = tag.getCode();
+    this.name = tag.getName();
+    this.documentType = tag.getLabel();
+    this.key = tag.getKey();
+    this.indexName = indexName;
+    this.searchKey = key;
+    if (tag.hasProperties()) {
+      this.props = tag.getProperties();
     }
+    aliases.addAll(tag.getAliases().stream().map(AliasResultBean::new).collect(Collectors.toList()));
+  }
 
-    public TagSearchChange(String indexName, Tag tag) {
-        this();
-        this.id = tag.getId();
-        this.code = tag.getCode();
-        this.name = tag.getName();
-        this.documentType = tag.getLabel();
-        this.key = tag.getKey();
-        this.indexName = indexName;
-        this.searchKey = key;
-        if (tag.hasProperties()) {
-            this.props = tag.getProperties();
-        }
-        aliases.addAll(tag.getAliases().stream().map(AliasResultBean::new).collect(Collectors.toList()));
-    }
+  @Override
+  @JsonIgnore
+  public boolean isType(Type type) {
+    return getType().equals(type.name());
+  }
 
-    @Override
-    @JsonIgnore
-    public boolean isType(Type type) {
-        return getType().equals(type.name());
-    }
+  @Override
+  public String getType() {
+    return type;
+  }
 
-    @Override
-    public String getType() {
-        return type;
-    }
+  @Override
+  public String getSearchKey() {
+    return searchKey;
+  }
 
-    @Override
-    public String getSearchKey() {
-        return searchKey;
-    }
+  @Override
+  public void setSearchKey(String key) {
+    this.searchKey = key;
+  }
 
-    @Override
-    public void setSearchKey(String key) {
-        this.searchKey = key;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
+  @Override
+  public Long getLogId() {
+    return logId;
+  }
 
-    @Override
-    public Long getLogId() {
-        return logId;
-    }
+  @Override
+  public String getKey() {
+    return key;
+  }
 
-    @Override
-    public String getKey() {
-        return key;
-    }
+  @Override
+  public String getIndexName() {
+    return indexName;
+  }
 
-    @Override
-    public String getIndexName() {
-        return indexName;
-    }
+  @Override
+  @JsonIgnore
+  public String getFortressName() {
+    return null;
+  }
 
-    @Override
-    @JsonIgnore
-    public String getFortressName() {
-        return null;
-    }
+  @Override
+  public String getDocumentType() {
+    return documentType;
+  }
 
-    @Override
-    public String getDocumentType() {
-        return documentType;
-    }
+  @Override
+  public String getCode() {
+    return code;
+  }
 
-    @Override
-    public String getCode() {
-        return code;
-    }
+  @Override
+  public Long getId() {
+    return id;
+  }
 
-    @Override
-    public Long getId() {
-        return id;
-    }
+  @Override
+  public String getDescription() {
+    return description;
+  }
 
-    @Override
-    public String getDescription() {
-        return description;
-    }
+  @Override
+  public TagSearchChange setDescription(String description) {
+    this.description = description;
+    return this;
+  }
 
-    @Override
-    public TagSearchChange setDescription(String description) {
-        this.description = description;
-        return this;
-    }
+  @Override
+  public boolean isReplyRequired() {
+    return replyRequired;
+  }
 
-    @Override
-    public boolean isReplyRequired() {
-        return replyRequired;
-    }
+  @Override
+  public void setReplyRequired(boolean required) {
 
-    @Override
-    public void setReplyRequired(boolean required) {
+  }
 
-    }
+  @Override
+  public boolean isForceReindex() {
+    return forceReindex;
+  }
 
-    @Override
-    public boolean isForceReindex() {
-        return forceReindex;
-    }
+  @Override
+  public Boolean isDelete() {
+    return delete;
+  }
 
-    @Override
-    public Boolean isDelete() {
-        return delete;
-    }
+  @Override
+  public Map<String, Object> getProps() {
+    return props;
+  }
 
-    @Override
-    public Map<String, Object> getProps() {
-        return props;
-    }
+  @Override
+  @JsonIgnore
+  public EntityTag.TAG_STRUCTURE getTagStructure() {
+    return tagStructure;
+  }
 
-    @Override
-    @JsonIgnore
-    public EntityTag.TAG_STRUCTURE getTagStructure() {
-        return tagStructure;
-    }
+  @Override
+  public EntityKeyBean getParent() {
+    return parent;
+  }
 
-    @Override
-    public EntityKeyBean getParent() {
-        return parent;
-    }
-
-    public Collection<AliasResultBean> getAliases() {
-        return aliases;
-    }
+  public Collection<AliasResultBean> getAliases() {
+    return aliases;
+  }
 }

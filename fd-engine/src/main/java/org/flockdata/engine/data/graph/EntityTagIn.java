@@ -47,114 +47,114 @@ import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 @RelationshipEntity(type = "ENTITY-TAG-IN")
 public class EntityTagIn extends AbstractEntityTag {
 
-    @GraphId
-    private Long id = null;
-    @RelationshipType
-    @Fetch
-    private DynamicRelationshipType relationship;
-    @StartNode
-    @Fetch
-    private TagNode tag;
-    @EndNode
-    private EntityNode entity;
-    private DynamicProperties properties = new DynamicPropertiesContainer();
+  @GraphId
+  private Long id = null;
+  @RelationshipType
+  @Fetch
+  private DynamicRelationshipType relationship;
+  @StartNode
+  @Fetch
+  private TagNode tag;
+  @EndNode
+  private EntityNode entity;
+  private DynamicProperties properties = new DynamicPropertiesContainer();
 
-    protected EntityTagIn() {
+  protected EntityTagIn() {
+  }
+
+  /**
+   * For non-persistent relationship. If caller is not tracking in the graph, then this
+   * constructor can be used to create entity data suitable for writing to search
+   *
+   * @param entity       Entity object
+   * @param tag          Tag object
+   * @param relationship Name of the relationship
+   * @param propMap      Relationship properties
+   */
+  public EntityTagIn(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
+    this();
+    this.entity = (EntityNode) entity;
+    this.tag = (TagNode) tag;
+    this.relationship = DynamicRelationshipType.withName(relationship);
+    if (propMap != null && !propMap.isEmpty()) {
+      this.properties = new DynamicPropertiesContainer(propMap);
     }
+  }
 
-    /**
-     * For non-persistent relationship. If caller is not tracking in the graph, then this
-     * constructor can be used to create entity data suitable for writing to search
-     *
-     * @param entity       Entity object
-     * @param tag          Tag object
-     * @param relationship Name of the relationship
-     * @param propMap      Relationship properties
-     */
-    public EntityTagIn(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
-        this();
-        this.entity = (EntityNode) entity;
-        this.tag = (TagNode) tag;
-        this.relationship = DynamicRelationshipType.withName(relationship);
-        if (propMap != null && !propMap.isEmpty()) {
-            this.properties = new DynamicPropertiesContainer(propMap);
-        }
+  public EntityTagIn(EntityNode entity, EntityTag logTag) {
+    this.entity = entity;
+    this.tag = (TagNode) logTag.getTag();
+    this.properties = new DynamicPropertiesContainer(logTag.getProperties());
+    this.relationship = DynamicRelationshipType.withName(logTag.getRelationship());
+
+  }
+
+  @Override
+  public Long getId() {
+    return id;
+  }
+
+  public Object getProperty(String key) {
+    if (properties == null) {
+      return null;
     }
+    return properties.getProperty(key);
+  }
 
-    public EntityTagIn(EntityNode entity, EntityTag logTag) {
-        this.entity = entity;
-        this.tag = (TagNode) logTag.getTag();
-        this.properties = new DynamicPropertiesContainer(logTag.getProperties());
-        this.relationship = DynamicRelationshipType.withName(logTag.getRelationship());
+  @Override
+  public Map<String, Object> getProperties() {
+    return properties.asMap();
+  }
 
+  public Boolean isGeoRelationship() {
+    if (geoRelationship == null) {
+      return false;
     }
+    return geoRelationship;
+  }
 
-    @Override
-    public Long getId() {
-        return id;
-    }
+  @Override
+  @JsonIgnore
+  public Entity getEntity() {
+    return entity;
+  }
 
-    public Object getProperty(String key) {
-        if (properties == null) {
-            return null;
-        }
-        return properties.getProperty(key);
-    }
+  @Override
+  public Tag getTag() {
+    return tag;
+  }
 
-    @Override
-    public Map<String, Object> getProperties() {
-        return properties.asMap();
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Map<String, Object> getTagProperties() {
+    return tag.getProperties();
+  }
 
-    public Boolean isGeoRelationship() {
-        if (geoRelationship == null) {
-            return false;
-        }
-        return geoRelationship;
-    }
+  @Override
+  @JsonIgnore
+  public Boolean isReversed() {
+    return false;
+  }
 
-    @Override
-    @JsonIgnore
-    public Entity getEntity() {
-        return entity;
+  public String getRelationship() {
+    if (relationship != null) {
+      return relationship.name();
     }
+    return "ENTITY-TAG-IN";
+  }
 
-    @Override
-    public Tag getTag() {
-        return tag;
+  public void setRelationship(String relationship) {
+    if (relationship != null) {
+      this.relationship = DynamicRelationshipType.withName(relationship);
     }
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, Object> getTagProperties() {
-        return tag.getProperties();
-    }
-
-    @Override
-    @JsonIgnore
-    public Boolean isReversed() {
-        return false;
-    }
-
-    public String getRelationship() {
-        if (relationship != null) {
-            return relationship.name();
-        }
-        return "ENTITY-TAG-IN";
-    }
-
-    public void setRelationship(String relationship) {
-        if (relationship != null) {
-            this.relationship = DynamicRelationshipType.withName(relationship);
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "EntityTagIn{" +
-            "id=" + id +
-            ", tag=" + tag +
-            ", entity='" + entity + '\'' +
-            '}';
-    }
+  @Override
+  public String toString() {
+    return "EntityTagIn{" +
+        "id=" + id +
+        ", tag=" + tag +
+        ", entity='" + entity + '\'' +
+        '}';
+  }
 
 }

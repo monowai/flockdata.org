@@ -26,85 +26,85 @@ import org.flockdata.track.bean.GeoDataBeans;
  */
 public abstract class AbstractEntityTag implements Comparable<AbstractEntityTag>, EntityTag {
 
-    protected GeoDataBeans geo;
+  protected GeoDataBeans geo;
 
-    protected Boolean geoRelationship = false;
+  protected Boolean geoRelationship = false;
 
-    @Override
-    public Boolean isGeoRelationship() {
-        if (geoRelationship == null) {
-            return false;
-        }
-        return geoRelationship;
+  @Override
+  public Boolean isGeoRelationship() {
+    if (geoRelationship == null) {
+      return false;
+    }
+    return geoRelationship;
+  }
+
+
+  @Override
+  public Integer getWeight() {
+    return (Integer) getProperty("weight");
+  }
+
+  @Override
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public GeoDataBeans getGeoData() {
+    return geo;
+  }
+
+  @Override
+  public AbstractEntityTag setGeoData(GeoDataBeans geoBeans) {
+    this.geo = geoBeans;
+    return this;
+  }
+
+  public abstract Object getProperty(String key);
+
+  @Override
+  public abstract Map<String, Object> getProperties();
+
+  public int compareTo(AbstractEntityTag o) {
+    int val = getRelationship().compareTo(o.getRelationship());
+    if (val == 0) {
+      return getTag().getCode().compareTo(o.getTag().getCode());
+    }
+    return val;
+
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof AbstractEntityTag)) {
+      return false;
     }
 
+    AbstractEntityTag that = (AbstractEntityTag) o;
 
-    @Override
-    public Integer getWeight() {
-        return (Integer) getProperty("weight");
+    if (getEntity() != null ? !getEntity().equals(that.getEntity()) : that.getEntity() != null) {
+      return false;
     }
-
-    @Override
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public GeoDataBeans getGeoData() {
-        return geo;
+    if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) {
+      return false;
     }
-
-    @Override
-    public AbstractEntityTag setGeoData(GeoDataBeans geoBeans) {
-        this.geo = geoBeans;
-        return this;
+    if (getRelationship() != null ? !getRelationship().equals(that.getRelationship()) : that.getRelationship() != null) {
+      return false;
     }
+    return !(getTag() != null ? !getTag().getId().equals(that.getTag().getId()) : that.getTag() != null);
 
-    public abstract Object getProperty(String key);
+  }
 
-    @Override
-    public abstract Map<String, Object> getProperties();
+  @Override
+  public int hashCode() {
+    int result = getId() != null ? getId().hashCode() : 0;
+    result = 31 * result + (getEntity() != null ? getEntity().getId().hashCode() : 0);
+    result = 31 * result + (getTag() != null ? getTag().getId().hashCode() : 0);
+    result = 31 * result + (getRelationship() != null ? getRelationship().hashCode() : 0);
+    return result;
+  }
 
-    public int compareTo(AbstractEntityTag o) {
-        int val = getRelationship().compareTo(o.getRelationship());
-        if (val == 0) {
-            return getTag().getCode().compareTo(o.getTag().getCode());
-        }
-        return val;
-
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof AbstractEntityTag)) {
-            return false;
-        }
-
-        AbstractEntityTag that = (AbstractEntityTag) o;
-
-        if (getEntity() != null ? !getEntity().equals(that.getEntity()) : that.getEntity() != null) {
-            return false;
-        }
-        if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) {
-            return false;
-        }
-        if (getRelationship() != null ? !getRelationship().equals(that.getRelationship()) : that.getRelationship() != null) {
-            return false;
-        }
-        return !(getTag() != null ? !getTag().getId().equals(that.getTag().getId()) : that.getTag() != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + (getEntity() != null ? getEntity().getId().hashCode() : 0);
-        result = 31 * result + (getTag() != null ? getTag().getId().hashCode() : 0);
-        result = 31 * result + (getRelationship() != null ? getRelationship().hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public void setGeo(Boolean geo) {
-        this.geoRelationship = geo;
-    }
+  @Override
+  public void setGeo(Boolean geo) {
+    this.geoRelationship = geo;
+  }
 }

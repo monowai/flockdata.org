@@ -21,7 +21,8 @@
                 </ASSET_DETAIL>
                 <OWNED_PROPERTY>
                     <OWNED_PROPERTY_DETAIL>
-                        <OwnedPropertyDispositionStatusType>RetainForPrimaryOrSecondaryResidence</OwnedPropertyDispositionStatusType>
+                        <OwnedPropertyDispositionStatusType>RetainForPrimaryOrSecondaryResidence
+                        </OwnedPropertyDispositionStatusType>
                         <OwnedPropertyLienInstallmentAmount>1189</OwnedPropertyLienInstallmentAmount>
                         <OwnedPropertyLienUPBAmount>120000</OwnedPropertyLienUPBAmount>
                         <OwnedPropertyMarketValueAmount>315</OwnedPropertyMarketValueAmount>
@@ -51,7 +52,8 @@
                 </ASSET_DETAIL>
                 <OWNED_PROPERTY>
                     <OWNED_PROPERTY_DETAIL>
-                        <OwnedPropertyDispositionStatusType>RetainForPrimaryOrSecondaryResidence</OwnedPropertyDispositionStatusType>
+                        <OwnedPropertyDispositionStatusType>RetainForPrimaryOrSecondaryResidence
+                        </OwnedPropertyDispositionStatusType>
                         <OwnedPropertyLienInstallmentAmount>1189</OwnedPropertyLienInstallmentAmount>
                         <OwnedPropertyLienUPBAmount>120000</OwnedPropertyLienUPBAmount>
                         <OwnedPropertyMarketValueAmount>315</OwnedPropertyMarketValueAmount>
@@ -76,7 +78,8 @@
                 <ASSET_DETAIL/>
                 <OWNED_PROPERTY>
                     <OWNED_PROPERTY_DETAIL>
-                        <OwnedPropertyDispositionStatusType>RetainForPrimaryOrSecondaryResidence</OwnedPropertyDispositionStatusType>
+                        <OwnedPropertyDispositionStatusType>RetainForPrimaryOrSecondaryResidence
+                        </OwnedPropertyDispositionStatusType>
                         <OwnedPropertyLienInstallmentAmount>1189</OwnedPropertyLienInstallmentAmount>
                         <OwnedPropertyLienUPBAmount>120000</OwnedPropertyLienUPBAmount>
                         <OwnedPropertyMarketValueAmount>315</OwnedPropertyMarketValueAmount>
@@ -235,7 +238,8 @@
                     <URLA>
                         <URLA_DETAIL>
                             <AlterationsImprovementsAndRepairsAmount>2500.55</AlterationsImprovementsAndRepairsAmount>
-                            <AlterationsImprovementsAndRepairsAmount>2014-02-28T00:00:00</AlterationsImprovementsAndRepairsAmount>
+                            <AlterationsImprovementsAndRepairsAmount>2014-02-28T00:00:00
+                            </AlterationsImprovementsAndRepairsAmount>
                             <BorrowerPaidDiscountPointsTotalAmount>2200.22</BorrowerPaidDiscountPointsTotalAmount>
                             <BorrowerRequestedInterestRatePercent>2</BorrowerRequestedInterestRatePercent>
                             <BorrowerRequestedLoanAmount>1500.55</BorrowerRequestedLoanAmount>
@@ -362,14 +366,16 @@
             <UNDERWRITING>
                 <AUTOMATED_UNDERWRITINGS>
                     <AUTOMATED_UNDERWRITING>
-                        <LoanProspectorCreditRiskClassificationDescription>Accept</LoanProspectorCreditRiskClassificationDescription>
+                        <LoanProspectorCreditRiskClassificationDescription>Accept
+                        </LoanProspectorCreditRiskClassificationDescription>
                         <FREPurchaseEligibilityType>FreddieMacEligible</FREPurchaseEligibilityType>
                         <AutomatedUnderwritingCaseIdentifier>Case123</AutomatedUnderwritingCaseIdentifier>
                         <AutomatedUnderwritingDecisionDatetime>2014-06-20</AutomatedUnderwritingDecisionDatetime>
                     </AUTOMATED_UNDERWRITING>
                 </AUTOMATED_UNDERWRITINGS>
                 <UNDERWRITING_DETAIL>
-                    <LoanManualUnderwritingIndicatorContractUnderwritingIndicator>Automated</LoanManualUnderwritingIndicatorContractUnderwritingIndicator>
+                    <LoanManualUnderwritingIndicatorContractUnderwritingIndicator>Automated
+                    </LoanManualUnderwritingIndicatorContractUnderwritingIndicator>
                     <LoanManualUnderwritingIndicator>false</LoanManualUnderwritingIndicator>
                 </UNDERWRITING_DETAIL>
             </UNDERWRITING>
@@ -410,7 +416,8 @@
                         <BORROWER>
                             <DECLARATION>
                                 <DECLARATION_DETAIL>
-                                    <AlimonyChildSupportObligationIndicator>true</AlimonyChildSupportObligationIndicator>
+                                    <AlimonyChildSupportObligationIndicator>true
+                                    </AlimonyChildSupportObligationIndicator>
                                     <BankruptcyIndicator>false</BankruptcyIndicator>
                                     <BorrowedDownPaymentIndicator>false</BorrowedDownPaymentIndicator>
                                     <BorrowerFirstTimeHomebuyerIndicator>false</BorrowerFirstTimeHomebuyerIndicator>
@@ -424,13 +431,15 @@
                                     <PresentlyDelinquentIndicator>false</PresentlyDelinquentIndicator>
                                     <PriorPropertyTitleType>JointWithSpouse</PriorPropertyTitleType>
                                     <PriorPropertyUsageType>PrimaryResidence</PriorPropertyUsageType>
-                                    <PropertyForeclosedPastSevenYearsIndicator>false</PropertyForeclosedPastSevenYearsIndicator>
+                                    <PropertyForeclosedPastSevenYearsIndicator>false
+                                    </PropertyForeclosedPastSevenYearsIndicator>
                                 </DECLARATION_DETAIL>
                             </DECLARATION>
                             <BORROWER_DETAIL>
                                 <DependentCount>4</DependentCount>
                                 <BorrowerClassificationType>Primary</BorrowerClassificationType>
-                                <BorrowerMailToAddressSameAsPropertyIndicator>true</BorrowerMailToAddressSameAsPropertyIndicator>
+                                <BorrowerMailToAddressSameAsPropertyIndicator>true
+                                </BorrowerMailToAddressSameAsPropertyIndicator>
                                 <BorrowerBirthDate>1984-02-28</BorrowerBirthDate>
                                 <SchoolingYearsCount>10</SchoolingYearsCount>
                                 <MaritalStatusType>Single</MaritalStatusType>
@@ -473,7 +482,8 @@
                                         </LEGAL_ENTITY_DETAIL>
                                     </LEGAL_ENTITY>
                                     <EMPLOYMENT>
-                                        <EmploymentBorrowerSelfEmployedIndicator>true</EmploymentBorrowerSelfEmployedIndicator>
+                                        <EmploymentBorrowerSelfEmployedIndicator>true
+                                        </EmploymentBorrowerSelfEmployedIndicator>
                                         <EmploymentStatusType>Current</EmploymentStatusType>
                                         <EmploymentClassificationType>Secondary</EmploymentClassificationType>
                                         <EmploymentPositionDescription>Sr Supervisor</EmploymentPositionDescription>
@@ -569,7 +579,8 @@
                                         </LEGAL_ENTITY_DETAIL>
                                     </LEGAL_ENTITY>
                                     <EMPLOYMENT>
-                                        <EmploymentBorrowerSelfEmployedIndicator>true</EmploymentBorrowerSelfEmployedIndicator>
+                                        <EmploymentBorrowerSelfEmployedIndicator>true
+                                        </EmploymentBorrowerSelfEmployedIndicator>
                                         <EmploymentStatusType>previous</EmploymentStatusType>
                                         <EmploymentClassificationType>Primary</EmploymentClassificationType>
                                         <EmploymentPositionDescription>Jr</EmploymentPositionDescription>
@@ -583,7 +594,8 @@
                                 <BorrowerBirthDate>1984-10-28</BorrowerBirthDate>
                                 <SchoolingYearsCount>12</SchoolingYearsCount>
                                 <MaritalStatusType>Married</MaritalStatusType>
-                                <BorrowerMailToAddressSameAsPropertyIndicator>true</BorrowerMailToAddressSameAsPropertyIndicator>
+                                <BorrowerMailToAddressSameAsPropertyIndicator>true
+                                </BorrowerMailToAddressSameAsPropertyIndicator>
                                 <BorrowerApplicationSignedDate>2014-03-28</BorrowerApplicationSignedDate>
                                 <BorrowerClassificationType>Secondary</BorrowerClassificationType>
                                 <EXTENSION>
@@ -718,7 +730,8 @@
                         </MI_APPLICATION>
                         <MI_APPLICATION_REQUEST_DETAIL>
                             <MIApplicationRequestType>Other</MIApplicationRequestType>
-                            <MIApplicationRequestTypeOtherDescription>UpdateOnly</MIApplicationRequestTypeOtherDescription>
+                            <MIApplicationRequestTypeOtherDescription>UpdateOnly
+                            </MIApplicationRequestTypeOtherDescription>
                         </MI_APPLICATION_REQUEST_DETAIL>
                         <MI_PRODUCTS>
                             <MI_PRODUCT>

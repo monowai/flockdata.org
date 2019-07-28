@@ -36,23 +36,23 @@ import org.flockdata.model.ContentValidationResults;
  */
 public interface ContentModelService {
 
-    ContentModel get(Company company, Fortress fortress, Document documentType) throws FlockException;
+  ContentModel get(Company company, Fortress fortress, Document documentType) throws FlockException;
 
-    ContentModelResult saveEntityModel(Company company, Fortress fortress, Document documentType, ContentModel contentModel) throws FlockException;
+  ContentModelResult saveEntityModel(Company company, Fortress fortress, Document documentType, ContentModel contentModel) throws FlockException;
 
-    ContentModelResult saveTagModel(Company company, String code, ContentModel profileConfig) throws FlockException;
+  ContentModelResult saveTagModel(Company company, String code, ContentModel profileConfig) throws FlockException;
 
-    ContentModel get(Company company, String fortressCode, String documentName) throws FlockException;
+  ContentModel get(Company company, String fortressCode, String documentName) throws FlockException;
 
-    ContentValidationResults validate(ContentValidationRequest contentRequest) throws FlockException;
+  ContentValidationResults validate(ContentValidationRequest contentRequest) throws FlockException;
 
-    ContentModel createDefaultContentModel(ContentValidationRequest contentRequest);
+  ContentModel createDefaultContentModel(ContentValidationRequest contentRequest);
 
-    Collection<ContentModelResult> find(Company company);
+  Collection<ContentModelResult> find(Company company);
 
-    ContentModelResult find(Company company, String key) throws FlockException;
+  ContentModelResult find(Company company, String key) throws FlockException;
 
-    ContentModel getTagModel(Company company, String code) throws FlockException;
+  ContentModel getTagModel(Company company, String code) throws FlockException;
 
-    void delete(Company company, String key);
+  void delete(Company company, String key);
 }

@@ -43,75 +43,75 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @ControllerAdvice
 public class GlobalControllerExceptionHandler {
-    private Logger logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
+  private Logger logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
 
-    @ExceptionHandler(FlockException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleAppException(FlockException ex) {
-        logger.debug("Processing Exception- {}", ex.getLocalizedMessage(), ex);
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  @ExceptionHandler(FlockException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ModelAndView handleAppException(FlockException ex) {
+    logger.debug("Processing Exception- {}", ex.getLocalizedMessage(), ex);
+    return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  }
+
+  @ExceptionHandler(NotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ModelAndView handleNotFound(NotFoundException ex) {
+    logger.debug("Resource Not Found Exception- {}", ex.getLocalizedMessage(), ex);
+    return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  }
+
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ModelAndView handleIAException(IllegalArgumentException ex) {
+    return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  }
+
+  @ExceptionHandler(JsonParseException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ModelAndView handleJsonError(final JsonParseException ex) {
+    logger.debug("Bad Request - {}", ex.getLocalizedMessage(), ex);
+    return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  }
+
+  @ExceptionHandler(SecurityException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public ModelAndView handleSecException(final SecurityException ex) {
+    return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public ModelAndView handleSecAuthException(final AuthenticationException ex) {
+    return new JsonMessage("Invalid username or password").asModelAndViewError();
+  }
+
+  //.class
+  @ExceptionHandler(AccessDeniedException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public ModelAndView handleAuthException(final AccessDeniedException ex) {
+    return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  }
+
+  @ExceptionHandler(HttpMessageConversionException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ModelAndView handleConversionProblem(final HttpMessageConversionException ex) {
+    logger.debug(ex.getMessage(), ex.getCause());
+    return new JsonMessage(ex.getMessage()).asModelAndViewError();
+  }
+
+  @ExceptionHandler(Exception.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public ModelAndView handleInternal(Exception ex) {
+    String errorMessage;
+    if (ex.getCause() != null) {
+      errorMessage = ex.getCause().getMessage();
+    } else {
+      errorMessage = ex.getMessage();
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView handleNotFound(NotFoundException ex) {
-        logger.debug("Resource Not Found Exception- {}", ex.getLocalizedMessage(), ex);
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
-    }
+    logger.debug("Error 500: {}", errorMessage, ex);
 
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleIAException(IllegalArgumentException ex) {
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
-    }
-
-    @ExceptionHandler(JsonParseException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleJsonError(final JsonParseException ex) {
-        logger.debug("Bad Request - {}", ex.getLocalizedMessage(), ex);
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
-    }
-
-    @ExceptionHandler(SecurityException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ModelAndView handleSecException(final SecurityException ex) {
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ModelAndView handleSecAuthException(final AuthenticationException ex) {
-        return new JsonMessage("Invalid username or password").asModelAndViewError();
-    }
-
-    //.class
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ModelAndView handleAuthException(final AccessDeniedException ex) {
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
-    }
-
-    @ExceptionHandler(HttpMessageConversionException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleConversionProblem(final HttpMessageConversionException ex) {
-        logger.debug(ex.getMessage(), ex.getCause());
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
-    }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ModelAndView handleInternal(Exception ex) {
-        String errorMessage;
-        if (ex.getCause() != null) {
-            errorMessage = ex.getCause().getMessage();
-        } else {
-            errorMessage = ex.getMessage();
-        }
-
-        logger.debug("Error 500: {}", errorMessage, ex);
-
-        return new JsonMessage(errorMessage).asModelAndViewError();
-    }
+    return new JsonMessage(errorMessage).asModelAndViewError();
+  }
 
 }

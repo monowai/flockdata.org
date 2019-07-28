@@ -61,183 +61,183 @@ import org.springframework.stereotype.Service;
 @Profile( {"fd-batch", "fd-batch-dev"})
 @Service
 public class BatchConfig {
-    private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    private final FdIoInterface fdIoInterface;
-    @Value("${org.fd.client.amqp:true}")
-    Boolean amqp = true;
-    private Logger logger = LoggerFactory.getLogger(BatchConfig.class);
-    @Value("${org.fd.client.batchsize:1}")
-    private int batchSize;
-    @Value("${source.datasource.url}")
-    private String url;
-    @Value("${source.datasource.username}")
-    private String userName;
-    @Value("${source.datasource.password}")
-    private String password;
-    @Value("${source.datasource.driver}")
-    private String driver;
-    @Value("${batch.datasource.url:jdbc:hsqldb:mem:sb}")
-    private String batchUrl;
-    @Value("${batch.datasource.username:'sa'}")
-    private String batchUserName;
-    @Value("${batch.datasource.password: }")
-    private String batchPassword;
-    @Value("${batch.datasource.driver:org.hsqldb.jdbc.JDBCDriver}")
-    private String batchDriver;
-    private Map<String, StepConfig> config = new HashMap<>();
+  private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+  private final FdIoInterface fdIoInterface;
+  @Value("${org.fd.client.amqp:true}")
+  Boolean amqp = true;
+  private Logger logger = LoggerFactory.getLogger(BatchConfig.class);
+  @Value("${org.fd.client.batchsize:1}")
+  private int batchSize;
+  @Value("${source.datasource.url}")
+  private String url;
+  @Value("${source.datasource.username}")
+  private String userName;
+  @Value("${source.datasource.password}")
+  private String password;
+  @Value("${source.datasource.driver}")
+  private String driver;
+  @Value("${batch.datasource.url:jdbc:hsqldb:mem:sb}")
+  private String batchUrl;
+  @Value("${batch.datasource.username:'sa'}")
+  private String batchUserName;
+  @Value("${batch.datasource.password: }")
+  private String batchPassword;
+  @Value("${batch.datasource.driver:org.hsqldb.jdbc.JDBCDriver}")
+  private String batchDriver;
+  private Map<String, StepConfig> config = new HashMap<>();
 
-    @Autowired
-    public BatchConfig(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
-    }
+  @Autowired
+  public BatchConfig(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
 
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
-        return new PropertySourcesPlaceholderConfigurer();
-    }
+  @Bean
+  public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+    return new PropertySourcesPlaceholderConfigurer();
+  }
 
-    /**
-     * Initialisation of the configuration that will be handled by this class
-     * ToDo: These need to support refreshing in non-command line environments
-     *
-     * @param str comma separated list of configuration files to initialise
-     * @throws Exception anything goes wrong
-     */
-    @Autowired
-    void loadConfigs(@Value("${org.fd.client.configs:}") final String str) throws Exception {
-        if (str != null && !str.equals("")) {
-            List<String> configs = Arrays.asList(str.split(","));
+  /**
+   * Initialisation of the configuration that will be handled by this class
+   * ToDo: These need to support refreshing in non-command line environments
+   *
+   * @param str comma separated list of configuration files to initialise
+   * @throws Exception anything goes wrong
+   */
+  @Autowired
+  void loadConfigs(@Value("${org.fd.client.configs:}") final String str) throws Exception {
+    if (str != null && !str.equals("")) {
+      List<String> configs = Arrays.asList(str.split(","));
 
-            for (String config : configs) {
-                try {
-                    StepConfig stepConfig = loadStepConfig(config);
-                    logger.info("Loaded configuration {}", config);
-                    this.config.put(stepConfig.getStep(), stepConfig);
-                } catch (Exception e) {
-                    logger.error(e.getMessage() + " processing " + config);
-                    throw e;
-                }
-
-            }
-        }
-        logger.info("Data source {}", getUrl());
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getDriver() {
-        return driver;
-    }
-
-    public void setDriver(String driver) {
-        this.driver = driver;
-    }
-
-    public String getBatchUrl() {
-        return batchUrl;
-    }
-
-    public String getBatchUserName() {
-        return batchUserName;
-    }
-
-    public String getBatchPassword() {
-        return batchPassword;
-    }
-
-    public String getBatchDriver() {
-        return batchDriver;
-    }
-
-    private StepConfig loadStepConfig(String stepName) throws IOException, ClassNotFoundException {
-        StepConfig stepConfig;
-        stepConfig = readConfig(stepName.trim());
-
-        return stepConfig;
-    }
-
-    public StepConfig getStepConfig(String stepName) {
-        StepConfig stepConfig = config.get(stepName);
-        if (stepConfig == null) {
-            logger.error("The requested step configuration [{}] does not exist - known step configs [{}]", stepName, Arrays.toString(config.values().toArray()));
-            throw new IllegalArgumentException("The requested step configuration " + stepName + " does not exist. Known configs are [" + Arrays.toString(config.values().toArray()) + "]");
-        }
+      for (String config : configs) {
         try {
-            if (stepConfig.getContentModel() == null) {
-                stepConfig.setContentModel(getModelForStep(stepConfig));
-            }
-        } catch (IOException e) {
-            logger.error("Failed to resolve content model for " + stepName);
-            throw new RuntimeException(e);
+          StepConfig stepConfig = loadStepConfig(config);
+          logger.info("Loaded configuration {}", config);
+          this.config.put(stepConfig.getStep(), stepConfig);
+        } catch (Exception e) {
+          logger.error(e.getMessage() + " processing " + config);
+          throw e;
         }
-        return stepConfig;
+
+      }
     }
+    logger.info("Data source {}", getUrl());
+  }
 
-    private StepConfig readConfig(String fileName) throws IOException {
-        StepConfig stepConfig;
-        InputStream file = null;
-        try {
-            file = getClass().getClassLoader().getResourceAsStream(fileName);
-            if (file == null)
-            // running from JUnit can only read this as a file input stream
-            {
-                file = new FileInputStream(fileName);
-            }
-            stepConfig = loadStepConfig(file);
-        } catch (IOException e) {
-            logger.info("Unable to read {} as a file. Error {} \r\n, trying as a URL...", fileName, e.getMessage());
-            stepConfig = loadStepConfig(new URL(fileName));
-        } finally {
-            if (file != null) {
-                file.close();
-            }
-        }
-        return stepConfig;
+  public String getUrl() {
+    return url;
+  }
 
+  public String getUserName() {
+    return userName;
+  }
+
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public String getDriver() {
+    return driver;
+  }
+
+  public void setDriver(String driver) {
+    this.driver = driver;
+  }
+
+  public String getBatchUrl() {
+    return batchUrl;
+  }
+
+  public String getBatchUserName() {
+    return batchUserName;
+  }
+
+  public String getBatchPassword() {
+    return batchPassword;
+  }
+
+  public String getBatchDriver() {
+    return batchDriver;
+  }
+
+  private StepConfig loadStepConfig(String stepName) throws IOException, ClassNotFoundException {
+    StepConfig stepConfig;
+    stepConfig = readConfig(stepName.trim());
+
+    return stepConfig;
+  }
+
+  public StepConfig getStepConfig(String stepName) {
+    StepConfig stepConfig = config.get(stepName);
+    if (stepConfig == null) {
+      logger.error("The requested step configuration [{}] does not exist - known step configs [{}]", stepName, Arrays.toString(config.values().toArray()));
+      throw new IllegalArgumentException("The requested step configuration " + stepName + " does not exist. Known configs are [" + Arrays.toString(config.values().toArray()) + "]");
     }
-
-    private ContentModel getModelForStep(StepConfig stepConfig) throws IOException {
-        ContentModel contentModel = null;
-        if (stepConfig.getModel() != null) {
-            // Resolve from local file system
-            contentModel = ContentModelDeserializer.getContentModel(stepConfig.getModel());
-            if (contentModel == null)
-            // Check the server
-            {
-                contentModel = fdIoInterface.getContentModel(stepConfig.getModel());
-            }
-            stepConfig.setContentModel(contentModel);
-        } else if (stepConfig.getModelKey() != null) {
-            contentModel = fdIoInterface.getContentModel(stepConfig.getModelKey());
-        }
-        return contentModel;
+    try {
+      if (stepConfig.getContentModel() == null) {
+        stepConfig.setContentModel(getModelForStep(stepConfig));
+      }
+    } catch (IOException e) {
+      logger.error("Failed to resolve content model for " + stepName);
+      throw new RuntimeException(e);
     }
+    return stepConfig;
+  }
 
-    private StepConfig loadStepConfig(InputStream file) throws IOException {
-        return mapper.readValue(file, StepConfig.class);
+  private StepConfig readConfig(String fileName) throws IOException {
+    StepConfig stepConfig;
+    InputStream file = null;
+    try {
+      file = getClass().getClassLoader().getResourceAsStream(fileName);
+      if (file == null)
+      // running from JUnit can only read this as a file input stream
+      {
+        file = new FileInputStream(fileName);
+      }
+      stepConfig = loadStepConfig(file);
+    } catch (IOException e) {
+      logger.info("Unable to read {} as a file. Error {} \r\n, trying as a URL...", fileName, e.getMessage());
+      stepConfig = loadStepConfig(new URL(fileName));
+    } finally {
+      if (file != null) {
+        file.close();
+      }
     }
+    return stepConfig;
 
-    private StepConfig loadStepConfig(URL url) throws IOException {
-        return mapper.readValue(url, StepConfig.class);
+  }
 
+  private ContentModel getModelForStep(StepConfig stepConfig) throws IOException {
+    ContentModel contentModel = null;
+    if (stepConfig.getModel() != null) {
+      // Resolve from local file system
+      contentModel = ContentModelDeserializer.getContentModel(stepConfig.getModel());
+      if (contentModel == null)
+      // Check the server
+      {
+        contentModel = fdIoInterface.getContentModel(stepConfig.getModel());
+      }
+      stepConfig.setContentModel(contentModel);
+    } else if (stepConfig.getModelKey() != null) {
+      contentModel = fdIoInterface.getContentModel(stepConfig.getModelKey());
     }
+    return contentModel;
+  }
+
+  private StepConfig loadStepConfig(InputStream file) throws IOException {
+    return mapper.readValue(file, StepConfig.class);
+  }
+
+  private StepConfig loadStepConfig(URL url) throws IOException {
+    return mapper.readValue(url, StepConfig.class);
+
+  }
 
 }

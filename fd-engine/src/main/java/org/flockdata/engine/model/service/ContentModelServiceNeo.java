@@ -76,291 +76,291 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class ContentModelServiceNeo implements ContentModelService {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper(new FdJsonObjectMapper())
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .enable(JsonParser.Feature.ALLOW_COMMENTS);
-    private final ContentModelDaoNeo contentModelDao;
-    private final FortressService fortressService;
-    private final EntityService entityService;
-    private final ConceptService conceptService;
-    private final MediationFacade mediationFacade;
-    private final SecurityHelper securityHelper;
+  private static final ObjectMapper objectMapper = new ObjectMapper(new FdJsonObjectMapper())
+      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+      .enable(JsonParser.Feature.ALLOW_COMMENTS);
+  private final ContentModelDaoNeo contentModelDao;
+  private final FortressService fortressService;
+  private final EntityService entityService;
+  private final ConceptService conceptService;
+  private final MediationFacade mediationFacade;
+  private final SecurityHelper securityHelper;
 
-    @Autowired
-    public ContentModelServiceNeo(MediationFacade mediationFacade, ContentModelDaoNeo contentModelDao, FortressService fortressService, SecurityHelper securityHelper, ConceptService conceptService, EntityService entityService) {
-        this.mediationFacade = mediationFacade;
-        this.contentModelDao = contentModelDao;
-        this.fortressService = fortressService;
-        this.securityHelper = securityHelper;
-        this.conceptService = conceptService;
-        this.entityService = entityService;
+  @Autowired
+  public ContentModelServiceNeo(MediationFacade mediationFacade, ContentModelDaoNeo contentModelDao, FortressService fortressService, SecurityHelper securityHelper, ConceptService conceptService, EntityService entityService) {
+    this.mediationFacade = mediationFacade;
+    this.contentModelDao = contentModelDao;
+    this.fortressService = fortressService;
+    this.securityHelper = securityHelper;
+    this.conceptService = conceptService;
+    this.entityService = entityService;
+  }
+
+  public ContentModel get(Company company, Fortress fortress, Document documentType) throws FlockException {
+    Model model = contentModelDao.find(fortress, documentType);
+
+    if (model == null) {
+      throw new NotFoundException(String.format("Unable to locate and import model for [%s], [%s]", fortress.getCode(), documentType.getName()));
     }
 
-    public ContentModel get(Company company, Fortress fortress, Document documentType) throws FlockException {
-        Model model = contentModelDao.find(fortress, documentType);
-
-        if (model == null) {
-            throw new NotFoundException(String.format("Unable to locate and import model for [%s], [%s]", fortress.getCode(), documentType.getName()));
-        }
-
-        // Serialized content profile is stored in a log. Here we retrieve the last saved one
-        // but we could return the entire history
-        ContentModel contentModel = getContentModel(company, model.getKey());
-        if (contentModel != null) {
-            contentModel.setFortress(new FortressInputBean(fortress.getName()));
-            contentModel.setDocumentName(documentType.getName());
-        }
-        return contentModel;
+    // Serialized content profile is stored in a log. Here we retrieve the last saved one
+    // but we could return the entire history
+    ContentModel contentModel = getContentModel(company, model.getKey());
+    if (contentModel != null) {
+      contentModel.setFortress(new FortressInputBean(fortress.getName()));
+      contentModel.setDocumentName(documentType.getName());
     }
+    return contentModel;
+  }
 
-    private ContentModel getContentModel(Company company, String profileKey) throws FlockException {
-        Map<String, Object> data = entityService.getEntityDataLast(company, profileKey);
-        String json = JsonUtils.toJson(data);
-        ContentModel contentModel;
-        try {
-            contentModel = objectMapper.readValue(json, ContentModelHandler.class);
-        } catch (IOException e) {
-            throw new FlockException(String.format("Unable to obtain content from ImportProfile {%s}", profileKey), e);
-        }
-        return contentModel;
+  private ContentModel getContentModel(Company company, String profileKey) throws FlockException {
+    Map<String, Object> data = entityService.getEntityDataLast(company, profileKey);
+    String json = JsonUtils.toJson(data);
+    ContentModel contentModel;
+    try {
+      contentModel = objectMapper.readValue(json, ContentModelHandler.class);
+    } catch (IOException e) {
+      throw new FlockException(String.format("Unable to obtain content from ImportProfile {%s}", profileKey), e);
     }
+    return contentModel;
+  }
 
-    public ContentModelResult saveTagModel(Company company, String code, ContentModel contentModel) throws FlockException {
-        FortressNode internalFortress = fortressService.findInternalFortress(company);
+  public ContentModelResult saveTagModel(Company company, String code, ContentModel contentModel) throws FlockException {
+    FortressNode internalFortress = fortressService.findInternalFortress(company);
 
-        assert internalFortress != null;
+    assert internalFortress != null;
 
-        String profileCode = TagHelper.parseKey(code);
-        contentModel.setTagModel(true);
+    String profileCode = TagHelper.parseKey(code);
+    contentModel.setTagModel(true);
 
-        ModelNode existingModel = contentModelDao.findTagProfile(company, profileCode);
-        try {
-            if (existingModel == null) {
-                EntityInputBean entityInputBean = new EntityInputBean(internalFortress, new DocumentTypeInputBean("TagModel"));
-                entityInputBean.setCode(code);
-                entityInputBean.setName(contentModel.getName());
-                ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
-                Map<String, Object> map = JsonUtils.convertToMap(contentModel);
-
-                contentInputBean.setData(map);
-                entityInputBean.setContent(contentInputBean);
-                TrackResultBean trackResult = mediationFacade.trackEntity(company, entityInputBean);
-                Document documentType = conceptService.findDocumentType(internalFortress, "TagModel");
-                existingModel = new ModelNode(company, trackResult, profileCode, documentType);
-                contentModelDao.save(existingModel);
-            } else {
-                updateProfile(company, contentModel.setTagModel(true), existingModel);
-            }
-        } catch (ExecutionException | InterruptedException | IOException e) {
-            throw new FlockException(e.getMessage());
-        }
-
-        return new ContentModelResult(existingModel);
-
-    }
-
-    private void updateProfile(Company company, ContentModel contentModelConfig, ModelNode existingModel) throws FlockException, IOException, ExecutionException, InterruptedException {
+    ModelNode existingModel = contentModelDao.findTagProfile(company, profileCode);
+    try {
+      if (existingModel == null) {
+        EntityInputBean entityInputBean = new EntityInputBean(internalFortress, new DocumentTypeInputBean("TagModel"));
+        entityInputBean.setCode(code);
+        entityInputBean.setName(contentModel.getName());
         ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
-        contentInputBean.setKey(existingModel.getKey());
-        contentInputBean.setData(JsonUtils.convertToMap(contentModelConfig));
-        mediationFacade.trackLog(company, contentInputBean);
-        if (contentModelConfig.getName() != null && !contentModelConfig.getName().equals(existingModel.getName())) {
-            existingModel.setName(contentModelConfig.getName());
-            contentModelDao.save(existingModel);
+        Map<String, Object> map = JsonUtils.convertToMap(contentModel);
 
-        }
+        contentInputBean.setData(map);
+        entityInputBean.setContent(contentInputBean);
+        TrackResultBean trackResult = mediationFacade.trackEntity(company, entityInputBean);
+        Document documentType = conceptService.findDocumentType(internalFortress, "TagModel");
+        existingModel = new ModelNode(company, trackResult, profileCode, documentType);
+        contentModelDao.save(existingModel);
+      } else {
+        updateProfile(company, contentModel.setTagModel(true), existingModel);
+      }
+    } catch (ExecutionException | InterruptedException | IOException e) {
+      throw new FlockException(e.getMessage());
     }
 
-    /**
-     * Identifies the ContentProfile as being a belonging to a specific Fortress/Document combo
-     *
-     * @param company      owner of the model
-     * @param fortress     system the model belongs to
-     * @param documentType type of document
-     * @param contentModel data
-     * @return result of execution
-     * @throws FlockException error
-     */
-    @Transactional
-    public ContentModelResult saveEntityModel(Company company, Fortress fortress, Document documentType, ContentModel contentModel) throws FlockException {
-        // Used for storing internal versionable data
-        FortressNode internalFortress = fortressService.findInternalFortress(company);
-        assert internalFortress != null;
+    return new ContentModelResult(existingModel);
 
-        ModelNode model = contentModelDao.find(fortress, documentType);
+  }
+
+  private void updateProfile(Company company, ContentModel contentModelConfig, ModelNode existingModel) throws FlockException, IOException, ExecutionException, InterruptedException {
+    ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
+    contentInputBean.setKey(existingModel.getKey());
+    contentInputBean.setData(JsonUtils.convertToMap(contentModelConfig));
+    mediationFacade.trackLog(company, contentInputBean);
+    if (contentModelConfig.getName() != null && !contentModelConfig.getName().equals(existingModel.getName())) {
+      existingModel.setName(contentModelConfig.getName());
+      contentModelDao.save(existingModel);
+
+    }
+  }
+
+  /**
+   * Identifies the ContentProfile as being a belonging to a specific Fortress/Document combo
+   *
+   * @param company      owner of the model
+   * @param fortress     system the model belongs to
+   * @param documentType type of document
+   * @param contentModel data
+   * @return result of execution
+   * @throws FlockException error
+   */
+  @Transactional
+  public ContentModelResult saveEntityModel(Company company, Fortress fortress, Document documentType, ContentModel contentModel) throws FlockException {
+    // Used for storing internal versionable data
+    FortressNode internalFortress = fortressService.findInternalFortress(company);
+    assert internalFortress != null;
+
+    ModelNode model = contentModelDao.find(fortress, documentType);
+    try {
+      if (model == null) {
+        EntityInputBean entityInputBean = new EntityInputBean(internalFortress, new DocumentTypeInputBean("FdContentModel"));
+        entityInputBean.setName(contentModel.getName());
+        ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
+        Map<String, Object> map = JsonUtils.convertToMap(contentModel);
+
+        contentInputBean.setData(map);
+        entityInputBean.setContent(contentInputBean);
+        TrackResultBean trackResult = mediationFacade.trackEntity(company, entityInputBean);
+        model = new ModelNode(company, trackResult, fortress, documentType);
+        contentModelDao.save(model);
+      } else {
+        updateProfile(company, contentModel, model);
+      }
+    } catch (ExecutionException | InterruptedException | IOException e) {
+      throw new FlockException(e.getMessage());
+    }
+
+    return new ContentModelResult(model);
+  }
+
+  @Override
+  public ContentModel get(Company company, String fortressCode, String documentCode) throws FlockException {
+    FortressNode fortress = fortressService.findByCode(company, fortressCode);
+    if (fortress == null) {
+      throw new NotFoundException("Unable to locate the fortress " + fortressCode);
+    }
+    DocumentNode documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
+    if (documentType == null) {
+      throw new NotFoundException("Unable to resolve document type " + documentCode);
+    }
+
+    return get(company, fortress, documentType);
+  }
+
+
+  @Override
+  @Transactional
+  public Collection<ContentModelResult> find(Company company) {
+    return contentModelDao.find(company.getId());
+  }
+
+  @Override
+  @Transactional
+  public ContentModelResult find(Company company, String key) throws FlockException {
+    ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
+    if (model == null) {
+      throw new NotFoundException("Unable to locate Content Model from key " + key);
+    }
+    ContentModel contentModel = getContentModel(company, model.getKey());
+    if (contentModel != null) {
+      contentModel.setDocumentName(model.getDocumentType());
+    }
+    model.setContentModel(contentModel);
+    return model;
+  }
+
+  @Override
+  public ContentModel getTagModel(Company company, String code) throws FlockException {
+    Model model = contentModelDao.findTagProfile(company, TagHelper.parseKey(code));
+
+    if (model == null) {
+      throw new NotFoundException(String.format("Unable to locate and tag profile for [%s]", code));
+    }
+
+    // Serialized content profile is stored in a log. Here we retrieve the last saved one
+    // but we could return the entire history
+    ContentModel contentModel = getContentModel(company, model.getKey());
+    if (contentModel != null) {
+      contentModel.setDocumentName("Tag");
+    }
+    return contentModel;
+
+  }
+
+  @Override
+  @Transactional
+  @Retryable
+  public void delete(Company company, String key) {
+    ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
+    if (model != null) {
+      contentModelDao.delete(company, model.getKey());
+    }
+
+  }
+
+  @Override
+  public ContentValidationResults validate(ContentValidationRequest contentRequest) {
+    assert contentRequest != null;
+    assert contentRequest.getContentModel() != null;
+    ContentValidationResults validatedContent = new ContentValidationResults();
+
+    if (contentRequest.getRows() == null) {
+      return validatedContent;
+    }
+
+    int row = 0;
+    if (contentRequest.getContentModel().isTagModel()) {
+
+      for (Map<String, Object> dataRow : contentRequest.getRows()) {
+        validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel().getContent()));
         try {
-            if (model == null) {
-                EntityInputBean entityInputBean = new EntityInputBean(internalFortress, new DocumentTypeInputBean("FdContentModel"));
-                entityInputBean.setName(contentModel.getName());
-                ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
-                Map<String, Object> map = JsonUtils.convertToMap(contentModel);
-
-                contentInputBean.setData(map);
-                entityInputBean.setContent(contentInputBean);
-                TrackResultBean trackResult = mediationFacade.trackEntity(company, entityInputBean);
-                model = new ModelNode(company, trackResult, fortress, documentType);
-                contentModelDao.save(model);
-            } else {
-                updateProfile(company, contentModel, model);
-            }
-        } catch (ExecutionException | InterruptedException | IOException e) {
-            throw new FlockException(e.getMessage());
+          validatedContent.add(row, Transformer.toTags(dataRow, contentRequest.getContentModel()));
+        } catch (Exception e) {
+          validatedContent.addMessage(row, e.getMessage());
         }
+        row++;
+      }
 
-        return new ContentModelResult(model);
-    }
-
-    @Override
-    public ContentModel get(Company company, String fortressCode, String documentCode) throws FlockException {
-        FortressNode fortress = fortressService.findByCode(company, fortressCode);
-        if (fortress == null) {
-            throw new NotFoundException("Unable to locate the fortress " + fortressCode);
+    } else {// do entity
+      for (Map<String, Object> dataRow : contentRequest.getRows()) {
+        validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel().getContent()));
+        try {
+          validatedContent.add(row, Transformer.toEntity(dataRow, contentRequest.getContentModel()));
+        } catch (Exception e) {
+          validatedContent.addMessage(row, e.getMessage());
         }
-        DocumentNode documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
-        if (documentType == null) {
-            throw new NotFoundException("Unable to resolve document type " + documentCode);
-        }
+        row++;
+      }
 
-        return get(company, fortress, documentType);
-    }
-
-
-    @Override
-    @Transactional
-    public Collection<ContentModelResult> find(Company company) {
-        return contentModelDao.find(company.getId());
-    }
-
-    @Override
-    @Transactional
-    public ContentModelResult find(Company company, String key) throws FlockException {
-        ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
-        if (model == null) {
-            throw new NotFoundException("Unable to locate Content Model from key " + key);
-        }
-        ContentModel contentModel = getContentModel(company, model.getKey());
-        if (contentModel != null) {
-            contentModel.setDocumentName(model.getDocumentType());
-        }
-        model.setContentModel(contentModel);
-        return model;
-    }
-
-    @Override
-    public ContentModel getTagModel(Company company, String code) throws FlockException {
-        Model model = contentModelDao.findTagProfile(company, TagHelper.parseKey(code));
-
-        if (model == null) {
-            throw new NotFoundException(String.format("Unable to locate and tag profile for [%s]", code));
-        }
-
-        // Serialized content profile is stored in a log. Here we retrieve the last saved one
-        // but we could return the entire history
-        ContentModel contentModel = getContentModel(company, model.getKey());
-        if (contentModel != null) {
-            contentModel.setDocumentName("Tag");
-        }
-        return contentModel;
 
     }
+    return validatedContent;
+  }
 
-    @Override
-    @Transactional
-    @Retryable
-    public void delete(Company company, String key) {
-        ContentModelResult model = contentModelDao.findByKey(company.getId(), key);
-        if (model != null) {
-            contentModelDao.delete(company, model.getKey());
+  /**
+   * Validate the data against the expressions in the ContentModel
+   *
+   * @param row                 data to validate
+   * @param columnDefinitionMap validate against this
+   * @return Identified validation errors
+   */
+  private Collection<ColumnValidationResult> validate(Map<String, Object> row, Map<String, ColumnDefinition> columnDefinitionMap) {
+    Collection<ColumnValidationResult> results = new ArrayList<>();
+
+    for (String source : columnDefinitionMap.keySet()) {
+      Collection<String> messages = new ArrayList<>();
+      ColumnDefinition column = columnDefinitionMap.get(source);
+      String sourceColumn = column.getSource();
+      try {
+        if (sourceColumn == null) {
+          sourceColumn = source;
         }
+
+        Object oVal = row.get(sourceColumn);
+
+        Object o = ExpressionHelper.getValue(row, column.getValue(), column, oVal);
+        if (o == null && column.getValue() != null) {
+          messages.add("Null was calculated for express [" + column.getValue() + "]");
+        }
+        if (!Transformer.isValidForEs(sourceColumn)) {
+          messages.add(sourceColumn + " is not valid for ElasticSearch");
+        }
+      } catch (Exception e) {
+        messages.add(e.getMessage());
+      }
+      results.add(new ColumnValidationResult(source, columnDefinitionMap.get(source), messages).setExpression(column.getValue()));
 
     }
+    return results;
+  }
 
-    @Override
-    public ContentValidationResults validate(ContentValidationRequest contentRequest) {
-        assert contentRequest != null;
-        assert contentRequest.getContentModel() != null;
-        ContentValidationResults validatedContent = new ContentValidationResults();
-
-        if (contentRequest.getRows() == null) {
-            return validatedContent;
-        }
-
-        int row = 0;
-        if (contentRequest.getContentModel().isTagModel()) {
-
-            for (Map<String, Object> dataRow : contentRequest.getRows()) {
-                validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel().getContent()));
-                try {
-                    validatedContent.add(row, Transformer.toTags(dataRow, contentRequest.getContentModel()));
-                } catch (Exception e) {
-                    validatedContent.addMessage(row, e.getMessage());
-                }
-                row++;
-            }
-
-        } else {// do entity
-            for (Map<String, Object> dataRow : contentRequest.getRows()) {
-                validatedContent.addResults(row, validate(dataRow, contentRequest.getContentModel().getContent()));
-                try {
-                    validatedContent.add(row, Transformer.toEntity(dataRow, contentRequest.getContentModel()));
-                } catch (Exception e) {
-                    validatedContent.addMessage(row, e.getMessage());
-                }
-                row++;
-            }
-
-
-        }
-        return validatedContent;
+  @Override
+  public ContentModel createDefaultContentModel(ContentValidationRequest contentRequest) {
+    ContentModel result = contentRequest.getContentModel();
+    if (result == null) {
+      result = new ContentModelHandler();
     }
 
-    /**
-     * Validate the data against the expressions in the ContentModel
-     *
-     * @param row                 data to validate
-     * @param columnDefinitionMap validate against this
-     * @return Identified validation errors
-     */
-    private Collection<ColumnValidationResult> validate(Map<String, Object> row, Map<String, ColumnDefinition> columnDefinitionMap) {
-        Collection<ColumnValidationResult> results = new ArrayList<>();
-
-        for (String source : columnDefinitionMap.keySet()) {
-            Collection<String> messages = new ArrayList<>();
-            ColumnDefinition column = columnDefinitionMap.get(source);
-            String sourceColumn = column.getSource();
-            try {
-                if (sourceColumn == null) {
-                    sourceColumn = source;
-                }
-
-                Object oVal = row.get(sourceColumn);
-
-                Object o = ExpressionHelper.getValue(row, column.getValue(), column, oVal);
-                if (o == null && column.getValue() != null) {
-                    messages.add("Null was calculated for express [" + column.getValue() + "]");
-                }
-                if (!Transformer.isValidForEs(sourceColumn)) {
-                    messages.add(sourceColumn + " is not valid for ElasticSearch");
-                }
-            } catch (Exception e) {
-                messages.add(e.getMessage());
-            }
-            results.add(new ColumnValidationResult(source, columnDefinitionMap.get(source), messages).setExpression(column.getValue()));
-
-        }
-        return results;
-    }
-
-    @Override
-    public ContentModel createDefaultContentModel(ContentValidationRequest contentRequest) {
-        ContentModel result = contentRequest.getContentModel();
-        if (result == null) {
-            result = new ContentModelHandler();
-        }
-
-        result.setContent(Transformer.fromMapToModel(contentRequest.getRows()));
-        return result;
-    }
+    result.setContent(Transformer.fromMapToModel(contentRequest.getRows()));
+    return result;
+  }
 
 
 }

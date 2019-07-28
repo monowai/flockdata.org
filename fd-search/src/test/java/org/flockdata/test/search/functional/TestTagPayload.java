@@ -32,8 +32,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class TestTagPayload extends ESBase {
 
-    @Test
-    public void nestedTag_SearchDoc() {
-        System.out.print("implement me");
-    }
+  @Test
+  public void nestedTag_SearchDoc() {
+    System.out.print("implement me");
+  }
 }

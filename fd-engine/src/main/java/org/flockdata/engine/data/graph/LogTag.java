@@ -42,83 +42,83 @@ import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
  */
 @RelationshipEntity(type = "ARCHIVED_RLX")
 public class LogTag extends AbstractEntityTag {
-    protected DynamicProperties properties = new DynamicPropertiesContainer();
-    @GraphId
-    private Long id = null;
-    @EndNode
-    @Fetch
-    private Log log = null;
-    @StartNode
-    @Fetch
-    private TagNode tag = null;
-    private String relationship;
-    private Boolean reversed;
-    private Boolean geoRelationship;
+  protected DynamicProperties properties = new DynamicPropertiesContainer();
+  @GraphId
+  private Long id = null;
+  @EndNode
+  @Fetch
+  private Log log = null;
+  @StartNode
+  @Fetch
+  private TagNode tag = null;
+  private String relationship;
+  private Boolean reversed;
+  private Boolean geoRelationship;
 
-    LogTag() {
+  LogTag() {
+  }
+
+  public LogTag(EntityTag entityTag, Log log, String name) {
+    this();
+    this.relationship = name;
+    this.properties = new DynamicPropertiesContainer(entityTag.getProperties());
+    this.reversed = entityTag.isReversed();
+    this.tag = (TagNode) entityTag.getTag();
+    this.log = log;
+    this.geoRelationship = entityTag.isGeoRelationship();
+
+  }
+
+  @Override
+  public Long getId() {
+    return id;
+  }
+
+  @Override
+  public Entity getEntity() {
+    return null;
+  }
+
+  //@Override
+  public Log getLog() {
+    return log;
+  }
+
+  @Override
+  public Tag getTag() {
+    return tag;
+  }
+
+  @Override
+  public Boolean isReversed() {
+    return reversed;
+  }
+
+  @Override
+  public String getRelationship() {
+    return relationship;
+  }
+
+  public void setRelationship(String relationship) {
+    this.relationship = relationship;
+  }
+
+  @Override
+  public Boolean isGeoRelationship() {
+    return geoRelationship;
+  }
+
+
+  public Object getProperty(String key) {
+    if (properties == null) {
+      return null;
     }
+    return properties.getProperty(key);
+  }
 
-    public LogTag(EntityTag entityTag, Log log, String name) {
-        this();
-        this.relationship = name;
-        this.properties = new DynamicPropertiesContainer(entityTag.getProperties());
-        this.reversed = entityTag.isReversed();
-        this.tag = (TagNode) entityTag.getTag();
-        this.log = log;
-        this.geoRelationship = entityTag.isGeoRelationship();
-
-    }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public Entity getEntity() {
-        return null;
-    }
-
-    //@Override
-    public Log getLog() {
-        return log;
-    }
-
-    @Override
-    public Tag getTag() {
-        return tag;
-    }
-
-    @Override
-    public Boolean isReversed() {
-        return reversed;
-    }
-
-    @Override
-    public String getRelationship() {
-        return relationship;
-    }
-
-    public void setRelationship(String relationship) {
-        this.relationship = relationship;
-    }
-
-    @Override
-    public Boolean isGeoRelationship() {
-        return geoRelationship;
-    }
-
-
-    public Object getProperty(String key) {
-        if (properties == null) {
-            return null;
-        }
-        return properties.getProperty(key);
-    }
-
-    @Override
-    public Map<String, Object> getProperties() {
-        return properties.asMap();
-    }
+  @Override
+  public Map<String, Object> getProperties() {
+    return properties.asMap();
+  }
 
 }

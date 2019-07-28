@@ -32,138 +32,138 @@ import org.flockdata.data.Segment;
  */
 public class DocumentResultBean {
 
-    ArrayList<ConceptResultBean> concepts = new ArrayList<>();
-    ArrayList<String> segments = null;
-    private Long id;
-    private String name;
-    private Boolean searchEnabled;
-    private Boolean storeEnabled;
-    private Document.VERSION versionStrategy;
+  ArrayList<ConceptResultBean> concepts = new ArrayList<>();
+  ArrayList<String> segments = null;
+  private Long id;
+  private String name;
+  private Boolean searchEnabled;
+  private Boolean storeEnabled;
+  private Document.VERSION versionStrategy;
 
-    DocumentResultBean() {
-    }
+  DocumentResultBean() {
+  }
 
-    public DocumentResultBean(Document documentType) {
-        this();
-        if (documentType != null) {
-            this.name = documentType.getName();
-            this.id = documentType.getId();
-            if (documentType.isSearchEnabled() != null) {
-                this.searchEnabled = documentType.isSearchEnabled();
-            }
-            if (documentType.isStoreEnabled() != null) // Suppressed if it's not enabled
-            {
-                this.storeEnabled = documentType.isStoreEnabled();
-            }
-            this.versionStrategy = documentType.getVersionStrategy();
-
-        }
-    }
-
-    public DocumentResultBean(Document documentType, Collection<Segment> segments) {
-        this(documentType);
-        if (segments != null) {
-            this.segments = new ArrayList<>(segments.size());
-            this.segments.addAll(segments.stream().map(Segment::getCode).collect(Collectors.toList()));
-        }
-    }
-
-    public DocumentResultBean(Document document, Fortress fortress) {
-        this(document);
-        if (document.getVersionStrategy() == Document.VERSION.FORTRESS) {
-            this.storeEnabled = fortress.isStoreEnabled();
-        } else {
-            this.storeEnabled = (document.getVersionStrategy() == Document.VERSION.ENABLE);
-        }
-        if (this.searchEnabled == null) {
-            searchEnabled = fortress.isSearchEnabled();
-        }
+  public DocumentResultBean(Document documentType) {
+    this();
+    if (documentType != null) {
+      this.name = documentType.getName();
+      this.id = documentType.getId();
+      if (documentType.isSearchEnabled() != null) {
+        this.searchEnabled = documentType.isSearchEnabled();
+      }
+      if (documentType.isStoreEnabled() != null) // Suppressed if it's not enabled
+      {
+        this.storeEnabled = documentType.isStoreEnabled();
+      }
+      this.versionStrategy = documentType.getVersionStrategy();
 
     }
+  }
 
-    public String getName() {
-        return name;
+  public DocumentResultBean(Document documentType, Collection<Segment> segments) {
+    this(documentType);
+    if (segments != null) {
+      this.segments = new ArrayList<>(segments.size());
+      this.segments.addAll(segments.stream().map(Segment::getCode).collect(Collectors.toList()));
+    }
+  }
+
+  public DocumentResultBean(Document document, Fortress fortress) {
+    this(document);
+    if (document.getVersionStrategy() == Document.VERSION.FORTRESS) {
+      this.storeEnabled = fortress.isStoreEnabled();
+    } else {
+      this.storeEnabled = (document.getVersionStrategy() == Document.VERSION.ENABLE);
+    }
+    if (this.searchEnabled == null) {
+      searchEnabled = fortress.isSearchEnabled();
     }
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public ArrayList<ConceptResultBean> getConcepts() {
-        return concepts;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public ArrayList<ConceptResultBean> getConcepts() {
+    return concepts;
+  }
+
+  @JsonIgnore
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public void add(ConceptResultBean concept) {
+    if (concepts == null) {
+      concepts = new ArrayList<>();
+    }
+    concepts.add(concept);
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public ArrayList<String> getSegments() {
+    return segments;
+  }
+
+  @Override
+  public String toString() {
+    return "DocumentResultBean{" +
+        "id=" + id +
+        ", name='" + name + '\'' +
+        '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof DocumentResultBean)) {
+      return false;
     }
 
-    @JsonIgnore
-    public Long getId() {
-        return id;
+    DocumentResultBean that = (DocumentResultBean) o;
+
+    if (id != null ? !id.equals(that.id) : that.id != null) {
+      return false;
     }
+    return !(name != null ? !name.equals(that.name) : that.name != null);
 
-    public void setId(Long id) {
-        this.id = id;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = id != null ? id.hashCode() : 0;
+    result = 31 * result + (name != null ? name.hashCode() : 0);
+    return result;
+  }
+
+  public void addSegment(Segment segment) {
+    if (this.segments == null) {
+      segments = new ArrayList<>();
     }
+    this.segments.add(segment.getCode());
+  }
 
-    public void add(ConceptResultBean concept) {
-        if (concepts == null) {
-            concepts = new ArrayList<>();
-        }
-        concepts.add(concept);
-    }
+  public Document.VERSION getVersionStrategy() {
+    return versionStrategy;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public ArrayList<String> getSegments() {
-        return segments;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Boolean getSearchEnabled() {
+    // Null defaults to the fortress
+    return searchEnabled;
+  }
 
-    @Override
-    public String toString() {
-        return "DocumentResultBean{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof DocumentResultBean)) {
-            return false;
-        }
-
-        DocumentResultBean that = (DocumentResultBean) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) {
-            return false;
-        }
-        return !(name != null ? !name.equals(that.name) : that.name != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
-    }
-
-    public void addSegment(Segment segment) {
-        if (this.segments == null) {
-            segments = new ArrayList<>();
-        }
-        this.segments.add(segment.getCode());
-    }
-
-    public Document.VERSION getVersionStrategy() {
-        return versionStrategy;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Boolean getSearchEnabled() {
-        // Null defaults to the fortress
-        return searchEnabled;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Boolean getStoreEnabled() {
-        // Null defaults to the fortress
-        return storeEnabled;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Boolean getStoreEnabled() {
+    // Null defaults to the fortress
+    return storeEnabled;
+  }
 }

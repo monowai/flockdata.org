@@ -48,91 +48,91 @@ import org.springframework.messaging.MessageHandler;
 @Profile("neorest")
 public class EntityRequests extends NeoRequestBase {
 
-    @Bean
-    public IntegrationFlow makeEntities() {
-        return IntegrationFlows.from(channels.neoFdMakeEntity())
-            .transform(getTransformer())
-            .handle(fdMakeEntityRequest())
-            .get();
-    }
+  @Bean
+  public IntegrationFlow makeEntities() {
+    return IntegrationFlows.from(channels.neoFdMakeEntity())
+        .transform(getTransformer())
+        .handle(fdMakeEntityRequest())
+        .get();
+  }
 
-    private MessageHandler fdMakeEntityRequest() {
+  private MessageHandler fdMakeEntityRequest() {
 
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getEntityUrl());
-        handler.setExpectedResponseType(EntityResults.class);
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getEntityUrl());
+    handler.setExpectedResponseType(EntityResults.class);
 
-        return handler;
-    }
+    return handler;
+  }
 
-    @Bean
-    public IntegrationFlow findEntityByKey() {
-        return IntegrationFlows.from(channels.neoFdFindEntity())
-            .handle(fdFindByKey())
-            .get();
-    }
+  @Bean
+  public IntegrationFlow findEntityByKey() {
+    return IntegrationFlows.from(channels.neoFdFindEntity())
+        .handle(fdFindByKey())
+        .get();
+  }
 
-    private MessageHandler fdFindByKey() {
-        SpelExpressionParser expressionParser = new SpelExpressionParser();
+  private MessageHandler fdFindByKey() {
+    SpelExpressionParser expressionParser = new SpelExpressionParser();
 
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getKeyUrl());
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getKeyUrl());
 
-        handler.setExpectedResponseType(EntityNode.class);
-        Map<String, Expression> vars = new HashMap<>();
-        vars.put("key", expressionParser.parseExpression("payload[0]"));
-        handler.setUriVariableExpressions(vars);
+    handler.setExpectedResponseType(EntityNode.class);
+    Map<String, Expression> vars = new HashMap<>();
+    vars.put("key", expressionParser.parseExpression("payload[0]"));
+    handler.setUriVariableExpressions(vars);
 
-        handler.setHttpMethod(HttpMethod.GET);
-        return handler;
-    }
+    handler.setHttpMethod(HttpMethod.GET);
+    return handler;
+  }
 
-    @Bean
-    public IntegrationFlow findLabeledEntities() {
-        return IntegrationFlows.from(channels.neoFdFindLabeledEntities())
-            .handle(fdFindByLabeledEntities())
-            .get();
-    }
+  @Bean
+  public IntegrationFlow findLabeledEntities() {
+    return IntegrationFlows.from(channels.neoFdFindLabeledEntities())
+        .handle(fdFindByLabeledEntities())
+        .get();
+  }
 
-    private MessageHandler fdFindByLabeledEntities() {
-        SpelExpressionParser expressionParser = new SpelExpressionParser();
+  private MessageHandler fdFindByLabeledEntities() {
+    SpelExpressionParser expressionParser = new SpelExpressionParser();
 
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getLabelFindUrl());
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getLabelFindUrl());
 
-        handler.setExpectedResponseType(ArrayList.class);
-        Map<String, Expression> vars = new HashMap<>();
-        vars.put("fortressId", expressionParser.parseExpression("payload[0]"));
-        vars.put("label", expressionParser.parseExpression("payload[1]"));
-        vars.put("skipCount", expressionParser.parseExpression("payload[2]"));
-        handler.setUriVariableExpressions(vars);
+    handler.setExpectedResponseType(ArrayList.class);
+    Map<String, Expression> vars = new HashMap<>();
+    vars.put("fortressId", expressionParser.parseExpression("payload[0]"));
+    vars.put("label", expressionParser.parseExpression("payload[1]"));
+    vars.put("skipCount", expressionParser.parseExpression("payload[2]"));
+    handler.setUriVariableExpressions(vars);
 
-        handler.setHttpMethod(HttpMethod.GET);
-        return handler;
-    }
+    handler.setHttpMethod(HttpMethod.GET);
+    return handler;
+  }
 
-    @Bean
-    public IntegrationFlow findByCode() {
-        return IntegrationFlows.from(channels.neoFdFindByCallerRef())
-            .handle(fdFindByCode())
-            .get();
-    }
+  @Bean
+  public IntegrationFlow findByCode() {
+    return IntegrationFlows.from(channels.neoFdFindByCallerRef())
+        .handle(fdFindByCode())
+        .get();
+  }
 
-    private MessageHandler fdFindByCode() {
-        SpelExpressionParser expressionParser = new SpelExpressionParser();
+  private MessageHandler fdFindByCode() {
+    SpelExpressionParser expressionParser = new SpelExpressionParser();
 
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getCallerRefUrl());
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getCallerRefUrl());
 
-        handler.setExpectedResponseType(EntityNode.class);
-        Map<String, Expression> vars = new HashMap<>();
-        vars.put("fortressId", expressionParser.parseExpression("payload[0]"));
-        vars.put("docId", expressionParser.parseExpression("payload[1]"));
-        vars.put("code", expressionParser.parseExpression("payload[2]"));
-        handler.setUriVariableExpressions(vars);
+    handler.setExpectedResponseType(EntityNode.class);
+    Map<String, Expression> vars = new HashMap<>();
+    vars.put("fortressId", expressionParser.parseExpression("payload[0]"));
+    vars.put("docId", expressionParser.parseExpression("payload[1]"));
+    vars.put("code", expressionParser.parseExpression("payload[2]"));
+    handler.setUriVariableExpressions(vars);
 
-        handler.setHttpMethod(HttpMethod.GET);
-        return handler;
-    }
+    handler.setHttpMethod(HttpMethod.GET);
+    return handler;
+  }
 
 }

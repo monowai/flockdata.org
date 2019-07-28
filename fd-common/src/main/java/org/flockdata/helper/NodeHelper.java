@@ -31,16 +31,16 @@ import java.util.Collection;
  */
 public class NodeHelper {
 
-    private static Collection<String> internalLabels = new ArrayList<>();
+  private static Collection<String> internalLabels = new ArrayList<>();
 
-    static {
-        internalLabels.add("tag"); // FD concept
-        internalLabels.add("_tag"); // SDN prefix
-        internalLabels.add("entity"); // FD entity
-        internalLabels.add("_entity"); // SDN prefix
-    }
+  static {
+    internalLabels.add("tag"); // FD concept
+    internalLabels.add("_tag"); // SDN prefix
+    internalLabels.add("entity"); // FD entity
+    internalLabels.add("_entity"); // SDN prefix
+  }
 
-    public static boolean isInternalLabel(String label) {
-        return internalLabels.contains(label.toLowerCase());
-    }
+  public static boolean isInternalLabel(String label) {
+    return internalLabels.contains(label.toLowerCase());
+  }
 }

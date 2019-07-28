@@ -34,19 +34,19 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 @Configuration
 @Profile( {"fd-batch-dev", "dev"})
 public class HsqlDataSource {
-    @Autowired
-    BatchConfig batchConfig;
+  @Autowired
+  BatchConfig batchConfig;
 
-    @Bean
-    @Profile("fd-batch-dev")
-    @Primary
-    public DataSource dataSource() throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+  @Bean
+  @Profile("fd-batch-dev")
+  @Primary
+  public DataSource dataSource() throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
 
-        return new EmbeddedDatabaseBuilder()
-            .setType(EmbeddedDatabaseType.HSQL)
-            .setName("testDb")
-            .build();
-    }
+    return new EmbeddedDatabaseBuilder()
+        .setType(EmbeddedDatabaseType.HSQL)
+        .setName("testDb")
+        .build();
+  }
 
 
 }

@@ -1,4 +1,4 @@
-  ### Default configuration properties for fd-engine
+### Default configuration properties for fd-engine
 
 ## You can override these settings by placing a application.properties
 ## in the flockdata classpath. This file, deployed with fd-engine and fd-search
@@ -63,8 +63,8 @@ org.fd:
 
   track: # Used for handling incoming data
     executor:
-        poolSize: 8-15
-        queueCapacity: 3
+      poolSize: 8-15
+      queueCapacity: 3
     messaging:
       concurrentConsumers: 1
       queueCapacity: 10
@@ -101,12 +101,12 @@ org.fd:
       user: admin
       pass: hackme
     stormpath:
-      #apiKeyFile: '${FD_HOME}/conf/apiKey.properties'
-      #application: https://api.stormpath.com/v1/applications/2vD7nBoKANqpIFSDvXxfWY
-      #group:
-      #  user: https://api.stormpath.com/v1/groups/6vxWqi44N3qr7gETXfLbsk
-      #group:
-      #  admin: https://api.stormpath.com/v1/groups/2Xro288t4Yza6CBuCoFAru
+    #apiKeyFile: '${FD_HOME}/conf/apiKey.properties'
+    #application: https://api.stormpath.com/v1/applications/2vD7nBoKANqpIFSDvXxfWY
+    #group:
+    #  user: https://api.stormpath.com/v1/groups/6vxWqi44N3qr7gETXfLbsk
+    #group:
+    #  admin: https://api.stormpath.com/v1/groups/2Xro288t4Yza6CBuCoFAru
 
 org:
   neo4j:
@@ -128,9 +128,9 @@ cors:
   supportedHeaders:  '*'
   supportsCredentials:  true
   maxAge: 3600
-  allowOrigin :  http://127.0.0.1:9000, http://localhost:9000,chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop
-  allowSubdomains :  true
-  supportedMethods :  GET, POST, HEAD, OPTIONS, PUT, DELETE
-  exposedHeaders :
-  tagRequests :
+  allowOrigin:  http://127.0.0.1:9000, http://localhost:9000,chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop
+  allowSubdomains:  true
+  supportedMethods:  GET, POST, HEAD, OPTIONS, PUT, DELETE
+  exposedHeaders:
+  tagRequests:
 

@@ -34,36 +34,36 @@ import org.junit.Test;
  * @since 9/03/2015
  */
 public class TestStates extends AbstractImport {
-    @Test
-    public void validate_States() throws Exception {
-        String file = "/states.json";
-        ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
-        fileProcessor.processFile(new ExtractProfileHandler(contentModel), "/states.csv");
-        assertEquals(72, getTemplate().getTags().size());
+  @Test
+  public void validate_States() throws Exception {
+    String file = "/states.json";
+    ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
+    fileProcessor.processFile(new ExtractProfileHandler(contentModel), "/states.csv");
+    assertEquals(72, getTemplate().getTags().size());
 
-        for (TagInputBean stateTag : getTemplate().getTags()) {
-            assertEquals(1, stateTag.getTargets().size());
-            TagInputBean country = stateTag.getTargets().get("region").iterator().next();
-            assertNotNull(country);
-            TestCase.assertEquals(stateTag.getKeyPrefix(), country.getCode());
-            if (country.getCode().equals("US")) {
-                // Randomly check a US state for Census aliases
-                if (stateTag.getCode().equals("CA")) {
-                    assertNotNull(stateTag.getAliases());
-                    assertEquals(2, stateTag.getAliases().size());
-                    for (AliasInputBean aliasInputBean : stateTag.getAliases()) {
-                        if (aliasInputBean.getDescription().equals("USCensus")) {
-                            assertEquals(2, aliasInputBean.getCode().length());
-                        }
-                    }
-                }
-            } else {
-                // Validate that iso+name exists
-                assertNotNull(stateTag.getAliases());
-                assertEquals(1, stateTag.getAliases().size());
-                assertEquals(stateTag.getName(), stateTag.getAliases().iterator().next().getCode());
-
+    for (TagInputBean stateTag : getTemplate().getTags()) {
+      assertEquals(1, stateTag.getTargets().size());
+      TagInputBean country = stateTag.getTargets().get("region").iterator().next();
+      assertNotNull(country);
+      TestCase.assertEquals(stateTag.getKeyPrefix(), country.getCode());
+      if (country.getCode().equals("US")) {
+        // Randomly check a US state for Census aliases
+        if (stateTag.getCode().equals("CA")) {
+          assertNotNull(stateTag.getAliases());
+          assertEquals(2, stateTag.getAliases().size());
+          for (AliasInputBean aliasInputBean : stateTag.getAliases()) {
+            if (aliasInputBean.getDescription().equals("USCensus")) {
+              assertEquals(2, aliasInputBean.getCode().length());
             }
+          }
         }
+      } else {
+        // Validate that iso+name exists
+        assertNotNull(stateTag.getAliases());
+        assertEquals(1, stateTag.getAliases().size());
+        assertEquals(stateTag.getName(), stateTag.getAliases().iterator().next().getCode());
+
+      }
     }
+  }
 }

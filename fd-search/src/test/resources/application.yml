@@ -1,4 +1,3 @@
-
 application:
   title: FlockData - Testing...
 
@@ -25,11 +24,11 @@ es:
     port: 9303
 
 rabbit:
-    user: guest
-    pass: guest
-    host: localhost
-    port: 5672
-    heartbeat.secs: 30
+  user: guest
+  pass: guest
+  host: localhost
+  port: 5672
+  heartbeat.secs: 30
 
 org.fd:
   search:
@@ -38,7 +37,7 @@ org.fd:
     es:
       settings: src/test/resources/fd-default-settings.json
       mappings: '.'
-#     Use embedded node for testing
+      #     Use embedded node for testing
       transportOnly: false
     messaging:
       concurrentConsumers: 2

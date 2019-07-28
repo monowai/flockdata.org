@@ -43,42 +43,42 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 public class TestIndexTagChanges extends ESBase {
-    @Test
-    public void testSimpleTagIndexes() throws Exception {
-        Company company = new CompanyInputBean("testTagCompany");
+  @Test
+  public void testSimpleTagIndexes() throws Exception {
+    Company company = new CompanyInputBean("testTagCompany");
 
-        TagInputBean tagInputBean = new TagInputBean("simpleCode", "SimpleLabel");
-        tagInputBean.setName("A Name to Find");
-        tagInputBean.setProperty("user property", "UDFValue");
+    TagInputBean tagInputBean = new TagInputBean("simpleCode", "SimpleLabel");
+    tagInputBean.setName("A Name to Find");
+    tagInputBean.setProperty("user property", "UDFValue");
 
-        Tag tag = MockDataFactory.getTag(tagInputBean);
+    Tag tag = MockDataFactory.getTag(tagInputBean);
 
-        String key = TagHelper.parseKey(tagInputBean.getCode() + "Alias");
-        Alias alias = MockDataFactory.getAlias(tagInputBean.getLabel(), new AliasInputBean(tagInputBean.getCode() + "Alias", "someAliasDescription"), key, tag);
-        Set<Alias> aliasSet = new HashSet<>();
-        aliasSet.add(alias);
-        when(tag.getAliases()).thenReturn(aliasSet);
+    String key = TagHelper.parseKey(tagInputBean.getCode() + "Alias");
+    Alias alias = MockDataFactory.getAlias(tagInputBean.getLabel(), new AliasInputBean(tagInputBean.getCode() + "Alias", "someAliasDescription"), key, tag);
+    Set<Alias> aliasSet = new HashSet<>();
+    aliasSet.add(alias);
+    when(tag.getAliases()).thenReturn(aliasSet);
 
-        String indexName = searchConfig.getIndexManager().getTagIndexRoot(company, tag);
-        org.assertj.core.api.Assertions.assertThat(indexName)
-            .isNotNull()
-            .contains(".tags")
-            .endsWith("." + searchConfig.getIndexManager().parseType(tagInputBean.getLabel()))
-        ;
+    String indexName = searchConfig.getIndexManager().getTagIndexRoot(company, tag);
+    org.assertj.core.api.Assertions.assertThat(indexName)
+        .isNotNull()
+        .contains(".tags")
+        .endsWith("." + searchConfig.getIndexManager().parseType(tagInputBean.getLabel()))
+    ;
 
-        deleteEsIndex(indexName);
+    deleteEsIndex(indexName);
 
-        TagSearchChange tagSearchChange = new TagSearchChange(indexName, tag);
+    TagSearchChange tagSearchChange = new TagSearchChange(indexName, tag);
 
-        indexMappingService.ensureIndexMapping(tagSearchChange);
+    indexMappingService.ensureIndexMapping(tagSearchChange);
 
-        tagWriter.handle(tagSearchChange);
-        Thread.sleep(1000);
-        // Find by code
-        doQuery(indexName, tag.getLabel().toLowerCase(), tag.getCode(), 1);
-        // By Name
-        doQuery(indexName, tag.getLabel().toLowerCase(), tag.getName(), 1);
-        // Alias
-        doQuery(indexName, tag.getLabel().toLowerCase(), alias.getName(), 1);
-    }
+    tagWriter.handle(tagSearchChange);
+    Thread.sleep(1000);
+    // Find by code
+    doQuery(indexName, tag.getLabel().toLowerCase(), tag.getCode(), 1);
+    // By Name
+    doQuery(indexName, tag.getLabel().toLowerCase(), tag.getName(), 1);
+    // Alias
+    doQuery(indexName, tag.getLabel().toLowerCase(), alias.getName(), 1);
+  }
 }

@@ -44,37 +44,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.search.system.api:api}/v1/query")
 @RestController
 public class FdQueryEP {
-    private final QueryService searchService;
+  private final QueryService searchService;
 
-    @Autowired
-    public FdQueryEP(@Qualifier("queryServiceEs") QueryService searchService) {
-        this.searchService = searchService;
-    }
+  @Autowired
+  public FdQueryEP(@Qualifier("queryServiceEs") QueryService searchService) {
+    this.searchService = searchService;
+  }
 
-    @PostMapping(value = "/", consumes = "application/json", produces = "application/json")
-    public String simpleQuery(@RequestBody QueryParams queryParams) throws FlockException {
+  @PostMapping(value = "/", consumes = "application/json", produces = "application/json")
+  public String simpleQuery(@RequestBody QueryParams queryParams) throws FlockException {
 
-        return searchService.doSearch(queryParams);
-    }
+    return searchService.doSearch(queryParams);
+  }
 
-    @PostMapping(value = "/fdView")
-    public EsSearchRequestResult fdViewQuery(@RequestBody QueryParams queryParams) throws FlockException {
-        return searchService.doFdViewSearch(queryParams);
-    }
+  @PostMapping(value = "/fdView")
+  public EsSearchRequestResult fdViewQuery(@RequestBody QueryParams queryParams) throws FlockException {
+    return searchService.doFdViewSearch(queryParams);
+  }
 
-    @PostMapping(value = "/keys")
-    public EntityKeyResults keys(@RequestBody QueryParams queryParams) throws FlockException {
-        return searchService.doKeyQuery(queryParams);
-    }
+  @PostMapping(value = "/keys")
+  public EntityKeyResults keys(@RequestBody QueryParams queryParams) throws FlockException {
+    return searchService.doKeyQuery(queryParams);
+  }
 
-    @PostMapping(value = "/data", consumes = "application/json", produces = "application/json")
-    public EsSearchRequestResult dataContent(@RequestBody QueryParams queryParams) throws FlockException {
-        return searchService.doParametrizedQuery(queryParams);
-    }
+  @PostMapping(value = "/data", consumes = "application/json", produces = "application/json")
+  public EsSearchRequestResult dataContent(@RequestBody QueryParams queryParams) throws FlockException {
+    return searchService.doParametrizedQuery(queryParams);
+  }
 
-    @PostMapping(value = "/tagCloud", consumes = "application/json", produces = "application/json")
-    public TagCloud tagCloud(@RequestBody TagCloudParams queryParams) throws FlockException {
-        return searchService.getTagCloud(queryParams);
-    }
+  @PostMapping(value = "/tagCloud", consumes = "application/json", produces = "application/json")
+  public TagCloud tagCloud(@RequestBody TagCloudParams queryParams) throws FlockException {
+    return searchService.getTagCloud(queryParams);
+  }
 
 }

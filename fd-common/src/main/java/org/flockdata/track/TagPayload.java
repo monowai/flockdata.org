@@ -30,48 +30,48 @@ import org.flockdata.registration.TagInputBean;
  */
 public class TagPayload {
 
-    private String tenant = "";
-    private boolean ignoreRelationships;
-    private Collection<TagInputBean> tags;
-    private Company company;
+  private String tenant = "";
+  private boolean ignoreRelationships;
+  private Collection<TagInputBean> tags;
+  private Company company;
 
-    TagPayload() {
-    }
+  TagPayload() {
+  }
 
-    public TagPayload(Company company) {
-        this();
-        this.company = company;
-    }
+  public TagPayload(Company company) {
+    this();
+    this.company = company;
+  }
 
-    public String getTenant() {
-        return tenant;
-    }
+  public String getTenant() {
+    return tenant;
+  }
 
-    public TagPayload setTenant(String tenant) {
-        this.tenant = tenant;
-        return this;
-    }
+  public TagPayload setTenant(String tenant) {
+    this.tenant = tenant;
+    return this;
+  }
 
-    public boolean isIgnoreRelationships() {
-        return ignoreRelationships;
-    }
+  public boolean isIgnoreRelationships() {
+    return ignoreRelationships;
+  }
 
-    public TagPayload setIgnoreRelationships(boolean ignoreRelationships) {
-        this.ignoreRelationships = ignoreRelationships;
-        return this;
-    }
+  public TagPayload setIgnoreRelationships(boolean ignoreRelationships) {
+    this.ignoreRelationships = ignoreRelationships;
+    return this;
+  }
 
-    public Collection<TagInputBean> getTags() {
-        return tags;
-    }
+  public Collection<TagInputBean> getTags() {
+    return tags;
+  }
 
-    public TagPayload setTags(Collection<TagInputBean> tags) {
-        this.tags = tags;
-        return this;
-    }
+  public TagPayload setTags(Collection<TagInputBean> tags) {
+    this.tags = tags;
+    return this;
+  }
 
-    public Company getCompany() {
-        return company;
-    }
+  public Company getCompany() {
+    return company;
+  }
 
 }

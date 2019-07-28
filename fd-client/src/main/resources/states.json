@@ -27,10 +27,9 @@
           "code": "[name]",
           "description": "StateName"
         }
-
       ]
     },
-    "us-census":{
+    "us-census": {
       "dataType": "string"
     }
   }

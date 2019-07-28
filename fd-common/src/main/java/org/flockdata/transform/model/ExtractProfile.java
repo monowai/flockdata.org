@@ -31,29 +31,29 @@ import org.flockdata.transform.json.ExtractProfileDeserializer;
 @JsonDeserialize(using = ExtractProfileDeserializer.class)
 public interface ExtractProfile {
 
-    ContentType getContentType();
+  ContentType getContentType();
 
-    ExtractProfile setContentType(ContentType contentType);
+  ExtractProfile setContentType(ContentType contentType);
 
-    char getDelimiter();
+  char getDelimiter();
 
-    ExtractProfile setDelimiter(String delimiter);
+  ExtractProfile setDelimiter(String delimiter);
 
-    Boolean hasHeader();
+  Boolean hasHeader();
 
-    String getHandler();
+  String getHandler();
 
-    String getPreParseRowExp();
+  String getPreParseRowExp();
 
-    void setPreParseRowExp(String expression);
+  void setPreParseRowExp(String expression);
 
-    String getQuoteCharacter();
+  String getQuoteCharacter();
 
-    ExtractProfile setQuoteCharacter(String quoteCharacter);
+  ExtractProfile setQuoteCharacter(String quoteCharacter);
 
-    ExtractProfile setHeader(boolean header);
+  ExtractProfile setHeader(boolean header);
 
-    ContentModel getContentModel();
+  ContentModel getContentModel();
 
-    enum ContentType {CSV, JSON, XML}
+  enum ContentType {CSV, JSON, XML}
 }

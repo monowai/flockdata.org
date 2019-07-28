@@ -45,97 +45,97 @@ import org.junit.Test;
  */
 public class TestDocEP extends MvcBase {
 
-    @Test
-    public void flow_docPoints() throws Exception {
+  @Test
+  public void flow_docPoints() throws Exception {
 
-        FortressResultBean fortress = makeFortress(mike(), "flow_docPoints");
+    FortressResultBean fortress = makeFortress(mike(), "flow_docPoints");
 
-        EntityInputBean inputBean = new EntityInputBean(fortress, new DocumentTypeInputBean("flow_docPoints"));
-        inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
-        inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
-        engineConfig.setConceptsEnabled(true);
-        TrackRequestResult entity = track(mike(), inputBean);
+    EntityInputBean inputBean = new EntityInputBean(fortress, new DocumentTypeInputBean("flow_docPoints"));
+    inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
+    inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
+    engineConfig.setConceptsEnabled(true);
+    TrackRequestResult entity = track(mike(), inputBean);
 
-        Collection<EntityTagResult> entityTags = getEntityTags(mike(), entity.getKey());
-        assertEquals(2, entityTags.size());
+    Collection<EntityTagResult> entityTags = getEntityTags(mike(), entity.getKey());
+    assertEquals(2, entityTags.size());
 
-        Collection<DocumentResultBean> docResults = getDocuments(mike(), fortress.getCode());
-        assertNotNull(docResults);
-        assertEquals(1, docResults.size());
-        DocumentResultBean docResult = docResults.iterator().next();
-        assertEquals("flow_docPoints", docResult.getName());
+    Collection<DocumentResultBean> docResults = getDocuments(mike(), fortress.getCode());
+    assertNotNull(docResults);
+    assertEquals(1, docResults.size());
+    DocumentResultBean docResult = docResults.iterator().next();
+    assertEquals("flow_docPoints", docResult.getName());
 
-        Collection<ConceptResultBean> labelResults = getLabelsForDocument(mike(), docResult.getName());
-        assertFalse(labelResults.isEmpty());
-        Collection<TagResultBean> tags;
-        for (ConceptResultBean labelResult : labelResults) {
-            switch (labelResult.getName()) {
-                case "Vegetable":
-                    tags = getTags(mike(), TestQueryResults.VEGETABLE);
-                    assertNotNull(tags);
-                    assertFalse(tags.isEmpty());
-                    assertEquals(1, tags.size());
-                    assertEquals("Potatoes", tags.iterator().next().getCode());
-                    break;
-                case "Fruit":
-                    tags = getTags(mike(), TestQueryResults.FRUIT);
-                    assertNotNull(tags);
-                    assertFalse(tags.isEmpty());
-                    assertEquals(1, tags.size());
-                    assertEquals("Apples", tags.iterator().next().getCode());
+    Collection<ConceptResultBean> labelResults = getLabelsForDocument(mike(), docResult.getName());
+    assertFalse(labelResults.isEmpty());
+    Collection<TagResultBean> tags;
+    for (ConceptResultBean labelResult : labelResults) {
+      switch (labelResult.getName()) {
+        case "Vegetable":
+          tags = getTags(mike(), TestQueryResults.VEGETABLE);
+          assertNotNull(tags);
+          assertFalse(tags.isEmpty());
+          assertEquals(1, tags.size());
+          assertEquals("Potatoes", tags.iterator().next().getCode());
+          break;
+        case "Fruit":
+          tags = getTags(mike(), TestQueryResults.FRUIT);
+          assertNotNull(tags);
+          assertFalse(tags.isEmpty());
+          assertEquals(1, tags.size());
+          assertEquals("Apples", tags.iterator().next().getCode());
 
-                    break;
-                default:
-                    throw new Exception("Unexpected label " + labelResult.getName());
-            }
-        }
+          break;
+        default:
+          throw new Exception("Unexpected label " + labelResult.getName());
+      }
     }
+  }
 
-    @Test
-    public void find_tagValues() throws Exception {
+  @Test
+  public void find_tagValues() throws Exception {
 
-        FortressResultBean fortress = makeFortress(mike(), "find_tagValues");
+    FortressResultBean fortress = makeFortress(mike(), "find_tagValues");
 
-        EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "Study", new DateTime(), "StudyA");
-        inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
-        inputBean.addTag(new TagInputBean("Pears", TestQueryResults.FRUIT, "likes"));
-        inputBean.addTag(new TagInputBean("Oranges", TestQueryResults.FRUIT, "dislikes"));
-        inputBean.addTag(new TagInputBean("Grapes", TestQueryResults.FRUIT, "allergic"));
-        inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
-        track(mike(), inputBean);
-
-
-        Collection<TagResultBean> tags = getTags(mike(), TestQueryResults.VEGETABLE);
-        assertNotNull(tags);
-        assertFalse(tags.isEmpty());
-        assertEquals(1, tags.size());
-        assertEquals("Potatoes", tags.iterator().next().getCode());
-    }
-
-    /**
-     * Create a collection of DocumentTypeInputBeans for a fortress over the endpoint
-     *
-     * @throws Exception
-     */
-    @Test
-    public void make_DocTypes() throws Exception {
-
-        FortressResultBean fortress = makeFortress(mike(), "make_DocTypes");
-
-        DocumentTypeInputBean docType = new DocumentTypeInputBean("docName")
-            .setCode("docCode");
+    EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "Study", new DateTime(), "StudyA");
+    inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
+    inputBean.addTag(new TagInputBean("Pears", TestQueryResults.FRUIT, "likes"));
+    inputBean.addTag(new TagInputBean("Oranges", TestQueryResults.FRUIT, "dislikes"));
+    inputBean.addTag(new TagInputBean("Grapes", TestQueryResults.FRUIT, "allergic"));
+    inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
+    track(mike(), inputBean);
 
 
-        login(mike_admin, "123");
+    Collection<TagResultBean> tags = getTags(mike(), TestQueryResults.VEGETABLE);
+    assertNotNull(tags);
+    assertFalse(tags.isEmpty());
+    assertEquals(1, tags.size());
+    assertEquals("Potatoes", tags.iterator().next().getCode());
+  }
+
+  /**
+   * Create a collection of DocumentTypeInputBeans for a fortress over the endpoint
+   *
+   * @throws Exception
+   */
+  @Test
+  public void make_DocTypes() throws Exception {
+
+    FortressResultBean fortress = makeFortress(mike(), "make_DocTypes");
+
+    DocumentTypeInputBean docType = new DocumentTypeInputBean("docName")
+        .setCode("docCode");
 
 
-        DocumentResultBean result = makeDocuments(mike(), fortress, docType);
+    login(mike_admin, "123");
 
-        assertEquals(docType.getName(), result.getName());
-        assertEquals(1, getDocuments(mike(), fortress.getName()).size());
-        assertNull(result.getSegments());
 
-    }
+    DocumentResultBean result = makeDocuments(mike(), fortress, docType);
+
+    assertEquals(docType.getName(), result.getName());
+    assertEquals(1, getDocuments(mike(), fortress.getName()).size());
+    assertNull(result.getSegments());
+
+  }
 
 
 }

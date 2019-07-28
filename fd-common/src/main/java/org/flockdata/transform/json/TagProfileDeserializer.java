@@ -38,18 +38,18 @@ import org.flockdata.transform.tag.TagProfile;
  */
 public class TagProfileDeserializer extends JsonDeserializer<ArrayList<TagProfile>> {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper(new FdJsonObjectMapper())
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .enable(JsonParser.Feature.ALLOW_COMMENTS);
+  private static final ObjectMapper objectMapper = new ObjectMapper(new FdJsonObjectMapper())
+      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+      .enable(JsonParser.Feature.ALLOW_COMMENTS);
 
-    @Override
-    public ArrayList<TagProfile> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        ArrayList<TagProfile> values = new ArrayList<>();
-        JsonNode node = jp.getCodec().readTree(jp);
-        for (JsonNode jsonNode : node) {
-            values.add(objectMapper.readValue(jsonNode.toString(), TagProfile.class));
+  @Override
+  public ArrayList<TagProfile> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    ArrayList<TagProfile> values = new ArrayList<>();
+    JsonNode node = jp.getCodec().readTree(jp);
+    for (JsonNode jsonNode : node) {
+      values.add(objectMapper.readValue(jsonNode.toString(), TagProfile.class));
 
-        }
-        return values;
     }
+    return values;
+  }
 }

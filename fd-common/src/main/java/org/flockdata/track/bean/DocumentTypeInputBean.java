@@ -28,181 +28,181 @@ import org.flockdata.data.Fortress;
  * @since 10/10/2014
  */
 public class DocumentTypeInputBean implements Document {
-    private String name;
-    private String code;
+  private String name;
+  private String code;
 
-    private String geoQuery;
-    private Document.VERSION versionStrategy = Document.VERSION.FORTRESS;
-    private EntityTag.TAG_STRUCTURE tagStructure = EntityTag.TAG_STRUCTURE.DEFAULT;
-    private Boolean searchEnabled; // If null default to fortress
-    private Boolean storeEnabled; // If null default to fortress
-    private Boolean trackEnabled;
-    private Fortress fortress;
+  private String geoQuery;
+  private Document.VERSION versionStrategy = Document.VERSION.FORTRESS;
+  private EntityTag.TAG_STRUCTURE tagStructure = EntityTag.TAG_STRUCTURE.DEFAULT;
+  private Boolean searchEnabled; // If null default to fortress
+  private Boolean storeEnabled; // If null default to fortress
+  private Boolean trackEnabled;
+  private Fortress fortress;
 
-    DocumentTypeInputBean() {
+  DocumentTypeInputBean() {
+  }
+
+  public DocumentTypeInputBean(String docName) {
+    this();
+    if (docName == null || docName.trim().equals("")) {
+      throw new IllegalArgumentException("DocumentType name is invalid");
+    }
+    this.name = docName;
+    this.code = docName;
+  }
+
+  /**
+   * Helps unit testing
+   *
+   * @param documentResultBean result of a previous request to create
+   */
+  public DocumentTypeInputBean(DocumentResultBean documentResultBean) {
+    this.name = documentResultBean.getName();
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public DocumentTypeInputBean setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public DocumentTypeInputBean setCode(String code) {
+    this.code = code;
+    return this;
+  }
+
+  @Override
+  @JsonIgnore
+  public Long getId() {
+    return null;
+  }
+
+  @Override
+  @JsonIgnore
+  public Fortress getFortress() {
+    return fortress;
+  }
+
+  // MKH - Overrides the default geo query path for this DocumentType. VULNERABLE!
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getGeoQuery() {
+    // DAT-507
+    return geoQuery;
+  }
+
+  public DocumentTypeInputBean setGeoQuery(final String geoQuery) {
+    this.geoQuery = geoQuery;
+    return this;
+  }
+
+  public Document.VERSION getVersionStrategy() {
+    return versionStrategy;
+  }
+
+  public DocumentTypeInputBean setVersionStrategy(Document.VERSION versionStrategy) {
+    this.versionStrategy = versionStrategy;
+    return this;
+  }
+
+  public EntityTag.TAG_STRUCTURE getTagStructure() {
+    return tagStructure;
+  }
+
+  public DocumentTypeInputBean setTagStructure(EntityTag.TAG_STRUCTURE tagStructure) {
+    this.tagStructure = tagStructure;
+    return this;
+  }
+
+  public DocumentTypeInputBean getName(final String name) {
+    this.name = name;
+    return this;
+  }
+
+  public DocumentTypeInputBean getCode(final String code) {
+    this.code = code;
+    return this;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public DocumentTypeInputBean getVersionStrategy(final Document.VERSION versionStrategy) {
+    this.versionStrategy = versionStrategy;
+    return this;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Boolean isSearchEnabled() {
+    return searchEnabled;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Boolean isStoreEnabled() {
+    return storeEnabled;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Boolean isTrackEnabled() {
+    return trackEnabled;
+  }
+
+  @Override
+  public String toString() {
+    return "DocumentTypeInputBean{" +
+        "name='" + name + '\'' +
+        ", code='" + code + '\'' +
+        ", tagStructure=" + tagStructure +
+        ", versionStrategy=" + versionStrategy +
+        '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof DocumentTypeInputBean)) {
+      return false;
     }
 
-    public DocumentTypeInputBean(String docName) {
-        this();
-        if (docName == null || docName.trim().equals("")) {
-            throw new IllegalArgumentException("DocumentType name is invalid");
-        }
-        this.name = docName;
-        this.code = docName;
+    DocumentTypeInputBean that = (DocumentTypeInputBean) o;
+
+    if (name != null ? !name.equals(that.name) : that.name != null) {
+      return false;
     }
-
-    /**
-     * Helps unit testing
-     *
-     * @param documentResultBean result of a previous request to create
-     */
-    public DocumentTypeInputBean(DocumentResultBean documentResultBean) {
-        this.name = documentResultBean.getName();
+    if (code != null ? !code.equals(that.code) : that.code != null) {
+      return false;
     }
-
-    public String getName() {
-        return name;
+    if (geoQuery != null ? !geoQuery.equals(that.geoQuery) : that.geoQuery != null) {
+      return false;
     }
-
-    public DocumentTypeInputBean setName(String name) {
-        this.name = name;
-        return this;
+    if (versionStrategy != that.versionStrategy) {
+      return false;
     }
-
-    public String getCode() {
-        return code;
+    if (tagStructure != that.tagStructure) {
+      return false;
     }
-
-    public DocumentTypeInputBean setCode(String code) {
-        this.code = code;
-        return this;
+    if (searchEnabled != null ? !searchEnabled.equals(that.searchEnabled) : that.searchEnabled != null) {
+      return false;
     }
+    return storeEnabled != null ? storeEnabled.equals(that.storeEnabled) : that.storeEnabled == null;
 
-    @Override
-    @JsonIgnore
-    public Long getId() {
-        return null;
-    }
+  }
 
-    @Override
-    @JsonIgnore
-    public Fortress getFortress() {
-        return fortress;
-    }
-
-    // MKH - Overrides the default geo query path for this DocumentType. VULNERABLE!
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getGeoQuery() {
-        // DAT-507
-        return geoQuery;
-    }
-
-    public DocumentTypeInputBean setGeoQuery(final String geoQuery) {
-        this.geoQuery = geoQuery;
-        return this;
-    }
-
-    public Document.VERSION getVersionStrategy() {
-        return versionStrategy;
-    }
-
-    public DocumentTypeInputBean setVersionStrategy(Document.VERSION versionStrategy) {
-        this.versionStrategy = versionStrategy;
-        return this;
-    }
-
-    public EntityTag.TAG_STRUCTURE getTagStructure() {
-        return tagStructure;
-    }
-
-    public DocumentTypeInputBean setTagStructure(EntityTag.TAG_STRUCTURE tagStructure) {
-        this.tagStructure = tagStructure;
-        return this;
-    }
-
-    public DocumentTypeInputBean getName(final String name) {
-        this.name = name;
-        return this;
-    }
-
-    public DocumentTypeInputBean getCode(final String code) {
-        this.code = code;
-        return this;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public DocumentTypeInputBean getVersionStrategy(final Document.VERSION versionStrategy) {
-        this.versionStrategy = versionStrategy;
-        return this;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Boolean isSearchEnabled() {
-        return searchEnabled;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Boolean isStoreEnabled() {
-        return storeEnabled;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Boolean isTrackEnabled() {
-        return trackEnabled;
-    }
-
-    @Override
-    public String toString() {
-        return "DocumentTypeInputBean{" +
-            "name='" + name + '\'' +
-            ", code='" + code + '\'' +
-            ", tagStructure=" + tagStructure +
-            ", versionStrategy=" + versionStrategy +
-            '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof DocumentTypeInputBean)) {
-            return false;
-        }
-
-        DocumentTypeInputBean that = (DocumentTypeInputBean) o;
-
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (code != null ? !code.equals(that.code) : that.code != null) {
-            return false;
-        }
-        if (geoQuery != null ? !geoQuery.equals(that.geoQuery) : that.geoQuery != null) {
-            return false;
-        }
-        if (versionStrategy != that.versionStrategy) {
-            return false;
-        }
-        if (tagStructure != that.tagStructure) {
-            return false;
-        }
-        if (searchEnabled != null ? !searchEnabled.equals(that.searchEnabled) : that.searchEnabled != null) {
-            return false;
-        }
-        return storeEnabled != null ? storeEnabled.equals(that.storeEnabled) : that.storeEnabled == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (code != null ? code.hashCode() : 0);
-        result = 31 * result + (geoQuery != null ? geoQuery.hashCode() : 0);
-        result = 31 * result + (versionStrategy != null ? versionStrategy.hashCode() : 0);
-        result = 31 * result + (tagStructure != null ? tagStructure.hashCode() : 0);
-        result = 31 * result + (searchEnabled != null ? searchEnabled.hashCode() : 0);
-        result = 31 * result + (storeEnabled != null ? storeEnabled.hashCode() : 0);
-        return result;
-    }
+  @Override
+  public int hashCode() {
+    int result = name != null ? name.hashCode() : 0;
+    result = 31 * result + (code != null ? code.hashCode() : 0);
+    result = 31 * result + (geoQuery != null ? geoQuery.hashCode() : 0);
+    result = 31 * result + (versionStrategy != null ? versionStrategy.hashCode() : 0);
+    result = 31 * result + (tagStructure != null ? tagStructure.hashCode() : 0);
+    result = 31 * result + (searchEnabled != null ? searchEnabled.hashCode() : 0);
+    result = 31 * result + (storeEnabled != null ? storeEnabled.hashCode() : 0);
+    return result;
+  }
 }

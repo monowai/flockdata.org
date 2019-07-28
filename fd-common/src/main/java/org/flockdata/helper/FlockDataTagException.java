@@ -27,8 +27,8 @@ package org.flockdata.helper;
  * @since 7/03/2014
  */
 public class FlockDataTagException extends RuntimeException {
-    public FlockDataTagException(String message) {
-        super(message);
-    }
+  public FlockDataTagException(String message) {
+    super(message);
+  }
 
 }

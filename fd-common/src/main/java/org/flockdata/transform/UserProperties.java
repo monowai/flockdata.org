@@ -30,10 +30,10 @@ import java.util.Map;
  * @since 30/07/2015
  */
 public interface UserProperties {
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    Map<String, Object> getProperties();
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  Map<String, Object> getProperties();
 
-    UserProperties setProperty(String key, Object value);
+  UserProperties setProperty(String key, Object value);
 
-    Object getProperty(String key);
+  Object getProperty(String key);
 }

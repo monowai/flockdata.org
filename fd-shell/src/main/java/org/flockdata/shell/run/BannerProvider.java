@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.flockdata.shell;
+package org.flockdata.shell.run;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -30,8 +30,8 @@ import org.springframework.stereotype.Component;
 
 public class BannerProvider {
 
-    public String getBanner() {
-        return "banner";
+  public String getBanner() {
+    return "banner";
 //        return OsUtils.LINE_SEPARATOR +
 //                "=======================================" +
 //                OsUtils.LINE_SEPARATOR +
@@ -41,16 +41,16 @@ public class BannerProvider {
 //                OsUtils.LINE_SEPARATOR +
 //                "Version:" +
 //                this.getVersion();
-    }
+  }
 
 
-    public String getWelcomeMessage() {
-        return "Welcome to FlockData CLI";
-    }
+  public String getWelcomeMessage() {
+    return "Welcome to FlockData CLI";
+  }
 
-    public String getProviderName() {
-        return "FlockData Banner";
-    }
+  public String getProviderName() {
+    return "FlockData Banner";
+  }
 
 //    @Override
 //    public void printBanner(Environment environment, Class<?> aClass, PrintStream printStream) {

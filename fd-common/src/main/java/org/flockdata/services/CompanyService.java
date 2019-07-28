@@ -29,18 +29,18 @@ import org.flockdata.data.SystemUser;
  * @since 22/08/2014
  */
 public interface CompanyService {
-    Company findByName(String companyName);
+  Company findByName(String companyName);
 
-    Company findByCode(String code);
+  Company findByCode(String code);
 
-    SystemUser getAdminUser(Company company, String name);
+  SystemUser getAdminUser(Company company, String name);
 
-    Company create(String companyName);
+  Company create(String companyName);
 
-    //    @Cacheable(value = "companyKeys", unless = "#result == null")
-    Company findByApiKey(String apiKey);
+  //    @Cacheable(value = "companyKeys", unless = "#result == null")
+  Company findByApiKey(String apiKey);
 
-    Collection<Company> findCompanies(String userApiKey);
+  Collection<Company> findCompanies(String userApiKey);
 
-    Collection<Company> findCompanies();
+  Collection<Company> findCompanies();
 }

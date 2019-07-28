@@ -44,19 +44,25 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ActiveProfiles( {"dev"})
 public class TestWiring {
-    @Autowired
-    private ClientConfiguration clientConfiguration;
-    @Autowired
-    private AmqpRabbitConfig rabbitConfig;
 
-    @Autowired
-    private FileProcessor fileProcessor;
+  private ClientConfiguration clientConfiguration;
+  private AmqpRabbitConfig rabbitConfig;
+  private FileProcessor fileProcessor;
 
-    @Test
-    public void autowiring() throws Exception {
-        // Ensure basic components deploy with sensible defaults
-        assertNotNull(clientConfiguration);
-        assertNotNull(rabbitConfig);
-        assertNotNull(fileProcessor);
-    }
+  @Autowired
+  void setServices(ClientConfiguration clientConfiguration,
+                   AmqpRabbitConfig rabbitConfig,
+                   FileProcessor fileProcessor) {
+    this.clientConfiguration = clientConfiguration;
+    this.rabbitConfig = rabbitConfig;
+    this.fileProcessor = fileProcessor;
+  }
+
+  @Test
+  public void autowiring() throws Exception {
+    // Ensure basic components deploy with sensible defaults
+    assertNotNull(clientConfiguration);
+    assertNotNull(rabbitConfig);
+    assertNotNull(fileProcessor);
+  }
 }

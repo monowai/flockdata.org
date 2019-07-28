@@ -22,6 +22,7 @@ package org.flockdata.company.service;
 
 import org.flockdata.authentication.SystemUserService;
 import org.flockdata.company.dao.RegistrationNeo;
+import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
 import org.flockdata.registration.RegistrationBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,33 +36,33 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SystemUserServiceNeo4j implements SystemUserService {
 
-    private final
-    RegistrationNeo registrationNeo;
+  private final
+  RegistrationNeo registrationNeo;
 
-    @Autowired
-    public SystemUserServiceNeo4j(RegistrationNeo registrationNeo) {
-        this.registrationNeo = registrationNeo;
-    }
+  @Autowired
+  public SystemUserServiceNeo4j(RegistrationNeo registrationNeo) {
+    this.registrationNeo = registrationNeo;
+  }
 
-    // TODO DAT-184 Gives error while enabling caching 
+  // TODO DAT-184 Gives error while enabling caching
 //    @Cacheable(value = "systemUsers", unless = "#result == null")
-    public SystemUser findByLogin(String name) {
-        if (name == null) {
-            throw new IllegalArgumentException("Login name cannot be null");
-        }
-        return registrationNeo.findSysUserByName(name.toLowerCase());
+  public SystemUser findByLogin(String name) {
+    if (name == null) {
+      throw new IllegalArgumentException("Login name cannot be null");
     }
+    return registrationNeo.findSysUserByName(name.toLowerCase());
+  }
 
-    public SystemUser save(RegistrationBean regBean) {
-        return registrationNeo.save(regBean);
-    }
+  public SystemUser save(Company company, RegistrationBean regBean) {
+    return registrationNeo.save(company, regBean);
+  }
 
-    @Override
-    public void save(SystemUser systemUser) {
-        registrationNeo.save(systemUser);
-    }
+  @Override
+  public void save(SystemUser systemUser) {
+    registrationNeo.save(systemUser);
+  }
 
-    public SystemUser findByApiKey(String apiKey) {
-        return registrationNeo.findByApiKey(apiKey);
-    }
+  public SystemUser findByApiKey(String apiKey) {
+    return registrationNeo.findByApiKey(apiKey);
+  }
 }

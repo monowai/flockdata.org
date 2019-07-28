@@ -42,38 +42,38 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class AliasDaoNeo {
-    private final AliasRepo aliasRepo;
+  private final AliasRepo aliasRepo;
 
-    private final Neo4jTemplate template;
+  private final Neo4jTemplate template;
 
-    @Autowired
-    public AliasDaoNeo(AliasRepo aliasRepo, Neo4jTemplate template) {
-        this.aliasRepo = aliasRepo;
-        this.template = template;
+  @Autowired
+  public AliasDaoNeo(AliasRepo aliasRepo, Neo4jTemplate template) {
+    this.aliasRepo = aliasRepo;
+    this.template = template;
+  }
+
+
+  public Collection<Alias> findTagAliases(Tag tag) {
+    return aliasRepo.findTagAliases(tag.getId());
+  }
+
+  public AliasNode findAlias(String label, AliasInputBean newAlias, TagNode startTag) {
+    AliasNode alias = null;
+    String key = TagHelper.parseKey(newAlias.getCode());
+    String query = "match (a:`" + label + "Alias` {key:{key}}) return a";
+    Map<String, Object> params = new HashMap<>();
+    params.put("key", key);
+    Result<Map<String, Object>> dbResults = template.query(query, params);
+    Iterator<Map<String, Object>> results = dbResults.iterator();
+    while (results.hasNext()) {
+      Map<String, Object> mapResult = results.next();
+      alias = template.projectTo(mapResult.get("a"), AliasNode.class);
     }
 
-
-    public Collection<Alias> findTagAliases(Tag tag) {
-        return aliasRepo.findTagAliases(tag.getId());
+    if (alias == null) {
+      alias = new AliasNode(label, newAlias, key, startTag);
     }
 
-    public AliasNode findAlias(String label, AliasInputBean newAlias, TagNode startTag) {
-        AliasNode alias = null;
-        String key = TagHelper.parseKey(newAlias.getCode());
-        String query = "match (a:`" + label + "Alias` {key:{key}}) return a";
-        Map<String, Object> params = new HashMap<>();
-        params.put("key", key);
-        Result<Map<String, Object>> dbResults = template.query(query, params);
-        Iterator<Map<String, Object>> results = dbResults.iterator();
-        while (results.hasNext()) {
-            Map<String, Object> mapResult = results.next();
-            alias = template.projectTo(mapResult.get("a"), AliasNode.class);
-        }
-
-        if (alias == null) {
-            alias = new AliasNode(label, newAlias, key, startTag);
-        }
-
-        return alias;
-    }
+    return alias;
+  }
 }

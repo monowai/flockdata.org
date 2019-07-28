@@ -11,7 +11,7 @@ import org.springframework.integration.annotation.MessagingGateway;
 @MessagingGateway
 public interface GraphResultGateway {
 
-    @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
-    void writeSearchResult(SearchResults searchResult);
+  @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
+  void writeSearchResult(SearchResults searchResult);
 
 }

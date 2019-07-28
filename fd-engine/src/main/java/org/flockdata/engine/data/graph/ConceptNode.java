@@ -40,73 +40,73 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 @TypeAlias("Concept")
 public class ConceptNode implements Concept {
 
-    @GraphId
-    private Long id;
+  @GraphId
+  private Long id;
 
-    private String name;
+  private String name;
 
-    private String description;
+  private String description;
 
-    @Indexed(unique = true)
-    private String key;
+  @Indexed(unique = true)
+  private String key;
 
-    protected ConceptNode() {
+  protected ConceptNode() {
+  }
+
+  public ConceptNode(ConceptInputBean inputBean) {
+    this();
+    this.name = inputBean.getName();
+    this.description = inputBean.getDescription();
+    this.key = Concept.toKey(inputBean);
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public String getDescription() {
+    return description;
+  }
+
+  @Override
+  @JsonIgnore
+  public Long getId() {
+    return id;
+  }
+
+  @Override
+  public String toString() {
+    return "Concept{" +
+        "id=" + id +
+        ", name='" + name + '\'' +
+        '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof ConceptNode)) {
+      return false;
     }
 
-    public ConceptNode(ConceptInputBean inputBean) {
-        this();
-        this.name = inputBean.getName();
-        this.description = inputBean.getDescription();
-        this.key = Concept.toKey(inputBean);
+    ConceptNode that = (ConceptNode) o;
+
+    if (id != null ? !id.equals(that.id) : that.id != null) {
+      return false;
     }
+    return !(name != null ? !name.equals(that.name) : that.name != null);
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  }
 
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    @JsonIgnore
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public String toString() {
-        return "Concept{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ConceptNode)) {
-            return false;
-        }
-
-        ConceptNode that = (ConceptNode) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) {
-            return false;
-        }
-        return !(name != null ? !name.equals(that.name) : that.name != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
-    }
+  @Override
+  public int hashCode() {
+    int result = id != null ? id.hashCode() : 0;
+    result = 31 * result + (name != null ? name.hashCode() : 0);
+    return result;
+  }
 
 }

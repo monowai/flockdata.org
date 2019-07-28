@@ -35,38 +35,38 @@ import org.slf4j.LoggerFactory;
  * @since 22/07/2015
  */
 public class TestTagKeyPrefix extends AbstractImport {
-    private Logger logger = LoggerFactory.getLogger(TestTagKeyPrefix.class);
+  private Logger logger = LoggerFactory.getLogger(TestTagKeyPrefix.class);
 
-    @Test
-    public void prefix_TagKeyWorks() throws Exception {
+  @Test
+  public void prefix_TagKeyWorks() throws Exception {
 
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/tag-key-prefix.json");
-        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/header-ignore-empty.json", contentModel);
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/tag-key-prefix.json");
+    ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/header-ignore-empty.json", contentModel);
 
-        fileProcessor.processFile(extractProfile, "/data/tag-key-prefix.csv");
+    fileProcessor.processFile(extractProfile, "/data/tag-key-prefix.csv");
 
-        List<TagInputBean> tagInputBeans = getTemplate().getTags();
-        // The profile defines a nested tag but the value is missing in the source
+    List<TagInputBean> tagInputBeans = getTemplate().getTags();
+    // The profile defines a nested tag but the value is missing in the source
 
-        assertEquals(2, tagInputBeans.size());
-        for (TagInputBean tagInputBean : tagInputBeans) {
-            switch (tagInputBean.getKeyPrefix()) {
-                case "UK":
-                    validateCountryAndLiteralKeyPrefix(tagInputBean.getTargets().get("region"));
-                    break;
-                case "NZ":
-                    validateCountryAndLiteralKeyPrefix(tagInputBean.getTargets().get("region"));
-                    break;
-                default:
-                    throw new RuntimeException("Unexpected tag " + tagInputBean.toString());
-            }
-            logger.info(tagInputBean.toString());
-        }
+    assertEquals(2, tagInputBeans.size());
+    for (TagInputBean tagInputBean : tagInputBeans) {
+      switch (tagInputBean.getKeyPrefix()) {
+        case "UK":
+          validateCountryAndLiteralKeyPrefix(tagInputBean.getTargets().get("region"));
+          break;
+        case "NZ":
+          validateCountryAndLiteralKeyPrefix(tagInputBean.getTargets().get("region"));
+          break;
+        default:
+          throw new RuntimeException("Unexpected tag " + tagInputBean.toString());
+      }
+      logger.info(tagInputBean.toString());
     }
+  }
 
-    private void validateCountryAndLiteralKeyPrefix(Collection<TagInputBean> countries) {
-        assertFalse(countries.isEmpty());
-        TagInputBean country = countries.iterator().next();
-        assertEquals("literal", country.getKeyPrefix());
-    }
+  private void validateCountryAndLiteralKeyPrefix(Collection<TagInputBean> countries) {
+    assertFalse(countries.isEmpty());
+    TagInputBean country = countries.iterator().next();
+    assertEquals("literal", country.getKeyPrefix());
+  }
 }

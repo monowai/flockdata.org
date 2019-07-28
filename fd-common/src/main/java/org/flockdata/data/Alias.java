@@ -26,13 +26,13 @@ package org.flockdata.data;
  * @since 2/01/17
  */
 public interface Alias {
-    String getLabel();
+  String getLabel();
 
-    String getDescription();
+  String getDescription();
 
-    String getName();
+  String getName();
 
-    Tag getTag();
+  Tag getTag();
 
-    String getKey();
+  String getKey();
 }

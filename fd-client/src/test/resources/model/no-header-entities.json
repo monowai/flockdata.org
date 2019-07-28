@@ -9,9 +9,8 @@
       "tag": true,
       "target": "Year",
       "label": "Year",
-      "relationship":"cycle"
+      "relationship": "cycle"
     },
-
     "2": {
       "tag": true,
       "target": "institution",
@@ -37,6 +36,5 @@
       "target": "zipCode",
       "label": "ZipCode"
     }
-
   }
 }

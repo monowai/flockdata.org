@@ -32,30 +32,30 @@ import org.junit.Test;
  */
 public class TestBlankTag extends AbstractImport {
 
-    @Test
-    public void blankTagCodeDoesNotSucceed() throws Exception {
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/blank-tags.json");
-        //ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/blank-tags.json", contentModel);
-        ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
+  @Test
+  public void blankTagCodeDoesNotSucceed() throws Exception {
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/blank-tags.json");
+    //ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/blank-tags.json", contentModel);
+    ExtractProfile extractProfile = new ExtractProfileHandler(contentModel);
 
-        fileProcessor.processFile(extractProfile, "/data/blank-tags.txt");
+    fileProcessor.processFile(extractProfile, "/data/blank-tags.txt");
 
-        List<EntityInputBean> entities = getTemplate().getEntities();
-        assertEquals(3, entities.size());
+    List<EntityInputBean> entities = getTemplate().getEntities();
+    assertEquals(3, entities.size());
 
-        // Tags must have a non-null non-blank code value to be valid. Data row 1 is such a scenario
+    // Tags must have a non-null non-blank code value to be valid. Data row 1 is such a scenario
 
-        int count = 0;
-        for (EntityInputBean entity : entities) {
-            if (count == 0) {
-                assertEquals(0, entity.getTags().size());
-            } else if (count == 1) {
-                assertEquals(1, entity.getTags().size());
-            } else if (count == 3) {
-                assertEquals("Delimited country tags did not parse", 7, entity.getTags().size());
-            }
-            count++;
-        }
-
+    int count = 0;
+    for (EntityInputBean entity : entities) {
+      if (count == 0) {
+        assertEquals(0, entity.getTags().size());
+      } else if (count == 1) {
+        assertEquals(1, entity.getTags().size());
+      } else if (count == 3) {
+        assertEquals("Delimited country tags did not parse", 7, entity.getTags().size());
+      }
+      count++;
     }
+
+  }
 }

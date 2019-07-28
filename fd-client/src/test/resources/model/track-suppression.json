@@ -24,7 +24,6 @@
       "dataType": "string",
       "persistent": false,
       "storeNull": true,
-
       "tag": false,
       "reverse": false
     },
@@ -32,7 +31,6 @@
       "dataType": "string",
       "persistent": true,
       "storeNull": true,
-
       "tag": false,
       "reverse": false
     },
@@ -85,7 +83,6 @@
       "dataType": "date",
       "persistent": true,
       "storeNull": true,
-
       "tag": false,
       "reverse": false
     },
@@ -94,7 +91,6 @@
       "dataType": "date",
       "persistent": true,
       "storeNull": true,
-
       "createDate": true,
       "tag": false,
       "reverse": false
@@ -104,7 +100,6 @@
       "dataType": "string",
       "persistent": true,
       "storeNull": true,
-
       "tag": true,
       "reverse": true,
       "label": "ServiceProvider",
@@ -121,7 +116,6 @@
       "dataType": "string",
       "persistent": false,
       "storeNull": true,
-
       "tag": false,
       "reverse": false
     },
@@ -129,7 +123,6 @@
       "dataType": "string",
       "persistent": true,
       "storeNull": true,
-
       "tag": false,
       "mustExist": false,
       "reverse": true,
@@ -139,7 +132,6 @@
       "dataType": "string",
       "persistent": false,
       "storeNull": true,
-
       "tag": false,
       "reverse": false
     },
@@ -148,7 +140,6 @@
       "dataType": "string",
       "persistent": true,
       "storeNull": true,
-
       "tag": true,
       "reverse": false,
       "label": "RUC",
@@ -165,7 +156,6 @@
       "dataType": "string",
       "persistent": true,
       "storeNull": true,
-
       "tag": false,
       "reverse": false
     },
@@ -175,7 +165,6 @@
       "storeNull": true,
       "title": true,
       "description": true,
-
       "tag": false,
       "reverse": false
     },
@@ -183,7 +172,6 @@
       "dataType": "string",
       "persistent": true,
       "storeNull": true,
-
       "tag": true,
       "reverse": false,
       "label": "Country",
@@ -202,7 +190,6 @@
       "dataType": "date",
       "persistent": true,
       "storeNull": true,
-
       "tag": false,
       "reverse": false,
       "updateDate": true
@@ -212,7 +199,6 @@
       "dataType": "date",
       "persistent": true,
       "storeNull": true,
-
       "createDate": true,
       "tag": false,
       "reverse": false
@@ -222,7 +208,6 @@
       "persistent": true,
       "storeNull": true,
       "callerRef": true,
-
       "tag": false,
       "reverse": false
     },
@@ -231,7 +216,6 @@
       "dataType": "string",
       "persistent": true,
       "storeNull": true,
-
       "tag": false,
       "reverse": false,
       "label": "EntityStatus",
@@ -241,7 +225,6 @@
           "dataType": "string",
           "persistent": true,
           "storeNull": true,
-
           "tag": false,
           "reverse": false
         }

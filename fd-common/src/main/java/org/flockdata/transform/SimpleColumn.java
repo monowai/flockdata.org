@@ -25,14 +25,14 @@ package org.flockdata.transform;
  * @since 21/01/2015
  */
 public class SimpleColumn {
-    private String expression;
-    private String column;
+  private String expression;
+  private String column;
 
-    public String getExpression() {
-        return expression;
-    }
+  public String getExpression() {
+    return expression;
+  }
 
-    public String getColumn() {
-        return column;
-    }
+  public String getColumn() {
+    return column;
+  }
 }

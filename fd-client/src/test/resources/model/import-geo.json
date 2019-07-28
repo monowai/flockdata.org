@@ -14,7 +14,7 @@
       "targets": [
         {
           "code": "MESHBLOCK_ID",
-          "relationship" :"mesh",
+          "relationship": "mesh",
           "keyPrefix": "nz",
           "label": "TRACT",
           "geoData": {
@@ -30,12 +30,11 @@
         "y": "Y_COORDINATE"
       }
     },
-    "X_COORDINATE":{
+    "X_COORDINATE": {
       "dataType": "double"
     },
-    "Y_COORDINATE":{
+    "Y_COORDINATE": {
       "dataType": "double"
     }
   }
-
 }

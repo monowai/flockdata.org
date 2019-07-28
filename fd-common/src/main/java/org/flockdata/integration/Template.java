@@ -38,65 +38,65 @@ import org.flockdata.transform.FdIoInterface;
  */
 public interface Template {
 
-    /**
-     * @return access to the IO routines that talk to FlockData
-     */
-    FdIoInterface getFdIoInterface();
+  /**
+   * @return access to the IO routines that talk to FlockData
+   */
+  FdIoInterface getFdIoInterface();
 
-    /**
-     * @param tagInputBean payload
-     * @throws FlockException failure to communicate to the services
-     */
-    void writeTag(TagInputBean tagInputBean) throws FlockException;
+  /**
+   * @param tagInputBean payload
+   * @throws FlockException failure to communicate to the services
+   */
+  void writeTag(TagInputBean tagInputBean) throws FlockException;
 
-    /**
-     * @param tagInputBean collection of tags
-     * @throws FlockException failure to communicate to the services
-     */
-    void writeTags(Collection<TagInputBean> tagInputBean) throws FlockException;
+  /**
+   * @param tagInputBean collection of tags
+   * @throws FlockException failure to communicate to the services
+   */
+  void writeTags(Collection<TagInputBean> tagInputBean) throws FlockException;
 
-    /**
-     * @param entityInputBean payload
-     * @throws FlockException failure to communicate to the service
-     */
-    void writeEntity(EntityInputBean entityInputBean) throws FlockException;
+  /**
+   * @param entityInputBean payload
+   * @throws FlockException failure to communicate to the service
+   */
+  void writeEntity(EntityInputBean entityInputBean) throws FlockException;
 
-    /**
-     * @param entityInputBean payload
-     * @param flush           force a flush of any cached data
-     * @throws FlockException failure to communicate to the service
-     */
-    void writeEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException;
+  /**
+   * @param entityInputBean payload
+   * @param flush           force a flush of any cached data
+   * @throws FlockException failure to communicate to the service
+   */
+  void writeEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException;
 
-    /**
-     * Push all payloads to the service when the number of objects to write hits the value
-     * specified by org.fd.client.batchsize
-     */
-    void flush();
+  /**
+   * Push all payloads to the service when the number of objects to write hits the value
+   * specified by org.fd.client.batchsize
+   */
+  void flush();
 
-    /**
-     * clear down any cached payloads
-     */
-    void reset();
+  /**
+   * clear down any cached payloads
+   */
+  void reset();
 
-    /**
-     * @return cached entity payloads
-     */
-    List<EntityInputBean> getEntities();
+  /**
+   * @return cached entity payloads
+   */
+  List<EntityInputBean> getEntities();
 
-    /**
-     * @return cached tag payloads
-     */
-    List<TagInputBean> getTags();
+  /**
+   * @return cached tag payloads
+   */
+  List<TagInputBean> getTags();
 
-    /**
-     * Convenience function that calls out to a remote instance and validates that:
-     * Client can see the Service
-     * Authentication passes
-     * APIKey, to use for track activities, is returned
-     *
-     * @return Implementation dependant - generally the logged-in-user but is NULL for server side and testing impls
-     * @throws FlockException Validation errors
-     */
-    SystemUserResultBean validateConnectivity() throws FlockException;
+  /**
+   * Convenience function that calls out to a remote instance and validates that:
+   * Client can see the Service
+   * Authentication passes
+   * APIKey, to use for track activities, is returned
+   *
+   * @return Implementation dependant - generally the logged-in-user but is NULL for server side and testing impls
+   * @throws FlockException Validation errors
+   */
+  SystemUserResultBean validateConnectivity() throws FlockException;
 }

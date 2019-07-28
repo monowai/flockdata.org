@@ -41,126 +41,126 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Configuration
 public class ApiKeyInterceptor implements HandlerInterceptor {
-    public static final String COMPANY = "company";
-    public static final String API_KEY = "api-key";
-    private static final Logger logger = LoggerFactory
-        .getLogger(ApiKeyInterceptor.class);
-    @Autowired
-    private SecurityHelper securityHelper;
+  public static final String COMPANY = "company";
+  public static final String API_KEY = "api-key";
+  private static final Logger logger = LoggerFactory
+      .getLogger(ApiKeyInterceptor.class);
+  @Autowired
+  private SecurityHelper securityHelper;
 
-    @Override
-    public boolean preHandle(HttpServletRequest request,
-                             HttpServletResponse response, Object handler) throws Exception {
+  @Override
+  public boolean preHandle(HttpServletRequest request,
+                           HttpServletResponse response, Object handler) throws Exception {
 
-        if (HttpMethod.OPTIONS == HttpMethod.resolve(request.getMethod())) {
-            return true; // CORS - this interceptor does not handle OPTIONS requests
+    if (HttpMethod.OPTIONS == HttpMethod.resolve(request.getMethod())) {
+      return true; // CORS - this interceptor does not handle OPTIONS requests
+    }
+    String apiKey = request.getHeader(API_KEY);
+    SystemUser su = null;
+    if (noApiKey(apiKey)) {
+      if (isDataAccessRequest(request)) { // Is it a data access endpoint?
+        // Data access requests require a company
+        // Resolve the user from the currently logged in user
+        su = securityHelper.getSysUser(false);
+        if (isValidSu(su)) {
+          request.setAttribute(COMPANY, su.getCompany());
+          request.setAttribute(API_KEY, su.getApiKey());
+          return true;
         }
-        String apiKey = request.getHeader(API_KEY);
-        SystemUser su = null;
-        if (noApiKey(apiKey)) {
-            if (isDataAccessRequest(request)) { // Is it a data access endpoint?
-                // Data access requests require a company
-                // Resolve the user from the currently logged in user
-                su = securityHelper.getSysUser(false);
-                if (isValidSu(su)) {
-                    request.setAttribute(COMPANY, su.getCompany());
-                    request.setAttribute(API_KEY, su.getApiKey());
-                    return true;
-                }
-            } else {
-                return true; // No APIKey, not a data access request; not our problem
-            }
-        } else {
-            // Attempting to authenticate via the api secret
-            logger.trace("Identifying company from api-key supplied in request HttpHeader");
-            Company company = securityHelper.getCompany(apiKey);
-            if (company != null) {
-                request.setAttribute(COMPANY, company);
-                request.setAttribute(API_KEY, apiKey);
-                return true;
-            }
-        }
-
-        if (su == null) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "You require an authorized account to access this service.");
-        } else {
-            response.sendError(HttpStatus.FORBIDDEN.value(), "You are an authenticated user but your account has has no data access privileges. Please ensure this account has been configured with an API key");
-        }
-        return false;
+      } else {
+        return true; // No APIKey, not a data access request; not our problem
+      }
+    } else {
+      // Attempting to authenticate via the api secret
+      logger.trace("Identifying company from api-key supplied in request HttpHeader");
+      Company company = securityHelper.getCompany(apiKey);
+      if (company != null) {
+        request.setAttribute(COMPANY, company);
+        request.setAttribute(API_KEY, apiKey);
+        return true;
+      }
     }
 
-    private boolean isValidSu(SystemUser su) {
-        if (su != null) {
-            if (su.isActive() && (su.getCompany() != null && su.getApiKey() != null)) {
-                return true;
-            }
-        } // Falls through to Forbidden
-        return false;
+    if (su == null) {
+      response.sendError(HttpStatus.UNAUTHORIZED.value(), "You require an authorized account to access this service.");
+    } else {
+      response.sendError(HttpStatus.FORBIDDEN.value(), "You are an authenticated user but your account has has no data access privileges. Please ensure this account has been configured with an API key");
     }
+    return false;
+  }
 
-    private boolean isDataAccessRequest(HttpServletRequest request) {
-        String url = request.getRequestURL().toString();
-        return !(url.contains("/api/v1/admin/health")
-            || url.contains("/api/v1/admin/ping"))
-            && (url.contains("/api/v1/company")
-            || url.contains("/api/v1/track")
-            || url.contains("/api/v1/admin")
-            || url.contains("/api/v1/concept")
-            || url.contains("/api/v1/entity")
-            || url.contains("/api/v1/fortress")
-            || url.contains("/api/v1/tag")
-            || url.contains("/api/v1/batch")
-            || url.contains("/api/v1/model")
-            || url.contains("/api/v1/path")
-            || url.contains("/api/v1/query")
-            || url.contains("/api/v1/doc")
-            || url.contains("/api/v1/geo"));
-    }
+  private boolean isValidSu(SystemUser su) {
+    if (su != null) {
+      if (su.isActive() && (su.getCompany() != null && su.getApiKey() != null)) {
+        return true;
+      }
+    } // Falls through to Forbidden
+    return false;
+  }
 
-    private boolean noApiKey(String apiKey) {
-        return (apiKey == null || apiKey.equals("") || apiKey.equals("{{api-key}}"));
-    }
+  private boolean isDataAccessRequest(HttpServletRequest request) {
+    String url = request.getRequestURL().toString();
+    return !(url.contains("/api/v1/admin/health")
+        || url.contains("/api/v1/admin/ping"))
+        && (url.contains("/api/v1/company")
+        || url.contains("/api/v1/track")
+        || url.contains("/api/v1/admin")
+        || url.contains("/api/v1/concept")
+        || url.contains("/api/v1/entity")
+        || url.contains("/api/v1/fortress")
+        || url.contains("/api/v1/tag")
+        || url.contains("/api/v1/batch")
+        || url.contains("/api/v1/model")
+        || url.contains("/api/v1/path")
+        || url.contains("/api/v1/query")
+        || url.contains("/api/v1/doc")
+        || url.contains("/api/v1/geo"));
+  }
 
-    @Override
-    public void postHandle(HttpServletRequest request,
-                           HttpServletResponse response, Object handler,
-                           ModelAndView modelAndView) throws Exception {
+  private boolean noApiKey(String apiKey) {
+    return (apiKey == null || apiKey.equals("") || apiKey.equals("{{api-key}}"));
+  }
+
+  @Override
+  public void postHandle(HttpServletRequest request,
+                         HttpServletResponse response, Object handler,
+                         ModelAndView modelAndView) throws Exception {
 //        if (isDataAccessRequest(request) ){
 //            if ( request.getAttribute(API_KEY) == null )
 //                response.sendError(HttpStatus.FORBIDDEN.value(),  "You are an authenticated user but your account has has no data access privileges. Please ensure this account has been configured with an API key");
 //        }
 
-    }
+  }
 
-    @Override
-    public void afterCompletion(HttpServletRequest request,
-                                HttpServletResponse response, Object handler, Exception ex)
-        throws Exception {
-    }
+  @Override
+  public void afterCompletion(HttpServletRequest request,
+                              HttpServletResponse response, Object handler, Exception ex)
+      throws Exception {
+  }
 
+  /**
+   * API key precedence
+   *
+   * @author mholdsworth
+   */
+  public static class ApiKeyHelper {
     /**
-     * API key precedence
+     * api key in the HttpHeader overrides one in the request
      *
-     * @author mholdsworth
+     * @param headerKey  headerKey
+     * @param requestKey requestKey
+     * @return null or param.
      */
-    public static class ApiKeyHelper {
-        /**
-         * api key in the HttpHeader overrides one in the request
-         *
-         * @param headerKey  headerKey
-         * @param requestKey requestKey
-         * @return null or param.
-         */
-        public static String resolveKey(String headerKey, String requestKey) {
-            String key = requestKey;
-            if (headerKey != null && (headerKey.startsWith("{{") && headerKey.endsWith("}}"))) // Postman "not-set" value
-            {
-                headerKey = null;
-            }
-            if (headerKey != null) {
-                key = headerKey;
-            }
-            return key;
-        }
+    public static String resolveKey(String headerKey, String requestKey) {
+      String key = requestKey;
+      if (headerKey != null && (headerKey.startsWith("{{") && headerKey.endsWith("}}"))) // Postman "not-set" value
+      {
+        headerKey = null;
+      }
+      if (headerKey != null) {
+        key = headerKey;
+      }
+      return key;
     }
+  }
 }

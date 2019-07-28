@@ -31,19 +31,19 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString
 public class CommandResponse<T> {
-    private String error;
-    private T result;
+  private String error;
+  private T result;
 
-    public CommandResponse(String error, T result) {
-        this.error = error;
-        this.result = result;
-    }
+  public CommandResponse(String error, T result) {
+    this.error = error;
+    this.result = result;
+  }
 
-    public T getResult() {
-        return result;
-    }
+  public T getResult() {
+    return result;
+  }
 
-    public boolean worked() {
-        return error == null;
-    }
+  public boolean worked() {
+    return error == null;
+  }
 }

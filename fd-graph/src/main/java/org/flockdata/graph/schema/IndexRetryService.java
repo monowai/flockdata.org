@@ -38,17 +38,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class IndexRetryService {
 
-    private final SchemaService schemaService;
+  private final SchemaService schemaService;
 
-    @Autowired
-    public IndexRetryService(SchemaService schemaService) {
-        this.schemaService = schemaService;
-    }
+  @Autowired
+  public IndexRetryService(SchemaService schemaService) {
+    this.schemaService = schemaService;
+  }
 
-    @Retryable(include = {FlockException.class,},
-        maxAttempts = 12, backoff = @Backoff(maxDelay = 300, delay = 20, random = true))
-    public Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs) {
-        return schemaService.ensureUniqueIndexes(tagInputs);
-    }
+  @Retryable(include = {FlockException.class,},
+      maxAttempts = 12, backoff = @Backoff(maxDelay = 300, delay = 20, random = true))
+  public Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs) {
+    return schemaService.ensureUniqueIndexes(tagInputs);
+  }
 
 }

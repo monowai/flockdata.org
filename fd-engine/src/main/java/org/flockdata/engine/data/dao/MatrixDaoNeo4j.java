@@ -59,248 +59,248 @@ import org.springframework.web.client.ResourceAccessException;
 @Repository
 public class MatrixDaoNeo4j implements MatrixDao {
 
-    private final Neo4jTemplate template;
-    private final FortressService fortressService;
-    private Logger logger = LoggerFactory.getLogger(MatrixDaoNeo4j.class);
-    private EntityKeyGateway entityKeyGateway;
+  private final Neo4jTemplate template;
+  private final FortressService fortressService;
+  private Logger logger = LoggerFactory.getLogger(MatrixDaoNeo4j.class);
+  private EntityKeyGateway entityKeyGateway;
 
-    @Autowired
-    public MatrixDaoNeo4j(Neo4jTemplate template, FortressService fortressService) {
-        this.template = template;
-        this.fortressService = fortressService;
+  @Autowired
+  public MatrixDaoNeo4j(Neo4jTemplate template, FortressService fortressService) {
+    this.template = template;
+    this.fortressService = fortressService;
+  }
+
+  public static Collection<? extends FdNode> setTargetTags(Collection<FdNode> fdNodes, Collection<Object> neoNodes) {
+    for (Object neoNode : neoNodes) {
+      FdNode fdNode = new FdNode((Node) neoNode);
+      if (!fdNodes.contains(fdNode)) {
+        fdNodes.add(fdNode);
+      }
+    }
+    return fdNodes;
+  }
+
+  @Autowired(required = false)
+    // Functional tests don't require gateways
+  void setEntityKeyGateway(EntityKeyGateway entityKeyGateway) {
+    this.entityKeyGateway = entityKeyGateway;
+  }
+
+  @Override
+  public MatrixResults buildMatrix(Company company, MatrixInputBean input) throws FlockException {
+
+    if (company == null) {
+      throw new FlockException("Authorised company could not be identified");
     }
 
-    public static Collection<? extends FdNode> setTargetTags(Collection<FdNode> fdNodes, Collection<Object> neoNodes) {
-        for (Object neoNode : neoNodes) {
-            FdNode fdNode = new FdNode((Node) neoNode);
-            if (!fdNodes.contains(fdNode)) {
-                fdNodes.add(fdNode);
-            }
-        }
-        return fdNodes;
+    if (input.getCypher() != null) {
+      return buildMatrixFromCypher(company, input);
     }
 
-    @Autowired(required = false)
-        // Functional tests don't require gateways
-    void setEntityKeyGateway(EntityKeyGateway entityKeyGateway) {
-        this.entityKeyGateway = entityKeyGateway;
+    return buildMatrixWithSearch(company, input);
+  }
+
+  private MatrixResults buildMatrixWithSearch(Company company, MatrixInputBean input) throws FlockException {
+    // DAT-109 enhancements
+    EntityKeyResults entityKeyResults = null;
+
+    if (input.getQueryString() == null) {
+      input.setQueryString("*");
     }
 
-    @Override
-    public MatrixResults buildMatrix(Company company, MatrixInputBean input) throws FlockException {
-
-        if (company == null) {
-            throw new FlockException("Authorised company could not be identified");
-        }
-
-        if (input.getCypher() != null) {
-            return buildMatrixFromCypher(company, input);
-        }
-
-        return buildMatrixWithSearch(company, input);
+    if (input.getSampleSize() > 0) {
+      if (input.getSampleSize() > input.getMaxEdges()) {
+        input.setSampleSize(input.getMaxEdges()); // Neo4j can't handle any more in it's where clause
+      }
+      try {
+        entityKeyResults = entityKeyGateway.keys(getQueryParams(company, input));
+      } catch (ResourceAccessException e) {
+        throw new FlockServiceException("The search service is not currently available so we cannot execute your query");
+      }
     }
 
-    private MatrixResults buildMatrixWithSearch(Company company, MatrixInputBean input) throws FlockException {
-        // DAT-109 enhancements
-        EntityKeyResults entityKeyResults = null;
+    String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
+    String conceptsFrom = CypherHelper.getConcepts("tag1", input.getConcepts());
+    String conceptsTo = CypherHelper.getConcepts("tag2", input.getConcepts());
 
-        if (input.getQueryString() == null) {
-            input.setQueryString("*");
+    String fromRlx = CypherHelper.getRelationships(input.getFromRlxs());
+    String toRlx = CypherHelper.getRelationships(input.getToRlxs());
+    String conceptString = "";
+    if (!conceptsFrom.equals("")) {
+      conceptString = "where (" + conceptsFrom + ")";
+    }
+    if (!conceptsTo.equals("")) {
+      conceptString = conceptString + " and ( " + conceptsTo + ") ";
+    }
+    boolean docFilter = !(docIndexes.equals(":Entity") || docIndexes.equals(""));
+    //ToDo: MultiTenant requires restriction by Company
+    String entityFilter;
+    if (entityKeyResults == null) {
+      entityFilter = (docFilter ? " where " + docIndexes : "");
+    } else {
+
+      entityFilter = " where entity.key in {0}";
+    }
+    String sumCol = ""; // Which user defined column against the entity to sum
+    String sumVal = ""; // Where the total will be output
+
+
+    if (input.isSumByCol()) {
+      //sumCol = ", sum( entity.`props-value`) as sumValue ";
+      sumCol = ", sum( entity.`" + input.getSumColumn() + "`) as sumValue ";
+      sumVal = ", collect(sumValue) as sumValues";
+    }
+
+    String query = "match (entity:Entity) " + entityFilter +
+        " with entity " +
+        "match t=(tag1:Tag)-[" + fromRlx + " ]-(entity)-[" + toRlx + " ]-(tag2:Tag) " +     // Concepts
+        conceptString +
+        "with tag1, tag2, count(t) as links " + sumCol +
+
+        (input.getMinCount() > 1 ? "where links >={linkCount} " : "") +
+        "return tag1, collect(tag2) as tag2, " +
+        "collect( links) as occurrenceCount " + sumVal;
+
+    Map<String, Object> params = new HashMap<>();
+
+    if (entityKeyResults != null) {
+      params.put("0", entityKeyResults.getResults());
+    }
+    params.put("linkCount", input.getMinCount());
+
+    Collection<FdNode> nodes = new ArrayList<>();
+
+    String conceptFmCol = "tag1";
+    String conceptToCol = "tag2";
+    // Does the caller want Keys or Values in the result set?
+    if (!input.isByKey()) {
+      conceptFmCol = "tag1";
+      conceptToCol = "tag2";
+    }
+
+    StopWatch watch = new StopWatch(input.toString());
+    watch.start("Execute Matrix Query");
+    Iterable<Map<String, Object>> result = template.query(query, params);
+    watch.stop();
+    Iterator<Map<String, Object>> rows = result.iterator();
+    EdgeResults edgeResults = new EdgeResults();
+    Map<String, Object> uniqueKeys = new HashMap<>();
+    while (rows.hasNext()) {
+      if (edgeResults.getEdgeResults().size() > input.getMaxEdges()) {
+        String message = "Excessive amount of data was requested " + edgeResults.getEdgeResults().size() + " vs. limit of " + input.getMaxEdges() + ". Try increasing the minimum occurrences, applying a search filter or reducing the sample size";
+        logger.error(message);
+        throw new FlockException(message);
+      }
+
+      Map<String, Object> row = rows.next();
+      Collection<Object> tag2 = (Collection<Object>) row.get(conceptToCol);
+      Collection<Object> occ;
+      if (row.containsKey("sumValues")) {
+        occ = (Collection<Object>) row.get("sumValues");
+      } else {
+        occ = (Collection<Object>) row.get("occurrenceCount");
+      }
+
+      Node conceptFrom = (Node) row.get(conceptFmCol);
+
+      if (input.isByKey()) {
+        // Edges will be indexed by Id. This will set the Name values in to the Node collection
+        FdNode source = new FdNode(conceptFrom);
+        //Collection<Object> targetIds = (Collection<Object>) row.get("tag2Ids");
+        Collection<Object> targetVals = (Collection<Object>) row.get("tag2");
+        if (!nodes.contains(source)) {
+          nodes.add(source);
         }
+        setTargetTags(nodes, targetVals);
+      }
 
-        if (input.getSampleSize() > 0) {
-            if (input.getSampleSize() > input.getMaxEdges()) {
-                input.setSampleSize(input.getMaxEdges()); // Neo4j can't handle any more in it's where clause
-            }
-            try {
-                entityKeyResults = entityKeyGateway.keys(getQueryParams(company, input));
-            } catch (ResourceAccessException e) {
-                throw new FlockServiceException("The search service is not currently available so we cannot execute your query");
-            }
-        }
+      Iterator<Object> concept = tag2.iterator();
+      Iterator<Object> occurrence = occ.iterator();
+      while (concept.hasNext() && occurrence.hasNext()) {
+        Node conceptTo = (Node) concept.next();
+        String conceptKey = conceptFrom.getId() + "/" + conceptTo.getId();
+        boolean selfRlx = conceptFrom.getId() == conceptTo.getId();
 
-        String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
-        String conceptsFrom = CypherHelper.getConcepts("tag1", input.getConcepts());
-        String conceptsTo = CypherHelper.getConcepts("tag2", input.getConcepts());
+        if (!selfRlx) {
+          String inverseKey = conceptTo.getId() + "/" + conceptFrom.getId();
+          if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
+            Number value;
 
-        String fromRlx = CypherHelper.getRelationships(input.getFromRlxs());
-        String toRlx = CypherHelper.getRelationships(input.getToRlxs());
-        String conceptString = "";
-        if (!conceptsFrom.equals("")) {
-            conceptString = "where (" + conceptsFrom + ")";
-        }
-        if (!conceptsTo.equals("")) {
-            conceptString = conceptString + " and ( " + conceptsTo + ") ";
-        }
-        boolean docFilter = !(docIndexes.equals(":Entity") || docIndexes.equals(""));
-        //ToDo: MultiTenant requires restriction by Company
-        String entityFilter;
-        if (entityKeyResults == null) {
-            entityFilter = (docFilter ? " where " + docIndexes : "");
-        } else {
-
-            entityFilter = " where entity.key in {0}";
-        }
-        String sumCol = ""; // Which user defined column against the entity to sum
-        String sumVal = ""; // Where the total will be output
-
-
-        if (input.isSumByCol()) {
-            //sumCol = ", sum( entity.`props-value`) as sumValue ";
-            sumCol = ", sum( entity.`" + input.getSumColumn() + "`) as sumValue ";
-            sumVal = ", collect(sumValue) as sumValues";
-        }
-
-        String query = "match (entity:Entity) " + entityFilter +
-            " with entity " +
-            "match t=(tag1:Tag)-[" + fromRlx + " ]-(entity)-[" + toRlx + " ]-(tag2:Tag) " +     // Concepts
-            conceptString +
-            "with tag1, tag2, count(t) as links " + sumCol +
-
-            (input.getMinCount() > 1 ? "where links >={linkCount} " : "") +
-            "return tag1, collect(tag2) as tag2, " +
-            "collect( links) as occurrenceCount " + sumVal;
-
-        Map<String, Object> params = new HashMap<>();
-
-        if (entityKeyResults != null) {
-            params.put("0", entityKeyResults.getResults());
-        }
-        params.put("linkCount", input.getMinCount());
-
-        Collection<FdNode> nodes = new ArrayList<>();
-
-        String conceptFmCol = "tag1";
-        String conceptToCol = "tag2";
-        // Does the caller want Keys or Values in the result set?
-        if (!input.isByKey()) {
-            conceptFmCol = "tag1";
-            conceptToCol = "tag2";
-        }
-
-        StopWatch watch = new StopWatch(input.toString());
-        watch.start("Execute Matrix Query");
-        Iterable<Map<String, Object>> result = template.query(query, params);
-        watch.stop();
-        Iterator<Map<String, Object>> rows = result.iterator();
-        EdgeResults edgeResults = new EdgeResults();
-        Map<String, Object> uniqueKeys = new HashMap<>();
-        while (rows.hasNext()) {
-            if (edgeResults.getEdgeResults().size() > input.getMaxEdges()) {
-                String message = "Excessive amount of data was requested " + edgeResults.getEdgeResults().size() + " vs. limit of " + input.getMaxEdges() + ". Try increasing the minimum occurrences, applying a search filter or reducing the sample size";
-                logger.error(message);
-                throw new FlockException(message);
-            }
-
-            Map<String, Object> row = rows.next();
-            Collection<Object> tag2 = (Collection<Object>) row.get(conceptToCol);
-            Collection<Object> occ;
-            if (row.containsKey("sumValues")) {
-                occ = (Collection<Object>) row.get("sumValues");
+            if (input.isSumByCol()) {
+              value = Double.parseDouble(occurrence.next().toString());
             } else {
-                occ = (Collection<Object>) row.get("occurrenceCount");
+              value = Long.parseLong(occurrence.next().toString());
             }
 
-            Node conceptFrom = (Node) row.get(conceptFmCol);
-
-            if (input.isByKey()) {
-                // Edges will be indexed by Id. This will set the Name values in to the Node collection
-                FdNode source = new FdNode(conceptFrom);
-                //Collection<Object> targetIds = (Collection<Object>) row.get("tag2Ids");
-                Collection<Object> targetVals = (Collection<Object>) row.get("tag2");
-                if (!nodes.contains(source)) {
-                    nodes.add(source);
-                }
-                setTargetTags(nodes, targetVals);
+            edgeResults.addResult(new EdgeResult(conceptFrom, conceptTo, value));
+            if (input.isReciprocalExcluded()) {
+              uniqueKeys.put(conceptKey, true);
             }
-
-            Iterator<Object> concept = tag2.iterator();
-            Iterator<Object> occurrence = occ.iterator();
-            while (concept.hasNext() && occurrence.hasNext()) {
-                Node conceptTo = (Node) concept.next();
-                String conceptKey = conceptFrom.getId() + "/" + conceptTo.getId();
-                boolean selfRlx = conceptFrom.getId() == conceptTo.getId();
-
-                if (!selfRlx) {
-                    String inverseKey = conceptTo.getId() + "/" + conceptFrom.getId();
-                    if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
-                        Number value;
-
-                        if (input.isSumByCol()) {
-                            value = Double.parseDouble(occurrence.next().toString());
-                        } else {
-                            value = Long.parseLong(occurrence.next().toString());
-                        }
-
-                        edgeResults.addResult(new EdgeResult(conceptFrom, conceptTo, value));
-                        if (input.isReciprocalExcluded()) {
-                            uniqueKeys.put(conceptKey, true);
-                        }
-                    }
-                }
-            }
+          }
         }
-
-        logger.info("Count {}, Performance {}", edgeResults.getEdgeResults().size(), watch.prettyPrint());
-        MatrixResults results = new MatrixResults(edgeResults);
-        results.setNodes(nodes);
-
-        results.setSampleSize(input.getSampleSize());
-        if (entityKeyResults != null) {
-            results.setTotalHits(entityKeyResults.getTotalHits());
-        }
-        return results;
+      }
     }
 
-    private MatrixResults buildMatrixFromCypher(Company company, MatrixInputBean input) {
-        // ToDo: Make sure no destructive statements
-        Result<Map<String, Object>> results = template.query(input.getCypher(), null);
-        //match (s:Tag {key:'sports.icc'})-[]-(c:Division)-[r]-(d:Division) return c.code as source, d.code as target ;
-        EdgeResults edgeResults = new EdgeResults();
-        Map<String, Object> uniqueKeys = new HashMap<>();
+    logger.info("Count {}, Performance {}", edgeResults.getEdgeResults().size(), watch.prettyPrint());
+    MatrixResults results = new MatrixResults(edgeResults);
+    results.setNodes(nodes);
 
-        for (Map<String, Object> result : results) {
+    results.setSampleSize(input.getSampleSize());
+    if (entityKeyResults != null) {
+      results.setTotalHits(entityKeyResults.getTotalHits());
+    }
+    return results;
+  }
 
-            String conceptFrom = result.get("source").toString();
-            String conceptTo = result.get("target").toString();
-            String conceptKey = conceptFrom + "/" + conceptTo;
+  private MatrixResults buildMatrixFromCypher(Company company, MatrixInputBean input) {
+    // ToDo: Make sure no destructive statements
+    Result<Map<String, Object>> results = template.query(input.getCypher(), null);
+    //match (s:Tag {key:'sports.icc'})-[]-(c:Division)-[r]-(d:Division) return c.code as source, d.code as target ;
+    EdgeResults edgeResults = new EdgeResults();
+    Map<String, Object> uniqueKeys = new HashMap<>();
 
-            boolean selfRlx = conceptFrom.equals(conceptTo);
-            if (!selfRlx) {
-                String inverseKey = conceptTo + "/" + conceptFrom;
-                if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
+    for (Map<String, Object> result : results) {
+
+      String conceptFrom = result.get("source").toString();
+      String conceptTo = result.get("target").toString();
+      String conceptKey = conceptFrom + "/" + conceptTo;
+
+      boolean selfRlx = conceptFrom.equals(conceptTo);
+      if (!selfRlx) {
+        String inverseKey = conceptTo + "/" + conceptFrom;
+        if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
 
 
-                    edgeResults.addResult(new EdgeResult(conceptFrom, conceptTo, 0));
-                    if (input.isReciprocalExcluded()) {
-                        uniqueKeys.put(conceptKey, true);
-                    }
+          edgeResults.addResult(new EdgeResult(conceptFrom, conceptTo, 0));
+          if (input.isReciprocalExcluded()) {
+            uniqueKeys.put(conceptKey, true);
+          }
 
 
-                }
-            }
         }
-
-
-        return new MatrixResults(edgeResults);
-
+      }
     }
 
-    private QueryParams getQueryParams(Company company, MatrixInputBean input) throws FlockException {
-        // Fortresses come in as names - need to resolve to codes:
-        QueryParams qp = new QueryParams(company, input);
-        for (String fortressName : input.getFortresses()) {
-            try {
-                FortressNode fortress = fortressService.findByName(company, fortressName);
-                if (fortress != null) {
-                    qp.setFortress(fortress.getCode());
-                }
-            } catch (NotFoundException e) {
-                throw new FlockException("Unable to locate fortress " + fortressName);
-            }
+
+    return new MatrixResults(edgeResults);
+
+  }
+
+  private QueryParams getQueryParams(Company company, MatrixInputBean input) throws FlockException {
+    // Fortresses come in as names - need to resolve to codes:
+    QueryParams qp = new QueryParams(company, input);
+    for (String fortressName : input.getFortresses()) {
+      try {
+        FortressNode fortress = fortressService.findByName(company, fortressName);
+        if (fortress != null) {
+          qp.setFortress(fortress.getCode());
         }
-        return qp;
+      } catch (NotFoundException e) {
+        throw new FlockException("Unable to locate fortress " + fortressName);
+      }
     }
+    return qp;
+  }
 
 
 }

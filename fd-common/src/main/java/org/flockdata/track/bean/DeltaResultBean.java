@@ -26,40 +26,40 @@ import java.util.Map;
  *
  */
 public class DeltaResultBean {
-    private Map<String, Object> added;
-    private Map<String, Object> changed;
-    private Map<String, Object> removed;
-    private Map<String, Object> unchanged;
+  private Map<String, Object> added;
+  private Map<String, Object> changed;
+  private Map<String, Object> removed;
+  private Map<String, Object> unchanged;
 
-    public Map getAdded() {
-        return added;
-    }
+  public Map getAdded() {
+    return added;
+  }
 
-    public void setAdded(Map<String, Object> added) {
-        this.added = added;
-    }
+  public void setAdded(Map<String, Object> added) {
+    this.added = added;
+  }
 
-    public Map getChanged() {
-        return changed;
-    }
+  public Map getChanged() {
+    return changed;
+  }
 
-    public void setChanged(Map<String, Object> changed) {
-        this.changed = changed;
-    }
+  public void setChanged(Map<String, Object> changed) {
+    this.changed = changed;
+  }
 
-    public Map getRemoved() {
-        return removed;
-    }
+  public Map getRemoved() {
+    return removed;
+  }
 
-    public void setRemoved(Map<String, Object> removed) {
-        this.removed = removed;
-    }
+  public void setRemoved(Map<String, Object> removed) {
+    this.removed = removed;
+  }
 
-    public Map<String, Object> getUnchanged() {
-        return unchanged;
-    }
+  public Map<String, Object> getUnchanged() {
+    return unchanged;
+  }
 
-    public void setUnchanged(Map<String, Object> unchanged) {
-        this.unchanged = unchanged;
-    }
+  public void setUnchanged(Map<String, Object> unchanged) {
+    this.unchanged = unchanged;
+  }
 }

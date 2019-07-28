@@ -45,43 +45,43 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 public class TestTagCloud extends ESBase {
-    @Autowired
-    QueryDaoES queryDaoES;
+  @Autowired
+  QueryDaoES queryDaoES;
 
-    @Test
-    public void defaultTagQueryWorks() throws Exception {
-        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
+  @Test
+  public void defaultTagQueryWorks() throws Exception {
+    Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
-        String fort = "defaultTagQueryWorks";
-        String comp = "comp";
-        String user = "user";
-        String doc = fort;
+    String fort = "defaultTagQueryWorks";
+    String comp = "comp";
+    String user = "user";
+    String doc = fort;
 
-        Entity entity = getEntity(comp, fort, user, doc);
+    Entity entity = getEntity(comp, fort, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
-        change.setDescription("Test Description");
-        change.setData(json);
-        ArrayList<EntityTag> tags = new ArrayList<>();
+    EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
+    change.setDescription("Test Description");
+    change.setData(json);
+    ArrayList<EntityTag> tags = new ArrayList<>();
 
-        TagInputBean tag = new TagInputBean("my TAG", "TheLabel", "rlxname");
-        assertEquals("my TAG", tag.getCode());// we should be able to find this as lowercase
-        tags.add(MockDataFactory.getEntityTag(entity, tag, "rlxname"));
-        change.setStructuredTags(null, tags);
+    TagInputBean tag = new TagInputBean("my TAG", "TheLabel", "rlxname");
+    assertEquals("my TAG", tag.getCode());// we should be able to find this as lowercase
+    tags.add(MockDataFactory.getEntityTag(entity, tag, "rlxname"));
+    change.setStructuredTags(null, tags);
 
-        //deleteEsIndex(entity);
+    //deleteEsIndex(entity);
 
-        esSearchWriter.createSearchableChange(new SearchChanges(change));
-        Thread.sleep(1000);
-        TagCloudParams tagCloudParams = new TagCloudParams();
-        tagCloudParams.setCompany(entity.getSegment().getCompany().getName());
-        tagCloudParams.setFortress(entity.getFortress().getName());
-        tagCloudParams.addType(entity.getType());
-        ArrayList<String> rlxs = new ArrayList<>();
-        rlxs.add("rlxname");
-        tagCloudParams.setRelationships(rlxs);
+    esSearchWriter.createSearchableChange(new SearchChanges(change));
+    Thread.sleep(1000);
+    TagCloudParams tagCloudParams = new TagCloudParams();
+    tagCloudParams.setCompany(entity.getSegment().getCompany().getName());
+    tagCloudParams.setFortress(entity.getFortress().getName());
+    tagCloudParams.addType(entity.getType());
+    ArrayList<String> rlxs = new ArrayList<>();
+    rlxs.add("rlxname");
+    tagCloudParams.setRelationships(rlxs);
 
-        // ToDo: Fix this
+    // ToDo: Fix this
 //        TagCloud tagCloud = queryDaoES.getCloudTag(tagCloudParams);
 //        assertEquals(20, tagCloud.getTerms().get("now").intValue());
 //        assertEquals(20, tagCloud.getTerms().get("is").intValue());
@@ -97,50 +97,50 @@ public class TestTagCloud extends ESBase {
 //        assertEquals(1, tagCloud.getTerms().get("my").intValue());
 //        assertEquals(1, tagCloud.getTerms().get("tag").intValue());
 
-        // TODO to get the tag cloud working this asserts must wrok and be uncommented
-        //assertEquals(60, tagCloud.getTerms().get("the").intValue());
-        //assertEquals(40, tagCloud.getTerms().get("to").intValue());
+    // TODO to get the tag cloud working this asserts must wrok and be uncommented
+    //assertEquals(60, tagCloud.getTerms().get("the").intValue());
+    //assertEquals(40, tagCloud.getTerms().get("to").intValue());
 
+  }
+
+  @Test
+  public void pojo_TagCloud() {
+    int count = 10;
+    TagCloud tagCloud = new TagCloud(count);
+
+    long max = 100l;
+    // 100 random keys and values
+    for (long lValue = max; lValue > 0; lValue--) {
+      tagCloud.addTerm("key" + lValue, lValue);
     }
+    tagCloud.scale();
+    assertEquals("Unexpected term count", count, tagCloud.getTerms().size());
 
-    @Test
-    public void pojo_TagCloud() {
-        int count = 10;
-        TagCloud tagCloud = new TagCloud(count);
+    max = 100l;
+    tagCloud = new TagCloud(count);
 
-        long max = 100l;
-        // 100 random keys and values
-        for (long lValue = max; lValue > 0; lValue--) {
-            tagCloud.addTerm("key" + lValue, lValue);
-        }
-        tagCloud.scale();
-        assertEquals("Unexpected term count", count, tagCloud.getTerms().size());
-
-        max = 100l;
-        tagCloud = new TagCloud(count);
-
-        // Checking that the same value for different keys still results in a map
-        // populated to capacity
-        for (long lValue = max; lValue > 0; lValue--) {
-            tagCloud.addTerm("keyA" + lValue, lValue);
-            tagCloud.addTerm("keyB" + lValue, lValue);
-            tagCloud.addTerm("keyC" + lValue, lValue);
-            tagCloud.addTerm("keyD" + lValue, lValue);
-            tagCloud.addTerm("keyE" + lValue, lValue);
-        }
-        tagCloud.scale();
-        assertEquals(count, tagCloud.getTerms().size());
-
-        max = 100l;
-        tagCloud = new TagCloud(10);
-
-        for (long lValue = max; lValue > 0; lValue--) {
-            tagCloud.addTerm("keyA" + lValue, 10);
-        }
-        tagCloud.scale();
-        assertEquals("Adding the same value to different key should result in a full populated map", 10, tagCloud.getTerms().size());
-
+    // Checking that the same value for different keys still results in a map
+    // populated to capacity
+    for (long lValue = max; lValue > 0; lValue--) {
+      tagCloud.addTerm("keyA" + lValue, lValue);
+      tagCloud.addTerm("keyB" + lValue, lValue);
+      tagCloud.addTerm("keyC" + lValue, lValue);
+      tagCloud.addTerm("keyD" + lValue, lValue);
+      tagCloud.addTerm("keyE" + lValue, lValue);
     }
+    tagCloud.scale();
+    assertEquals(count, tagCloud.getTerms().size());
+
+    max = 100l;
+    tagCloud = new TagCloud(10);
+
+    for (long lValue = max; lValue > 0; lValue--) {
+      tagCloud.addTerm("keyA" + lValue, 10);
+    }
+    tagCloud.scale();
+    assertEquals("Adding the same value to different key should result in a full populated map", 10, tagCloud.getTerms().size());
+
+  }
 
 
 }

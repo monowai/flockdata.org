@@ -30,23 +30,23 @@ import java.util.Collection;
  */
 public class EntityResults {
 
-    Collection<TrackResultBean> trackResults = new ArrayList<>();
+  Collection<TrackResultBean> trackResults = new ArrayList<>();
 
-    public void addResult(TrackResultBean trackResult) {
-        if (!trackResults.contains(trackResult)) {
-            trackResults.add(trackResult);
-        }
+  public void addResult(TrackResultBean trackResult) {
+    if (!trackResults.contains(trackResult)) {
+      trackResults.add(trackResult);
     }
+  }
 
-    public Collection<TrackResultBean> getTrackResults() {
-        return trackResults;
+  public Collection<TrackResultBean> getTrackResults() {
+    return trackResults;
+  }
+
+
+  public TrackResultBean getSingleResult() {
+    if (trackResults.isEmpty()) {
+      return null;
     }
-
-
-    public TrackResultBean getSingleResult() {
-        if (trackResults.isEmpty()) {
-            return null;
-        }
-        return getTrackResults().iterator().next();
-    }
+    return getTrackResults().iterator().next();
+  }
 }

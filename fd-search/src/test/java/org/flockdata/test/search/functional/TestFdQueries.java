@@ -21,11 +21,11 @@
 package org.flockdata.test.search.functional;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Map;
-import org.assertj.core.api.Assertions;
 import org.flockdata.data.Entity;
 import org.flockdata.search.EntityKeyResults;
 import org.flockdata.search.EntitySearchChange;
@@ -34,6 +34,7 @@ import org.flockdata.search.QueryParams;
 import org.flockdata.search.SearchChanges;
 import org.flockdata.search.SearchResult;
 import org.flockdata.search.SearchResults;
+import org.flockdata.search.SearchSchema;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.test.helper.ContentDataHelper;
 import org.junit.Test;
@@ -48,148 +49,159 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class TestFdQueries extends ESBase {
 
-    @Autowired
-    QueryServiceEs queryServiceEs;
+  @Autowired
+  QueryServiceEs queryServiceEs;
 
-    @Test
-    public void query_entityByKey() throws Exception {
-        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
+  @Test
+  public void query_entityByKey() throws Exception {
+    Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
-        String fortress = "query_entityByKey";
-        String company = "query_entityByKey";
-        String doc = "epDocType";
-        String user = "mike";
+    String fortress = "query_entityByKey";
+    String company = "query_entityByKey";
+    String doc = "epDocType";
+    String user = "mike";
 
-        Entity entity = getEntity(company, fortress, user, doc);
-        assertNotNull(entity.getName());
+    Entity entity = getEntity(company, fortress, user, doc);
+    assertNotNull(entity.getName());
 
-        deleteEsIndex(entity);
-        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
-        change.setDescription("Test Description");
-        change.setData(json);
-        change.setName(entity.getName());
+    deleteEsIndex(entity);
+    EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
+    change.setDescription("Test Description");
+    change.setData(json);
+    change.setName(entity.getName());
 
-        deleteEsIndex(entity);
-        Thread.sleep(2000);
+    deleteEsIndex(entity);
+    Thread.sleep(2000);
 
-        SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
-        SearchResult searchResult = searchResults.getSearchResults().iterator().next();
-        assertNotNull(searchResult);
-        assertNotNull(searchResult.getSearchKey());
-        Thread.sleep(2000);
+    SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
+    assertThat(searchResults.getSearchResults())
+        .isNotNull()
+        .hasSize(1);
 
-        QueryParams queryParams = new QueryParams(entity.getSegment());
-        queryParams.setCompany(company);
-        queryParams.setSearchText("*");
-        // Exactly one document in the index
-        EsSearchRequestResult queryResult = queryServiceEs.doFdViewSearch(queryParams);
-        assertNotNull(queryResult.getResults());
-        assertEquals(1, queryResult.getResults().size());
-        assertEquals(entity.getKey(), queryResult.getResults().iterator().next().getKey());
-        assertEquals(entity.getName(), queryResult.getResults().iterator().next().getName());
+    SearchResult searchResult = searchResults.getSearchResults().iterator().next();
+    assertThat(searchResult)
+        .isNotNull()
+        .hasFieldOrProperty(SearchSchema.KEY);
 
-        // Find by Key
-        queryParams.setKey(entity.getKey());
-        EntityKeyResults metaResults = queryServiceEs.doKeyQuery(queryParams);
-        assertEquals(1, metaResults.getResults().size());
-        assertEquals(entity.getKey(), metaResults.getResults().iterator().next());
+    Thread.sleep(2000);
 
-        // Find with just a fortress
-        queryParams = new QueryParams(entity.getSegment());
-        queryParams.setSearchText("description");
-        queryResult = queryServiceEs.doFdViewSearch(queryParams);
-        assertEquals(1, queryResult.getResults().size());
-        assertEquals(entity.getKey(), queryResult.getResults().iterator().next().getKey());
+    QueryParams queryParams = new QueryParams(entity.getSegment());
+    queryParams.setCompany(company);
+    queryParams.setSearchText("*");
+    // Exactly one document in the index
+    EsSearchRequestResult queryResult = queryServiceEs.doFdViewSearch(queryParams);
+    assertThat(queryResult.getResults())
+        .isNotNull()
+        .hasSize(1);
 
-        queryParams = new QueryParams().setCompany(company.toLowerCase());
-        queryParams.setSearchText("description");
-        queryResult = queryServiceEs.doFdViewSearch(queryParams);
-        assertEquals(1, queryResult.getResults().size());
-        assertEquals(entity.getKey(), queryResult.getResults().iterator().next().getKey());
+    assertThat(queryResult.getResults().iterator().next())
+        .isNotNull()
+        .hasFieldOrPropertyWithValue(SearchSchema.KEY, entity.getKey())
+        .hasFieldOrPropertyWithValue(SearchSchema.NAME, entity.getName())
+        .hasFieldOrPropertyWithValue(SearchSchema.DESCRIPTION, change.getDescription());
 
-        queryParams = new QueryParams(entity.getSegment());
-        queryParams.setSearchText("-description"); // Ignore description
-        queryResult = queryServiceEs.doFdViewSearch(queryParams);
-        assertEquals(0, queryResult.getResults().size());
+    // Find by Key
+    queryParams.setKey(entity.getKey());
+    EntityKeyResults metaResults = queryServiceEs.doKeyQuery(queryParams);
+    assertEquals(1, metaResults.getResults().size());
+    assertEquals(entity.getKey(), metaResults.getResults().iterator().next());
 
-    }
+    // Find with just a fortress
+    queryParams = new QueryParams(entity.getSegment());
+    queryParams.setSearchText("description");
+    queryResult = queryServiceEs.doFdViewSearch(queryParams);
+    assertEquals(1, queryResult.getResults().size());
+    assertEquals(entity.getKey(), queryResult.getResults().iterator().next().getKey());
 
-    @Test
-    public void query_entityKeysByText() throws Exception {
-        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
+    queryParams = new QueryParams().setCompany(company.toLowerCase());
+    queryParams.setSearchText("description");
+    queryResult = queryServiceEs.doFdViewSearch(queryParams);
+    assertEquals(1, queryResult.getResults().size());
+    assertEquals(entity.getKey(), queryResult.getResults().iterator().next().getKey());
 
-        String fortress = "query_EndPointsSearch";
-        String company = "query_EndPoints";
-        String doc = "epDocType";
-        String user = "mike";
+    queryParams = new QueryParams(entity.getSegment());
+    queryParams.setSearchText("-description"); // Ignore description
+    queryResult = queryServiceEs.doFdViewSearch(queryParams);
+    assertEquals(0, queryResult.getResults().size());
 
-        Entity entity = getEntity(company, fortress, user, doc);
-        deleteEsIndex(entity);
-        Thread.sleep(1000);
+  }
 
-        // Create SearchDoc 1
-        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
-        change.setDescription("Test Description");
-        change.setData(json);
-        change.setName(entity.getName());
-        SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
-        SearchResult searchResult = searchResults.getSearchResults().iterator().next();
-        Assertions.assertThat(searchResult)
-            .isNotNull()
-            .hasFieldOrProperty("searchKey");
+  @Test
+  public void query_entityKeysByText() throws Exception {
+    Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
-        // Create SearchDoc 2
-        entity = getEntity(company, fortress, user, doc);
-        change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
-        change.setDescription("Test Description 2");
-        change.setData(json);
-        change.setName(entity.getName() + "2");
+    String fortress = "query_EndPointsSearch";
+    String company = "query_EndPoints";
+    String doc = "epDocType";
+    String user = "mike";
 
-        searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
-        searchResult = searchResults.getSearchResults().iterator().next();
-        Assertions.assertThat(searchResult)
-            .isNotNull()
-            .hasFieldOrProperty("searchKey");
+    Entity entity = getEntity(company, fortress, user, doc);
+    deleteEsIndex(entity);
+    Thread.sleep(1000);
 
-        Thread.sleep(2000); // Wait for writes to commit
+    // Create SearchDoc 1
+    EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
+    change.setDescription("Test Description");
+    change.setData(json);
+    change.setName(entity.getName());
+    SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
+    SearchResult searchResult = searchResults.getSearchResults().iterator().next();
+    assertThat(searchResult)
+        .isNotNull()
+        .hasFieldOrProperty("searchKey");
 
-        // Query the indexes and check
-        QueryParams queryParams = new QueryParams(entity.getSegment());
-        queryParams.setCompany(company);
-        queryParams.setFortress(fortress);
-        queryParams.setSearchText("*");
-        // Locate 2 Entity Keys in the search index using wild card query
-        EntityKeyResults queryResult = queryServiceEs.doKeyQuery(queryParams);
-        assertNotNull(queryResult.getResults());
-        assertEquals(2, queryResult.getResults().size());
+    // Create SearchDoc 2
+    entity = getEntity(company, fortress, user, doc);
+    change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
+    change.setDescription("Test Description 2");
+    change.setData(json);
+    change.setName(entity.getName() + "2");
 
-    }
+    searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
+    searchResult = searchResults.getSearchResults().iterator().next();
+    assertThat(searchResult)
+        .isNotNull()
+        .hasFieldOrProperty("searchKey");
 
-    @Test
-    public void query_EsPassthrough() throws Exception {
-        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
+    Thread.sleep(2000); // Wait for writes to commit
 
-        String fortress = "query_EsPassthrough";
-        String company = "query_EsPassthrough";
-        String doc = "epDocType";
-        String user = "mike";
+    // Query the indexes and check
+    QueryParams queryParams = new QueryParams(entity.getSegment());
+    queryParams.setCompany(company);
+    queryParams.setFortress(fortress);
+    queryParams.setSearchText("*");
+    // Locate 2 Entity Keys in the search index using wild card query
+    EntityKeyResults queryResult = queryServiceEs.doKeyQuery(queryParams);
+    assertNotNull(queryResult.getResults());
+    assertEquals(2, queryResult.getResults().size());
 
-        Entity entity = getEntity(company, fortress, user, doc);
-        deleteEsIndex(entity);
-        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
-        change.setDescription("Test Description");
-        change.setData(json);
+  }
 
-        SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
-        SearchResult searchResult = searchResults.getSearchResults().iterator().next();
-        Thread.sleep(2000);
-        assertNotNull(searchResult);
-        assertNotNull(searchResult.getSearchKey());
+  @Test
+  public void query_EsPassthrough() throws Exception {
+    Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
-        QueryParams queryParams = new QueryParams(entity.getSegment());
-        queryParams.setCompany(company);
-        String results = queryServiceEs.doSearch(queryParams);
-        assertNotNull("Hmm, not defaulting the query to a match_all?", results);
-        assertTrue(results.contains(fortress));
-    }
+    String fortress = "query_EsPassthrough";
+    String company = "query_EsPassthrough";
+    String doc = "epDocType";
+    String user = "mike";
+
+    Entity entity = getEntity(company, fortress, user, doc);
+    deleteEsIndex(entity);
+    EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
+    change.setDescription("Test Description");
+    change.setData(json);
+
+    SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
+    SearchResult searchResult = searchResults.getSearchResults().iterator().next();
+    Thread.sleep(2000);
+    assertNotNull(searchResult);
+    assertNotNull(searchResult.getSearchKey());
+
+    QueryParams queryParams = new QueryParams(entity.getSegment());
+    queryParams.setCompany(company);
+    String results = queryServiceEs.doSearch(queryParams);
+    assertNotNull("Hmm, not defaulting the query to a match_all?", results);
+    assertTrue(results.contains(fortress));
+  }
 }

@@ -47,75 +47,75 @@ import org.slf4j.LoggerFactory;
  */
 public class TestEntityUsers extends EngineBase {
 
-    private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
+  private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
-    @Test
-    public void created_UserAgainstEntityAndLog() throws Exception {
-        logger.debug("### created_UserAgainstEntityAndLog");
-        String entityCode = "mk1hz";
-        SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
+  @Test
+  public void created_UserAgainstEntityAndLog() throws Exception {
+    logger.debug("### created_UserAgainstEntityAndLog");
+    String entityCode = "mk1hz";
+    SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_UserAgainstEntityAndLog", true));
-        EntityInputBean entityBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), entityCode);
-
-
-        entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
-        mediationFacade.trackEntity(su.getCompany(), entityBean);
-
-        EntityNode entity = (EntityNode) entityService.findByCode(fortress, "CompanyNode", entityCode);
-        Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
-
-        Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
-        assertEquals(1, logs.size());
-        EntityLogResult log = logs.iterator().next();
-        assertEquals("billie", log.getMadeBy().toLowerCase());
-
-        entityBean.setContent(new ContentInputBean("nemo", DateTime.now(), ContentDataHelper.getSimpleMap("name", "b")));
-        mediationFacade.trackEntity(su.getCompany(), entityBean);
-        assertTrue("Event name incorrect", log.getEvent().getCode().equalsIgnoreCase("answer"));
-
-        entity = (EntityNode) entityService.findByCode(fortress, "CompanyNode", entityCode);
-        Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
-
-        logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
-        assertTrue(logs.size() == 2);
-        boolean billieFound = false;
-        boolean nemoFound = false;
-        for (EntityLogResult entityLog : logs) {
-            if (entityLog.getMadeBy().equals("billie")) {
-                billieFound = true;
-            }
-            if (entityLog.getMadeBy().equals("nemo")) {
-                nemoFound = true;
-            }
-        }
-        assertTrue("Didn't find Billie & Nemo", billieFound && nemoFound);
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_UserAgainstEntityAndLog", true));
+    EntityInputBean entityBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), entityCode);
 
 
+    entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer"));
+    mediationFacade.trackEntity(su.getCompany(), entityBean);
+
+    EntityNode entity = (EntityNode) entityService.findByCode(fortress, "CompanyNode", entityCode);
+    Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
+
+    Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
+    assertEquals(1, logs.size());
+    EntityLogResult log = logs.iterator().next();
+    assertEquals("billie", log.getMadeBy().toLowerCase());
+
+    entityBean.setContent(new ContentInputBean("nemo", DateTime.now(), ContentDataHelper.getSimpleMap("name", "b")));
+    mediationFacade.trackEntity(su.getCompany(), entityBean);
+    assertTrue("Event name incorrect", log.getEvent().getCode().equalsIgnoreCase("answer"));
+
+    entity = (EntityNode) entityService.findByCode(fortress, "CompanyNode", entityCode);
+    Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
+
+    logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
+    assertTrue(logs.size() == 2);
+    boolean billieFound = false;
+    boolean nemoFound = false;
+    for (EntityLogResult entityLog : logs) {
+      if (entityLog.getMadeBy().equals("billie")) {
+        billieFound = true;
+      }
+      if (entityLog.getMadeBy().equals("nemo")) {
+        nemoFound = true;
+      }
     }
+    assertTrue("Didn't find Billie & Nemo", billieFound && nemoFound);
 
-    @Test
-    public void created_EntityWithNoUser() throws Exception {
-        logger.debug("### created_EntityWithNoUser");
-        String callerRef = "mk1hz";
-        SystemUser su = registerSystemUser("created_EntityWithNoUser");
 
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_EntityWithNoUser", true));
-        EntityInputBean entityBean = new EntityInputBean(fortress, null, "CompanyNode", DateTime.now(), callerRef);
+  }
 
-        // No fortress user
-        ContentInputBean contentInputBean = new ContentInputBean(null, null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer");
-        entityBean.setContent(contentInputBean);
-        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
+  @Test
+  public void created_EntityWithNoUser() throws Exception {
+    logger.debug("### created_EntityWithNoUser");
+    String callerRef = "mk1hz";
+    SystemUser su = registerSystemUser("created_EntityWithNoUser");
 
-        EntityNode entity = (EntityNode) entityService.findByCode(fortress, "CompanyNode", callerRef);
-        Assert.assertEquals(null, entity.getCreatedBy());
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_EntityWithNoUser", true));
+    EntityInputBean entityBean = new EntityInputBean(fortress, null, "CompanyNode", DateTime.now(), callerRef);
 
-        SearchChange searchChange = searchService.getEntityChange(resultBean);
-        assertNotNull(searchChange);
+    // No fortress user
+    ContentInputBean contentInputBean = new ContentInputBean(null, null, DateTime.now(), ContentDataHelper.getSimpleMap("name", "a"), "Answer");
+    entityBean.setContent(contentInputBean);
+    TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
 
-        searchChange = searchService.rebuild(entity, resultBean.getCurrentLog());
-        assertNotNull(searchChange);
+    EntityNode entity = (EntityNode) entityService.findByCode(fortress, "CompanyNode", callerRef);
+    Assert.assertEquals(null, entity.getCreatedBy());
 
-    }
+    SearchChange searchChange = searchService.getEntityChange(resultBean);
+    assertNotNull(searchChange);
+
+    searchChange = searchService.rebuild(entity, resultBean.getCurrentLog());
+    assertNotNull(searchChange);
+
+  }
 }

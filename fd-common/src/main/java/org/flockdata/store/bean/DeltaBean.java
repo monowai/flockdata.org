@@ -28,23 +28,23 @@ import org.flockdata.store.LogRequest;
  * @since 17/02/2016
  */
 public class DeltaBean {
-    private LogRequest logRequest;
-    private Log preparedLog;
+  private LogRequest logRequest;
+  private Log preparedLog;
 
-    DeltaBean() {
-    }
+  DeltaBean() {
+  }
 
-    public DeltaBean(LogRequest logRequest, Log preparedLog) {
-        this();
-        this.logRequest = logRequest;
-        this.preparedLog = preparedLog;
-    }
+  public DeltaBean(LogRequest logRequest, Log preparedLog) {
+    this();
+    this.logRequest = logRequest;
+    this.preparedLog = preparedLog;
+  }
 
-    public LogRequest getLogRequest() {
-        return logRequest;
-    }
+  public LogRequest getLogRequest() {
+    return logRequest;
+  }
 
-    public Log getPreparedLog() {
-        return preparedLog;
-    }
+  public Log getPreparedLog() {
+    return preparedLog;
+  }
 }

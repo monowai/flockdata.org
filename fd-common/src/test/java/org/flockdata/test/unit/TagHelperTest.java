@@ -13,26 +13,26 @@ import org.junit.jupiter.api.Test;
  */
 class TagHelperTest {
 
-    @Test
-    void nullDefaults() {
-        Tag nullTag = null;
-        assertThat(TagHelper.isDefault(nullTag)).isFalse();
-        assertThat(TagHelper.isDefault((String) null)).isFalse();
-    }
+  @Test
+  void nullDefaults() {
+    Tag nullTag = null;
+    assertThat(TagHelper.isDefault(nullTag)).isFalse();
+    assertThat(TagHelper.isDefault((String) null)).isTrue();
+  }
 
-    @Test
-    void nonDefaultLabel() {
-        ArrayList<String> labels = new ArrayList<>();
-        labels.add(Tag.DEFAULT_TAG);
-        labels.add("NonDefault");
-        assertThat(TagHelper.getLabel(labels)).isEqualToIgnoringCase("NonDefault");
-    }
+  @Test
+  void nonDefaultLabel() {
+    ArrayList<String> labels = new ArrayList<>();
+    labels.add(Tag.DEFAULT_TAG);
+    labels.add("NonDefault");
+    assertThat(TagHelper.getLabel(labels)).isEqualToIgnoringCase("NonDefault");
+  }
 
-    @Test
-    void whenOnlyLabelThenDefaultIsReturned() {
-        ArrayList<String> labels = new ArrayList<>();
-        labels.add(Tag.DEFAULT_TAG);
-        assertThat(TagHelper.getLabel(labels)).isEqualToIgnoringCase(Tag.DEFAULT_TAG);
-    }
+  @Test
+  void whenOnlyLabelThenDefaultIsReturned() {
+    ArrayList<String> labels = new ArrayList<>();
+    labels.add(Tag.DEFAULT_TAG);
+    assertThat(TagHelper.getLabel(labels)).isEqualToIgnoringCase(Tag.DEFAULT_TAG);
+  }
 
 }

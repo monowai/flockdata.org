@@ -40,36 +40,36 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class SearchEsPost {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public SearchEsPost(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public SearchEsPost(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+  public CommandResponse<Map<String, Object>> exec(QueryParams queryParams) {
+    String error = null;
+    Map<String, Object> result = null;
+
+
+    try {
+      HttpEntity requestEntity = new HttpEntity<>(queryParams, fdIoInterface.getHeaders());
+      ParameterizedTypeReference<Map<String, Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {
+      };
+      ResponseEntity<Map<String, Object>> response;
+      response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
+
+      result = response.getBody();
+      if (result.containsKey("__errors__")) {
+        ArrayList<String> errors = (ArrayList<String>) result.get("__errors__");
+        error = errors.get(0);
+      }
+
+
+    } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+      error = e.getMessage();
     }
-
-    public CommandResponse<Map<String, Object>> exec(QueryParams queryParams) {
-        String error = null;
-        Map<String, Object> result = null;
-
-
-        try {
-            HttpEntity requestEntity = new HttpEntity<>(queryParams, fdIoInterface.getHeaders());
-            ParameterizedTypeReference<Map<String, Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {
-            };
-            ResponseEntity<Map<String, Object>> response;
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
-
-            result = response.getBody();
-            if (result.containsKey("__errors__")) {
-                ArrayList<String> errors = (ArrayList<String>) result.get("__errors__");
-                error = errors.get(0);
-            }
-
-
-        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, result);
-    }
+    return new CommandResponse<>(error, result);
+  }
 
 }

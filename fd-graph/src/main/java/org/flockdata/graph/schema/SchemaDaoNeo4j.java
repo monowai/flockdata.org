@@ -41,13 +41,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class SchemaDaoNeo4j {
 
-    private static final Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
-    private DriverManager template;
+  private static final Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
+  private DriverManager template;
 
-    @Autowired
-    public SchemaDaoNeo4j(DriverManager template) {
-        this.template = template;
-    }
+  @Autowired
+  public SchemaDaoNeo4j(DriverManager template) {
+    this.template = template;
+  }
 
 //    Util.Result<Map<String, Object>> runQuery(String statement) {
 //        return runQuery(statement, null);
@@ -59,9 +59,9 @@ public class SchemaDaoNeo4j {
 //    }
 
 
-    public Boolean ensureSystemConstraints(CompanyNode company) {
+  public Boolean ensureSystemConstraints(CompanyNode company) {
 
-        //logger.debug("Creating system constraints for {} ", company.getName());
+    //logger.debug("Creating system constraints for {} ", company.getName());
 //        runQuery("create constraint on (t:Country) assert t.key is unique");
 //        runQuery("create constraint on (t:CountryAlias) assert t.key is unique");
 //        runQuery("create constraint on (t:State) assert t.key is unique");
@@ -72,13 +72,13 @@ public class SchemaDaoNeo4j {
 //        runQuery("create constraint on (t:SuburbAlias) assert t.key is unique");
 
 
-        logger.debug("Created system constraints");
-        return true;
-    }
+    logger.debug("Created system constraints");
+    return true;
+  }
 
 
-    //    @Cacheable(value = "labels", unless = "#result==null") // Caches the fact that a constraint has been created
-    public String ensureUniqueIndex(String label) {
+  //    @Cacheable(value = "labels", unless = "#result==null") // Caches the fact that a constraint has been created
+  public String ensureUniqueIndex(String label) {
 //
 //        boolean quoted = CypherHelper.requiresQuoting(label);
 //
@@ -87,15 +87,15 @@ public class SchemaDaoNeo4j {
 //        runQuery("create constraint on (t:" + cLabel + (quoted ? "`" : "") + ") assert t.key is unique");
 //        runQuery("create constraint on (t:" + cLabel + "Alias " + (quoted ? "`" : "") + ") assert t.key is unique");
 //        return label;
-        return null;
-    }
+    return null;
+  }
 
-    public Collection<String> getAllLabels() {
-        return new ArrayList<>();
-    }
+  public Collection<String> getAllLabels() {
+    return new ArrayList<>();
+  }
 
 
-    public void purge(Fortress fortress) {
+  public void purge(Fortress fortress) {
 //        HashMap<String, Object> params = new HashMap<>();
 //        params.put("fortId", fortress.getId());
 //
@@ -112,6 +112,6 @@ public class SchemaDaoNeo4j {
 //        // ToDo: Purge Unused Concepts!!
 //        runQuery(conceptRelationships, params);
 //
-    }
+  }
 
 }

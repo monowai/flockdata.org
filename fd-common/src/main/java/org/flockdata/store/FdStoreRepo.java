@@ -27,19 +27,19 @@ import java.io.IOException;
  * @since 31/01/2014
  */
 public interface FdStoreRepo {
-    void add(StoredContent contentBean) throws IOException;
+  void add(StoredContent contentBean) throws IOException;
 
-    StoredContent read(String index, String type, String id);
+  StoredContent read(String index, String type, String id);
 
-    @Deprecated
-        // Use read(String index, String type, Object id);
-    StoredContent read(LogRequest logRequest);
+  @Deprecated
+    // Use read(String index, String type, Object id);
+  StoredContent read(LogRequest logRequest);
 
-    void delete(LogRequest logRequest);
+  void delete(LogRequest logRequest);
 
-    void purge(String index);
+  void purge(String index);
 
-    String ping();
+  String ping();
 
 
 }

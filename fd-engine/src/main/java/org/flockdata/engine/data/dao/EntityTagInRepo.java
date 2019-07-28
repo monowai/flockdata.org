@@ -33,7 +33,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  */
 public interface EntityTagInRepo extends GraphRepository<EntityTagIn> {
 
-    @Query(elementClass = EntityTagIn.class, value = "match (e:Entity)<-[r]-(:Tag) where id(e) = {0} return r")
-    Collection<EntityTag> getEntityTags(Long entityId);
+  @Query(elementClass = EntityTagIn.class, value = "match (e:Entity)<-[r]-(:Tag) where id(e) = {0} return r")
+  Collection<EntityTag> getEntityTags(Long entityId);
 
 }

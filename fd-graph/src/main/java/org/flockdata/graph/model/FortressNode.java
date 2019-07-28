@@ -13,35 +13,35 @@ import org.flockdata.data.Segment;
 @Builder
 @Data
 public class FortressNode implements Fortress {
-    private Long id;
-    private String code;
-    private String name;
-    private Company company;
-    private Boolean searchEnabled;
-    private Boolean storeEnabled;
-    private Boolean system;
-    private String rootIndex;
-    private Segment defaultSegment;
-    private String timeZone;
-    private Boolean enabled;
+  private Long id;
+  private String code;
+  private String name;
+  private Company company;
+  private Boolean searchEnabled;
+  private Boolean storeEnabled;
+  private Boolean system;
+  private String rootIndex;
+  private Segment defaultSegment;
+  private String timeZone;
+  private Boolean enabled;
 
-    @Override
-    public Boolean isSearchEnabled() {
-        return searchEnabled;
-    }
+  @Override
+  public Boolean isSearchEnabled() {
+    return searchEnabled;
+  }
 
-    @Override
-    public Boolean isStoreEnabled() {
-        return storeEnabled;
-    }
+  @Override
+  public Boolean isStoreEnabled() {
+    return storeEnabled;
+  }
 
-    @Override
-    public Boolean isSystem() {
-        return system;
-    }
+  @Override
+  public Boolean isSystem() {
+    return system;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return enabled;
+  }
 }

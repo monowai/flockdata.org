@@ -40,21 +40,21 @@ import org.springframework.stereotype.Component;
 // Not working. SB + SpringData + Neo4j issues :-(
 @Profile("discovery")
 public class DiscoveryConfiguration {//implements InfoContributor {
-    private Logger logger = LoggerFactory.getLogger("configuration");
-    private PlatformConfig engineConfig;
+  private Logger logger = LoggerFactory.getLogger("configuration");
+  private PlatformConfig engineConfig;
 
-    @PostConstruct
-    public void logStatus() {
-        logger.info("**** Discovery Configuration Client configuration deployed");
-    }
+  @PostConstruct
+  public void logStatus() {
+    logger.info("**** Discovery Configuration Client configuration deployed");
+  }
 
-    @Autowired
-    void setEngineConfig(PlatformConfig engineConfig) {
-        this.engineConfig = engineConfig;
-    }
+  @Autowired
+  void setEngineConfig(PlatformConfig engineConfig) {
+    this.engineConfig = engineConfig;
+  }
 
 //    @Override
-    // Actuator starter required
+  // Actuator starter required
 //    public void contribute(Info.Builder builder) {
 //        builder.withDetail("health",
 //                engineConfig.getHealth());

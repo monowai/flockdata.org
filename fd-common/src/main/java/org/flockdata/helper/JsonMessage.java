@@ -30,24 +30,24 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
  * http://www.asyncdev.net/2011/12/spring-restful-controllers-and-error-handling/
  */
 public class JsonMessage {
-    private String message;
+  private String message;
 
-    public JsonMessage(String message) {
-        this.message = message;
-    }
+  public JsonMessage(String message) {
+    this.message = message;
+  }
 
-    public ModelAndView asModelAndViewError() {
-        MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("message", message);
-        return new ModelAndView(jsonView, map);
-    }
+  public ModelAndView asModelAndViewError() {
+    MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
+    HashMap<String, Object> map = new HashMap<>();
+    map.put("message", message);
+    return new ModelAndView(jsonView, map);
+  }
 
-    public ModelAndView asModelAndViewMessage() {
-        MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("message", message);
-        return new ModelAndView(jsonView, map);
-    }
+  public ModelAndView asModelAndViewMessage() {
+    MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
+    HashMap<String, Object> map = new HashMap<>();
+    map.put("message", message);
+    return new ModelAndView(jsonView, map);
+  }
 
 }

@@ -37,50 +37,50 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 @NodeEntity
 @TypeAlias("Event")
 public class ChangeEventNode implements ChangeEvent {
-    @GraphId
-    private Long id;
+  @GraphId
+  private Long id;
 
-    @Indexed(unique = true)
-    private String code;
-    private String name;
-    //@Relationship(type = "COMPANY_EVENT", direction = Relationship.INCOMING)
-    @RelatedTo(type = "COMPANY_EVENT", direction = Direction.INCOMING)
-    private Iterable<CompanyNode> companies;
+  @Indexed(unique = true)
+  private String code;
+  private String name;
+  //@Relationship(type = "COMPANY_EVENT", direction = Relationship.INCOMING)
+  @RelatedTo(type = "COMPANY_EVENT", direction = Direction.INCOMING)
+  private Iterable<CompanyNode> companies;
 
-    protected ChangeEventNode() {
-    }
+  protected ChangeEventNode() {
+  }
 
-    public ChangeEventNode(String name) {
-        this.name = name;
-        this.code = name;
-    }
+  public ChangeEventNode(String name) {
+    this.name = name;
+    this.code = name;
+  }
 
-    @Override
-    public String toString() {
-        return "ChangeEventNode{" +
-            "id=" + id +
-            ", code='" + code + '\'' +
-            '}';
-    }
+  @Override
+  public String toString() {
+    return "ChangeEventNode{" +
+        "id=" + id +
+        ", code='" + code + '\'' +
+        '}';
+  }
 
-    @Override
-    @JsonIgnore
-    public Long getId() {
-        return id;
-    }
+  @Override
+  @JsonIgnore
+  public Long getId() {
+    return id;
+  }
 
-    @Override
-    @JsonIgnore
-    public String getCode() {
-        return code;
-    }
+  @Override
+  @JsonIgnore
+  public String getCode() {
+    return code;
+  }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+  public void setCode(String code) {
+    this.code = code;
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 }

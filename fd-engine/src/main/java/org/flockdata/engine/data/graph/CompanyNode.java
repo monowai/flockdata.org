@@ -21,6 +21,8 @@
 package org.flockdata.engine.data.graph;
 
 import java.io.Serializable;
+import lombok.Builder;
+import lombok.Data;
 import org.flockdata.data.Company;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
@@ -33,90 +35,59 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
  */
 @NodeEntity
 @TypeAlias(value = "FDCompany")
+@Builder
+@Data
 public class CompanyNode implements Serializable, Company {
-    @GraphId
-    Long id;
-    @Indexed
-    String apiKey;
-    @Indexed
-    private String name;
-    @Indexed(unique = true)
-    private String code;
+  @GraphId
+  Long id;
+  @Indexed
+  String apiKey;
+  @Indexed
+  private String name;
+  @Indexed(unique = true)
+  private String code;
 
-    protected CompanyNode() {
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  @Override
+  public String toString() {
+    return "CompanyNode{" +
+        "id=" + id +
+        ", name='" + name + '\'' +
+        ", code='" + code + '\'' +
+        '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof CompanyNode)) {
+      return false;
     }
 
-    public CompanyNode(String companyName) {
-        this(companyName, null);
+    CompanyNode that = (CompanyNode) o;
+
+    if (apiKey != null ? !apiKey.equals(that.apiKey) : that.apiKey != null) {
+      return false;
     }
+    return !(id != null ? !id.equals(that.id) : that.id != null);
 
-    public CompanyNode(String companyName, String apiKey) {
-        this();
-        setName(companyName);
-        this.apiKey = apiKey;
-    }
+  }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-        if (code == null) {
-            this.code = name.toLowerCase().replaceAll("\\s", "");
-        }
-    }
-
-    public String getApiKey() {
-        return this.apiKey;
-    }
-
-    @Override
-    public String toString() {
-        return "CompanyNode{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", code='" + code + '\'' +
-            '}';
-    }
-
-    // Lower case, no spaces
-    public String getCode() {
-        return code;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof CompanyNode)) {
-            return false;
-        }
-
-        CompanyNode that = (CompanyNode) o;
-
-        if (apiKey != null ? !apiKey.equals(that.apiKey) : that.apiKey != null) {
-            return false;
-        }
-        return !(id != null ? !id.equals(that.id) : that.id != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (apiKey != null ? apiKey.hashCode() : 0);
-        return result;
-    }
+  @Override
+  public int hashCode() {
+    int result = id != null ? id.hashCode() : 0;
+    result = 31 * result + (apiKey != null ? apiKey.hashCode() : 0);
+    return result;
+  }
 
 
 }

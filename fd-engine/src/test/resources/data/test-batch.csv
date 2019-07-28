@@ -1,2 +1,2 @@
-id,zip,state,city,country,name
-1,123,CA,San Francisco,United States,Michael Hardcastle
+id,zip,state,city         ,country      ,name
+1 ,123,CA   ,San Francisco,United States,Michael Hardcastle

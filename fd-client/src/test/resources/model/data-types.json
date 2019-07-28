@@ -26,23 +26,22 @@
     "num": {
       "dataType": "number"
     },
-    "entityTitle":{
-      "title":true,
+    "entityTitle": {
+      "title": true,
       "value": "['as-string'] +'-test'"
     },
     "whenCreated": {
-      "createDate": true ,
+      "createDate": true,
       "dataType": "date",
       "dateFormat": "timestamp"
-    } ,
-
+    },
     "lastChange1": {
-      "updateDate": true ,
+      "updateDate": true,
       "dataType": "date",
       "dateFormat": "timestamp"
     },
     "lastChange2": {
-      "updateDate": true ,
+      "updateDate": true,
       "dataType": "date",
       "dateFormat": "timestamp"
     },
@@ -54,7 +53,5 @@
       "dataType": "date",
       "dateFormat": "timestamp"
     }
-
-
   }
 }

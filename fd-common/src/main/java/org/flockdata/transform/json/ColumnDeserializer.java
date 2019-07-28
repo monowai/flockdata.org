@@ -37,19 +37,19 @@ import org.flockdata.transform.ColumnDefinition;
  */
 public class ColumnDeserializer extends JsonDeserializer<ArrayList<ColumnDefinition>> {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper(new FdJsonObjectMapper())
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .enable(JsonParser.Feature.ALLOW_COMMENTS);
+  private static final ObjectMapper objectMapper = new ObjectMapper(new FdJsonObjectMapper())
+      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+      .enable(JsonParser.Feature.ALLOW_COMMENTS);
 
-    @Override
-    public ArrayList<ColumnDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        ArrayList<ColumnDefinition> values = new ArrayList<>();
-        JsonNode node = jp.getCodec().readTree(jp);
+  @Override
+  public ArrayList<ColumnDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    ArrayList<ColumnDefinition> values = new ArrayList<>();
+    JsonNode node = jp.getCodec().readTree(jp);
 
-        for (JsonNode jsonNode : node) {
-            values.add(objectMapper.readValue(jsonNode.toString(), ColumnDefinition.class));
+    for (JsonNode jsonNode : node) {
+      values.add(objectMapper.readValue(jsonNode.toString(), ColumnDefinition.class));
 
-        }
-        return values;
     }
+    return values;
+  }
 }

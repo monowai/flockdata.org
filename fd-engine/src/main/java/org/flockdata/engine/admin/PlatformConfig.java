@@ -30,46 +30,46 @@ import org.flockdata.store.Store;
  */
 public interface PlatformConfig {
 
-    String getTagSuffix(Company company);
+  String getTagSuffix(Company company);
 
-    Map<String, Object> getHealth();
+  Map<String, Object> getHealth();
 
-    Map<String, Object> getHealthAuth();
+  Map<String, Object> getHealthAuth();
 
-    boolean isMultiTenanted();
+  boolean isMultiTenanted();
 
-    void setMultiTenanted(boolean multiTenanted);
+  void setMultiTenanted(boolean multiTenanted);
 
-    Store setStore(Store kvStore);
+  Store setStore(Store kvStore);
 
-    /**
-     * @return configured default KV Store mechanism.
-     */
-    Store store();
+  /**
+   * @return configured default KV Store mechanism.
+   */
+  Store store();
 
-    boolean isConceptsEnabled();
+  boolean isConceptsEnabled();
 
-    Boolean setConceptsEnabled(boolean conceptsEnabled);
+  Boolean setConceptsEnabled(boolean conceptsEnabled);
 
-    boolean isTestMode();
+  boolean isTestMode();
 
-    void setTestMode(boolean testMode);
+  void setTestMode(boolean testMode);
 
-    String authPing();
+  String authPing();
 
-    Boolean storeEnabled();
+  Boolean storeEnabled();
 
-    Boolean isSearchEnabled();
+  Boolean isSearchEnabled();
 
-    void setSearchEnabled(String enabled);
+  void setSearchEnabled(String enabled);
 
-    void setStoreEnabled(boolean enabled);
+  void setStoreEnabled(boolean enabled);
 
-    Boolean isSearchRequiredToConfirm();
+  Boolean isSearchRequiredToConfirm();
 
-    String getFdSearch();
+  String getFdSearch();
 
-    String getFdStore();
+  String getFdStore();
 
-    PlatformConfig setSearchRequiredToConfirm(boolean b);
+  PlatformConfig setSearchRequiredToConfirm(boolean b);
 }

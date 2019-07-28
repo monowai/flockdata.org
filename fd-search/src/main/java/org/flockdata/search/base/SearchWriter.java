@@ -30,7 +30,7 @@ import org.flockdata.search.SearchResults;
  */
 public interface SearchWriter {
 
-    SearchResults createSearchableChange(SearchChanges changes) throws IOException;
+  SearchResults createSearchableChange(SearchChanges changes) throws IOException;
 
 
 }

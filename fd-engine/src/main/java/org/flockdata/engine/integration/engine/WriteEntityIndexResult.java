@@ -55,57 +55,57 @@ import org.springframework.stereotype.Service;
 @Profile( {"fd-server"})
 public class WriteEntityIndexResult {
 
-    private static final com.fasterxml.jackson.databind.ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
-    private final SearchHandler searchHandler;
-    private final Exchanges exchanges;
-    private ObjectToJsonTransformer transformer;
+  private static final com.fasterxml.jackson.databind.ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
+  private final SearchHandler searchHandler;
+  private final Exchanges exchanges;
+  private ObjectToJsonTransformer transformer;
 
-    @Autowired
-    public WriteEntityIndexResult(SearchHandler searchHandler, Exchanges exchanges) {
-        this.searchHandler = searchHandler;
-        this.exchanges = exchanges;
-    }
+  @Autowired
+  public WriteEntityIndexResult(SearchHandler searchHandler, Exchanges exchanges) {
+    this.searchHandler = searchHandler;
+    this.exchanges = exchanges;
+  }
 
-    @PostConstruct
-    public void createTransformer() {
-        transformer = new ObjectToJsonTransformer(
-            new Jackson2JsonObjectMapper(JsonUtils.getMapper())
-        );
-        transformer.setContentType(MediaType.APPLICATION_JSON_UTF8.getType());
-    }
+  @PostConstruct
+  public void createTransformer() {
+    transformer = new ObjectToJsonTransformer(
+        new Jackson2JsonObjectMapper(JsonUtils.getMapper())
+    );
+    transformer.setContentType(MediaType.APPLICATION_JSON_UTF8.getType());
+  }
 
-    public ObjectToJsonTransformer getTransformer() {
-        return transformer;
-    }
+  public ObjectToJsonTransformer getTransformer() {
+    return transformer;
+  }
 
-    @Bean
-    MessageChannel indexEntityResult() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel indexEntityResult() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    public IntegrationFlow writeEntityIndexResultFlow(ConnectionFactory connectionFactory) {
-        return IntegrationFlows.from(
-            Amqp.inboundAdapter(connectionFactory, exchanges.fdEngineQueue())
-                .outputChannel(indexEntityResult())
-                .maxConcurrentConsumers(exchanges.engineConcurrentConsumers())
-                .prefetchCount(exchanges.enginePreFetchCount())
+  @Bean
+  public IntegrationFlow writeEntityIndexResultFlow(ConnectionFactory connectionFactory) {
+    return IntegrationFlows.from(
+        Amqp.inboundAdapter(connectionFactory, exchanges.fdEngineQueue())
+            .outputChannel(indexEntityResult())
+            .maxConcurrentConsumers(exchanges.engineConcurrentConsumers())
+            .prefetchCount(exchanges.enginePreFetchCount())
 
-        )
-            .handle(handler())
-            .get();
-    }
+    )
+        .handle(handler())
+        .get();
+  }
 
-    @Bean
-    @ServiceActivator(inputChannel = "indexEntityResult")
-    public MessageHandler handler() {
-        return message -> {
-            try {
-                searchHandler.handleResults(objectMapper.readValue(message.getPayload().toString(), SearchResults.class));
-            } catch (IOException e) {
-                throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
-            }
-        };
-    }
+  @Bean
+  @ServiceActivator(inputChannel = "indexEntityResult")
+  public MessageHandler handler() {
+    return message -> {
+      try {
+        searchHandler.handleResults(objectMapper.readValue(message.getPayload().toString(), SearchResults.class));
+      } catch (IOException e) {
+        throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
+      }
+    };
+  }
 
 }

@@ -35,37 +35,37 @@ import org.junit.Test;
  * @since 27/01/2015
  */
 public class TestTagAliases extends AbstractImport {
-    @Test
-    public void string_csvTagAliases() throws Exception {
-        String paramFile = "/model/csv-tag-alias.json";
+  @Test
+  public void string_csvTagAliases() throws Exception {
+    String paramFile = "/model/csv-tag-alias.json";
 
-        ContentModel params = ContentModelDeserializer.getContentModel(paramFile);
-        fileProcessor.processFile(new ExtractProfileHandler(params), "/data/csv-tag-alias.txt");
+    ContentModel params = ContentModelDeserializer.getContentModel(paramFile);
+    fileProcessor.processFile(new ExtractProfileHandler(params), "/data/csv-tag-alias.txt");
 
-        Collection<TagInputBean> tagInputBeans = getTemplate().getTags();
-        assertEquals(3, tagInputBeans.size());
-        for (TagInputBean tagInputBean : tagInputBeans) {
-            switch (tagInputBean.getCode()) {
-                case "AL":
-                    assertTrue(tagInputBean.hasAliases());
-                    assertNotNull(tagInputBean.getNotFoundCode());
-                    assertEquals(1, tagInputBean.getAliases().size());
-                    assertEquals("1", tagInputBean.getAliases().iterator().next().getCode());
-                    assertEquals("USCensus", tagInputBean.getAliases().iterator().next().getDescription());
-                    break;
-                case "AK":
-                    assertTrue(tagInputBean.hasAliases());
-                    assertNotNull(tagInputBean.getNotFoundCode());
-                    assertEquals(1, tagInputBean.getAliases().size());
-                    assertEquals("2", tagInputBean.getAliases().iterator().next().getCode());
-                    assertEquals("USCensus", tagInputBean.getAliases().iterator().next().getDescription());
-                    break;
-                case "AB":
-                    assertFalse(tagInputBean.hasAliases());
-                    break;
-            }
-        }
+    Collection<TagInputBean> tagInputBeans = getTemplate().getTags();
+    assertEquals(3, tagInputBeans.size());
+    for (TagInputBean tagInputBean : tagInputBeans) {
+      switch (tagInputBean.getCode()) {
+        case "AL":
+          assertTrue(tagInputBean.hasAliases());
+          assertNotNull(tagInputBean.getNotFoundCode());
+          assertEquals(1, tagInputBean.getAliases().size());
+          assertEquals("1", tagInputBean.getAliases().iterator().next().getCode());
+          assertEquals("USCensus", tagInputBean.getAliases().iterator().next().getDescription());
+          break;
+        case "AK":
+          assertTrue(tagInputBean.hasAliases());
+          assertNotNull(tagInputBean.getNotFoundCode());
+          assertEquals(1, tagInputBean.getAliases().size());
+          assertEquals("2", tagInputBean.getAliases().iterator().next().getCode());
+          assertEquals("USCensus", tagInputBean.getAliases().iterator().next().getDescription());
+          break;
+        case "AB":
+          assertFalse(tagInputBean.hasAliases());
+          break;
+      }
     }
+  }
 
 
 }

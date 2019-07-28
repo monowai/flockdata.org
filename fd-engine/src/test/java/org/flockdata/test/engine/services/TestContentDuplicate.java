@@ -42,44 +42,44 @@ import org.slf4j.LoggerFactory;
  * @since 12/11/2014
  */
 public class TestContentDuplicate extends EngineBase {
-    private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
+  private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
-    @Test
-    public void reprocess_HistoricContentsNotCreated() throws Exception {
-        logger.debug("### reprocess_HistoricContentsNotCreated");
-        SystemUser su = registerSystemUser("reprocess_HistoricContentsNotCreated");
+  @Test
+  public void reprocess_HistoricContentsNotCreated() throws Exception {
+    logger.debug("### reprocess_HistoricContentsNotCreated");
+    SystemUser su = registerSystemUser("reprocess_HistoricContentsNotCreated");
 
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("reprocess_HistoricContentsNotCreated", true));
-        EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "TestDoc", DateTime.now(), "123");
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("reprocess_HistoricContentsNotCreated", true));
+    EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "TestDoc", DateTime.now(), "123");
 
-        int max = 5;
-        List<ContentInputBean> contentBeans = new ArrayList<>();
-        for (int i = 0; i < max; i++) {
-            ContentInputBean contentBean = new ContentInputBean("poppy", DateTime.now(), ContentDataHelper.getSimpleMap("name", "a" + i));
-            contentBeans.add(contentBean);
-            inputBean.setContent(contentBean);
-            mediationFacade.trackEntity(su.getCompany(), inputBean);
-        }
-        Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), "TestDoc", "123");
-        assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getKey()));
-
-        // Reprocess forward
-        for (ContentInputBean contentBean : contentBeans) {
-            inputBean.setContent(contentBean);
-            mediationFacade.trackEntity(su.getCompany(), inputBean);
-        }
-
-        assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getKey()));
-
-        // Try reversing out of order
-        Collections.reverse(contentBeans);
-        for (ContentInputBean contentBean : contentBeans) {
-            inputBean.setContent(contentBean);
-            mediationFacade.trackEntity(su.getCompany(), inputBean);
-        }
-
-        assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getKey()));
-
-
+    int max = 5;
+    List<ContentInputBean> contentBeans = new ArrayList<>();
+    for (int i = 0; i < max; i++) {
+      ContentInputBean contentBean = new ContentInputBean("poppy", DateTime.now(), ContentDataHelper.getSimpleMap("name", "a" + i));
+      contentBeans.add(contentBean);
+      inputBean.setContent(contentBean);
+      mediationFacade.trackEntity(su.getCompany(), inputBean);
     }
+    Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), "TestDoc", "123");
+    assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getKey()));
+
+    // Reprocess forward
+    for (ContentInputBean contentBean : contentBeans) {
+      inputBean.setContent(contentBean);
+      mediationFacade.trackEntity(su.getCompany(), inputBean);
+    }
+
+    assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getKey()));
+
+    // Try reversing out of order
+    Collections.reverse(contentBeans);
+    for (ContentInputBean contentBean : contentBeans) {
+      inputBean.setContent(contentBean);
+      mediationFacade.trackEntity(su.getCompany(), inputBean);
+    }
+
+    assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getKey()));
+
+
+  }
 }

@@ -35,19 +35,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.search.system.api:api}/v1/admin")
 @RestController
 public class AdminEP {
-    @Autowired
-    SearchAdmin searchAdmin;
+  @Autowired
+  SearchAdmin searchAdmin;
 
-    @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = "text/plain")
-    String ping() throws Exception {
-        // curl -X GET http://localhost:8081/api/v1/admin/ping
-        return "pong";
-    }
+  @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = "text/plain")
+  String ping() throws Exception {
+    // curl -X GET http://localhost:8081/api/v1/admin/ping
+    return "pong";
+  }
 
-    @RequestMapping(value = "/health", produces = "application/json", method = RequestMethod.GET)
-    public Map<String, Object> getHealth() throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8081/api/v1/admin/health
-        return searchAdmin.getHealth();
-    }
+  @RequestMapping(value = "/health", produces = "application/json", method = RequestMethod.GET)
+  public Map<String, Object> getHealth() throws Exception {
+    // curl -u mike:123 -X GET http://localhost:8081/api/v1/admin/health
+    return searchAdmin.getHealth();
+  }
 
 }

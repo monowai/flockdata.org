@@ -25,20 +25,20 @@ import org.flockdata.track.bean.ContentInputBean;
  */
 class EntityResultBean {
 
-    private ContentInputBean contentInputBean;
+  private ContentInputBean contentInputBean;
 
-    EntityResultBean(ContentInputBean contentInputBean) {
-        this.contentInputBean = contentInputBean;
-    }
+  EntityResultBean(ContentInputBean contentInputBean) {
+    this.contentInputBean = contentInputBean;
+  }
 
-    String getKey() {
-        if (contentInputBean != null) {
-            return contentInputBean.getKey();
-        }
-        return null;
+  String getKey() {
+    if (contentInputBean != null) {
+      return contentInputBean.getKey();
     }
+    return null;
+  }
 
-    Object getResult() {
-        return contentInputBean;
-    }
+  Object getResult() {
+    return contentInputBean;
+  }
 }

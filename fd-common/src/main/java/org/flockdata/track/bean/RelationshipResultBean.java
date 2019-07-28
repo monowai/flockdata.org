@@ -30,46 +30,46 @@ package org.flockdata.track.bean;
  */
 public class RelationshipResultBean {
 
-    private String name;
+  private String name;
 
-    RelationshipResultBean() {
+  RelationshipResultBean() {
+  }
+
+  public RelationshipResultBean(String relationship) {
+    this();
+    this.name = relationship;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+
+  @Override
+  public String toString() {
+    return "RelationshipResultBean{" +
+        ", name='" + name + '\'' +
+        '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof RelationshipResultBean)) {
+      return false;
     }
 
-    public RelationshipResultBean(String relationship) {
-        this();
-        this.name = relationship;
-    }
+    RelationshipResultBean that = (RelationshipResultBean) o;
 
-    public String getName() {
-        return name;
-    }
+    return name.equals(that.name);
 
+  }
 
-    @Override
-    public String toString() {
-        return "RelationshipResultBean{" +
-            ", name='" + name + '\'' +
-            '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof RelationshipResultBean)) {
-            return false;
-        }
-
-        RelationshipResultBean that = (RelationshipResultBean) o;
-
-        return name.equals(that.name);
-
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
-    }
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
 }
 

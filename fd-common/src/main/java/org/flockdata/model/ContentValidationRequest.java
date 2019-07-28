@@ -34,57 +34,57 @@ import org.flockdata.data.ContentModel;
  */
 public class ContentValidationRequest {
 
-    ContentModel contentModel;
-    Collection<Map<String, Object>> rows;
-    Map<Integer, Collection<String>> messages = new HashMap<>();
+  ContentModel contentModel;
+  Collection<Map<String, Object>> rows;
+  Map<Integer, Collection<String>> messages = new HashMap<>();
 
-    public ContentValidationRequest() {
+  public ContentValidationRequest() {
+  }
+
+  public ContentValidationRequest(ContentModel model) {
+    this();
+    this.contentModel = model;
+  }
+
+  public ContentValidationRequest(Map<String, Object> dataMap) {
+    Collection<Map<String, Object>> rows = new ArrayList<>();
+    rows.add(dataMap);
+    this.rows = rows;
+  }
+
+  public ContentValidationRequest(ContentModel contentModel, Collection<Map<String, Object>> data) {
+    this(contentModel);
+    this.rows = data;
+  }
+
+  public ContentValidationRequest(Collection<Map<String, Object>> rows) {
+    this.rows = rows;
+  }
+
+  public ContentModel getContentModel() {
+    return contentModel;
+  }
+
+  public ContentValidationRequest setContentModel(ContentModel contentModel) {
+    this.contentModel = contentModel;
+    return this;
+  }
+
+  public Collection<Map<String, Object>> getRows() {
+    return rows;
+  }
+
+  public Map<Integer, Collection<String>> getMessages() {
+    return messages;
+  }
+
+  public void addResult(int rowCount, String message) {
+
+    Collection<String> existingMessages = messages.get(rowCount);
+    if (existingMessages == null) {
+      existingMessages = new ArrayList<>();
+      messages.put(rowCount, existingMessages);
     }
-
-    public ContentValidationRequest(ContentModel model) {
-        this();
-        this.contentModel = model;
-    }
-
-    public ContentValidationRequest(Map<String, Object> dataMap) {
-        Collection<Map<String, Object>> rows = new ArrayList<>();
-        rows.add(dataMap);
-        this.rows = rows;
-    }
-
-    public ContentValidationRequest(ContentModel contentModel, Collection<Map<String, Object>> data) {
-        this(contentModel);
-        this.rows = data;
-    }
-
-    public ContentValidationRequest(Collection<Map<String, Object>> rows) {
-        this.rows = rows;
-    }
-
-    public ContentModel getContentModel() {
-        return contentModel;
-    }
-
-    public ContentValidationRequest setContentModel(ContentModel contentModel) {
-        this.contentModel = contentModel;
-        return this;
-    }
-
-    public Collection<Map<String, Object>> getRows() {
-        return rows;
-    }
-
-    public Map<Integer, Collection<String>> getMessages() {
-        return messages;
-    }
-
-    public void addResult(int rowCount, String message) {
-
-        Collection<String> existingMessages = messages.get(rowCount);
-        if (existingMessages == null) {
-            existingMessages = new ArrayList<>();
-            messages.put(rowCount, existingMessages);
-        }
-        existingMessages.add(message);
-    }
+    existingMessages.add(message);
+  }
 }

@@ -25,11 +25,11 @@ package org.flockdata.helper;
  * @since 27/09/2013
  */
 public class FlockException extends Exception {
-    public FlockException(String message) {
-        super(message);
-    }
+  public FlockException(String message) {
+    super(message);
+  }
 
-    public FlockException(String message, Throwable t) {
-        super(message, t);
-    }
+  public FlockException(String message, Throwable t) {
+    super(message, t);
+  }
 }

@@ -57,56 +57,56 @@ import org.springframework.messaging.MessageChannel;
 @Profile("fd-server")
 public class DeleteIndex {
 
-    @Autowired
-    private AmqpRabbitConfig rabbitConfig;
+  @Autowired
+  private AmqpRabbitConfig rabbitConfig;
 
-    @Autowired
-    private Exchanges exchanges;
+  @Autowired
+  private Exchanges exchanges;
 
-    @Autowired
-    private MessageSupport messageSupport;
+  @Autowired
+  private MessageSupport messageSupport;
 
-    @Transformer(inputChannel = "startIndexDelete", outputChannel = "adminHeadersChannel")
-    public Message<?> deleteSearchIndex(Message message) {
-        return messageSupport.toJson(message);
-    }
+  @Transformer(inputChannel = "startIndexDelete", outputChannel = "adminHeadersChannel")
+  public Message<?> deleteSearchIndex(Message message) {
+    return messageSupport.toJson(message);
+  }
 
-    @Bean
-    @Transformer(inputChannel = "adminHeadersChannel", outputChannel = "writeAdminChanges")
-    public HeaderEnricher enrichHeaders() {
-        Map<String, ? extends HeaderValueMessageProcessor<?>> headersToAdd =
-            Collections.singletonMap(ClientConfiguration.KEY_MSG_TYPE,
-                new StaticHeaderValueMessageProcessor<>("admin"));
-        return new HeaderEnricher(headersToAdd);
-    }
+  @Bean
+  @Transformer(inputChannel = "adminHeadersChannel", outputChannel = "writeAdminChanges")
+  public HeaderEnricher enrichHeaders() {
+    Map<String, ? extends HeaderValueMessageProcessor<?>> headersToAdd =
+        Collections.singletonMap(ClientConfiguration.KEY_MSG_TYPE,
+            new StaticHeaderValueMessageProcessor<>("admin"));
+    return new HeaderEnricher(headersToAdd);
+  }
 
-    @Bean
-    MessageChannel startIndexDelete() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel startIndexDelete() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    @ServiceActivator(inputChannel = "writeAdminChanges")
-    public AmqpOutboundEndpoint fdWriteAdminChanges(AmqpTemplate amqpTemplate) {
-        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
-        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setRoutingKey(exchanges.searchBinding());
-        outbound.setExchangeName(exchanges.fdExchangeName());
-        DefaultAmqpHeaderMapper headerMapper = DefaultAmqpHeaderMapper.inboundMapper();
-        headerMapper.setRequestHeaderNames(ClientConfiguration.KEY_MSG_TYPE);
-        outbound.setHeaderMapper(headerMapper);
-        outbound.setExpectReply(false);
-        outbound.setConfirmAckChannel(new NullChannel());// NOOP
-        //outbound.setConfirmAckChannel();
-        return outbound;
+  @Bean
+  @ServiceActivator(inputChannel = "writeAdminChanges")
+  public AmqpOutboundEndpoint fdWriteAdminChanges(AmqpTemplate amqpTemplate) {
+    AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
+    outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
+    outbound.setRoutingKey(exchanges.searchBinding());
+    outbound.setExchangeName(exchanges.fdExchangeName());
+    DefaultAmqpHeaderMapper headerMapper = DefaultAmqpHeaderMapper.inboundMapper();
+    headerMapper.setRequestHeaderNames(ClientConfiguration.KEY_MSG_TYPE);
+    outbound.setHeaderMapper(headerMapper);
+    outbound.setExpectReply(false);
+    outbound.setConfirmAckChannel(new NullChannel());// NOOP
+    //outbound.setConfirmAckChannel();
+    return outbound;
 
-    }
+  }
 
 
-    @MessagingGateway
-    public interface DeleteIndexGateway {
-        @Gateway(requestChannel = "startIndexDelete", requestTimeout = 5000, replyChannel = "nullChannel")
+  @MessagingGateway
+  public interface DeleteIndexGateway {
+    @Gateway(requestChannel = "startIndexDelete", requestTimeout = 5000, replyChannel = "nullChannel")
 //        @Async("fd-search")
-        void deleteIndex(AdminRequest adminRequest);
-    }
+    void deleteIndex(AdminRequest adminRequest);
+  }
 }

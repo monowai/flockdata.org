@@ -50,26 +50,26 @@ import org.springframework.stereotype.Service;
 @Async("fd-engine")
 public class DocTypeRetryService {
 
-    private final ConceptService conceptService;
+  private final ConceptService conceptService;
 
-    @Autowired
-    public DocTypeRetryService(ConceptService conceptService) {
-        this.conceptService = conceptService;
-    }
+  @Autowired
+  public DocTypeRetryService(ConceptService conceptService) {
+    this.conceptService = conceptService;
+  }
 
-    /**
-     * Creates document types for the input beans if they do not exist
-     * Handles linked entities which may be part of the EntityInputBean.
-     * Ensures the segment also exists for the linked Entities
-     *
-     * @param segment    all InputBeans are deemed to belong to this segment
-     * @param inputBeans collection of Entities from which to find DocumentTypes and linked Entities
-     * @return Collection of DocumentType objects that were created
-     * @throws FlockException business exception
-     */
-    @Retryable(include = {TransactionFailureException.class, HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public Future<Collection<DocumentNode>> createDocTypes(Segment segment, List<EntityInputBean> inputBeans) throws FlockException {
+  /**
+   * Creates document types for the input beans if they do not exist
+   * Handles linked entities which may be part of the EntityInputBean.
+   * Ensures the segment also exists for the linked Entities
+   *
+   * @param segment    all InputBeans are deemed to belong to this segment
+   * @param inputBeans collection of Entities from which to find DocumentTypes and linked Entities
+   * @return Collection of DocumentType objects that were created
+   * @throws FlockException business exception
+   */
+  @Retryable(include = {TransactionFailureException.class, HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
+  public Future<Collection<DocumentNode>> createDocTypes(Segment segment, List<EntityInputBean> inputBeans) throws FlockException {
 
-        return new AsyncResult<>(conceptService.makeDocTypes(segment, inputBeans));
-    }
+    return new AsyncResult<>(conceptService.makeDocTypes(segment, inputBeans));
+  }
 }

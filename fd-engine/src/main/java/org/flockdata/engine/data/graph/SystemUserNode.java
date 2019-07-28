@@ -39,115 +39,117 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 @NodeEntity
 @TypeAlias(value = "SystemUser")
 public class SystemUserNode implements SystemUser {
-    @GraphId
-    private Long id;
+  @GraphId
+  private Long id;
 
-    private String name = null;
+  private String name = null;
 
-    //@Indexed
-    @Indexed(unique = true)
-    private String login;
+  //@Indexed
+  @Indexed(unique = true)
+  private String login;
 
-    //    @Indexed(unique = true)
-    private String email;
+  //    @Indexed(unique = true)
+  private String email;
 
-    @Indexed
-    private String apiKey;
+  @Indexed
+  private String apiKey;
 
-    //@Relationship( type = "ACCESSES", direction = Relationship.OUTGOING)
-    @Fetch
-    @RelatedTo(type = "ACCESSES", direction = Direction.OUTGOING)
-    private CompanyNode company;
-    private boolean active = true;
+  //@Relationship( type = "ACCESSES", direction = Relationship.OUTGOING)
+  @Fetch
+  @RelatedTo(type = "ACCESSES", direction = Direction.OUTGOING)
+  private CompanyNode company;
+  private boolean active = true;
 
-    protected SystemUserNode() {
+  protected SystemUserNode() {
+  }
+
+  public SystemUserNode(String name, String login, Company company, boolean admin) {
+    setName(name);
+    if (login == null) {
+      login = name;
     }
+    setLogin(login);
 
-    public SystemUserNode(String name, String login, Company company, boolean admin) {
-        setName(name);
-        if (login == null) {
-            login = name;
-        }
-        setLogin(login);
-
-        if (admin) {
-            setCompanyAccess(company);
-        }
-//        if ( company != null) // GUEST user does not belong to any company
-//            companyLogin = company.getId()+"."+login;
+    if (admin && company != null) {
+      setCompanyAccess(company);
     }
+  }
 
-    public SystemUserNode(RegistrationBean regBean) {
-        this.login = regBean.getLogin();
-        this.name = regBean.getName();
-        this.email = regBean.getEmail();
-
-        this.setCompanyAccess(regBean.getCompany());
-
+  public SystemUserNode(RegistrationBean regBean, Company company) {
+    this.login = regBean.getLogin();
+    this.name = regBean.getName();
+    this.email = regBean.getEmail();
+    if (company != null) {
+      this.setCompanyAccess(company);
     }
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    SystemUserNode setName(String name) {
-        this.name = name;
-        return this;
-    }
+  SystemUserNode setName(String name) {
+    this.name = name;
+    return this;
+  }
 
-    @Override
-    public String getLogin() {
-        return login;
-    }
+  @Override
+  public String getLogin() {
+    return login;
+  }
 
-    public SystemUserNode setLogin(String login) {
-        this.login = login.toLowerCase();
-        return this;
+  public SystemUserNode setLogin(String login) {
+    this.login = login.toLowerCase();
+    return this;
 
-    }
+  }
 
-    @Override
-    public String getApiKey() {
-        return apiKey;
-    }
+  @Override
+  public String getApiKey() {
+    return apiKey;
+  }
 
-    public SystemUserNode setApiKey(String openUID) {
-        this.apiKey = openUID;
-        return this;
-    }
+  public SystemUserNode setApiKey(String openUID) {
+    this.apiKey = openUID;
+    return this;
+  }
 
-    @Override
-    public Company getCompany() {
-        return company;
-    }
+  @Override
+  public Company getCompany() {
+    return company;
+  }
 
-    @Override
-    public String getEmail() {
-        return email;
-    }
+  @Override
+  public String getEmail() {
+    return email;
+  }
 
-    @Override
-    public Long getId() {
-        return id;
+  @Override
+  public Long getId() {
+    return id;
 
-    }
+  }
 
-    private void setCompanyAccess(Company company) {
-        this.company = (CompanyNode) company;
-    }
+  public void setCompanyAccess(Company company) {
+    this.company = CompanyNode.builder()
+        .code(company.getCode())
+        .name(company.getName())
+        .apiKey(company.getApiKey())
+        .build();
+  }
 
-    @Override
-    public String toString() {
-        return "SystemUser{" +
-            "id=" + id +
-            ", login='" + login + '\'' +
-            ", company=" + company +
-            '}';
-    }
+  @Override
+  public String toString() {
+    return "SystemUser{" +
+        "id=" + id +
+        ", login='" + login + '\'' +
+        ", company=" + company +
+        '}';
+  }
 
-    @Override
-    public boolean isActive() {
-        return active;
-    }
+  @Override
+  public boolean isActive() {
+    return active;
+  }
 }

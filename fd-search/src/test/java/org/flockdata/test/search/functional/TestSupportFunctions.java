@@ -43,30 +43,30 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 public class TestSupportFunctions extends ESBase {
-    @Test
-    public void defaultTagQueryWorks() throws Exception {
-        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
+  @Test
+  public void defaultTagQueryWorks() throws Exception {
+    Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
-        String fortress = "fortress";
-        String company = "company";
-        String doc = "doc";
-        String user = "mike";
+    String fortress = "fortress";
+    String company = "company";
+    String doc = "doc";
+    String user = "mike";
 
-        Entity entity = getEntity(company, fortress, user, doc);
+    Entity entity = getEntity(company, fortress, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
-        change.setDescription("Test Description");
-        change.setData(json);
-        ArrayList<EntityTag> tags = new ArrayList<>();
+    EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
+    change.setDescription("Test Description");
+    change.setData(json);
+    ArrayList<EntityTag> tags = new ArrayList<>();
 
-        TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname").setCode("my TAG");
-        tags.add(MockDataFactory.getEntityTag(entity, tagInput, "mytag"));
-        change.setStructuredTags(tags);
+    TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname").setCode("my TAG");
+    tags.add(MockDataFactory.getEntityTag(entity, tagInput, "mytag"));
+    change.setStructuredTags(tags);
 
-        SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
-        Thread.sleep(1000);
-        assertNotNull(searchResults);
-        queryServiceEs.getTags(entity.getFortress().getRootIndex());
+    SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
+    Thread.sleep(1000);
+    assertNotNull(searchResults);
+    queryServiceEs.getTags(entity.getFortress().getRootIndex());
 
-    }
+  }
 }

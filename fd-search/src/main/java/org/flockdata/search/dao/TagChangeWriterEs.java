@@ -53,138 +53,138 @@ import org.springframework.stereotype.Service;
 @Service
 public class TagChangeWriterEs implements TagChangeWriter {
 
-    private final SearchConfig searchConfig;
-    private final IndexManager indexManager;
-    private Logger logger = LoggerFactory.getLogger(TagChangeWriterEs.class);
+  private final SearchConfig searchConfig;
+  private final IndexManager indexManager;
+  private Logger logger = LoggerFactory.getLogger(TagChangeWriterEs.class);
 
-    @Autowired
-    public TagChangeWriterEs(SearchConfig searchConfig) {
-        this.indexManager = searchConfig.getIndexManager();
-        this.searchConfig = searchConfig;
+  @Autowired
+  public TagChangeWriterEs(SearchConfig searchConfig) {
+    this.indexManager = searchConfig.getIndexManager();
+    this.searchConfig = searchConfig;
+  }
+
+  @Override
+  public TagSearchChange handle(TagSearchChange searchChange) {
+
+    String source = getJsonToIndex(searchChange);
+
+    if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
+      searchChange.setSearchKey((searchChange.getCode() == null ? searchChange.getKey() : searchChange.getCode()));
+      logger.debug("No search key, creating as a new document [{}]", searchChange.getKey());
+      return save(searchChange, source);
     }
 
-    @Override
-    public TagSearchChange handle(TagSearchChange searchChange) {
+    try {
+      logger.debug("Update request for searchKey [{}], key[{}]", searchChange.getSearchKey(), searchChange.getKey());
 
-        String source = getJsonToIndex(searchChange);
+      GetRequestBuilder request =
+          searchConfig.getClient().prepareGet(searchChange.getIndexName(),
+              indexManager.parseType(searchChange.getDocumentType()),
+              searchChange.getSearchKey());
 
-        if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
-            searchChange.setSearchKey((searchChange.getCode() == null ? searchChange.getKey() : searchChange.getCode()));
-            logger.debug("No search key, creating as a new document [{}]", searchChange.getKey());
-            return save(searchChange, source);
-        }
+      GetResponse response = request.execute()
+          .actionGet();
 
-        try {
-            logger.debug("Update request for searchKey [{}], key[{}]", searchChange.getSearchKey(), searchChange.getKey());
+      if (response.isExists() && !response.isSourceEmpty()) {
+        logger.debug("Document exists!");
+        // Messages can be received out of sequence
+        // Check to ensure we don't accidentally overwrite a more current
+        // document with an older one. We assume the calling fortress understands
+        // what the most recent doc is.
+      } else {
+        // No response, to a search key we expect to exist. Create a new one
+        // Likely to be in response to rebuilding an ES index from Graph data.
+        logger.debug("About to create in response to an update request for {}", searchChange.toString());
+        return save(searchChange, source);
+      }
 
-            GetRequestBuilder request =
-                searchConfig.getClient().prepareGet(searchChange.getIndexName(),
-                    indexManager.parseType(searchChange.getDocumentType()),
-                    searchChange.getSearchKey());
+      // Update the existing document with the searchChange change
+      IndexRequestBuilder update = searchConfig.getClient()
+          .prepareIndex(searchChange.getIndexName(), indexManager.parseType(searchChange.getDocumentType()), searchChange.getSearchKey());
 
-            GetResponse response = request.execute()
-                .actionGet();
+      ListenableActionFuture<IndexResponse> ur = update.setSource(source).
+          execute();
 
-            if (response.isExists() && !response.isSourceEmpty()) {
-                logger.debug("Document exists!");
-                // Messages can be received out of sequence
-                // Check to ensure we don't accidentally overwrite a more current
-                // document with an older one. We assume the calling fortress understands
-                // what the most recent doc is.
-            } else {
-                // No response, to a search key we expect to exist. Create a new one
-                // Likely to be in response to rebuilding an ES index from Graph data.
-                logger.debug("About to create in response to an update request for {}", searchChange.toString());
-                return save(searchChange, source);
-            }
+      if (logger.isDebugEnabled()) {
+        IndexResponse indexResponse = ur.actionGet();
+        logger.debug("Updated [{}] logId=[{}] for [{}] to version [{}]", searchChange.getSearchKey(), searchChange.getLogId(), searchChange, indexResponse.getVersion());
+      }
+    } catch (NoShardAvailableActionException e) {
+      return save(searchChange, source);
+    }
+    return searchChange;
+  }
 
-            // Update the existing document with the searchChange change
-            IndexRequestBuilder update = searchConfig.getClient()
-                .prepareIndex(searchChange.getIndexName(), indexManager.parseType(searchChange.getDocumentType()), searchChange.getSearchKey());
+  private TagSearchChange save(TagSearchChange searchChange, String source) {
+    String indexName = searchChange.getIndexName();
+    String documentType = indexManager.parseType(searchChange.getDocumentType());
+    logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getKey(), searchChange.getSearchKey());
 
-            ListenableActionFuture<IndexResponse> ur = update.setSource(source).
-                execute();
+    // Rebuilding a document after a reindex - preserving the unique key.
+    IndexRequestBuilder irb =
+        searchConfig.getClient()
+            .prepareIndex(searchChange.getIndexName(), documentType)
+            .setSource(source);
 
-            if (logger.isDebugEnabled()) {
-                IndexResponse indexResponse = ur.actionGet();
-                logger.debug("Updated [{}] logId=[{}] for [{}] to version [{}]", searchChange.getSearchKey(), searchChange.getLogId(), searchChange, indexResponse.getVersion());
-            }
-        } catch (NoShardAvailableActionException e) {
-            return save(searchChange, source);
-        }
-        return searchChange;
+    irb.setId(searchChange.getSearchKey());
+    irb.setRouting(searchChange.getCode());
+
+    try {
+      irb.execute().actionGet();
+
+      return searchChange;
+    } catch (MapperParsingException e) {
+      logger.error("Parsing error {} - callerRef [{}], key [{}], [{}]", indexName, searchChange.getCode(), searchChange.getKey(), e.getMessage());
+      throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], key [" + searchChange.getKey() + "], " + e.getMessage(), e);
+    } catch (Exception e) {
+      logger.error("Writing to index {} produced an error [{}]", indexName, e.getMessage());
+      throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], key [" + searchChange.getKey() + "], " + e.getMessage(), e);
     }
 
-    private TagSearchChange save(TagSearchChange searchChange, String source) {
-        String indexName = searchChange.getIndexName();
-        String documentType = indexManager.parseType(searchChange.getDocumentType());
-        logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getKey(), searchChange.getSearchKey());
+  }
 
-        // Rebuilding a document after a reindex - preserving the unique key.
-        IndexRequestBuilder irb =
-            searchConfig.getClient()
-                .prepareIndex(searchChange.getIndexName(), documentType)
-                .setSource(source);
+  private String getJsonToIndex(TagSearchChange searchChange) {
+    ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
+    Map<String, Object> index = getMapFromChange(searchChange);
+    try {
+      return mapper.writeValueAsString(index);
+    } catch (JsonProcessingException e) {
 
-        irb.setId(searchChange.getSearchKey());
-        irb.setRouting(searchChange.getCode());
-
-        try {
-            irb.execute().actionGet();
-
-            return searchChange;
-        } catch (MapperParsingException e) {
-            logger.error("Parsing error {} - callerRef [{}], key [{}], [{}]", indexName, searchChange.getCode(), searchChange.getKey(), e.getMessage());
-            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], key [" + searchChange.getKey() + "], " + e.getMessage(), e);
-        } catch (Exception e) {
-            logger.error("Writing to index {} produced an error [{}]", indexName, e.getMessage());
-            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], key [" + searchChange.getKey() + "], " + e.getMessage(), e);
-        }
-
+      logger.error(e.getMessage());
     }
+    return null;
 
-    private String getJsonToIndex(TagSearchChange searchChange) {
-        ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
-        Map<String, Object> index = getMapFromChange(searchChange);
-        try {
-            return mapper.writeValueAsString(index);
-        } catch (JsonProcessingException e) {
+  }
 
-            logger.error(e.getMessage());
-        }
-        return null;
+  private Map<String, Object> getMapFromChange(TagSearchChange searchChange) {
 
-    }
-
-    private Map<String, Object> getMapFromChange(TagSearchChange searchChange) {
-
-        Map<String, Object> indexMe = new HashMap<>();
+    Map<String, Object> indexMe = new HashMap<>();
 //        indexMe.put(SearchSchema.DOC_TYPE, searchChange.getType());
-        indexMe.put(SearchSchema.CODE, searchChange.getCode());
-        indexMe.put(SearchSchema.KEY, searchChange.getKey());
-        if (searchChange.getName() != null) {
-            indexMe.put(SearchSchema.NAME, searchChange.getName());
-        }
-        if (searchChange.getDescription() != null) {
-            indexMe.put(SearchSchema.DESCRIPTION, searchChange.getDescription());
-        }
-
-        if (!searchChange.getProps().isEmpty()) {
-            indexMe.put(SearchSchema.PROPS, searchChange.getProps());
-        }
-
-        if (!searchChange.getAliases().isEmpty()) {
-            Map<String, String> alases = new HashMap<>();
-            for (AliasResultBean aliasResultBean : searchChange.getAliases()) {
-                alases.put(aliasResultBean.getDescription().toLowerCase(), aliasResultBean.getName());
-            }
-            indexMe.put("aka", alases);
-        }
-
-        return indexMe;
-
-
+    indexMe.put(SearchSchema.CODE, searchChange.getCode());
+    indexMe.put(SearchSchema.KEY, searchChange.getKey());
+    if (searchChange.getName() != null) {
+      indexMe.put(SearchSchema.NAME, searchChange.getName());
     }
+    if (searchChange.getDescription() != null) {
+      indexMe.put(SearchSchema.DESCRIPTION, searchChange.getDescription());
+    }
+
+    if (!searchChange.getProps().isEmpty()) {
+      indexMe.put(SearchSchema.PROPS, searchChange.getProps());
+    }
+
+    if (!searchChange.getAliases().isEmpty()) {
+      Map<String, String> alases = new HashMap<>();
+      for (AliasResultBean aliasResultBean : searchChange.getAliases()) {
+        alases.put(aliasResultBean.getDescription().toLowerCase(), aliasResultBean.getName());
+      }
+      indexMe.put("aka", alases);
+    }
+
+    return indexMe;
+
+
+  }
 
 
 }

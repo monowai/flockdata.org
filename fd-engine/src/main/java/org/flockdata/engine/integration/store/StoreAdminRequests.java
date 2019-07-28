@@ -59,70 +59,70 @@ import org.springframework.messaging.MessageHandler;
 @Profile( {"fd-server"})
 public class StoreAdminRequests {
 
-    private final EngineConfig engineConfig;
+  private final EngineConfig engineConfig;
 
-    @Autowired
-    public StoreAdminRequests(EngineConfig engineConfig) {
-        this.engineConfig = engineConfig;
-    }
+  @Autowired
+  public StoreAdminRequests(EngineConfig engineConfig) {
+    this.engineConfig = engineConfig;
+  }
 
-    @Bean
-    MessageChannel storePing() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel storePing() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel storePingEngine() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel storePingEngine() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    IntegrationFlow storePingFlow() {
+  @Bean
+  IntegrationFlow storePingFlow() {
 
-        return IntegrationFlows.from(storePing())
-            .handle(pingRequest())
-            .get();
-    }
+    return IntegrationFlows.from(storePing())
+        .handle(pingRequest())
+        .get();
+  }
 
-    private MessageHandler pingRequest() {
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/admin/ping");
-        handler.setExpectedResponseType(String.class);
-        handler.setHttpMethod(HttpMethod.GET);
+  private MessageHandler pingRequest() {
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/admin/ping");
+    handler.setExpectedResponseType(String.class);
+    handler.setHttpMethod(HttpMethod.GET);
 
-        return handler;
-    }
+    return handler;
+  }
 
-    @Bean
-    IntegrationFlow storePingEngineFlow() {
+  @Bean
+  IntegrationFlow storePingEngineFlow() {
 
-        return IntegrationFlows.from(storePingEngine())
-            .handle(pingStoreEngineRequest())
-            .get();
-    }
+    return IntegrationFlows.from(storePingEngine())
+        .handle(pingStoreEngineRequest())
+        .get();
+  }
 
-    private MessageHandler pingStoreEngineRequest() {
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/admin/ping/{storeService}");
-        SpelExpressionParser expressionParser = new SpelExpressionParser();
-        Map<String, Expression> vars = new HashMap<>();
-        vars.put("storeService", expressionParser.parseExpression("payload"));
-        handler.setUriVariableExpressions(vars);
-        handler.setExpectedResponseType(String.class);
-        handler.setHttpMethod(HttpMethod.GET);
+  private MessageHandler pingStoreEngineRequest() {
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/admin/ping/{storeService}");
+    SpelExpressionParser expressionParser = new SpelExpressionParser();
+    Map<String, Expression> vars = new HashMap<>();
+    vars.put("storeService", expressionParser.parseExpression("payload"));
+    handler.setUriVariableExpressions(vars);
+    handler.setExpectedResponseType(String.class);
+    handler.setHttpMethod(HttpMethod.GET);
 
-        return handler;
-    }
+    return handler;
+  }
 
-    @MessagingGateway
-    public interface StorePingGateway {
-        @Gateway(requestChannel = "storePing", requestTimeout = 2000)
-        String ping();
+  @MessagingGateway
+  public interface StorePingGateway {
+    @Gateway(requestChannel = "storePing", requestTimeout = 2000)
+    String ping();
 
-        @Gateway(requestChannel = "storePingEngine", requestTimeout = 2000)
-        String ping(String storeEngine);
+    @Gateway(requestChannel = "storePingEngine", requestTimeout = 2000)
+    String ping(String storeEngine);
 
-    }
+  }
 
 
 }

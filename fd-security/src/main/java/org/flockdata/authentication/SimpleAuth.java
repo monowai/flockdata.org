@@ -46,68 +46,68 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Slf4j
 public class SimpleAuth extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    SimpleUsers simpleUsers;
+  @Autowired
+  private SimpleUsers simpleUsers;
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> ima = auth.inMemoryAuthentication();
-        if (simpleUsers == null || simpleUsers.getUsers() == null) {
-            log.info("**** [fd-auth-test] - attempting to use fd-auth-test but no users have been configured. Consider starting the service with -P fd-no-auth");
-            log.info("**** [fd-auth-test] - a default user of mike will be created");
-            simpleUsers.createDefault();
-        }
-        for (String login : simpleUsers.getUsers().keySet()) {
-            SimpleUsers.UserEntry user = simpleUsers.getUsers().get(login);
-            ima.withUser(login)
-                .password(user.getPass())
-                .roles(user.getRoles().toArray(new String[0]));
+  @Autowired
+  public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+    InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> ima = auth.inMemoryAuthentication();
+    if (simpleUsers == null || simpleUsers.getUsers() == null) {
+      log.info("**** [fd-auth-test] - attempting to use fd-auth-test but no users have been configured. Consider starting the service with -P fd-no-auth");
+      log.info("**** [fd-auth-test] - a default user of \"demo\" will be created");
+      simpleUsers.createDefault();
+    }
+    for (String login : simpleUsers.getUsers().keySet()) {
+      SimpleUsers.UserEntry user = simpleUsers.getUsers().get(login);
+      ima.withUser(login)
+          .password(user.getPass())
+          .roles(user.getRoles().toArray(new String[0]));
 
-            log.info("**** [fd-auth-test] - Added {}", login);
-        }
-
+      log.info("**** [fd-auth-test] - Added [{}]", login);
     }
 
-    @PostConstruct
-    void dumpConfig() {
-        log.info("**** [fd-auth-test] - Limited authorization (for testing) is being used");
+  }
+
+  @PostConstruct
+  void dumpConfig() {
+    log.info("**** [fd-auth-test] - Limited authorization (for testing) is being used");
+  }
+
+  @Configuration
+  @Order(10) // Preventing clash with AuthTesting deployment (100)
+  @Profile( {"fd-auth-test"}) //
+  public static class ApiSecurity extends WebSecurityConfigurerAdapter {
+
+    @Value("${org.fd.auth.simple.login.form:#{null}}")
+    String loginForm;
+
+    @Value("${org.fd.auth.simple.login.method:form}")
+    String loginMethod;
+
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+      // Security in FD take place at the service level so access to all endpoints is granted
+      // ApiKeyInterceptor is a part of the auth chain - see WebMvcConfig
+
+      http.authorizeRequests()
+          .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS
+          .antMatchers("/api/login", "/api/ping", "/api/logout", "/api/account").permitAll()
+          .antMatchers("/api/v1/**").authenticated()
+          .antMatchers("/").permitAll()
+      ;
+
+
+      //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side/
+      //https://github.com/aditzel/spring-security-csrf-token-interceptor
+      http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
+
+      if (loginMethod.equalsIgnoreCase("basic") || loginForm == null) {
+        http.httpBasic();
+      } else {
+        http.httpBasic();
+        http.formLogin().loginPage(loginForm).permitAll();
+      }
     }
-
-    @Configuration
-    @Order(10) // Preventing clash with AuthTesting deployment (100)
-    @Profile( {"fd-auth-test"}) //
-    public static class ApiSecurity extends WebSecurityConfigurerAdapter {
-
-        @Value("${org.fd.auth.simple.login.form:#{null}}")
-        String loginForm;
-
-        @Value("${org.fd.auth.simple.login.method:form}")
-        String loginMethod;
-
-        @Override
-        public void configure(HttpSecurity http) throws Exception {
-            // Security in FD take place at the service level so access to all endpoints is granted
-            // ApiKeyInterceptor is a part of the auth chain - see WebMvcConfig
-
-            http.authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS
-                .antMatchers("/api/login", "/api/ping", "/api/logout", "/api/account").permitAll()
-                .antMatchers("/api/v1/**").authenticated()
-                .antMatchers("/").permitAll()
-            ;
-
-
-            //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side/
-            //https://github.com/aditzel/spring-security-csrf-token-interceptor
-            http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
-
-            if (loginMethod.equalsIgnoreCase("basic") || loginForm == null) {
-                http.httpBasic();
-            } else {
-                http.httpBasic();
-                http.formLogin().loginPage(loginForm).permitAll();
-            }
-        }
-    }
+  }
 
 }

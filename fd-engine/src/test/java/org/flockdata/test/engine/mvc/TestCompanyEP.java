@@ -34,29 +34,29 @@ import org.junit.Test;
  */
 public class TestCompanyEP extends MvcBase {
 
-    @Test
-    public void companyLocators() throws Exception {
+  @Test
+  public void companyLocators() throws Exception {
 
-        Collection<CompanyNode> companies = findCompanies(mike());
-        assertEquals(1, companies.size());
-        CompanyNode listCompany = companies.iterator().next();
-        CompanyNode foundCompany = getCompany(listCompany.getName(), mike());
-        assertNotNull(foundCompany);
-        assertEquals(null, listCompany.getId(), foundCompany.getId());
-        boolean failed = findCompanyIllegal(foundCompany.getName(), noUser());
-        assertTrue("Illegal user parsed in. This should not have worked", failed);
-    }
+    Collection<CompanyNode> companies = findCompanies(mike());
+    assertEquals(1, companies.size());
+    CompanyNode listCompany = companies.iterator().next();
+    CompanyNode foundCompany = getCompany(listCompany.getName(), mike());
+    assertNotNull(foundCompany);
+    assertEquals(null, listCompany.getId(), foundCompany.getId());
+    boolean failed = findCompanyIllegal(foundCompany.getName(), noUser());
+    assertTrue("Illegal user parsed in. This should not have worked", failed);
+  }
 
-    @Test
-    public void locateCompanyByApiKey() throws Exception {
-        Collection<CompanyNode> companies = findCompanies(mike());
-        assertEquals(1, companies.size());
-        CompanyNode listCompany = companies.iterator().next();
-        CompanyNode foundCompany = getCompany(listCompany.getName(), mike());
-        assertEquals(null, listCompany.getId(), foundCompany.getId());
+  @Test
+  public void locateCompanyByApiKey() throws Exception {
+    Collection<CompanyNode> companies = findCompanies(mike());
+    assertEquals(1, companies.size());
+    CompanyNode listCompany = companies.iterator().next();
+    CompanyNode foundCompany = getCompany(listCompany.getName(), mike());
+    assertEquals(null, listCompany.getId(), foundCompany.getId());
 
-        // ToDo: We have no need to look up a company by name. For this we need a company to company relationship.
-        // Until that's in place there isn't much to test
+    // ToDo: We have no need to look up a company by name. For this we need a company to company relationship.
+    // Until that's in place there isn't much to test
 
 //        setSecurity(sally_admin);
 //        SystemUser suSally = registerSystemUser("coB123", sally_admin);
@@ -79,6 +79,6 @@ public class TestCompanyEP extends MvcBase {
 //        // Happy path
 //        assertNotNull ( findCompanyIllegal("coA123", suMike));
 
-    }
+  }
 
 }

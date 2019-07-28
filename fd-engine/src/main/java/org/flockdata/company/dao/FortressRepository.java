@@ -28,21 +28,21 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 
 public interface FortressRepository extends GraphRepository<FortressNode> {
 
-    @Query(value = " match (fortress:Fortress)<-[:BELONGS_TO]-(fortress@author FortressUser) where id(fortress)={0}"
-        + " and fortressUser.code ={1} return fortressUser")
-    FortressUserNode getFortressUser(Long fortressId, String userName);
+  @Query(value = " match (fortress:Fortress)<-[:BELONGS_TO]-(fortress@author FortressUser) where id(fortress)={0}"
+      + " and fortressUser.code ={1} return fortressUser")
+  FortressUserNode getFortressUser(Long fortressId, String userName);
 
-    @Query(elementClass = FortressNode.class, value = " match (company:FDCompany)-[:OWNS]->f where id(company) ={0} return f")
-    List<FortressNode> findCompanyFortresses(Long companyID);
+  @Query(elementClass = FortressNode.class, value = " match (company:FDCompany)-[:OWNS]->f where id(company) ={0} return f")
+  List<FortressNode> findCompanyFortresses(Long companyID);
 
-    @Query(value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
-        + "where id(company)={0} and fortress.name ={1} "
-        + "return fortress")
-    FortressNode getFortressByName(Long companyId, String fortressName);
+  @Query(value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
+      + "where id(company)={0} and fortress.name ={1} "
+      + "return fortress")
+  FortressNode getFortressByName(Long companyId, String fortressName);
 
-    @Query(value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
-        + "where  id(company)={0}  and fortress.code ={1} "
-        + "return fortress")
-    FortressNode getFortressByCode(Long companyId, String fortressCode);
+  @Query(value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
+      + "where  id(company)={0}  and fortress.code ={1} "
+      + "return fortress")
+  FortressNode getFortressByCode(Long companyId, String fortressCode);
 
 }

@@ -21,7 +21,7 @@ import org.springframework.security.core.Authentication;
 
 public interface UserProfileService {
 
-    UserProfile getUser(Authentication authentication);
+  UserProfile getUser(Authentication authentication);
 
-    String getProvider();
+  String getProvider();
 }

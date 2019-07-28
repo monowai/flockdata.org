@@ -50,49 +50,49 @@ import org.springframework.scheduling.annotation.Async;
 @Profile( {"fd-server"})
 public class StorageWriter {
 
-    @Autowired
-    private AmqpRabbitConfig rabbitConfig;
+  @Autowired
+  private AmqpRabbitConfig rabbitConfig;
 
-    @Autowired
-    private Exchanges exchanges;
+  @Autowired
+  private Exchanges exchanges;
 
-    @Autowired
-    private MessageSupport messageSupport;
+  @Autowired
+  private MessageSupport messageSupport;
 
-    @Bean
-    MessageChannel storeWrite() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel storeWrite() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel startStoreWrite() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel startStoreWrite() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    @ServiceActivator(inputChannel = "storeWrite")
-    public AmqpOutboundEndpoint writeToStore(AmqpTemplate amqpTemplate) {
-        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
-        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setRoutingKey(exchanges.storeBinding());
-        outbound.setExchangeName(exchanges.fdExchangeName());
-        outbound.setExpectReply(false);
-        outbound.setConfirmAckChannel(new NullChannel());// NOOP
-        //outbound.setConfirmAckChannel();
-        return outbound;
+  @Bean
+  @ServiceActivator(inputChannel = "storeWrite")
+  public AmqpOutboundEndpoint writeToStore(AmqpTemplate amqpTemplate) {
+    AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
+    outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
+    outbound.setRoutingKey(exchanges.storeBinding());
+    outbound.setExchangeName(exchanges.fdExchangeName());
+    outbound.setExpectReply(false);
+    outbound.setConfirmAckChannel(new NullChannel());// NOOP
+    //outbound.setConfirmAckChannel();
+    return outbound;
 
-    }
+  }
 
-    @Transformer(inputChannel = "startStoreWrite", outputChannel = "storeWrite")
-    public Message<?> transformMkPayload(Message message) {
-        return messageSupport.toJson(message);
-    }
+  @Transformer(inputChannel = "startStoreWrite", outputChannel = "storeWrite")
+  public Message<?> transformMkPayload(Message message) {
+    return messageSupport.toJson(message);
+  }
 
-    @MessagingGateway
-    public interface StorageWriterGateway {
-        @Gateway(requestChannel = "startStoreWrite", requestTimeout = 5000, replyChannel = "nullChannel")
-        @Async("fd-store")
-        void write(StorageBean resultBean);
-    }
+  @MessagingGateway
+  public interface StorageWriterGateway {
+    @Gateway(requestChannel = "startStoreWrite", requestTimeout = 5000, replyChannel = "nullChannel")
+    @Async("fd-store")
+    void write(StorageBean resultBean);
+  }
 
 }

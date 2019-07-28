@@ -1,69 +1,67 @@
 {
-    "mapping": {
+  "mapping": {
+    "properties": {
+      "key": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      },
+      "code": {
+        "type": "keyword",
+        "boost": "2.0",
+        "index": "not_analyzed"
+      },
+      "docType": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      },
+      "fortress": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      },
+      "lastEvent": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      },
+      "timestamp": {
+        "type": "date"
+      },
+      "whenCreated": {
+        "type": "date"
+      },
+      "data": {
         "properties": {
-            "key": {
-                "type": "keyword",
-                "index": "not_analyzed"
-            },
-            "code": {
-                "type": "keyword",
-                "boost": "2.0",
-                "index": "not_analyzed"
-            },
-            "docType": {
-                "type": "keyword",
-                "index": "not_analyzed"
-            },
-            "fortress": {
-                "type": "keyword",
-                "index": "not_analyzed"
-            },
-            "lastEvent": {
-                "type": "keyword",
-                "index": "not_analyzed"
-            },
-            "timestamp": {
-                "type": "date"
-            },
-            "whenCreated": {
-                "type": "date"
-            },
-            "data": {
-                "properties": {
-                    "Closing Ceremony Date": {
-                        "type": "date",
-                        "format": "MM/dd/yy"
-                    }
-                }
-            },
-            "description": {
-                "type": "text",
-                "analyzer": "ngram_long"
-            } ,
-            "when": {
-                "type": "date"
-            },
-            "who": {
-                "type": "keyword",
-                "index": "not_analyzed"
-            }
-        },
-
-        "dynamic_templates": [
-            {
-                "tag-template": {
-                    "path_match": "tag.*.code",
-                    "match_mapping_type": "text",
-                    "mapping": {
-                        "type": "keyword",
-                        "doc_values": true,
-                        "boost": 3.0,
-                        "index": "not_analyzed",
-                        "store": "true"
-                    }
-                }
-            }
-        ]
-
-    }
+          "Closing Ceremony Date": {
+            "type": "date",
+            "format": "MM/dd/yy"
+          }
+        }
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "ngram_long"
+      },
+      "when": {
+        "type": "date"
+      },
+      "who": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      }
+    },
+    "dynamic_templates": [
+      {
+        "tag-template": {
+          "path_match": "tag.*.code",
+          "match_mapping_type": "text",
+          "mapping": {
+            "type": "keyword",
+            "doc_values": true,
+            "boost": 3.0,
+            "index": "not_analyzed",
+            "store": "true"
+          }
+        }
+      }
+    ]
+  }
 }

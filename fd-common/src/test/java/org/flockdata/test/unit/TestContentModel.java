@@ -31,15 +31,15 @@ import org.junit.Test;
  */
 public class TestContentModel {
 
-    @Test
-    public void serializeEntityTagRelationship() throws Exception {
-        ContentModel model = ContentModelDeserializer.getContentModel("/model/entity-tag-relationship.json");
-        assertNotNull(model);
-        ColumnDefinition jurisdiction = model.getContent().get("jurisdiction_description");
-        assertNotNull(jurisdiction);
-        assertNotNull(jurisdiction.getEntityTagLinks());
-        assertEquals(1, jurisdiction.getEntityTagLinks().size());
-        assertTrue("Boolean did not set", model.isSearchSuppressed());
-        assertTrue("Boolean did not set", model.isTrackSuppressed());
-    }
+  @Test
+  public void serializeEntityTagRelationship() throws Exception {
+    ContentModel model = ContentModelDeserializer.getContentModel("/model/entity-tag-relationship.json");
+    assertNotNull(model);
+    ColumnDefinition jurisdiction = model.getContent().get("jurisdiction_description");
+    assertNotNull(jurisdiction);
+    assertNotNull(jurisdiction.getEntityTagLinks());
+    assertEquals(1, jurisdiction.getEntityTagLinks().size());
+    assertTrue("Boolean did not set", model.isSearchSuppressed());
+    assertTrue("Boolean did not set", model.isTrackSuppressed());
+  }
 }

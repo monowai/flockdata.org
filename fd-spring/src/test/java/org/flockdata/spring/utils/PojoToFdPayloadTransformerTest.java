@@ -27,66 +27,66 @@ import org.junit.Test;
 
 public class PojoToFdPayloadTransformerTest {
 
-    @Test
-    public void testTransformPojoPublicField() throws IllegalAccessException, IOException, FlockException {
-        Pojo1 pojo1 = new Pojo1();
-        pojo1.email = "email@email.com";
-        pojo1.id = 1L;
-        pojo1.name = "name";
-        EntityInputBean entityInputBean = PojoToFdTransformer.transformEntity(pojo1);
-        //Assert.assertEquals(metaInputBean.getKey(), "1");
-        Assert.assertEquals(entityInputBean.getDocumentType().getName(), "pojo1");
-        Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
-    }
+  @Test
+  public void testTransformPojoPublicField() throws IllegalAccessException, IOException, FlockException {
+    Pojo1 pojo1 = new Pojo1();
+    pojo1.email = "email@email.com";
+    pojo1.id = 1L;
+    pojo1.name = "name";
+    EntityInputBean entityInputBean = PojoToFdTransformer.transformEntity(pojo1);
+    //Assert.assertEquals(metaInputBean.getKey(), "1");
+    Assert.assertEquals(entityInputBean.getDocumentType().getName(), "pojo1");
+    Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
+  }
 
-    @Test
-    public void testTransformPojoPublicFieldWithCustomDocType() throws IllegalAccessException, IOException, FlockException {
-        Pojo2 pojo2 = new Pojo2();
-        pojo2.email = "email@email.com";
-        pojo2.id = 1L;
-        pojo2.name = "name";
-        EntityInputBean entityInputBean = PojoToFdTransformer.transformEntity(pojo2);
-        //Assert.assertEquals(metaInputBean.getKey(), "1");
-        Assert.assertEquals(entityInputBean.getDocumentType().getName(), "testDocType");
-        Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
-    }
+  @Test
+  public void testTransformPojoPublicFieldWithCustomDocType() throws IllegalAccessException, IOException, FlockException {
+    Pojo2 pojo2 = new Pojo2();
+    pojo2.email = "email@email.com";
+    pojo2.id = 1L;
+    pojo2.name = "name";
+    EntityInputBean entityInputBean = PojoToFdTransformer.transformEntity(pojo2);
+    //Assert.assertEquals(metaInputBean.getKey(), "1");
+    Assert.assertEquals(entityInputBean.getDocumentType().getName(), "testDocType");
+    Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
+  }
 
-    @Test
-    public void testTransformPojoPrivateField() throws IllegalAccessException, IOException, FlockException {
-        Pojo3 pojo3 = new Pojo3();
-        pojo3.email = "email@email.com";
-        pojo3.id = 1L;
-        pojo3.name = "name";
-        EntityInputBean entityInputBean = PojoToFdTransformer.transformEntity(pojo3);
-        //Assert.assertEquals(metaInputBean.getKey(), "1");
-        Assert.assertEquals(entityInputBean.getDocumentType().getName(), "pojo3");
-        Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
-    }
+  @Test
+  public void testTransformPojoPrivateField() throws IllegalAccessException, IOException, FlockException {
+    Pojo3 pojo3 = new Pojo3();
+    pojo3.email = "email@email.com";
+    pojo3.id = 1L;
+    pojo3.name = "name";
+    EntityInputBean entityInputBean = PojoToFdTransformer.transformEntity(pojo3);
+    //Assert.assertEquals(metaInputBean.getKey(), "1");
+    Assert.assertEquals(entityInputBean.getDocumentType().getName(), "pojo3");
+    Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
+  }
 
-    @Trackable
-    public static class Pojo1 {
-        @FdUid
-        public Long id;
-        public String name;
-        @FdCallerRef
-        public String email;
-    }
+  @Trackable
+  public static class Pojo1 {
+    @FdUid
+    public Long id;
+    public String name;
+    @FdCallerRef
+    public String email;
+  }
 
-    @Trackable(documentType = "testDocType")
-    public static class Pojo2 {
-        @FdUid
-        public Long id;
-        public String name;
-        @FdCallerRef
-        public String email;
-    }
+  @Trackable(documentType = "testDocType")
+  public static class Pojo2 {
+    @FdUid
+    public Long id;
+    public String name;
+    @FdCallerRef
+    public String email;
+  }
 
-    @Trackable
-    public static class Pojo3 {
-        @FdUid
-        private Long id;
-        private String name;
-        @FdCallerRef
-        private String email;
-    }
+  @Trackable
+  public static class Pojo3 {
+    @FdUid
+    private Long id;
+    private String name;
+    @FdCallerRef
+    private String email;
+  }
 }

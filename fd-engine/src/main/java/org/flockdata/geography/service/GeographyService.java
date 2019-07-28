@@ -35,15 +35,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class GeographyService {
-    private final TagService tagService;
+  private final TagService tagService;
 
-    @Autowired
-    public GeographyService(TagService tagService) {
-        this.tagService = tagService;
-    }
+  @Autowired
+  public GeographyService(TagService tagService) {
+    this.tagService = tagService;
+  }
 
-    public Collection<FdTagResultBean> findCountries(Company company) {
-        return tagService.findTagResults(company, "Country");
+  public Collection<FdTagResultBean> findCountries(Company company) {
+    return tagService.findTagResults(company, "Country");
 
-    }
+  }
 }

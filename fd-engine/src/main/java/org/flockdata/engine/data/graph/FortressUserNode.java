@@ -40,69 +40,69 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 @NodeEntity
 @TypeAlias("FortressUser")
 public class FortressUserNode implements FortressUser {
-    @GraphId
-    Long id;
+  @GraphId
+  Long id;
 
-    //@Relationship( type = "BELONGS_TO", direction = Relationship.OUTGOING)
-    @RelatedTo(type = "BELONGS_TO", direction = Direction.OUTGOING)
-    @Fetch
-    private FortressNode fortress;
+  //@Relationship( type = "BELONGS_TO", direction = Relationship.OUTGOING)
+  @RelatedTo(type = "BELONGS_TO", direction = Direction.OUTGOING)
+  @Fetch
+  private FortressNode fortress;
 
-    @Indexed(unique = true)
-    private String key = null;
+  @Indexed(unique = true)
+  private String key = null;
 
-    @Indexed
-    private String code = null;
+  @Indexed
+  private String code = null;
 
-    private String name;
+  private String name;
 
-    protected FortressUserNode() {
+  protected FortressUserNode() {
+  }
+
+  public FortressUserNode(Fortress fortress, String fortressUserName) {
+    this();
+    setCode(fortressUserName);
+    key = fortress.getId() + "." + getCode();
+    setFortress((FortressNode) fortress);
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public void setCode(String code) {
+    if (code != null) {
+      this.code = code.toLowerCase();
+      this.name = code;
     }
+  }
 
-    public FortressUserNode(Fortress fortress, String fortressUserName) {
-        this();
-        setCode(fortressUserName);
-        key = fortress.getId() + "." + getCode();
-        setFortress((FortressNode) fortress);
-    }
+  public FortressNode getFortress() {
+    return fortress;
+  }
 
-    public Long getId() {
-        return id;
-    }
+  public void setFortress(FortressNode fortress) {
+    this.fortress = fortress;
+  }
 
-    public String getCode() {
-        return code;
-    }
+  @Override
+  public String toString() {
+    return "FortressUser{" +
+        "id=" + id +
+        ", name='" + code + '\'' +
+        '}';
+  }
 
-    public void setCode(String code) {
-        if (code != null) {
-            this.code = code.toLowerCase();
-            this.name = code;
-        }
-    }
+  public String getName() {
+    return name;
+  }
 
-    public FortressNode getFortress() {
-        return fortress;
-    }
-
-    public void setFortress(FortressNode fortress) {
-        this.fortress = fortress;
-    }
-
-    @Override
-    public String toString() {
-        return "FortressUser{" +
-            "id=" + id +
-            ", name='" + code + '\'' +
-            '}';
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    @JsonIgnore
-    public String getKey() {
-        return key;
-    }
+  @JsonIgnore
+  public String getKey() {
+    return key;
+  }
 }

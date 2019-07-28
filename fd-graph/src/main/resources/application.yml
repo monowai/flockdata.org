@@ -23,3 +23,9 @@ spring:
     host: localhost
     port: 5672
     virtual-host: /
+
+logging:
+  level:
+    org.flockdata: info
+    org.flockdata.client: debug
+    org.springframework: error

@@ -57,41 +57,41 @@ import org.springframework.test.context.junit4.SpringRunner;
     MapBasedStorageProxy.class})
 @ActiveProfiles( {"dev", "fd-auth-test"})
 public class TestBatch extends EngineBase {
-    @Autowired
-    FileProcessor fileProcessor;
-    @Autowired
-    private ContentModelService contentModelService;
-    @Autowired
-    private BatchService batchService;
+  @Autowired
+  FileProcessor fileProcessor;
+  @Autowired
+  private ContentModelService contentModelService;
+  @Autowired
+  private BatchService batchService;
 
-    @Test
-    public void doBatchTest() throws Exception {
-        setSecurity();
-        SystemUser su = registerSystemUser("doBatchTest", "mike");
-        assertNotNull(su);
+  @Test
+  public void doBatchTest() throws Exception {
+    setSecurity();
+    SystemUser su = registerSystemUser("doBatchTest", "mike");
+    assertNotNull(su);
 
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));
-        Document docType = conceptService.resolveByDocCode(fortress, "test-batch");
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));
+    Document docType = conceptService.resolveByDocCode(fortress, "test-batch");
 
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-csv-batch.json");
 
-        contentModelService.saveEntityModel(su.getCompany(), fortress, docType, contentModel);
-        batchService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);
+    contentModelService.saveEntityModel(su.getCompany(), fortress, docType, contentModel);
+    batchService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);
 
-        assertNotNull(entityService.findByCode(fortress, docType, "1"));
+    assertNotNull(entityService.findByCode(fortress, docType, "1"));
 
+  }
+
+  @Test
+  public void import_ValidateArgs() throws Exception {
+    try {
+      FileProcessor.validateArgs("/illegalFile");
+      fail("Exception not thrown");
+    } catch (NotFoundException nfe) {
+      // Great
+      assertEquals(true, true);
     }
-
-    @Test
-    public void import_ValidateArgs() throws Exception {
-        try {
-            FileProcessor.validateArgs("/illegalFile");
-            fail("Exception not thrown");
-        } catch (NotFoundException nfe) {
-            // Great
-            assertEquals(true, true);
-        }
-    }
+  }
 
 
 }

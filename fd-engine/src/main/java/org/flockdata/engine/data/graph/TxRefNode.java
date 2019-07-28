@@ -41,80 +41,80 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 @TypeAlias("TxRef")
 public class TxRefNode implements TxRef {
 
-    @GraphId
-    private Long id;
+  @GraphId
+  private Long id;
 
-    //@Relationship( type = "TX", direction = Relationship.INCOMING)
-    @Fetch
-    @RelatedTo(type = "TX", direction = Direction.INCOMING)
-    private CompanyNode company;
+  //@Relationship( type = "TX", direction = Relationship.INCOMING)
+  @Fetch
+  @RelatedTo(type = "TX", direction = Direction.INCOMING)
+  private CompanyNode company;
 
-    @Indexed
-    private String name;
+  @Indexed
+  private String name;
 
-    private TxRef.TxStatus txStatus = TxRef.TxStatus.TX_CREATED;
+  private TxRef.TxStatus txStatus = TxRef.TxStatus.TX_CREATED;
 
-    private long txDate;
+  private long txDate;
 
-    protected TxRefNode() {
-    }
+  protected TxRefNode() {
+  }
 
-    public TxRefNode(String tagName, CompanyNode company) {
-        this.name = tagName;
-        this.company = company;
-        setStatus(TxStatus.TX_CREATED);
+  public TxRefNode(String tagName, CompanyNode company) {
+    this.name = tagName;
+    this.company = company;
+    setStatus(TxStatus.TX_CREATED);
 
-    }
+  }
 
-    @Override
-    public TxRef.TxStatus getTxStatus() {
-        return txStatus;
-    }
+  @Override
+  public TxRef.TxStatus getTxStatus() {
+    return txStatus;
+  }
 
-    @Override
-    public long getTxDate() {
-        return txDate;
-    }
+  @Override
+  public long getTxDate() {
+    return txDate;
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    @Override
-    @JsonIgnore
-    public Company getCompany() {
-        return company;
-    }
+  @Override
+  @JsonIgnore
+  public Company getCompany() {
+    return company;
+  }
 
-    @Override
-    @JsonIgnore
-    public Long getId() {
-        return id;
-    }
+  @Override
+  @JsonIgnore
+  public Long getId() {
+    return id;
+  }
 
-    public TxStatus commit() {
-        return setStatus(TxStatus.TX_COMMITTED);
-    }
+  public TxStatus commit() {
+    return setStatus(TxStatus.TX_COMMITTED);
+  }
 
-    public TxStatus rollback() {
-        return setStatus(TxStatus.TX_ROLLBACK);
-    }
+  public TxStatus rollback() {
+    return setStatus(TxStatus.TX_ROLLBACK);
+  }
 
-    private TxStatus setStatus(TxStatus txStatus) {
-        TxStatus previous = this.txStatus;
-        this.txStatus = txStatus;
-        this.txDate = DateTime.now(DateTimeZone.UTC).getMillis();
-        return previous;
-    }
+  private TxStatus setStatus(TxStatus txStatus) {
+    TxStatus previous = this.txStatus;
+    this.txStatus = txStatus;
+    this.txDate = DateTime.now(DateTimeZone.UTC).getMillis();
+    return previous;
+  }
 
-    @Override
-    public String toString() {
-        return "TxRefNode{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", txStatus=" + txStatus +
-            '}';
-    }
+  @Override
+  public String toString() {
+    return "TxRefNode{" +
+        "id=" + id +
+        ", name='" + name + '\'' +
+        ", txStatus=" + txStatus +
+        '}';
+  }
 
 }

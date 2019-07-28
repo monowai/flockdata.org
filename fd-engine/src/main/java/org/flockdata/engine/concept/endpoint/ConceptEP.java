@@ -47,61 +47,61 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/concept")
 public class ConceptEP {
 
-    private final ConceptService conceptService;
+  private final ConceptService conceptService;
 
-    @Autowired
-    public ConceptEP(ConceptService conceptService) {
-        this.conceptService = conceptService;
+  @Autowired
+  public ConceptEP(ConceptService conceptService) {
+    this.conceptService = conceptService;
+  }
+
+  @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+  public Set<DocumentResultBean> getConceptsAllDocs(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+
+    return conceptService.findConcepts(company, documents, false);
+  }
+
+
+  @RequestMapping(value = "/{fortress}", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
+  public Set<DocumentResultBean> getConceptsForFortress(HttpServletRequest request, @PathVariable("fortress") String fortress) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    Collection<String> fortresses = new ArrayList<>();
+    fortresses.add(fortress);
+    Collection<DocumentResultBean> docs = conceptService.getDocumentsInUse(company, fortresses);
+    Collection<String> documents = new ArrayList<>();
+
+    for (DocumentResultBean doc : docs) {
+      documents.add(doc.getName());
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public Set<DocumentResultBean> getConceptsAllDocs(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
+    return conceptService.findConcepts(company, documents, false);
+  }
 
-        return conceptService.findConcepts(company, documents, false);
+  @RequestMapping(value = "/{fortress}/structure", method = RequestMethod.GET)
+  public MatrixResults getConceptStructure
+      (@PathVariable("fortress") String fortress, HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return conceptService.getContentStructure(company, fortress);
+  }
+
+
+  @RequestMapping(value = "/relationships", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+  public Set<DocumentResultBean> getRelationships(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    // Todo: DAT-100 Sherry's comment. Should be Concepts, not Doc Types
+    return conceptService.findConcepts(company, documents, true);
+  }
+
+  @RequestMapping(value = "/{docType}/values", method = RequestMethod.GET)
+  public Collection<ConceptResultBean> getConceptsFOrDocument(HttpServletRequest request, @PathVariable("docType") String docType) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    Collection<String> docNames = new ArrayList<>();
+    docNames.add(docType);
+    Set<DocumentResultBean> results = conceptService.findConcepts(company, docNames, true);
+    for (DocumentResultBean result : results) {
+      return result.getConcepts();
     }
-
-
-    @RequestMapping(value = "/{fortress}", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
-    public Set<DocumentResultBean> getConceptsForFortress(HttpServletRequest request, @PathVariable("fortress") String fortress) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        Collection<String> fortresses = new ArrayList<>();
-        fortresses.add(fortress);
-        Collection<DocumentResultBean> docs = conceptService.getDocumentsInUse(company, fortresses);
-        Collection<String> documents = new ArrayList<>();
-
-        for (DocumentResultBean doc : docs) {
-            documents.add(doc.getName());
-        }
-
-        return conceptService.findConcepts(company, documents, false);
-    }
-
-    @RequestMapping(value = "/{fortress}/structure", method = RequestMethod.GET)
-    public MatrixResults getConceptStructure
-        (@PathVariable("fortress") String fortress, HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return conceptService.getContentStructure(company, fortress);
-    }
-
-
-    @RequestMapping(value = "/relationships", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public Set<DocumentResultBean> getRelationships(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        // Todo: DAT-100 Sherry's comment. Should be Concepts, not Doc Types
-        return conceptService.findConcepts(company, documents, true);
-    }
-
-    @RequestMapping(value = "/{docType}/values", method = RequestMethod.GET)
-    public Collection<ConceptResultBean> getConceptsFOrDocument(HttpServletRequest request, @PathVariable("docType") String docType) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        Collection<String> docNames = new ArrayList<>();
-        docNames.add(docType);
-        Set<DocumentResultBean> results = conceptService.findConcepts(company, docNames, true);
-        for (DocumentResultBean result : results) {
-            return result.getConcepts();
-        }
-        return new ArrayList<>();
-    }
+    return new ArrayList<>();
+  }
 
 }

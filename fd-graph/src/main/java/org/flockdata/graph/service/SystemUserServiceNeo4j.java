@@ -21,6 +21,7 @@
 package org.flockdata.graph.service;
 
 import org.flockdata.authentication.SystemUserService;
+import org.flockdata.data.Company;
 import org.flockdata.data.SystemUser;
 import org.flockdata.graph.dao.CompanyRepo;
 import org.flockdata.registration.RegistrationBean;
@@ -33,30 +34,30 @@ import org.springframework.stereotype.Service;
 @Service
 public class SystemUserServiceNeo4j implements SystemUserService {
 
-    private final CompanyRepo companyRepo;
+  private final CompanyRepo companyRepo;
 
-    @Autowired
-    public SystemUserServiceNeo4j(CompanyRepo companyRepo) {
-        this.companyRepo = companyRepo;
-    }
+  @Autowired
+  public SystemUserServiceNeo4j(CompanyRepo companyRepo) {
+    this.companyRepo = companyRepo;
+  }
 
-    public SystemUser findByLogin(String login) {
-        if (login == null) {
-            throw new IllegalArgumentException("Login name cannot be null");
-        }
-        return companyRepo.findSysUserByLogin(login);
+  public SystemUser findByLogin(String login) {
+    if (login == null) {
+      throw new IllegalArgumentException("Login name cannot be null");
     }
+    return companyRepo.findSysUserByLogin(login);
+  }
 
-    public SystemUser save(RegistrationBean regBean) {
-        return companyRepo.register(regBean);
-    }
+  public SystemUser save(Company company, RegistrationBean regBean) {
+    return companyRepo.register(company, regBean);
+  }
 
-    @Override
-    public void save(SystemUser systemUser) {
-        companyRepo.create(systemUser);
-    }
+  @Override
+  public void save(SystemUser systemUser) {
+    companyRepo.create(systemUser);
+  }
 
-    public SystemUser findByApiKey(String apiKey) {
-        return companyRepo.findByApiKey(apiKey);
-    }
+  public SystemUser findByApiKey(String apiKey) {
+    return companyRepo.findByApiKey(apiKey);
+  }
 }

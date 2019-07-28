@@ -19,7 +19,7 @@ package org.flockdata.spring.xml;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 public class FlockDataNamespaceHandler extends NamespaceHandlerSupport {
-    public void init() {
-        registerBeanDefinitionParser("client", new ClientBeanDefinitionParser());
-    }
+  public void init() {
+    registerBeanDefinitionParser("client", new ClientBeanDefinitionParser());
+  }
 }

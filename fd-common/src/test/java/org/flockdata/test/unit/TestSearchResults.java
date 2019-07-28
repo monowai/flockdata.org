@@ -35,26 +35,30 @@ import org.junit.Test;
  * @since 23/09/17
  */
 public class TestSearchResults {
-    @Test
-    public void searchResultsSerialize() throws Exception {
-        SearchChange searchChange = new EntitySearchChange();
-        searchChange.setName("anyName");
-        SearchResult searchResult = new EsSearchResult(searchChange);
-        Collection<SearchResult> results = new ArrayList<>();
-        results.add(searchResult);
-        SearchResults searchResults = new SearchResults(results);
+  @Test
+  public void searchResultsSerialize() throws Exception {
+    SearchChange searchChange = new EntitySearchChange();
+    searchChange.setName("anyName");
+    SearchResult searchResult = EsSearchResult.builder()
+        .code("code")
+        .name("name")
+        .description("description")
+        .build();
+    Collection<SearchResult> results = new ArrayList<>();
+    results.add(searchResult);
+    SearchResults searchResults = new SearchResults(results);
 
-        byte[] bytes = JsonUtils.toJsonBytes(searchResults);
-        assertNotNull(JsonUtils.toObject(bytes, SearchResults.class));
+    byte[] bytes = JsonUtils.toJsonBytes(searchResults);
+    assertNotNull(JsonUtils.toObject(bytes, SearchResults.class));
 
-    }
+  }
 
-    @Test
-    public void queryParams() throws Exception {
-        QueryParams qp = new QueryParams("*");
-        assertThat(qp)
-            .hasFieldOrProperty("matchAll")
-            .hasFieldOrPropertyWithValue("matchAll", true);
+  @Test
+  public void queryParams() throws Exception {
+    QueryParams qp = new QueryParams("*");
+    assertThat(qp)
+        .hasFieldOrProperty("matchAll")
+        .hasFieldOrPropertyWithValue("matchAll", true);
 
-    }
+  }
 }

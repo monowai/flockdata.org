@@ -29,32 +29,32 @@ import org.flockdata.transform.ColumnDefinition;
  * @since 19/07/2016
  */
 public class EntityTagRelationshipDefinition {
-    private boolean geo; // Links to a Geo relationship
-    private boolean reverse; // default is Entity->Tag
-    private String relationshipName;
-    private Collection<ColumnDefinition> properties;
+  private boolean geo; // Links to a Geo relationship
+  private boolean reverse; // default is Entity->Tag
+  private String relationshipName;
+  private Collection<ColumnDefinition> properties;
 
 
-    public boolean getGeo() {
-        return geo;
-    }
+  public boolean getGeo() {
+    return geo;
+  }
 
-    public boolean isReverse() {
-        return reverse;
-    }
+  public boolean isReverse() {
+    return reverse;
+  }
 
-    public String getRelationshipName() {
-        return relationshipName;
-    }
+  public String getRelationshipName() {
+    return relationshipName;
+  }
 
-    public Collection<ColumnDefinition> getProperties() {
-        return properties;
-    }
+  public Collection<ColumnDefinition> getProperties() {
+    return properties;
+  }
 
-    @Override
-    public String toString() {
-        return "EntityTagRelationshipDefinition{" +
-            "relationshipName='" + relationshipName + '\'' +
-            '}';
-    }
+  @Override
+  public String toString() {
+    return "EntityTagRelationshipDefinition{" +
+        "relationshipName='" + relationshipName + '\'' +
+        '}';
+  }
 }

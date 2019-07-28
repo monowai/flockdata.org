@@ -31,31 +31,31 @@ import org.flockdata.registration.TagInputBean;
  */
 public interface SchemaService {
 
-    /**
-     * Ensures that system indexes are in place for a newly created company
-     *
-     * @param company for who?
-     * @return completed
-     */
-    Boolean ensureSystemIndexes(Company company);
+  /**
+   * Ensures that system indexes are in place for a newly created company
+   *
+   * @param company for who?
+   * @return completed
+   */
+  Boolean ensureSystemIndexes(Company company);
 
-    /**
-     * Deletes the majority of the structural associations between a fortress and data in FlockData
-     * Does not delete the DocumentType
-     * <p>
-     * You probably want to be calling adminService.purge() which in turn calls this
-     *
-     * @param fortress computer system to purge
-     */
-    void purge(Fortress fortress);
+  /**
+   * Deletes the majority of the structural associations between a fortress and data in FlockData
+   * Does not delete the DocumentType
+   * <p>
+   * You probably want to be calling adminService.purge() which in turn calls this
+   *
+   * @param fortress computer system to purge
+   */
+  void purge(Fortress fortress);
 
-    /**
-     * Tags are created dynamically. Codes need to be unique for each Label. Implementations will ensure this
-     * uniqueness is enforced.
-     *
-     * @param tagInputs Tags for which uniqueness is required
-     * @return success/failure
-     */
-    Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs);
+  /**
+   * Tags are created dynamically. Codes need to be unique for each Label. Implementations will ensure this
+   * uniqueness is enforced.
+   *
+   * @param tagInputs Tags for which uniqueness is required
+   * @return success/failure
+   */
+  Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs);
 
 }

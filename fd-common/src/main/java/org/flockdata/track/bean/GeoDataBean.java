@@ -33,64 +33,64 @@ import java.util.Map;
  */
 public class GeoDataBean {
 
-    //private String description = null;
-    private String code;
-    private String name = null;
-    private Map<String, String> points;
+  //private String description = null;
+  private String code;
+  private String name = null;
+  private Map<String, String> points;
 
 
-    public GeoDataBean() {
-    }
+  public GeoDataBean() {
+  }
 
 //    @JsonInclude(JsonInclude.Include.NON_EMPTY)
 //    public Map<String, Object> getProperties() {
 //        return properties;
 //    }
 
-    //Map<String, Object> properties = new HashMap<>();
+  //Map<String, Object> properties = new HashMap<>();
 
-    public void add(String type, String code, String name, Double lat, Double lon) {
-        if (code != null) {
-            this.code = code;
-        }
-        if (name != null) {
-            this.name = name;
-        }
-
-        if (lat != null && lon != null) {
-            if (points == null) {
-                points = new HashMap<>();
-            }
-            points.put(type, lat.toString() + "," + lon.toString());
-        }
+  public void add(String type, String code, String name, Double lat, Double lon) {
+    if (code != null) {
+      this.code = code;
+    }
+    if (name != null) {
+      this.name = name;
     }
 
-    public String getName() {
-        return name;
+    if (lat != null && lon != null) {
+      if (points == null) {
+        points = new HashMap<>();
+      }
+      points.put(type, lat.toString() + "," + lon.toString());
     }
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getCode() {
-        return code;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+  public String getCode() {
+    return code;
+  }
 
-    @JsonIgnore
-    public Map<String, String> getPoints() {
-        return points;
-    }
+  public void setCode(String code) {
+    this.code = code;
+  }
 
-    @Override
-    public String toString() {
-        return "GeoDataBean{" +
-            "code='" + code + '\'' +
-            ", name='" + name + '\'' +
-            '}';
-    }
+  @JsonIgnore
+  public Map<String, String> getPoints() {
+    return points;
+  }
+
+  @Override
+  public String toString() {
+    return "GeoDataBean{" +
+        "code='" + code + '\'' +
+        ", name='" + name + '\'' +
+        '}';
+  }
 }

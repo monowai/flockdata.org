@@ -28,19 +28,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @since 3/01/17
  */
 public interface TxRef {
-    TxStatus getTxStatus();
+  TxStatus getTxStatus();
 
-    long getTxDate();
+  long getTxDate();
 
-    String getName();
+  String getName();
 
-    @JsonIgnore
-    Company getCompany();
+  @JsonIgnore
+  Company getCompany();
 
-    @JsonIgnore
-    Long getId();
+  @JsonIgnore
+  Long getId();
 
-    public enum TxStatus {
-        TX_CREATED, TX_ROLLBACK, TX_COMMITTED
-    }
+  public enum TxStatus {
+    TX_CREATED, TX_ROLLBACK, TX_COMMITTED
+  }
 }

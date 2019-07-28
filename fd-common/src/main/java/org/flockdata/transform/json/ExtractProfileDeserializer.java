@@ -39,86 +39,86 @@ import org.flockdata.transform.model.ExtractProfileHandler;
  */
 public class ExtractProfileDeserializer extends JsonDeserializer<ExtractProfile> {
 
-    public static ExtractProfile getImportProfile(String name, ContentModel contentModel) throws IOException {
-        ExtractProfileHandler importProfile;
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
+  public static ExtractProfile getImportProfile(String name, ContentModel contentModel) throws IOException {
+    ExtractProfileHandler importProfile;
+    ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
-        File fileIO = new File(name);
-        if (fileIO.exists()) {
-            importProfile = om.readValue(fileIO, ExtractProfileHandler.class);
-            importProfile.setContentModel(contentModel);
-        } else {
-            InputStream stream = ClassLoader.class.getResourceAsStream(name);
-            if (stream != null) {
-                importProfile = om.readValue(stream, ExtractProfileHandler.class);
-                importProfile.setContentModel(contentModel);
-            } else
-            // Defaults??
-            {
-                importProfile = new ExtractProfileHandler(contentModel);
-            }
-        }
-
-        return importProfile;
+    File fileIO = new File(name);
+    if (fileIO.exists()) {
+      importProfile = om.readValue(fileIO, ExtractProfileHandler.class);
+      importProfile.setContentModel(contentModel);
+    } else {
+      InputStream stream = ClassLoader.class.getResourceAsStream(name);
+      if (stream != null) {
+        importProfile = om.readValue(stream, ExtractProfileHandler.class);
+        importProfile.setContentModel(contentModel);
+      } else
+      // Defaults??
+      {
+        importProfile = new ExtractProfileHandler(contentModel);
+      }
     }
 
-    @Override
-    public ExtractProfile deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        ExtractProfileHandler importProfile = new ExtractProfileHandler();
-        JsonNode node = jp.getCodec().readTree(jp);
-        JsonNode nodeValue;
+    return importProfile;
+  }
 
-        // ********
-        // Batch handling
-        // ********
-        nodeValue = node.get("header");
-        if (!isNull(nodeValue)) {
-            importProfile.setHeader(Boolean.parseBoolean(nodeValue.asText()));
-        }
+  @Override
+  public ExtractProfile deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    ExtractProfileHandler importProfile = new ExtractProfileHandler();
+    JsonNode node = jp.getCodec().readTree(jp);
+    JsonNode nodeValue;
 
-        nodeValue = node.get("handler");
-        if (!isNull(nodeValue)) {
-            importProfile.setHandler(nodeValue.asText());
-        }
-
-        nodeValue = node.get("preParseRowExp");
-        if (!isNull(nodeValue)) {
-            importProfile.setPreParseRowExp(nodeValue.asText());
-        }
-
-        nodeValue = node.get("delimiter");
-        if (!isNull(nodeValue)) {
-            importProfile.setDelimiter(nodeValue.asText());
-        }
-
-        nodeValue = node.get("quoteCharacter");
-        if (!isNull(nodeValue)) {
-            importProfile.setQuoteCharacter(nodeValue.asText());
-        }
-
-        nodeValue = node.get("contentType");
-        if (!isNull(nodeValue)) {
-            switch (nodeValue.textValue().toLowerCase()) {
-                case "csv":
-                    importProfile.setContentType(ExtractProfile.ContentType.CSV);
-                    break;
-                case "xml":
-                    importProfile.setContentType(ExtractProfile.ContentType.XML);
-                    break;
-                case "json":
-                    importProfile.setContentType(ExtractProfile.ContentType.JSON);
-                    break;
-            }
-        }
-        // ********
-        // End Batch handling
-        // ********
-
-        return importProfile;  //To change body of implemented methods use File | Settings | File Templates.
+    // ********
+    // Batch handling
+    // ********
+    nodeValue = node.get("header");
+    if (!isNull(nodeValue)) {
+      importProfile.setHeader(Boolean.parseBoolean(nodeValue.asText()));
     }
 
-    private boolean isNull(JsonNode nodeValue) {
-        return nodeValue == null || nodeValue.isNull() || nodeValue.asText().equals("null");
+    nodeValue = node.get("handler");
+    if (!isNull(nodeValue)) {
+      importProfile.setHandler(nodeValue.asText());
     }
+
+    nodeValue = node.get("preParseRowExp");
+    if (!isNull(nodeValue)) {
+      importProfile.setPreParseRowExp(nodeValue.asText());
+    }
+
+    nodeValue = node.get("delimiter");
+    if (!isNull(nodeValue)) {
+      importProfile.setDelimiter(nodeValue.asText());
+    }
+
+    nodeValue = node.get("quoteCharacter");
+    if (!isNull(nodeValue)) {
+      importProfile.setQuoteCharacter(nodeValue.asText());
+    }
+
+    nodeValue = node.get("contentType");
+    if (!isNull(nodeValue)) {
+      switch (nodeValue.textValue().toLowerCase()) {
+        case "csv":
+          importProfile.setContentType(ExtractProfile.ContentType.CSV);
+          break;
+        case "xml":
+          importProfile.setContentType(ExtractProfile.ContentType.XML);
+          break;
+        case "json":
+          importProfile.setContentType(ExtractProfile.ContentType.JSON);
+          break;
+      }
+    }
+    // ********
+    // End Batch handling
+    // ********
+
+    return importProfile;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  private boolean isNull(JsonNode nodeValue) {
+    return nodeValue == null || nodeValue.isNull() || nodeValue.asText().equals("null");
+  }
 
 }

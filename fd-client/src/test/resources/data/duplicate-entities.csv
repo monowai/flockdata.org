@@ -1,7 +1,7 @@
 #In this scenario we have the exact same entity with each row adding a new actor
-#When batching the payload, FD will accumulate the tags in to a single entity for processing rather than
+#When batching the payload                                                      ,FD will accumulate the tags in to a single entity for processing rather than
 #send one Entity per row. Only tags are merged not other entity properties
-movieId,title,director,genre,rating,actor,role
-144, The Matrix, Andy Wachowski / Lana Wachowski, Action / Sci-Fi, 8.700000, Laurence Fishburne, Morpheus
-144, The Matrix, Andy Wachowski / Lana Wachowski, Action / Sci-Fi, 8.700000, Carrie-Anne Moss, Trinity
-144, The Matrix, Andy Wachowski / Lana Wachowski, Action / Sci-Fi, 8.700000, David Aston, Rhineheart
+movieId                                                                         ,title                                                                       ,director                       ,genre          ,rating  ,actor             ,role
+144                                                                             ,The Matrix                                                                  ,Andy Wachowski / Lana Wachowski,Action / Sci-Fi,8.700000,Laurence Fishburne,Morpheus
+144                                                                             ,The Matrix                                                                  ,Andy Wachowski / Lana Wachowski,Action / Sci-Fi,8.700000,Carrie-Anne Moss  ,Trinity
+144                                                                             ,The Matrix                                                                  ,Andy Wachowski / Lana Wachowski,Action / Sci-Fi,8.700000,David Aston       ,Rhineheart

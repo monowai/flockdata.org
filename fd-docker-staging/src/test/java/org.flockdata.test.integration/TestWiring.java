@@ -59,15 +59,15 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @ActiveProfiles("dev")
 public class TestWiring {
-    @Autowired
-    private FdTemplate fdTemplate;
+  @Autowired
+  private FdTemplate fdTemplate;
 
-    @Autowired
-    private FdClientIo fdClientIo;
+  @Autowired
+  private FdClientIo fdClientIo;
 
-    @Test
-    public void wiringWorks() {
-        assertNotNull(fdTemplate);
-        assertNotNull(fdClientIo);
-    }
+  @Test
+  public void wiringWorks() {
+    assertNotNull(fdTemplate);
+    assertNotNull(fdClientIo);
+  }
 }

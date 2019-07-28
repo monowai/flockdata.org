@@ -37,103 +37,103 @@ import org.springframework.messaging.MessageChannel;
 @IntegrationComponentScan
 @Profile("neorest")
 public class FdNeoChannels {
-    String neoUrl;
+  String neoUrl;
 
-    public String getNeoUrl() {
-        return neoUrl;
-    }
+  public String getNeoUrl() {
+    return neoUrl;
+  }
 
-    @Value("${neo4j.url:@null}")
-    public void setNeoUrl(String neoUrl) {
-        if ("@null".equals(neoUrl)) {
-            this.neoUrl = "http://localhost:7474";
-        } else {
-            this.neoUrl = neoUrl;
-        }
+  @Value("${neo4j.url:@null}")
+  public void setNeoUrl(String neoUrl) {
+    if ("@null".equals(neoUrl)) {
+      this.neoUrl = "http://localhost:7474";
+    } else {
+      this.neoUrl = neoUrl;
     }
+  }
 
-    public String getUriRoot() {
-        return getNeoUrl() + "/fd";
-    }
+  public String getUriRoot() {
+    return getNeoUrl() + "/fd";
+  }
 
-    @Bean
-    MessageChannel neoFdMakeTags() {
-        return MessageChannels.direct("neoFdMakeTags").get();
-    }
+  @Bean
+  MessageChannel neoFdMakeTags() {
+    return MessageChannels.direct("neoFdMakeTags").get();
+  }
 
-    @Bean
-    MessageChannel neoFdFindTag() {
-        return MessageChannels.direct("neoFdFindTag").get();
-    }
+  @Bean
+  MessageChannel neoFdFindTag() {
+    return MessageChannels.direct("neoFdFindTag").get();
+  }
 
-    @Bean
-    MessageChannel neoFdMakeAlias() {
-        return MessageChannels.direct("neoFdMakeAlias").get();
-    }
+  @Bean
+  MessageChannel neoFdMakeAlias() {
+    return MessageChannels.direct("neoFdMakeAlias").get();
+  }
 
-    @Bean
-    MessageChannel neoFdMakeEntity() {
-        return MessageChannels.direct("neoFdMakeEntity").get();
-    }
+  @Bean
+  MessageChannel neoFdMakeEntity() {
+    return MessageChannels.direct("neoFdMakeEntity").get();
+  }
 
-    @Bean
-    MessageChannel neoFdFindEntity() {
-        return MessageChannels.direct("neoFdFindEntity").get();
-    }
+  @Bean
+  MessageChannel neoFdFindEntity() {
+    return MessageChannels.direct("neoFdFindEntity").get();
+  }
 
-    @Bean
-    MessageChannel neoFdFindLabeledEntities() {
-        return MessageChannels.direct("neoFdFindLabeledEntities").get();
-    }
+  @Bean
+  MessageChannel neoFdFindLabeledEntities() {
+    return MessageChannels.direct("neoFdFindLabeledEntities").get();
+  }
 
-    @Bean
-    MessageChannel neoFdWriteLog() {
-        return MessageChannels.direct("neoFdWriteLog").get();
-    }
+  @Bean
+  MessageChannel neoFdWriteLog() {
+    return MessageChannels.direct("neoFdWriteLog").get();
+  }
 
-    @Bean
-    MessageChannel neoFdGetEntityLog() {
-        return MessageChannels.direct("neoFdGetEntityLog").get();
-    }
+  @Bean
+  MessageChannel neoFdGetEntityLog() {
+    return MessageChannels.direct("neoFdGetEntityLog").get();
+  }
 
-    @Bean
-    MessageChannel neoFdGetLastChange() {
-        return MessageChannels.direct("neoFdGetLastChange").get();
-    }
+  @Bean
+  MessageChannel neoFdGetLastChange() {
+    return MessageChannels.direct("neoFdGetLastChange").get();
+  }
 
-    @Bean
-    MessageChannel neoFdGetEntityLogs() {
-        return MessageChannels.direct("neoFdGetEntityLogs").get();
-    }
+  @Bean
+  MessageChannel neoFdGetEntityLogs() {
+    return MessageChannels.direct("neoFdGetEntityLogs").get();
+  }
 
-    @Bean
-    MessageChannel neoFdFindByCallerRef() {
-        return MessageChannels.direct("neoFdFindByCallerRef").get();
-    }
+  @Bean
+  MessageChannel neoFdFindByCallerRef() {
+    return MessageChannels.direct("neoFdFindByCallerRef").get();
+  }
 
-    @Bean
-    MessageChannel neoFdLogsBeforeDate() {
-        return MessageChannels.direct("neoFdLogsBeforeDate").get();
-    }
+  @Bean
+  MessageChannel neoFdLogsBeforeDate() {
+    return MessageChannels.direct("neoFdLogsBeforeDate").get();
+  }
 
-    @Bean
-    MessageChannel neoFdCancelLastLog() {
-        return MessageChannels.direct("neoFdCancelLastLog").get();
-    }
+  @Bean
+  MessageChannel neoFdCancelLastLog() {
+    return MessageChannels.direct("neoFdCancelLastLog").get();
+  }
 
-    @Bean
-    MessageChannel neoFdAddEntityTag() {
-        return MessageChannels.direct("neoFdAddEntityTag").get();
-    }
+  @Bean
+  MessageChannel neoFdAddEntityTag() {
+    return MessageChannels.direct("neoFdAddEntityTag").get();
+  }
 
-    @Bean
-    MessageChannel neoFdGetEntityTag() {
-        return MessageChannels.direct("neoFdGetEntityTag").get();
-    }
+  @Bean
+  MessageChannel neoFdGetEntityTag() {
+    return MessageChannels.direct("neoFdGetEntityTag").get();
+  }
 
-    @Bean
-    MessageChannel neoFdGetEntityTags() {
-        return MessageChannels.direct("neoFdGetEntityTags").get();
-    }
+  @Bean
+  MessageChannel neoFdGetEntityTags() {
+    return MessageChannels.direct("neoFdGetEntityTags").get();
+  }
 
 }

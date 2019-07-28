@@ -30,10 +30,10 @@ import java.util.Map;
 public interface FdStoreConfig {
 
 
-    Map<String, String> health();
+  Map<String, String> health();
 
-    String riakHosts();
+  String riakHosts();
 
-    String fdSearchUrl();
+  String fdSearchUrl();
 
 }

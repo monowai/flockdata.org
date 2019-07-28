@@ -42,59 +42,59 @@ import org.springframework.stereotype.Service;
 @Profile("redis")
 public class RedisRepo extends AbstractStore {
 
-    private static Logger logger = LoggerFactory.getLogger(AbstractStore.class);
-    private final RedisTemplate<Object, byte[]> template;
+  private static Logger logger = LoggerFactory.getLogger(AbstractStore.class);
+  private final RedisTemplate<Object, byte[]> template;
 
-    @Autowired
-    public RedisRepo(RedisTemplate<Object, byte[]> template) {
-        this.template = template;
+  @Autowired
+  public RedisRepo(RedisTemplate<Object, byte[]> template) {
+    this.template = template;
+  }
+
+  public void add(StoredContent storedContent) throws IOException {
+
+    template.opsForValue().set(storedContent.getId(), JsonUtils.toJsonBytes(storedContent));
+  }
+
+  @Override
+  public StoredContent read(String index, String type, String id) {
+    Long key = Long.decode(id);
+    byte[] bytes = template.opsForValue().get(key);
+
+    try {
+      return JsonUtils.toObject(bytes, StoredContent.class);
+      //return getContent(key, oResult);
+    } catch (IOException e) {
+      logger.error("Error extracting content for " + key, e);
     }
+    return null;
 
-    public void add(StoredContent storedContent) throws IOException {
+  }
 
-        template.opsForValue().set(storedContent.getId(), JsonUtils.toJsonBytes(storedContent));
-    }
+  public StoredContent read(LogRequest logRequest) {
+    return read("", "", logRequest.getLogId().toString());
+  }
 
-    @Override
-    public StoredContent read(String index, String type, String id) {
-        Long key = Long.decode(id);
-        byte[] bytes = template.opsForValue().get(key);
+  public void delete(LogRequest logRequest) {
+    template.opsForValue().getOperations().delete(logRequest.getLogId());
+  }
 
-        try {
-            return JsonUtils.toObject(bytes, StoredContent.class);
-            //return getContent(key, oResult);
-        } catch (IOException e) {
-            logger.error("Error extracting content for " + key, e);
-        }
-        return null;
+  @Override
+  public void purge(String index) {
+    logger.debug("Purge not supported for REDIS. Ignoring this request");
+  }
 
-    }
+  @Override
+  public String ping() {
+    Date when = new Date();
+    template.opsForValue().setIfAbsent(-99999l, when.toString().getBytes());
+    template.opsForValue().getOperations().delete(-99999l);
+    return "OK - Redis";
+  }
 
-    public StoredContent read(LogRequest logRequest) {
-        return read("", "", logRequest.getLogId().toString());
-    }
-
-    public void delete(LogRequest logRequest) {
-        template.opsForValue().getOperations().delete(logRequest.getLogId());
-    }
-
-    @Override
-    public void purge(String index) {
-        logger.debug("Purge not supported for REDIS. Ignoring this request");
-    }
-
-    @Override
-    public String ping() {
-        Date when = new Date();
-        template.opsForValue().setIfAbsent(-99999l, when.toString().getBytes());
-        template.opsForValue().getOperations().delete(-99999l);
-        return "OK - Redis";
-    }
-
-    @PostConstruct
-    void status() {
-        Logger logger = LoggerFactory.getLogger("configuration");
-        logger.info("**** Deploying Redis repo manager");
-    }
+  @PostConstruct
+  void status() {
+    Logger logger = LoggerFactory.getLogger("configuration");
+    logger.info("**** Deploying Redis repo manager");
+  }
 
 }

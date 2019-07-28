@@ -38,13 +38,13 @@ import org.springframework.messaging.MessageHandler;
 @Profile( {"fd-server"})
 public class IntegrationHandlers {
 
-    @Bean
-    public MessageHandler logger() {
-        LoggingHandler loggingHandler = new LoggingHandler("INFO");
-        loggingHandler.setLoggerName("logger");
-        // This is redundant because the default expression is exactly "payload"
-        // loggingHandler.setExpression("payload");
-        return loggingHandler;
-    }
+  @Bean
+  public MessageHandler logger() {
+    LoggingHandler loggingHandler = new LoggingHandler("INFO");
+    loggingHandler.setLoggerName("logger");
+    // This is redundant because the default expression is exactly "payload"
+    // loggingHandler.setExpression("payload");
+    return loggingHandler;
+  }
 
 }

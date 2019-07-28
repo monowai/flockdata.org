@@ -43,17 +43,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/geo")
 public class GeographyEP {
 
-    private final GeographyService geoService;
+  private final GeographyService geoService;
 
-    @Autowired
-    public GeographyEP(GeographyService geoService) {
-        this.geoService = geoService;
-    }
+  @Autowired
+  public GeographyEP(GeographyService geoService) {
+    this.geoService = geoService;
+  }
 
-    @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-    public Collection<FdTagResultBean> findCountries(HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
-        return geoService.findCountries(company);
-    }
+  @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
+  public Collection<FdTagResultBean> findCountries(HttpServletRequest request) throws FlockException {
+    Company company = CompanyResolver.resolveCompany(request);
+    return geoService.findCountries(company);
+  }
 
 }

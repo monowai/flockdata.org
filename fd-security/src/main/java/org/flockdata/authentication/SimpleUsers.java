@@ -42,49 +42,49 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SimpleUsers {
 
-    private HashMap<String, UserEntry> users;
+  private HashMap<String, UserEntry> users;
 
-    public HashMap<String, UserEntry> getUsers() {
-        return users;
+  public HashMap<String, UserEntry> getUsers() {
+    return users;
+  }
+
+  public void setUsers(HashMap<String, UserEntry> users) {
+    this.users = users;
+  }
+
+  void createDefault() {
+    users = new HashMap<>(1);
+    users.put("demo", new UserEntry()
+        .setPass("123")
+        .setRoles(FdRoles.FD_ADMIN + ";" + FdRoles.FD_USER));
+  }
+
+  @SuppressWarnings("WeakerAccess")
+  public static class UserEntry {
+    private String pass;
+
+    private Collection<String> roles = new ArrayList<>();
+
+    public String getPass() {
+      return pass;
     }
 
-    public void setUsers(HashMap<String, UserEntry> users) {
-        this.users = users;
+    public UserEntry setPass(String pass) {
+      this.pass = pass;
+      return this;
     }
 
-    void createDefault() {
-        users = new HashMap<>(1);
-        users.put("mike", new UserEntry()
-            .setPass("123")
-            .setRoles(FdRoles.FD_ADMIN + ";" + FdRoles.FD_USER));
+    public Collection<String> getRoles() {
+      return roles;
     }
 
-    @SuppressWarnings("WeakerAccess")
-    public static class UserEntry {
-        private String pass;
-
-        private Collection<String> roles = new ArrayList<>();
-
-        public String getPass() {
-            return pass;
-        }
-
-        public UserEntry setPass(String pass) {
-            this.pass = pass;
-            return this;
-        }
-
-        public Collection<String> getRoles() {
-            return roles;
-        }
-
-        public UserEntry setRoles(String roles) {
-            String[] splitRoles = roles.split(";");
-            for (String splitRole : splitRoles) {
-                this.roles.add(splitRole.trim());
-            }
-            this.roles.add("USER"); // ToDo: Role required??
-            return this;
-        }
+    public UserEntry setRoles(String roles) {
+      String[] splitRoles = roles.split(";");
+      for (String splitRole : splitRoles) {
+        this.roles.add(splitRole.trim());
+      }
+      this.roles.add("USER"); // ToDo: Role required??
+      return this;
     }
+  }
 }

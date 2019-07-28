@@ -32,29 +32,29 @@ import org.flockdata.store.StoredContent;
  * @since 15/04/2013
  */
 public interface Log {
-    @JsonIgnore
-    Long getId();
+  @JsonIgnore
+  Long getId();
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    FortressUser getMadeBy();
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  FortressUser getMadeBy();
 
-    String getStorage();
+  String getStorage();
 
-    String getContentType();
+  String getContentType();
 
-    String getChecksum();
+  String getChecksum();
 
-    boolean isMocked();
+  boolean isMocked();
 
-    ChangeEvent getEvent();
+  ChangeEvent getEvent();
 
-    String getComment();
+  String getComment();
 
-    StoredContent getContent();
+  StoredContent getContent();
 
-    EntityLog getEntityLog();
+  EntityLog getEntityLog();
 
-    Log getPreviousLog();
+  Log getPreviousLog();
 
-    String getFileName();
+  String getFileName();
 }

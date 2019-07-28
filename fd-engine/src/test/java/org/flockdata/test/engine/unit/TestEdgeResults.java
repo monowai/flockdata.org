@@ -39,44 +39,44 @@ import org.junit.Test;
  * @since 29/04/2015
  */
 public class TestEdgeResults {
-    @Test
-    public void edges_DoubleTestResults() {
-        EdgeResult resultA = new EdgeResult("ABC", "123", 10d);
-        EdgeResult resultB = new EdgeResult("ABC", "123", 10d);
-        EdgeResults results = new EdgeResults();
-        results.addResult(resultA);
-        results.addResult(resultB);
-        assertEquals(1, results.getEdgeResults().size());
-        Number total = results.getEdgeResults().iterator().next().getCount();
-        assertEquals(20d, total);
-    }
+  @Test
+  public void edges_DoubleTestResults() {
+    EdgeResult resultA = new EdgeResult("ABC", "123", 10d);
+    EdgeResult resultB = new EdgeResult("ABC", "123", 10d);
+    EdgeResults results = new EdgeResults();
+    results.addResult(resultA);
+    results.addResult(resultB);
+    assertEquals(1, results.getEdgeResults().size());
+    Number total = results.getEdgeResults().iterator().next().getCount();
+    assertEquals(20d, total);
+  }
 
-    @Test
-    public void edges_LongTestResults() {
-        EdgeResult resultA = new EdgeResult("ABC", "123", 10L);
-        EdgeResult resultB = new EdgeResult("ABC", "123", 10L);
-        EdgeResults results = new EdgeResults();
-        results.addResult(resultA);
-        results.addResult(resultB);
-        assertEquals(1, results.getEdgeResults().size());
-        Number total = results.getEdgeResults().iterator().next().getCount();
-        assertEquals(20d, total);
-    }
+  @Test
+  public void edges_LongTestResults() {
+    EdgeResult resultA = new EdgeResult("ABC", "123", 10L);
+    EdgeResult resultB = new EdgeResult("ABC", "123", 10L);
+    EdgeResults results = new EdgeResults();
+    results.addResult(resultA);
+    results.addResult(resultB);
+    assertEquals(1, results.getEdgeResults().size());
+    Number total = results.getEdgeResults().iterator().next().getCount();
+    assertEquals(20d, total);
+  }
 
-    @Test
-    public void serializeMatrix() throws Exception {
-        EdgeResult resultA = new EdgeResult("ABC", "123", 10L);
-        EdgeResult resultB = new EdgeResult("ABC", "123", 10L);
-        EdgeResults edges = new EdgeResults();
-        edges.addResult(resultA);
-        edges.addResult(resultB);
-        Collection<FdNode> nodes = new ArrayList<>();
-        nodes.add(new FdNode(9L));
-        MatrixResults matrixResults = new MatrixResults(edges, nodes);
-        byte[] bytes = JsonUtils.toJsonBytes(matrixResults);
-        MatrixResults deserialized = JsonUtils.toObject(bytes, MatrixResults.class);
-        assertNotNull(deserialized);
-        assertEquals(matrixResults.getEdges().size(), deserialized.getEdges().size());
-        assertEquals(matrixResults.getNodes().size(), deserialized.getNodes().size());
-    }
+  @Test
+  public void serializeMatrix() throws Exception {
+    EdgeResult resultA = new EdgeResult("ABC", "123", 10L);
+    EdgeResult resultB = new EdgeResult("ABC", "123", 10L);
+    EdgeResults edges = new EdgeResults();
+    edges.addResult(resultA);
+    edges.addResult(resultB);
+    Collection<FdNode> nodes = new ArrayList<>();
+    nodes.add(new FdNode(9L));
+    MatrixResults matrixResults = new MatrixResults(edges, nodes);
+    byte[] bytes = JsonUtils.toJsonBytes(matrixResults);
+    MatrixResults deserialized = JsonUtils.toObject(bytes, MatrixResults.class);
+    assertNotNull(deserialized);
+    assertEquals(matrixResults.getEdges().size(), deserialized.getEdges().size());
+    assertEquals(matrixResults.getNodes().size(), deserialized.getNodes().size());
+  }
 }

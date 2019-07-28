@@ -2,7 +2,9 @@
   "contentType": "csv",
   "tagOrEntity": "entity",
   "fortressName": "GovTrack",
-  "documentType": { "name": "PAC"},
+  "documentType": {
+    "name": "PAC"
+  },
   "content": {
   }
 }

@@ -38,49 +38,49 @@ import org.springframework.stereotype.Component;
 @Profile( {"dev", "memstore"})
 public class InMemoryRepo extends AbstractStore {
 
-    Map<Object, ContentInputBean> map = new HashMap<>();
-    private Logger logger = LoggerFactory.getLogger(InMemoryRepo.class);
+  Map<Object, ContentInputBean> map = new HashMap<>();
+  private Logger logger = LoggerFactory.getLogger(InMemoryRepo.class);
 
-    @PostConstruct
-    void status() {
-        LoggerFactory.getLogger("configuration").info("**** Deploying InMemory non-persistent repo manager");
+  @PostConstruct
+  void status() {
+    LoggerFactory.getLogger("configuration").info("**** Deploying InMemory non-persistent repo manager");
+  }
+
+  public void add(StoredContent contentBean) {
+    map.put(getKey(contentBean.getType(), contentBean.getId()), contentBean.getContent());
+  }
+
+  @Override
+  public StoredContent read(String index, String type, String id) {
+    ContentInputBean value = map.get(getKey(type, id));
+    if (value == null) {
+      return null;   // Emulate a NULL result on not found in other KV stores
     }
 
-    public void add(StoredContent contentBean) {
-        map.put(getKey(contentBean.getType(), contentBean.getId()), contentBean.getContent());
-    }
+    return new StorageBean(id, value);
+  }
 
-    @Override
-    public StoredContent read(String index, String type, String id) {
-        ContentInputBean value = map.get(getKey(type, id));
-        if (value == null) {
-            return null;   // Emulate a NULL result on not found in other KV stores
-        }
-
-        return new StorageBean(id, value);
-    }
-
-    public String getKey(String type, Object id) {
+  public String getKey(String type, Object id) {
 //        return id.toString();
-        return type.toLowerCase() + "." + id;
-    }
+    return type.toLowerCase() + "." + id;
+  }
 
-    public StoredContent read(LogRequest logRequest) {
+  public StoredContent read(LogRequest logRequest) {
 
-        return read("", logRequest.getType(), logRequest.getLogId().toString());
-    }
+    return read("", logRequest.getType(), logRequest.getLogId().toString());
+  }
 
-    public void delete(LogRequest logRequest) {
-        map.remove(logRequest.getLogId());
-    }
+  public void delete(LogRequest logRequest) {
+    map.remove(logRequest.getLogId());
+  }
 
-    @Override
-    public void purge(String index) {
-        map.clear();
-    }
+  @Override
+  public void purge(String index) {
+    map.clear();
+  }
 
-    @Override
-    public String ping() {
-        return "OK - MemMap";
-    }
+  @Override
+  public String ping() {
+    return "OK - MemMap";
+  }
 }

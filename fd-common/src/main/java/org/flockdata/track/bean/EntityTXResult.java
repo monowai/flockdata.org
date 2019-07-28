@@ -30,56 +30,56 @@ import org.flockdata.data.EntityLog;
  */
 public class EntityTXResult {
 
-    private String auditKey;
-    private String fortressName;
-    private String fortressKey;
-    private String documentType;
-    private String code;
-    private Long lastSystemChange;
-    private Long fortressWhen = 0L;
+  private String auditKey;
+  private String fortressName;
+  private String fortressKey;
+  private String documentType;
+  private String code;
+  private Long lastSystemChange;
+  private Long fortressWhen = 0L;
 
-    private EntityLog entityLog;
+  private EntityLog entityLog;
 
-    private EntityTXResult() {
-    }
+  private EntityTXResult() {
+  }
 
 
-    public EntityTXResult(Entity entity, EntityLog log) {
-        this();
-        this.fortressWhen = log.getFortressWhen();
-        this.auditKey = entity.getKey();
-        this.documentType = entity.getType();
-        this.code = entity.getCode();
-        this.fortressName = entity.getSegment().getFortress().getName();
-        this.lastSystemChange = entity.getLastUpdate();
-        this.entityLog = log;
-    }
+  public EntityTXResult(Entity entity, EntityLog log) {
+    this();
+    this.fortressWhen = log.getFortressWhen();
+    this.auditKey = entity.getKey();
+    this.documentType = entity.getType();
+    this.code = entity.getCode();
+    this.fortressName = entity.getSegment().getFortress().getName();
+    this.lastSystemChange = entity.getLastUpdate();
+    this.entityLog = log;
+  }
 
-    public Object getEntityLog() {
-        return entityLog;
-    }
+  public Object getEntityLog() {
+    return entityLog;
+  }
 
-    public String getAuditKey() {
-        return auditKey;
-    }
+  public String getAuditKey() {
+    return auditKey;
+  }
 
-    public String getFortressName() {
-        return fortressName;
-    }
+  public String getFortressName() {
+    return fortressName;
+  }
 
-    public String getFortressKey() {
-        return fortressKey;
-    }
+  public String getFortressKey() {
+    return fortressKey;
+  }
 
-    public String getDocumentType() {
-        return documentType;
-    }
+  public String getDocumentType() {
+    return documentType;
+  }
 
-    public long getLastSystemChange() {
-        return lastSystemChange;
-    }
+  public long getLastSystemChange() {
+    return lastSystemChange;
+  }
 
-    public String getCode() {
-        return code;
-    }
+  public String getCode() {
+    return code;
+  }
 }

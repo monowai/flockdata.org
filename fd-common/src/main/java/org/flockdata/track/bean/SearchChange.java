@@ -27,82 +27,82 @@ import org.flockdata.data.EntityTag;
  */
 public interface SearchChange<T> {
 
-    @JsonIgnore
-    boolean isType(Type type);
+  @JsonIgnore
+  boolean isType(Type type);
 
-    /**
-     * @return String representation of the Type of searchChange that this represents (entity/tag)
-     */
-    String getType();
+  /**
+   * @return String representation of the Type of searchChange that this represents (entity/tag)
+   */
+  String getType();
 
-    /**
-     * @return unique key identifier for the document in the search service
-     */
-    String getSearchKey();
+  /**
+   * @return unique key identifier for the document in the search service
+   */
+  String getSearchKey();
 
-    void setSearchKey(String key);
+  void setSearchKey(String key);
 
-    String getName();
+  String getName();
 
-    void setName(String name);
+  void setName(String name);
 
-    Long getLogId();
+  Long getLogId();
 
-    /**
-     * primary key of the Item that this document belongs to
-     *
-     * @return unique key for a documentType
-     */
-    String getKey();
+  /**
+   * primary key of the Item that this document belongs to
+   *
+   * @return unique key for a documentType
+   */
+  String getKey();
 
-    String getIndexName();
+  String getIndexName();
 
-    String getFortressName();
+  String getFortressName();
 
-    String getDocumentType();
+  String getDocumentType();
 
-    String getCode();
+  String getCode();
 
-    /**
-     * @return unique identify number in fd-engine
-     */
-    Long getId();
+  /**
+   * @return unique identify number in fd-engine
+   */
+  Long getId();
 
-    T setDescription(String description);
+  T setDescription(String description);
 
-    String getDescription();
+  String getDescription();
 
-    boolean isReplyRequired();
+  boolean isReplyRequired();
 
-    /**
-     * Hint to determine if a reply from the search service is expected
-     * by the caller
-     *
-     * @param required suppress an ACK if not necessary
-     */
-    void setReplyRequired(boolean required);
+  /**
+   * Hint to determine if a reply from the search service is expected
+   * by the caller
+   *
+   * @param required suppress an ACK if not necessary
+   */
+  void setReplyRequired(boolean required);
 
-    /**
-     * Forces the search engine to ignore date checks and force an update of the document.
-     * Usually in response to a cancellation in fd-engine
-     *
-     * @return true= don't auto-detect a change
-     */
-    boolean isForceReindex();
+  /**
+   * Forces the search engine to ignore date checks and force an update of the document.
+   * Usually in response to a cancellation in fd-engine
+   *
+   * @return true= don't auto-detect a change
+   */
+  boolean isForceReindex();
 
-    /**
-     * @return if the searchKey should be removed
-     */
-    Boolean isDelete();
+  /**
+   * @return if the searchKey should be removed
+   */
+  Boolean isDelete();
 
-    Map<String, Object> getProps();
+  Map<String, Object> getProps();
 
-    EntityTag.TAG_STRUCTURE getTagStructure();
+  EntityTag.TAG_STRUCTURE getTagStructure();
 
-    EntityKeyBean getParent();
+  EntityKeyBean getParent();
 
 
-    enum Type {ENTITY, TAG}
+  enum Type {ENTITY, TAG}
 
 
 }

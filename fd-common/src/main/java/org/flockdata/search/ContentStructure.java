@@ -33,60 +33,60 @@ import java.util.Collection;
  * @since 31/08/2016
  */
 public class ContentStructure {
-    @JsonProperty
-    private String index;
-    @JsonProperty
-    private String type;
-    @JsonProperty
-    private Collection<EsColumn> data = new ArrayList<>();
-    @JsonProperty
-    private Collection<EsColumn> links = new ArrayList<>();
-    @JsonProperty
-    private Collection<EsColumn> system = new ArrayList<>();
+  @JsonProperty
+  private String index;
+  @JsonProperty
+  private String type;
+  @JsonProperty
+  private Collection<EsColumn> data = new ArrayList<>();
+  @JsonProperty
+  private Collection<EsColumn> links = new ArrayList<>();
+  @JsonProperty
+  private Collection<EsColumn> system = new ArrayList<>();
 
-    public ContentStructure() {
-    }
+  public ContentStructure() {
+  }
 
-    public ContentStructure(String index, String type) {
-        this();
-        this.index = index;
-        this.type = type;
-    }
+  public ContentStructure(String index, String type) {
+    this();
+    this.index = index;
+    this.type = type;
+  }
 
-    public ContentStructure addData(EsColumn column) {
-        data.add(column);
-        return this;
-    }
+  public ContentStructure addData(EsColumn column) {
+    data.add(column);
+    return this;
+  }
 
-    public ContentStructure addLink(EsColumn column) {
-        links.add(column);
-        return this;
-    }
+  public ContentStructure addLink(EsColumn column) {
+    links.add(column);
+    return this;
+  }
 
-    public ContentStructure addFd(EsColumn column) {
-        system.add(column);
-        return this;
-    }
+  public ContentStructure addFd(EsColumn column) {
+    system.add(column);
+    return this;
+  }
 
-    public String getIndex() {
-        return index;
-    }
+  public String getIndex() {
+    return index;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
 
-    public Collection<EsColumn> getLinks() {
-        return links;
-    }
+  public Collection<EsColumn> getLinks() {
+    return links;
+  }
 
-    public Collection<EsColumn> getSystem() {
-        return system;
-    }
+  public Collection<EsColumn> getSystem() {
+    return system;
+  }
 
-    public Collection<EsColumn> getData() {
-        return data;
-    }
+  public Collection<EsColumn> getData() {
+    return data;
+  }
 
 }

@@ -30,31 +30,31 @@ import org.springframework.stereotype.Component;
 @Component
 @Profile("fd-batch")
 public class FdSkipListener implements SkipListener<Object, Object> {
-    private static final Logger logger = LoggerFactory.getLogger(FdSkipListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(FdSkipListener.class);
 
-    private StepExecution stepExecution;
+  private StepExecution stepExecution;
 
-    @Override
-    public void onSkipInRead(Throwable t) {
-        logger.error("Row skipped in the reading phase", t);
-        stepExecution.setTerminateOnly();
-    }
+  @Override
+  public void onSkipInRead(Throwable t) {
+    logger.error("Row skipped in the reading phase", t);
+    stepExecution.setTerminateOnly();
+  }
 
-    @Override
-    public void onSkipInWrite(Object item, Throwable t) {
-        logger.error("Row skipped in the writing phase", t);
-        stepExecution.setTerminateOnly();
-    }
+  @Override
+  public void onSkipInWrite(Object item, Throwable t) {
+    logger.error("Row skipped in the writing phase", t);
+    stepExecution.setTerminateOnly();
+  }
 
-    @Override
-    public void onSkipInProcess(Object item, Throwable t) {
-        logger.error("Row skipped in the processing phase", t);
-        stepExecution.setTerminateOnly();
-    }
+  @Override
+  public void onSkipInProcess(Object item, Throwable t) {
+    logger.error("Row skipped in the processing phase", t);
+    stepExecution.setTerminateOnly();
+  }
 
-    @BeforeStep
-    public void saveStepExecution(StepExecution stepExecution) {
-        this.stepExecution = stepExecution;
-    }
+  @BeforeStep
+  public void saveStepExecution(StepExecution stepExecution) {
+    this.stepExecution = stepExecution;
+  }
 
 }

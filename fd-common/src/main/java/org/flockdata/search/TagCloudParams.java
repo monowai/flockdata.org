@@ -27,113 +27,113 @@ import java.util.Map;
  */
 public class TagCloudParams implements QueryInterface {
 
-    private String company;
+  private String company;
 
-    // ToDo: Can this be an Array[] ?
-    private String fortress = "*";
-    // ToDo: This should be an Array[]
-    private ArrayList<String> types = new ArrayList<>();
+  // ToDo: Can this be an Array[] ?
+  private String fortress = "*";
+  // ToDo: This should be an Array[]
+  private ArrayList<String> types = new ArrayList<>();
 
-    private ArrayList<String> tags = new ArrayList<>();
+  private ArrayList<String> tags = new ArrayList<>();
 
-    private ArrayList<String> relationships = new ArrayList<>();
-    private String searchText;
-    private String segment;
+  private ArrayList<String> relationships = new ArrayList<>();
+  private String searchText;
+  private String segment;
 
-    public TagCloudParams() {
+  public TagCloudParams() {
+  }
+
+  public String getCompany() {
+    return company;
+  }
+
+  public void setCompany(String company) {
+    this.company = company;
+  }
+
+  public String getFortress() {
+    return fortress;
+  }
+
+  public void setFortress(String fortress) {
+    this.fortress = fortress;
+  }
+
+  @Override
+  public String[] getTypes() {
+    String[] results = new String[types.size()];
+    int i = 0;
+    for (String s : types) {
+      results[i] = s.toLowerCase();
+      i++;
     }
+    return results;
+  }
 
-    public String getCompany() {
-        return company;
-    }
+  public void setTypes(ArrayList<String> types) {
+    this.types = types;
+  }
 
-    public void setCompany(String company) {
-        this.company = company;
-    }
+  public void addType(String type) {
+    this.types.add(type);
+  }
 
-    public String getFortress() {
-        return fortress;
-    }
+  @Override
+  public ArrayList<String> getRelationships() {
+    return relationships;
+  }
 
-    public void setFortress(String fortress) {
-        this.fortress = fortress;
-    }
+  public void setRelationships(ArrayList<String> relationships) {
+    this.relationships = relationships;
+  }
 
-    @Override
-    public String[] getTypes() {
-        String[] results = new String[types.size()];
-        int i = 0;
-        for (String s : types) {
-            results[i] = s.toLowerCase();
-            i++;
-        }
-        return results;
-    }
+  @Override
+  public ArrayList<String> getTags() {
+    return tags;
+  }
 
-    public void setTypes(ArrayList<String> types) {
-        this.types = types;
-    }
+  public void setTags(ArrayList<String> tags) {
+    this.tags = tags;
+  }
 
-    public void addType(String type) {
-        this.types.add(type);
-    }
+  @Override
+  public String getSearchText() {
+    return searchText;
+  }
 
-    @Override
-    public ArrayList<String> getRelationships() {
-        return relationships;
-    }
+  public void setSearchText(String query) {
+    this.searchText = query;
+  }
 
-    public void setRelationships(ArrayList<String> relationships) {
-        this.relationships = relationships;
-    }
+  @Override
+  public boolean isSearchTagsOnly() {
+    return false;
+  }
 
-    @Override
-    public ArrayList<String> getTags() {
-        return tags;
-    }
+  @Override
+  public Map<String, Object> getFilter() {
+    return null;
+  }
 
-    public void setTags(ArrayList<String> tags) {
-        this.tags = tags;
-    }
+  @Override
+  public QueryParams addTerm(String field, Object searchText) {
+    return null;
+  }
 
-    @Override
-    public String getSearchText() {
-        return searchText;
+  public TagCloudParams addRelationship(String relationship) {
+    if (relationships == null) {
+      relationships = new ArrayList<>();
     }
+    relationships.add(relationship);
+    return this;
+  }
 
-    public void setSearchText(String query) {
-        this.searchText = query;
+  public TagCloudParams addTag(String tagLabel) {
+    if (tags == null) {
+      tags = new ArrayList<>();
     }
-
-    @Override
-    public boolean isSearchTagsOnly() {
-        return false;
-    }
-
-    @Override
-    public Map<String, Object> getFilter() {
-        return null;
-    }
-
-    @Override
-    public QueryParams addTerm(String field, Object searchText) {
-        return null;
-    }
-
-    public TagCloudParams addRelationship(String relationship) {
-        if (relationships == null) {
-            relationships = new ArrayList<>();
-        }
-        relationships.add(relationship);
-        return this;
-    }
-
-    public TagCloudParams addTag(String tagLabel) {
-        if (tags == null) {
-            tags = new ArrayList<>();
-        }
-        tags.add(tagLabel);
-        return this;
-    }
+    tags.add(tagLabel);
+    return this;
+  }
 
 }

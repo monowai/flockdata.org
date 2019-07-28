@@ -38,35 +38,35 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 
 public class AdminEP {
-    private final StoreManager storeManager;
+  private final StoreManager storeManager;
 
-    @Autowired
-    public AdminEP(StoreManager storeManager) {
-        this.storeManager = storeManager;
+  @Autowired
+  public AdminEP(StoreManager storeManager) {
+    this.storeManager = storeManager;
+  }
+
+  @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = "text/plain")
+  String ping() throws Exception {
+    // curl -X GET http://localhost:8082/api/v1/admin/ping
+    return "pong";
+  }
+
+  @RequestMapping(value = "/ping/{service}", method = RequestMethod.GET, produces = "text/plain")
+  String ping(@PathVariable("service") String service) throws Exception {
+    try {
+      // Pings the underlying storage service
+      Store store = Store.valueOf(service.toUpperCase());
+      return storeManager.ping(store);
+    } catch (IllegalArgumentException e) {
+      return "Unknown store service " + service.toUpperCase();
     }
-
-    @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = "text/plain")
-    String ping() throws Exception {
-        // curl -X GET http://localhost:8082/api/v1/admin/ping
-        return "pong";
-    }
-
-    @RequestMapping(value = "/ping/{service}", method = RequestMethod.GET, produces = "text/plain")
-    String ping(@PathVariable("service") String service) throws Exception {
-        try {
-            // Pings the underlying storage service
-            Store store = Store.valueOf(service.toUpperCase());
-            return storeManager.ping(store);
-        } catch (IllegalArgumentException e) {
-            return "Unknown store service " + service.toUpperCase();
-        }
-    }
+  }
 
 
-    @RequestMapping(value = "/health", method = RequestMethod.GET)
-    Map<String, String> health() throws Exception {
-        // curl -X GET http://localhost:8082/api/v1/admin/ping
-        return storeManager.health();
-    }
+  @RequestMapping(value = "/health", method = RequestMethod.GET)
+  Map<String, String> health() throws Exception {
+    // curl -X GET http://localhost:8082/api/v1/admin/ping
+    return storeManager.health();
+  }
 
 }

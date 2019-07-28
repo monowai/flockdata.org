@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.flockdata.shell;
+package org.flockdata.shell.run;
 
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
@@ -32,14 +32,14 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ShellPromptProvider implements PromptProvider {
-    @Override
-    public AttributedString getPrompt() {
-        AttributedStringBuilder builder = new AttributedStringBuilder();
+  @Override
+  public AttributedString getPrompt() {
+    AttributedStringBuilder builder = new AttributedStringBuilder();
 
-        builder.append("fd-shell$ ", AttributedStyle.BOLD);
-        //return new AttributedString(Ansi.ansi().render("@|cyan fd-shell$ |@").toString());
-        return builder.toAttributedString();
-    }
+    builder.append("fd-shell$ ", AttributedStyle.BOLD);
+    //return new AttributedString(Ansi.ansi().render("@|cyan fd-shell$ |@").toString());
+    return builder.toAttributedString();
+  }
 
 
 }

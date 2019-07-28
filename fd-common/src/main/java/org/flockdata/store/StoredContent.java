@@ -33,24 +33,24 @@ import org.flockdata.track.bean.EntityResultBean;
 @JsonDeserialize(as = StorageBean.class)
 public interface StoredContent {
 
-    String getAttachment();
+  String getAttachment();
 
-    Map<String, Object> getData();
+  Map<String, Object> getData();
 
-    String getChecksum();
+  String getChecksum();
 
-    /**
-     * @return primary key for this content
-     */
-    Object getId();
+  /**
+   * @return primary key for this content
+   */
+  Object getId();
 
-    ContentInputBean getContent();
+  ContentInputBean getContent();
 
-    String getStore();
+  String getStore();
 
-    void setStore(String store);
+  void setStore(String store);
 
-    String getType();
+  String getType();
 
-    EntityResultBean getEntity();
+  EntityResultBean getEntity();
 }

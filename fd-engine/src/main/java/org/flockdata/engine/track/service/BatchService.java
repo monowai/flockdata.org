@@ -34,14 +34,14 @@ import org.flockdata.model.ContentValidationRequest;
  * @since 24/05/2016
  */
 public interface BatchService {
-    void process(CompanyNode company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException;
+  void process(CompanyNode company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException;
 
-    void processAsync(CompanyNode company, String fortressCode, String documentName, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException;
+  void processAsync(CompanyNode company, String fortressCode, String documentName, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException;
 
-    int process(Company company, FortressNode fortressCode, Document documentName, String pathToBatch, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException;
+  int process(Company company, FortressNode fortressCode, Document documentName, String pathToBatch, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException;
 
-    void validateArguments(CompanyNode company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException;
+  void validateArguments(CompanyNode company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException;
 
 
-    ContentValidationRequest process(CompanyNode company, ContentValidationRequest validationRequest);
+  ContentValidationRequest process(CompanyNode company, ContentValidationRequest validationRequest);
 }

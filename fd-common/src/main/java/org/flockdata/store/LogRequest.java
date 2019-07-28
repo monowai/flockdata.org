@@ -28,64 +28,64 @@ import org.flockdata.data.Log;
  */
 public class LogRequest {
 
-    private Long logId;
-    private Store store;
-    private Entity entity;
-    private String contentType;
-    private String checkSum;
-    private String type;
+  private Long logId;
+  private Store store;
+  private Entity entity;
+  private String contentType;
+  private String checkSum;
+  private String type;
 
-    public LogRequest() {
+  public LogRequest() {
+  }
+
+  public LogRequest(Entity entity) {
+    this.entity = entity;
+    this.logId = entity.getId();
+    this.store = Store.NONE;
+
+  }
+
+  public LogRequest(Entity entity, Log log) {
+    this(entity);
+    if (!log.isMocked()) {
+      this.logId = log.getId();
     }
+    this.store = Store.valueOf(log.getStorage());
+    this.contentType = log.getContentType();
+    this.checkSum = log.getChecksum();
+  }
 
-    public LogRequest(Entity entity) {
-        this.entity = entity;
-        this.logId = entity.getId();
-        this.store = Store.NONE;
+  public Long getLogId() {
+    return logId;
+  }
 
-    }
+  public Store getStore() {
+    return store;
+  }
 
-    public LogRequest(Entity entity, Log log) {
-        this(entity);
-        if (!log.isMocked()) {
-            this.logId = log.getId();
-        }
-        this.store = Store.valueOf(log.getStorage());
-        this.contentType = log.getContentType();
-        this.checkSum = log.getChecksum();
-    }
+  public Entity getEntity() {
+    return entity;
+  }
 
-    public Long getLogId() {
-        return logId;
-    }
+  @Override
+  public String toString() {
+    return "LogRequest{" +
+        "store=" + store +
+        ", logId=" + logId +
+        ", entity=" + entity.getKey() +
+        '}';
+  }
 
-    public Store getStore() {
-        return store;
-    }
+  public String getContentType() {
+    return contentType;
+  }
 
-    public Entity getEntity() {
-        return entity;
-    }
+  public String getCheckSum() {
+    return checkSum;
+  }
 
-    @Override
-    public String toString() {
-        return "LogRequest{" +
-            "store=" + store +
-            ", logId=" + logId +
-            ", entity=" + entity.getKey() +
-            '}';
-    }
-
-    public String getContentType() {
-        return contentType;
-    }
-
-    public String getCheckSum() {
-        return checkSum;
-    }
-
-    @JsonIgnore
-    public String getType() {
-        return getEntity().getType();
-    }
+  @JsonIgnore
+  public String getType() {
+    return getEntity().getType();
+  }
 }

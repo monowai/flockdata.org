@@ -39,27 +39,27 @@ import org.springframework.stereotype.Service;
 public class FdEntityWriter implements ItemWriter<EntityInputBean> {
 
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdEntityWriter.class);
-    private Template fdTemplate;
+  private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdEntityWriter.class);
+  private Template fdTemplate;
 
-    private FdEntityWriter() {
-    }
+  private FdEntityWriter() {
+  }
 
-    @Autowired
-    FdEntityWriter(Template fdTemplate) {
-        this();
-        this.fdTemplate = fdTemplate;
-        try {
-            fdTemplate.validateConnectivity();
-        } catch (FlockException e) {
-            logger.error("Error validating connectivity");
-        }
+  @Autowired
+  FdEntityWriter(Template fdTemplate) {
+    this();
+    this.fdTemplate = fdTemplate;
+    try {
+      fdTemplate.validateConnectivity();
+    } catch (FlockException e) {
+      logger.error("Error validating connectivity");
     }
+  }
 
-    @Override
-    public void write(List<? extends EntityInputBean> items) throws Exception {
-        for (EntityInputBean item : items) {
-            fdTemplate.writeEntity(item);
-        }
+  @Override
+  public void write(List<? extends EntityInputBean> items) throws Exception {
+    for (EntityInputBean item : items) {
+      fdTemplate.writeEntity(item);
     }
+  }
 }

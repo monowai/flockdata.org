@@ -42,27 +42,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ContentEP {
 
-    private ContentService contentService;
+  private ContentService contentService;
 
-    @Autowired
-    private void setContentService(ContentService contentService) {
-        this.contentService = contentService;
-    }
+  @Autowired
+  private void setContentService(ContentService contentService) {
+    this.contentService = contentService;
+  }
 
-    @RequestMapping(value = "/{company}/{fortress}/{type}", produces = "application/json",
-        method = RequestMethod.GET)
-    public ContentStructure simpleQuery(@PathVariable("company") String company, @PathVariable("type") String type, @PathVariable("fortress") String fortress) throws FlockException {
-        QueryParams queryParams = new QueryParams()
-            .setCompany(company.toLowerCase())
-            .setFortress(fortress.toLowerCase())
-            .setTypes(type.toLowerCase());
-        return contentService.getStructure(queryParams);
-    }
+  @RequestMapping(value = "/{company}/{fortress}/{type}", produces = "application/json",
+      method = RequestMethod.GET)
+  public ContentStructure simpleQuery(@PathVariable("company") String company, @PathVariable("type") String type, @PathVariable("fortress") String fortress) throws FlockException {
+    QueryParams queryParams = new QueryParams()
+        .setCompany(company.toLowerCase())
+        .setFortress(fortress.toLowerCase())
+        .setTypes(type.toLowerCase());
+    return contentService.getStructure(queryParams);
+  }
 
-    @RequestMapping(value = "/", consumes = "application/json", produces = "application/json",
-        method = RequestMethod.POST)
-    public ContentStructure simpleQuery(@RequestBody QueryParams queryParams) throws FlockException {
-        return contentService.getStructure(queryParams);
-    }
+  @RequestMapping(value = "/", consumes = "application/json", produces = "application/json",
+      method = RequestMethod.POST)
+  public ContentStructure simpleQuery(@RequestBody QueryParams queryParams) throws FlockException {
+    return contentService.getStructure(queryParams);
+  }
 
 }

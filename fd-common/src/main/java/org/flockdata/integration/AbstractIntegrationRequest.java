@@ -35,24 +35,24 @@ import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
  */
 public class AbstractIntegrationRequest {
 
-    private ObjectToJsonTransformer objectToJsonTransformer;
-    private JsonToObjectTransformer jsonToObjectTransformer;
+  private ObjectToJsonTransformer objectToJsonTransformer;
+  private JsonToObjectTransformer jsonToObjectTransformer;
 
-    public ObjectToJsonTransformer objectToJson() {
-        return objectToJsonTransformer;
-    }
+  public ObjectToJsonTransformer objectToJson() {
+    return objectToJsonTransformer;
+  }
 
-    public JsonToObjectTransformer jsonToObjectTransformer() {
-        return jsonToObjectTransformer;
-    }
+  public JsonToObjectTransformer jsonToObjectTransformer() {
+    return jsonToObjectTransformer;
+  }
 
-    @PostConstruct
-    public void createTransformers() {
-        objectToJsonTransformer = new ObjectToJsonTransformer(
-            new Jackson2JsonObjectMapper(JsonUtils.getMapper())
-        );
+  @PostConstruct
+  public void createTransformers() {
+    objectToJsonTransformer = new ObjectToJsonTransformer(
+        new Jackson2JsonObjectMapper(JsonUtils.getMapper())
+    );
 
-        objectToJsonTransformer.setContentType(MediaType.APPLICATION_JSON_UTF8.getType());
-        jsonToObjectTransformer = new JsonToObjectTransformer(new Jackson2JsonObjectMapper(JsonUtils.getMapper()));
-    }
+    objectToJsonTransformer.setContentType(MediaType.APPLICATION_JSON_UTF8.getType());
+    jsonToObjectTransformer = new JsonToObjectTransformer(new Jackson2JsonObjectMapper(JsonUtils.getMapper()));
+  }
 }

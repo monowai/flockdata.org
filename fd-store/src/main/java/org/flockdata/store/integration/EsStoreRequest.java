@@ -50,53 +50,53 @@ import org.springframework.stereotype.Service;
 @Profile( {"fd-server"})
 public class EsStoreRequest extends AbstractIntegrationRequest {
 
-    private final FdStoreConfig kvConfig;
+  private final FdStoreConfig kvConfig;
 
-    @Autowired
-    public EsStoreRequest(FdStoreConfig kvConfig) {
-        this.kvConfig = kvConfig;
-    }
+  @Autowired
+  public EsStoreRequest(FdStoreConfig kvConfig) {
+    this.kvConfig = kvConfig;
+  }
 
-    @Bean
-    MessageChannel receiveContentReply() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel receiveContentReply() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel sendDataQuery() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel sendDataQuery() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    IntegrationFlow dataQuery() {
-        return IntegrationFlows.from(sendDataQuery())
-            .handle(dataQueryHandler())
-            .get();
-    }
+  @Bean
+  IntegrationFlow dataQuery() {
+    return IntegrationFlows.from(sendDataQuery())
+        .handle(dataQueryHandler())
+        .get();
+  }
 
-    private MessageHandler dataQueryHandler() {
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(getDataQuery());
-        handler.setHttpMethod(HttpMethod.POST);
-        handler.setExpectedResponseType(EsSearchRequestResult.class);
-        return handler;
-    }
+  private MessageHandler dataQueryHandler() {
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(getDataQuery());
+    handler.setHttpMethod(HttpMethod.POST);
+    handler.setExpectedResponseType(EsSearchRequestResult.class);
+    return handler;
+  }
 
-    public String getDataQuery() {
-        // The endpoint in fd-search
-        return kvConfig.fdSearchUrl() + "/v1/query/data";
-    }
+  public String getDataQuery() {
+    // The endpoint in fd-search
+    return kvConfig.fdSearchUrl() + "/v1/query/data";
+  }
 
-    @Bean
-    MessageChannel doDataQuery() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel doDataQuery() {
+    return new DirectChannel();
+  }
 
-    // Seems we have to transform via this
-    @Transformer(inputChannel = "doDataQuery", outputChannel = "sendDataQuery")
-    public Message<?> transformRequest(Message theObject) {
-        return objectToJson().transform(theObject);
-    }
+  // Seems we have to transform via this
+  @Transformer(inputChannel = "doDataQuery", outputChannel = "sendDataQuery")
+  public Message<?> transformRequest(Message theObject) {
+    return objectToJson().transform(theObject);
+  }
 
 //    @MessagingGateway
 //    public interface ContentStoreEs {

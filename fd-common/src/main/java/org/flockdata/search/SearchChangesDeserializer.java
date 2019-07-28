@@ -37,32 +37,32 @@ import org.flockdata.track.bean.SearchChange;
  * @since 23/05/2014
  */
 public class SearchChangesDeserializer extends JsonDeserializer<SearchChanges> {
-    @Override
-    public SearchChanges deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        SearchChanges changes = new SearchChanges();
-        JsonNode n = jp.getCodec().readTree(jp);
-        Collection<JsonNode> columns = n.findValues("changes");
-        if (columns != null) {
-            ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
+  @Override
+  public SearchChanges deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    SearchChanges changes = new SearchChanges();
+    JsonNode n = jp.getCodec().readTree(jp);
+    Collection<JsonNode> columns = n.findValues("changes");
+    if (columns != null) {
+      ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
 
-            for (JsonNode node : columns) {
-                Iterator<JsonNode> nodes = node.elements();
+      for (JsonNode node : columns) {
+        Iterator<JsonNode> nodes = node.elements();
 
-                while (nodes.hasNext()) {
-                    JsonNode changeNode = nodes.next();
-                    if (SearchChange.Type.ENTITY.name().equals(changeNode.findValue("type").asText())) {
-                        EntitySearchChange change = JsonUtils.toObject(changeNode.toString().getBytes(), EntitySearchChange.class);
-                        changes.addChange(change);
-                    } else if (SearchChange.Type.TAG.name().equals(changeNode.findValue("type").asText())) {
-                        TagSearchChange change = JsonUtils.toObject(changeNode.toString().getBytes(), TagSearchChange.class);
-                        changes.addChange(change);
-                    } else {
-                        throw new IOException("Unrecognized search change " + changeNode.get("type"));
-                    }
+        while (nodes.hasNext()) {
+          JsonNode changeNode = nodes.next();
+          if (SearchChange.Type.ENTITY.name().equals(changeNode.findValue("type").asText())) {
+            EntitySearchChange change = JsonUtils.toObject(changeNode.toString().getBytes(), EntitySearchChange.class);
+            changes.addChange(change);
+          } else if (SearchChange.Type.TAG.name().equals(changeNode.findValue("type").asText())) {
+            TagSearchChange change = JsonUtils.toObject(changeNode.toString().getBytes(), TagSearchChange.class);
+            changes.addChange(change);
+          } else {
+            throw new IOException("Unrecognized search change " + changeNode.get("type"));
+          }
 
-                }
-            }
         }
-        return changes;
+      }
     }
+    return changes;
+  }
 }

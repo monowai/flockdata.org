@@ -32,13 +32,13 @@ import org.flockdata.track.bean.TrackResultBean;
  */
 public interface StorageProxy {
 
-    void write(TrackResultBean trackResult);
+  void write(TrackResultBean trackResult);
 
-    StoredContent read(Entity entity, Log lastChange);
+  StoredContent read(Entity entity, Log lastChange);
 
-    StoredContent read(LogRequest logRequest);
+  StoredContent read(LogRequest logRequest);
 
-    boolean compare(Entity entity, Log lastLog, Log preparedLog);
+  boolean compare(Entity entity, Log lastLog, Log preparedLog);
 
 
 }

@@ -49,245 +49,245 @@ import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 @Profile( {"fd-server"})
 public class Exchanges {
 
-    @Value("${org.fd.messaging.exchange:fd}")
-    public String fdExchangeName;
-    private Logger logger = LoggerFactory.getLogger("configuration");
-    @Value("${org.fd.search.messaging.dlx.queue:fd.search.dlx.queue}")
-    private String searchDlx;
+  @Value("${org.fd.messaging.exchange:fd}")
+  public String fdExchangeName;
+  private Logger logger = LoggerFactory.getLogger("configuration");
+  @Value("${org.fd.search.messaging.dlx.queue:fd.search.dlx.queue}")
+  private String searchDlx;
 
-    @Value("${org.fd.engine.messaging.queue:fd.engine.queue}")
-    private String engineQueue;
+  @Value("${org.fd.engine.messaging.queue:fd.engine.queue}")
+  private String engineQueue;
 
-    @Value("${org.fd.store.messaging.queue:fd.store.queue}")
-    private String storeQueue;
+  @Value("${org.fd.store.messaging.queue:fd.store.queue}")
+  private String storeQueue;
 
-    @Value("${org.fd.track.messaging.queue:fd.track.queue}")
-    private String trackQueue;
+  @Value("${org.fd.track.messaging.queue:fd.track.queue}")
+  private String trackQueue;
 
-    @Value("${org.fd.search.messaging.queue:fd.search.queue}")
-    private String searchQueue;
+  @Value("${org.fd.search.messaging.queue:fd.search.queue}")
+  private String searchQueue;
 
-    @Value("${org.fd.engine.messaging.dlx.queue:fd.engine.dlx.queue}")
-    private String engineDlx;
+  @Value("${org.fd.engine.messaging.dlx.queue:fd.engine.dlx.queue}")
+  private String engineDlx;
 
-    @Value("${org.fd.store.messaging.dlx.queue:fd.store.dlx.queue}")
-    private String storeDlx;
+  @Value("${org.fd.store.messaging.dlx.queue:fd.store.dlx.queue}")
+  private String storeDlx;
 
-    @Value("${org.fd.track.messaging.dlx.queue:fd.track.dlx.queue}")
-    private String trackDlx;
+  @Value("${org.fd.track.messaging.dlx.queue:fd.track.dlx.queue}")
+  private String trackDlx;
 
-    @Value("${org.fd.engine.messaging.concurrentConsumers:2}")
-    private int engineConcurrentConsumers;
+  @Value("${org.fd.engine.messaging.concurrentConsumers:2}")
+  private int engineConcurrentConsumers;
 
-    @Value("${org.fd.engine.messaging.prefetchCount:3}")
-    private int enginePreFetchCount;
+  @Value("${org.fd.engine.messaging.prefetchCount:3}")
+  private int enginePreFetchCount;
 
-    @Value("${org.fd.search.messaging.concurrentConsumers:2}")
-    private int searchConcurrentConsumers;
+  @Value("${org.fd.search.messaging.concurrentConsumers:2}")
+  private int searchConcurrentConsumers;
 
-    @Value("${org.fd.search.messaging.prefetchCount:3}")
-    private int searchPreFetchCount;
+  @Value("${org.fd.search.messaging.prefetchCount:3}")
+  private int searchPreFetchCount;
 
-    @Value("${org.fd.track.messaging.prefetchCount:3}")
-    private int trackPreFetchCount;
+  @Value("${org.fd.track.messaging.prefetchCount:3}")
+  private int trackPreFetchCount;
 
-    @Value("${org.fd.track.messaging.concurrentConsumers:2}")
-    private int trackConcurrentConsumers;
+  @Value("${org.fd.track.messaging.concurrentConsumers:2}")
+  private int trackConcurrentConsumers;
 
-    @Value("${org.fd.search.messaging.binding:fd.search.binding}")
-    private String searchBinding;
+  @Value("${org.fd.search.messaging.binding:fd.search.binding}")
+  private String searchBinding;
 
-    @Value("${org.fd.track.messaging.binding:fd.track.binding}")
-    private String trackBinding;
+  @Value("${org.fd.track.messaging.binding:fd.track.binding}")
+  private String trackBinding;
 
-    @Value("${org.fd.engine.messaging.binding:fd.engine.binding}")
-    private String engineBinding;
+  @Value("${org.fd.engine.messaging.binding:fd.engine.binding}")
+  private String engineBinding;
 
-    @Value("${org.fd.store.messaging.binding:fd.store.binding}")
-    private String storeBinding;
+  @Value("${org.fd.store.messaging.binding:fd.store.binding}")
+  private String storeBinding;
 
-    @Value("${org.fd.store.messaging.concurrentConsumers:2}")
-    private int storeConcurrentConsumers;
+  @Value("${org.fd.store.messaging.concurrentConsumers:2}")
+  private int storeConcurrentConsumers;
 
-    @Value("${org.fd.store.messaging.prefetchCount:3}")
-    private int storePreFetchCount;
+  @Value("${org.fd.store.messaging.prefetchCount:3}")
+  private int storePreFetchCount;
 
-    private AmqpRabbitConfig rabbitConfig;
+  private AmqpRabbitConfig rabbitConfig;
 
-    @Autowired
-    void setAmqpRabbitConfig(AmqpRabbitConfig rabbitConfig) {
-        this.rabbitConfig = rabbitConfig;
-    }
+  @Autowired
+  void setAmqpRabbitConfig(AmqpRabbitConfig rabbitConfig) {
+    this.rabbitConfig = rabbitConfig;
+  }
 
-    public String fdExchangeName() {
-        return fdExchangeName;
-    }
+  public String fdExchangeName() {
+    return fdExchangeName;
+  }
 
-    public String searchBinding() {
-        return searchBinding;
-    }
+  public String searchBinding() {
+    return searchBinding;
+  }
 
-    // GENERIC BINDINGS
-    public String storeBinding() {
-        return storeBinding;
-    }
+  // GENERIC BINDINGS
+  public String storeBinding() {
+    return storeBinding;
+  }
 
-    public int enginePreFetchCount() {
-        return enginePreFetchCount;
-    }
+  public int enginePreFetchCount() {
+    return enginePreFetchCount;
+  }
 
-    public int engineConcurrentConsumers() {
-        return engineConcurrentConsumers;
-    }
+  public int engineConcurrentConsumers() {
+    return engineConcurrentConsumers;
+  }
 
-    public int trackPreFetchCount() {
-        return trackPreFetchCount;
-    }
+  public int trackPreFetchCount() {
+    return trackPreFetchCount;
+  }
 
-    public int trackConcurrentConsumers() {
-        return trackConcurrentConsumers;
-    }
+  public int trackConcurrentConsumers() {
+    return trackConcurrentConsumers;
+  }
 
-    public int storeConcurrentConsumers() {
-        return storeConcurrentConsumers;
-    }
+  public int storeConcurrentConsumers() {
+    return storeConcurrentConsumers;
+  }
 
-    public int storePreFetchCount() {
-        return storePreFetchCount;
-    }
+  public int storePreFetchCount() {
+    return storePreFetchCount;
+  }
 
-    public String fdEngineBinding() {
-        return engineBinding;
-    }
+  public String fdEngineBinding() {
+    return engineBinding;
+  }
 
-    public int searchConcurrentConsumers() {
-        return searchConcurrentConsumers;
-    }
+  public int searchConcurrentConsumers() {
+    return searchConcurrentConsumers;
+  }
 
-    public int searchPreFetchCount() {
-        return searchPreFetchCount;
-    }
+  public int searchPreFetchCount() {
+    return searchPreFetchCount;
+  }
 
-    @Bean
-    public Exchange fdExchange() {
-        return new DirectExchange(fdExchangeName());
-    }
+  @Bean
+  public Exchange fdExchange() {
+    return new DirectExchange(fdExchangeName());
+  }
 
-    @Bean
-    public Exchange fdExchangeDlx() {
-        return new DirectExchange(rabbitConfig.fdExchangeDlxName());
-    }
+  @Bean
+  public Exchange fdExchangeDlx() {
+    return new DirectExchange(rabbitConfig.fdExchangeDlxName());
+  }
 
-    @Bean
-    public Queue fdTrackQueue() {
-        return new Queue(trackQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
-    }
+  @Bean
+  public Queue fdTrackQueue() {
+    return new Queue(trackQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
+  }
 
-    @Bean
-    public Queue fdStoreQueue() {
-        return new Queue(storeQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
-    }
+  @Bean
+  public Queue fdStoreQueue() {
+    return new Queue(storeQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
+  }
 
-    @Bean
-    public Queue fdSearchQueue() {
-        return new Queue(searchQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
-    }
+  @Bean
+  public Queue fdSearchQueue() {
+    return new Queue(searchQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
+  }
 
-    @Bean
-    public Queue fdEngineQueue() {
-        return new Queue(engineQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
-    }
+  @Bean
+  public Queue fdEngineQueue() {
+    return new Queue(engineQueue, true, false, false, rabbitConfig.getFdQueueFeatures());
+  }
 
-    @Bean
-    Binding engineBinding(Queue fdEngineQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdEngineQueue).to(fdExchange).with(engineBinding).noargs();
-    }
+  @Bean
+  Binding engineBinding(Queue fdEngineQueue, Exchange fdExchange) {
+    return BindingBuilder.bind(fdEngineQueue).to(fdExchange).with(engineBinding).noargs();
+  }
 
-    @Bean
-    Binding searchBinding(Queue fdSearchQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdSearchQueue).to(fdExchange).with(searchBinding).noargs();
-    }
+  @Bean
+  Binding searchBinding(Queue fdSearchQueue, Exchange fdExchange) {
+    return BindingBuilder.bind(fdSearchQueue).to(fdExchange).with(searchBinding).noargs();
+  }
 
-    @Bean
-    Binding storeBinding(Queue fdStoreQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdStoreQueue).to(fdExchange).with(storeBinding).noargs();
-    }
+  @Bean
+  Binding storeBinding(Queue fdStoreQueue, Exchange fdExchange) {
+    return BindingBuilder.bind(fdStoreQueue).to(fdExchange).with(storeBinding).noargs();
+  }
 
-    @Bean
-    Binding trackBinding(Queue fdTrackQueue, Exchange fdExchange) {
-        return BindingBuilder.bind(fdTrackQueue).to(fdExchange).with(trackBinding).noargs();
-    }
+  @Bean
+  Binding trackBinding(Queue fdTrackQueue, Exchange fdExchange) {
+    return BindingBuilder.bind(fdTrackQueue).to(fdExchange).with(trackBinding).noargs();
+  }
 
-    @Bean
-    Binding trackDlxBinding(Queue fdTrackDlx, Exchange fdExchangeDlx) {
-        return BindingBuilder.bind(fdTrackDlx).to(fdExchangeDlx).with(trackQueue).noargs();
-    }
+  @Bean
+  Binding trackDlxBinding(Queue fdTrackDlx, Exchange fdExchangeDlx) {
+    return BindingBuilder.bind(fdTrackDlx).to(fdExchangeDlx).with(trackQueue).noargs();
+  }
 
-    @Bean
-    Binding engineDlxBinding(Queue fdEngineDlx, Exchange fdExchangeDlx) {
-        return BindingBuilder.bind(fdEngineDlx).to(fdExchangeDlx).with(engineQueue).noargs();
-    }
+  @Bean
+  Binding engineDlxBinding(Queue fdEngineDlx, Exchange fdExchangeDlx) {
+    return BindingBuilder.bind(fdEngineDlx).to(fdExchangeDlx).with(engineQueue).noargs();
+  }
 
-    @Bean
-    Binding searchDlxBinding(Queue fdSearchDlx, Exchange fdExchangeDlx) {
-        return BindingBuilder.bind(fdSearchDlx).to(fdExchangeDlx).with(searchQueue).noargs();
-    }
+  @Bean
+  Binding searchDlxBinding(Queue fdSearchDlx, Exchange fdExchangeDlx) {
+    return BindingBuilder.bind(fdSearchDlx).to(fdExchangeDlx).with(searchQueue).noargs();
+  }
 
-    @Bean
-    Binding storeDlxBinding(Queue fdStoreDlx, Exchange fdExchangeDlx) {
-        return BindingBuilder.bind(fdStoreDlx).to(fdExchangeDlx).with(storeQueue).noargs();
-    }
+  @Bean
+  Binding storeDlxBinding(Queue fdStoreDlx, Exchange fdExchangeDlx) {
+    return BindingBuilder.bind(fdStoreDlx).to(fdExchangeDlx).with(storeQueue).noargs();
+  }
 
-    // Dead Letter Exchange Queues
-    @Bean
-    public Queue fdTrackDlx() {
-        return new Queue(trackDlx);
-    }
+  // Dead Letter Exchange Queues
+  @Bean
+  public Queue fdTrackDlx() {
+    return new Queue(trackDlx);
+  }
 
-    @Bean
-    public Queue fdSearchDlx() {
-        return new Queue(searchDlx);
-    }
+  @Bean
+  public Queue fdSearchDlx() {
+    return new Queue(searchDlx);
+  }
 
-    @Bean
-    public Queue fdEngineDlx() {
-        return new Queue(engineDlx);
-    }
+  @Bean
+  public Queue fdEngineDlx() {
+    return new Queue(engineDlx);
+  }
 
-    @Bean
-    public Queue fdStoreDlx() {
-        return new Queue(storeDlx);
-    }
-
-
-    @PostConstruct
-    void logStatus() {
-        logger.info("**** Exchanges (ex.shared) have been initialised");
-    }
-
-    @Bean
-    RetryOperationsInterceptor trackInterceptor(AmqpTemplate amqpTemplate) {
-        return RetryInterceptorBuilder.stateless()
-            .maxAttempts(1)
-            .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), trackQueue))
-            .build();
-    }
+  @Bean
+  public Queue fdStoreDlx() {
+    return new Queue(storeDlx);
+  }
 
 
-    @Bean
-    RetryOperationsInterceptor searchInterceptor(AmqpTemplate amqpTemplate) {
-        return RetryInterceptorBuilder.stateless()
-            .maxAttempts(2)
-            .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), searchQueue))
-            .build();
-    }
+  @PostConstruct
+  void logStatus() {
+    logger.info("**** Exchanges (ex.shared) have been initialised");
+  }
 
-    @Bean
-    RetryOperationsInterceptor storeInterceptor(AmqpTemplate amqpTemplate) {
-        return RetryInterceptorBuilder.stateless()
-            .maxAttempts(2)
-            .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), storeQueue))
-            .build();
-    }
+  @Bean
+  RetryOperationsInterceptor trackInterceptor(AmqpTemplate amqpTemplate) {
+    return RetryInterceptorBuilder.stateless()
+        .maxAttempts(1)
+        .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), trackQueue))
+        .build();
+  }
+
+
+  @Bean
+  RetryOperationsInterceptor searchInterceptor(AmqpTemplate amqpTemplate) {
+    return RetryInterceptorBuilder.stateless()
+        .maxAttempts(2)
+        .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), searchQueue))
+        .build();
+  }
+
+  @Bean
+  RetryOperationsInterceptor storeInterceptor(AmqpTemplate amqpTemplate) {
+    return RetryInterceptorBuilder.stateless()
+        .maxAttempts(2)
+        .recoverer(new RepublishMessageRecoverer(amqpTemplate, rabbitConfig.fdExchangeDlxName(), storeQueue))
+        .build();
+  }
 
 }

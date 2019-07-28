@@ -53,136 +53,136 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 public class TestQueryDao extends ESBase {
-    @Test
-    public void entityQueryFromQueryParams() throws Exception {
-        Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
+  @Test
+  public void entityQueryFromQueryParams() throws Exception {
+    Map<String, Object> json = ContentDataHelper.getBigJsonText(20);
 
-        String fortress = "querydao";
-        String company = "company";
-        String doc = "doc";
-        String user = "mike";
+    String fortress = "querydao";
+    String company = "company";
+    String doc = "doc";
+    String user = "mike";
 
-        Entity entity = getEntity(company, fortress, user, doc, "theCodeToFind", "2015");
+    Entity entity = getEntity(company, fortress, user, doc, "theCodeToFind", "2015");
 
-        EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
-        change.setDescription("Test Description");
-        change.setData(json);
+    EntitySearchChange change = new EntitySearchChange(entity, searchConfig.getIndexManager().toIndex(entity));
+    change.setDescription("Test Description");
+    change.setData(json);
 
-        SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
-        Thread.sleep(1000);
-        assertNotNull(searchResults);
+    SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
+    Thread.sleep(1000);
+    assertNotNull(searchResults);
 
-        // COde is a term Query
-        QueryParams queryParams = new QueryParams()
-            .setIndex(searchConfig.getIndexManager().toIndex(entity))
-            .setTypes(entity.getType())
-            .setCode(entity.getCode());
+    // COde is a term Query
+    QueryParams queryParams = new QueryParams()
+        .setIndex(searchConfig.getIndexManager().toIndex(entity))
+        .setTypes(entity.getType())
+        .setCode(entity.getCode());
 
-        EsSearchRequestResult result = queryServiceEs.doParametrizedQuery(queryParams);
-        org.assertj.core.api.Assertions.assertThat(result)
-            .isNotNull()
-            .hasFieldOrPropertyWithValue("fdSearchError", null)
-            .hasFieldOrPropertyWithValue("totalHits", 1L)
-            .hasFieldOrProperty("json")
-        ;
+    EsSearchRequestResult result = queryServiceEs.doParametrizedQuery(queryParams);
+    org.assertj.core.api.Assertions.assertThat(result)
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("fdSearchError", null)
+        .hasFieldOrPropertyWithValue("totalHits", 1L)
+        .hasFieldOrProperty("json")
+    ;
 
-        // User defined Term query
-        queryParams = new QueryParams()
-            .setIndex(searchConfig.getIndexManager().toIndex(entity))
-            .setTypes(entity.getType())
-            .addTerm("fortress", entity.getSegment().getFortress().getCode());
+    // User defined Term query
+    queryParams = new QueryParams()
+        .setIndex(searchConfig.getIndexManager().toIndex(entity))
+        .setTypes(entity.getType())
+        .addTerm("fortress", entity.getSegment().getFortress().getCode());
 
-        result = queryServiceEs.doParametrizedQuery(queryParams);
-        org.assertj.core.api.Assertions.assertThat(result)
-            .isNotNull()
-            .hasFieldOrPropertyWithValue("fdSearchError", null)
-            .hasFieldOrPropertyWithValue("totalHits", 1L)
-            .hasFieldOrProperty("json");
+    result = queryServiceEs.doParametrizedQuery(queryParams);
+    org.assertj.core.api.Assertions.assertThat(result)
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("fdSearchError", null)
+        .hasFieldOrPropertyWithValue("totalHits", 1L)
+        .hasFieldOrProperty("json");
 
-        // MatchAll query
-        queryParams = new QueryParams("*")
-            .setIndex(searchConfig.getIndexManager().toIndex(entity))
-            .setSegment(entity.getSegment().getCode())
-        ;
+    // MatchAll query
+    queryParams = new QueryParams("*")
+        .setIndex(searchConfig.getIndexManager().toIndex(entity))
+        .setSegment(entity.getSegment().getCode())
+    ;
 
-        result = queryServiceEs.doParametrizedQuery(queryParams);
-        org.assertj.core.api.Assertions.assertThat(result)
-            .isNotNull()
-            .hasFieldOrPropertyWithValue("fdSearchError", null)
-            .hasFieldOrPropertyWithValue("totalHits", 1L)
-            .hasFieldOrProperty("json")
-        ;
+    result = queryServiceEs.doParametrizedQuery(queryParams);
+    org.assertj.core.api.Assertions.assertThat(result)
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("fdSearchError", null)
+        .hasFieldOrPropertyWithValue("totalHits", 1L)
+        .hasFieldOrProperty("json")
+    ;
 
-        // MatchAll query within a segment
-        queryParams = new QueryParams("*")
-            .setIndex(searchConfig.getIndexManager().toIndex(entity))
-        ;
+    // MatchAll query within a segment
+    queryParams = new QueryParams("*")
+        .setIndex(searchConfig.getIndexManager().toIndex(entity))
+    ;
 
 
-        result = queryServiceEs.doParametrizedQuery(queryParams);
-        org.assertj.core.api.Assertions.assertThat(result)
-            .isNotNull()
-            .hasFieldOrPropertyWithValue("fdSearchError", null)
-            .hasFieldOrProperty("json")
-            .hasFieldOrPropertyWithValue("totalHits", 1L)
-        ;
+    result = queryServiceEs.doParametrizedQuery(queryParams);
+    org.assertj.core.api.Assertions.assertThat(result)
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("fdSearchError", null)
+        .hasFieldOrProperty("json")
+        .hasFieldOrPropertyWithValue("totalHits", 1L)
+    ;
 
-        // Boost Query
-        queryParams = new QueryParams(entity.getCode())
-            .setMatchAll(true)
-            .setIndex(searchConfig.getIndexManager().toIndex(entity))
-        ;
+    // Boost Query
+    queryParams = new QueryParams(entity.getCode())
+        .setMatchAll(true)
+        .setIndex(searchConfig.getIndexManager().toIndex(entity))
+    ;
 
-        result = queryServiceEs.doParametrizedQuery(queryParams);
-        org.assertj.core.api.Assertions.assertThat(result)
-            .isNotNull()
-            .hasFieldOrPropertyWithValue("fdSearchError", null)
-            .hasFieldOrProperty("json")
-            .hasFieldOrPropertyWithValue("totalHits", 1L)
-        ;
+    result = queryServiceEs.doParametrizedQuery(queryParams);
+    org.assertj.core.api.Assertions.assertThat(result)
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("fdSearchError", null)
+        .hasFieldOrProperty("json")
+        .hasFieldOrPropertyWithValue("totalHits", 1L)
+    ;
 
-    }
+  }
 
-    @Test
-    public void findTagByWildCard() throws Exception {
-        Company company = new CompanyInputBean("findTagByWildCard");
+  @Test
+  public void findTagByWildCard() throws Exception {
+    Company company = new CompanyInputBean("findTagByWildCard");
 
-        TagInputBean tagInputBean = new TagInputBean("simpleCode", "SimpleLabel");
-        tagInputBean.setName("A Name to Find");
-        tagInputBean.setProperty("user property", "UDFValue");
+    TagInputBean tagInputBean = new TagInputBean("simpleCode", "SimpleLabel");
+    tagInputBean.setName("A Name to Find");
+    tagInputBean.setProperty("user property", "UDFValue");
 
-        Tag tag = MockDataFactory.getTag(tagInputBean);
+    Tag tag = MockDataFactory.getTag(tagInputBean);
 
-        String key = TagHelper.parseKey(tagInputBean.getCode() + "Alias");
-        Alias alias = MockDataFactory.getAlias(tagInputBean.getLabel(), new AliasInputBean(tagInputBean.getCode() + "Alias", "someAliasDescription"), key, tag);
-        Set<Alias> aliasSet = new HashSet<>();
-        aliasSet.add(alias);
-        when(tag.getAliases()).thenReturn(aliasSet);
+    String key = TagHelper.parseKey(tagInputBean.getCode() + "Alias");
+    Alias alias = MockDataFactory.getAlias(tagInputBean.getLabel(), new AliasInputBean(tagInputBean.getCode() + "Alias", "someAliasDescription"), key, tag);
+    Set<Alias> aliasSet = new HashSet<>();
+    aliasSet.add(alias);
+    when(tag.getAliases()).thenReturn(aliasSet);
 
-        String indexName = searchConfig.getIndexManager().getTagIndexRoot(company, tag);
-        org.assertj.core.api.Assertions.assertThat(indexName)
-            .isNotNull()
-            .contains(".tags")
-        ;
+    String indexName = searchConfig.getIndexManager().getTagIndexRoot(company, tag);
+    org.assertj.core.api.Assertions.assertThat(indexName)
+        .isNotNull()
+        .contains(".tags")
+    ;
 
-        deleteEsIndex(indexName);
+    deleteEsIndex(indexName);
 
-        TagSearchChange tagSearchChange = new TagSearchChange(indexName, tag);
+    TagSearchChange tagSearchChange = new TagSearchChange(indexName, tag);
 
-        indexMappingService.ensureIndexMapping(tagSearchChange);
+    indexMappingService.ensureIndexMapping(tagSearchChange);
 
-        tagWriter.handle(tagSearchChange);
-        Thread.sleep(1000);
+    tagWriter.handle(tagSearchChange);
+    Thread.sleep(1000);
 
-        QueryParams queryParams = new QueryParams(tag.getName())
-            .setIndex(searchConfig.getIndexManager().getTagIndexRoot(company, tag));
+    QueryParams queryParams = new QueryParams(tag.getName())
+        .setIndex(searchConfig.getIndexManager().getTagIndexRoot(company, tag));
 
-        EsSearchRequestResult result = queryServiceEs.doParametrizedQuery(queryParams);
-        org.assertj.core.api.Assertions.assertThat(result)
-            .isNotNull()
-            .hasFieldOrPropertyWithValue("fdSearchError", null)
-            .hasFieldOrProperty("json")
-            .hasFieldOrPropertyWithValue("totalHits", 1L);
+    EsSearchRequestResult result = queryServiceEs.doParametrizedQuery(queryParams);
+    org.assertj.core.api.Assertions.assertThat(result)
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("fdSearchError", null)
+        .hasFieldOrProperty("json")
+        .hasFieldOrPropertyWithValue("totalHits", 1L);
 
-    }
+  }
 }

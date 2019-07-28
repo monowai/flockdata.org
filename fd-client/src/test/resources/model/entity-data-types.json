@@ -6,7 +6,6 @@
   "fortressUser": "mike",
   "header": true,
   "content": {
-
     "Amount": {
       "dataType": "double",
       "properties": [
@@ -17,6 +16,5 @@
         }
       ]
     }
-
   }
 }

@@ -36,51 +36,51 @@ import java.util.concurrent.locks.ReentrantLock;
  * @since 28/10/2014
  */
 public class FdJsonObjectMapper extends JsonFactory {
-    private static ObjectMapper objectMapper = null;
-    private static Lock l = new ReentrantLock();
+  private static ObjectMapper objectMapper = null;
+  private static Lock l = new ReentrantLock();
 
-    /**
-     * @return Jackson 2.0 mapper with comments enabled
-     */
-    public static ObjectMapper getObjectMapper() {
+  /**
+   * @return Jackson 2.0 mapper with comments enabled
+   */
+  public static ObjectMapper getObjectMapper() {
+    if (objectMapper == null) {
+      try {
+        l.lock();
         if (objectMapper == null) {
-            try {
-                l.lock();
-                if (objectMapper == null) {
-                    objectMapper = new ObjectMapper(new FdJsonObjectMapper());
-                    //objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-                }
-
-            } finally {
-                l.unlock();
-            }
+          objectMapper = new ObjectMapper(new FdJsonObjectMapper());
+          //objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         }
 
-        return objectMapper;
+      } finally {
+        l.unlock();
+      }
     }
 
-    @Override
-    public JsonParser createParser(URL url) throws IOException {
-        JsonParser p = super.createParser(url);
-        setParserFeatures(p);
-        return p;
-    }
+    return objectMapper;
+  }
 
-    private void setParserFeatures(JsonParser p) {
-        p.enable(JsonParser.Feature.ALLOW_COMMENTS);
-    }
+  @Override
+  public JsonParser createParser(URL url) throws IOException {
+    JsonParser p = super.createParser(url);
+    setParserFeatures(p);
+    return p;
+  }
 
-    @Override
-    public JsonParser createParser(InputStream stream) throws IOException {
-        JsonParser p = super.createParser(stream);
-        setParserFeatures(p);
-        return p;
-    }
+  private void setParserFeatures(JsonParser p) {
+    p.enable(JsonParser.Feature.ALLOW_COMMENTS);
+  }
 
-    @Override
-    public JsonParser createParser(File file) throws IOException {
-        JsonParser p = super.createParser(file);
-        setParserFeatures(p);
-        return p;
-    }
+  @Override
+  public JsonParser createParser(InputStream stream) throws IOException {
+    JsonParser p = super.createParser(stream);
+    setParserFeatures(p);
+    return p;
+  }
+
+  @Override
+  public JsonParser createParser(File file) throws IOException {
+    JsonParser p = super.createParser(file);
+    setParserFeatures(p);
+    return p;
+  }
 }

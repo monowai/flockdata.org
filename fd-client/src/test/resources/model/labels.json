@@ -15,11 +15,19 @@
       "labelDescription": "'this is a random description of the Label'",
       "relationship": "key",
       "aliases": [
-        { "code": "assetID", "description": "Asset PK"},
-        { "code": "isin", "description": "ISIN"},
-        { "code": "assetCode", "description": "assetCode"}
+        {
+          "code": "assetID",
+          "description": "Asset PK"
+        },
+        {
+          "code": "isin",
+          "description": "ISIN"
+        },
+        {
+          "code": "assetCode",
+          "description": "assetCode"
+        }
       ]
     }
-
   }
 }

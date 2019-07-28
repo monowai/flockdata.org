@@ -8,64 +8,69 @@
   ~ Vestibulum commodo. Ut rhoncus gravida arcu.
   -->
 
-<beans:beans xmlns="http://www.springframework.org/schema/security"
-             xmlns:beans="http://www.springframework.org/schema/beans"
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns="http://www.springframework.org/schema/security"
              xsi:schemaLocation="http://www.springframework.org/schema/beans
                     http://www.springframework.org/schema/beans/spring-beans.xsd
                     http://www.springframework.org/schema/security
                     http://www.springframework.org/schema/security/spring-security.xsd">
 
     <beans:bean id="userProfileService"
-                class="org.flockdata.authentication.stormpath.StormPathUser" />
+                class="org.flockdata.authentication.stormpath.StormPathUser"/>
 
-    <beans:bean id="stormpathClient" class="com.stormpath.spring.security.client.ClientFactory" >
-        <beans:property name="apiKeyFileLocation" value="${org.fd.auth.stormpath.apiKeyFile}" />
+    <beans:bean id="stormpathClient" class="com.stormpath.spring.security.client.ClientFactory">
+        <beans:property name="apiKeyFileLocation" value="${org.fd.auth.stormpath.apiKeyFile}"/>
         <!--You're including this module in super module. We assume a cache configuration named fdCacheManager -->
-        <beans:property name="cacheManager" ref="fdCacheManager" />
+        <beans:property name="cacheManager" ref="fdCacheManager"/>
     </beans:bean>
 
-    <beans:bean id="authenticationProvider" class="com.stormpath.spring.security.provider.StormpathAuthenticationProvider">
-        <beans:property name="client" ref="stormpathClient" />
+    <beans:bean id="authenticationProvider"
+                class="com.stormpath.spring.security.provider.StormpathAuthenticationProvider">
+        <beans:property name="client" ref="stormpathClient"/>
         <beans:property name="applicationRestUrl" value="${org.fd.auth.stormpath.application}"/>
         <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
-        <beans:property name="groupGrantedAuthorityResolver" ref="groupGrantedAuthorityResolver" />
+        <beans:property name="groupGrantedAuthorityResolver" ref="groupGrantedAuthorityResolver"/>
     </beans:bean>
 
     <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
-    <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype" >
+    <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype">
         <beans:constructor-arg>
             <beans:map key-type="java.lang.String" value-type="java.util.List">
-            	<beans:entry key="${org.fd.auth.stormpath.group.user}" value="ROLE_FD_USER" />
-            	<beans:entry key="${org.fd.auth.stormpath.group.admin}" value="ROLE_FD_ADMIN" />
+                <beans:entry key="${org.fd.auth.stormpath.group.user}" value="ROLE_FD_USER"/>
+                <beans:entry key="${org.fd.auth.stormpath.group.admin}" value="ROLE_FD_ADMIN"/>
             </beans:map>
         </beans:constructor-arg>
     </beans:bean>
- 
+
     <!-- When mapping to domain-specific role names -->
-    <beans:bean id="groupGrantedAuthorityResolver" class="org.flockdata.authentication.stormpath.GroupRoleGrantedAuthorityResolver" >
-        <beans:constructor-arg ref="groupRoleGrantedAuthoritiesMap" />
+    <beans:bean id="groupGrantedAuthorityResolver"
+                class="org.flockdata.authentication.stormpath.GroupRoleGrantedAuthorityResolver">
+        <beans:constructor-arg ref="groupRoleGrantedAuthoritiesMap"/>
     </beans:bean>
 
     <!-- We are using our own permission evaluation for WildcardPermissions -->
-    <beans:bean id="permissionEvaluator" class="com.stormpath.spring.security.authz.permission.evaluator.WildcardPermissionEvaluator"/>
+    <beans:bean id="permissionEvaluator"
+                class="com.stormpath.spring.security.authz.permission.evaluator.WildcardPermissionEvaluator"/>
 
-    <beans:bean id="methodExpressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+    <beans:bean id="methodExpressionHandler"
+                class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <!-- Let's use our own permission evaluation for WildcardPermissions -->
         <beans:property name="permissionEvaluator" ref="permissionEvaluator"/>
     </beans:bean>
 
-    <beans:bean id="webExpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler">
+    <beans:bean id="webExpressionHandler"
+                class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler">
         <!-- Let's use our own permission evaluation for WildcardPermissions -->
         <beans:property name="permissionEvaluator" ref="permissionEvaluator"/>
     </beans:bean>
 
-    <http auto-config='true' use-expressions="true" >
-        <intercept-url pattern="pattern=/v**" access="hasRole('ROLE_FD_USER')" />
+    <http auto-config='true' use-expressions="true">
+        <intercept-url pattern="pattern=/v**" access="hasRole('ROLE_FD_USER')"/>
         <logout logout-url="/logout" logout-success-url="/index.jsp"/>
     </http>
 
-    <authentication-manager  alias="authenticationManager">
+    <authentication-manager alias="authenticationManager">
         <authentication-provider ref='authenticationProvider'/>
     </authentication-manager>
 
@@ -75,23 +80,23 @@
 
     <!--<cache:annotation-driven cache-manager="spCache" />-->
     <!--&lt;!&ndash; Generic cache manager based on the JDK ConcurrentMap &ndash;&gt;-->
-<!-- DAT-302 these configurations moved to fd-ehcache.xml -->
+    <!-- DAT-302 these configurations moved to fd-ehcache.xml -->
     <!--<beans:bean id="spCache" class="org.springframework.cache.support.SimpleCacheManager">-->
-        <!--<beans:property name="caches">-->
-            <!--<beans:set>-->
-                <!--<beans:bean-->
-                        <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
-                        <!--name="com.stormpath.sdk.application.Application" />-->
-                <!--<beans:bean-->
-                        <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
-                        <!--name="com.stormpath.sdk.account.Account" />-->
-                <!--<beans:bean-->
-                        <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
-                        <!--name="com.stormpath.sdk.group.Group" />-->
-                <!--<beans:bean-->
-                        <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
-                        <!--name="com.stormpath.sdk.directory.CustomData" />-->
-            <!--</beans:set>-->
-        <!--</beans:property>-->
+    <!--<beans:property name="caches">-->
+    <!--<beans:set>-->
+    <!--<beans:bean-->
+    <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
+    <!--name="com.stormpath.sdk.application.Application" />-->
+    <!--<beans:bean-->
+    <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
+    <!--name="com.stormpath.sdk.account.Account" />-->
+    <!--<beans:bean-->
+    <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
+    <!--name="com.stormpath.sdk.group.Group" />-->
+    <!--<beans:bean-->
+    <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
+    <!--name="com.stormpath.sdk.directory.CustomData" />-->
+    <!--</beans:set>-->
+    <!--</beans:property>-->
     <!--</beans:bean>-->
 </beans:beans>

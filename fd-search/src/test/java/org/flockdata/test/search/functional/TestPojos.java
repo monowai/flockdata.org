@@ -35,25 +35,25 @@ import org.junit.Test;
 
 public class TestPojos {
 
-    @Test
-    public void testGetSimpleQuery_Quoted() throws Exception {
-        String query = QueryGenerator.getSimpleQuery(new QueryParams("\"test quotes\""), false);
-        assertTrue("Quoted string not parsed correctly", query.contains("\\\"test quotes\\\""));
-        query = QueryGenerator.getSimpleQuery(new QueryParams("test quotes"), false);
-        assertFalse("Text should not have been quoted", query.contains("\\\"test quotes\\\""));
-    }
+  @Test
+  public void testGetSimpleQuery_Quoted() throws Exception {
+    String query = QueryGenerator.getSimpleQuery(new QueryParams("\"test quotes\""), false);
+    assertTrue("Quoted string not parsed correctly", query.contains("\\\"test quotes\\\""));
+    query = QueryGenerator.getSimpleQuery(new QueryParams("test quotes"), false);
+    assertFalse("Text should not have been quoted", query.contains("\\\"test quotes\\\""));
+  }
 
-    @Test
-    public void testGetSimpleQuery_withoutHighlight() throws Exception {
-        String query = QueryGenerator.getSimpleQuery(new QueryParams("test"), false);
-        assertFalse(query.contains("highlight"));
-    }
+  @Test
+  public void testGetSimpleQuery_withoutHighlight() throws Exception {
+    String query = QueryGenerator.getSimpleQuery(new QueryParams("test"), false);
+    assertFalse(query.contains("highlight"));
+  }
 
-    @Test
-    public void testGetSimpleQuery_withHighlight() throws Exception {
-        String query = QueryGenerator.getSimpleQuery(new QueryParams("test"), true);
-        Assert.assertTrue(query.contains("highlight"));
-    }
+  @Test
+  public void testGetSimpleQuery_withHighlight() throws Exception {
+    String query = QueryGenerator.getSimpleQuery(new QueryParams("test"), true);
+    Assert.assertTrue(query.contains("highlight"));
+  }
 
 //    @Test
 //    public void indexManager() throws Exception {

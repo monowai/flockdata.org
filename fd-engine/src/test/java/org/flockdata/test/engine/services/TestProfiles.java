@@ -70,102 +70,102 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles( {"dev", "fd-auth-test"})
 public class TestProfiles extends EngineBase {
 
-    @Autowired
-    private ContentModelService profileService;
-    @Autowired
-    private FileProcessor fileProcessor;
-    private Logger logger = LoggerFactory.getLogger(TestProfiles.class);
+  @Autowired
+  private ContentModelService profileService;
+  @Autowired
+  private FileProcessor fileProcessor;
+  private Logger logger = LoggerFactory.getLogger(TestProfiles.class);
 
-    @Test
-    @Transactional
-    public void create_ContentModel() throws Exception {
-        SystemUser su = registerSystemUser("create_Profile", mike_admin);
+  @Test
+  @Transactional
+  public void create_ContentModel() throws Exception {
+    SystemUser su = registerSystemUser("create_Profile", mike_admin);
 
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-model.json");
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("create_profile", true));
-        DocumentNode docType = conceptService.resolveByDocCode(fortress, "Olympic");
-        profileService.saveEntityModel(su.getCompany(), fortress, docType, contentModel);
-        ContentModel savedProfile = profileService.get(su.getCompany(), fortress, docType);
-        assertNotNull(savedProfile);
-        assertEquals(contentModel.getFortressUser(), savedProfile.getFortressUser());
-        assertEquals(contentModel.isEntityOnly(), savedProfile.isEntityOnly());
-        assertEquals(contentModel.getContent().size(), savedProfile.getContent().size());
-        ColumnDefinition column = savedProfile.getContent().get("TagVal");
-        assertNotNull(column);
-        assertEquals(true, column.isMustExist());
-        assertEquals(true, column.isTag());
-        assertNull(savedProfile.getHandler());
-        column.setMustExist(false);
-        profileService.saveEntityModel(su.getCompany(), fortress, docType, savedProfile);
-        savedProfile = profileService.get(su.getCompany(), fortress, docType);
-        assertNull(savedProfile.getHandler());
-        assertFalse("Updating the mustExist attribute did not persist", savedProfile.getContent().get("TagVal").isMustExist());
-    }
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/models/test-model.json");
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("create_profile", true));
+    DocumentNode docType = conceptService.resolveByDocCode(fortress, "Olympic");
+    profileService.saveEntityModel(su.getCompany(), fortress, docType, contentModel);
+    ContentModel savedProfile = profileService.get(su.getCompany(), fortress, docType);
+    assertNotNull(savedProfile);
+    assertEquals(contentModel.getFortressUser(), savedProfile.getFortressUser());
+    assertEquals(contentModel.isEntityOnly(), savedProfile.isEntityOnly());
+    assertEquals(contentModel.getContent().size(), savedProfile.getContent().size());
+    ColumnDefinition column = savedProfile.getContent().get("TagVal");
+    assertNotNull(column);
+    assertEquals(true, column.isMustExist());
+    assertEquals(true, column.isTag());
+    assertNull(savedProfile.getHandler());
+    column.setMustExist(false);
+    profileService.saveEntityModel(su.getCompany(), fortress, docType, savedProfile);
+    savedProfile = profileService.get(su.getCompany(), fortress, docType);
+    assertNull(savedProfile.getHandler());
+    assertFalse("Updating the mustExist attribute did not persist", savedProfile.getContent().get("TagVal").isMustExist());
+  }
 
-    @Test
-    public void serverSideModelAndTagsLinkToExistingDocumentType() throws Exception {
-        SystemUser su = registerSystemUser("serverSideModelAndTagsLink", mike_admin);
+  @Test
+  public void serverSideModelAndTagsLinkToExistingDocumentType() throws Exception {
+    SystemUser su = registerSystemUser("serverSideModelAndTagsLink", mike_admin);
 
-        engineConfig.setConceptsEnabled(true);
-        ContentModel simpleModel = ContentModelDeserializer.getContentModel("/models/test-sflow.json");
-        Collection<ContentModel> contentModels = new ArrayList<>();
-        contentModels.add(simpleModel);
-        DocumentNode documentType;
+    engineConfig.setConceptsEnabled(true);
+    ContentModel simpleModel = ContentModelDeserializer.getContentModel("/models/test-sflow.json");
+    Collection<ContentModel> contentModels = new ArrayList<>();
+    contentModels.add(simpleModel);
+    DocumentNode documentType;
 
 
-        Collection<TagResultBean> tags = tagService.findTags(su.getCompany());
+    Collection<TagResultBean> tags = tagService.findTags(su.getCompany());
 
-        for (ContentModel contentModel : contentModels) {
-            FortressNode fortress = fortressService.registerFortress(su.getCompany(), contentModel.getFortress());
-            conceptService.save(new DocumentNode(fortress.getDefaultSegment(), contentModel.getDocumentType()));
+    for (ContentModel contentModel : contentModels) {
+      FortressNode fortress = fortressService.registerFortress(su.getCompany(), contentModel.getFortress());
+      conceptService.save(new DocumentNode(fortress.getDefaultSegment(), contentModel.getDocumentType()));
 
-            documentType = conceptService.resolveByDocCode(fortress, contentModel.getDocumentType().getName(), Boolean.FALSE);
+      documentType = conceptService.resolveByDocCode(fortress, contentModel.getDocumentType().getName(), Boolean.FALSE);
 
-            if (documentType == null && contentModel.getDocumentType() != null) {
-                documentType = conceptService.findOrCreate(fortress, new DocumentNode(fortress, contentModel.getDocumentType()));
-            }
+      if (documentType == null && contentModel.getDocumentType() != null) {
+        documentType = conceptService.findOrCreate(fortress, new DocumentNode(fortress, contentModel.getDocumentType()));
+      }
 
-            assertNotNull(documentType);
-            ContentModelResult contentModelResult = contentModelService.saveEntityModel(su.getCompany(), fortress, documentType, contentModel);
-            assertNotNull(contentModelResult);
+      assertNotNull(documentType);
+      ContentModelResult contentModelResult = contentModelService.saveEntityModel(su.getCompany(), fortress, documentType, contentModel);
+      assertNotNull(contentModelResult);
 
-            // Create some existing tags, we want to ensure the doctype is linked to these when an Entity is tracked
-            TagInputBean topicA = new TagInputBean("javascript", "Topic");
-            TagInputBean topicB = new TagInputBean("alerts", "Topic");
-            TagInputBean developerI = new TagInputBean("10759", "Developer");
-            TagInputBean developerJ = new TagInputBean("65663", "Developer");
-            Collection<TagInputBean> tagsToMake = new ArrayList<>();
-            tagsToMake.add(topicA);
-            tagsToMake.add(topicB);
-            tagsToMake.add(developerI);
-            tagsToMake.add(developerJ);
-            tagService.createTags(su.getCompany(), tagsToMake);
-
-        }
-        // Above is the setup - ContentModel is on the server with an existing DocumentType and existing tags.
-        // The DocType is not yet associated with the Concept objects (Tag Labels).
-        // The act of tracking the entity should establish this
-        fileProcessor.processFile(new ExtractProfileHandler(ContentModelDeserializer.getContentModel("/models/test-sflow.json")), "/data/test-doc-tag-concepts.csv");
-        Entity entityA = null;
-        int tries = 0, max = 10;
-
-        while (entityA == null && tries <= max) {
-            Thread.sleep(200);
-            entityA = entityService.findByCode(su.getCompany(), "StackOverflow", "QuestionEvent", "563890");
-            tries++;
-        }
-        assertFalse("Timeout waiting for the entity to be created and found", tries == max);
-
-        Collection<TagResultBean> afterTags = tagService.findTags(su.getCompany());
-
-        assertTrue("Should be more tags after the track event", afterTags.size() > tags.size());
-        Collection<DocumentResultBean> docResults = conceptService.findConcepts(su.getCompany(), "QuestionEvent", true);
-        assertEquals(1, docResults.size());
-        assertEquals("Should be both a Developer and a Topic tag", 2, docResults.iterator().next().getConcepts().size());
-        // Check that the tags are created and connected
-
+      // Create some existing tags, we want to ensure the doctype is linked to these when an Entity is tracked
+      TagInputBean topicA = new TagInputBean("javascript", "Topic");
+      TagInputBean topicB = new TagInputBean("alerts", "Topic");
+      TagInputBean developerI = new TagInputBean("10759", "Developer");
+      TagInputBean developerJ = new TagInputBean("65663", "Developer");
+      Collection<TagInputBean> tagsToMake = new ArrayList<>();
+      tagsToMake.add(topicA);
+      tagsToMake.add(topicB);
+      tagsToMake.add(developerI);
+      tagsToMake.add(developerJ);
+      tagService.createTags(su.getCompany(), tagsToMake);
 
     }
+    // Above is the setup - ContentModel is on the server with an existing DocumentType and existing tags.
+    // The DocType is not yet associated with the Concept objects (Tag Labels).
+    // The act of tracking the entity should establish this
+    fileProcessor.processFile(new ExtractProfileHandler(ContentModelDeserializer.getContentModel("/models/test-sflow.json")), "/data/test-doc-tag-concepts.csv");
+    Entity entityA = null;
+    int tries = 0, max = 10;
+
+    while (entityA == null && tries <= max) {
+      Thread.sleep(200);
+      entityA = entityService.findByCode(su.getCompany(), "StackOverflow", "QuestionEvent", "563890");
+      tries++;
+    }
+    assertFalse("Timeout waiting for the entity to be created and found", tries == max);
+
+    Collection<TagResultBean> afterTags = tagService.findTags(su.getCompany());
+
+    assertTrue("Should be more tags after the track event", afterTags.size() > tags.size());
+    Collection<DocumentResultBean> docResults = conceptService.findConcepts(su.getCompany(), "QuestionEvent", true);
+    assertEquals(1, docResults.size());
+    assertEquals("Should be both a Developer and a Topic tag", 2, docResults.iterator().next().getConcepts().size());
+    // Check that the tags are created and connected
+
+
+  }
 
 
 }

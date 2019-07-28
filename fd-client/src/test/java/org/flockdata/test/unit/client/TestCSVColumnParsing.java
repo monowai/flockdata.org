@@ -38,59 +38,59 @@ import org.junit.Test;
  */
 public class TestCSVColumnParsing extends AbstractImport {
 
-    @Test
-    public void string_NoHeaderWithDelimiter() throws Exception {
+  @Test
+  public void string_NoHeaderWithDelimiter() throws Exception {
 
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/column-parsing.json");
-        ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/csv-header-pipe-quote.json", contentModel);
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/column-parsing.json");
+    ExtractProfile extractProfile = ExtractProfileDeserializer.getImportProfile("/import/csv-header-pipe-quote.json", contentModel);
 
-        assertEquals(false, extractProfile.hasHeader());
+    assertEquals(false, extractProfile.hasHeader());
 
-        long rows = fileProcessor.processFile(extractProfile, "/data/pac.txt");
-        assertEquals(1L, rows);
-        List<TagInputBean> tagInputBeans = getTemplate().getTags();
-        assertNotNull(tagInputBeans);
-        assertEquals(4, tagInputBeans.size());
-        boolean foundA = false, foundB = false, foundC = false, foundD = false;
-        for (TagInputBean tagInputBean : tagInputBeans) {
-            if (tagInputBean.getLabel().equals("OSCategory")) {
-                foundA = true;
-                assertEquals("E1140", tagInputBean.getCode());
-            } else if (tagInputBean.getLabel().equals("Expenditure")) {
-                foundB = true;
-                assertEquals("D", tagInputBean.getCode());
-                assertEquals("Direct", tagInputBean.getName());
-            } else if (tagInputBean.getLabel().equals("InterestGroup")) {
-                foundC = true;
-                assertEquals("C00485250", tagInputBean.getCode());
-            } else if (tagInputBean.getLabel().equals("Politician")) {
-                foundD = true;
-                assertEquals("N00031647", tagInputBean.getCode());
-            }
+    long rows = fileProcessor.processFile(extractProfile, "/data/pac.txt");
+    assertEquals(1L, rows);
+    List<TagInputBean> tagInputBeans = getTemplate().getTags();
+    assertNotNull(tagInputBeans);
+    assertEquals(4, tagInputBeans.size());
+    boolean foundA = false, foundB = false, foundC = false, foundD = false;
+    for (TagInputBean tagInputBean : tagInputBeans) {
+      if (tagInputBean.getLabel().equals("OSCategory")) {
+        foundA = true;
+        assertEquals("E1140", tagInputBean.getCode());
+      } else if (tagInputBean.getLabel().equals("Expenditure")) {
+        foundB = true;
+        assertEquals("D", tagInputBean.getCode());
+        assertEquals("Direct", tagInputBean.getName());
+      } else if (tagInputBean.getLabel().equals("InterestGroup")) {
+        foundC = true;
+        assertEquals("C00485250", tagInputBean.getCode());
+      } else if (tagInputBean.getLabel().equals("Politician")) {
+        foundD = true;
+        assertEquals("N00031647", tagInputBean.getCode());
+      }
 
-        }
-        assertTrue("Failed to find OS Category Tag", foundA);
-        assertTrue("Failed to find Expenditure Tag", foundB);
-        assertTrue("Failed to find InterestGroup Tag", foundC);
-        assertTrue("Failed to find Politician Tag", foundD);
-        for (EntityInputBean entityInputBean : fdTemplate.getEntities()) {
-            assertEquals("4111320141231324700", entityInputBean.getCode());
-        }
     }
-
-    @Test
-    public void segment_SetInPayloadFromSource() throws Exception {
-
-        ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/column-parsing.json");
-        ExtractProfile profile = new ExtractProfileHandler(contentModel, false);
-        assertEquals(false, profile.hasHeader());
-        profile.setQuoteCharacter("|");
-        long rows = fileProcessor.processFile(profile, "/data/pac.txt");
-        assertEquals(1L, rows);
-        for (EntityInputBean entityInputBean : fdTemplate.getEntities()) {
-            assertEquals("The segment was not set in to the EntityInput", "2014", entityInputBean.getSegment());
-        }
+    assertTrue("Failed to find OS Category Tag", foundA);
+    assertTrue("Failed to find Expenditure Tag", foundB);
+    assertTrue("Failed to find InterestGroup Tag", foundC);
+    assertTrue("Failed to find Politician Tag", foundD);
+    for (EntityInputBean entityInputBean : fdTemplate.getEntities()) {
+      assertEquals("4111320141231324700", entityInputBean.getCode());
     }
+  }
+
+  @Test
+  public void segment_SetInPayloadFromSource() throws Exception {
+
+    ContentModel contentModel = ContentModelDeserializer.getContentModel("/model/column-parsing.json");
+    ExtractProfile profile = new ExtractProfileHandler(contentModel, false);
+    assertEquals(false, profile.hasHeader());
+    profile.setQuoteCharacter("|");
+    long rows = fileProcessor.processFile(profile, "/data/pac.txt");
+    assertEquals(1L, rows);
+    for (EntityInputBean entityInputBean : fdTemplate.getEntities()) {
+      assertEquals("The segment was not set in to the EntityInput", "2014", entityInputBean.getSegment());
+    }
+  }
 
 
 }

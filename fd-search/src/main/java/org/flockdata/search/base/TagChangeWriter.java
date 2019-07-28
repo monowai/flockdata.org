@@ -31,12 +31,12 @@ import org.flockdata.search.TagSearchChange;
  */
 public interface TagChangeWriter {
 
-    /**
-     * Rewrites an existing document
-     *
-     * @param searchChange values to update from
-     * @return TagSearchChange result of the request
-     */
-    TagSearchChange handle(TagSearchChange searchChange);
+  /**
+   * Rewrites an existing document
+   *
+   * @param searchChange values to update from
+   * @return TagSearchChange result of the request
+   */
+  TagSearchChange handle(TagSearchChange searchChange);
 
 }

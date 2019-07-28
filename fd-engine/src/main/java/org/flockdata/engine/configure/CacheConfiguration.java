@@ -37,11 +37,11 @@ import org.springframework.context.annotation.Profile;
 @EnableCaching
 @Profile("fd-server")
 public class CacheConfiguration {
-    private Logger logger = LoggerFactory.getLogger("configuration");
+  private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @CacheEvict(value = {"tag", "geoQuery", "geoData", "fortressUser", "sysUserApiKey", "company", "documentType", "labels", "entityByCode", "fortressSegment"
-    }, allEntries = true)
-    public void resetCache() {
-        logger.debug("Cache Reset");
-    }
+  @CacheEvict(value = {"tag", "geoQuery", "geoData", "fortressUser", "sysUserApiKey", "company", "documentType", "labels", "entityByCode", "fortressSegment"
+  }, allEntries = true)
+  public void resetCache() {
+    logger.debug("Cache Reset");
+  }
 }

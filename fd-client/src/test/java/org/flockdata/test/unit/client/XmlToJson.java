@@ -27,27 +27,27 @@ import org.junit.Test;
  * @since 22/09/2014
  */
 public class XmlToJson {
-    @Test
-    public void blah() {
-        JSONObject jsonObject = XML.toJSONObject(getXml());
+  @Test
+  public void blah() {
+    JSONObject jsonObject = XML.toJSONObject(getXml());
 
-        assertEquals("Walnes", jsonObject.getJSONObject("person").get("lastname"));
-    }
+    assertEquals("Walnes", jsonObject.getJSONObject("person").get("lastname"));
+  }
 
-    public String getXml() {
-        return "<person>\n" +
-            "  <firstname>Joe</firstname>\n" +
-            "  <lastname>Walnes</lastname>\n" +
-            "  <phone>\n" +
-            "    <code>123</code>\n" +
-            "    <number>1234-456</number>\n" +
-            "  </phone>\n" +
-            "  <fax>\n" +
-            "    <code>123</code>\n" +
-            "    <number>9999-999</number>\n" +
-            "  </fax>\n" +
-            "</person>";
-    }
+  public String getXml() {
+    return "<person>\n" +
+        "  <firstname>Joe</firstname>\n" +
+        "  <lastname>Walnes</lastname>\n" +
+        "  <phone>\n" +
+        "    <code>123</code>\n" +
+        "    <number>1234-456</number>\n" +
+        "  </phone>\n" +
+        "  <fax>\n" +
+        "    <code>123</code>\n" +
+        "    <number>9999-999</number>\n" +
+        "  </fax>\n" +
+        "</person>";
+  }
 
 
 }

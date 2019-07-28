@@ -54,43 +54,43 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 public class Swagger {
 
-    private final TypeResolver typeResolver;
-    private Logger logger = LoggerFactory.getLogger("configuration.Swagger");
+  private final TypeResolver typeResolver;
+  private Logger logger = LoggerFactory.getLogger("configuration.Swagger");
 
-    @Autowired
-    public Swagger(TypeResolver typeResolver) {
-        this.typeResolver = typeResolver;
-    }
+  @Autowired
+  public Swagger(TypeResolver typeResolver) {
+    this.typeResolver = typeResolver;
+  }
 
 
-    @PostConstruct
-    void logStatus() {
-        logger.info("**** Swagger configuration deployed");
-    }
+  @PostConstruct
+  void logStatus() {
+    logger.info("**** Swagger configuration deployed");
+  }
 
-    @Bean
-    public Docket petApi() {
-        return new Docket(DocumentationType.SWAGGER_2)
-            .select()
-            .apis(RequestHandlerSelectors.any())
-            .paths(PathSelectors.any())
-            .build()
-            .pathMapping("/")
-            .directModelSubstitute(LocalDate.class,
-                String.class)
-            .genericModelSubstitutes(ResponseEntity.class)
-            .alternateTypeRules(
-                newRule(typeResolver.resolve(DeferredResult.class,
-                    typeResolver.resolve(ResponseEntity.class, WildcardType.class)),
-                    typeResolver.resolve(WildcardType.class)))
-            .useDefaultResponseMessages(false)
-            .globalResponseMessage(RequestMethod.GET,
-                newArrayList(new ResponseMessageBuilder()
-                    .code(500)
-                    .message("500 message")
-                    .responseModel(new ModelRef("Error"))
-                    .build()))
-            .enableUrlTemplating(true);
-    }
+  @Bean
+  public Docket petApi() {
+    return new Docket(DocumentationType.SWAGGER_2)
+        .select()
+        .apis(RequestHandlerSelectors.any())
+        .paths(PathSelectors.any())
+        .build()
+        .pathMapping("/")
+        .directModelSubstitute(LocalDate.class,
+            String.class)
+        .genericModelSubstitutes(ResponseEntity.class)
+        .alternateTypeRules(
+            newRule(typeResolver.resolve(DeferredResult.class,
+                typeResolver.resolve(ResponseEntity.class, WildcardType.class)),
+                typeResolver.resolve(WildcardType.class)))
+        .useDefaultResponseMessages(false)
+        .globalResponseMessage(RequestMethod.GET,
+            newArrayList(new ResponseMessageBuilder()
+                .code(500)
+                .message("500 message")
+                .responseModel(new ModelRef("Error"))
+                .build()))
+        .enableUrlTemplating(true);
+  }
 
 }

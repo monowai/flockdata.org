@@ -7,7 +7,7 @@ services:
       - '5672:5672'
       - '15672:15672'
 
-#    mem_limt: 384m
+    #    mem_limt: 384m
 
     expose:
       - 5672
@@ -16,11 +16,11 @@ services:
   fdengine:
     image: flockdata/fd-engine
     links:
-       - rabbit
-       - fdsearch
-       - fdstore
+      - rabbit
+      - fdsearch
+      - fdstore
 
-  #  mem_limt: 384m
+    #  mem_limt: 384m
 
     ports:
       - '8090:8090'
@@ -53,9 +53,9 @@ services:
   fdstore:
     image: flockdata/fd-store
     links:
-       - rabbit
+      - rabbit
 
-  # Uncomment ports for non-proxy debug
+    # Uncomment ports for non-proxy debug
     ports:
       - '8092:8092'
       - '61002:61002'
@@ -64,7 +64,7 @@ services:
       - 8092
       - 61002
 
-  #  mem_limit: 384m
+    #  mem_limit: 384m
 
     environment:
       _JAVA_OPTIONS: "-Xms256m -Xmx384m"
@@ -78,7 +78,7 @@ services:
   fdsearch:
     image: flockdata/fd-search
 
-  # Uncomment ports for non-proxy debug
+    # Uncomment ports for non-proxy debug
     ports:
       - '8091:8091'
       - '61001:61001'
@@ -91,7 +91,7 @@ services:
       - rabbit
       - elasticsearch
 
-  #  mem_limit: 384m
+    #  mem_limit: 384m
 
     environment:
       server.port: 8091
@@ -113,7 +113,7 @@ services:
       - '9200:9200'
       - '9300:9300'
 
-  #  mem_limt: 384m
+    #  mem_limt: 384m
     expose:
       - 9200
       - 9300

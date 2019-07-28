@@ -31,60 +31,60 @@ import java.util.Collection;
  * @since 12/06/2014
  */
 public class MatrixResults {
-    private long sampleSize;
-    private long totalHits;
-    private Collection<FdNode> nodes;    // Lookup table of nodes in the edges
-    private Collection<EdgeResult> edges;  // relationship between 2 nodes
+  private long sampleSize;
+  private long totalHits;
+  private Collection<FdNode> nodes;    // Lookup table of nodes in the edges
+  private Collection<EdgeResult> edges;  // relationship between 2 nodes
 
-    public MatrixResults() {
-    }
+  public MatrixResults() {
+  }
 
-    public MatrixResults(Collection<EdgeResult> edgeResults) {
-        this();
-        setEdges(edgeResults);
-    }
+  public MatrixResults(Collection<EdgeResult> edgeResults) {
+    this();
+    setEdges(edgeResults);
+  }
 
-    public MatrixResults(EdgeResults edgeResults) {
-        setEdges(edgeResults.getEdgeResults());
-    }
+  public MatrixResults(EdgeResults edgeResults) {
+    setEdges(edgeResults.getEdgeResults());
+  }
 
-    public MatrixResults(EdgeResults edges, Collection<FdNode> nodes) {
-        this(edges);
-        this.nodes = nodes;
-    }
+  public MatrixResults(EdgeResults edges, Collection<FdNode> nodes) {
+    this(edges);
+    this.nodes = nodes;
+  }
 
-    public Collection<EdgeResult> getEdges() {
-        return edges;
-    }
+  public Collection<EdgeResult> getEdges() {
+    return edges;
+  }
 
-    public void setEdges(Collection<EdgeResult> edges) {
-        this.edges = edges;
-    }
+  public void setEdges(Collection<EdgeResult> edges) {
+    this.edges = edges;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Collection<FdNode> getNodes() {
-        return nodes;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Collection<FdNode> getNodes() {
+    return nodes;
+  }
 
-    public MatrixResults setNodes(Collection<FdNode> nodes) {
-        this.nodes = nodes;
-        return this;
-    }
+  public MatrixResults setNodes(Collection<FdNode> nodes) {
+    this.nodes = nodes;
+    return this;
+  }
 
-    public long getSampleSize() {
-        return sampleSize;
-    }
+  public long getSampleSize() {
+    return sampleSize;
+  }
 
-    public MatrixResults setSampleSize(long sampleSize) {
-        this.sampleSize = sampleSize;
-        return this;
-    }
+  public MatrixResults setSampleSize(long sampleSize) {
+    this.sampleSize = sampleSize;
+    return this;
+  }
 
-    public long getTotalHits() {
-        return totalHits;
-    }
+  public long getTotalHits() {
+    return totalHits;
+  }
 
-    public void setTotalHits(long matchingResults) {
-        this.totalHits = matchingResults;
-    }
+  public void setTotalHits(long matchingResults) {
+    this.totalHits = matchingResults;
+  }
 }

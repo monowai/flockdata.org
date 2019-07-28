@@ -37,19 +37,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("${org.fd.store.system.api:api}/v1/data")
 public class DataEP {
-    private final StoreService storeService;
+  private final StoreService storeService;
 
-    @Autowired
-    public DataEP(StoreService storeService) {
-        this.storeService = storeService;
-    }
+  @Autowired
+  public DataEP(StoreService storeService) {
+    this.storeService = storeService;
+  }
 
-    @RequestMapping(value = "/{repo}/{index}/{type}/{key}", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
-    StoredContent getData(@PathVariable("repo") String repo,
-                          @PathVariable("index") String index,
-                          @PathVariable("type") String type,
-                          @PathVariable("key") String key) {
-        Store store = Store.valueOf(repo.toUpperCase());
-        return storeService.doRead(store, index.toLowerCase(), type.toLowerCase(), key);
-    }
+  @RequestMapping(value = "/{repo}/{index}/{type}/{key}", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
+  StoredContent getData(@PathVariable("repo") String repo,
+                        @PathVariable("index") String index,
+                        @PathVariable("type") String type,
+                        @PathVariable("key") String key) {
+    Store store = Store.valueOf(repo.toUpperCase());
+    return storeService.doRead(store, index.toLowerCase(), type.toLowerCase(), key);
+  }
 }

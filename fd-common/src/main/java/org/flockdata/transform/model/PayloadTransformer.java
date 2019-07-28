@@ -33,14 +33,14 @@ import org.flockdata.transform.tag.TagPayloadTransformer;
  */
 public interface PayloadTransformer {
 
-    /**
-     * @param map raw input data
-     * @return transformed data
-     * @throws FlockException transformation issues
-     * @see EntityPayloadTransformer
-     * @see TagPayloadTransformer
-     */
-    Map<String, Object> transform(Map<String, Object> map) throws FlockException;
+  /**
+   * @param map raw input data
+   * @return transformed data
+   * @throws FlockException transformation issues
+   * @see EntityPayloadTransformer
+   * @see TagPayloadTransformer
+   */
+  Map<String, Object> transform(Map<String, Object> map) throws FlockException;
 
 
 }

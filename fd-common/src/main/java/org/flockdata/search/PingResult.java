@@ -22,20 +22,20 @@ package org.flockdata.search;
 
 public class PingResult {
 
-    private String message;
+  private String message;
 
-    public PingResult() {
-    }
+  public PingResult() {
+  }
 
-    public PingResult(String message) {
-        this.message = message;
-    }
+  public PingResult(String message) {
+    this.message = message;
+  }
 
-    public String getMessage() {
-        return message;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  public void setMessage(String message) {
+    this.message = message;
+  }
 }

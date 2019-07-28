@@ -39,55 +39,55 @@ import org.springframework.context.annotation.Configuration;
 class StoreConfig implements FdStoreConfig {
 
 
-    @Value("${org.fd.search.api:http://localhost:8081}")
-    String fdSearchUrl;
-    @Autowired(required = false)
-    VersionHelper versionHelper;
+  @Value("${org.fd.search.api:http://localhost:8081}")
+  String fdSearchUrl;
+  @Autowired(required = false)
+  VersionHelper versionHelper;
 
-    //    @Value("${org.fd.store.system.enabled}")
+  //    @Value("${org.fd.store.system.enabled}")
 //    private Boolean storeEnabled = true;
-    private Logger logger = LoggerFactory.getLogger(StoreConfig.class);
-    private Store kvStore = null;
-    @Value("${riak.hosts:127.0.0.1}")
-    private String riakHosts;
-    @Value("${redis.port:6379}")
-    private int redisPort;
-    @Value("${redis.host:localhost}")
-    private String redisHost;
+  private Logger logger = LoggerFactory.getLogger(StoreConfig.class);
+  private Store kvStore = null;
+  @Value("${riak.hosts:127.0.0.1}")
+  private String riakHosts;
+  @Value("${redis.port:6379}")
+  private int redisPort;
+  @Value("${redis.host:localhost}")
+  private String redisHost;
 
-    public String fdSearchUrl() {
-        return fdSearchUrl + "/api";
+  public String fdSearchUrl() {
+    return fdSearchUrl + "/api";
+  }
+
+  public String riakHosts() {
+    return riakHosts;
+  }
+
+  /**
+   * Only users with a pre-validated api-key should be calling this
+   *
+   * @return system configuration details
+   */
+  @Override
+  public Map<String, String> health() {
+
+    String version = "";
+    if (versionHelper != null) {
+      version = versionHelper.getFdVersion();
     }
-
-    public String riakHosts() {
-        return riakHosts;
-    }
-
-    /**
-     * Only users with a pre-validated api-key should be calling this
-     *
-     * @return system configuration details
-     */
-    @Override
-    public Map<String, String> health() {
-
-        String version = "";
-        if (versionHelper != null) {
-            version = versionHelper.getFdVersion();
-        }
-        Map<String, String> healthResults = new TreeMap<>();
-        healthResults.put("fd.store.version", version);
+    Map<String, String> healthResults = new TreeMap<>();
+    healthResults.put("fd.store.version", version);
 
 
-        return healthResults;
+    return healthResults;
 
-    }
+  }
 
-    public int redisPort() {
-        return redisPort;
-    }
+  public int redisPort() {
+    return redisPort;
+  }
 
-    public String redisHost() {
-        return redisHost;
-    }
+  public String redisHost() {
+    return redisHost;
+  }
 }

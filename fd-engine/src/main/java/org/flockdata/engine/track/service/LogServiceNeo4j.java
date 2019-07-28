@@ -54,88 +54,88 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class LogServiceNeo4j implements LogService {
-    private final StorageProxy storageProxy;
-    private final EntityDaoNeo entityDao;
-    private final LogRetryService logRetryService;
-    private Logger logger = LoggerFactory.getLogger(LogServiceNeo4j.class);
+  private final StorageProxy storageProxy;
+  private final EntityDaoNeo entityDao;
+  private final LogRetryService logRetryService;
+  private Logger logger = LoggerFactory.getLogger(LogServiceNeo4j.class);
 
-    @Autowired
-    public LogServiceNeo4j(EngineConfig engineConfig, StorageProxy storageProxy, EntityDaoNeo entityDao, LogRetryService logRetryService) {
-        this.storageProxy = storageProxy;
-        this.entityDao = entityDao;
-        this.logRetryService = logRetryService;
+  @Autowired
+  public LogServiceNeo4j(EngineConfig engineConfig, StorageProxy storageProxy, EntityDaoNeo entityDao, LogRetryService logRetryService) {
+    this.storageProxy = storageProxy;
+    this.entityDao = entityDao;
+    this.logRetryService = logRetryService;
+  }
+
+  @Override
+  @Async("fd-log")
+  @Transactional(timeout = 4000)
+  public Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, ExecutionException, InterruptedException {
+    // ToDo - ServiceActivator
+    //Collection<TrackResultBean> logResults = new ArrayList<>();
+    for (TrackResultBean resultBean : resultBeans) {
+      processLogFromResult(fortress, resultBean);
+    }
+    return new AsyncResult<>(resultBeans);
+  }
+
+  @Override
+  @Transactional(timeout = 4000)
+  public Collection<TrackResultBean> processLogsSync(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, InterruptedException, ExecutionException {
+    // ToDo - ServiceActivator
+    for (TrackResultBean resultBean : resultBeans) {
+      processLogFromResult(fortress, resultBean);
+    }
+    return resultBeans;
+  }
+
+  private void processLogFromResult(Fortress fortress, TrackResultBean resultBean) throws FlockException, ExecutionException, InterruptedException {
+    // ToDo: Service Activator
+    if (resultBean.getContentInput() == null) {
+      return;
     }
 
-    @Override
-    @Async("fd-log")
-    @Transactional(timeout = 4000)
-    public Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, ExecutionException, InterruptedException {
-        // ToDo - ServiceActivator
-        //Collection<TrackResultBean> logResults = new ArrayList<>();
-        for (TrackResultBean resultBean : resultBeans) {
-            processLogFromResult(fortress, resultBean);
-        }
-        return new AsyncResult<>(resultBeans);
+    ContentInputBean contentInputBean = resultBean.getContentInput();
+    logger.debug("writeLog {}", contentInputBean);
+    logRetryService.writeLog((FortressNode) fortress, resultBean);
+    if (resultBean.getLogStatus() == ContentInputBean.LogStatus.NOT_FOUND) {
+      throw new FlockException("Unable to find Entity ");
     }
 
-    @Override
-    @Transactional(timeout = 4000)
-    public Collection<TrackResultBean> processLogsSync(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, InterruptedException, ExecutionException {
-        // ToDo - ServiceActivator
-        //Collection<TrackResultBean> logResults = new ArrayList<>();
-        for (TrackResultBean resultBean : resultBeans) {
-            processLogFromResult(fortress, resultBean);
-        }
-        return resultBeans;
+    if (resultBean.getContentInput() != null && !resultBean.isLogIgnored()) {
+      // Log is now prepared (why not just get KvContent??
+      if (fortress.isStoreEnabled()) {
+        storageProxy.write(resultBean);
+      }
     }
+  }
 
-    private void processLogFromResult(Fortress fortress, TrackResultBean resultBean) throws FlockException, ExecutionException, InterruptedException {
-        // ToDo: Service Activator
-        if (resultBean.getContentInput() == null) {
-            return;
-        }
+  @Override
+  public TrackResultBean writeLog(Document documentType, Entity entity, ContentInputBean input, FortressUser fu) throws FlockException, IOException, ExecutionException, InterruptedException {
 
-        ContentInputBean contentInputBean = resultBean.getContentInput();
-        logger.debug("writeLog {}", contentInputBean);
-        logRetryService.writeLog((FortressNode) fortress, resultBean);
-        if (resultBean.getLogStatus() == ContentInputBean.LogStatus.NOT_FOUND) {
-            throw new FlockException("Unable to find Entity ");
-        }
+    TrackResultBean resultBean = new TrackResultBean(entity, documentType);
 
-        if (resultBean.getContentInput() != null && !resultBean.isLogIgnored()) {
-            // Log is now prepared (why not just get KvContent??
+    resultBean.setContentInput(input);
+    ArrayList<TrackResultBean> logs = new ArrayList<>();
+    logs.add(resultBean);
+    Collection<TrackResultBean> results = processLogs(entity.getFortress(), logs).get();
+    return results.iterator().next();
+  }
 
-            storageProxy.write(resultBean);
-        }
+
+  @Override
+  @Transactional
+  public EntityLog getLastLog(Entity entity) throws FlockException {
+    if (entity == null || entity.getId() == null) {
+      return null;
     }
+    logger.trace("Getting lastLog MetaID [{}]", entity.getId());
+    return entityDao.getLastLog(entity.getId());
+  }
 
-    @Override
-    public TrackResultBean writeLog(Document documentType, Entity entity, ContentInputBean input, FortressUser fu) throws FlockException, IOException, ExecutionException, InterruptedException {
-
-        TrackResultBean resultBean = new TrackResultBean(entity, documentType);
-
-        resultBean.setContentInput(input);
-        ArrayList<TrackResultBean> logs = new ArrayList<>();
-        logs.add(resultBean);
-        Collection<TrackResultBean> results = processLogs(entity.getFortress(), logs).get();
-        return results.iterator().next();
-    }
-
-
-    @Override
-    @Transactional
-    public EntityLog getLastLog(Entity entity) throws FlockException {
-        if (entity == null || entity.getId() == null) {
-            return null;
-        }
-        logger.trace("Getting lastLog MetaID [{}]", entity.getId());
-        return entityDao.getLastLog(entity.getId());
-    }
-
-    @Override
-    public StoredContent getContent(Entity entity, LogNode log) {
-        return storageProxy.read(entity, log);
-    }
+  @Override
+  public StoredContent getContent(Entity entity, LogNode log) {
+    return storageProxy.read(entity, log);
+  }
 
 
 }

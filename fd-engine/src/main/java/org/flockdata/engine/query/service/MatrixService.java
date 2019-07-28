@@ -39,14 +39,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class MatrixService {
-    private final MatrixDao matrixDao;
+  private final MatrixDao matrixDao;
 
-    @Autowired
-    public MatrixService(MatrixDao matrixDao) {
-        this.matrixDao = matrixDao;
-    }
+  @Autowired
+  public MatrixService(MatrixDao matrixDao) {
+    this.matrixDao = matrixDao;
+  }
 
-    public MatrixResults getMatrix(Company company, MatrixInputBean matrixInput) throws FlockException {
-        return matrixDao.buildMatrix(company, matrixInput);
-    }
+  public MatrixResults getMatrix(Company company, MatrixInputBean matrixInput) throws FlockException {
+    return matrixDao.buildMatrix(company, matrixInput);
+  }
 }

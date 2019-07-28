@@ -39,35 +39,35 @@ import org.junit.Test;
  * @since 16/05/2016
  */
 public class TestTagChanges {
-    public static TagSearchChange getSimpleTagInput(String indexName, String code, String label) {
-        TagInputBean tagInputBean = new TagInputBean(code, label);
-        Tag tag = MockDataFactory.getTag(tagInputBean);
-        String key = TagHelper.parseKey(code + "Alias");
-        Alias alias = MockDataFactory.getAlias(tagInputBean.getLabel(), new AliasInputBean(code + "Alias", "someAliasDescription"), key, tag);
-        tag.addAlias(alias);
-        return new TagSearchChange(indexName, tag);
-    }
+  public static TagSearchChange getSimpleTagInput(String indexName, String code, String label) {
+    TagInputBean tagInputBean = new TagInputBean(code, label);
+    Tag tag = MockDataFactory.getTag(tagInputBean);
+    String key = TagHelper.parseKey(code + "Alias");
+    Alias alias = MockDataFactory.getAlias(tagInputBean.getLabel(), new AliasInputBean(code + "Alias", "someAliasDescription"), key, tag);
+    tag.addAlias(alias);
+    return new TagSearchChange(indexName, tag);
+  }
 
-    @Test
-    public void serializationTagSearchChange() throws Exception {
-        TagSearchChange searchChange = getSimpleTagInput("testIndex", "TheCode", "TheLabel");
+  @Test
+  public void serializationTagSearchChange() throws Exception {
+    TagSearchChange searchChange = getSimpleTagInput("testIndex", "TheCode", "TheLabel");
 
-        String json = JsonUtils.toJson(searchChange);
-        assertNotNull(json);
-        Collection<SearchChange> changes = new ArrayList<>();
-        TagSearchChange deserializedChange = JsonUtils.toObject(json.getBytes(), TagSearchChange.class);
-        assertEquals(searchChange.getType(), deserializedChange.getType());
-        assertEquals(searchChange.getAliases().size(), deserializedChange.getAliases().size());
+    String json = JsonUtils.toJson(searchChange);
+    assertNotNull(json);
+    Collection<SearchChange> changes = new ArrayList<>();
+    TagSearchChange deserializedChange = JsonUtils.toObject(json.getBytes(), TagSearchChange.class);
+    assertEquals(searchChange.getType(), deserializedChange.getType());
+    assertEquals(searchChange.getAliases().size(), deserializedChange.getAliases().size());
 
-        changes.add(searchChange);
-        SearchChanges searchChanges = new SearchChanges(changes);
-        json = JsonUtils.toJson(searchChanges);
+    changes.add(searchChange);
+    SearchChanges searchChanges = new SearchChanges(changes);
+    json = JsonUtils.toJson(searchChanges);
 
-        SearchChanges deserializedChanges = JsonUtils.toObject(json.getBytes(), SearchChanges.class);
-        assertNotNull(deserializedChanges);
-        assertEquals(1, deserializedChanges.getChanges().size());
-        assertTrue(deserializedChanges.getChanges().iterator().next() instanceof TagSearchChange);
+    SearchChanges deserializedChanges = JsonUtils.toObject(json.getBytes(), SearchChanges.class);
+    assertNotNull(deserializedChanges);
+    assertEquals(1, deserializedChanges.getChanges().size());
+    assertTrue(deserializedChanges.getChanges().iterator().next() instanceof TagSearchChange);
 
 
-    }
+  }
 }

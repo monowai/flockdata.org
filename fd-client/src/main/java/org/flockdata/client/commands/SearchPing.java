@@ -29,11 +29,11 @@ import org.springframework.stereotype.Component;
 @Qualifier("searchPing")
 public class SearchPing extends Ping {
 
-    public SearchPing(FdIoInterface fdIoInterface) {
-        super(fdIoInterface);
-    }
+  public SearchPing(FdIoInterface fdIoInterface) {
+    super(fdIoInterface);
+  }
 
-    public void setApi(String api) {
-        this.api = api;
-    }
+  public void setApi(String api) {
+    this.api = api;
+  }
 }

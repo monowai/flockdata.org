@@ -64,6 +64,6 @@ import org.junit.runners.Suite;
 
 })
 public class WebAPI {
-    public WebAPI() {
-    }
+  public WebAPI() {
+  }
 }

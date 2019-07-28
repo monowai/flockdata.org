@@ -60,134 +60,134 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("${org.fd.engine.system.api:api}/v1/track")
 public class TrackEP {
-    private final EntityService entityService;
+  private final EntityService entityService;
 
-    private final MediationFacade mediationFacade;
+  private final MediationFacade mediationFacade;
 
-    @Autowired
-    public TrackEP(EntityService entityService, MediationFacade mediationFacade) {
-        this.entityService = entityService;
-        this.mediationFacade = mediationFacade;
+  @Autowired
+  public TrackEP(EntityService entityService, MediationFacade mediationFacade) {
+    this.entityService = entityService;
+    this.mediationFacade = mediationFacade;
+  }
+
+
+  @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.PUT)
+  public Collection<TrackRequestResult> trackEntities(@RequestBody List<EntityInputBean> inputBeans,
+                                                      HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+
+    return mediationFacade.trackEntities(company, inputBeans);
+  }
+
+  /**
+   * Tracks an entity
+   *
+   * @param input   Entity input
+   * @param request resolves authorised company to work with
+   * @return TrackResultBean
+   * @throws InterruptedException server shutting down
+   * @throws FlockException       data errors
+   * @throws ExecutionException   bad stuff
+   */
+  @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+  public ResponseEntity<TrackRequestResult> trackEntity(@RequestBody EntityInputBean input,
+                                                        HttpServletRequest request) throws InterruptedException, FlockException, ExecutionException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    TrackResultBean trackResultBean;
+    trackResultBean = mediationFacade.trackEntity(company, input);
+
+    if (trackResultBean.entityExists()) {
+      if (trackResultBean.getCurrentLog() != null && trackResultBean.isLogIgnored()) {
+        return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.NOT_MODIFIED);
+      }
     }
 
+    trackResultBean.addServiceMessage("OK");
+    return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.CREATED);
 
-    @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.PUT)
-    public Collection<TrackRequestResult> trackEntities(@RequestBody List<EntityInputBean> inputBeans,
-                                                        HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
+  }
 
-        return mediationFacade.trackEntities(company, inputBeans);
+
+  @RequestMapping(value = "/log", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
+  public ResponseEntity<EntityLog> trackLog(@RequestBody ContentInputBean input,
+                                            HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+
+    TrackResultBean resultBean = mediationFacade.trackLog(company, input);
+    ContentInputBean.LogStatus ls = resultBean.getLogStatus();
+    if (ls.equals(ContentInputBean.LogStatus.FORBIDDEN)) {
+      return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.FORBIDDEN);
+    } else if (ls.equals(ContentInputBean.LogStatus.NOT_FOUND)) {
+      throw new NotFoundException("Unable to locate the requested key");
+    } else if (ls.equals(ContentInputBean.LogStatus.IGNORE)) {
+      input.setFdMessage("Ignoring request to change as the 'data' has not changed");
+      return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.NOT_MODIFIED);
+    } else if (ls.equals(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT)) {
+      return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.NO_CONTENT);
     }
 
-    /**
-     * Tracks an entity
-     *
-     * @param input   Entity input
-     * @param request resolves authorised company to work with
-     * @return TrackResultBean
-     * @throws InterruptedException server shutting down
-     * @throws FlockException       data errors
-     * @throws ExecutionException   bad stuff
-     */
-    @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    public ResponseEntity<TrackRequestResult> trackEntity(@RequestBody EntityInputBean input,
-                                                          HttpServletRequest request) throws InterruptedException, FlockException, ExecutionException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        TrackResultBean trackResultBean;
-        trackResultBean = mediationFacade.trackEntity(company, input);
-
-        if (trackResultBean.entityExists()) {
-            if (trackResultBean.getCurrentLog() != null && trackResultBean.isLogIgnored()) {
-                return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.NOT_MODIFIED);
-            }
-        }
-
-        trackResultBean.addServiceMessage("OK");
-        return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.CREATED);
-
-    }
+    return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.CREATED);
+  }
 
 
-    @RequestMapping(value = "/log", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    public ResponseEntity<EntityLog> trackLog(@RequestBody ContentInputBean input,
-                                              HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
+  @RequestMapping(value = "/{fortress}/{recordType}/{code}", produces = "application/json", method = RequestMethod.PUT)
+  public ResponseEntity<TrackRequestResult> trackByClientRef(@RequestBody EntityInputBean input,
+                                                             @PathVariable("fortress") String fortress,
+                                                             @PathVariable("recordType") String recordType,
+                                                             @PathVariable("code") String code,
+                                                             HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    TrackResultBean trackResultBean;
+    input.setFortress(new FortressInputBean(fortress));
+    input.setDocumentType(new DocumentTypeInputBean(recordType));
+    input.setCode(code);
+    input.setKey(null);
+    trackResultBean = mediationFacade.trackEntity(company, input);
+    trackResultBean.addServiceMessage("OK");
+    return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.OK);
 
-        TrackResultBean resultBean = mediationFacade.trackLog(company, input);
-        ContentInputBean.LogStatus ls = resultBean.getLogStatus();
-        if (ls.equals(ContentInputBean.LogStatus.FORBIDDEN)) {
-            return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.FORBIDDEN);
-        } else if (ls.equals(ContentInputBean.LogStatus.NOT_FOUND)) {
-            throw new NotFoundException("Unable to locate the requested key");
-        } else if (ls.equals(ContentInputBean.LogStatus.IGNORE)) {
-            input.setFdMessage("Ignoring request to change as the 'data' has not changed");
-            return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.NOT_MODIFIED);
-        } else if (ls.equals(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT)) {
-            return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.NO_CONTENT);
-        }
+  }
 
-        return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.CREATED);
-    }
+  @RequestMapping(value = "/{key}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
+  public @ResponseBody
+  Collection<String> crossReference(@PathVariable("key") String key, Collection<String> keys, @PathVariable("xRefName") String relationshipName,
+                                    HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return entityService.crossReference(company, key, keys, relationshipName);
+  }
+
+  /**
+   * Looks across all document types for the caller ref within the fortress. If the code is not unique or does not
+   * exist then an exception is thrown.
+   *
+   * @param fortressName application
+   * @param code         source
+   * @param entities     targets
+   * @param xRefName     name of the cross reference
+   * @param request      used to resolve the company the user is authorised to work with
+   * @return unresolvable caller references
+   * @throws org.flockdata.helper.FlockException if not exactly one Entity for the code in the fortress
+   */
+  @RequestMapping(value = "/{fortress}/all/{code}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
+  public @ResponseBody
+  Collection<EntityKeyBean> crossReferenceEntity(@PathVariable("fortress") String fortressName,
+                                                 @PathVariable("code") String code,
+                                                 @RequestBody Collection<EntityKeyBean> entities,
+                                                 @PathVariable("xRefName") String xRefName,
+                                                 HttpServletRequest request) throws FlockException {
+    CompanyNode company = CompanyResolver.resolveCompany(request);
+    return entityService.linkEntities(company, new EntityKeyBean("*", fortressName, code), entities, xRefName);
+  }
 
 
-    @RequestMapping(value = "/{fortress}/{recordType}/{code}", produces = "application/json", method = RequestMethod.PUT)
-    public ResponseEntity<TrackRequestResult> trackByClientRef(@RequestBody EntityInputBean input,
-                                                               @PathVariable("fortress") String fortress,
-                                                               @PathVariable("recordType") String recordType,
-                                                               @PathVariable("code") String code,
-                                                               HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        TrackResultBean trackResultBean;
-        input.setFortress(new FortressInputBean(fortress));
-        input.setDocumentType(new DocumentTypeInputBean(recordType));
-        input.setCode(code);
-        input.setKey(null);
-        trackResultBean = mediationFacade.trackEntity(company, input);
-        trackResultBean.addServiceMessage("OK");
-        return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.OK);
-
-    }
-
-    @RequestMapping(value = "/{key}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
-    public @ResponseBody
-    Collection<String> crossReference(@PathVariable("key") String key, Collection<String> keys, @PathVariable("xRefName") String relationshipName,
-                                      HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return entityService.crossReference(company, key, keys, relationshipName);
-    }
-
-    /**
-     * Looks across all document types for the caller ref within the fortress. If the code is not unique or does not
-     * exist then an exception is thrown.
-     *
-     * @param fortressName application
-     * @param code         source
-     * @param entities     targets
-     * @param xRefName     name of the cross reference
-     * @param request      used to resolve the company the user is authorised to work with
-     * @return unresolvable caller references
-     * @throws org.flockdata.helper.FlockException if not exactly one Entity for the code in the fortress
-     */
-    @RequestMapping(value = "/{fortress}/all/{code}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
-    public @ResponseBody
-    Collection<EntityKeyBean> crossReferenceEntity(@PathVariable("fortress") String fortressName,
-                                                   @PathVariable("code") String code,
-                                                   @RequestBody Collection<EntityKeyBean> entities,
-                                                   @PathVariable("xRefName") String xRefName,
+  @RequestMapping(value = "/link", produces = "application/json", method = RequestMethod.POST)
+  public @ResponseBody
+  Collection<EntityToEntityLinkInput> linkEntities(@RequestBody List<EntityToEntityLinkInput> entityToEntityLinkInputs,
                                                    HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-        return entityService.linkEntities(company, new EntityKeyBean("*", fortressName, code), entities, xRefName);
-    }
+    CompanyNode company = CompanyResolver.resolveCompany(request);
 
-
-    @RequestMapping(value = "/link", produces = "application/json", method = RequestMethod.POST)
-    public @ResponseBody
-    Collection<EntityToEntityLinkInput> linkEntities(@RequestBody List<EntityToEntityLinkInput> entityToEntityLinkInputs,
-                                                     HttpServletRequest request) throws FlockException {
-        CompanyNode company = CompanyResolver.resolveCompany(request);
-
-        return entityService.linkEntities(company, entityToEntityLinkInputs);
-    }
+    return entityService.linkEntities(company, entityToEntityLinkInputs);
+  }
 
 
 }

@@ -32,9 +32,9 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  * @since 30/06/2013
  */
 public interface AliasRepo extends GraphRepository<AliasNode> {
-    @Query(elementClass = AliasNode.class, value =
-        "match (t) -[:HAS_ALIAS]->(alias) where id(t)={0}  return alias")
-    Collection<Alias> findTagAliases(Long id);
+  @Query(elementClass = AliasNode.class, value =
+      "match (t) -[:HAS_ALIAS]->(alias) where id(t)={0}  return alias")
+  Collection<Alias> findTagAliases(Long id);
 
 
 }

@@ -30,22 +30,22 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 public class TestEntity extends BaseNeo {
 
-    @Autowired
-    EntityRepo entityRepo;
-    @Autowired
-    KeyGenService keyGenService;
+  @Autowired
+  EntityRepo entityRepo;
+  @Autowired
+  KeyGenService keyGenService;
 
-    @Test
-    public void testEntity() {
-        Entity myEntity = EntityNode.builder()
-            .name("myName")
-            .code("myCode")
-            .key(keyGenService.getUniqueKey())
-            .type("Person")
-            .build();
-        Entity created = entityRepo.create(myEntity);
-        assertThat(created).isNotNull().hasFieldOrProperty("id");
-        Entity found = entityRepo.findByKey(myEntity);
-        assertThat(found).isNotNull().hasFieldOrProperty("id");
-    }
+  @Test
+  public void testEntity() {
+    Entity myEntity = EntityNode.builder()
+        .name("myName")
+        .code("myCode")
+        .key(keyGenService.getUniqueKey())
+        .type("Person")
+        .build();
+    Entity created = entityRepo.create(myEntity);
+    assertThat(created).isNotNull().hasFieldOrProperty("id");
+    Entity found = entityRepo.findByKey(myEntity);
+    assertThat(found).isNotNull().hasFieldOrProperty("id");
+  }
 }

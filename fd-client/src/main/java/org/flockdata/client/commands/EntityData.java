@@ -39,49 +39,49 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class EntityData {
 
-    private static final String BY_KEY = "/entity/{key}/log/last/data";
-    private static final String BY_CODE = "/entity/{fortress}/{docType}/{code}/log/last/data";
+  private static final String BY_KEY = "/entity/{key}/log/last/data";
+  private static final String BY_CODE = "/entity/{fortress}/{docType}/{code}/log/last/data";
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public EntityData(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public EntityData(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+
+  public CommandResponse<Map<String, Object>> exec(String key) {
+    return exec(key, null);
+  }
+
+  public CommandResponse<Map<String, Object>> exec(EntityInputBean entityInputBean) {
+    return exec(null, entityInputBean);
+  }
+
+  public CommandResponse<Map<String, Object>> exec(String key, EntityInputBean entityInputBean) {
+    HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+    Map<String, Object> result = null;
+    String error = null;
+
+    try {
+      ParameterizedTypeReference<Map<String, Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {
+      };
+      ResponseEntity<Map<String, Object>> response;
+      if (key != null) {// Locate by FD unique key
+        String command = fdIoInterface.getUrl() + "/api/v1" + BY_KEY;
+        response = fdIoInterface.getRestTemplate().exchange(command, HttpMethod.GET, requestEntity, responseType, key);
+      } else {
+        response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1" + BY_CODE, HttpMethod.GET, requestEntity, responseType,
+            entityInputBean.getFortress().getName(),
+            entityInputBean.getDocumentType().getName(),
+            entityInputBean.getCode());
+      }
+
+      result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+
+    } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
+      error = e.getMessage();
     }
-
-
-    public CommandResponse<Map<String, Object>> exec(String key) {
-        return exec(key, null);
-    }
-
-    public CommandResponse<Map<String, Object>> exec(EntityInputBean entityInputBean) {
-        return exec(null, entityInputBean);
-    }
-
-    public CommandResponse<Map<String, Object>> exec(String key, EntityInputBean entityInputBean) {
-        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
-        Map<String, Object> result = null;
-        String error = null;
-
-        try {
-            ParameterizedTypeReference<Map<String, Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {
-            };
-            ResponseEntity<Map<String, Object>> response;
-            if (key != null) {// Locate by FD unique key
-                String command = fdIoInterface.getUrl() + "/api/v1" + BY_KEY;
-                response = fdIoInterface.getRestTemplate().exchange(command, HttpMethod.GET, requestEntity, responseType, key);
-            } else {
-                response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1" + BY_CODE, HttpMethod.GET, requestEntity, responseType,
-                    entityInputBean.getFortress().getName(),
-                    entityInputBean.getDocumentType().getName(),
-                    entityInputBean.getCode());
-            }
-
-            result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
-
-        } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, result);// Everything worked
-    }
+    return new CommandResponse<>(error, result);// Everything worked
+  }
 }

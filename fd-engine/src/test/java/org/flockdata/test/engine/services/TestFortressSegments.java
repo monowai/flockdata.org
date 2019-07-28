@@ -49,95 +49,95 @@ import org.junit.Test;
  */
 public class TestFortressSegments extends EngineBase {
 
-    @Test
-    public void fortressHasDefaultSegment() throws Exception {
-        SystemUser su = registerSystemUser("testDefaultSegment");
-        FortressNode fortress = createFortress(su);
-        assertNotNull(fortress.getDefaultSegment());
-        Segment segment = fortressService.getDefaultSegment(fortress);
-        assertNotNull(segment);
-        assertEquals(Fortress.DEFAULT, segment.getCode());
-        assertTrue(segment.isDefault());
-    }
+  @Test
+  public void fortressHasDefaultSegment() throws Exception {
+    SystemUser su = registerSystemUser("testDefaultSegment");
+    FortressNode fortress = createFortress(su);
+    assertNotNull(fortress.getDefaultSegment());
+    Segment segment = fortressService.getDefaultSegment(fortress);
+    assertNotNull(segment);
+    assertEquals(Fortress.DEFAULT, segment.getCode());
+    assertTrue(segment.isDefault());
+  }
 
-    @Test
-    public void addSegmentToExistingFortress() throws Exception {
-        SystemUser su = registerSystemUser("addSegmentToExistingFortress");
-        FortressNode fortress = createFortress(su);
-        Segment segment = new FortressSegmentNode(fortress, "SecondSegment");
-        Segment createdSegment = fortressService.addSegment(segment);
-        assertNotNull(createdSegment);
-        assertTrue(createdSegment.getId() > 0);
+  @Test
+  public void addSegmentToExistingFortress() throws Exception {
+    SystemUser su = registerSystemUser("addSegmentToExistingFortress");
+    FortressNode fortress = createFortress(su);
+    Segment segment = new FortressSegmentNode(fortress, "SecondSegment");
+    Segment createdSegment = fortressService.addSegment(segment);
+    assertNotNull(createdSegment);
+    assertTrue(createdSegment.getId() > 0);
 
-        TestCase.assertEquals(2, fortressService.getSegments(fortress).size());
-    }
+    TestCase.assertEquals(2, fortressService.getSegments(fortress).size());
+  }
 
-    @Test
-    public void addDuplicateSegment() throws Exception {
-        SystemUser su = registerSystemUser("addDuplicateSegment");
-        FortressNode fortress = createFortress(su);
-        Segment segment = new FortressSegmentNode(fortress, "SecondSegment");
-        Segment createdSegment = fortressService.addSegment(segment);
-        assertNotNull(createdSegment);
-        assertTrue(createdSegment.getId() > 0);
+  @Test
+  public void addDuplicateSegment() throws Exception {
+    SystemUser su = registerSystemUser("addDuplicateSegment");
+    FortressNode fortress = createFortress(su);
+    Segment segment = new FortressSegmentNode(fortress, "SecondSegment");
+    Segment createdSegment = fortressService.addSegment(segment);
+    assertNotNull(createdSegment);
+    assertTrue(createdSegment.getId() > 0);
 
-        Segment duplicateSegment = fortressService.addSegment(segment);
-        TestCase.assertEquals(createdSegment.getId(), duplicateSegment.getId());
+    Segment duplicateSegment = fortressService.addSegment(segment);
+    TestCase.assertEquals(createdSegment.getId(), duplicateSegment.getId());
 
-        TestCase.assertEquals(2, fortressService.getSegments(fortress).size());
-    }
+    TestCase.assertEquals(2, fortressService.getSegments(fortress).size());
+  }
 
-    @Test
-    public void segmentsForDocumentType() throws Exception {
-        SystemUser su = registerSystemUser("segmentsForDocumentType");
-        FortressNode fortress = createFortress(su);
-        EntityInputBean inputBeanA = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "111");
-        inputBeanA.setSegment("ABC");
-        EntityInputBean inputBeanB = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "222");
-        inputBeanB.setSegment("CBA");
-        EntityInputBean inputBeanC = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "333");
-        inputBeanC.setSegment("CBA");
+  @Test
+  public void segmentsForDocumentType() throws Exception {
+    SystemUser su = registerSystemUser("segmentsForDocumentType");
+    FortressNode fortress = createFortress(su);
+    EntityInputBean inputBeanA = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "111");
+    inputBeanA.setSegment("ABC");
+    EntityInputBean inputBeanB = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "222");
+    inputBeanB.setSegment("CBA");
+    EntityInputBean inputBeanC = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "333");
+    inputBeanC.setSegment("CBA");
 
-        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBeanA);
-        mediationFacade.trackEntity(su.getCompany(), inputBeanB);
-        mediationFacade.trackEntity(su.getCompany(), inputBeanC);
-        DocumentNode documentType = conceptService.findDocumentType(fortress, resultBean.getDocumentType().getName());
-        DocumentNode resolved = conceptService.findDocumentTypeWithSegments(documentType);
-        assertEquals(2, resolved.getSegments().size());
-    }
+    TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBeanA);
+    mediationFacade.trackEntity(su.getCompany(), inputBeanB);
+    mediationFacade.trackEntity(su.getCompany(), inputBeanC);
+    DocumentNode documentType = conceptService.findDocumentType(fortress, resultBean.getDocumentType().getName());
+    DocumentNode resolved = conceptService.findDocumentTypeWithSegments(documentType);
+    assertEquals(2, resolved.getSegments().size());
+  }
 
-    @Test
-    public void createSegmentForIllegalFortress() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        new FortressSegmentNode(null, "SecondSegment");
+  @Test
+  public void createSegmentForIllegalFortress() throws Exception {
+    exception.expect(IllegalArgumentException.class);
+    new FortressSegmentNode(null, "SecondSegment");
 
-    }
+  }
 
-    @Test
-    public void moveEntityAcrossSegments() throws Exception {
-        logger.debug("### moveEntityAcrossSegments");
-        engineConfig.setTestMode(true); // Force sync processing of the content and log
+  @Test
+  public void moveEntityAcrossSegments() throws Exception {
+    logger.debug("### moveEntityAcrossSegments");
+    engineConfig.setTestMode(true); // Force sync processing of the content and log
 
-        String entityCode = "123";
-        SystemUser su = registerSystemUser("user");
-        String fortressName = "DAT-509";
+    String entityCode = "123";
+    SystemUser su = registerSystemUser("user");
+    String fortressName = "DAT-509";
 
-        FortressInputBean fib = new FortressInputBean(fortressName, true);
-        FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
-        EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), entityCode);
-        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), ContentDataHelper.getSimpleMap("name", "a")));
+    FortressInputBean fib = new FortressInputBean(fortressName, true);
+    FortressNode fortress = fortressService.registerFortress(su.getCompany(), fib);
+    EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), entityCode);
+    inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), ContentDataHelper.getSimpleMap("name", "a")));
 
-        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        assertTrue(resultBean.getEntity().getSegment().isDefault());
+    TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+    assertTrue(resultBean.getEntity().getSegment().isDefault());
 
-        inputBean.setSegment("MoveMeHere");
-        resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        assertFalse(resultBean.getEntity().getSegment().isDefault());
+    inputBean.setSegment("MoveMeHere");
+    resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+    assertFalse(resultBean.getEntity().getSegment().isDefault());
 
-        inputBean.setSegment(fortress.getDefaultSegment().getCode());
-        resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        assertTrue(resultBean.getEntity().getSegment().isDefault());
+    inputBean.setSegment(fortress.getDefaultSegment().getCode());
+    resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+    assertTrue(resultBean.getEntity().getSegment().isDefault());
 
-    }
+  }
 
 }

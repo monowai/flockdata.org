@@ -24,16 +24,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @since 2/01/17
  */
 public interface Segment {
-    String getCode();
+  String getCode();
 
-    Fortress getFortress();
+  Fortress getFortress();
 
-    Long getId();
+  Long getId();
 
-    String getKey();
+  String getKey();
 
-    boolean isDefault();
+  boolean isDefault();
 
-    @JsonIgnore
-    Company getCompany();
+  @JsonIgnore
+  Company getCompany();
 }

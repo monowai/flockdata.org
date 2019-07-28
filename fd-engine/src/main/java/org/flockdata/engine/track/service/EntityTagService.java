@@ -40,46 +40,46 @@ import org.flockdata.track.bean.EntityTagResult;
  * @since 6/09/2014
  */
 public interface EntityTagService {
-    void processTag(EntityNode entity, EntityTagInputBean tagInput);
+  void processTag(EntityNode entity, EntityTagInputBean tagInput);
 
-    Boolean relationshipExists(EntityNode entity, String name, String relationshipType);
+  Boolean relationshipExists(EntityNode entity, String name, String relationshipType);
 
-    Boolean relationshipExists(EntityNode entity, String keyPrefix, String tagCode, String relationshipType);
+  Boolean relationshipExists(EntityNode entity, String keyPrefix, String tagCode, String relationshipType);
 
-    Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, EntityInputBean entityInputBean) throws FlockException;
+  Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, EntityInputBean entityInputBean) throws FlockException;
 
-    Collection<EntityTag> findEntityTags(Entity entity);
+  Collection<EntityTag> findEntityTags(Entity entity);
 
-    Collection<EntityTagResult> findEntityTagResults(Entity entity);
+  Collection<EntityTagResult> findEntityTagResults(Entity entity);
 
-    Collection<EntityTagResult> findOutboundTagResults(Entity entity);
+  Collection<EntityTagResult> findOutboundTagResults(Entity entity);
 
-    Collection<EntityTagResult> findOutboundTagResults(Company company, Entity entity);
+  Collection<EntityTagResult> findOutboundTagResults(Company company, Entity entity);
 
-    Collection<EntityTagResult> findInboundTagResults(Company company, Entity entity);
+  Collection<EntityTagResult> findInboundTagResults(Company company, Entity entity);
 
-    Collection<EntityTagResult> findInboundTagResults(Entity entity);
+  Collection<EntityTagResult> findInboundTagResults(Entity entity);
 
-    Collection<EntityTag> findEntityTagsWithGeo(Entity entity);
+  Collection<EntityTag> findEntityTagsWithGeo(Entity entity);
 
 //    Set<Entity> findEntityTags(Company company, String tagName) throws FlockException;
 
-    Set<Entity> findEntityTagResults(Company company, String tagName) throws FlockException;
+  Set<Entity> findEntityTagResults(Company company, String tagName) throws FlockException;
 
-    void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
+  void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
 
-    void deleteEntityTags(Entity entity, EntityTag value) throws FlockException;
+  void deleteEntityTags(Entity entity, EntityTag value) throws FlockException;
 
-    void changeType(EntityNode entity, EntityTag existingTag, String newType) throws FlockException;
+  void changeType(EntityNode entity, EntityTag existingTag, String newType) throws FlockException;
 
-    Collection<EntityTag> findLogTags(Company company, Log log);
+  Collection<EntityTag> findLogTags(Company company, Log log);
 
-    EntityNode moveTags(Company company, LogNode previousLog, EntityNode entity);
+  EntityNode moveTags(Company company, LogNode previousLog, EntityNode entity);
 
-    Collection<Long> mergeTags(Long fromTag, Long toTag);
+  Collection<Long> mergeTags(Long fromTag, Long toTag);
 
 
-    void purgeUnusedTags(String label);
+  void purgeUnusedTags(String label);
 
-    Collection<EntityTag> findEntityTagsByRelationship(EntityNode entity, String relationship);
+  Collection<EntityTag> findEntityTagsByRelationship(EntityNode entity, String relationship);
 }

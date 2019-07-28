@@ -37,14 +37,14 @@ import org.springframework.integration.config.EnableIntegration;
 @EnableIntegration
 public class FdSearch {
 
-    public static void main(String[] args) {
-        try {
-            SpringApplication.run(FdSearch.class, args);
-        } catch (Exception e) {
-            System.out.println(e.getLocalizedMessage());
-        }
-
+  public static void main(String[] args) {
+    try {
+      SpringApplication.run(FdSearch.class, args);
+    } catch (Exception e) {
+      System.out.println(e.getLocalizedMessage());
     }
+
+  }
 
 
 }

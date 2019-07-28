@@ -37,18 +37,18 @@ import org.springframework.context.annotation.Profile;
 @Profile("discovery")
 public class DiscoveryConfiguration {//implements InfoContributor {
 
-    private final SearchAdmin searchAdmin;
-    private Logger logger = LoggerFactory.getLogger("configuration");
+  private final SearchAdmin searchAdmin;
+  private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Autowired
-    public DiscoveryConfiguration(SearchAdmin searchAdmin) {
-        this.searchAdmin = searchAdmin;
-    }
+  @Autowired
+  public DiscoveryConfiguration(SearchAdmin searchAdmin) {
+    this.searchAdmin = searchAdmin;
+  }
 
-    @PostConstruct
-    public void logStatus() {
-        logger.info("**** Discovery Configuration Client configuration deployed");
-    }
+  @PostConstruct
+  public void logStatus() {
+    logger.info("**** Discovery Configuration Client configuration deployed");
+  }
 
 //    @Override
 //    public void contribute(Info.Builder builder) {

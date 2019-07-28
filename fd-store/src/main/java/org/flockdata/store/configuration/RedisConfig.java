@@ -35,27 +35,27 @@ import org.springframework.data.redis.core.RedisTemplate;
  */
 @Configuration
 public class RedisConfig {
-    @Autowired
-    StoreConfig storeConfig;
+  @Autowired
+  StoreConfig storeConfig;
 
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-        return new PropertySourcesPlaceholderConfigurer();
-    }
+  @Bean
+  public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+    return new PropertySourcesPlaceholderConfigurer();
+  }
 
-    @Bean
-    JedisConnectionFactory jedisConnectionFactory() {
-        JedisConnectionFactory factory = new JedisConnectionFactory();
-        factory.setHostName(storeConfig.redisHost());
-        factory.setPort(storeConfig.redisPort());
-        factory.setUsePool(true);
-        return factory;
-    }
+  @Bean
+  JedisConnectionFactory jedisConnectionFactory() {
+    JedisConnectionFactory factory = new JedisConnectionFactory();
+    factory.setHostName(storeConfig.redisHost());
+    factory.setPort(storeConfig.redisPort());
+    factory.setUsePool(true);
+    return factory;
+  }
 
-    @Bean
-    RedisTemplate redisTemplate() {
-        final RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(jedisConnectionFactory());
-        return template;
-    }
+  @Bean
+  RedisTemplate redisTemplate() {
+    final RedisTemplate<String, Object> template = new RedisTemplate<>();
+    template.setConnectionFactory(jedisConnectionFactory());
+    return template;
+  }
 }

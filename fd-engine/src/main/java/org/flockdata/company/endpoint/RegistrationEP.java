@@ -47,39 +47,39 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.engine.system.api:api}/v1/profiles")
 public class RegistrationEP {
 
-    private final RegistrationService regService;
+  private final RegistrationService regService;
 
-    private final UserProfileService userProfileService;
+  private final UserProfileService userProfileService;
 
-    @Autowired
-    public RegistrationEP(UserProfileService userProfileService, RegistrationService regService) {
-        this.userProfileService = userProfileService;
-        this.regService = regService;
+  @Autowired
+  public RegistrationEP(UserProfileService userProfileService, RegistrationService regService) {
+    this.userProfileService = userProfileService;
+    this.regService = regService;
+  }
+
+  @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
+  @ResponseStatus(value = HttpStatus.CREATED)
+  public SystemUserResultBean registerSystemUser(@RequestBody RegistrationBean regBean) throws FlockException {
+    // curl -u admin:hackme -H "Content-Type:application/json" -X PUT http://localhost:8080/api/v1/profiles -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
+    SystemUser su = regService.registerSystemUser(regBean);
+
+    if (su == null) {
+      return new SystemUserResultBean(su);
     }
 
-    @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.CREATED)
-    public SystemUserResultBean registerSystemUser(@RequestBody RegistrationBean regBean) throws FlockException {
-        // curl -u admin:hackme -H "Content-Type:application/json" -X PUT http://localhost:8080/api/v1/profiles -d '{"name":"mikey", "companyName":"Monowai Dev","password":"whocares"}'
-        SystemUser su = regService.registerSystemUser(regBean);
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return new SystemUserResultBean(su, userProfileService.getUser(auth));
+  }
 
-        if (su == null) {
-            return new SystemUserResultBean(su);
-        }
+  @RequestMapping(value = "/me", method = RequestMethod.GET, produces = "application/json")
+  public SystemUserResultBean get(@RequestHeader(value = "api-key",
+      required = false) String apiHeaderKey) {
+    // curl -u batch:123 -X GET http://localhost:8080/ab/profiles/me/
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    SystemUserResultBean su = new SystemUserResultBean(regService.getSystemUser(apiHeaderKey), userProfileService.getUser(auth));
+    return su;
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return new SystemUserResultBean(su, userProfileService.getUser(auth));
-    }
-
-    @RequestMapping(value = "/me", method = RequestMethod.GET, produces = "application/json")
-    public SystemUserResultBean get(@RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
-        // curl -u batch:123 -X GET http://localhost:8080/ab/profiles/me/
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        SystemUserResultBean su = new SystemUserResultBean(regService.getSystemUser(apiHeaderKey), userProfileService.getUser(auth));
-        return su;
-
-    }
+  }
 
 
 }

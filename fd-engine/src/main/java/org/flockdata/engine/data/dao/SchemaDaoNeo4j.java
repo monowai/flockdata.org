@@ -47,39 +47,39 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class SchemaDaoNeo4j {
 
-    private final Neo4jTemplate template;
+  private final Neo4jTemplate template;
 
-    private Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
+  private Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
 
-    @Autowired
-    public SchemaDaoNeo4j(Neo4jTemplate template) {
-        this.template = template;
-    }
+  @Autowired
+  public SchemaDaoNeo4j(Neo4jTemplate template) {
+    this.template = template;
+  }
 
-    Result<Map<String, Object>> runQuery(String statement) {
-        return runQuery(statement, null);
-    }
+  Result<Map<String, Object>> runQuery(String statement) {
+    return runQuery(statement, null);
+  }
 
-    // Just here to minimize the use of the template object
-    private Result<Map<String, Object>> runQuery(String statement, HashMap<String, Object> params) {
-        return template.query(statement, params);
-    }
+  // Just here to minimize the use of the template object
+  private Result<Map<String, Object>> runQuery(String statement, HashMap<String, Object> params) {
+    return template.query(statement, params);
+  }
 
 
-    public Boolean ensureSystemConstraints(Company company) {
+  public Boolean ensureSystemConstraints(Company company) {
 
-        //logger.debug("Creating system constraints for {} ", company.getName());
-        runQuery("create constraint on (t:Country) assert t.key is unique");
-        runQuery("create constraint on (t:CountryAlias) assert t.key is unique");
-        runQuery("create constraint on (t:State) assert t.key is unique");
-        runQuery("create constraint on (t:StateAlias) assert t.key is unique");
-        runQuery("create constraint on (t:City) assert t.key is unique");
-        runQuery("create constraint on (t:CityAlias) assert t.key is unique");
-        runQuery("create constraint on (t:Suburb) assert t.key is unique");
-        runQuery("create constraint on (t:SuburbAlias) assert t.key is unique");
+    //logger.debug("Creating system constraints for {} ", company.getName());
+    runQuery("create constraint on (t:Country) assert t.key is unique");
+    runQuery("create constraint on (t:CountryAlias) assert t.key is unique");
+    runQuery("create constraint on (t:State) assert t.key is unique");
+    runQuery("create constraint on (t:StateAlias) assert t.key is unique");
+    runQuery("create constraint on (t:City) assert t.key is unique");
+    runQuery("create constraint on (t:CityAlias) assert t.key is unique");
+    runQuery("create constraint on (t:Suburb) assert t.key is unique");
+    runQuery("create constraint on (t:SuburbAlias) assert t.key is unique");
 
-        // These are required for SDN 4
-        // commented out in SDN3 because the Pojos prefer to create the indexes and constraints
+    // These are required for SDN 4
+    // commented out in SDN3 because the Pojos prefer to create the indexes and constraints
 
 //        runQuery("create constraint on (t:FDCompany) assert t.code is unique");
 //        runQuery("create index on :FDCompany(name) ");
@@ -124,47 +124,48 @@ public class SchemaDaoNeo4j {
 //        runQuery("create index on :EntityLog(sysWhen) ");
 //        runQuery("create index on :EntityLog(fortressWhen) ");
 
-        logger.debug("Created system constraints");
-        return true;
-    }
+    logger.debug("Created system constraints");
+    return true;
+  }
 
 
-    @Cacheable(value = "labels", unless = "#result==null") // Caches the fact that a constraint has been created
-    @Transactional
-    public String ensureUniqueIndex(String label) {
+  @Cacheable(value = "labels", unless = "#result==null")
+  // Caches the fact that a constraint has been created
+  @Transactional
+  public String ensureUniqueIndex(String label) {
 
-        boolean quoted = CypherHelper.requiresQuoting(label);
+    boolean quoted = CypherHelper.requiresQuoting(label);
 
-        String cLabel = quoted ? "`" + label : label;
+    String cLabel = quoted ? "`" + label : label;
 
-        runQuery("create constraint on (t:" + cLabel + (quoted ? "`" : "") + ") assert t.key is unique");
-        runQuery("create constraint on (t:" + cLabel + "Alias " + (quoted ? "`" : "") + ") assert t.key is unique");
-        return label;
-    }
+    runQuery("create constraint on (t:" + cLabel + (quoted ? "`" : "") + ") assert t.key is unique");
+    runQuery("create constraint on (t:" + cLabel + "Alias " + (quoted ? "`" : "") + ") assert t.key is unique");
+    return label;
+  }
 
-    public Collection<String> getAllLabels() {
-        return new ArrayList<>();
-    }
+  public Collection<String> getAllLabels() {
+    return new ArrayList<>();
+  }
 
 
-    @Transactional
-    public void purge(Fortress fortress) {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("fortId", fortress.getId());
+  @Transactional
+  public void purge(Fortress fortress) {
+    HashMap<String, Object> params = new HashMap<>();
+    params.put("fortId", fortress.getId());
 
-        String modelRelationships = " match (m:Model)-[r:FORTRESS_MODEL]->(fort:Fortress) " +
-            "where id(fort)={fortId} " +
-            "delete r";
-        runQuery(modelRelationships, params);
+    String modelRelationships = " match (m:Model)-[r:FORTRESS_MODEL]->(fort:Fortress) " +
+        "where id(fort)={fortId} " +
+        "delete r";
+    runQuery(modelRelationships, params);
 
-        String conceptRelationships = "match (fort:Fortress)-[fd:FORTRESS_DOC]-(a:DocType)-[dr]-(o)-[k]-(p)" +
-            "where id(fort)={fortId} " +
-            "and not (o:Model)  " +
-            "delete dr, k, o;";
+    String conceptRelationships = "match (fort:Fortress)-[fd:FORTRESS_DOC]-(a:DocType)-[dr]-(o)-[k]-(p)" +
+        "where id(fort)={fortId} " +
+        "and not (o:Model)  " +
+        "delete dr, k, o;";
 
-        // ToDo: Purge Unused Concepts!!
-        runQuery(conceptRelationships, params);
+    // ToDo: Purge Unused Concepts!!
+    runQuery(conceptRelationships, params);
 
-    }
+  }
 
 }

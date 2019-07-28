@@ -35,11 +35,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${org.fd.search.system.api:api}/")
 public class AuthenticationEP {
 
-    @RequestMapping(value = "/ping", method = RequestMethod.GET)
-    public String getPing() {
-        // curl -X GET http://localhost:8081/api/ping
-        return "pong";
-    }
+  @RequestMapping(value = "/ping", method = RequestMethod.GET)
+  public String getPing() {
+    // curl -X GET http://localhost:8081/api/ping
+    return "pong";
+  }
 
 
 }

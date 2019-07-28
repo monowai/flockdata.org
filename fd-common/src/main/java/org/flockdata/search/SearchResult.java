@@ -23,37 +23,37 @@ import java.util.Map;
  * @since 16/09/17
  */
 public interface SearchResult {
-    String getLastUser();
+  String getLastUser();
 
-    String getDescription();
+  String getDescription();
 
-    String getEvent();
+  String getEvent();
 
-    Long getLastUpdate();
+  Long getLastUpdate();
 
-    long getWhenCreated();
+  long getWhenCreated();
 
-    String getKey();
+  String getKey();
 
-    String getFortress();
+  String getFortress();
 
-    String getIndexName();
+  String getIndexName();
 
-    String getSearchKey();
+  String getSearchKey();
 
-    String getDocumentType();
+  String getDocumentType();
 
-    Long getLogId();
+  Long getLogId();
 
-    Long getEntityId();
+  Long getEntityId();
 
-    String getCode();
+  String getCode();
 
-    String getCreatedBy();
+  String getCreatedBy();
 
-    Long getFdTimestamp();
+  Long getFdTimestamp();
 
-    Map<String, Object> getData();
+  Map<String, Object> getData();
 
-    String getName();
+  String getName();
 }

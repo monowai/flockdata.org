@@ -37,40 +37,40 @@ import org.junit.Test;
  */
 public class TestEntityTagLinks extends AbstractImport {
 
-    @Test
-    public void processCsv() throws Exception {
-        String file = "/model/entity-tag-links.json";
-        ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
-        ExtractProfile params = new ExtractProfileHandler(contentModel);
-        long rows = fileProcessor.processFile(params, "/data/test-entity-tag-links.csv");
+  @Test
+  public void processCsv() throws Exception {
+    String file = "/model/entity-tag-links.json";
+    ContentModel contentModel = ContentModelDeserializer.getContentModel(file);
+    ExtractProfile params = new ExtractProfileHandler(contentModel);
+    long rows = fileProcessor.processFile(params, "/data/test-entity-tag-links.csv");
 
-        assertEquals(1, rows);
+    assertEquals(1, rows);
 
-        List<EntityInputBean> entities = getTemplate().getEntities();
+    List<EntityInputBean> entities = getTemplate().getEntities();
 
-        for (EntityInputBean entity : entities) {
-            assertEquals(4, entity.getTags().size());
+    for (EntityInputBean entity : entities) {
+      assertEquals(4, entity.getTags().size());
 
-            for (TagInputBean tagInputBean : entity.getTags()) {
-                if (tagInputBean.getLabel().equals("Jurisdiction")) {
-                    assertFalse(tagInputBean.getEntityTagLinks().size() == 0);
-                    EntityTagRelationshipInput jurisdiction = tagInputBean.getEntityTagLinks().get("jurisdiction");
-                    assertNotNull(jurisdiction);
-                    assertTrue(jurisdiction.isGeo());
-                    assertEquals("SAM", tagInputBean.getCode());
-                } else if (tagInputBean.getLabel().equals("Country")) {
-                    assertFalse(tagInputBean.getEntityTagLinks().size() == 0);
-                    EntityTagRelationshipInput country = tagInputBean.getEntityTagLinks().get("located");
-                    assertNotNull(country);
-                    assertTrue(country.isGeo());
-                    assertEquals("HKG", tagInputBean.getCode());
-                } else if (tagInputBean.getLabel().equals("ServiceProvider")) {
-                    assertTrue(tagInputBean.isReverse());
-                } else {
-                    assertFalse(tagInputBean.isReverse());
-                }
-
-            }
+      for (TagInputBean tagInputBean : entity.getTags()) {
+        if (tagInputBean.getLabel().equals("Jurisdiction")) {
+          assertFalse(tagInputBean.getEntityTagLinks().size() == 0);
+          EntityTagRelationshipInput jurisdiction = tagInputBean.getEntityTagLinks().get("jurisdiction");
+          assertNotNull(jurisdiction);
+          assertTrue(jurisdiction.isGeo());
+          assertEquals("SAM", tagInputBean.getCode());
+        } else if (tagInputBean.getLabel().equals("Country")) {
+          assertFalse(tagInputBean.getEntityTagLinks().size() == 0);
+          EntityTagRelationshipInput country = tagInputBean.getEntityTagLinks().get("located");
+          assertNotNull(country);
+          assertTrue(country.isGeo());
+          assertEquals("HKG", tagInputBean.getCode());
+        } else if (tagInputBean.getLabel().equals("ServiceProvider")) {
+          assertTrue(tagInputBean.isReverse());
+        } else {
+          assertFalse(tagInputBean.isReverse());
         }
+
+      }
     }
+  }
 }

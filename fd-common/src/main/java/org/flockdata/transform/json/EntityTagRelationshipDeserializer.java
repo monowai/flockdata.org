@@ -39,15 +39,15 @@ import org.flockdata.track.bean.EntityTagRelationshipDefinition;
  */
 public class EntityTagRelationshipDeserializer extends JsonDeserializer<Collection<EntityTagRelationshipDefinition>> {
 
-    @Override
-    public Collection<EntityTagRelationshipDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        Collection<EntityTagRelationshipDefinition> values = new ArrayList<>();
-        JsonNode node = jp.getCodec().readTree(jp);
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-        for (JsonNode jsonNode : node) {
-            values.add(om.readValue(jsonNode.toString(), EntityTagRelationshipDefinition.class));
+  @Override
+  public Collection<EntityTagRelationshipDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    Collection<EntityTagRelationshipDefinition> values = new ArrayList<>();
+    JsonNode node = jp.getCodec().readTree(jp);
+    ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
+    for (JsonNode jsonNode : node) {
+      values.add(om.readValue(jsonNode.toString(), EntityTagRelationshipDefinition.class));
 
-        }
-        return values;
     }
+    return values;
+  }
 }

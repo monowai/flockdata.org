@@ -25,35 +25,35 @@ import org.flockdata.track.bean.GeoDataBeans;
  * @since 13/07/2016
  */
 public interface EntityTag {
-    // Key value indicating when, in the fortress, this relationship was established
-    String SINCE = "since";
-    // Property that refers to when this relationship was introduced to FD
-    String FD_WHEN = "fdWhen";
+  // Key value indicating when, in the fortress, this relationship was established
+  String SINCE = "since";
+  // Property that refers to when this relationship was introduced to FD
+  String FD_WHEN = "fdWhen";
 
-    Boolean isGeoRelationship();
+  Boolean isGeoRelationship();
 
-    Long getId();
+  Long getId();
 
-    Entity getEntity();
+  Entity getEntity();
 
-    Tag getTag();
+  Tag getTag();
 
-    String getRelationship();
+  String getRelationship();
 
-    void setRelationship(String name);
+  void setRelationship(String name);
 
-    void setGeo(Boolean geo);
+  void setGeo(Boolean geo);
 
-    Integer getWeight();
+  Integer getWeight();
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    GeoDataBeans getGeoData();
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  GeoDataBeans getGeoData();
 
-    EntityTag setGeoData(GeoDataBeans geoBeans);
+  EntityTag setGeoData(GeoDataBeans geoBeans);
 
-    Boolean isReversed();
+  Boolean isReversed();
 
-    Map<String, Object> getProperties();
+  Map<String, Object> getProperties();
 
-    enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
+  enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 }

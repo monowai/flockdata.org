@@ -44,53 +44,53 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class TagDaoNeo4j {
 
-    private final TagWrangler tagWrangler;
+  private final TagWrangler tagWrangler;
 
-    private final AliasDaoNeo aliasDaoNeo;
+  private final AliasDaoNeo aliasDaoNeo;
 
-    @Autowired
-    public TagDaoNeo4j(TagWrangler tagWrangler, AliasDaoNeo aliasDaoNeo) {
-        this.tagWrangler = tagWrangler;
-        this.aliasDaoNeo = aliasDaoNeo;
+  @Autowired
+  public TagDaoNeo4j(TagWrangler tagWrangler, AliasDaoNeo aliasDaoNeo) {
+    this.tagWrangler = tagWrangler;
+    this.aliasDaoNeo = aliasDaoNeo;
+  }
+
+  public Collection<FdTagResultBean> save(TagPayload payload) {
+    return tagWrangler.save(payload);
+  }
+
+  public void createAlias(String suffix, Tag tag, String label, AliasInputBean aliasInput) {
+    tagWrangler.createAlias(suffix, tag, label, aliasInput);
+  }
+
+  public Collection<Tag> findDirectedTags(String tagSuffix, Tag startTag, Company company) {
+    return tagWrangler.findDirectedTags(tagSuffix, startTag, company);
+  }
+
+  public Collection<Tag> findTags(String label) {
+    return tagWrangler.findTags(label);
+  }
+
+  public Collection<TagResultBean> findTags() {
+    return tagWrangler.findTags();
+  }
+
+  public Collection<AliasInputBean> findTagAliases(Tag sourceTag) throws NotFoundException {
+    Collection<Alias> aliases = aliasDaoNeo.findTagAliases(sourceTag);
+    Collection<AliasInputBean> aliasResults = new ArrayList<>();
+    for (Alias alias : aliases) {
+      aliasResults.add(new AliasInputBean(alias.getName()));
     }
+    return aliasResults;
+  }
 
-    public Collection<FdTagResultBean> save(TagPayload payload) {
-        return tagWrangler.save(payload);
-    }
+  public Map<String, Collection<FdTagResultBean>> findAllTags(Tag sourceTag, String relationship, String targetLabel) {
+    return tagWrangler.findAllTags(sourceTag, relationship, targetLabel);
 
-    public void createAlias(String suffix, Tag tag, String label, AliasInputBean aliasInput) {
-        tagWrangler.createAlias(suffix, tag, label, aliasInput);
-    }
+  }
 
-    public Collection<Tag> findDirectedTags(String tagSuffix, Tag startTag, Company company) {
-        return tagWrangler.findDirectedTags(tagSuffix, startTag, company);
-    }
-
-    public Collection<Tag> findTags(String label) {
-        return tagWrangler.findTags(label);
-    }
-
-    public Collection<TagResultBean> findTags() {
-        return tagWrangler.findTags();
-    }
-
-    public Collection<AliasInputBean> findTagAliases(Tag sourceTag) throws NotFoundException {
-        Collection<Alias> aliases = aliasDaoNeo.findTagAliases(sourceTag);
-        Collection<AliasInputBean> aliasResults = new ArrayList<>();
-        for (Alias alias : aliases) {
-            aliasResults.add(new AliasInputBean(alias.getName()));
-        }
-        return aliasResults;
-    }
-
-    public Map<String, Collection<FdTagResultBean>> findAllTags(Tag sourceTag, String relationship, String targetLabel) {
-        return tagWrangler.findAllTags(sourceTag, relationship, targetLabel);
-
-    }
-
-    public Tag findTagNode(String suffix, String label, String tagPrefix, String tagCode, boolean inflate) {
-        return tagWrangler.findTag(suffix, label, tagPrefix, tagCode, inflate);
-    }
+  public Tag findTagNode(String suffix, String label, String tagPrefix, String tagCode, boolean inflate) {
+    return tagWrangler.findTag(suffix, label, tagPrefix, tagCode, inflate);
+  }
 
 
 //    public Collection<Tag> findTags(String suffix, String label, String tagCode, boolean inflate) {

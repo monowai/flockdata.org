@@ -50,68 +50,68 @@ import org.springframework.messaging.handler.annotation.Payload;
 @IntegrationComponentScan
 public class SearchAdminRequests {
 
-    private final PlatformConfig engineConfig;
+  private final PlatformConfig engineConfig;
 
-    @Autowired
-    public SearchAdminRequests(@Qualifier("engineConfig") PlatformConfig engineConfig) {
-        this.engineConfig = engineConfig;
-    }
+  @Autowired
+  public SearchAdminRequests(@Qualifier("engineConfig") PlatformConfig engineConfig) {
+    this.engineConfig = engineConfig;
+  }
 
-    @Bean
-    MessageChannel searchPing() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel searchPing() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    MessageChannel searchHealth() {
-        return new DirectChannel();
-    }
+  @Bean
+  MessageChannel searchHealth() {
+    return new DirectChannel();
+  }
 
 
-    @Bean
-    IntegrationFlow searchHealthFlow() {
-        return IntegrationFlows.from(searchHealth())
-            .handle(fdsHealthRequest())
-            .get();
-    }
+  @Bean
+  IntegrationFlow searchHealthFlow() {
+    return IntegrationFlows.from(searchHealth())
+        .handle(fdsHealthRequest())
+        .get();
+  }
 
-    private MessageHandler fdsHealthRequest() {
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/health");
-        handler.setExpectedResponseType(Map.class);
-        handler.setHttpMethod(HttpMethod.GET);
+  private MessageHandler fdsHealthRequest() {
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/health");
+    handler.setExpectedResponseType(Map.class);
+    handler.setHttpMethod(HttpMethod.GET);
 
-        return handler;
-    }
+    return handler;
+  }
 
-    @Bean
-    IntegrationFlow searchPingFlow() {
+  @Bean
+  IntegrationFlow searchPingFlow() {
 
-        return IntegrationFlows.from(searchPing())
-            .handle(fdsPingRequest())
-            .get();
-    }
+    return IntegrationFlows.from(searchPing())
+        .handle(fdsPingRequest())
+        .get();
+  }
 
-    private MessageHandler fdsPingRequest() {
-        HttpRequestExecutingMessageHandler handler =
-            new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/ping");
-        handler.setExpectedResponseType(String.class);
-        handler.setHttpMethod(HttpMethod.GET);
+  private MessageHandler fdsPingRequest() {
+    HttpRequestExecutingMessageHandler handler =
+        new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/ping");
+    handler.setExpectedResponseType(String.class);
+    handler.setHttpMethod(HttpMethod.GET);
 
-        return handler;
-    }
+    return handler;
+  }
 
-    @MessagingGateway
-    public interface AdminGateway {
-        @Payload("new java.util.Date()")
-        @Gateway(requestChannel = "searchPing", requestTimeout = 6000)
-        String ping();
+  @MessagingGateway
+  public interface AdminGateway {
+    @Payload("new java.util.Date()")
+    @Gateway(requestChannel = "searchPing", requestTimeout = 6000)
+    String ping();
 
-        @Payload("new java.util.Date()")
-        @Gateway(requestChannel = "searchHealth", requestTimeout = 6000)
-        Map<String, Object> health();
+    @Payload("new java.util.Date()")
+    @Gateway(requestChannel = "searchHealth", requestTimeout = 6000)
+    Map<String, Object> health();
 
-    }
+  }
 
 
 }

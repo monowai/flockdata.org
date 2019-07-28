@@ -38,31 +38,31 @@ import org.flockdata.track.bean.FdTagResultBean;
  */
 public interface TagService {
 
-    FdTagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException;
+  FdTagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException;
 
-    Collection<FdTagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException;
+  Collection<FdTagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException;
 
-    Tag findTag(Company company, String keyPrefix, String tagCode);
+  Tag findTag(Company company, String keyPrefix, String tagCode);
 
-    Collection<Tag> findDirectedTags(Tag startTag);
+  Collection<Tag> findDirectedTags(Tag startTag);
 
-    Collection<TagResultBean> findTags(Company company);
+  Collection<TagResultBean> findTags(Company company);
 
-    Collection<Tag> findTags(Company company, String label);
+  Collection<Tag> findTags(Company company, String label);
 
-    Collection<FdTagResultBean> findTagResults(Company company, String label);
+  Collection<FdTagResultBean> findTagResults(Company company, String label);
 
-    Tag findTag(Company company, String label, String keyPrefix, String tagCode);
+  Tag findTag(Company company, String label, String keyPrefix, String tagCode);
 
-    Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException;
+  Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException;
 
-    void createAlias(Company company, Tag tag, String forLabel, String aliasKeyValue);
+  void createAlias(Company company, Tag tag, String forLabel, String aliasKeyValue);
 
-    void createAlias(Company company, Tag tag, String forLabel, AliasInputBean aliasInput);
+  void createAlias(Company company, Tag tag, String forLabel, AliasInputBean aliasInput);
 
-    Collection<AliasInputBean> findTagAliases(Company company, String label, String keyPrefix, String sourceTag) throws NotFoundException;
+  Collection<AliasInputBean> findTagAliases(Company company, String label, String keyPrefix, String sourceTag) throws NotFoundException;
 
-    Map<String, Collection<FdTagResultBean>> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException;
+  Map<String, Collection<FdTagResultBean>> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException;
 
-    Collection<TagNode> findTag(Company company, String code);
+  Collection<TagNode> findTag(Company company, String code);
 }

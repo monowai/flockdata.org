@@ -26,6 +26,6 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 
 public interface SystemUserRepository extends GraphRepository<SystemUserNode> {
 
-    @Query(value = "match (su:SystemUser ) where su.login={0} return su")
-    SystemUserNode getSystemUser(String name);
+  @Query(value = "match (su:SystemUser ) where su.login={0} return su")
+  SystemUserNode getSystemUser(String name);
 }

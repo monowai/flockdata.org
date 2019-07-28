@@ -31,91 +31,91 @@ import org.flockdata.registration.TagInputBean;
  */
 public class TagHelper {
 
-    public static final String TAG = "Tag";
+  public static final String TAG = "Tag";
 
-    public static String suffixLabel(String label, String tagSuffix) {
-        if (label.startsWith(":")) {
-            label = label.substring(1);
-        }
-
-        if ("".equals(tagSuffix)) {
-            return label;
-        }
-        return label + tagSuffix;
+  public static String suffixLabel(String label, String tagSuffix) {
+    if (label.startsWith(":")) {
+      label = label.substring(1);
     }
 
-    /**
-     * Converts an incoming search string in to a format for storage as the Tag's key property.
-     * <p>
-     * /'s and .'s are converted to a - to avoid ambiguity with URI paths so can be found as /, - or %2F.
-     * There is an assumption that the incoming key could be a URL string that requires decoding.
-     *
-     * @param key raw incoming text
-     * @return lowercase, url decoded string with /'s converted to -'s
-     */
-    public static String parseKey(String key) {
-        String result = key.toLowerCase();
-        return result.replace('/', '-');
-
+    if ("".equals(tagSuffix)) {
+      return label;
     }
+    return label + tagSuffix;
+  }
 
-    public static boolean isDefault(String name) {
-        return name == null || Tag.DEFAULT_TAG.equals(name) || Tag.DEFAULT.equals(name);
+  /**
+   * Converts an incoming search string in to a format for storage as the Tag's key property.
+   * <p>
+   * /'s and .'s are converted to a - to avoid ambiguity with URI paths so can be found as /, - or %2F.
+   * There is an assumption that the incoming key could be a URL string that requires decoding.
+   *
+   * @param key raw incoming text
+   * @return lowercase, url decoded string with /'s converted to -'s
+   */
+  public static String parseKey(String key) {
+    String result = key.toLowerCase();
+    return result.replace('/', '-');
+
+  }
+
+  public static boolean isDefault(String name) {
+    return name == null || Tag.DEFAULT_TAG.equals(name) || Tag.DEFAULT.equals(name);
+  }
+
+
+  public static String parseKey(TagInputBean tagInput) {
+    //String prefix = (tagInput.getKeyPrefix() == null ? "" : tagInput.getKeyPrefix().toLowerCase() + "-");
+    return parseKey(tagInput.getKeyPrefix(), tagInput.getCode());
+  }
+
+  public static String parseKey(String keyPrefix, String tagCode) {
+    if (keyPrefix == null) {
+      return parseKey(tagCode);
     }
+    return keyPrefix.toLowerCase() + "-" + parseKey(tagCode);
+  }
 
+  public static boolean isSystemKey(String key) {
+    boolean systemKey = false;
 
-    public static String parseKey(TagInputBean tagInput) {
-        //String prefix = (tagInput.getKeyPrefix() == null ? "" : tagInput.getKeyPrefix().toLowerCase() + "-");
-        return parseKey(tagInput.getKeyPrefix(), tagInput.getCode());
+    if (key.equals(EntityTag.SINCE) || key.equals(EntityTag.FD_WHEN) || key.equals(Tag.LAT) || key.equals(Tag.LON)) {
+      systemKey = true;
     }
+    return systemKey;
 
-    public static String parseKey(String keyPrefix, String tagCode) {
-        if (keyPrefix == null) {
-            return parseKey(tagCode);
-        }
-        return keyPrefix.toLowerCase() + "-" + parseKey(tagCode);
+
+  }
+
+  public static boolean isSystemLabel(String index) {
+    return (index.equals("Country") || index.equals("City"));
+  }
+
+  public static boolean isDefault(Tag tag) {
+    return tag != null && isDefault(tag.getLabel());
+  }
+
+  public static String getLabel(ArrayList<String> labels) {
+    for (String label : labels) {
+      if (!NodeHelper.isInternalLabel(label)) {
+        return label;
+      }
     }
+    return TAG;
 
-    public static boolean isSystemKey(String key) {
-        boolean systemKey = false;
+  }
 
-        if (key.equals(EntityTag.SINCE) || key.equals(EntityTag.FD_WHEN) || key.equals(Tag.LAT) || key.equals(Tag.LON)) {
-            systemKey = true;
-        }
-        return systemKey;
-
-
+  public static boolean hasAlias(Set<Alias> aliases, String theLabel, String code) {
+    if (aliases.isEmpty()) {
+      return false;
     }
-
-    public static boolean isSystemLabel(String index) {
-        return (index.equals("Country") || index.equals("City"));
+    for (Alias alias : aliases) {
+      if (alias.getKey().equals(code) && alias.getLabel().equals(theLabel + "Alias")) {
+        return true;
+      }
     }
+    return false;
 
-    public static boolean isDefault(Tag tag) {
-        return tag != null && isDefault(tag.getLabel());
-    }
-
-    public static String getLabel(ArrayList<String> labels) {
-        for (String label : labels) {
-            if (!NodeHelper.isInternalLabel(label)) {
-                return label;
-            }
-        }
-        return TAG;
-
-    }
-
-    public static boolean hasAlias(Set<Alias> aliases, String theLabel, String code) {
-        if (aliases.isEmpty()) {
-            return false;
-        }
-        for (Alias alias : aliases) {
-            if (alias.getKey().equals(code) && alias.getLabel().equals(theLabel + "Alias")) {
-                return true;
-            }
-        }
-        return false;
-
-    }
+  }
 
 }

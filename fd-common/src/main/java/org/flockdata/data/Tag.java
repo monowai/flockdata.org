@@ -28,45 +28,45 @@ import java.util.Set;
  * @since 2/01/17
  */
 public interface Tag {
-    String DEFAULT_TAG = "Tag";
-    String DEFAULT = ":" + Tag.DEFAULT_TAG;
-    String UNDEFINED = "undefined";
-    String PROPS_PREFIX = "props-";
-    String LAT = "latitude";
-    String LON = "longitude";
-    String NODE_LAT = PROPS_PREFIX + LAT;
-    String NODE_LON = PROPS_PREFIX + LON;
+  String DEFAULT_TAG = "Tag";
+  String DEFAULT = ":" + Tag.DEFAULT_TAG;
+  String UNDEFINED = "undefined";
+  String PROPS_PREFIX = "props-";
+  String LAT = "latitude";
+  String LON = "longitude";
+  String NODE_LAT = PROPS_PREFIX + LAT;
+  String NODE_LON = PROPS_PREFIX + LON;
 
-    String getName();
+  String getName();
 
-    Long getId();
+  Long getId();
 
-    String getKey();
+  String getKey();
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    Map<String, Object> getProperties();
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  Map<String, Object> getProperties();
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    String getCode();
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  String getCode();
 
-    String getLabel();
+  String getLabel();
 
-    Set<Alias> getAliases();
+  Set<Alias> getAliases();
 
-    @JsonIgnore
-    Boolean isNew();
+  @JsonIgnore
+  Boolean isNew();
 
-    void addProperty(String key, Object property);
+  void addProperty(String key, Object property);
 
-    @JsonIgnore
-    Map<String, Collection<Tag>> getSubTags();
+  @JsonIgnore
+  Map<String, Collection<Tag>> getSubTags();
 
-    @JsonIgnore
-    Collection<Tag> getSubTags(String key);
+  @JsonIgnore
+  Collection<Tag> getSubTags(String key);
 
-    boolean hasSubTags();
+  boolean hasSubTags();
 
-    boolean hasProperties();
+  boolean hasProperties();
 
-    void addAlias(Alias alias);
+  void addAlias(Alias alias);
 }

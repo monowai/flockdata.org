@@ -31,6 +31,6 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  * @since 1/04/2015
  */
 public interface TagRepo extends GraphRepository<TagNode> {
-    @Query(value = "match (t:Tag) where t.key = {0} return t")
-    Collection<TagNode> findByKey(String tagKey);
+  @Query(value = "match (t:Tag) where t.key = {0} return t")
+  Collection<TagNode> findByKey(String tagKey);
 }

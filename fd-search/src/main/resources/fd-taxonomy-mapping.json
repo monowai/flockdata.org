@@ -23,7 +23,7 @@
         "index": "not_analyzed"
       },
       "name": {
-        "type" : "string",
+        "type": "string",
         "boost": "4.0",
         "fields": {
           "facet": {
@@ -165,7 +165,7 @@
       {
         "inline_tag_code_template": {
           "match_mapping_type": "string",
-          "path_match": "tag.*.code" ,
+          "path_match": "tag.*.code",
           "path_unmatch": "tag.viewed.*",
           "mapping": {
             "type": "multi_field",

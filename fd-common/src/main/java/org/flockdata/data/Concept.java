@@ -29,14 +29,14 @@ import org.flockdata.track.bean.ConceptInputBean;
  * @since 4/01/17
  */
 public interface Concept {
-    static String toKey(ConceptInputBean concept) {
-        return "T." + concept.getName().toLowerCase();
-    }
+  static String toKey(ConceptInputBean concept) {
+    return "T." + concept.getName().toLowerCase();
+  }
 
-    String getName();
+  String getName();
 
-    String getDescription();
+  String getDescription();
 
-    @JsonIgnore
-    Long getId();
+  @JsonIgnore
+  Long getId();
 }

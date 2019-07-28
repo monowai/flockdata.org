@@ -33,40 +33,40 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class KeyGenService {
-    private final Base64 base64;
+  private final Base64 base64;
 
-    @Autowired
-    public KeyGenService(Base64 base64) {
-        this.base64 = base64;
-    }
+  @Autowired
+  public KeyGenService(Base64 base64) {
+    this.base64 = base64;
+  }
 
-    public String getUniqueKey() {
-        return getUniqueKey(METHOD.BASE64);
-    }
+  public String getUniqueKey() {
+    return getUniqueKey(METHOD.BASE64);
+  }
 
-    String getUniqueKey(METHOD method) {
-        // Snowflake?
-        if (method.equals(METHOD.SNOWFLAKE)) {
-            return getSnowFlake();
-        } else if (method.equals(METHOD.BASE64)) {
-            return base64.format(UUID.randomUUID());
-        } else {
-            return getUUID();
-        }
+  String getUniqueKey(METHOD method) {
+    // Snowflake?
+    if (method.equals(METHOD.SNOWFLAKE)) {
+      return getSnowFlake();
+    } else if (method.equals(METHOD.BASE64)) {
+      return base64.format(UUID.randomUUID());
+    } else {
+      return getUUID();
     }
+  }
 
-    //ToDo: Implement!
-    private String getSnowFlake() {
-        return getUUID();
-    }
+  //ToDo: Implement!
+  private String getSnowFlake() {
+    return getUUID();
+  }
 
-    private String getUUID() {
-        return UUID.randomUUID().toString();
-    }
+  private String getUUID() {
+    return UUID.randomUUID().toString();
+  }
 
-    private enum METHOD {
-        UUID, SNOWFLAKE, BASE64
-    }
+  private enum METHOD {
+    UUID, SNOWFLAKE, BASE64
+  }
 
 
 }

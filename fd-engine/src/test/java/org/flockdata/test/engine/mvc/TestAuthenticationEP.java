@@ -37,79 +37,79 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 public class TestAuthenticationEP extends MvcBase {
 
-    @Test
-    public void validUserPassword_ShouldReturnUserProfile() throws Exception {
-        // As per the entry in test-security.xml
-        LoginRequest loginReq = new LoginRequest();
-        loginReq.setUsername("mike");
-        loginReq.setPassword("123");
+  @Test
+  public void validUserPassword_ShouldReturnUserProfile() throws Exception {
+    // As per the entry in test-security.xml
+    LoginRequest loginReq = new LoginRequest();
+    loginReq.setUsername("mike");
+    loginReq.setPassword("123");
 
-        MvcResult response = mvc()
-            .perform(
-                MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(JsonUtils.toJson(loginReq)))
-            .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-
-        SystemUserResultBean systemUserResultBean = JsonUtils.toObject(response
-            .getResponse().getContentAsByteArray(), SystemUserResultBean.class);
-        assertNotNull(systemUserResultBean);
-    }
-
-    @Test
-    public void invalidUserPassword_ShouldReturnUnAuthorized() throws Exception {
-        // As per the entry in test-security.xml
-        LoginRequest loginReq = new LoginRequest();
-        loginReq.setUsername("mike");
-        loginReq.setPassword("1234");
-
-        mvc().perform(
+    MvcResult response = mvc()
+        .perform(
             MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(loginReq)))
-            .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-            .andReturn();
+        .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-    }
+    SystemUserResultBean systemUserResultBean = JsonUtils.toObject(response
+        .getResponse().getContentAsByteArray(), SystemUserResultBean.class);
+    assertNotNull(systemUserResultBean);
+  }
 
-    @Test
-    public void whenLoggedInAsMike_ShouldReturn2Roles() throws Exception {
-        // As per the entry in test-security.xml
-        LoginRequest loginReq = new LoginRequest();
-        loginReq.setUsername("mike");
-        loginReq.setPassword("123");
+  @Test
+  public void invalidUserPassword_ShouldReturnUnAuthorized() throws Exception {
+    // As per the entry in test-security.xml
+    LoginRequest loginReq = new LoginRequest();
+    loginReq.setUsername("mike");
+    loginReq.setPassword("1234");
 
-        MvcResult response = mvc()
-            .perform(
-                MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(JsonUtils.toJson(loginReq)))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(jsonPath("$.userRoles", hasSize(3))).andReturn();
-        // FD_USER, FD_ADMIN & USER
+    mvc().perform(
+        MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JsonUtils.toJson(loginReq)))
+        .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+        .andReturn();
 
-        SystemUserResultBean systemUser = JsonUtils.toObject(response
-            .getResponse().getContentAsByteArray(), SystemUserResultBean.class);
-        assertNotNull(systemUser.getUserRoles());
-    }
+  }
 
-    @Test
-    public void whenLoggedInAsMike_ShouldBelongToAdminAndUserRoles()
-        throws Exception {
+  @Test
+  public void whenLoggedInAsMike_ShouldReturn2Roles() throws Exception {
+    // As per the entry in test-security.xml
+    LoginRequest loginReq = new LoginRequest();
+    loginReq.setUsername("mike");
+    loginReq.setPassword("123");
 
-        // As per the entry in test-security.xml
-        LoginRequest loginReq = new LoginRequest();
-        loginReq.setUsername("mike");
-        loginReq.setPassword("123");
-
-        mvc().perform(
+    MvcResult response = mvc()
+        .perform(
             MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(loginReq)))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(jsonPath("$.userRoles[0]", is(FdRoles.FD_ROLE_ADMIN)))
-            .andExpect(jsonPath("$.userRoles[1]", is(FdRoles.FD_ROLE_USER)))
-            .andReturn();
-    }
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(jsonPath("$.userRoles", hasSize(3))).andReturn();
+    // FD_USER, FD_ADMIN & USER
+
+    SystemUserResultBean systemUser = JsonUtils.toObject(response
+        .getResponse().getContentAsByteArray(), SystemUserResultBean.class);
+    assertNotNull(systemUser.getUserRoles());
+  }
+
+  @Test
+  public void whenLoggedInAsMike_ShouldBelongToAdminAndUserRoles()
+      throws Exception {
+
+    // As per the entry in test-security.xml
+    LoginRequest loginReq = new LoginRequest();
+    loginReq.setUsername("mike");
+    loginReq.setPassword("123");
+
+    mvc().perform(
+        MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JsonUtils.toJson(loginReq)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(jsonPath("$.userRoles[0]", is(FdRoles.FD_ROLE_ADMIN)))
+        .andExpect(jsonPath("$.userRoles[1]", is(FdRoles.FD_ROLE_USER)))
+        .andReturn();
+  }
 
 }

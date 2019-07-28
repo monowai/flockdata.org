@@ -37,133 +37,133 @@ import org.flockdata.track.bean.TrackResultBean;
  * @since 19/11/2014
  */
 public class StorageBean implements StoredContent, Serializable {
-    private EntityResultBean entity;
-    private Object id;
-    private String checksum;
-    private ContentInputBean content = null;
-    private String store;
-    private String type;
-    private boolean noResult;
+  private EntityResultBean entity;
+  private Object id;
+  private String checksum;
+  private ContentInputBean content = null;
+  private String store;
+  private String type;
+  private boolean noResult;
 
-    public StorageBean() {
-        noResult = true;
+  public StorageBean() {
+    noResult = true;
+  }
+
+  public StorageBean(Object logId, Map<String, Object> oResult) {
+    this(oResult);
+    id = logId;
+
+  }
+
+  public StorageBean(Map<String, Object> json) {
+    this.content = new ContentInputBean(json);
+  }
+
+  public StorageBean(Object key, ContentInputBean content) {
+    this.content = content;
+    this.id = key;
+  }
+
+
+  public StorageBean(TrackResultBean trackResultBean) {
+
+    this.entity = new EntityResultBean(trackResultBean.getEntity());
+    this.type = entity.getType();
+    assert this.type != null;
+
+    if (trackResultBean.getCurrentLog() != null) {
+      if (trackResultBean.getCurrentLog().getLog() != null) {
+        this.id = trackResultBean.getCurrentLog().getLog().getId();
+        this.store = trackResultBean.getCurrentLog().getLog().getStorage();
+      }
+    }
+    this.content = trackResultBean.getContentInput();
+    if (this.content != null) {
+      content.setCode(trackResultBean.getEntity().getCode());
+      content.setKey(trackResultBean.getKey());
     }
 
-    public StorageBean(Object logId, Map<String, Object> oResult) {
-        this(oResult);
-        id = logId;
+  }
 
+  public StorageBean(TrackResultBean trackResultBean, Store storeToTest) {
+    this(trackResultBean);
+    this.setStore(storeToTest.name());
+  }
+
+  public ContentInputBean getContent() {
+    return content;
+  }
+
+  @JsonIgnore
+  public String getAttachment() {
+    if (content == null) {
+      return null;
+    }
+    return content.getAttachment();
+  }
+
+  @JsonIgnore
+  public Map<String, Object> getData() {
+    if (content == null) {
+      return null;
     }
 
-    public StorageBean(Map<String, Object> json) {
-        this.content = new ContentInputBean(json);
+    return content.getData();
+  }
+
+  /**
+   * @return version of the contentModel used to create the payload
+   */
+  @JsonIgnore
+  public Double getVersion() {
+    return content.getVersion();
+  }
+
+  public String getChecksum() {
+
+    assert getData() != null || getAttachment() != null;
+
+    if (checksum != null) {
+      return checksum;
     }
 
-    public StorageBean(Object key, ContentInputBean content) {
-        this.content = content;
-        this.id = key;
+    Checksum crcChecksum = new CRC32();
+    byte[] bytes;
+    if (getAttachment() != null) {
+      bytes = getAttachment().getBytes();
+    } else {
+      try {
+        bytes = JsonUtils.toJsonBytes(getData());
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
+    crcChecksum.update(bytes, 0, bytes.length);
+    checksum = Long.toHexString(crcChecksum.getValue());
+    return checksum;
+  }
+
+  @Override
+  public Object getId() {
+    return id;
+  }
+
+  public String getStore() {
+    return store;
+  }
 
 
-    public StorageBean(TrackResultBean trackResultBean) {
+  public void setStore(String store) {
+    this.store = store;
+  }
 
-        this.entity = new EntityResultBean(trackResultBean.getEntity());
-        this.type = entity.getType();
-        assert this.type != null;
+  @Override
+  public String getType() {
+    return type;
+  }
 
-        if (trackResultBean.getCurrentLog() != null) {
-            if (trackResultBean.getCurrentLog().getLog() != null) {
-                this.id = trackResultBean.getCurrentLog().getLog().getId();
-                this.store = trackResultBean.getCurrentLog().getLog().getStorage();
-            }
-        }
-        this.content = trackResultBean.getContentInput();
-        if (this.content != null) {
-            content.setCode(trackResultBean.getEntity().getCode());
-            content.setKey(trackResultBean.getKey());
-        }
-
-    }
-
-    public StorageBean(TrackResultBean trackResultBean, Store storeToTest) {
-        this(trackResultBean);
-        this.setStore(storeToTest.name());
-    }
-
-    public ContentInputBean getContent() {
-        return content;
-    }
-
-    @JsonIgnore
-    public String getAttachment() {
-        if (content == null) {
-            return null;
-        }
-        return content.getAttachment();
-    }
-
-    @JsonIgnore
-    public Map<String, Object> getData() {
-        if (content == null) {
-            return null;
-        }
-
-        return content.getData();
-    }
-
-    /**
-     * @return version of the contentModel used to create the payload
-     */
-    @JsonIgnore
-    public Double getVersion() {
-        return content.getVersion();
-    }
-
-    public String getChecksum() {
-
-        assert getData() != null || getAttachment() != null;
-
-        if (checksum != null) {
-            return checksum;
-        }
-
-        Checksum crcChecksum = new CRC32();
-        byte[] bytes;
-        if (getAttachment() != null) {
-            bytes = getAttachment().getBytes();
-        } else {
-            try {
-                bytes = JsonUtils.toJsonBytes(getData());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        crcChecksum.update(bytes, 0, bytes.length);
-        checksum = Long.toHexString(crcChecksum.getValue());
-        return checksum;
-    }
-
-    @Override
-    public Object getId() {
-        return id;
-    }
-
-    public String getStore() {
-        return store;
-    }
-
-
-    public void setStore(String store) {
-        this.store = store;
-    }
-
-    @Override
-    public String getType() {
-        return type;
-    }
-
-    @Override
-    public EntityResultBean getEntity() {
-        return entity;
-    }
+  @Override
+  public EntityResultBean getEntity() {
+    return entity;
+  }
 }

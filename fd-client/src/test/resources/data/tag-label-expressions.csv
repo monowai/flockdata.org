@@ -1,5 +1,5 @@
-label,code,value,desc
-Agency,1,OCC,Office of the Comptroller of the Currency
-Edit Status,7,Validity and quality edit failures,
-MSA/MD,10180,"ABILENE, TX",
-County,011,Bradley County,
+label      ,code ,value                             ,desc
+Agency     ,1    ,OCC                               ,Office of the Comptroller of the Currency
+Edit Status,7    ,Validity and quality edit failures,
+MSA/MD     ,10180,"ABILENE, TX"                     ,
+County     ,011  ,Bradley County                    ,

@@ -37,27 +37,27 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class TagsGet {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public TagsGet(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
+  @Autowired
+  public TagsGet(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+
+  public CommandResponse<TagResultBean[]> exec(String label) {
+    TagResultBean[] result = new TagResultBean[0];
+    String error = null;
+    HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+
+    try {
+      ResponseEntity<TagResultBean[]> response;
+      response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/tag/{label}", HttpMethod.GET, requestEntity, TagResultBean[].class, label);
+
+      result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+    } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+      error = e.getMessage();
     }
-
-
-    public CommandResponse<TagResultBean[]> exec(String label) {
-        TagResultBean[] result = new TagResultBean[0];
-        String error = null;
-        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
-
-        try {
-            ResponseEntity<TagResultBean[]> response;
-            response = fdIoInterface.getRestTemplate().exchange(fdIoInterface.getUrl() + "/api/v1/tag/{label}", HttpMethod.GET, requestEntity, TagResultBean[].class, label);
-
-            result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
-        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, result);// Everything worked
-    }
+    return new CommandResponse<>(error, result);// Everything worked
+  }
 }

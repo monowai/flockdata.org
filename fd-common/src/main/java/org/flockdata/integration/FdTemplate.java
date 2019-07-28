@@ -42,223 +42,219 @@ import org.springframework.stereotype.Service;
 @Service
 @Configuration
 public class FdTemplate implements Template {
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdTemplate.class);
-    private final Lock entityLock = new ReentrantLock();
-    private final Lock tagLock = new ReentrantLock();
-    private List<EntityInputBean> entityBatch = new ArrayList<>();
-    private Map<String, TagInputBean> tagBatch = new HashMap<>();
-    private ClientConfiguration clientConfiguration;
+  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdTemplate.class);
+  private final Lock entityLock = new ReentrantLock();
+  private final Lock tagLock = new ReentrantLock();
+  private List<EntityInputBean> entityBatch = new ArrayList<>();
+  private Map<String, TagInputBean> tagBatch = new HashMap<>();
+  private ClientConfiguration clientConfiguration;
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    protected FdTemplate() {
+  protected FdTemplate() {
+  }
+
+  @Autowired
+  public FdTemplate(ClientConfiguration clientConfiguration) {
+    this.clientConfiguration = clientConfiguration;
+  }
+
+  @Autowired
+  public void setClientConfiguration(ClientConfiguration clientConfiguration) {
+    this.clientConfiguration = clientConfiguration;
+  }
+
+  /**
+   * @return Implementation of the IO interface being used to communicate with the service
+   */
+  @Override
+  public FdIoInterface getFdIoInterface() {
+    return fdIoInterface;
+  }
+
+  @Autowired(required = false)
+  public void setFdIoInterface(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
+
+  @Override
+  public void writeTag(TagInputBean tagInputBean) throws FlockException {
+    writeTags(Collections.singletonList(tagInputBean), false);
+  }
+
+  @Override
+  public void writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException {
+    writeTags(tagInputBeans, false);
+  }
+
+  @Override
+  public void writeEntity(EntityInputBean entityInputBean) throws FlockException {
+    writeEntity(entityInputBean, false);
+  }
+
+  @Override
+  public void writeEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException {
+    if (fdIoInterface == null) {
+      throw new FlockException("No valid FdIoHandler could be found. Please provide an implementation");
     }
+    try {
+      entityLock.lock();
 
-    @Autowired
-    public FdTemplate(ClientConfiguration clientConfiguration) {
-        this.clientConfiguration = clientConfiguration;
-    }
+      if (entityInputBean != null) {
 
-    @Autowired
-    public void setClientConfiguration(ClientConfiguration clientConfiguration) {
-        this.clientConfiguration = clientConfiguration;
-    }
-
-    /**
-     * @return Implementation of the IO interface being used to communicate with the service
-     */
-    @Override
-    public FdIoInterface getFdIoInterface() {
-        return fdIoInterface;
-    }
-
-    @Autowired(required = false)
-    public void setFdIoInterface(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
-    }
-
-    @Override
-    public void writeTag(TagInputBean tagInputBean) throws FlockException {
-        writeTags(Collections.singletonList(tagInputBean), false);
-    }
-
-    @Override
-    public void writeTags(Collection<TagInputBean> tagInputBeans) throws FlockException {
-        writeTags(tagInputBeans, false);
-    }
-
-    @Override
-    public void writeEntity(EntityInputBean entityInputBean) throws FlockException {
-        writeEntity(entityInputBean, false);
-    }
-
-    @Override
-    public void writeEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException {
-        if (fdIoInterface == null) {
-            throw new FlockException("No valid FdIoHandler could be found. Please provide an implementation");
-        }
-        try {
-            entityLock.lock();
-
-            if (entityInputBean != null) {
-
-                if (entityInputBean.getFortress() == null) {
-                    throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via a content model with the fortressName attribute.");
-                }
-
-                if (!validDocumentType(entityInputBean)) {
-                    throw new FlockException("Unable to resolve the document type name that defines this entity. Add this via a content model with the documentName attribute.");
-                }
-
-                int existingIndex = getExistingIndex(entityInputBean);
-
-                if (existingIndex > -1) {  // Additive behaviour - merge tags in this entity into one we already know about
-                    EntityInputBean masterEntity = entityBatch.get(existingIndex);
-                    masterEntity.merge(entityInputBean);
-                } else {
-                    entityBatch.add(entityInputBean);
-                }
-                writeTags(entityInputBean);
-            }
-
-            if (clientConfiguration.getBatchSize() > 0 && (flush || entityBatch.size() >= clientConfiguration.getBatchSize())) {
-
-                if (entityBatch.size() > 0) {
-                    logger.debug("Writing....");
-                    fdIoInterface.writeEntities(entityBatch);
-                    logger.debug("Wrote Batch [{}]", entityBatch.size());
-                }
-                entityBatch = new ArrayList<>();
-                tagBatch = new HashMap<>();
-            }
-
-        } finally {
-            entityLock.unlock();
+        if (entityInputBean.getFortress() == null) {
+          throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via a content model with the fortressName attribute.");
         }
 
-    }
-
-    private boolean validDocumentType(EntityInputBean entityInputBean) {
-        return !(entityInputBean.getDocumentType() == null || entityInputBean.getDocumentType().getName().equals(""));
-
-    }
-
-    /**
-     * determines if an entity already being tracked can be considered to be merged with
-     *
-     * @param entityInputBean incoming entity
-     * @return index of an existing EIB or -1 if it should be ignored
-     */
-    private int getExistingIndex(EntityInputBean entityInputBean) {
-        int existingIndex = -1;
-        if (entityInputBean.getCode() != null || entityInputBean.getKey() != null) {
-            existingIndex = entityBatch.indexOf(entityInputBean);
+        if (!validDocumentType(entityInputBean)) {
+          throw new FlockException("Unable to resolve the document type name that defines this entity. Add this via a content model with the documentName attribute.");
         }
-        return existingIndex;
+
+        int existingIndex = getExistingIndex(entityInputBean);
+
+        if (existingIndex > -1) {  // Additive behaviour - merge tags in this entity into one we already know about
+          EntityInputBean masterEntity = entityBatch.get(existingIndex);
+          masterEntity.merge(entityInputBean);
+        } else {
+          entityBatch.add(entityInputBean);
+        }
+        writeTags(entityInputBean);
+      }
+
+      if (clientConfiguration.batchSize() > 0 &&
+          (flush || entityBatch.size() >= clientConfiguration.batchSize())) {
+
+        if (entityBatch.size() > 0) {
+          logger.debug("Writing....");
+          fdIoInterface.writeEntities(entityBatch);
+          logger.debug("Wrote Batch [{}]", entityBatch.size());
+        }
+        entityBatch = new ArrayList<>();
+        tagBatch = new HashMap<>();
+      }
+
+    } finally {
+      entityLock.unlock();
     }
 
-    private void writeTags(Collection<TagInputBean> tagInputBeans, boolean forceFlush) throws FlockException {
-        if (tagInputBeans == null) {
+  }
+
+  private boolean validDocumentType(EntityInputBean entityInputBean) {
+    return !(entityInputBean.getDocumentType() == null || entityInputBean.getDocumentType().getName().equals(""));
+
+  }
+
+  /**
+   * determines if an entity already being tracked can be considered to be merged with
+   *
+   * @param entityInputBean incoming entity
+   * @return index of an existing EIB or -1 if it should be ignored
+   */
+  private int getExistingIndex(EntityInputBean entityInputBean) {
+    int existingIndex = -1;
+    if (entityInputBean.getCode() != null || entityInputBean.getKey() != null) {
+      existingIndex = entityBatch.indexOf(entityInputBean);
+    }
+    return existingIndex;
+  }
+
+  private void writeTags(Collection<TagInputBean> tagInputBeans, boolean forceFlush) throws FlockException {
+    if (tagInputBeans == null) {
+      return;
+    }
+    try {
+      tagLock.lock();
+      for (TagInputBean tagInputBean : tagInputBeans) {
+
+        if (tagInputBean != null) {
+          if (tagInputBean.getCode() == null || tagInputBean.getCode().equals("")) {
+            logger.error("Attempting to create a tag without a code value. Code is a required field []" + tagInputBean);
             return;
+          }
+
+          tagBatch.put(getTagKey(tagInputBean), tagInputBean);
         }
-        try {
-            tagLock.lock();
-            for (TagInputBean tagInputBean : tagInputBeans) {
 
-                if (tagInputBean != null) {
-                    if (tagInputBean.getCode() == null || tagInputBean.getCode().equals("")) {
-                        logger.error("Attempting to create a tag without a code value. Code is a required field []" + tagInputBean);
-                        return;
-                    }
-
-                    tagBatch.put(getTagKey(tagInputBean), tagInputBean);
-                }
-
-                if (tagBatch.size() > 0) {
-                    if (forceFlush || tagBatch.size() >= clientConfiguration.getBatchSize()) {
-                        logger.debug("Writing Tag Batch [{}]", tagBatch.size());
-                        if (tagBatch.size() > 0) {
-                            fdIoInterface.writeTags(new ArrayList<>(tagBatch.values()));
-                        }
-                        logger.debug("Wrote Tag Batch");
-                        tagBatch = new HashMap<>();
-                    }
-                }
+        if (tagBatch.size() > 0) {
+          if (forceFlush || tagBatch.size() >= clientConfiguration.batchSize()) {
+            logger.debug("Writing Tag Batch [{}]", tagBatch.size());
+            if (tagBatch.size() > 0) {
+              fdIoInterface.writeTags(new ArrayList<>(tagBatch.values()));
             }
-
-        } finally {
-            tagLock.unlock();
+            logger.debug("Wrote Tag Batch");
+            tagBatch = new HashMap<>();
+          }
         }
+      }
 
+    } finally {
+      tagLock.unlock();
     }
 
-    public String getApiKey() {
-        return clientConfiguration.getApiKey();
+  }
+
+  public String getApiKey() {
+    return clientConfiguration.apiKey();
+  }
+
+  private void writeTags(EntityInputBean entityInputBeans) {
+
+    for (TagInputBean tag : entityInputBeans.getTags()) {
+      String tagKey = getTagKey(tag);
+      TagInputBean cachedTag = tagBatch.get(tagKey);
+      if (cachedTag == null) {
+        tagBatch.put(tagKey, tag);
+      } else {
+        cachedTag.mergeTags(tag);
+      }
     }
+  }
 
-    @SuppressWarnings("unused")
-    public Collection<String> getFilesToImport() {
-        return clientConfiguration.getFilesToImport();
-    }
+  private String getTagKey(TagInputBean tag) {
+    return (tag.getKeyPrefix() != null ? tag.getKeyPrefix() + "-" : "") + tag.getCode() + "-" + tag.getLabel();
+  }
 
-    private void writeTags(EntityInputBean entityInputBeans) {
-
-        for (TagInputBean tag : entityInputBeans.getTags()) {
-            String tagKey = getTagKey(tag);
-            TagInputBean cachedTag = tagBatch.get(tagKey);
-            if (cachedTag == null) {
-                tagBatch.put(tagKey, tag);
-            } else {
-                cachedTag.mergeTags(tag);
-            }
+  @Override
+  public void flush() {
+    try {
+      entityLock.lock();
+      try {
+        writeTags(null, true);
+        if (entityBatch.size() > 0) {
+          fdIoInterface.writeEntities(entityBatch);
         }
-    }
-
-    private String getTagKey(TagInputBean tag) {
-        return (tag.getKeyPrefix() != null ? tag.getKeyPrefix() + "-" : "") + tag.getCode() + "-" + tag.getLabel();
-    }
-
-    @Override
-    public void flush() {
-        try {
-            entityLock.lock();
-            try {
-                writeTags(null, true);
-                if (entityBatch.size() > 0) {
-                    fdIoInterface.writeEntities(entityBatch);
-                }
-                entityBatch.clear();
-            } catch (FlockException e) {
-                logger.error(e.getMessage());
-                throw new RuntimeException(e);
-            }
-            reset();
-
-        } finally {
-            entityLock.unlock();
-        }
-
-    }
-
-    @Override
-    public void reset() {
         entityBatch.clear();
-        tagBatch.clear();
+      } catch (FlockException e) {
+        logger.error(e.getMessage());
+        throw new RuntimeException(e);
+      }
+      reset();
+
+    } finally {
+      entityLock.unlock();
     }
 
-    @Override
-    public List<EntityInputBean> getEntities() {
-        return entityBatch;
-    }
+  }
 
-    @Override
-    public List<TagInputBean> getTags() {
-        return new ArrayList<>(tagBatch.values());
-    }
+  @Override
+  public void reset() {
+    entityBatch.clear();
+    tagBatch.clear();
+  }
 
-    @Override
-    public SystemUserResultBean validateConnectivity() throws FlockException {
-        return fdIoInterface.validateConnectivity();
-    }
+  @Override
+  public List<EntityInputBean> getEntities() {
+    return entityBatch;
+  }
+
+  @Override
+  public List<TagInputBean> getTags() {
+    return new ArrayList<>(tagBatch.values());
+  }
+
+  @Override
+  public SystemUserResultBean validateConnectivity() throws FlockException {
+    return fdIoInterface.validateConnectivity();
+  }
 
 }

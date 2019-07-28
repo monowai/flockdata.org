@@ -26,52 +26,52 @@ import org.flockdata.transform.ColumnDefinition;
  * @since 14/04/2016
  */
 public class ColumnValidationResult {
-    private String sourceColumn;
-    private ColumnDefinition column;
-    private Collection<String> messages;
-    private String expression;
+  private String sourceColumn;
+  private ColumnDefinition column;
+  private Collection<String> messages;
+  private String expression;
 
-    public ColumnValidationResult() {
+  public ColumnValidationResult() {
 
-    }
+  }
 
-    public ColumnValidationResult(String sourceColumn, ColumnDefinition column, Collection<String> messages) {
-        this();
-        this.sourceColumn = sourceColumn;
-        this.column = column;
-        this.messages = messages;
-    }
+  public ColumnValidationResult(String sourceColumn, ColumnDefinition column, Collection<String> messages) {
+    this();
+    this.sourceColumn = sourceColumn;
+    this.column = column;
+    this.messages = messages;
+  }
 
-    public ColumnDefinition getColumn() {
-        return column;
-    }
+  public ColumnDefinition getColumn() {
+    return column;
+  }
 
 
-    public void setMessage(Collection<String> messages) {
-        this.messages = messages;
-    }
+  public void setMessage(Collection<String> messages) {
+    this.messages = messages;
+  }
 
-    public String getSourceColumn() {
-        return sourceColumn;
-    }
+  public String getSourceColumn() {
+    return sourceColumn;
+  }
 
-    public Collection<String> getMessages() {
-        return messages;
-    }
+  public Collection<String> getMessages() {
+    return messages;
+  }
 
-    @Override
-    public String toString() {
-        return "ContentValidationResult{" +
-            "sourceColumn=" + sourceColumn +
-            '}';
-    }
+  @Override
+  public String toString() {
+    return "ContentValidationResult{" +
+        "sourceColumn=" + sourceColumn +
+        '}';
+  }
 
-    public String getExpression() {
-        return expression;
-    }
+  public String getExpression() {
+    return expression;
+  }
 
-    public ColumnValidationResult setExpression(String expression) {
-        this.expression = expression;
-        return this;
-    }
+  public ColumnValidationResult setExpression(String expression) {
+    this.expression = expression;
+    return this;
+  }
 }

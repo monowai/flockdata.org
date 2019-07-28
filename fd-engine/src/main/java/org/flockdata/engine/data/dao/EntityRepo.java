@@ -34,65 +34,65 @@ import org.springframework.data.neo4j.repository.GraphRepository;
  */
 public interface EntityRepo extends GraphRepository<EntityNode> {
 
-    @Query(elementClass = EntityNode.class, value = "   MATCH tx-[:AFFECTED]->change<-[:LOGGED]-(entity:Entity) where id(tx)= {0}" +
-        "return entity")
-    Set<EntityNode> findEntitiesByTxRef(Long txRef);
+  @Query(elementClass = EntityNode.class, value = "   MATCH tx-[:AFFECTED]->change<-[:LOGGED]-(entity:Entity) where id(tx)= {0}" +
+      "return entity")
+  Set<EntityNode> findEntitiesByTxRef(Long txRef);
 
-    @Query(elementClass = EntityNode.class, value = " match (fortress:Fortress)-[:DEFINES]-(segment:FortressSegment)-[:TRACKS]->(entity:Entity) " +
-        " where id(fortress)={0} and id(entity) > {1}" +
-        " return entity ORDER BY id(entity) ASC" +
-        " limit 100 ")
-    Set<Entity> findEntities(Long fortressId, Long lastEntity);
+  @Query(elementClass = EntityNode.class, value = " match (fortress:Fortress)-[:DEFINES]-(segment:FortressSegment)-[:TRACKS]->(entity:Entity) " +
+      " where id(fortress)={0} and id(entity) > {1}" +
+      " return entity ORDER BY id(entity) ASC" +
+      " limit 100 ")
+  Set<Entity> findEntities(Long fortressId, Long lastEntity);
 
-    @Query(value = " match (fortress:Fortress)-[:DEFINES]-(FortressSegment)-[:TRACKS]->(track:Entity) " +
-        " where id(fortress)={0} " +
-        " return track.key " +
-        " limit {1} ")
-    Collection<String> findEntitiesWithLimit(Long id, int limit);
+  @Query(value = " match (fortress:Fortress)-[:DEFINES]-(FortressSegment)-[:TRACKS]->(track:Entity) " +
+      " where id(fortress)={0} " +
+      " return track.key " +
+      " limit {1} ")
+  Collection<String> findEntitiesWithLimit(Long id, int limit);
 
-    @Query(value = " match (fortress:Fortress)-[:DEFINES]-(fs:FortressSegment)-[:TRACKS]->(track:Entity) " +
-        " where id(fortress)={0} and id(fs)={1}" +
-        " return track.key " +
-        " limit {2} ")
-    Collection<String> findEntitiesWithLimit(Long id, Long segmentId, int limit);
+  @Query(value = " match (fortress:Fortress)-[:DEFINES]-(fs:FortressSegment)-[:TRACKS]->(track:Entity) " +
+      " where id(fortress)={0} and id(fs)={1}" +
+      " return track.key " +
+      " limit {2} ")
+  Collection<String> findEntitiesWithLimit(Long id, Long segmentId, int limit);
 
-    @Query(elementClass = EntityNode.class, value =
-        " match (fortress:Fortress) where id(fortress) = {0} " +
-            "match (entity:Entity) where entity.code ={1} " +
-            "with fortress,entity " +
-            "match p=shortestpath ((entity)<-[*1..2]-(fortress)) " +
-            "return entity")
-    Collection<Entity> findByCode(Long fortressId, String code);
+  @Query(elementClass = EntityNode.class, value =
+      " match (fortress:Fortress) where id(fortress) = {0} " +
+          "match (entity:Entity) where entity.code ={1} " +
+          "with fortress,entity " +
+          "match p=shortestpath ((entity)<-[*1..2]-(fortress)) " +
+          "return entity")
+  Collection<Entity> findByCode(Long fortressId, String code);
 
-    @Query(elementClass = EntityNode.class, value = "match  (entities:Entity) " +
-        " where  entities.key in {1}  " +
-        "return entities ")
-    Collection<EntityNode> findEntities(Long id, Collection<String> toFind);
+  @Query(elementClass = EntityNode.class, value = "match  (entities:Entity) " +
+      " where  entities.key in {1}  " +
+      "return entities ")
+  Collection<EntityNode> findEntities(Long id, Collection<String> toFind);
 
-    @Query(value = "match (meta:Entity)-[other]-(:FortressUser) where meta.key in{0} delete other")
-    void purgePeopleRelationships(Collection<String> entities);
+  @Query(value = "match (meta:Entity)-[other]-(:FortressUser) where meta.key in{0} delete other")
+  void purgePeopleRelationships(Collection<String> entities);
 
-    @Query(value = "match (meta:Entity)-[otherRlx]-(:Entity) where meta.key in {0} delete otherRlx")
-    void purgeEntityLinks(Collection<String> entities);
+  @Query(value = "match (meta:Entity)-[otherRlx]-(:Entity) where meta.key in {0} delete otherRlx")
+  void purgeEntityLinks(Collection<String> entities);
 
-    @Query(value = "match (f:FortressSegment)-[track:TRACKS]-(entity:Entity) where entity.key in {0} delete track, entity")
-    void purgeEntities(Collection<String> entities);
+  @Query(value = "match (f:FortressSegment)-[track:TRACKS]-(entity:Entity) where entity.key in {0} delete track, entity")
+  void purgeEntities(Collection<String> entities);
 
-    @Query(elementClass = EntityNode.class, value = "match (entity:Entity) " +
-        " where id(entity)in {0} " +
-        "return entity ")
-    Collection<EntityNode> getEntities(Collection<Long> entities);
+  @Query(elementClass = EntityNode.class, value = "match (entity:Entity) " +
+      " where id(entity)in {0} " +
+      "return entity ")
+  Collection<EntityNode> getEntities(Collection<Long> entities);
 
-    @Query(value = "match (child:Entity)<-[p:parent]-(parent:Entity) where id(child) = {0} return parent")
-    EntityNode findParent(Long childId);
+  @Query(value = "match (child:Entity)<-[p:parent]-(parent:Entity) where id(child) = {0} return parent")
+  EntityNode findParent(Long childId);
 
-    @Query(value = "match (child:Entity)<-[p]-(parent:Entity) where id(child) = {0} return parent")
-    Collection<EntityNode> findInboundEntities(Long id);
+  @Query(value = "match (child:Entity)<-[p]-(parent:Entity) where id(child) = {0} return parent")
+  Collection<EntityNode> findInboundEntities(Long id);
 
-    @Query(value = "match (entity:Entity {extKey:{0}}) return entity")
-    EntityNode findByExtKey(String extKey);
+  @Query(value = "match (entity:Entity {extKey:{0}}) return entity")
+  EntityNode findByExtKey(String extKey);
 
-    @Query(value = "match (entity:Entity {key:{0}}) return entity")
-    EntityNode findByKey(String key);
+  @Query(value = "match (entity:Entity {key:{0}}) return entity")
+  EntityNode findByKey(String key);
 
 }

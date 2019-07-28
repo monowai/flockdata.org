@@ -29,14 +29,14 @@ import org.junit.Test;
  */
 public class TestEntityKeyBean {
 
-    @Test
-    public void nullCompanyIssues() throws Exception {
-        EntityKeyBean ekb = new EntityKeyBean("docTypeName", "fortress", "code");
-        String json = JsonUtils.toJson(ekb);
-        assertNotNull(json);
-        EntityKeyBean otherBean = JsonUtils.toObject(json.getBytes(), EntityKeyBean.class);
-        TestCase.assertEquals(ekb.getCode(), otherBean.getCode());
-        TestCase.assertEquals(ekb.getFortressName(), otherBean.getFortressName());
-        TestCase.assertEquals(ekb.getDocumentType(), otherBean.getDocumentType());
-    }
+  @Test
+  public void nullCompanyIssues() throws Exception {
+    EntityKeyBean ekb = new EntityKeyBean("docTypeName", "fortress", "code");
+    String json = JsonUtils.toJson(ekb);
+    assertNotNull(json);
+    EntityKeyBean otherBean = JsonUtils.toObject(json.getBytes(), EntityKeyBean.class);
+    TestCase.assertEquals(ekb.getCode(), otherBean.getCode());
+    TestCase.assertEquals(ekb.getFortressName(), otherBean.getFortressName());
+    TestCase.assertEquals(ekb.getDocumentType(), otherBean.getDocumentType());
+  }
 }

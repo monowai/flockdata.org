@@ -32,7 +32,6 @@ import org.flockdata.engine.data.graph.FortressNode;
 import org.flockdata.engine.tag.service.TagService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.integration.ClientConfiguration;
 import org.flockdata.integration.FileProcessor;
 import org.flockdata.model.ContentValidationRequest;
 import org.flockdata.registration.FortressInputBean;
@@ -52,110 +51,108 @@ import org.springframework.stereotype.Service;
 @Service
 class BatchServiceRunner implements BatchService {
 
-    private final
-    FortressService fortressService;
+  private final
+  FortressService fortressService;
 
-    private final
-    ConceptService conceptService;
+  private final
+  ConceptService conceptService;
 
-    private final
-    ContentModelService profileService;
+  private final
+  ContentModelService profileService;
 
-    private final
-    FileProcessor fileProcessor;
+  private final
+  FileProcessor fileProcessor;
 
-    private final
-    TagService tagService;
+  private final
+  TagService tagService;
 
-    @Autowired
-    public BatchServiceRunner(ContentModelService profileService, ConceptService conceptService, TagService tagService, FortressService fortressService, FileProcessor fileProcessor) {
-        this.profileService = profileService;
-        this.conceptService = conceptService;
-        this.tagService = tagService;
-        this.fortressService = fortressService;
-        this.fileProcessor = fileProcessor;
+  @Autowired
+  public BatchServiceRunner(ContentModelService profileService, ConceptService conceptService, TagService tagService, FortressService fortressService, FileProcessor fileProcessor) {
+    this.profileService = profileService;
+    this.conceptService = conceptService;
+    this.tagService = tagService;
+    this.fortressService = fortressService;
+    this.fileProcessor = fileProcessor;
+  }
+
+  /**
+   * Does not validate the arguments.
+   */
+  @Override
+  @Async("fd-track")
+  public void processAsync(CompanyNode company, String fortressCode, String documentCode, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException {
+    process(company, fortressCode, documentCode, file, true);
+  }
+
+  @Override
+  public void process(CompanyNode company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+    FortressNode fortress = fortressService.findByCode(company, fortressCode);
+    DocumentNode documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
+    if (documentType == null) {
+      throw new NotFoundException("Unable to resolve document type ");
+    }
+    process(company, fortress, documentType, file, async);
+  }
+
+  public int process(Company company, FortressNode fortress, Document documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
+    ContentModel profile = profileService.get(company, fortress, documentType);
+    // Users PUT params override those of the contentProfile
+    if (!profile.getFortress().getName().equalsIgnoreCase(fortress.getName())) {
+      profile.setFortress(new FortressInputBean(fortress.getName(), !fortress.isSearchEnabled()));
+    }
+    if (!profile.getDocumentType().getName().equalsIgnoreCase(documentType.getName())) {
+      profile.setDocumentName(documentType.getName());
+    }
+    FileProcessor.validateArgs(file);
+    return fileProcessor.processFile(new ExtractProfileHandler(profile), file);
+  }
+
+  @Override
+  public void validateArguments(CompanyNode company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException {
+    if (!FileProcessor.validateArgs(fileName)) {
+      throw new NotFoundException("Unable to process filename " + fileName);
+    }
+    FortressNode fortress = fortressService.findByCode(company, fortressCode);
+    if (fortress == null) {
+      throw new NotFoundException("Unable to locate the fortress " + fortressCode);
+    }
+    DocumentNode documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
+    if (documentType == null) {
+      throw new NotFoundException("Unable to resolve document type " + documentCode);
     }
 
-    /**
-     * Does not validate the arguments.
-     */
-    @Override
-    @Async("fd-track")
-    public void processAsync(CompanyNode company, String fortressCode, String documentCode, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException {
-        process(company, fortressCode, documentCode, file, true);
+
+  }
+
+  @Override
+  public ContentValidationRequest process(CompanyNode company, ContentValidationRequest validationRequest) {
+    if (validationRequest.getContentModel().isTagModel()) {
+      return trackTags(company, validationRequest);
     }
 
-    @Override
-    public void process(CompanyNode company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
-        FortressNode fortress = fortressService.findByCode(company, fortressCode);
-        DocumentNode documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
-        if (documentType == null) {
-            throw new NotFoundException("Unable to resolve document type ");
+    return null;
+  }
+
+  private ContentValidationRequest trackTags(CompanyNode company, ContentValidationRequest validationRequest) {
+    int rowCount = 0;
+    TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(validationRequest.getContentModel());
+    for (Map<String, Object> row : validationRequest.getRows()) {
+      try {
+        tagTransformer.transform(row);
+        Collection<FdTagResultBean> tagResultBeans = tagService.createTags(company, tagTransformer.getTags());
+        for (TagResultBean result : tagResultBeans) {
+          if (result.isNewTag()) {
+            validationRequest.addResult(rowCount, "Previously Unknown");
+          } else {
+            validationRequest.addResult(rowCount, "Known");
+          }
         }
-        process(company, fortress, documentType, file, async);
+      } catch (FlockException e) {
+        validationRequest.addResult(rowCount, e.getMessage());
+        // log an error
+      }
+      rowCount++;
     }
-
-    public int process(Company company, FortressNode fortress, Document documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
-        ContentModel profile = profileService.get(company, fortress, documentType);
-        // Users PUT params override those of the contentProfile
-        if (!profile.getFortress().getName().equalsIgnoreCase(fortress.getName())) {
-            profile.setFortress(new FortressInputBean(fortress.getName(), !fortress.isSearchEnabled()));
-        }
-        if (!profile.getDocumentType().getName().equalsIgnoreCase(documentType.getName())) {
-            profile.setDocumentName(documentType.getName());
-        }
-        FileProcessor.validateArgs(file);
-        ClientConfiguration defaults = new ClientConfiguration();
-        defaults.setBatchSize(1);
-        return fileProcessor.processFile(new ExtractProfileHandler(profile), file);
-    }
-
-    @Override
-    public void validateArguments(CompanyNode company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException {
-        if (!FileProcessor.validateArgs(fileName)) {
-            throw new NotFoundException("Unable to process filename " + fileName);
-        }
-        FortressNode fortress = fortressService.findByCode(company, fortressCode);
-        if (fortress == null) {
-            throw new NotFoundException("Unable to locate the fortress " + fortressCode);
-        }
-        DocumentNode documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
-        if (documentType == null) {
-            throw new NotFoundException("Unable to resolve document type " + documentCode);
-        }
-
-
-    }
-
-    @Override
-    public ContentValidationRequest process(CompanyNode company, ContentValidationRequest validationRequest) {
-        if (validationRequest.getContentModel().isTagModel()) {
-            return trackTags(company, validationRequest);
-        }
-
-        return null;
-    }
-
-    private ContentValidationRequest trackTags(CompanyNode company, ContentValidationRequest validationRequest) {
-        int rowCount = 0;
-        TagPayloadTransformer tagTransformer = TagPayloadTransformer.newInstance(validationRequest.getContentModel());
-        for (Map<String, Object> row : validationRequest.getRows()) {
-            try {
-                tagTransformer.transform(row);
-                Collection<FdTagResultBean> tagResultBeans = tagService.createTags(company, tagTransformer.getTags());
-                for (TagResultBean result : tagResultBeans) {
-                    if (result.isNewTag()) {
-                        validationRequest.addResult(rowCount, "Previously Unknown");
-                    } else {
-                        validationRequest.addResult(rowCount, "Known");
-                    }
-                }
-            } catch (FlockException e) {
-                validationRequest.addResult(rowCount, e.getMessage());
-                // log an error
-            }
-            rowCount++;
-        }
-        return validationRequest;
-    }
+    return validationRequest;
+  }
 }

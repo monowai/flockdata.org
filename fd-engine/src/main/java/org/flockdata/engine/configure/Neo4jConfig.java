@@ -48,56 +48,56 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Profile( {"fd-server"})
 public class Neo4jConfig extends Neo4jConfiguration {
 
-    private Logger logger = LoggerFactory.getLogger("configuration");
-    private String configFile;
-    private String dbPath;
+  private Logger logger = LoggerFactory.getLogger("configuration");
+  private String configFile;
+  private String dbPath;
 
 
-    @Bean
-    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.server.webserver.port:7474}") Integer port,
-                                                     @Value("${org.neo4j.server.webserver.address:disable}") String address,
-                                                     @Value("${org.neo4j.auth:true}") Boolean enableSecurity,
-                                                     @Value("${org.neo4j.dbms.pagecache.memory:@null}") String pageCache,
-                                                     @Value("${org.neo4j.path:.}") String props,
-                                                     @Value("${org.neo4j.server.database.location:data/neo4j}") String dbPath) {
-        try {
-            configFile = props + "/neo4j.properties";
-            logger.info("**** Neo4j configuration deploying from path [{}]", configFile);
-            logger.info("**** Neo4j datafiles will be written to [{}]", dbPath);
+  @Bean
+  public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.server.webserver.port:7474}") Integer port,
+                                                   @Value("${org.neo4j.server.webserver.address:disable}") String address,
+                                                   @Value("${org.neo4j.auth:true}") Boolean enableSecurity,
+                                                   @Value("${org.neo4j.dbms.pagecache.memory:@null}") String pageCache,
+                                                   @Value("${org.neo4j.path:.}") String props,
+                                                   @Value("${org.neo4j.server.database.location:data/neo4j}") String dbPath) {
+    try {
+      configFile = props + "/neo4j.properties";
+      logger.info("**** Neo4j configuration deploying from path [{}]", configFile);
+      logger.info("**** Neo4j datafiles will be written to [{}]", dbPath);
 
-            this.dbPath = dbPath;
-            setBasePackage("org.flockdata.engine.data.graph");
-            if (pageCache != null && pageCache.equals("@null")) {
-                pageCache = null;
-            }
-            GraphDatabaseBuilder graphdbBuilder = new GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder(dbPath)
-                .loadPropertiesFromFile(configFile);
+      this.dbPath = dbPath;
+      setBasePackage("org.flockdata.engine.data.graph");
+      if (pageCache != null && pageCache.equals("@null")) {
+        pageCache = null;
+      }
+      GraphDatabaseBuilder graphdbBuilder = new GraphDatabaseFactory()
+          .newEmbeddedDatabaseBuilder(dbPath)
+          .loadPropertiesFromFile(configFile);
 
-            if (pageCache != null) {
-                graphdbBuilder.setConfig("dbms.pagecache.memory", pageCache);
-            }
+      if (pageCache != null) {
+        graphdbBuilder.setConfig("dbms.pagecache.memory", pageCache);
+      }
 
-            GraphDatabaseAPI graphdb = (GraphDatabaseAPI) graphdbBuilder
-                .newGraphDatabase();
-            if (port > 0) {
-                logger.info("**** Neo4j browser enabled at url [{}] port [{}]", address, port);
-                ServerConfigurator config = new ServerConfigurator(graphdb);
-                config.configuration().setProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, port);
-                if (!address.equals("disable")) {
-                    config.configuration().setProperty(Configurator.WEBSERVER_ADDRESS_PROPERTY_KEY, address);
-                }
-                config.configuration().setProperty("dbms.security.auth_enabled", enableSecurity);
-                new WrappingCommunityNeoServer(graphdb, config).start();
-            } else {
-                logger.info("**** Disabling the neo4j browser ");
-            }
-            return graphdb;
-        } catch (Exception fileNotFoundException) {
-            logger.error("!!! Error initialising Neo4j from [" + configFile + "]. Path can be set via org.neo4j.path=");
-            throw fileNotFoundException;
+      GraphDatabaseAPI graphdb = (GraphDatabaseAPI) graphdbBuilder
+          .newGraphDatabase();
+      if (port > 0) {
+        logger.info("**** Neo4j browser enabled at url [{}] port [{}]", address, port);
+        ServerConfigurator config = new ServerConfigurator(graphdb);
+        config.configuration().setProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, port);
+        if (!address.equals("disable")) {
+          config.configuration().setProperty(Configurator.WEBSERVER_ADDRESS_PROPERTY_KEY, address);
         }
+        config.configuration().setProperty("dbms.security.auth_enabled", enableSecurity);
+        new WrappingCommunityNeoServer(graphdb, config).start();
+      } else {
+        logger.info("**** Disabling the neo4j browser ");
+      }
+      return graphdb;
+    } catch (Exception fileNotFoundException) {
+      logger.error("!!! Error initialising Neo4j from [" + configFile + "]. Path can be set via org.neo4j.path=");
+      throw fileNotFoundException;
     }
+  }
 
 
 }

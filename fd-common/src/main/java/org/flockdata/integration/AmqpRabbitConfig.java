@@ -44,135 +44,134 @@ import org.springframework.integration.annotation.IntegrationComponentScan;
 @IntegrationComponentScan
 public class AmqpRabbitConfig {
 
-    @Value("${org.fd.messaging.exchange:fd-dlx}")
-    public String fdExchangeDlxName;
-    private Logger logger = LoggerFactory.getLogger("configuration");
-    @Value("${spring.rabbitmq.host:localhost}")
-    private String rabbitHost;
-    @Value("${spring.rabbitmq.virtual-host:/}")
-    private String virtualHost;
-    @Value("${spring.rabbitmq.port:5672}")
-    private Integer rabbitPort;
-    @Value("${spring.rabbitmq.persistentDelivery:true}")
-    private boolean persistentDelivery;
-    @Value("${spring.rabbitmq.username:guest}")
-    private String rabbitUser;
-    @Value("${spring.rabbitmq.password:guest}")
-    private String rabbitPass;
-    @Value("${spring.rabbitmq.publisher.confirms:false}")
-    private Boolean publisherConfirms;
-    @Value("${spring.rabbitmq.publisher.returns:false}")
-    private Boolean publisherReturns;
-    @Value("${spring.rabbitmq.publisherCacheSize:20}")
-    private Integer publisherCacheSize;
-    @Value("${amqp.lazyConnect:false}")
-    private Boolean amqpLazyConnect;
-    @Value("${amqp.channelCacheSize:25}")
-    private int channelCacheSize;
+  @Value("${org.fd.messaging.exchange:fd-dlx}")
+  public String fdExchangeDlxName;
+  private Logger logger = LoggerFactory.getLogger("configuration");
+  @Value("${spring.rabbitmq.host:localhost}")
+  private String rabbitHost;
+  @Value("${spring.rabbitmq.virtual-host:/}")
+  private String virtualHost;
+  @Value("${spring.rabbitmq.port:5672}")
+  private Integer rabbitPort;
+  @Value("${spring.rabbitmq.persistentDelivery:true}")
+  private boolean persistentDelivery;
+  @Value("${spring.rabbitmq.username:guest}")
+  private String rabbitUser;
+  @Value("${spring.rabbitmq.password:guest}")
+  private String rabbitPass;
+  @Value("${spring.rabbitmq.publisher.confirms:false}")
+  private Boolean publisherConfirms;
+  @Value("${spring.rabbitmq.publisher.returns:false}")
+  private Boolean publisherReturns;
+  @Value("${spring.rabbitmq.publisherCacheSize:20}")
+  private Integer publisherCacheSize;
+  @Value("${amqp.lazyConnect:false}")
+  private Boolean amqpLazyConnect;
+  @Value("${amqp.channelCacheSize:25}")
+  private int channelCacheSize;
 
-    /**
-     * failure to bind with consistent features can create new queues
-     *
-     * @return standard features used across FlockData work queues
-     */
-    public Map<String, Object> getFdQueueFeatures() {
-        Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", fdExchangeDlxName());
-        return params;
-    }
-
-
-    private ConnectionFactory setConnectionProperties(CachingConnectionFactory connectionFactory) {
-        logger.info("**** rabbitmq.host: [{}], rabbitmq.port [{}], rabbitmq.virtual-host [{}], rabbitmq.username [{}]", rabbitHost, rabbitPort, virtualHost, rabbitUser);
-
-        // First load or a refresh
-        connectionFactory.setHost(getHost());
-        connectionFactory.setPort(getPort());
-        connectionFactory.setUsername(getUser());
-        connectionFactory.setPassword(getPass());
-        connectionFactory.setPublisherConfirms(getPublisherConfirms());
-        connectionFactory.setPublisherReturns(getPublisherReturns());
-        connectionFactory.setChannelCacheSize(getChannelCacheSize());
-        connectionFactory.setVirtualHost(getVirtualHost());
-        return connectionFactory;
-    }
-
-    public Boolean getAmqpLazyConnect() {
-        return amqpLazyConnect;
-    }
-
-    public boolean getPersistentDelivery() {
-        return persistentDelivery;
-    }
-
-    public String getHost() {
-        return rabbitHost;
-    }
-
-    public Integer getPort() {
-        return rabbitPort;
-    }
-
-    public String getUser() {
-        return rabbitUser;
-    }
-
-    public String getPass() {
-        return rabbitPass;
-    }
-
-    private Boolean getPublisherConfirms() {
-        return publisherConfirms;
-    }
-
-    private Boolean getPublisherReturns() {
-        return publisherReturns;
-    }
-
-    private int getChannelCacheSize() {
-        return channelCacheSize;
-    }
-
-    public String getVirtualHost() {
-        return virtualHost;
-    }
-
-    // Supports docker-compose integration testing where the port is obtained and mapped dynamic
-    public void resetHost(String url, Integer rabbitPort) {
-        this.rabbitHost = url;
-        this.rabbitPort = rabbitPort;
-    }
-
-    @Bean
-    @Profile("fd-server")
-    RabbitTemplate rabbitTemplate(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory) throws Exception {
-        return new RabbitTemplate(connectionFactory);
-    }
-
-    @Bean
-    @Profile("fd-server")
-    public AmqpAdmin amqpAdmin(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory) throws Exception {
-        return new RabbitAdmin(connectionFactory);
-    }
-
-    @Bean
-    @Profile("fd-server")
-    ConnectionFactory connectionFactory() throws Exception {
-        logger.info("Initialising Rabbit connection factory");
-        return setConnectionProperties(new CachingConnectionFactory());
-    }
-
-    String fdExchangeDlxName() {
-        return fdExchangeDlxName;
-    }
+  /**
+   * failure to bind with consistent features can create new queues
+   *
+   * @return standard features used across FlockData work queues
+   */
+  public Map<String, Object> getFdQueueFeatures() {
+    Map<String, Object> params = new HashMap<>();
+    params.put("x-dead-letter-exchange", fdExchangeDlxName());
+    return params;
+  }
 
 
-    @PostConstruct
-    public String logStatus() {
-        String message = String.format("**** FlockData RabbitAMQP configuration deployed. \r\n" +
-                "spring.rabbitmq.host set to [%s:%s], spring.rabbitmq.user [%s]",
-            getHost(), getPort(), getUser());
-        logger.info(message);
-        return message;
-    }
+  private ConnectionFactory setConnectionProperties(CachingConnectionFactory connectionFactory) {
+    logger.info("**** rabbitmq.host: [{}], rabbitmq.port [{}], rabbitmq.virtual-host [{}], rabbitmq.username [{}]", rabbitHost, rabbitPort, virtualHost, rabbitUser);
+
+    // First load or a refresh
+    connectionFactory.setHost(getHost());
+    connectionFactory.setPort(getPort());
+    connectionFactory.setUsername(getUser());
+    connectionFactory.setPassword(getPass());
+    connectionFactory.setPublisherConfirms(getPublisherConfirms());
+    connectionFactory.setPublisherReturns(getPublisherReturns());
+    connectionFactory.setChannelCacheSize(getChannelCacheSize());
+    connectionFactory.setVirtualHost(getVirtualHost());
+    return connectionFactory;
+  }
+
+  public Boolean getAmqpLazyConnect() {
+    return amqpLazyConnect;
+  }
+
+  public boolean getPersistentDelivery() {
+    return persistentDelivery;
+  }
+
+  public String getHost() {
+    return rabbitHost;
+  }
+
+  public Integer getPort() {
+    return rabbitPort;
+  }
+
+  public String getUser() {
+    return rabbitUser;
+  }
+
+  public String getPass() {
+    return rabbitPass;
+  }
+
+  private Boolean getPublisherConfirms() {
+    return publisherConfirms;
+  }
+
+  private Boolean getPublisherReturns() {
+    return publisherReturns;
+  }
+
+  private int getChannelCacheSize() {
+    return channelCacheSize;
+  }
+
+  public String getVirtualHost() {
+    return virtualHost;
+  }
+
+  // Supports docker-compose integration testing where the port is obtained and mapped dynamic
+  public void resetHost(String url, Integer rabbitPort) {
+    this.rabbitHost = url;
+    this.rabbitPort = rabbitPort;
+  }
+
+  @Bean
+  @Profile("fd-server")
+  RabbitTemplate rabbitTemplate(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory) throws Exception {
+    return new RabbitTemplate(connectionFactory);
+  }
+
+  @Bean
+  @Profile("fd-server")
+  public AmqpAdmin amqpAdmin(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory) throws Exception {
+    return new RabbitAdmin(connectionFactory);
+  }
+
+  @Bean
+  @Profile("fd-server")
+  ConnectionFactory connectionFactory() throws Exception {
+    logger.info("Initialising Rabbit connection factory");
+    return setConnectionProperties(new CachingConnectionFactory());
+  }
+
+  String fdExchangeDlxName() {
+    return fdExchangeDlxName;
+  }
+
+
+  @PostConstruct
+  public String logStatus() {
+    String message = String.format("{spring.rabbitmq.host: \"%s:%s\", spring.rabbitmq.user: \"%s\"}",
+        getHost(), getPort(), getUser());
+    logger.info(message);
+    return message;
+  }
 }

@@ -1,13 +1,13 @@
 {
-    "documentName": "Athlete",
-    "fortress": "Olympic",
-    "fortressUser": "mike",
-    "emptyIgnored": true,
-    "content": {
-        "Title": {
-            "callerRef": true,
-            "title": true,
-            "tag": true
-        }
+  "documentName": "Athlete",
+  "fortress": "Olympic",
+  "fortressUser": "mike",
+  "emptyIgnored": true,
+  "content": {
+    "Title": {
+      "callerRef": true,
+      "title": true,
+      "tag": true
     }
+  }
 }

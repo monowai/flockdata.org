@@ -36,29 +36,29 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = {"version.properties", "git.properties"}, ignoreResourceNotFound = true)
 public class VersionHelper {
 
-    @Value("${git.build.version:na}")
-    String version;
-    @Value("${info.build.plan:na}")
-    String plan;
-    @Value("${git.commit.id.abbrev}")
-    String gitCommit;
-    @Value("${git.branch:na}")
-    String branch;
-    @Value("${git.commit.message.short}")
-    String commitMessage;
-    private Logger logger = LoggerFactory.getLogger("configuration");
+  @Value("${git.build.version:na}")
+  String version;
+  @Value("${info.build.plan:na}")
+  String plan;
+  @Value("${git.commit.id.abbrev}")
+  String gitCommit;
+  @Value("${git.branch:na}")
+  String branch;
+  @Value("${git.commit.message.short}")
+  String commitMessage;
+  private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @PostConstruct
-    public void logVersion() {
-        logger.info("**** " + getFdVersion());
-        logger.debug(commitMessage);
-    }
+  @PostConstruct
+  public void logVersion() {
+    logger.info("**** " + getFdVersion());
+    logger.debug(commitMessage);
+  }
 
-    public String getFdVersion() {
-        if (version.contains("SNAPSHOT")) {
-            return version + " (" + branch + "/" + gitCommit + ")";
-        } else {
-            return version + " (" + gitCommit + ")";
-        }
+  public String getFdVersion() {
+    if (version.contains("SNAPSHOT")) {
+      return version + " (" + branch + "/" + gitCommit + ")";
+    } else {
+      return version + " (" + gitCommit + ")";
     }
+  }
 }

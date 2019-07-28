@@ -71,35 +71,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class TestSqlEntityToFlockData extends AbstractTransactionalJUnit4SpringContextTests {
 
-    @Autowired
-    private JobLauncherTestUtils jobLauncherTestUtils;
+  @Autowired
+  private JobLauncherTestUtils jobLauncherTestUtils;
 
-    @Autowired
-    private ClientConfiguration clientConfiguration;
+  @Autowired
+  private ClientConfiguration clientConfiguration;
 
-    @Autowired
-    private Template fdTemplate;
+  @Autowired
+  private Template fdTemplate;
 
-    @Test
-    @Sql( {"/batch/sql/entity.sql", "/batch/sql/entity-data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
-    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = {"classpath:org/springframework/batch/core/schema-drop-hsqldb.sql"})
-    public void testDummy() throws Exception {
-        JobExecution jobExecution = jobLauncherTestUtils.launchJob();
-        assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());
-        assertTrue(clientConfiguration.getBatchSize() > 1);
-        // This check works because 2 is < the configured batch size
-        TestCase.assertEquals("Number of rows loaded ex entity-data.sql does not match", 2, fdTemplate.getEntities().size());
-        for (EntityInputBean entityInputBean : fdTemplate.getEntities()) {
-            assertNotNull(entityInputBean.getContent());
-            assertNotNull("Primary Key was not set via the content profile", entityInputBean.getCode());
-            assertNotNull(entityInputBean.getContent().getData().get("ID"));
-            assertNotNull(entityInputBean.getContent().getData().get("FIRSTNAME"));
-        }
+  @Test
+  @Sql( {"/batch/sql/entity.sql", "/batch/sql/entity-data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
+  @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = {"classpath:org/springframework/batch/core/schema-drop-hsqldb.sql"})
+  public void testDummy() throws Exception {
+    JobExecution jobExecution = jobLauncherTestUtils.launchJob();
+    assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());
+    assertTrue(clientConfiguration.batchSize() > 1);
+    // This check works because 2 is < the configured batch size
+    TestCase.assertEquals("Number of rows loaded ex entity-data.sql does not match", 2, fdTemplate.getEntities().size());
+    for (EntityInputBean entityInputBean : fdTemplate.getEntities()) {
+      assertNotNull(entityInputBean.getContent());
+      assertNotNull("Primary Key was not set via the content profile", entityInputBean.getCode());
+      assertNotNull(entityInputBean.getContent().getData().get("ID"));
+      assertNotNull(entityInputBean.getContent().getData().get("FIRSTNAME"));
     }
+  }
 
-    @Bean
-    public JobLauncherTestUtils getJobLauncherTestUtils() {
-        return new JobLauncherTestUtils();
-    }
+  @Bean
+  public JobLauncherTestUtils getJobLauncherTestUtils() {
+    return new JobLauncherTestUtils();
+  }
 
 }

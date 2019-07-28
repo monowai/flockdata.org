@@ -35,119 +35,119 @@ import org.flockdata.store.StoredContent;
 public class EntityLogResult {
 
 
-    private Long id;
-    private Store store;
-    private String entityKey;
-    private String contentType;
-    private String checkSum;
-    private String madeBy;
-    private String comment;
-    private Long when;
-    private ChangeEventResultBean event;
-    private Map<String, Object> data;
-    private boolean versioned;
-    private String checksum;
-    private Log log;
-    private boolean mocked = false;
+  private Long id;
+  private Store store;
+  private String entityKey;
+  private String contentType;
+  private String checkSum;
+  private String madeBy;
+  private String comment;
+  private Long when;
+  private ChangeEventResultBean event;
+  private Map<String, Object> data;
+  private boolean versioned;
+  private String checksum;
+  private Log log;
+  private boolean mocked = false;
 
-    EntityLogResult() {
+  EntityLogResult() {
+  }
+
+  public EntityLogResult(EntityLog entityLog) {
+    this();
+    this.log = entityLog.getLog();
+    this.mocked = log.isMocked();
+    this.checkSum = log.getChecksum();
+    this.id = entityLog.getId();
+    this.store = Store.valueOf(log.getStorage());
+    this.entityKey = entityLog.getEntity().getKey();
+    this.contentType = log.getContentType();
+    this.checkSum = log.getChecksum();
+    this.versioned = !log.isMocked();
+    this.event = new ChangeEventResultBean(log.getEvent());
+    if (log.getContent() != null) {
+      this.data = log.getContent().getData();
     }
-
-    public EntityLogResult(EntityLog entityLog) {
-        this();
-        this.log = entityLog.getLog();
-        this.mocked = log.isMocked();
-        this.checkSum = log.getChecksum();
-        this.id = entityLog.getId();
-        this.store = Store.valueOf(log.getStorage());
-        this.entityKey = entityLog.getEntity().getKey();
-        this.contentType = log.getContentType();
-        this.checkSum = log.getChecksum();
-        this.versioned = !log.isMocked();
-        this.event = new ChangeEventResultBean(log.getEvent());
-        if (log.getContent() != null) {
-            this.data = log.getContent().getData();
-        }
-        if (log.getMadeBy() != null) {
-            this.madeBy = log.getMadeBy().getCode();
-        }
-        this.comment = log.getComment();
-        this.when = entityLog.getFortressWhen();
-
+    if (log.getMadeBy() != null) {
+      this.madeBy = log.getMadeBy().getCode();
     }
+    this.comment = log.getComment();
+    this.when = entityLog.getFortressWhen();
 
-    public EntityLogResult(EntityLog log, StoredContent storedContent) {
-        this(log);
-        if (storedContent != null) {
-            this.data = storedContent.getData();
-        }
-    }
+  }
 
-    public Long getId() {
-        return id;
+  public EntityLogResult(EntityLog log, StoredContent storedContent) {
+    this(log);
+    if (storedContent != null) {
+      this.data = storedContent.getData();
     }
+  }
 
-    public Store getStore() {
-        return store;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    @Override
-    public String toString() {
-        return "LogRequest{" +
-            "store=" + store +
-            ", id=" + id +
-            ", entity=" + entityKey +
-            '}';
-    }
+  public Store getStore() {
+    return store;
+  }
 
-    public String getContentType() {
-        return contentType;
-    }
+  @Override
+  public String toString() {
+    return "LogRequest{" +
+        "store=" + store +
+        ", id=" + id +
+        ", entity=" + entityKey +
+        '}';
+  }
 
-    public String getMadeBy() {
-        return madeBy;
-    }
+  public String getContentType() {
+    return contentType;
+  }
+
+  public String getMadeBy() {
+    return madeBy;
+  }
 
 //    public String getEntityKey() {
 //        return entityKey;
 //    }
 
-    public String getComment() {
-        return comment;
-    }
+  public String getComment() {
+    return comment;
+  }
 
-    public Long getWhen() {
-        return when;
-    }
+  public Long getWhen() {
+    return when;
+  }
 
-    public ChangeEvent getEvent() {
-        return event;
-    }
+  public ChangeEvent getEvent() {
+    return event;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, Object> getData() {
-        return data;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Map<String, Object> getData() {
+    return data;
+  }
 
-    public boolean isVersioned() {
-        return versioned;
-    }
+  public boolean isVersioned() {
+    return versioned;
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getChecksum() {
-        return checksum;
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getChecksum() {
+    return checksum;
+  }
 
-    @JsonIgnore
-    public Log getLog() {
-        return log;
-    }
+  @JsonIgnore
+  public Log getLog() {
+    return log;
+  }
 
-    public String getCheckSum() {
-        return checkSum;
-    }
+  public String getCheckSum() {
+    return checkSum;
+  }
 
-    public boolean isMocked() {
-        return mocked;
-    }
+  public boolean isMocked() {
+    return mocked;
+  }
 }

@@ -32,15 +32,15 @@ import org.flockdata.store.bean.StorageBean;
  * @since 6/09/2014
  */
 public interface StoreService {
-    String ping(Store store);
+  String ping(Store store);
 
-    StoredContent doRead(Store store, String index, String type, String id);
+  StoredContent doRead(Store store, String index, String type, String id);
 
-    //StoredContent doRead(LogRequest logRequest);
+  //StoredContent doRead(LogRequest logRequest);
 
-    void delete(Entity entity, Log change);
+  void delete(Entity entity, Log change);
 
-    void doWrite(StorageBean kvBean) throws FlockException;
+  void doWrite(StorageBean kvBean) throws FlockException;
 
 
 }

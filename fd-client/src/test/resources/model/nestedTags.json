@@ -1,53 +1,50 @@
 {
-    "documentName": "Sales",
-    "contentType": "csv",
-    "tagOrEntity": "entity",
-    "entityOnly": false,
-    "fortress": "Sales",
-    "fortressUser": "batch",
-    "header": true,
-    "content": {
-        "transaction_id": {
-            "callerRef": true
-        },
-        "zip": {
-            "tag": true,
-            "relationship": "lives",
-            "label": "ZipCode",
-            "targets": [
+  "documentName": "Sales",
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "entityOnly": false,
+  "fortress": "Sales",
+  "fortressUser": "batch",
+  "header": true,
+  "content": {
+    "transaction_id": {
+      "callerRef": true
+    },
+    "zip": {
+      "tag": true,
+      "relationship": "lives",
+      "label": "ZipCode",
+      "targets": [
+        {
+          "relationship": "located",
+          "code": "city",
+          "labelDescription": "city",
+          "label": "City",
+          "targets": [
+            {
+              "relationship": "city",
+              "code": "state",
+              "name": "stateName",
+              "label": "State",
+              "targets": [
                 {
-                    "relationship": "located",
-                    "code": "city",
-                    "labelDescription": "city",
-                    "label": "City",
-                    "targets": [
-                        {
-                            "relationship": "city",
-                            "code": "state",
-                            "name": "stateName",
-                            "label": "State",
-                            "targets": [
-                                {
-                                    "relationship": "state",
-                                    "code": "country",
-                                    "label": "Country",
-                                    "mustExist": true
-                                }
-                            ]
-
-                        }
-                    ]
+                  "relationship": "state",
+                  "code": "country",
+                  "label": "Country",
+                  "mustExist": true
                 }
-            ]
-        },
-
-        "name": {
-            "tag" :true,
-            "relationship":"blah",
-            "label": "Wow"
+              ]
+            }
+          ]
         }
+      ]
+    },
+    "name": {
+      "tag": true,
+      "relationship": "blah",
+      "label": "Wow"
     }
-
+  }
 }
 
 

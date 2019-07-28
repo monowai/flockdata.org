@@ -41,31 +41,31 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 public class Health {
 
-    private FdIoInterface fdIoInterface;
+  private FdIoInterface fdIoInterface;
 
-    @Autowired
-    public Health(FdIoInterface fdIoInterface) {
-        this.fdIoInterface = fdIoInterface;
-    }
+  @Autowired
+  public Health(FdIoInterface fdIoInterface) {
+    this.fdIoInterface = fdIoInterface;
+  }
 
-    public CommandResponse<Map<String, Object>> exec() {
-        String error = null;
-        Map<String, Object> result = new HashMap<>();
-        String exec = fdIoInterface.getUrl() + "/api/v1/admin/health/";
-        HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
-        try {
-            ResponseEntity<String> response;
-            response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
-            result = JsonUtils.toMap(response.getBody());
-        } catch (HttpClientErrorException e) {
-            if (e.getMessage().startsWith("401")) {
-                error = "auth";
-            } else {
-                error = e.getMessage();
-            }
-        } catch (HttpServerErrorException | ResourceAccessException | IOException e) {
-            error = e.getMessage();
-        }
-        return new CommandResponse<>(error, result);
+  public CommandResponse<Map<String, Object>> exec() {
+    String error = null;
+    Map<String, Object> result = new HashMap<>();
+    String exec = fdIoInterface.getUrl() + "/api/v1/admin/health/";
+    HttpEntity requestEntity = new HttpEntity<>(fdIoInterface.getHeaders());
+    try {
+      ResponseEntity<String> response;
+      response = fdIoInterface.getRestTemplate().exchange(exec, HttpMethod.GET, requestEntity, String.class);
+      result = JsonUtils.toMap(response.getBody());
+    } catch (HttpClientErrorException e) {
+      if (e.getMessage().startsWith("401")) {
+        error = "auth";
+      } else {
+        error = e.getMessage();
+      }
+    } catch (HttpServerErrorException | ResourceAccessException | IOException e) {
+      error = e.getMessage();
     }
+    return new CommandResponse<>(error, result);
+  }
 }

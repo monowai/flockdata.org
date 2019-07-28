@@ -33,25 +33,25 @@ import org.flockdata.helper.FlockException;
  * @since 25/03/2015
  */
 public interface EngineAdminService {
-    Future<Long> doReindex(Fortress fortress) throws FlockException;
+  Future<Long> doReindex(Fortress fortress) throws FlockException;
 
-    Future<Long> doReindex(Fortress fortress, String docType) throws FlockException;
+  Future<Long> doReindex(Fortress fortress, String docType) throws FlockException;
 
-    Future<Long> doReindex(Fortress fortress, Entity entity) throws FlockException;
+  Future<Long> doReindex(Fortress fortress, Entity entity) throws FlockException;
 
-    Future<Boolean> purge(Fortress fortress) throws FlockException;
+  Future<Boolean> purge(Fortress fortress) throws FlockException;
 
-    /**
-     * @param company      who owns the data
-     * @param fortress     fortress within the company
-     * @param documentType documents in the fortress
-     * @param segment      Optional segment. if null, all segments are deleted
-     * @return success
-     */
-    Future<Boolean> purge(Company company, Fortress fortress, Document documentType, String segment);
+  /**
+   * @param company      who owns the data
+   * @param fortress     fortress within the company
+   * @param documentType documents in the fortress
+   * @param segment      Optional segment. if null, all segments are deleted
+   * @return success
+   */
+  Future<Boolean> purge(Company company, Fortress fortress, Document documentType, String segment);
 
-    Future<Collection<String>> validateFromSearch(Company company, Fortress fortress, String docType) throws FlockException;
+  Future<Collection<String>> validateFromSearch(Company company, Fortress fortress, String docType) throws FlockException;
 
-    void doReindex(Entity entity) throws FlockException;
+  void doReindex(Entity entity) throws FlockException;
 
 }
