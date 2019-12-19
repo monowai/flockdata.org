@@ -10,7 +10,7 @@
 
     <artifactId>fd-graph</artifactId>
     <properties>
-        <neo4j.version>3.4.8</neo4j.version>
+        <neo4j.version>3.5.14</neo4j.version>
         <org.flockdata.client.version>0.98.9-SNAPSHOT</org.flockdata.client.version>
         <org.flockdata.common.version>0.98.11-SNAPSHOT</org.flockdata.common.version>
         <org.flockdata.security.version>0.98.11-SNAPSHOT</org.flockdata.security.version>
