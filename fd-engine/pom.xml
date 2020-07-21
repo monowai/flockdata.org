@@ -26,9 +26,9 @@
         <org.springsecurity.version>4.2.4.RELEASE</org.springsecurity.version>
         <!-- spring data-neo4j wants this specific version -->
         <org.springdata.neo4j>3.4.6.RELEASE</org.springdata.neo4j>
-        <springdata.commons>1.11.6.RELEASE</springdata.commons>
+        <springdata.commons>1.13.11.RELEASE</springdata.commons>
         <jetty.version>9.2.26.v20180806</jetty.version>
-        <neo4j.version>2.3.8</neo4j.version>
+        <neo4j.version>3.3.7</neo4j.version>
     </properties>
 
     <dependencies>
